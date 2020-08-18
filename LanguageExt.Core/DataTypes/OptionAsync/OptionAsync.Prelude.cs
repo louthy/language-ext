@@ -118,6 +118,17 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<T> SomeAsync<T>(Func<Unit, Task<T>> f) =>
             OptionAsync<T>.SomeAsync(f(default));
+        
+        /// <summary>
+        /// Create a lazy Some of T (OptionAsync<T>)
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="value">Non-null value to be made OptionAsyncal</param>
+        /// <returns>OptionAsync<T> in a Some state or throws ValueIsNullException
+        /// if isnull(value).</returns>
+        [Pure]
+        public static OptionAsync<T> SomeAsync<T>(Func<Task<T>> f) =>
+            OptionAsync<T>.SomeAsync(f());
 
         /// <summary>
         /// Create a Some of T from a Nullable<T> (OptionAsync<T>)
@@ -846,7 +857,7 @@ namespace LanguageExt
             var results = new List<R>();
             foreach (var item in Yield())
             {
-                foreach(var inner in await item)
+                foreach(var inner in await item.ConfigureAwait(false))
                 {
                     results.Add(inner);
                 }

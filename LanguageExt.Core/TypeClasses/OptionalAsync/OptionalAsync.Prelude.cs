@@ -40,7 +40,7 @@ namespace LanguageExt
         /// </summary>
         public static Task<Unit> ifSomeAsync<OPT, OA, A>(OA opt, Func<A, Task> f)
             where OPT : struct, OptionalAsync<OA, A> =>
-            default(OPT).MatchAsync(opt, async a => { await f(a); return unit; } , Optional.noneIgnoreF);
+            default(OPT).MatchAsync(opt, async a => { await f(a).ConfigureAwait(false); return unit; } , Optional.noneIgnoreF);
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 
@@ -106,7 +106,7 @@ namespace LanguageExt
         public static Task<R> matchAsync<OPT, OA, A, R>(OA ma, Func<A, Task<R>> SomeAsync, Func<R> None)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
-                SomeAsync: async x => await SomeAsync(x),
+                SomeAsync: async x => await SomeAsync(x).ConfigureAwait(false),
                 None: () => None());
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace LanguageExt
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
                 Some: x => Some(x),
-                NoneAsync: async () => await NoneAsync());
+                NoneAsync: async () => await NoneAsync().ConfigureAwait(false));
 
         /// <summary>
         /// Pattern match operation
@@ -134,8 +134,8 @@ namespace LanguageExt
         public static Task<R> matchAsync<OPT, OA, A, R>(OA ma, Func<A, Task<R>> SomeAsync, Func<Task<R>> NoneAsync)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
-                SomeAsync: async x => await SomeAsync(x),
-                NoneAsync: async () => await NoneAsync());
+                SomeAsync: async x => await SomeAsync(x).ConfigureAwait(false),
+                NoneAsync: async () => await NoneAsync().ConfigureAwait(false));
 
         /// <summary>
         /// Match operation with an untyped value for Some. This can be
@@ -164,7 +164,7 @@ namespace LanguageExt
         public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, Task<R>> SomeAsync, Func<R> None)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
-                SomeAsync: async x => await SomeAsync(x),
+                SomeAsync: async x => await SomeAsync(x).ConfigureAwait(false),
                 None: () => None());
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace LanguageExt
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
                 Some: x => Some(x),
-                NoneAsync: async () => await NoneAsync());
+                NoneAsync: async () => await NoneAsync().ConfigureAwait(false));
 
         /// <summary>
         /// Match operation with an untyped value for Some. This can be
@@ -194,8 +194,8 @@ namespace LanguageExt
         public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, Task<R>> SomeAsync, Func<Task<R>> NoneAsync)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
-                SomeAsync: async x => await SomeAsync(x),
-                NoneAsync: async () => await NoneAsync());
+                SomeAsync: async x => await SomeAsync(x).ConfigureAwait(false),
+                NoneAsync: async () => await NoneAsync().ConfigureAwait(false));
 
         /// <summary>
         /// Convert the Option to an enumerable of zero or one items

@@ -52,11 +52,11 @@ namespace LanguageExt.ClassInstances
         {
             try
             {
-                return await ma;
+                return await ma.ConfigureAwait(false);
             }
             catch
             {
-                return await mb;
+                return await mb.ConfigureAwait(false);
             }
         }
 

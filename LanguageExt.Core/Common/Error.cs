@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Net;
 using System.Runtime.Serialization;
 using static LanguageExt.Prelude;
@@ -52,21 +53,27 @@ namespace LanguageExt.Common
             private set => exception = value;
         }
 
+        [Pure]
         public static Error New(int code, string message, Option<Exception> exception) => 
             new Error(code, message, exception);
 
+        [Pure]
         public static Error New(Exception exception) =>
             new Error(exception.HResult, exception.Message, exception);
 
+        [Pure]
         public static Error New(string message, Exception exception) =>
             new Error(exception.HResult, message, exception);
 
+        [Pure]
         public static Error New(string message) =>
             new Error(0, message, None);
 
+        [Pure]
         public static Error New(int code, string message) =>
             new Error(code, message, None);
 
+        [Pure]
         public static Error FromObject(object value) =>
             value is Error err          ? err
           : value is Exception ex       ? New(ex)
@@ -74,6 +81,7 @@ namespace LanguageExt.Common
           : value is Option<Error> oerr ? oerr.IfNone(Bottom)
           : Bottom;
 
+        [Pure]
         internal Exception ToException() =>
             Exception.IsSome
                 ? (Exception)Exception
@@ -81,27 +89,35 @@ namespace LanguageExt.Common
                     ? new Exception("Bottom")
                     : new Exception(Message);
 
+        [Pure]
         public override string ToString() =>
             Message;
 
+        [Pure]
         public static implicit operator Error(Exception e) =>
             New(e);
 
+        [Pure]
         public static implicit operator Exception(Error e) =>
             e.ToException();
 
+        [Pure]
         public bool Equals(Error other) =>
             message == other.message;
 
+        [Pure]
         public override bool Equals(object obj) =>
             obj is Error other && Equals(other);
 
+        [Pure]
         public static bool operator ==(Error lhs, Error rhs) =>
             lhs.Equals(rhs);
 
+        [Pure]
         public static bool operator !=(Error lhs, Error rhs) =>
             !(lhs == rhs);
 
+        [Pure]
         public override int GetHashCode()
         {
             unchecked
@@ -112,6 +128,7 @@ namespace LanguageExt.Common
             }
         }
         
+        [Pure]
         internal static Option<FAIL> Convert<FAIL>(object err) => err switch
         {
             // Messy, but we're doing our best to recover an error rather than return Bottom

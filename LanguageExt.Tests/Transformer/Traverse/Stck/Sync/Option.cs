@@ -20,7 +20,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Stck.Sync
         {
             var ma = Some(Stack(1, 2, 3, 4));
             var mb = ma.Traverse(identity);
-            var mc = Stack(Some(4), Some(3), Some(2), Some(1));
+            var mc = Stack(Some(1), Some(2), Some(3), Some(4));
 
             Assert.Equal(mc, mb);
         }

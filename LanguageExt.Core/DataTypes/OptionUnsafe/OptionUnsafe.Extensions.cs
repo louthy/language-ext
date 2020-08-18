@@ -267,7 +267,7 @@ public static class OptionUnsafeExtensions
     /// <returns>A promise to return a non-null R</returns>
     public static async Task<B> MatchAsync<A, B>(this OptionUnsafe<A> ma, Func<A, Task<B>> Some, Func<B> None) =>
         ma.IsSome
-            ? await Some(ma.Value)
+            ? await Some(ma.Value).ConfigureAwait(false)
             : None();
 
     /// <summary>
@@ -279,8 +279,8 @@ public static class OptionUnsafeExtensions
     /// <returns>A promise to return a non-null R</returns>
     public static async Task<B> MatchAsync<A, B>(this OptionUnsafe<A> ma, Func<A, Task<B>> Some, Func<Task<B>> None) =>
         ma.IsSome
-            ? await Some(ma.Value)
-            : await None();
+            ? await Some(ma.Value).ConfigureAwait(false)
+            : await None().ConfigureAwait(false);
 
     /// <summary>
     /// Sum the bound value
@@ -309,9 +309,9 @@ public static class OptionUnsafeExtensions
     /// <returns>Mapped functor</returns>
     public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A, Task<B>> map)
     {
-        var val = await self;
+        var val = await self.ConfigureAwait(false);
         return val.IsSome
-            ? OptionUnsafe<B>.Some(await map(val.Value))
+            ? OptionUnsafe<B>.Some(await map(val.Value).ConfigureAwait(false))
             : None;
     }
 
@@ -323,7 +323,7 @@ public static class OptionUnsafeExtensions
     /// <returns>Mapped functor</returns>
     public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A, B> map)
     {
-        var val = await self;
+        var val = await self.ConfigureAwait(false);
         return val.IsSome
             ? OptionUnsafe<B>.Some(map(val.Value))
             : None;
@@ -337,7 +337,7 @@ public static class OptionUnsafeExtensions
     /// <returns>Mapped functor</returns>
     public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A, B> map) =>
         self.IsSome
-            ? OptionUnsafe<B>.Some(map(await self.Value))
+            ? OptionUnsafe<B>.Some(map(await self.Value.ConfigureAwait(false)))
             : None;
 
     /// <summary>
@@ -348,7 +348,7 @@ public static class OptionUnsafeExtensions
     /// <returns>Mapped functor</returns>
     public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A, Task<B>> map) =>
         self.IsSome
-            ? OptionUnsafe<B>.Some(await map(await self.Value))
+            ? OptionUnsafe<B>.Some(await map(await self.Value.ConfigureAwait(false)).ConfigureAwait(false))
             : None;
 
 
@@ -357,7 +357,7 @@ public static class OptionUnsafeExtensions
     /// </summary>
     public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this OptionUnsafe<A> self, Func<A, Task<OptionUnsafe<B>>> bind) =>
         self.IsSome
-            ? await bind(self.Value)
+            ? await bind(self.Value).ConfigureAwait(false)
             : None;
 
     /// <summary>
@@ -365,9 +365,9 @@ public static class OptionUnsafeExtensions
     /// </summary>
     public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A, Task<OptionUnsafe<B>>> bind)
     {
-        var val = await self;
+        var val = await self.ConfigureAwait(false);
         return val.IsSome
-            ? await bind(val.Value)
+            ? await bind(val.Value).ConfigureAwait(false)
             : None;
     }
 
@@ -376,7 +376,7 @@ public static class OptionUnsafeExtensions
     /// </summary>
     public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A, OptionUnsafe<B>> bind)
     {
-        var val = await self;
+        var val = await self.ConfigureAwait(false);
         return val.IsSome
             ? bind(val.Value)
             : OptionUnsafe<B>.None;
@@ -387,7 +387,7 @@ public static class OptionUnsafeExtensions
     /// </summary>
     public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A, OptionUnsafe<B>> bind) =>
         self.IsSome
-            ? bind(await self.Value)
+            ? bind(await self.Value.ConfigureAwait(false))
             : OptionUnsafe<B>.None;
 
     /// <summary>
@@ -395,7 +395,7 @@ public static class OptionUnsafeExtensions
     /// </summary>
     public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A, Task<OptionUnsafe<B>>> bind) =>
         self.IsSome
-            ? await bind(await self.Value)
+            ? await bind(await self.Value.ConfigureAwait(false)).ConfigureAwait(false)
             : OptionUnsafe<B>.None;
 
     /// <summary>
@@ -404,7 +404,7 @@ public static class OptionUnsafeExtensions
     /// <param name="Some">Action to invoke</param>
     public static async Task<Unit> IterAsync<A>(this Task<OptionUnsafe<A>> self, Action<A> Some)
     {
-        var val = await self;
+        var val = await self.ConfigureAwait(false);
         if (val.IsSome) Some(val.Value);
         return unit;
     }
@@ -415,7 +415,7 @@ public static class OptionUnsafeExtensions
     /// <param name="Some">Action to invoke</param>
     public static async Task<Unit> IterAsync<A>(this OptionUnsafe<Task<A>> self, Action<A> Some)
     {
-        if (self.IsSome) Some(await self.Value);
+        if (self.IsSome) Some(await self.Value.ConfigureAwait(false));
         return unit;
     }
 
@@ -432,7 +432,7 @@ public static class OptionUnsafeExtensions
     /// </summary>
     /// <returns></returns>
     public static async Task<int> CountAsync<A>(this Task<OptionUnsafe<A>> self) =>
-        (await self).Count();
+        (await self.ConfigureAwait(false)).Count();
 
     /// <summary>
     /// <para>
@@ -454,7 +454,7 @@ public static class OptionUnsafeExtensions
     /// <param name="folder">Folder function, applied if OptionUnsafe is in a Some state</param>
     /// <returns>The aggregate state</returns>
     public static async Task<S> FoldAsync<A, S>(this Task<OptionUnsafe<A>> self, S state, Func<S, A, S> folder) =>
-        (await self).Fold(state, folder);
+        (await self.ConfigureAwait(false)).Fold(state, folder);
 
     /// <summary>
     /// <para>
@@ -477,7 +477,7 @@ public static class OptionUnsafeExtensions
     /// <returns>The aggregate state</returns>
     public static async Task<S> FoldAsync<A, S>(this OptionUnsafe<Task<A>> self, S state, Func<S, A, S> folder) =>
         self.IsSome
-            ? folder(state, await self.Value)
+            ? folder(state, await self.Value.ConfigureAwait(false))
             : state;
 
     /// <summary>
@@ -492,7 +492,7 @@ public static class OptionUnsafeExtensions
     /// the value is the result of running applying the bound value to the 
     /// predicate supplied.</returns>
     public static async Task<bool> ForAllAsync<A>(this Task<OptionUnsafe<A>> self, Func<A, bool> pred) =>
-        (await self).ForAll(pred);
+        (await self.ConfigureAwait(false)).ForAll(pred);
 
     /// <summary>
     /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
@@ -507,7 +507,7 @@ public static class OptionUnsafeExtensions
     /// predicate supplied.</returns>
     public static async Task<bool> ForAllAsync<A>(this OptionUnsafe<Task<A>> self, Func<A, bool> pred) =>
         self.IsSome
-            ? pred(await self.Value)
+            ? pred(await self.Value.ConfigureAwait(false))
             : true;
 
     /// <summary>
@@ -522,7 +522,7 @@ public static class OptionUnsafeExtensions
     /// is the result of running applying the bound value to the Some predicate 
     /// supplied.</returns>
     public static async Task<bool> ExistsAsync<A>(this Task<OptionUnsafe<A>> self, Func<A, bool> pred) =>
-        (await self).Exists(pred);
+        (await self.ConfigureAwait(false)).Exists(pred);
 
     /// <summary>
     /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
@@ -537,6 +537,6 @@ public static class OptionUnsafeExtensions
     /// supplied.</returns>
     public static async Task<bool> ExistsAsync<A>(this OptionUnsafe<Task<A>> self, Func<A, bool> pred) =>
         self.IsSome
-            ? pred(await self.Value)
+            ? pred(await self.Value.ConfigureAwait(false))
             : false;
 }

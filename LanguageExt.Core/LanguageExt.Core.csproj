@@ -10,10 +10,13 @@
     <DefineConstants>NETFX</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <DefineConstants>NETCORE</DefineConstants>
+    <DefineConstants>NETSTANDARD2</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <DefineConstants>NETSTANDARD21</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageVersion>3.4.27-beta</PackageVersion>
+    <PackageVersion>3.5.10-beta</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -24,7 +27,7 @@
     <PackageIcon>lang-ext-small.png</PackageIcon>
     <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
-    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0;netstandard2.1</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <OutputType>library</OutputType>
@@ -57,7 +60,7 @@
     <PackageReference Include="Microsoft.CSharp" Version="[4.5.0,)" />
       <PackageReference Include="System.Memory" Version="[4.5.3,)" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netstandard2.'">
     <PackageReference Include="System.Diagnostics.Contracts" Version="[4.3.0,)" />
     <PackageReference Include="System.Globalization.Extensions" Version="[4.3.0,)" />
     <PackageReference Include="System.Linq" Version="[4.3.0,)" />

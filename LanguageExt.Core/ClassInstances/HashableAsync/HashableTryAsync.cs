@@ -7,9 +7,9 @@ namespace LanguageExt.ClassInstances
     {
         public async Task<int> GetHashCodeAsync(TryAsync<A> x)
         {
-            var dx = await x.Try();
+            var dx = await x.Try().ConfigureAwait(false);
             return dx.IsSuccess 
-                ? await default(HashA).GetHashCodeAsync(dx.Value) 
+                ? await default(HashA).GetHashCodeAsync(dx.Value).ConfigureAwait(false) 
                 : 0;
         }
     }

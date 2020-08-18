@@ -138,7 +138,7 @@ namespace TestBed
         }
     }
 
-    public interface IO
+    public interface MIO
     {
         Seq<string> ReadAllLines(string fileName);
         Unit WriteAllLines(string fileName, Seq<string> lines);
@@ -146,7 +146,7 @@ namespace TestBed
         int Zero { get; }
     }
 
-    public class RealIO : IO
+    public class RealIO : MIO
     {
         public Seq<string> ReadAllLines(string path) => File.ReadAllLines(path).ToSeq();
         public Unit WriteAllLines(string path, Seq<string> lines)
@@ -171,7 +171,7 @@ namespace TestBed
         }
     }
 
-    [Reader(Env: typeof(IO), Constructor: "Pure")]
+    [Reader(Env: typeof(MIO), Constructor: "Pure")]
     public partial struct Subsystem<A>
     {
     }
@@ -185,7 +185,7 @@ namespace TestBed
 
 
     [RWS(WriterMonoid: typeof(MSeq<string>),
-         Env: typeof(IO),
+         Env: typeof(MIO),
          State: typeof(Person),
          Constructor: "Pure",
          Fail: "Error")]

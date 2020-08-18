@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using LanguageExt.Interfaces;
 
 namespace LanguageExt
 {
@@ -80,6 +81,70 @@ namespace LanguageExt
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EffPure<R> sync<R>(EffPure<R> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Eff<RT, R> sync<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AffPure<R> sync<R>(AffPure<R> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<RT, R> sync<RT, R>(Aff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct, HasCancel<RT> =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValueTask<R> sync<R>(Func<ValueTask<R>> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValueTask<Unit> sync(Func<ValueTask> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<R> sync<R>(Func<Task<R>> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(async () => await op().ConfigureAwait(false), isolation).AsTask();
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<Unit> sync(Func<Task> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, isolation).AsTask();
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Unit sync(Action op, Isolation isolation = Isolation.Snapshot) =>
             STM.DoTransaction(() => { op(); return unit; }, isolation);
 
@@ -102,6 +167,61 @@ namespace LanguageExt
         /// <param name="f">Function to update the `Ref`</param>
         /// <returns>The value returned from `f`</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValueTask<A> swapAsync<A>(Ref<A> r, Func<A, ValueTask<A>> f) =>
+            r.SwapAsync(f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AffPure<A> swapAff<A>(Ref<A> r, Func<A, AffPure<A>> f) =>
+            r.SwapAff(f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EffPure<A> swapEff<A>(Ref<A> r, Func<A, EffPure<A>> f) =>
+            r.SwapEff(f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<RT, A> swapAff<RT, A>(Ref<A> r, Func<A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            r.SwapAff(f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Eff<RT, A> swapEff<RT, A>(Ref<A> r, Func<A, Eff<RT, A>> f) =>
+            r.SwapEff(f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static A swap<A, X>(Ref<A> r, X x, Func<X, A, A> f) =>
             r.Swap(x, f);
 
@@ -113,9 +233,119 @@ namespace LanguageExt
         /// <param name="f">Function to update the `Ref`</param>
         /// <returns>The value returned from `f`</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static A swap<A, X, Y >(Ref<A> r, X x, Y y, Func<X, Y, A, A> f) =>
+        public static ValueTask<A> swapAsync<X, A>(Ref<A> r, X x, Func<X, A, ValueTask<A>> f) =>
+            r.SwapAsync(x, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AffPure<A> swapAff<X, A>(Ref<A> r, X x, Func<X, A, AffPure<A>> f) =>
+            r.SwapAff(x, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EffPure<A> swapEff<X, A>(Ref<A> r, X x, Func<X, A, EffPure<A>> f) =>
+            r.SwapEff(x, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<RT, A> swapAff<RT, X, A>(Ref<A> r, X x, Func<X, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            r.SwapAff(x, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Eff<RT, A> swapEff<RT, X, A>(Ref<A> r, X x, Func<X, A, Eff<RT, A>> f) =>
+            r.SwapEff(x, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static A swap<A, X, Y>(Ref<A> r, X x, Y y, Func<X, Y, A, A> f) =>
             r.Swap(x, y, f);
 
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValueTask<A> swapAsync<X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, ValueTask<A>> f) =>
+            r.SwapAsync(x, y, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AffPure<A> swapAff<X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, AffPure<A>> f) =>
+            r.SwapAff(x, y, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EffPure<A> swapEff<X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, EffPure<A>> f) =>
+            r.SwapEff(x, y, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<RT, A> swapAff<RT, X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            r.SwapAff(x, y, f);
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="r">`Ref` to process</param>
+        /// <param name="f">Function to update the `Ref`</param>
+        /// <returns>The value returned from `f`</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Eff<RT, A> swapEff<RT, X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
+            r.SwapEff(x, y, f);        
+        
         /// <summary>
         /// Must be called in a transaction. Sets the in-transaction-value of
         /// ref to:  
@@ -307,167 +537,505 @@ namespace LanguageExt
         /// the atom with the result.  Note: `f` may be called multiple times, so it
         /// should be free of side-effects.
         /// </summary>
-        /// <param name="atom">Atom to process</param>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool swap<A>(Atom<A> atom, Func<A, A> f) =>
-            atom.Swap(f);
-
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public static Option<A> swap<A>(Atom<A> ma, Func<A, A> f) =>
+            ma.Swap(f);
+        
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
         /// the atom with the result.  Note: `f` may be called multiple times, so it
         /// should be free of side-effects.
         /// </summary>
-        /// <param name="atom">Atom to process</param>
-        /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<bool> swapAsync<A>(Atom<A> atom, Func<A, Task<A>> f) =>
-            atom.SwapAsync(f);
-
-        /// <summary>
-        /// Atomically updates the value by passing the old value to `f` and updating
-        /// the atom with the result.  Note: `f` may be called multiple times, so it
-        /// should be free of side-effects.
-        /// </summary>
-        /// <param name="atom">Atom to process</param>
-        /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool swap<M, A>(Atom<M, A> atom, Func<M, A, A> f) =>
-            atom.Swap(f);
-
-        /// <summary>
-        /// Atomically updates the value by passing the old value to `f` and updating
-        /// the atom with the result.  Note: `f` may be called multiple times, so it
-        /// should be free of side-effects.
-        /// </summary>
-        /// <param name="atom">Atom to process</param>
-        /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<bool> swapAsync<M, A>(Atom<M, A> atom, Func<M, A, Task<A>> f) =>
-            atom.SwapAsync(f);
-
-        /// <summary>
-        /// Atomically updates the value by passing the old value to `f` and updating
-        /// the atom with the result.  Note: `f` may be called multiple times, so it
-        /// should be free of side-effects.
-        /// </summary>
-        /// <param name="atom">Atom to process</param>
         /// <param name="x">Additional value to pass to `f`</param>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool swap<X, A>(Atom<A> atom, X x, Func<X, A, A> f) =>
-            atom.Swap(x, f);
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static EffPure<A> swapEff<A>(Atom<A> ma, Func<A, EffPure<A>> f) =>
+            ma.SwapEff(f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static Eff<RT, A> swapEff<RT, A>(Atom<A> ma, Func<A, Eff<RT, A>> f) =>
+            ma.SwapEff<RT>(f);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
         /// the atom with the result.  Note: `f` may be called multiple times, so it
         /// should be free of side-effects.
         /// </summary>
-        /// <param name="atom">Atom to process</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public static ValueTask<Option<A>> swapAsync<A>(Atom<A> ma, Func<A, ValueTask<A>> f) =>
+            ma.SwapAsync(f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static AffPure<A> swapAff<A>(Atom<A> ma, Func<A, AffPure<A>> f) =>
+            ma.SwapAff(f);
+                
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static AffPure<A> swapAff<A>(Atom<A> ma, Func<A, ValueTask<A>> f) =>
+            ma.SwapAff(f);
+
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static Aff<RT, A> swapAff<RT, A>(Atom<A> ma, Func<A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            ma.SwapAff<RT>(f);
+
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
         /// <param name="x">Additional value to pass to `f`</param>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<bool> swapAsync<X, A>(Atom<A> atom, X x, Func<X, A, Task<A>> f) =>
-            atom.SwapAsync(x, f);
-
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public static Option<A> swap<X, A>(Atom<A> ma, X x, Func<X, A, A> f) =>
+            ma.Swap<X>(x, f);
+        
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
         /// the atom with the result.  Note: `f` may be called multiple times, so it
         /// should be free of side-effects.
         /// </summary>
-        /// <param name="atom">Atom to process</param>
         /// <param name="x">Additional value to pass to `f`</param>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool swap<M, X, A>(Atom<M, A> atom, X x, Func<M, X, A, A> f) =>
-            atom.Swap(x, f);
-
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static EffPure<A> swapEff<X, A>(Atom<A> ma, X x, Func<X, A, EffPure<A>> f) =>
+            ma.SwapEff<X>(x, f);
+        
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
         /// the atom with the result.  Note: `f` may be called multiple times, so it
         /// should be free of side-effects.
         /// </summary>
-        /// <param name="atom">Atom to process</param>
         /// <param name="x">Additional value to pass to `f`</param>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<bool> swapAsync<M, X, A>(Atom<M, A> atom, X x, Func<M, X, A, Task<A>> f) =>
-            atom.SwapAsync(x, f);
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static Eff<RT, A> swapEff<RT, X, A>(Atom<A> ma, X x, Func<X, A, Eff<RT, A>> f) =>
+            ma.SwapEff<RT, X>(x, f);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
         /// the atom with the result.  Note: `f` may be called multiple times, so it
         /// should be free of side-effects.
         /// </summary>
-        /// <param name="atom">Atom to process</param>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public static ValueTask<Option<A>> swapAsync<X, A>(Atom<A> ma, X x, Func<X, A, ValueTask<A>> f) =>
+            ma.SwapAsync<X>(x, f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static AffPure<A> swapAff<X, A>(Atom<A> ma, X x, Func<X, A, AffPure<A>> f) =>
+            ma.SwapAff<X>(x, f);
+                
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static AffPure<A> swapAff<X, A>(Atom<A> ma, X x, Func<X, A, ValueTask<A>> f) =>
+            ma.SwapAff<X>(x, f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static Aff<RT, A> swapAff<RT, X, A>(Atom<A> ma, X x, Func<X, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            ma.SwapAff<RT, X>(x, f);
+
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
         /// <param name="x">Additional value to pass to `f`</param>
         /// <param name="y">Additional value to pass to `f`</param>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool swap<X, Y, A>(Atom<A> atom, X x, Y y, Func<X, Y, A, A> f) =>
-            atom.Swap(x, y, f);
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public static Option<A> swap<X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, A> f) =>
+            ma.Swap<X, Y>(x, y, f);
+                
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static EffPure<A> swapEff<X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, EffPure<A>> f) =>
+            ma.SwapEff<X, Y>(x, y, f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static Eff<RT, A> swapEff<RT, X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
+            ma.SwapEff<RT, X, Y>(x, y, f);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
         /// the atom with the result.  Note: `f` may be called multiple times, so it
         /// should be free of side-effects.
         /// </summary>
-        /// <param name="atom">Atom to process</param>
         /// <param name="x">Additional value to pass to `f`</param>
         /// <param name="y">Additional value to pass to `f`</param>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<bool> swapAsync<X, Y, A>(Atom<A> atom, X x, Y y, Func<X, Y, A, Task<A>> f) =>
-            atom.SwapAsync(x, y, f);
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public static ValueTask<Option<A>> swapAsync<X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, ValueTask<A>> f) =>
+            ma.SwapAsync<X, Y>(x, y, f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static AffPure<A> swapAff<X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, AffPure<A>> f) =>
+            ma.SwapAff<X, Y>(x, y, f);
+                
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static AffPure<A> swapAff<X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, ValueTask<A>> f) =>
+            ma.SwapAff<X, Y>(x, y, f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static Aff<RT, A> swapAff<RT, X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            ma.SwapAff<RT, X, Y>(x, y, f);
+
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
         /// the atom with the result.  Note: `f` may be called multiple times, so it
         /// should be free of side-effects.
         /// </summary>
-        /// <param name="atom">Atom to process</param>
-        /// <param name="x">Additional value to pass to `f`</param>
-        /// <param name="y">Additional value to pass to `f`</param>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool swap<M, X, Y, A>(Atom<M, A> atom, X x, Y y, Func<M, X, Y, A, A> f) =>
-            atom.Swap(x, y, f);
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public static Option<A> swap<M, A>(Atom<M, A> ma, Func<M, A, A> f) =>
+            ma.Swap(f);
+                
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static EffPure<A> swapEff<M, A>(Atom<M, A> ma, Func<M, A, EffPure<A>> f) =>
+            ma.SwapEff(f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static Eff<RT, A> swapEff<RT, M, A>(Atom<M, A> ma, Func<M, A, Eff<RT, A>> f) =>
+            ma.SwapEff<RT>(f);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
         /// the atom with the result.  Note: `f` may be called multiple times, so it
         /// should be free of side-effects.
         /// </summary>
-        /// <param name="atom">Atom to process</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public static ValueTask<Option<A>> swapAsync<M, A>(Atom<M, A> ma, Func<M, A, ValueTask<A>> f) =>
+            ma.SwapAsync(f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static AffPure<A> swapAff<M, A>(Atom<M, A> ma, Func<M, A, AffPure<A>> f) =>
+            ma.SwapAff(f);
+                
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static AffPure<A> swapAff<M, A>(Atom<M, A> ma, Func<M, A, ValueTask<A>> f) =>
+            ma.SwapAff(f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static Aff<RT, A> swapAff<RT, M, A>(Atom<M, A> ma, Func<M, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            ma.SwapAff<RT>(f);
+
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public static Option<A> swap<M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, A> f) =>
+            ma.Swap<X>(x, f);
+                
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static EffPure<A> swapEff<M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, EffPure<A>> f) =>
+            ma.SwapEff<X>(x, f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static Eff<RT, A> swapEff<RT, M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, Eff<RT, A>> f) =>
+            ma.SwapEff<RT, X>(x, f);
+
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public static ValueTask<Option<A>> swapAsync<M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, ValueTask<A>> f) =>
+            ma.SwapAsync<X>(x, f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static AffPure<A> swapAff<M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, AffPure<A>> f) =>
+            ma.SwapAff<X>(x, f);
+                
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static AffPure<A> swapAff<M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, ValueTask<A>> f) =>
+            ma.SwapAff<X>(x, f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static Aff<RT, A> swapAff<RT, M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            ma.SwapAff<RT, X>(x, f);
+
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
         /// <param name="x">Additional value to pass to `f`</param>
         /// <param name="y">Additional value to pass to `f`</param>
         /// <param name="f">Function to update the atom</param>
-        /// <returns>`true` if new-value passes any validation and was successfully set.  `false`
-        /// will only be returned if the `validator` fails.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<bool> swapAsync<M, X, Y, A>(Atom<M, A> atom, X x, Y y, Func<M, X, Y, A, Task<A>> f) =>
-            atom.SwapAsync(x, y, f);
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public static Option<A> swap<M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, A> f) =>
+            ma.Swap<X, Y>(x, y, f);
+                
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static EffPure<A> swapEff<M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, EffPure<A>> f) =>
+            ma.SwapEff<X, Y>(x, y, f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static Eff<RT, A> swapEff<RT, M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, Eff<RT, A>> f) =>
+            ma.SwapEff<RT, X, Y>(x, y, f);
+
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
+        /// and its validation passed. None otherwise</returns>
+        public static ValueTask<Option<A>> swapAsync<M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, ValueTask<A>> f) =>
+            ma.SwapAsync<X, Y>(x, y, f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static AffPure<A> swapAff<X, M, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, AffPure<A>> f) =>
+            ma.SwapAff<X, Y>(x, y, f);
+                
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static AffPure<A> swapAff<X, M, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, ValueTask<A>> f) =>
+            ma.SwapAff<X, Y>(x, y, f);
+        
+        /// <summary>
+        /// Atomically updates the value by passing the old value to `f` and updating
+        /// the atom with the result.  Note: `f` may be called multiple times, so it
+        /// should be free of side-effects.
+        /// </summary>
+        /// <param name="x">Additional value to pass to `f`</param>
+        /// <param name="y">Additional value to pass to `f`</param>
+        /// <param name="f">Function to update the atom</param>
+        /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
+        /// validation passed. Failure state otherwise</returns>
+        public static Aff<RT, A> swapAff<RT, M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            ma.SwapAff<RT, X, Y>(x, y, f);
     }
 }

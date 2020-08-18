@@ -397,5 +397,24 @@ namespace LanguageExt
                 }
             }
         }
+        
+        public static Validation<MonoidFail, Fail, EffPure<B>> Traverse<MonoidFail, Fail, A, B>(this EffPure<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+        {
+            var tres = ma.RunIO();
+            
+            if (tres.IsBottom || tres.IsFail)
+            {
+                return Validation<MonoidFail, Fail, EffPure<B>>.Success(FailEff<B>(tres.Error));
+            }
+            else if (tres.Value.IsFail)
+            {
+                return Validation<MonoidFail, Fail, EffPure<B>>.Fail(tres.Value.FailValue);
+            }
+            else
+            {
+                return Validation<MonoidFail, Fail, EffPure<B>>.Success(SuccessEff(f((A)tres.Value)));
+            }
+        }
     }
 }

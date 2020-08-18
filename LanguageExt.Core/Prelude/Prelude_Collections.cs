@@ -428,8 +428,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Lst<T> toList<T>(IEnumerable<T> items) =>
-            items is Lst<T>
-                ? (Lst<T>)items
+            items is Lst<T> lst
+                ? lst
                 : new Lst<T>(items);
 
 
@@ -500,8 +500,8 @@ namespace LanguageExt
         public static Lst<PredList, PredItem, T> toList<PredList, PredItem, T>(IEnumerable<T> items) 
             where PredItem : struct, Pred<T>
             where PredList : struct, Pred<ListInfo>  =>
-            items is Lst<PredList, PredItem, T>
-                ? (Lst<PredList, PredItem, T>)items
+            items is Lst<PredList, PredItem, T> lst
+                ? lst
                 : new Lst<PredList, PredItem, T>(items);
 
 
@@ -526,7 +526,9 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Arr<T> toArray<T>(IEnumerable<T> items) =>
-            new Arr<T>(items);
+            items is Arr<T> arr
+                ? arr
+                : new Arr<T>(items);
 
         /// <summary>
         /// Create an immutable queue
@@ -555,6 +557,8 @@ namespace LanguageExt
         [Pure]
         public static Que<T> toQueue<T>(IEnumerable<T> items)
         {
+            if (items is Que<T> que) return que;
+            
             var q = new QueInternal<T>();
             foreach (var item in items)
             {
@@ -582,7 +586,9 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Stck<T> toStack<T>(IEnumerable<T> items) =>
-            new Stck<T>(items);
+            items is Stck<T> s
+                ? s
+                : new Stck<T>(items);
 
         /// <summary>
         /// Create an immutable stack
@@ -655,7 +661,9 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Set<T> toSet<T>(IEnumerable<T> items) =>
-            LanguageExt.Set.createRange(items);
+            items is Set<T> s
+                ? s
+                : LanguageExt.Set.createRange(items);
 
 
 
@@ -678,7 +686,9 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Set<OrdT, T> toSet<OrdT, T>(IEnumerable<T> items) where OrdT : struct, Ord<T> =>
-            LanguageExt.Set.createRange<OrdT, T>(items);
+            items is Set<OrdT, T> s
+                ? s
+                : LanguageExt.Set.createRange<OrdT, T>(items);
 
 
         /// <summary>
@@ -700,7 +710,9 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static HashSet<T> toHashSet<T>(IEnumerable<T> items) =>
-            LanguageExt.HashSet.createRange(items);
+            items is HashSet<T> hs
+                ? hs
+                : LanguageExt.HashSet.createRange(items);
 
 
 
@@ -725,7 +737,9 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static HashSet<EqT, T> toHashSet<EqT, T>(IEnumerable<T> items) where EqT : struct, Eq<T> =>
-            LanguageExt.HashSet.createRange<EqT, T>(items);
+            items is HashSet<EqT, T> hs
+                ? hs
+                : LanguageExt.HashSet.createRange<EqT, T>(items);
 
 
 

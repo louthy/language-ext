@@ -24,15 +24,15 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public MB Bind<MonadB, MB, B>(OptionAsync<A> ma, Func<A, MB> f) where MonadB : struct, MonadAsync<Unit, Unit, MB, B> =>
             default(MonadB).RunAsync(async _ =>
-                (await ma.IsSome)
-                    ? f(await ma.Value)
+                (await ma.IsSome.ConfigureAwait(false))
+                    ? f(await ma.Value.ConfigureAwait(false))
                     : default(MonadB).Fail(ValueIsNoneException.Default));
 
         [Pure]
         public MB BindAsync<MonadB, MB, B>(OptionAsync<A> ma, Func<A, Task<MB>> f) where MonadB : struct, MonadAsync<Unit, Unit, MB, B> =>
             default(MonadB).RunAsync(async _ =>
-                (await ma.IsSome)
-                    ? await f(await ma.Value)
+                (await ma.IsSome.ConfigureAwait(false))
+                    ? await f(await ma.Value.ConfigureAwait(false)).ConfigureAwait(false)
                     : default(MonadB).Fail(ValueIsNoneException.Default));
 
         [Pure]
@@ -42,7 +42,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionAsync<A> Plus(OptionAsync<A> a, OptionAsync<A> b) =>
             default(MOptionAsync<A>).RunAsync(async __ =>
-                await a.IsSome
+                await a.IsSome.ConfigureAwait(false)
                     ? a
                     : b);
 
@@ -67,8 +67,8 @@ namespace LanguageExt.ClassInstances
         {
             if (Some == null) throw new ArgumentNullException(nameof(Some));
             if (None == null) throw new ArgumentNullException(nameof(None));
-            return await opt.IsSome
-                ? Check.NullReturn(Some(await opt.Value))
+            return await opt.IsSome.ConfigureAwait(false)
+                ? Check.NullReturn(Some(await opt.Value.ConfigureAwait(false)))
                 : Check.NullReturn(None());
         }
 
@@ -77,8 +77,8 @@ namespace LanguageExt.ClassInstances
         {
             if (SomeAsync == null) throw new ArgumentNullException(nameof(SomeAsync));
             if (None == null) throw new ArgumentNullException(nameof(None));
-            return await opt.IsSome
-                ? Check.NullReturn(await SomeAsync(await opt.Value))
+            return await opt.IsSome.ConfigureAwait(false)
+                ? Check.NullReturn(await SomeAsync(await opt.Value.ConfigureAwait(false)).ConfigureAwait(false))
                 : Check.NullReturn(None());
         }
 
@@ -87,9 +87,9 @@ namespace LanguageExt.ClassInstances
         {
             if (Some == null) throw new ArgumentNullException(nameof(Some));
             if (NoneAsync == null) throw new ArgumentNullException(nameof(NoneAsync));
-            return await opt.IsSome
-                ? Check.NullReturn(Some(await opt.Value))
-                : Check.NullReturn(await NoneAsync());
+            return await opt.IsSome.ConfigureAwait(false)
+                ? Check.NullReturn(Some(await opt.Value.ConfigureAwait(false)))
+                : Check.NullReturn(await NoneAsync().ConfigureAwait(false));
         }
 
         [Pure]
@@ -97,16 +97,16 @@ namespace LanguageExt.ClassInstances
         {
             if (SomeAsync == null) throw new ArgumentNullException(nameof(SomeAsync));
             if (NoneAsync == null) throw new ArgumentNullException(nameof(NoneAsync));
-            return await opt.IsSome
-                ? Check.NullReturn(await SomeAsync(await opt.Value))
-                : Check.NullReturn(await NoneAsync());
+            return await opt.IsSome.ConfigureAwait(false)
+                ? Check.NullReturn(await SomeAsync(await opt.Value.ConfigureAwait(false)).ConfigureAwait(false))
+                : Check.NullReturn(await NoneAsync().ConfigureAwait(false));
         }
 
         public async Task<Unit> Match(OptionAsync<A> opt, Action<A> Some, Action None)
         {
             if (Some == null) throw new ArgumentNullException(nameof(Some));
             if (None == null) throw new ArgumentNullException(nameof(None));
-            if (await opt.IsSome) Some(await opt.Value); else None();
+            if (await opt.IsSome.ConfigureAwait(false)) Some(await opt.Value.ConfigureAwait(false)); else None();
             return Unit.Default;
         }
 
@@ -114,7 +114,7 @@ namespace LanguageExt.ClassInstances
         {
             if (SomeAsync == null) throw new ArgumentNullException(nameof(SomeAsync));
             if (None == null) throw new ArgumentNullException(nameof(None));
-            if (await opt.IsSome) await SomeAsync(await opt.Value); else None();
+            if (await opt.IsSome.ConfigureAwait(false)) await SomeAsync(await opt.Value.ConfigureAwait(false)); else None();
             return Unit.Default;
         }
 
@@ -122,7 +122,7 @@ namespace LanguageExt.ClassInstances
         {
             if (Some == null) throw new ArgumentNullException(nameof(Some));
             if (NoneAsync == null) throw new ArgumentNullException(nameof(NoneAsync));
-            if (await opt.IsSome) Some(await opt.Value); else await NoneAsync();
+            if (await opt.IsSome.ConfigureAwait(false)) Some(await opt.Value.ConfigureAwait(false)); else await NoneAsync().ConfigureAwait(false);
             return Unit.Default;
         }
 
@@ -130,7 +130,7 @@ namespace LanguageExt.ClassInstances
         {
             if (SomeAsync == null) throw new ArgumentNullException(nameof(SomeAsync));
             if (NoneAsync == null) throw new ArgumentNullException(nameof(NoneAsync));
-            if (await opt.IsSome) await SomeAsync(await opt.Value); else await NoneAsync();
+            if (await opt.IsSome.ConfigureAwait(false)) await SomeAsync(await opt.Value.ConfigureAwait(false)); else await NoneAsync().ConfigureAwait(false);
             return Unit.Default;
         }
 
@@ -140,8 +140,8 @@ namespace LanguageExt.ClassInstances
         {
             if (Some == null) throw new ArgumentNullException(nameof(Some));
             if (None == null) throw new ArgumentNullException(nameof(None));
-            return await opt.IsSome
-                ? Some(await opt.Value)
+            return await opt.IsSome.ConfigureAwait(false)
+                ? Some(await opt.Value.ConfigureAwait(false))
                 : None();
         }
 
@@ -150,8 +150,8 @@ namespace LanguageExt.ClassInstances
         {
             if (SomeAsync == null) throw new ArgumentNullException(nameof(SomeAsync));
             if (None == null) throw new ArgumentNullException(nameof(None));
-            return await opt.IsSome
-                ? await SomeAsync(await opt.Value)
+            return await opt.IsSome.ConfigureAwait(false)
+                ? await SomeAsync(await opt.Value.ConfigureAwait(false))
                 : None();
         }
 
@@ -160,9 +160,9 @@ namespace LanguageExt.ClassInstances
         {
             if (Some == null) throw new ArgumentNullException(nameof(Some));
             if (NoneAsync == null) throw new ArgumentNullException(nameof(NoneAsync));
-            return await opt.IsSome
-                ? Some(await opt.Value)
-                : await NoneAsync();
+            return await opt.IsSome.ConfigureAwait(false)
+                ? Some(await opt.Value.ConfigureAwait(false))
+                : await NoneAsync().ConfigureAwait(false);
         }
 
         [Pure]
@@ -170,9 +170,9 @@ namespace LanguageExt.ClassInstances
         {
             if (SomeAsync == null) throw new ArgumentNullException(nameof(SomeAsync));
             if (NoneAsync == null) throw new ArgumentNullException(nameof(NoneAsync));
-            return await opt.IsSome
-                ? await SomeAsync(await opt.Value)
-                : await NoneAsync();
+            return await opt.IsSome.ConfigureAwait(false)
+                ? await SomeAsync(await opt.Value.ConfigureAwait(false)).ConfigureAwait(false)
+                : await NoneAsync().ConfigureAwait(false);
         }
 
         [Pure]
@@ -208,8 +208,8 @@ namespace LanguageExt.ClassInstances
         {
             async Task<(bool IsSome, A Value)> Do(Func<Unit, Task<OptionAsync<A>>> mma)
             {
-                var a = await mma(unit);
-                return await a.Data;
+                var a = await mma(unit).ConfigureAwait(false);
+                return await a.Data.ConfigureAwait(false);
             }
             return new OptionAsync<A>(Do(ma));
         }
@@ -227,8 +227,8 @@ namespace LanguageExt.ClassInstances
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             f = f ?? throw new ArgumentNullException(nameof(f));
-            return Check.NullReturn(await ma.IsSome
-                ? f(state, await ma.Value)
+            return Check.NullReturn(await ma.IsSome.ConfigureAwait(false)
+                ? f(state, await ma.Value.ConfigureAwait(false))
                 : state);
         };
 
@@ -237,8 +237,8 @@ namespace LanguageExt.ClassInstances
         {
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             f = f ?? throw new ArgumentNullException(nameof(f));
-            return Check.NullReturn(await ma.IsSome
-                ? await f(state, await ma.Value)
+            return Check.NullReturn(await ma.IsSome.ConfigureAwait(false)
+                ? await f(state, await ma.Value.ConfigureAwait(false))
                 : state);
         };
 
@@ -252,7 +252,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Func<Unit, Task<int>> Count(OptionAsync<A> ma) => async _ =>
-            await ma.IsSome
+            await ma.IsSome.ConfigureAwait(false)
                 ? 1
                 : 0;
 
@@ -262,8 +262,8 @@ namespace LanguageExt.ClassInstances
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return Check.NullReturn(await ma.IsSome
-                ? fa(state, await ma.Value)
+            return Check.NullReturn(await ma.IsSome.ConfigureAwait(false)
+                ? fa(state, await ma.Value.ConfigureAwait(false))
                 : fb(state, unit));
         }
 
@@ -273,9 +273,9 @@ namespace LanguageExt.ClassInstances
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return Check.NullReturn(await ma.IsSome
-                ? fa(state, await ma.Value)
-                : await fb(state, unit));
+            return Check.NullReturn(await ma.IsSome.ConfigureAwait(false)
+                ? fa(state, await ma.Value.ConfigureAwait(false))
+                : await fb(state, unit).ConfigureAwait(false));
         }
 
         [Pure]
@@ -284,8 +284,8 @@ namespace LanguageExt.ClassInstances
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return Check.NullReturn(await ma.IsSome
-                ? await fa(state, await ma.Value)
+            return Check.NullReturn(await ma.IsSome.ConfigureAwait(false)
+                ? await fa(state, await ma.Value.ConfigureAwait(false))
                 : fb(state, unit));
         }
 
@@ -295,9 +295,9 @@ namespace LanguageExt.ClassInstances
             if (state.IsNull()) throw new ArgumentNullException(nameof(state));
             if (fa == null) throw new ArgumentNullException(nameof(fa));
             if (fb == null) throw new ArgumentNullException(nameof(fb));
-            return Check.NullReturn(await ma.IsSome
-                ? await fa(state, await ma.Value)
-                : await fb(state, unit));
+            return Check.NullReturn(await ma.IsSome.ConfigureAwait(false)
+                ? await fa(state, await ma.Value.ConfigureAwait(false)).ConfigureAwait(false)
+                : await fb(state, unit).ConfigureAwait(false));
         }
 
         [Pure]
@@ -320,9 +320,9 @@ namespace LanguageExt.ClassInstances
         public OptionAsync<A> Apply(Func<A, A, A> f, OptionAsync<A> fa, OptionAsync<A> fb) =>
             default(MOptionAsync<A>).RunAsync( async _ =>
             {
-                var somes = await Task.WhenAll(fa.IsSome, fb.IsSome);
+                var somes = await Task.WhenAll(fa.IsSome, fb.IsSome).ConfigureAwait(false);
                 if (!somes[0] || !somes[1]) return OptionAsync<A>.None;
-                var values = await Task.WhenAll(fa.Value, fb.Value);
+                var values = await Task.WhenAll(fa.Value, fb.Value).ConfigureAwait(false);
                 return f(values[0], values[1]);
             });
     }

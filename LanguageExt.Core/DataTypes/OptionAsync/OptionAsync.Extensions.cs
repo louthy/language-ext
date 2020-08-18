@@ -29,9 +29,10 @@ public static partial class OptionAsyncExtensions
     [Pure]
     public static async Task<IEnumerable<A>> Somes<A>(this IEnumerable<OptionAsync<A>> self)
     {
-        var tasks = self.Map(x => x.ToOption()).ToArray();
-        var res = await Task.WhenAll(tasks);
-        return res.Filter(x => x.IsSome).Map(x => x.Value);
+        var res = await self.Map(o => o.Data)
+                            .WindowMap(identity)
+                            .ConfigureAwait(false);
+        return res.Filter(x => x.IsSome).Map(x => x.Value).ToArray();
     }
     
 
@@ -42,8 +43,9 @@ public static partial class OptionAsyncExtensions
     [Pure]
     public static async Task<Seq<A>> Somes<A>(this Seq<OptionAsync<A>> self)
     {
-        var tasks = self.Map(x => x.ToOption()).ToArray();
-        var res = await Task.WhenAll(tasks);
+        var res = await self.Map(o => o.Data)
+                            .WindowMap(identity)
+                            .ConfigureAwait(false);
         return res.Filter(x => x.IsSome).Map(x => x.Value).ToSeq();
     }    
 
@@ -211,9 +213,9 @@ public static partial class OptionAsyncExtensions
     /// <returns>Nullable of A</returns>
     [Pure]
     public static async Task<A?> ToNullable<A>(this OptionAsync<A> ma) where A : struct =>
-        (await ma.IsNone)
+        (await ma.IsNone.ConfigureAwait(false))
             ? (A?)null
-            : await ma.Value;
+            : await ma.Value.ConfigureAwait(false);
 
     /// <summary>
     /// Match over a list of options

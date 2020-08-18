@@ -28,20 +28,20 @@ namespace LanguageExt.ClassInstances
     {
         public async Task<int> CompareAsync(EitherAsync<L, A> x, EitherAsync<L, A> y)
         {
-            var dx = await x.Data;
-            var dy = await y.Data;
+            var dx = await x.Data.ConfigureAwait(false);
+            var dy = await y.Data.ConfigureAwait(false);
             
             return dx.State switch
             {
                 EitherStatus.IsRight => dy.State switch
                 {
-                    EitherStatus.IsRight => await default(OrdA).CompareAsync(dx.Right, dy.Right),
+                    EitherStatus.IsRight => await default(OrdA).CompareAsync(dx.Right, dy.Right).ConfigureAwait(false),
                     EitherStatus.IsLeft => 1,
                     _ => 1
                 },
                 EitherStatus.IsLeft => dy.State switch
                 {
-                    EitherStatus.IsLeft => await default(OrdL).CompareAsync(dx.Left, dy.Left),
+                    EitherStatus.IsLeft => await default(OrdL).CompareAsync(dx.Left, dy.Left).ConfigureAwait(false),
                     EitherStatus.IsRight => -1,
                     _ => 1
                 },

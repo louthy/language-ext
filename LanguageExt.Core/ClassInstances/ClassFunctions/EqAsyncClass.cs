@@ -18,7 +18,6 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly Option<Error> Error;
         public static readonly Func<A, A, Task<bool>> EqualsAsync;
-        public static readonly Func<A, Task<int>> GetHashCodeAsync = HashableAsyncClass<A>.GetHashCodeAsync;
         
         static EqAsyncClass()
         {
@@ -50,5 +49,8 @@ namespace LanguageExt.ClassInstances
                 EqualsAsync = (A x, A y) => throw e;
             }
         }
+
+        public static Task<int> GetHashCodeAsync(A x) =>
+            HashableAsyncClass<A>.GetHashCodeAsync(x);    
     }
 }

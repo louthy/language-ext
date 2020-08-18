@@ -19,9 +19,9 @@ namespace LanguageExt.ClassInstances
     {
         public async Task<int> CompareAsync(Task<A> x, Task<A> y)
         {
-            var dx = await x;
-            var dy = await y;
-            return await default(OrdA).CompareAsync(dx, dy);
+            var dx = await x.ConfigureAwait(false);
+            var dy = await y.ConfigureAwait(false);
+            return await default(OrdA).CompareAsync(dx, dy).ConfigureAwait(false);
         }
 
         public Task<bool> EqualsAsync(Task<A> x, Task<A> y) =>

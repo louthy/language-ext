@@ -29,7 +29,7 @@ namespace LanguageExt.ClassInstances
             {
                 var resA = ma.ToEither();
                 var resB = mb.ToEither();
-                await Task.WhenAll(resA, resB);
+                await Task.WhenAll(resA, resB).ConfigureAwait(false);
                 if (resA.IsCompleted && !resA.IsFaulted && !resA.IsCanceled && resA.Result.IsLeft) return resA.Result.Head();
                 if (resB.IsCompleted && !resB.IsFaulted && !resB.IsCanceled && resB.Result.IsLeft) return resB.Result.Head();
                 if(resA.Result.IsRight && resB.Result.IsRight)
@@ -87,7 +87,7 @@ namespace LanguageExt.ClassInstances
             Task<MB> Do(Unit _) =>
                 ma.MatchAsync(
                     Left:  l       => default(MONADB).Fail(l),
-                    RightAsync: async r => await f(r),
+                    RightAsync: async r => await f(r).ConfigureAwait(false),
                     Bottom: ()     => default(MONADB).Fail(BottomException.Default));
 
             return default(MONADB).RunAsync(Do);
@@ -163,11 +163,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Task<B> MatchAsync<B>(EitherAsync<L, R> ma, Func<R, B> Some, Func<Task<B>> NoneAsync) =>
-            ma.MatchAsync(Some, async l => await NoneAsync());
+            ma.MatchAsync(Some, async l => await NoneAsync().ConfigureAwait(false));
 
         [Pure]
         public Task<B> MatchAsync<B>(EitherAsync<L, R> ma, Func<R, Task<B>> SomeAsync, Func<Task<B>> NoneAsync) =>
-            ma.MatchAsync(SomeAsync, async l => await NoneAsync());
+            ma.MatchAsync(SomeAsync, async l => await NoneAsync().ConfigureAwait(false));
 
         [Pure]
         public Task<Unit> Match(EitherAsync<L, R> ma, Action<R> Some, Action None) =>
@@ -178,11 +178,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Task<Unit> MatchAsync(EitherAsync<L, R> ma, Action<R> Some, Func<Task> NoneAsync) =>
-            ma.MatchAsync(Some, async l => await NoneAsync());
+            ma.MatchAsync(Some, async l => await NoneAsync().ConfigureAwait(false));
 
         [Pure]
         public Task<Unit> MatchAsync(EitherAsync<L, R> ma, Func<R, Task> SomeAsync, Func<Task> NoneAsync) =>
-            ma.MatchAsync(SomeAsync, async l => await NoneAsync());
+            ma.MatchAsync(SomeAsync, async l => await NoneAsync().ConfigureAwait(false));
 
         [Pure]
         public Task<B> MatchUnsafe<B>(EitherAsync<L, R> ma, Func<R, B> Some, Func<B> None) =>
@@ -194,11 +194,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Task<B> MatchUnsafeAsync<B>(EitherAsync<L, R> ma, Func<R, B> Some, Func<Task<B>> NoneAsync) =>
-            ma.MatchUnsafeAsync(Some, async l => await NoneAsync());
+            ma.MatchUnsafeAsync(Some, async l => await NoneAsync().ConfigureAwait(false));
 
         [Pure]
         public Task<B> MatchUnsafeAsync<B>(EitherAsync<L, R> ma, Func<R, Task<B>> SomeAsync, Func<Task<B>> NoneAsync) =>
-            ma.MatchUnsafeAsync(SomeAsync, async l => await NoneAsync());
+            ma.MatchUnsafeAsync(SomeAsync, async l => await NoneAsync().ConfigureAwait(false));
 
         [Pure]
         public EitherAsync<L, R> Optional(R value) =>
@@ -221,7 +221,7 @@ namespace LanguageExt.ClassInstances
                 while (tasks.Count > 0)
                 {
                     // Return first one that completes
-                    var completed = await Task.WhenAny(tasks);
+                    var completed = await Task.WhenAny(tasks).ConfigureAwait(false);
                     if (!completed.IsFaulted && !completed.Result.IsRight) return completed.Result.Head();
                     tasks = tasks.Remove(completed);
                 }
@@ -247,7 +247,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         async Task<EitherData<L, R>> RunAsyncImpl(Func<Unit, Task<EitherAsync<L, R>>> ma) =>
-            await(await ma(unit)).Data;
+            await(await ma(unit).ConfigureAwait(false)).Data.ConfigureAwait(false);
 
         [Pure]
         public EitherAsync<L, R> Some(R value) =>

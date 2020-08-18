@@ -17,7 +17,7 @@ namespace LanguageExt
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryOptionAsync<A> TryOptionAsync<A>(Func<Task<A>> f) =>
-            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await f())));
+            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await f().ConfigureAwait(false))));
 
         /// <summary>
         /// TryOptionAsync constructor function
@@ -27,7 +27,7 @@ namespace LanguageExt
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryOptionAsync<A> TryOptionAsync<A>(Func<Task<Option<A>>> f) =>
-            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await f())));
+            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await f().ConfigureAwait(false))));
 
         /// <summary>
         /// TryOptionAsync constructor function
@@ -37,7 +37,7 @@ namespace LanguageExt
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryOptionAsync<A> TryOptionAsync<A>(Task<A> v) =>
-            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await v)));
+            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await v.ConfigureAwait(false))));
 
         /// <summary>
         /// TryOptionAsync constructor function
@@ -47,7 +47,7 @@ namespace LanguageExt
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryOptionAsync<A> TryOptionAsync<A>(Task<Option<A>> v) =>
-            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await v)));
+            TryOptionAsyncExtensions.Memo(new TryOptionAsync<A>(async () => new OptionalResult<A>(await v.ConfigureAwait(false))));
 
         /// <summary>
         /// TryOptionAsync constructor function
@@ -287,7 +287,7 @@ namespace LanguageExt
         /// <returns>True if fails</returns>
         [Pure]
         public static TryOptionAsync<bool> isFail<T>(TryOptionAsync<T> self) => async () =>
-            (await self.Try()).IsFaultedOrNone;
+            (await self.Try().ConfigureAwait(false)).IsFaultedOrNone;
 
         /// <summary>
         /// Invoke a delegate if the TryOptionAsync returns a value successfully

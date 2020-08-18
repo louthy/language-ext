@@ -466,7 +466,7 @@ namespace LanguageExt
                 }
             }
 
-            // Implement FNV 1a hashing algoritm - https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
+            // Implement FNV 1a hashing algorithm - https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
             var expr = Fields().Fold(fnvOffsetBasis as Expression, (state, field) =>
                 Expression.Multiply(
                     fnvPrime,

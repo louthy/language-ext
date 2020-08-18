@@ -21,7 +21,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Stck.Sync
         {
             var ma = Success<Error, Stck<int>>(Stack(1, 2, 3, 4));
             var mb = ma.Traverse(identity);
-            var mc = Stack(Success<Error, int>(4), Success<Error, int>(3), Success<Error, int>(2), Success<Error, int>(1));
+            var mc = Stack(Success<Error, int>(1), Success<Error, int>(2), Success<Error, int>(3), Success<Error, int>(4));
 
             Assert.Equal(mc, mb);
         }

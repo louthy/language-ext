@@ -24,7 +24,7 @@ namespace LanguageExt.ClassInstances
         public TryAsync<B> BiMapAsync(TryAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, B> fb) =>
             new TryAsync<B>(async () =>
                 await default(MTryAsync<A>).MatchAsync(ma,
-                    SomeAsync: async a => new Result<B>(await fa(a)),
+                    SomeAsync: async a => new Result<B>(await fa(a).ConfigureAwait(false)),
                     None: ()      => new Result<B>(fb(unit))));
 
         [Pure]
@@ -32,14 +32,14 @@ namespace LanguageExt.ClassInstances
             new TryAsync<B>(async () =>
                 await default(MTryAsync<A>).MatchAsync(ma,
                     Some: a        => new Result<B>(fa(a)),
-                    NoneAsync: async () => new Result<B>(await fb(unit))));
+                    NoneAsync: async () => new Result<B>(await fb(unit).ConfigureAwait(false))).ConfigureAwait(false));
 
         [Pure]
         public TryAsync<B> BiMapAsync(TryAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, Task<B>> fb) =>
             new TryAsync<B>(async () =>
                 await default(MTryAsync<A>).MatchAsync(ma,
-                    SomeAsync: async a  => new Result<B>(await fa(a)),
-                    NoneAsync: async () => new Result<B>(await fb(unit))));
+                    SomeAsync: async a  => new Result<B>(await fa(a).ConfigureAwait(false)),
+                    NoneAsync: async () => new Result<B>(await fb(unit).ConfigureAwait(false))).ConfigureAwait(false));
 
         [Pure]
         public TryAsync<B> Map(TryAsync<A> ma, Func<A, B> f) =>
@@ -47,6 +47,6 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryAsync<B> MapAsync(TryAsync<A> ma, Func<A, Task<B>> f) =>
-            default(MTryAsync<A>).BindAsync<MTryAsync<B>, TryAsync<B>, B>(ma, async a => Prelude.TryAsync(await f(a)));
+            default(MTryAsync<A>).BindAsync<MTryAsync<B>, TryAsync<B>, B>(ma, async a => Prelude.TryAsync(await f(a).ConfigureAwait(false)));
     }
 }

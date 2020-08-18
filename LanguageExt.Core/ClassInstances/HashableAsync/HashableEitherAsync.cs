@@ -21,11 +21,11 @@ namespace LanguageExt.ClassInstances
     {
         public async Task<int> GetHashCodeAsync(EitherAsync<L, R> x)
         {
-            var d = await x.Data;
+            var d = await x.Data.ConfigureAwait(false);
             return d.State switch
             {
-                EitherStatus.IsRight => await default(HashL).GetHashCodeAsync(d.Left),
-                EitherStatus.IsLeft => await default(HashR).GetHashCodeAsync(d.Right),
+                EitherStatus.IsRight => await default(HashL).GetHashCodeAsync(d.Left).ConfigureAwait(false),
+                EitherStatus.IsLeft => await default(HashR).GetHashCodeAsync(d.Right).ConfigureAwait(false),
                 _ => 0
             };
         }

@@ -17,13 +17,13 @@ namespace LanguageExt
  
         public static async Task<Arr<B>> Traverse<A, B>(this Arr<Task<A>> ma, Func<A, B> f)
         {
-            var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
+            var rb = await Task.WhenAll(ma.Map(async a => f(await a))).ConfigureAwait(false);
             return new Arr<B>(rb);
         }
         
         public static async Task<HashSet<B>> Traverse<A, B>(this HashSet<Task<A>> ma, Func<A, B> f)
         {
-            var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
+            var rb = await Task.WhenAll(ma.Map(async a => f(await a))).ConfigureAwait(false);
             return new HashSet<B>(rb);
         }
         
@@ -36,7 +36,7 @@ namespace LanguageExt
             var rb = new List<B>();
             foreach (var a in ma)
             {
-                rb.Add(f(await a));
+                rb.Add(f(await a.ConfigureAwait(false)));
             }
             return rb;            
         }
@@ -62,13 +62,13 @@ namespace LanguageExt
  
         public static async Task<Lst<B>> Traverse<A, B>(this Lst<Task<A>> ma, Func<A, B> f)
         {
-            var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
+            var rb = await Task.WhenAll(ma.Map(async a => f(await a))).ConfigureAwait(false);
             return new Lst<B>(rb);
         }
         
         public static async Task<Que<B>> Traverse<A, B>(this Que<Task<A>> ma, Func<A, B> f)
         {
-            var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
+            var rb = await Task.WhenAll(ma.Map(async a => f(await a))).ConfigureAwait(false);
             return new Que<B>(rb);
         }
 
@@ -81,7 +81,7 @@ namespace LanguageExt
             var rb = new List<B>();
             foreach (var a in ma)
             {
-                rb.Add(f(await a));
+                rb.Add(f(await a.ConfigureAwait(false)));
             }
             return Seq.FromArray<B>(rb.ToArray());
         }
@@ -107,13 +107,13 @@ namespace LanguageExt
 
         public static async Task<Set<B>> Traverse<A, B>(this Set<Task<A>> ma, Func<A, B> f)
         {
-            var rb = await Task.WhenAll(ma.Map(async a => f(await a)));
+            var rb = await Task.WhenAll(ma.Map(async a => f(await a))).ConfigureAwait(false);
             return new Set<B>(rb);
         }
 
         public static async Task<Stck<B>> Traverse<A, B>(this Stck<Task<A>> ma, Func<A, B> f)
         {
-            var rb = await Task.WhenAll(ma.Reverse().Map(async a => f(await a)));
+            var rb = await Task.WhenAll(ma.Reverse().Map(async a => f(await a))).ConfigureAwait(false);
             return new Stck<B>(rb);
         }
 
@@ -123,52 +123,72 @@ namespace LanguageExt
 
         public static async Task<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, B> f)
         {
-            var da = await ma.Data;
+            var da = await ma.Data.ConfigureAwait(false);
             if (da.State == EitherStatus.IsBottom) throw new BottomException();
             if (da.State == EitherStatus.IsLeft) return EitherAsync<L, B>.Left(da.Left);
-            var a = await da.Right;
+            var a = await da.Right.ConfigureAwait(false);
             if(da.Right.IsFaulted) ExceptionDispatchInfo.Capture(da.Right.Exception.InnerException).Throw();
             return EitherAsync<L, B>.Right(f(a));
         }
 
         public static async Task<OptionAsync<B>> Traverse<A, B>(this OptionAsync<Task<A>> ma, Func<A, B> f)
         {
-            var (s, v) = await ma.Data;
+            var (s, v) = await ma.Data.ConfigureAwait(false);
             if (!s) return OptionAsync<B>.None;
-            var a = await v;
+            var a = await v.ConfigureAwait(false);
             if (v.IsFaulted) ExceptionDispatchInfo.Capture(v.Exception.InnerException).Throw();
             return OptionAsync<B>.Some(f(a));
         }
         
         public static async Task<TryAsync<B>> Traverse<A, B>(this TryAsync<Task<A>> ma, Func<A, B> f)
         {
-            var da = await ma.Try();
+            var da = await ma.Try().ConfigureAwait(false);
             if (da.IsBottom) throw new BottomException();
             if (da.IsFaulted) return TryAsyncFail<B>(da.Exception);
-            var a = await da.Value;
+            var a = await da.Value.ConfigureAwait(false);
             if(da.Value.IsFaulted) ExceptionDispatchInfo.Capture(da.Value.Exception.InnerException).Throw();
             return TryAsyncSucc(f(a));
         }
         
         public static async Task<TryOptionAsync<B>> Traverse<A, B>(this TryOptionAsync<Task<A>> ma, Func<A, B> f)
         {
-            var da = await ma.Try();
+            var da = await ma.Try().ConfigureAwait(false);
             if (da.IsBottom) throw new BottomException();
             if (da.IsNone) return TryOptionalAsync<B>(None);
             if (da.IsFaulted) return TryOptionAsyncFail<B>(da.Exception);
-            var a = await da.Value.Value;
+            var a = await da.Value.Value.ConfigureAwait(false);
             if(da.Value.Value.IsFaulted) ExceptionDispatchInfo.Capture(da.Value.Value.Exception.InnerException).Throw();
             return TryOptionAsyncSucc(f(a));
         }
 
         public static async Task<Task<B>> Traverse<A, B>(this Task<Task<A>> ma, Func<A, B> f)
         {
-            var da = await ma;
+            var da = await ma.ConfigureAwait(false);
             if (ma.IsFaulted) return TaskFail<B>(da.Exception);
-            var a = await da;
+            var a = await da.ConfigureAwait(false);
             if (da.IsFaulted) ExceptionDispatchInfo.Capture(da.Exception.InnerException).Throw();
             return TaskSucc(f(a));
         }
+
+        public static async Task<ValueTask<B>> Traverse<A, B>(this ValueTask<Task<A>> ma, Func<A, B> f)
+        {
+            var da = await ma.ConfigureAwait(false);
+            if (ma.IsFaulted) return ValueTaskFail<B>(da.Exception);
+            var a = await da.ConfigureAwait(false);
+            if (da.IsFaulted) ExceptionDispatchInfo.Capture(da.Exception.InnerException).Throw();
+            return ValueTaskSucc(f(a));
+        }
+        
+        public static async Task<AffPure<B>> Traverse<A, B>(this AffPure<Task<A>> ma, Func<A, B> f)
+        {
+            var da = await ma.RunIO().ConfigureAwait(false);
+            if (da.IsBottom) throw new BottomException();
+            if (da.IsFail) return FailAff<B>(da.Error);
+            var a = await da.Value.ConfigureAwait(false);
+            if(da.Value.IsFaulted) ExceptionDispatchInfo.Capture(da.Value.Exception.InnerException).Throw();
+            return SuccessAff(f(a));
+        }
+
 
         //
         // Sync types
@@ -178,29 +198,29 @@ namespace LanguageExt
         {
             if (ma.IsBottom) return Either<L, B>.Bottom;
             else if (ma.IsLeft) return Either<L, B>.Left(ma.LeftValue);
-            return Either<L, B>.Right(f(await ma.RightValue));
+            return Either<L, B>.Right(f(await ma.RightValue.ConfigureAwait(false)));
         }
 
         public static async Task<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Task<A>> ma, Func<A, B> f)
         {
             if (ma.IsBottom) return EitherUnsafe<L, B>.Bottom;
             else if (ma.IsLeft) return EitherUnsafe<L, B>.Left(ma.LeftValue);
-            return EitherUnsafe<L, B>.Right(f(await ma.RightValue));
+            return EitherUnsafe<L, B>.Right(f(await ma.RightValue.ConfigureAwait(false)));
         }
 
         public static async Task<Identity<B>> Traverse<A, B>(this Identity<Task<A>> ma, Func<A, B> f) =>
-            new Identity<B>(f(await ma.Value));
+            new Identity<B>(f(await ma.Value.ConfigureAwait(false)));
         
         public static async Task<Option<B>> Traverse<A, B>(this Option<Task<A>> ma, Func<A, B> f)
         {
             if (ma.IsNone) return Option<B>.None;
-            return Option<B>.Some(f(await ma.Value));
+            return Option<B>.Some(f(await ma.Value.ConfigureAwait(false)));
         }
         
         public static async Task<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<Task<A>> ma, Func<A, B> f)
         {
             if (ma.IsNone) return OptionUnsafe<B>.None;
-            return OptionUnsafe<B>.Some(f(await ma.Value));
+            return OptionUnsafe<B>.Some(f(await ma.Value.ConfigureAwait(false)));
         }
         
         public static async Task<Try<B>> Traverse<A, B>(this Try<Task<A>> ma, Func<A, B> f)
@@ -208,7 +228,7 @@ namespace LanguageExt
             var mr = ma.Try();
             if (mr.IsBottom) return Try<B>(BottomException.Default);
             else if (mr.IsFaulted) return Try<B>(mr.Exception);
-            return Try<B>(f(await mr.Value));
+            return Try<B>(f(await mr.Value.ConfigureAwait(false)));
         }
         
         public static async Task<TryOption<B>> Traverse<A, B>(this TryOption<Task<A>> ma, Func<A, B> f)
@@ -217,20 +237,28 @@ namespace LanguageExt
             if (mr.IsBottom) return TryOptionFail<B>(BottomException.Default);
             else if (mr.IsNone) return TryOption<B>(None);
             else if (mr.IsFaulted) return TryOption<B>(mr.Exception);
-            return TryOption<B>(f(await mr.Value.Value));
+            return TryOption<B>(f(await mr.Value.Value.ConfigureAwait(false)));
         }
         
         public static async Task<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Task<A>> ma, Func<A, B> f)
         {
             if (ma.IsFail) return Validation<Fail, B>.Fail(ma.FailValue);
-            return Validation<Fail, B>.Success(f(await ma.SuccessValue));
+            return Validation<Fail, B>.Success(f(await ma.SuccessValue.ConfigureAwait(false)));
         }
         
         public static async Task<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Task<A>> ma, Func<A, B> f)
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail) return Validation<MonoidFail, Fail, B>.Fail(ma.FailValue);
-            return Validation<MonoidFail, Fail, B>.Success(f(await ma.SuccessValue));
+            return Validation<MonoidFail, Fail, B>.Success(f(await ma.SuccessValue.ConfigureAwait(false)));
+        }
+        
+        public static async Task<EffPure<B>> Traverse<A, B>(this EffPure<Task<A>> ma, Func<A, B> f)
+        {
+            var mr = ma.RunIO();
+            if (mr.IsBottom) return FailEff<B>(BottomException.Default);
+            else if (mr.IsFail) return FailEff<B>(mr.Error);
+            return SuccessEff<B>(f(await mr.Value.ConfigureAwait(false)));
         }
     }
 }

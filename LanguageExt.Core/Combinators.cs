@@ -164,11 +164,5 @@ namespace LanguageExt
         /// </summary>
         public static Func<Func<A, B>, Func<A, C>> S<A, B, C>(Func<A, B, C> x) => (Func<A, B> y) => (A z) =>
             x(z, y(z));
-
-        /// <summary>
-        /// The infamous Y-combinator, or Sage bird (http://dkeenan.com/Lambda/ )
-        /// </summary>
-        public static Func<A, B> Y<A, B, C>(Func<Func<A, B>, A, B> f) => (A x) =>
-            f(Y<A, B, C>(f), x);
     }
 }

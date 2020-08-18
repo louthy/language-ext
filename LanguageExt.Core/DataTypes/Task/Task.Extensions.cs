@@ -12,6 +12,9 @@ namespace LanguageExt
 {
     public static class TaskExtensions
     {
+        public static bool CompletedSuccessfully<A>(this Task<A> ma) =>
+            ma.IsCompleted && !ma.IsFaulted && !ma.IsCanceled;
+        
         /// <summary>
         /// Use for pattern-matching the case of the target
         /// </summary>
@@ -41,9 +44,16 @@ namespace LanguageExt
         /// Convert a value to a Task that completes immediately
         /// </summary>
         [Pure]
-        public static Task<T> AsTask<T>(this T self) =>
+        public static Task<A> AsTask<A>(this A self) =>
             Task.FromResult(self);
 
+        /// <summary>
+        /// Convert a ValueTask to a Task 
+        /// </summary>
+        [Pure]
+        public static Task<A> ToRef<A>(this ValueTask<A> self) =>
+            self.AsTask();
+        
         /// <summary>
         /// Flatten the nested Task type
         /// </summary>

@@ -17,7 +17,7 @@ namespace LanguageExt
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryAsync<A> TryAsync<A>(Func<Task<A>> f) =>
-            TryAsyncExtensions.Memo<A>(new LanguageExt.TryAsync<A>(async () => new Result<A>(await f())));
+            TryAsyncExtensions.Memo<A>(new LanguageExt.TryAsync<A>(async () => new Result<A>(await f().ConfigureAwait(false))));
 
         /// <summary>
         /// TryAsync constructor function
@@ -27,7 +27,7 @@ namespace LanguageExt
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryAsync<A> TryAsync<A>(Task<A> v) =>
-            TryAsyncExtensions.Memo<A>(new LanguageExt.TryAsync<A>(async () => new Result<A>(await v)));
+            TryAsyncExtensions.Memo<A>(new LanguageExt.TryAsync<A>(async () => new Result<A>(await v.ConfigureAwait(false))));
 
         /// <summary>
         /// TryAsync identity constructor function
@@ -247,7 +247,7 @@ namespace LanguageExt
         /// <returns>True if fails</returns>
         [Pure]
         public static TryAsync<bool> isFail<T>(TryAsync<T> self) => async () =>
-            (await self.Try()).IsFaulted;
+            (await self.Try().ConfigureAwait(false)).IsFaulted;
 
         /// <summary>
         /// Invoke a delegate if the TryAsync returns a value successfully

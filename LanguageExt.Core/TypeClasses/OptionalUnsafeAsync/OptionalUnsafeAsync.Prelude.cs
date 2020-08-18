@@ -263,7 +263,7 @@ namespace LanguageExt
         public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, Task<R>> SomeAsync, Func<R> None)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
-                SomeAsync: async x => await SomeAsync(x),
+                SomeAsync: async x => await SomeAsync(x).ConfigureAwait(false),
                 None: () => None()
             );
 
@@ -280,7 +280,7 @@ namespace LanguageExt
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
                 Some: x => Some(x),
-                NoneAsync: async () => await NoneAsync()
+                NoneAsync: async () => await NoneAsync().ConfigureAwait(false)
             );
 
         /// <summary>
@@ -295,8 +295,8 @@ namespace LanguageExt
         public static Task<R> matchUntypedAsync<OPT, OA, A, R>(OA ma, Func<object, Task<R>> SomeAsync, Func<Task<R>> NoneAsync)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).MatchAsync(ma,
-                SomeAsync: async x => await SomeAsync(x),
-                NoneAsync: async () => await NoneAsync()
+                SomeAsync: async x => await SomeAsync(x).ConfigureAwait(false),
+                NoneAsync: async () => await NoneAsync().ConfigureAwait(false)
             );
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Arr<B>>> Go(Arr<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try()));
+                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<Arr<B>>(b.Exception)).Head()
                     : new Result<Arr<B>>(new Arr<B>(rb.Map(d => d.Value)));
@@ -37,7 +37,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<HashSet<B>>> Go(HashSet<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try()));
+                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<HashSet<B>>(b.Exception)).Head()
                     : new Result<HashSet<B>>(new HashSet<B>(rb.Map(d => d.Value)));
@@ -56,7 +56,7 @@ namespace LanguageExt
                 var rb = new List<B>();
                 foreach (var a in ma)
                 {
-                    var mb = await a.Try();
+                    var mb = await a.Try().ConfigureAwait(false);
                     if (mb.IsFaulted) return new Result<IEnumerable<B>>(mb.Exception);
                     rb.Add(f(mb.Value));
                 }
@@ -72,7 +72,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<IEnumerable<B>>> Go(IEnumerable<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity);
+                var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<IEnumerable<B>>(b.Exception)).Head()
                     : new Result<IEnumerable<B>>(rb.Map(d => d.Value).ToArray());
@@ -97,7 +97,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Lst<B>>> Go(Lst<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try()));
+                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<Lst<B>>(b.Exception)).Head()
                     : new Result<Lst<B>>(new Lst<B>(rb.Map(d => d.Value)));
@@ -109,7 +109,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Que<B>>> Go(Que<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try()));
+                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<Que<B>>(b.Exception)).Head()
                     : new Result<Que<B>>(new Que<B>(rb.Map(d => d.Value)));
@@ -128,7 +128,7 @@ namespace LanguageExt
                 var rb = new List<B>();
                 foreach (var a in ma)
                 {
-                    var mb = await a.Try();
+                    var mb = await a.Try().ConfigureAwait(false);
                     if (mb.IsFaulted) return new Result<Seq<B>>(mb.Exception);
                     rb.Add(f(mb.Value));
                 }
@@ -144,7 +144,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Seq<B>>> Go(Seq<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity);
+                var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<Seq<B>>(b.Exception)).Head()
                     : new Result<Seq<B>>(Seq.FromArray(rb.Map(d => d.Value).ToArray()));
@@ -169,7 +169,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Set<B>>> Go(Set<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try()));
+                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<Set<B>>(b.Exception)).Head()
                     : new Result<Set<B>>(new Set<B>(rb.Map(d => d.Value)));
@@ -181,7 +181,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Stck<B>>> Go(Stck<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Reverse().Map(a => a.Map(f).Try()));
+                var rb = await Task.WhenAll(ma.Reverse().Map(a => a.Map(f).Try())).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<Stck<B>>(b.Exception)).Head()
                     : new Result<Stck<B>>(new Stck<B>(rb.Map(d => d.Value)));
@@ -197,10 +197,10 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<EitherAsync<L, B>>> Go(EitherAsync<L, TryAsync<A>> ma, Func<A, B> f)
             {
-                var da = await ma.Data;
+                var da = await ma.Data.ConfigureAwait(false);
                 if (da.State == EitherStatus.IsBottom) return Result<EitherAsync<L, B>>.Bottom;
                 if (da.State == EitherStatus.IsLeft) return new Result<EitherAsync<L,B>>(da.Left);
-                var rb = await da.Right.Try();
+                var rb = await da.Right.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new Result<EitherAsync<L, B>>(rb.Exception);
                 return new Result<EitherAsync<L, B>>(EitherAsync<L, B>.Right(f(rb.Value)));
             }
@@ -211,9 +211,9 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<OptionAsync<B>>> Go(OptionAsync<TryAsync<A>> ma, Func<A, B> f)
             {
-                var (isSome, value) = await ma.Data;
+                var (isSome, value) = await ma.Data.ConfigureAwait(false);
                 if (!isSome) return new Result<OptionAsync<B>>(OptionAsync<B>.None);
-                var rb = await value.Try();
+                var rb = await value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new Result<OptionAsync<B>>(rb.Exception);
                 return new Result<OptionAsync<B>>(OptionAsync<B>.Some(f(rb.Value)));
             }
@@ -224,9 +224,9 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<TryAsync<B>>> Go(TryAsync<TryAsync<A>> ma, Func<A, B> f)
             {
-                var ra = await ma.Try();
+                var ra = await ma.Try().ConfigureAwait(false);
                 if (ra.IsFaulted) return new Result<TryAsync<B>>(TryAsync<B>(ra.Exception));
-                var rb = await ra.Value.Try();
+                var rb = await ra.Value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new Result<TryAsync<B>>(rb.Exception);
                 return new Result<TryAsync<B>>(TryAsync<B>(f(rb.Value)));
             }
@@ -237,10 +237,10 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<TryOptionAsync<B>>> Go(TryOptionAsync<TryAsync<A>> ma, Func<A, B> f)
             {
-                var ra = await ma.Try();
+                var ra = await ma.Try().ConfigureAwait(false);
                 if (ra.IsFaulted) return new Result<TryOptionAsync<B>>(TryOptionAsync<B>(ra.Exception));
                 if (ra.IsNone) return new Result<TryOptionAsync<B>>(TryOptionAsync<B>(None));
-                var rb = await ra.Value.Value.Try();
+                var rb = await ra.Value.Value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new Result<TryOptionAsync<B>>(rb.Exception);
                 return new Result<TryOptionAsync<B>>(TryOptionAsync<B>(f(rb.Value)));
             }
@@ -251,13 +251,38 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Task<B>>> Go(Task<TryAsync<A>> ma, Func<A, B> f)
             {
-                var ra = await ma;
-                var rb = await ra.Try();
+                var ra = await ma.ConfigureAwait(false);
+                var rb = await ra.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new Result<Task<B>>(rb.Exception);
                 return new Result<Task<B>>(f(rb.Value).AsTask());
             }
         }
 
+        public static TryAsync<ValueTask<B>> Traverse<A, B>(this ValueTask<TryAsync<A>> ma, Func<A, B> f)
+        {
+            return ToTry(() => Go(ma, f).AsTask());
+            async ValueTask<Result<ValueTask<B>>> Go(ValueTask<TryAsync<A>> ma, Func<A, B> f)
+            {
+                var ra = await ma.ConfigureAwait(false);
+                var rb = await ra.Try().ConfigureAwait(false);
+                if (rb.IsFaulted) return new Result<ValueTask<B>>(rb.Exception);
+                return new Result<ValueTask<B>>(f(rb.Value).AsValueTask());
+            }
+        }
+        
+        public static TryAsync<AffPure<B>> Traverse<A, B>(this AffPure<TryAsync<A>> ma, Func<A, B> f)
+        {
+            return ToTry(() => Go(ma, f));
+            async Task<Result<AffPure<B>>> Go(AffPure<TryAsync<A>> ma, Func<A, B> f)
+            {
+                var ra = await ma.RunIO().ConfigureAwait(false);
+                if (ra.IsFail) return new Result<AffPure<B>>(FailAff<B>(ra.Error));
+                var rb = await ra.Value.Try().ConfigureAwait(false);
+                if (rb.IsFaulted) return new Result<AffPure<B>>(rb.Exception);
+                return new Result<AffPure<B>>(SuccessAff<B>(f(rb.Value)));
+            }
+        }
+        
         //
         // Sync types
         // 
@@ -269,7 +294,7 @@ namespace LanguageExt
             {
                 if(ma.IsBottom) return Result<Either<L, B>>.Bottom;
                 if(ma.IsLeft) return new Result<Either<L, B>>(ma.LeftValue);
-                var rb = await ma.RightValue.Try();
+                var rb = await ma.RightValue.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new Result<Either<L, B>>(rb.Exception);
                 return new Result<Either<L, B>>(f(rb.Value));
             }
@@ -282,7 +307,7 @@ namespace LanguageExt
             {
                 if(ma.IsBottom) return Result<EitherUnsafe<L, B>>.Bottom;
                 if(ma.IsLeft) return new Result<EitherUnsafe<L, B>>(ma.LeftValue);
-                var rb = await ma.RightValue.Try();
+                var rb = await ma.RightValue.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new Result<EitherUnsafe<L, B>>(rb.Exception);
                 return new Result<EitherUnsafe<L, B>>(f(rb.Value));
             }
@@ -294,7 +319,7 @@ namespace LanguageExt
             async Task<Result<Identity<B>>> Go(Identity<TryAsync<A>> ma, Func<A, B> f)
             {
                 if(ma.IsBottom) return Result<Identity<B>>.Bottom;
-                var rb = await ma.Value.Try();
+                var rb = await ma.Value.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new Result<Identity<B>>(rb.Exception);
                 return new Result<Identity<B>>(new Identity<B>(f(rb.Value)));
             }
@@ -306,7 +331,7 @@ namespace LanguageExt
             async Task<Result<Option<B>>> Go(Option<TryAsync<A>> ma, Func<A, B> f)
             {
                 if(ma.IsNone) return new Result<Option<B>>(None);
-                var rb = await ma.Value.Try();
+                var rb = await ma.Value.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new Result<Option<B>>(rb.Exception);
                 return new Result<Option<B>>(Option<B>.Some(f(rb.Value)));
             }
@@ -318,7 +343,7 @@ namespace LanguageExt
             async Task<Result<OptionUnsafe<B>>> Go(OptionUnsafe<TryAsync<A>> ma, Func<A, B> f)
             {
                 if(ma.IsNone) return new Result<OptionUnsafe<B>>(None);
-                var rb = await ma.Value.Try();
+                var rb = await ma.Value.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new Result<OptionUnsafe<B>>(rb.Exception);
                 return new Result<OptionUnsafe<B>>(OptionUnsafe<B>.Some(f(rb.Value)));
             }
@@ -331,7 +356,7 @@ namespace LanguageExt
             {
                 var ra = ma.Try();
                 if (ra.IsFaulted) return new Result<Try<B>>(TryFail<B>(ra.Exception));
-                var rb = await ra.Value.Try();
+                var rb = await ra.Value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new Result<Try<B>>(rb.Exception);
                 return new Result<Try<B>>(Try<B>(f(rb.Value)));
             }
@@ -346,7 +371,7 @@ namespace LanguageExt
                 if (ra.IsBottom) return Result<TryOption<B>>.Bottom;
                 if (ra.IsNone) return new Result<TryOption<B>>(TryOptional<B>(None));
                 if (ra.IsFaulted) return new Result<TryOption<B>>(TryOptionFail<B>(ra.Exception));
-                var rb = await ra.Value.Value.Try();
+                var rb = await ra.Value.Value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new Result<TryOption<B>>(rb.Exception);
                 return new Result<TryOption<B>>(TryOption<B>(f(rb.Value)));
             }
@@ -358,7 +383,7 @@ namespace LanguageExt
             async Task<Result<Validation<Fail, B>>> Go(Validation<Fail, TryAsync<A>> ma, Func<A, B> f)
             {
                 if (ma.IsFail) return new Result<Validation<Fail, B>>(Fail<Fail, B>(ma.FailValue));
-                var rb = await ma.SuccessValue.Try();
+                var rb = await ma.SuccessValue.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new Result<Validation<Fail, B>>(rb.Exception);
                 return new Result<Validation<Fail, B>>(f(rb.Value));
             }
@@ -371,9 +396,22 @@ namespace LanguageExt
             async Task<Result<Validation<MonoidFail, Fail, B>>> Go(Validation<MonoidFail, Fail, TryAsync<A>> ma, Func<A, B> f)
             {
                 if (ma.IsFail) return new Result<Validation<MonoidFail, Fail, B>>(Fail<MonoidFail, Fail, B>(ma.FailValue));
-                var rb = await ma.SuccessValue.Try();
+                var rb = await ma.SuccessValue.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new Result<Validation<MonoidFail, Fail, B>>(rb.Exception);
                 return new Result<Validation<MonoidFail, Fail, B>>(f(rb.Value));
+            }
+        }
+        
+        public static TryAsync<EffPure<B>> Traverse<A, B>(this EffPure<TryAsync<A>> ma, Func<A, B> f)
+        {
+            return ToTry(() => Go(ma, f));
+            async Task<Result<EffPure<B>>> Go(EffPure<TryAsync<A>> ma, Func<A, B> f)
+            {
+                var ra = ma.RunIO();
+                if (ra.IsFail) return new Result<EffPure<B>>(FailEff<B>(ra.Error));
+                var rb = await ra.Value.Try().ConfigureAwait(false);
+                if (rb.IsFaulted) return new Result<EffPure<B>>(rb.Exception);
+                return new Result<EffPure<B>>(SuccessEff<B>(f(rb.Value)));
             }
         }
     }

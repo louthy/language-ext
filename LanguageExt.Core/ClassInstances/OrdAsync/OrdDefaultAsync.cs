@@ -17,11 +17,6 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly OrdDefaultAsync<A> Inst = default(OrdDefaultAsync<A>);
 
-        static readonly Func<A, A, Task<int>> ord;
-
-        static OrdDefaultAsync() =>
-            ord = OrdAsyncClass<A>.CompareAsync;
-
         /// <summary>
         /// Equality test
         /// </summary>
@@ -30,7 +25,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>True if x and y are equal</returns>
         [Pure]
         public Task<int> CompareAsync(A x, A y) =>
-            ord(x, y);
+            OrdAsyncClass<A>.CompareAsync(x, y);
 
         [Pure]
         public Task<bool> EqualsAsync(A x, A y) =>

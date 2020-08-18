@@ -1022,7 +1022,7 @@ namespace LanguageExt
         /// <returns>A task</returns>
         public async Task<OptionUnsafe<B>> MapAsync<B>(Func<A, Task<B>> map) =>
             isSome
-                ? OptionUnsafe<B>.Some(await map(Value))
+                ? OptionUnsafe<B>.Some(await map(Value).ConfigureAwait(false))
                 : OptionUnsafe<B>.None;
     }
 }

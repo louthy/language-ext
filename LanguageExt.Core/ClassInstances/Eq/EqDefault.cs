@@ -18,11 +18,6 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly EqDefault<A> Inst = default(EqDefault<A>);
 
-        static readonly Func<A, A, bool> eq;
-
-        static EqDefault() =>
-            eq = EqClass<A>.Equals;
-
         /// <summary>
         /// Equality test
         /// </summary>
@@ -35,7 +30,7 @@ namespace LanguageExt.ClassInstances
             if (isnull(a)) return isnull(b);
             if (isnull(b)) return false;
             if (ReferenceEquals(a, b)) return true;
-            return eq(a, b);
+            return EqClass<A>.Equals(a, b);
         }
 
         /// <summary>

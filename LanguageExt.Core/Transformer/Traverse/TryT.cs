@@ -248,5 +248,15 @@ namespace LanguageExt
                 return new Result<Validation<MonoidFail, Fail, B>>(Validation<MonoidFail, Fail, B>.Success(f(mr.Value)));
             }
         };
-    }
+        
+        public static Try<EffPure<B>> Traverse<A, B>(this EffPure<Try<A>> ma, Func<A, B> f) => () =>
+        {
+            var mb = ma.RunIO();
+            if (mb.IsBottom) return Result<EffPure<B>>.Bottom;
+            if (mb.IsFail) return new Result<EffPure<B>>(FailEff<B>(mb.Error));
+            var mr = mb.Value.Try();
+            if (mr.IsBottom) return Result<EffPure<B>>.Bottom;
+            if (mr.IsFaulted) return new Result<EffPure<B>>(mr.Exception);
+            return new Result<EffPure<B>>(SuccessEff<B>(f(mr.Value)));
+        };    }
 }

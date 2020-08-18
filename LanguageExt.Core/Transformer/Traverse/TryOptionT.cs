@@ -260,5 +260,17 @@ namespace LanguageExt
             if (mr.IsNone) return OptionalResult<Validation<MonoidFail, Fail, B>>.None;
             return new OptionalResult<Validation<MonoidFail, Fail, B>>(Validation<MonoidFail, Fail, B>.Success(f(mr.Value.Value)));
         };
+        
+        public static TryOption<EffPure<B>> Traverse<A, B>(this EffPure<TryOption<A>> ma, Func<A, B> f) => () =>
+        {
+            var mb = ma.RunIO();
+            if (mb.IsBottom) return OptionalResult<EffPure<B>>.None;
+            if (mb.IsFail) return new OptionalResult<EffPure<B>>(FailEff<B>(mb.Error));
+            var mr = mb.Value.Try();
+            if (mr.IsBottom) return  OptionalResult<EffPure<B>>.None;
+            if (mr.IsFaulted) return new OptionalResult<EffPure<B>>(mr.Exception);
+            if (mr.IsNone) return OptionalResult<EffPure<B>>.None;
+            return new OptionalResult<EffPure<B>>(SuccessEff<B>(f(mr.Value.Value)));
+        };
     }
 }

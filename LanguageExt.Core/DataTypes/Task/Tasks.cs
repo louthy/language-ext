@@ -13,37 +13,29 @@ namespace LanguageExt
         [Pure]
         public static async Task<bool> ForAll<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred)
         {
-            var tasks = toSet<OrdTask<A>, Task<A>>(fs);
+            var ra = await fs.WindowMap(pred).ConfigureAwait(false);
+            return ra.ForAll(identity);
+        }
 
-            while (tasks.Count > 0)
-            {
-                var completed = await Task.WhenAny(tasks);
-                if (!pred(completed.Result))
-                {
-                    return false;
-                }
-                tasks = tasks.Remove(completed);
-            }
-            return true;
+        [Pure]
+        public static async Task<bool> ForAll<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred, int windowSize)
+        {
+            var ra = await fs.WindowMap(windowSize, pred).ConfigureAwait(false);
+            return ra.ForAll(identity);
         }
 
         [Pure]
         public static async Task<bool> Exists<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred)
         {
-            var tasks = toSet<OrdTask<A>, Task<A>>(fs);
-
-            while (tasks.Count > 0)
-            {
-                var completed = await Task.WhenAny(tasks);
-                var res = pred(completed.Result);
-                if (res)
-                {
-                    return res;
-                }
-                tasks = tasks.Remove(completed);
-            }
-            return false;
+            var ra = await fs.WindowMap(pred).ConfigureAwait(false);
+            return ra.Exists(identity);
         }
-    }
 
+        [Pure]
+        public static async Task<bool> Exists<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred, int windowSize)
+        {
+            var ra = await fs.WindowMap(windowSize, pred).ConfigureAwait(false);
+            return ra.Exists(identity);
+        }    
+    }
 }

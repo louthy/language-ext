@@ -17,11 +17,6 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly OrdDefault<A> Inst = default(OrdDefault<A>);
 
-        static readonly Func<A, A, int> ord;
-
-        static OrdDefault() =>
-            ord = OrdClass<A>.Compare;
-
         /// <summary>
         /// Equality test
         /// </summary>
@@ -30,7 +25,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>True if x and y are equal</returns>
         [Pure]
         public int Compare(A x, A y) =>
-            ord(x, y);
+            OrdClass<A>.Compare(x, y);
 
         [Pure]
         public bool Equals(A x, A y) =>

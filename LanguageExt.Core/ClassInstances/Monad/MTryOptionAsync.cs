@@ -36,9 +36,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public TryOptionAsync<A> Plus(TryOptionAsync<A> ma, TryOptionAsync<A> mb) => async () =>
         {
-            var a = await ma.Try();
+            var a = await ma.Try().ConfigureAwait(false);
             if (!a.IsFaultedOrNone) return a;
-            var b = await mb.Try();
+            var b = await mb.Try().ConfigureAwait(false);
             return b.IsFaulted && a.IsFaulted
                 ? new OptionalResult<A>(new AggregateException(a.Exception, b.Exception))
                 : b;

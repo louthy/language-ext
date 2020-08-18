@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
+using LanguageExt.Interfaces;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -91,6 +94,79 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
+        public async ValueTask<A> SwapAsync(Func<A, ValueTask<A>> f)
+        {
+            var v = await f(Value).ConfigureAwait(false);
+            Value = v;
+            return v;
+        }
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public AffPure<A> SwapAff(Func<A, AffPure<A>> f) =>
+            AffMaybe(async () =>
+            {
+                var fv = await f(Value).RunIO().ConfigureAwait(false);
+                if (fv.IsFail) return fv;
+                Value = fv.Value;
+                return fv;
+            });
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public EffPure<A> SwapEff(Func<A, EffPure<A>> f) =>
+            EffMaybe(() =>
+            {
+                var fv = f(Value).RunIO();
+                if (fv.IsFail) return fv;
+                Value = fv.Value;
+                return fv;
+            });
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public Aff<RT, A> SwapAff<RT>(Func<A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            AffMaybe<RT, A>(async env =>
+            {
+                var fv = await f(Value).RunIO(env).ConfigureAwait(false);
+                if (fv.IsFail) return fv;
+                Value = fv.Value;
+                return fv;
+            });
+        
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) =>
+            EffMaybe<RT, A>(env =>
+            {
+                var fv = f(Value).RunIO(env);
+                if (fv.IsFail) return fv;
+                Value = fv.Value;
+                return fv;
+            });
+        
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
         public A Swap<X>(X x, Func<X, A, A> f)
         {
             var v = f(x, Value);
@@ -104,12 +180,158 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
+        public async ValueTask<A> SwapAsync<X, Y>(X x, Y y, Func<X, Y, A, ValueTask<A>> f)
+        {
+            var v = await f(x, y, Value).ConfigureAwait(false);
+            Value = v;
+            return v;
+        }
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public AffPure<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, AffPure<A>> f) =>
+            AffMaybe(async () =>
+            {
+                var fv = await f(x, y, Value).RunIO().ConfigureAwait(false);
+                if (fv.IsFail) return fv;
+                Value = fv.Value;
+                return fv;
+            });
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public EffPure<A> SwapEff<X, Y>(X x, Y y, Func<X, Y, A, EffPure<A>> f) =>
+            EffMaybe(() =>
+            {
+                var fv = f(x, y, Value).RunIO();
+                if (fv.IsFail) return fv;
+                Value = fv.Value;
+                return fv;
+            });
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public Aff<RT, A> SwapAff<X, Y, RT>(X x, Y y, Func<X, Y, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            AffMaybe<RT, A>(async env =>
+            {
+                var fv = await f(x, y, Value).RunIO(env).ConfigureAwait(false);
+                if (fv.IsFail) return fv;
+                Value = fv.Value;
+                return fv;
+            });
+        
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public Eff<RT, A> SwapEff<X, Y, RT>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
+            EffMaybe<RT, A>(env =>
+            {
+                var fv = f(x, y, Value).RunIO(env);
+                if (fv.IsFail) return fv;
+                Value = fv.Value;
+                return fv;
+            });        
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
         public A Swap<X, Y>(X x, Y y, Func<X, Y, A, A> f)
         {
             var v = f(x, y, Value);
             Value = v;
             return v;
         }
+        
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public async ValueTask<A> SwapAsync<X>(X x, Func<X, A, ValueTask<A>> f)
+        {
+            var v = await f(x, Value).ConfigureAwait(false);
+            Value = v;
+            return v;
+        }
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public AffPure<A> SwapAff<X>(X x, Func<X, A, AffPure<A>> f) =>
+            AffMaybe(async () =>
+            {
+                var fv = await f(x, Value).RunIO().ConfigureAwait(false);
+                if (fv.IsFail) return fv;
+                Value = fv.Value;
+                return fv;
+            });
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public EffPure<A> SwapEff<X>(X x, Func<X, A, EffPure<A>> f) =>
+            EffMaybe(() =>
+            {
+                var fv = f(x, Value).RunIO();
+                if (fv.IsFail) return fv;
+                Value = fv.Value;
+                return fv;
+            });
+
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public Aff<RT, A> SwapAff<X, RT>(X x, Func<X, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+            AffMaybe<RT, A>(async env =>
+            {
+                var fv = await f(x, Value).RunIO(env).ConfigureAwait(false);
+                if (fv.IsFail) return fv;
+                Value = fv.Value;
+                return fv;
+            });
+        
+        /// <summary>
+        /// Swap the old value for the new returned by `f`
+        /// Must be run within a `sync` transaction
+        /// </summary>
+        /// <param name="f">Swap function</param>
+        /// <returns>The value returned from `f`</returns>
+        public Eff<RT, A> SwapEff<X, RT>(X x, Func<X, A, Eff<RT, A>> f) =>
+            EffMaybe<RT, A>(env =>
+            {
+                var fv = f(x, Value).RunIO(env);
+                if (fv.IsFail) return fv;
+                Value = fv.Value;
+                return fv;
+            });   
 
         /// <summary>
         /// Must be called in a transaction. Sets the in-transaction-value of

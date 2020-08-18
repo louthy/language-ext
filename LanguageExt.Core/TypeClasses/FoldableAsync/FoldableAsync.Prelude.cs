@@ -87,7 +87,7 @@ namespace LanguageExt
         /// <param name="self">Foldable to perform the operation on</param>
         public static async Task<Unit> iterAsync<FOLD, F, A>(F fa, Action<A> action) where FOLD : FoldableAsync<F, A>
         {
-            await Task.WhenAll((await toSeqAsync<FOLD, F, A>(fa)).Map(a => { action(a); return unit.AsTask(); }));
+            await Task.WhenAll((await toSeqAsync<FOLD, F, A>(fa)).Map(a => { action(a); return unit.AsTask(); })).ConfigureAwait(false);
             return unit;
         }
 
@@ -98,7 +98,7 @@ namespace LanguageExt
         /// <param name="self">Foldable to perform the operation on</param>
         public static async Task<Unit> iterAsync<FOLD, F, A>(F fa, Func<A, Task<Unit>> action) where FOLD : FoldableAsync<F, A>
         {
-            await Task.WhenAll((await toSeqAsync<FOLD, F, A>(fa)).Map(action));
+            await Task.WhenAll((await toSeqAsync<FOLD, F, A>(fa)).Map(action)).ConfigureAwait(false);
             return unit;
         }
 
@@ -132,7 +132,7 @@ namespace LanguageExt
         /// <returns>First A produced by the foldable</returns>
         [Pure]
         public static async Task<A> headAsync<FOLD, F, A>(F fa) where FOLD : FoldableAsync<F, A> =>
-            (await toSeqAsync<FOLD, F, A>(fa)).Head();
+            (await toSeqAsync<FOLD, F, A>(fa).ConfigureAwait(false)).Head();
 
         /// <summary>
         /// Get the first item in a foldable structure
@@ -142,7 +142,7 @@ namespace LanguageExt
         /// <returns>First A produced by the foldable (Or None if no items produced)</returns>
         [Pure]
         public static async Task<Option<A>> headOrNoneAsync<FOLD, F, A>(F fa) where FOLD : FoldableAsync<F, A> =>
-            (await toSeqAsync<FOLD, F, A>(fa)).HeadOrNone();
+            (await toSeqAsync<FOLD, F, A>(fa).ConfigureAwait(false)).HeadOrNone();
 
         /// <summary>
         /// Get the first item in a foldable structure
@@ -153,7 +153,7 @@ namespace LanguageExt
         /// <returns>First A produced by the foldable (Or Fail if no items produced)</returns>
         [Pure]
         public static async Task<Validation<FAIL, A>> headOrInvalidAsync<FOLD, F, FAIL, A>(F fa, FAIL fail) where FOLD : FoldableAsync<F, A> =>
-            (await toSeqAsync<FOLD, F, A>(fa)).HeadOrInvalid(fail);
+            (await toSeqAsync<FOLD, F, A>(fa).ConfigureAwait(false)).HeadOrInvalid(fail);
 
         /// <summary>
         /// Get the first item in a foldable structure
@@ -164,7 +164,7 @@ namespace LanguageExt
         /// <returns>First A produced by the foldable (Or Left if no items produced)</returns>
         [Pure]
         public static async Task<Either<L, A>> headOrLeftAsync<FOLD, F, L, A>(F fa, L left) where FOLD : FoldableAsync<F, A> =>
-            (await toSeqAsync<FOLD, F, A>(fa)).HeadOrLeft(left);
+            (await toSeqAsync<FOLD, F, A>(fa).ConfigureAwait(false)).HeadOrLeft(left);
 
         /// <summary>
         /// Get the last item in a foldable structure
@@ -174,7 +174,7 @@ namespace LanguageExt
         /// <returns>Last A produced by the foldable</returns>
         [Pure]
         public static async Task<A> lastAsync<FOLD, F, A>(F fa) where FOLD : FoldableAsync<F, A> =>
-            (await toSeqAsync<FOLD, F, A>(fa)).Last();
+            (await toSeqAsync<FOLD, F, A>(fa).ConfigureAwait(false)).Last();
 
         /// <summary>
         /// Get the last item in a foldable structure
@@ -184,7 +184,7 @@ namespace LanguageExt
         /// <returns>Last A produced by the foldable (Or None if no items produced)</returns>
         [Pure]
         public static async Task<Option<A>> lastOrNoneAsync<FOLD, F, A>(F fa) where FOLD : FoldableAsync<F, A> =>
-            (await toSeqAsync<FOLD, F, A>(fa))
+            (await toSeqAsync<FOLD, F, A>(fa).ConfigureAwait(false))
                 .Map(x => Prelude.Some(x))
                 .DefaultIfEmpty(Option<A>.None)
                 .LastOrDefault();
@@ -197,7 +197,7 @@ namespace LanguageExt
         /// <returns>True if empty, False otherwise</returns>
         [Pure]
         public static async Task<bool> isEmptyAsync<FOLD, F, A>(F fa) where FOLD : FoldableAsync<F, A> =>
-            !(await toSeqAsync<FOLD, F, A>(fa)).Any();
+            !(await toSeqAsync<FOLD, F, A>(fa).ConfigureAwait(false)).Any();
 
         /// <summary>
         /// Find the length of a foldable structure 
@@ -221,7 +221,7 @@ namespace LanguageExt
         public static async Task<bool> containsAsync<EQ, FOLD, F, A>(F fa, A item)
             where EQ : struct, Eq<A>
             where FOLD : FoldableAsync<F, A> =>
-            (await toSeqAsync<FOLD, F, A>(fa)).Exists(x => equals<EQ, A>(x, item));
+            (await toSeqAsync<FOLD, F, A>(fa).ConfigureAwait(false)).Exists(x => equals<EQ, A>(x, item));
 
         /// <summary>
         /// The 'sum' function computes the sum of the numbers of a structure.
@@ -257,7 +257,7 @@ namespace LanguageExt
         [Pure]
         public static async Task<bool> forallAsync<FOLD, F, A>(F fa, Func<A,bool> pred) where FOLD : FoldableAsync<F, A>
         {
-            foreach(var item in await toSeqAsync<FOLD, F, A>(fa))
+            foreach(var item in await toSeqAsync<FOLD, F, A>(fa).ConfigureAwait(false))
             {
                 if (!pred(item)) return false;
             }
@@ -275,9 +275,9 @@ namespace LanguageExt
         [Pure]
         public static async Task<bool> forallAsync<FOLD, F, A>(F fa, Func<A, Task<bool>> pred) where FOLD : FoldableAsync<F, A>
         {
-            foreach (var item in await toSeqAsync<FOLD, F, A>(fa))
+            foreach (var item in await toSeqAsync<FOLD, F, A>(fa).ConfigureAwait(false))
             {
-                if (!(await pred(item))) return false;
+                if (!(await pred(item).ConfigureAwait(false))) return false;
             }
             return true;
         }
@@ -295,7 +295,7 @@ namespace LanguageExt
         [Pure]
         public static async Task<bool> existsAsync<FOLD, F, A>(F fa, Func<A, bool> pred) where FOLD : FoldableAsync<F, A>
         {
-            foreach (var item in await toSeqAsync<FOLD, F, A>(fa))
+            foreach (var item in await toSeqAsync<FOLD, F, A>(fa).ConfigureAwait(false))
             {
                 if (pred(item)) return true;
             }
@@ -315,9 +315,9 @@ namespace LanguageExt
         [Pure]
         public static async Task<bool> existsAsync<FOLD, F, A>(F fa, Func<A, Task<bool>> pred) where FOLD : FoldableAsync<F, A>
         {
-            foreach (var item in await toSeqAsync<FOLD, F, A>(fa))
+            foreach (var item in await toSeqAsync<FOLD, F, A>(fa).ConfigureAwait(false))
             {
-                if (await pred(item)) return true;
+                if (await pred(item).ConfigureAwait(false)) return true;
             }
             return false;
         }

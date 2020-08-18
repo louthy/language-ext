@@ -7,14 +7,14 @@ namespace LanguageExt.ClassInstances
     {
         public async Task<int> CompareAsync(TryOptionAsync<A> x, TryOptionAsync<A> y)
         {
-            var dx = await x.Try();
-            var dy = await y.Try();
+            var dx = await x.Try().ConfigureAwait(false);
+            var dy = await y.Try().ConfigureAwait(false);
             if (dx.IsBottom && dy.IsBottom) return 0;
             if (dx.IsFaulted && dy.IsFaulted) return 0;
             if (dx.IsNone && dy.IsNone) return 0;
             if (dx.IsSome && dy.IsSome)
             {
-                return await default(OrdA).CompareAsync(dx.Value.Value, dy.Value.Value);
+                return await default(OrdA).CompareAsync(dx.Value.Value, dy.Value.Value).ConfigureAwait(false);
             }
 
             if (dx.IsBottom && !dy.IsBottom) return -1;

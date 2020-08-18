@@ -25,18 +25,18 @@ namespace LanguageExt.ClassInstances
     {
         public async Task<bool> EqualsAsync(EitherAsync<L, R> x, EitherAsync<L, R> y)
         {
-            var dx = await x.Data;
-            var dy = await x.Data;
+            var dx = await x.Data.ConfigureAwait(false);
+            var dy = await x.Data.ConfigureAwait(false);
             return dx.State switch
             {
                 EitherStatus.IsRight => dy.State switch
                 {
-                    EitherStatus.IsRight => await default(EqR).EqualsAsync(dx.Right, dy.Right),
+                    EitherStatus.IsRight => await default(EqR).EqualsAsync(dx.Right, dy.Right).ConfigureAwait(false),
                     _ => false
                 },
                 EitherStatus.IsLeft => dy.State switch
                 {
-                    EitherStatus.IsLeft => await default(EqL).EqualsAsync(dx.Left, dy.Left),
+                    EitherStatus.IsLeft => await default(EqL).EqualsAsync(dx.Left, dy.Left).ConfigureAwait(false),
                     _ => false
                 },
                 EitherStatus.IsBottom => dy.State == EitherStatus.IsBottom,

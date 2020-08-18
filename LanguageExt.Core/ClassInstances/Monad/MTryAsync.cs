@@ -44,9 +44,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public TryAsync<A> Plus(TryAsync<A> ma, TryAsync<A> mb) => async () =>
         {
-            var a = await ma.Try();
+            var a = await ma.Try().ConfigureAwait(false);
             if (a.IsSuccess) return a;
-            var b = await mb.Try();
+            var b = await mb.Try().ConfigureAwait(false);
             return b.IsSuccess
                 ? b
                 : new Result<A>(new AggregateException(a.Exception, b.Exception));

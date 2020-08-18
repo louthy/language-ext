@@ -922,6 +922,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`ValueTask&lt;Arr&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static ValueTask<Arr<C>> SelectMany< A, B, C>(
+            this ValueTask<Arr<A>> ma,
+            Func<A, ValueTask<Arr<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MArr<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Arr&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Arr<A>> Where< A>(this ValueTask<Arr<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Arr<A>> Do(Arr<A> a) => default(MValueTask<Arr<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Arr<B>> Select< A, B>(this ValueTask<Arr<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MValueTask<Arr<B>>).ReturnAsync(_ => default(MArr<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `ValueTask&lt;Arr&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Arr&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `ValueTask&lt;Arr&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA,  A>(this ValueTask<Arr<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MValueTask<Arr<A>>, ValueTask<Arr<A>>, MArr<A>, Arr<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `ValueTask&lt;Arr&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Arr&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `ValueTask&lt;Arr&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT< A>(this ValueTask<Arr<A>> ma) =>
+            default(TransAsyncSync<MValueTask<Arr<A>>, ValueTask<Arr<A>>, MArr<A>, Arr<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`ValueTask&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Arr<B>> BindT< A, B>(this ValueTask<Arr<A>> ma, Func<A, Arr<B>> f) =>
+            default(TransAsyncSync<MValueTask<Arr<A>>, ValueTask<Arr<A>>, MArr<A>, Arr<A>, A>)
+                .Bind<MValueTask<Arr<B>>, ValueTask<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Arr<B>> MapT< A, B>(this ValueTask<Arr<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MValueTask<Arr<A>>, ValueTask<Arr<A>>, MArr<A>, Arr<A>, A>)
+                .Map<MValueTask<Arr<B>>, ValueTask<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S,  A>(this ValueTask<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Arr<A>>, ValueTask<Arr<A>>, MArr<A>, Arr<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S,  A>(this ValueTask<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Arr<A>>, ValueTask<Arr<A>>, MArr<A>, Arr<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT< A>(this ValueTask<Arr<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Arr<A>>, ValueTask<Arr<A>>, MArr<A>, Arr<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT< A>(this ValueTask<Arr<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Arr<A>>, ValueTask<Arr<A>>, MArr<A>, Arr<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `ValueTask&lt;Arr&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT< A>(this ValueTask<Arr<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MValueTask<Arr<A>>, ValueTask<Arr<A>>, MArr<A>, Arr<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Arr&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Arr<A>> FilterT< A>(this ValueTask<Arr<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Arr<A>> Do(Arr<A> a) => default(MValueTask<Arr<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static ValueTask<Arr<A>> PlusT<NUM,  A>(this ValueTask<Arr<A>> x, ValueTask<Arr<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static ValueTask<Arr<A>> SubtractT<NUM,  A>(this ValueTask<Arr<A>> x, ValueTask<Arr<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static ValueTask<Arr<A>> ProductT<NUM,  A>(this ValueTask<Arr<A>> x, ValueTask<Arr<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static ValueTask<Arr<A>> DivideT<NUM,  A>(this ValueTask<Arr<A>> x, ValueTask<Arr<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static ValueTask<Arr<A>> AppendT<SEMI,  A>(this ValueTask<Arr<A>> x, ValueTask<Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<Arr<A>> x, ValueTask<Arr<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<Arr<A>> x, ValueTask<Arr<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Arr&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Arr&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static ValueTask<Arr<B>> ApplyT< A, B>(this Func<A, B> fab, ValueTask<Arr<A>> fa) =>
+            default(ApplValueTask< Arr<A>, Arr<B>>).Apply(
+                default(MValueTask< Func<Arr<A>, Arr<B>>>).ReturnAsync(
+                    Task.FromResult<Func<Arr<A>, Arr<B>>>((Arr<A> a) => 
+                        default(ApplArr< A, B>).Apply(
+                            default(MArr< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Arr&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `ValueTask&lt;Arr&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Arr&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static ValueTask<Arr<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, ValueTask<Arr<A>> fa, ValueTask<Arr<B>> fb) =>
+            default(ApplValueTask< Arr<A>, Arr<B>, Arr<C>>).Apply(
+                default(MValueTask< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Arr<A>, Func<Arr<B>, Arr<C>>>>((Arr<A> a) =>
+                        (Arr<B> b) =>
+                            default(ApplArr< A, B, C>).Apply(
+                                default(MArr< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `TryAsync&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -2414,6 +2713,305 @@ namespace LanguageExt
         public static Task<HashSet<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<HashSet<A>> fa, Task<HashSet<B>> fb) =>
             default(ApplTask< HashSet<A>, HashSet<B>, HashSet<C>>).Apply(
                 default(MTask< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>((HashSet<A> a) =>
+                        (HashSet<B> b) =>
+                            default(ApplHashSet< A, B, C>).Apply(
+                                default(MHashSet< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`ValueTask&lt;HashSet&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static ValueTask<HashSet<C>> SelectMany< A, B, C>(
+            this ValueTask<HashSet<A>> ma,
+            Func<A, ValueTask<HashSet<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MHashSet<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;HashSet&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<HashSet<A>> Where< A>(this ValueTask<HashSet<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<HashSet<A>> Do(HashSet<A> a) => default(MValueTask<HashSet<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<HashSet<B>> Select< A, B>(this ValueTask<HashSet<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MValueTask<HashSet<B>>).ReturnAsync(_ => default(MHashSet<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `ValueTask&lt;HashSet&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;HashSet&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `ValueTask&lt;HashSet&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA,  A>(this ValueTask<HashSet<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MValueTask<HashSet<A>>, ValueTask<HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `ValueTask&lt;HashSet&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;HashSet&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `ValueTask&lt;HashSet&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT< A>(this ValueTask<HashSet<A>> ma) =>
+            default(TransAsyncSync<MValueTask<HashSet<A>>, ValueTask<HashSet<A>>, MHashSet<A>, HashSet<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`ValueTask&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<HashSet<B>> BindT< A, B>(this ValueTask<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
+            default(TransAsyncSync<MValueTask<HashSet<A>>, ValueTask<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .Bind<MValueTask<HashSet<B>>, ValueTask<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<HashSet<B>> MapT< A, B>(this ValueTask<HashSet<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MValueTask<HashSet<A>>, ValueTask<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .Map<MValueTask<HashSet<B>>, ValueTask<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S,  A>(this ValueTask<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<HashSet<A>>, ValueTask<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S,  A>(this ValueTask<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<HashSet<A>>, ValueTask<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT< A>(this ValueTask<HashSet<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<HashSet<A>>, ValueTask<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT< A>(this ValueTask<HashSet<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<HashSet<A>>, ValueTask<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `ValueTask&lt;HashSet&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT< A>(this ValueTask<HashSet<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MValueTask<HashSet<A>>, ValueTask<HashSet<A>>, MHashSet<A>, HashSet<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;HashSet&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<HashSet<A>> FilterT< A>(this ValueTask<HashSet<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<HashSet<A>> Do(HashSet<A> a) => default(MValueTask<HashSet<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static ValueTask<HashSet<A>> PlusT<NUM,  A>(this ValueTask<HashSet<A>> x, ValueTask<HashSet<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static ValueTask<HashSet<A>> SubtractT<NUM,  A>(this ValueTask<HashSet<A>> x, ValueTask<HashSet<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static ValueTask<HashSet<A>> ProductT<NUM,  A>(this ValueTask<HashSet<A>> x, ValueTask<HashSet<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static ValueTask<HashSet<A>> DivideT<NUM,  A>(this ValueTask<HashSet<A>> x, ValueTask<HashSet<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static ValueTask<HashSet<A>> AppendT<SEMI,  A>(this ValueTask<HashSet<A>> x, ValueTask<HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<HashSet<A>> x, ValueTask<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<HashSet<A>> x, ValueTask<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;HashSet&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static ValueTask<HashSet<B>> ApplyT< A, B>(this Func<A, B> fab, ValueTask<HashSet<A>> fa) =>
+            default(ApplValueTask< HashSet<A>, HashSet<B>>).Apply(
+                default(MValueTask< Func<HashSet<A>, HashSet<B>>>).ReturnAsync(
+                    Task.FromResult<Func<HashSet<A>, HashSet<B>>>((HashSet<A> a) => 
+                        default(ApplHashSet< A, B>).Apply(
+                            default(MHashSet< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;HashSet&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `ValueTask&lt;HashSet&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static ValueTask<HashSet<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, ValueTask<HashSet<A>> fa, ValueTask<HashSet<B>> fb) =>
+            default(ApplValueTask< HashSet<A>, HashSet<B>, HashSet<C>>).Apply(
+                default(MValueTask< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>).ReturnAsync(
                     Task.FromResult<Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>((HashSet<A> a) =>
                         (HashSet<B> b) =>
                             default(ApplHashSet< A, B, C>).Apply(
@@ -3928,6 +4526,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`ValueTask&lt;Lst&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static ValueTask<Lst<C>> SelectMany< A, B, C>(
+            this ValueTask<Lst<A>> ma,
+            Func<A, ValueTask<Lst<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MLst<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Lst&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Lst<A>> Where< A>(this ValueTask<Lst<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Lst<A>> Do(Lst<A> a) => default(MValueTask<Lst<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Lst<B>> Select< A, B>(this ValueTask<Lst<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MValueTask<Lst<B>>).ReturnAsync(_ => default(MLst<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `ValueTask&lt;Lst&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Lst&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `ValueTask&lt;Lst&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA,  A>(this ValueTask<Lst<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MValueTask<Lst<A>>, ValueTask<Lst<A>>, MLst<A>, Lst<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `ValueTask&lt;Lst&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Lst&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `ValueTask&lt;Lst&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT< A>(this ValueTask<Lst<A>> ma) =>
+            default(TransAsyncSync<MValueTask<Lst<A>>, ValueTask<Lst<A>>, MLst<A>, Lst<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`ValueTask&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Lst<B>> BindT< A, B>(this ValueTask<Lst<A>> ma, Func<A, Lst<B>> f) =>
+            default(TransAsyncSync<MValueTask<Lst<A>>, ValueTask<Lst<A>>, MLst<A>, Lst<A>, A>)
+                .Bind<MValueTask<Lst<B>>, ValueTask<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Lst<B>> MapT< A, B>(this ValueTask<Lst<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MValueTask<Lst<A>>, ValueTask<Lst<A>>, MLst<A>, Lst<A>, A>)
+                .Map<MValueTask<Lst<B>>, ValueTask<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S,  A>(this ValueTask<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Lst<A>>, ValueTask<Lst<A>>, MLst<A>, Lst<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S,  A>(this ValueTask<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Lst<A>>, ValueTask<Lst<A>>, MLst<A>, Lst<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT< A>(this ValueTask<Lst<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Lst<A>>, ValueTask<Lst<A>>, MLst<A>, Lst<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT< A>(this ValueTask<Lst<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Lst<A>>, ValueTask<Lst<A>>, MLst<A>, Lst<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `ValueTask&lt;Lst&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT< A>(this ValueTask<Lst<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MValueTask<Lst<A>>, ValueTask<Lst<A>>, MLst<A>, Lst<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Lst&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Lst<A>> FilterT< A>(this ValueTask<Lst<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Lst<A>> Do(Lst<A> a) => default(MValueTask<Lst<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static ValueTask<Lst<A>> PlusT<NUM,  A>(this ValueTask<Lst<A>> x, ValueTask<Lst<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static ValueTask<Lst<A>> SubtractT<NUM,  A>(this ValueTask<Lst<A>> x, ValueTask<Lst<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static ValueTask<Lst<A>> ProductT<NUM,  A>(this ValueTask<Lst<A>> x, ValueTask<Lst<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static ValueTask<Lst<A>> DivideT<NUM,  A>(this ValueTask<Lst<A>> x, ValueTask<Lst<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static ValueTask<Lst<A>> AppendT<SEMI,  A>(this ValueTask<Lst<A>> x, ValueTask<Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<Lst<A>> x, ValueTask<Lst<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<Lst<A>> x, ValueTask<Lst<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Lst&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Lst&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static ValueTask<Lst<B>> ApplyT< A, B>(this Func<A, B> fab, ValueTask<Lst<A>> fa) =>
+            default(ApplValueTask< Lst<A>, Lst<B>>).Apply(
+                default(MValueTask< Func<Lst<A>, Lst<B>>>).ReturnAsync(
+                    Task.FromResult<Func<Lst<A>, Lst<B>>>((Lst<A> a) => 
+                        default(ApplLst< A, B>).Apply(
+                            default(MLst< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Lst&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `ValueTask&lt;Lst&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Lst&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static ValueTask<Lst<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, ValueTask<Lst<A>> fa, ValueTask<Lst<B>> fb) =>
+            default(ApplValueTask< Lst<A>, Lst<B>, Lst<C>>).Apply(
+                default(MValueTask< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Lst<A>, Func<Lst<B>, Lst<C>>>>((Lst<A> a) =>
+                        (Lst<B> b) =>
+                            default(ApplLst< A, B, C>).Apply(
+                                default(MLst< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `TryAsync&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -5420,6 +6317,305 @@ namespace LanguageExt
         public static Task<Option<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<Option<A>> fa, Task<Option<B>> fb) =>
             default(ApplTask< Option<A>, Option<B>, Option<C>>).Apply(
                 default(MTask< Func<Option<A>, Func<Option<B>, Option<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Option<A>, Func<Option<B>, Option<C>>>>((Option<A> a) =>
+                        (Option<B> b) =>
+                            default(ApplOption< A, B, C>).Apply(
+                                default(MOption< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`ValueTask&lt;Option&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static ValueTask<Option<C>> SelectMany< A, B, C>(
+            this ValueTask<Option<A>> ma,
+            Func<A, ValueTask<Option<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MOption<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Option&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Option<A>> Where< A>(this ValueTask<Option<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Option<A>> Do(Option<A> a) => default(MValueTask<Option<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Option<B>> Select< A, B>(this ValueTask<Option<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MValueTask<Option<B>>).ReturnAsync(_ => default(MOption<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `ValueTask&lt;Option&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Option&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `ValueTask&lt;Option&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA,  A>(this ValueTask<Option<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MValueTask<Option<A>>, ValueTask<Option<A>>, MOption<A>, Option<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `ValueTask&lt;Option&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Option&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `ValueTask&lt;Option&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT< A>(this ValueTask<Option<A>> ma) =>
+            default(TransAsyncSync<MValueTask<Option<A>>, ValueTask<Option<A>>, MOption<A>, Option<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`ValueTask&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Option<B>> BindT< A, B>(this ValueTask<Option<A>> ma, Func<A, Option<B>> f) =>
+            default(TransAsyncSync<MValueTask<Option<A>>, ValueTask<Option<A>>, MOption<A>, Option<A>, A>)
+                .Bind<MValueTask<Option<B>>, ValueTask<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Option<B>> MapT< A, B>(this ValueTask<Option<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MValueTask<Option<A>>, ValueTask<Option<A>>, MOption<A>, Option<A>, A>)
+                .Map<MValueTask<Option<B>>, ValueTask<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S,  A>(this ValueTask<Option<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Option<A>>, ValueTask<Option<A>>, MOption<A>, Option<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S,  A>(this ValueTask<Option<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Option<A>>, ValueTask<Option<A>>, MOption<A>, Option<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT< A>(this ValueTask<Option<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Option<A>>, ValueTask<Option<A>>, MOption<A>, Option<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT< A>(this ValueTask<Option<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Option<A>>, ValueTask<Option<A>>, MOption<A>, Option<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `ValueTask&lt;Option&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT< A>(this ValueTask<Option<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MValueTask<Option<A>>, ValueTask<Option<A>>, MOption<A>, Option<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Option&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Option<A>> FilterT< A>(this ValueTask<Option<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Option<A>> Do(Option<A> a) => default(MValueTask<Option<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static ValueTask<Option<A>> PlusT<NUM,  A>(this ValueTask<Option<A>> x, ValueTask<Option<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static ValueTask<Option<A>> SubtractT<NUM,  A>(this ValueTask<Option<A>> x, ValueTask<Option<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static ValueTask<Option<A>> ProductT<NUM,  A>(this ValueTask<Option<A>> x, ValueTask<Option<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static ValueTask<Option<A>> DivideT<NUM,  A>(this ValueTask<Option<A>> x, ValueTask<Option<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static ValueTask<Option<A>> AppendT<SEMI,  A>(this ValueTask<Option<A>> x, ValueTask<Option<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<Option<A>> x, ValueTask<Option<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<Option<A>> x, ValueTask<Option<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Option&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Option&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static ValueTask<Option<B>> ApplyT< A, B>(this Func<A, B> fab, ValueTask<Option<A>> fa) =>
+            default(ApplValueTask< Option<A>, Option<B>>).Apply(
+                default(MValueTask< Func<Option<A>, Option<B>>>).ReturnAsync(
+                    Task.FromResult<Func<Option<A>, Option<B>>>((Option<A> a) => 
+                        default(ApplOption< A, B>).Apply(
+                            default(MOption< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Option&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `ValueTask&lt;Option&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Option&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static ValueTask<Option<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, ValueTask<Option<A>> fa, ValueTask<Option<B>> fb) =>
+            default(ApplValueTask< Option<A>, Option<B>, Option<C>>).Apply(
+                default(MValueTask< Func<Option<A>, Func<Option<B>, Option<C>>>>).ReturnAsync(
                     Task.FromResult<Func<Option<A>, Func<Option<B>, Option<C>>>>((Option<A> a) =>
                         (Option<B> b) =>
                             default(ApplOption< A, B, C>).Apply(
@@ -6934,6 +8130,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`ValueTask&lt;OptionUnsafe&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static ValueTask<OptionUnsafe<C>> SelectMany< A, B, C>(
+            this ValueTask<OptionUnsafe<A>> ma,
+            Func<A, ValueTask<OptionUnsafe<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MOptionUnsafe<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<OptionUnsafe<A>> Where< A>(this ValueTask<OptionUnsafe<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<OptionUnsafe<A>> Do(OptionUnsafe<A> a) => default(MValueTask<OptionUnsafe<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<OptionUnsafe<B>> Select< A, B>(this ValueTask<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MValueTask<OptionUnsafe<B>>).ReturnAsync(_ => default(MOptionUnsafe<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA,  A>(this ValueTask<OptionUnsafe<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MValueTask<OptionUnsafe<A>>, ValueTask<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT< A>(this ValueTask<OptionUnsafe<A>> ma) =>
+            default(TransAsyncSync<MValueTask<OptionUnsafe<A>>, ValueTask<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`ValueTask&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<OptionUnsafe<B>> BindT< A, B>(this ValueTask<OptionUnsafe<A>> ma, Func<A, OptionUnsafe<B>> f) =>
+            default(TransAsyncSync<MValueTask<OptionUnsafe<A>>, ValueTask<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .Bind<MValueTask<OptionUnsafe<B>>, ValueTask<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<OptionUnsafe<B>> MapT< A, B>(this ValueTask<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MValueTask<OptionUnsafe<A>>, ValueTask<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .Map<MValueTask<OptionUnsafe<B>>, ValueTask<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S,  A>(this ValueTask<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<OptionUnsafe<A>>, ValueTask<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S,  A>(this ValueTask<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<OptionUnsafe<A>>, ValueTask<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT< A>(this ValueTask<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<OptionUnsafe<A>>, ValueTask<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT< A>(this ValueTask<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<OptionUnsafe<A>>, ValueTask<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT< A>(this ValueTask<OptionUnsafe<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MValueTask<OptionUnsafe<A>>, ValueTask<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<OptionUnsafe<A>> FilterT< A>(this ValueTask<OptionUnsafe<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<OptionUnsafe<A>> Do(OptionUnsafe<A> a) => default(MValueTask<OptionUnsafe<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static ValueTask<OptionUnsafe<A>> PlusT<NUM,  A>(this ValueTask<OptionUnsafe<A>> x, ValueTask<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static ValueTask<OptionUnsafe<A>> SubtractT<NUM,  A>(this ValueTask<OptionUnsafe<A>> x, ValueTask<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static ValueTask<OptionUnsafe<A>> ProductT<NUM,  A>(this ValueTask<OptionUnsafe<A>> x, ValueTask<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static ValueTask<OptionUnsafe<A>> DivideT<NUM,  A>(this ValueTask<OptionUnsafe<A>> x, ValueTask<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static ValueTask<OptionUnsafe<A>> AppendT<SEMI,  A>(this ValueTask<OptionUnsafe<A>> x, ValueTask<OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<OptionUnsafe<A>> x, ValueTask<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<OptionUnsafe<A>> x, ValueTask<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static ValueTask<OptionUnsafe<B>> ApplyT< A, B>(this Func<A, B> fab, ValueTask<OptionUnsafe<A>> fa) =>
+            default(ApplValueTask< OptionUnsafe<A>, OptionUnsafe<B>>).Apply(
+                default(MValueTask< Func<OptionUnsafe<A>, OptionUnsafe<B>>>).ReturnAsync(
+                    Task.FromResult<Func<OptionUnsafe<A>, OptionUnsafe<B>>>((OptionUnsafe<A> a) => 
+                        default(ApplOptionUnsafe< A, B>).Apply(
+                            default(MOptionUnsafe< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static ValueTask<OptionUnsafe<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, ValueTask<OptionUnsafe<A>> fa, ValueTask<OptionUnsafe<B>> fb) =>
+            default(ApplValueTask< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>).Apply(
+                default(MValueTask< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>((OptionUnsafe<A> a) =>
+                        (OptionUnsafe<B> b) =>
+                            default(ApplOptionUnsafe< A, B, C>).Apply(
+                                default(MOptionUnsafe< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `TryAsync&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -8426,6 +9921,305 @@ namespace LanguageExt
         public static Task<Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, Task<Either<L, A>> fa, Task<Either<L, B>> fb) =>
             default(ApplTask< Either<L, A>, Either<L, B>, Either<L, C>>).Apply(
                 default(MTask< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>((Either<L, A> a) =>
+                        (Either<L, B> b) =>
+                            default(ApplEither<L, A, B, C>).Apply(
+                                default(MEither<L, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`ValueTask&lt;Either&lt;L, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static ValueTask<Either<L, C>> SelectMany<L, A, B, C>(
+            this ValueTask<Either<L, A>> ma,
+            Func<A, ValueTask<Either<L, B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MEither<L, C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Either&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Either<L, A>> Where<L, A>(this ValueTask<Either<L, A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Either<L, A>> Do(Either<L, A> a) => default(MValueTask<Either<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Either<L, B>> Select<L, A, B>(this ValueTask<Either<L, A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MValueTask<Either<L, B>>).ReturnAsync(_ => default(MEither<L, B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `ValueTask&lt;Either&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Either&lt;L, A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `ValueTask&lt;Either&lt;L, A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, A>(this ValueTask<Either<L, A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MValueTask<Either<L, A>>, ValueTask<Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `ValueTask&lt;Either&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Either&lt;L, A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `ValueTask&lt;Either&lt;L, A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, A>(this ValueTask<Either<L, A>> ma) =>
+            default(TransAsyncSync<MValueTask<Either<L, A>>, ValueTask<Either<L, A>>, MEither<L, A>, Either<L, A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`ValueTask&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Either<L, B>> BindT<L, A, B>(this ValueTask<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
+            default(TransAsyncSync<MValueTask<Either<L, A>>, ValueTask<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .Bind<MValueTask<Either<L, B>>, ValueTask<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Either<L, B>> MapT<L, A, B>(this ValueTask<Either<L, A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MValueTask<Either<L, A>>, ValueTask<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .Map<MValueTask<Either<L, B>>, ValueTask<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, A>(this ValueTask<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Either<L, A>>, ValueTask<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, A>(this ValueTask<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Either<L, A>>, ValueTask<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, A>(this ValueTask<Either<L, A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Either<L, A>>, ValueTask<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, A>(this ValueTask<Either<L, A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Either<L, A>>, ValueTask<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `ValueTask&lt;Either&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, A>(this ValueTask<Either<L, A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MValueTask<Either<L, A>>, ValueTask<Either<L, A>>, MEither<L, A>, Either<L, A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Either&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Either<L, A>> FilterT<L, A>(this ValueTask<Either<L, A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Either<L, A>> Do(Either<L, A> a) => default(MValueTask<Either<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static ValueTask<Either<L, A>> PlusT<NUM, L, A>(this ValueTask<Either<L, A>> x, ValueTask<Either<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static ValueTask<Either<L, A>> SubtractT<NUM, L, A>(this ValueTask<Either<L, A>> x, ValueTask<Either<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static ValueTask<Either<L, A>> ProductT<NUM, L, A>(this ValueTask<Either<L, A>> x, ValueTask<Either<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static ValueTask<Either<L, A>> DivideT<NUM, L, A>(this ValueTask<Either<L, A>> x, ValueTask<Either<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static ValueTask<Either<L, A>> AppendT<SEMI, L, A>(this ValueTask<Either<L, A>> x, ValueTask<Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, A>(this ValueTask<Either<L, A>> x, ValueTask<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, A>(this ValueTask<Either<L, A>> x, ValueTask<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Either&lt;L, A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static ValueTask<Either<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, ValueTask<Either<L, A>> fa) =>
+            default(ApplValueTask< Either<L, A>, Either<L, B>>).Apply(
+                default(MValueTask< Func<Either<L, A>, Either<L, B>>>).ReturnAsync(
+                    Task.FromResult<Func<Either<L, A>, Either<L, B>>>((Either<L, A> a) => 
+                        default(ApplEither<L, A, B>).Apply(
+                            default(MEither<L, Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Either&lt;L, A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `ValueTask&lt;Either&lt;L, A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static ValueTask<Either<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, ValueTask<Either<L, A>> fa, ValueTask<Either<L, B>> fb) =>
+            default(ApplValueTask< Either<L, A>, Either<L, B>, Either<L, C>>).Apply(
+                default(MValueTask< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>).ReturnAsync(
                     Task.FromResult<Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>((Either<L, A> a) =>
                         (Either<L, B> b) =>
                             default(ApplEither<L, A, B, C>).Apply(
@@ -9940,6 +11734,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static ValueTask<EitherUnsafe<L, C>> SelectMany<L, A, B, C>(
+            this ValueTask<EitherUnsafe<L, A>> ma,
+            Func<A, ValueTask<EitherUnsafe<L, B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MEitherUnsafe<L, C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<EitherUnsafe<L, A>> Where<L, A>(this ValueTask<EitherUnsafe<L, A>> ma, Func<A, bool> f)
+        {
+            ValueTask<EitherUnsafe<L, A>> Do(EitherUnsafe<L, A> a) => default(MValueTask<EitherUnsafe<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<EitherUnsafe<L, B>> Select<L, A, B>(this ValueTask<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MValueTask<EitherUnsafe<L, B>>).ReturnAsync(_ => default(MEitherUnsafe<L, B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, L, A>(this ValueTask<EitherUnsafe<L, A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MValueTask<EitherUnsafe<L, A>>, ValueTask<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<L, A>(this ValueTask<EitherUnsafe<L, A>> ma) =>
+            default(TransAsyncSync<MValueTask<EitherUnsafe<L, A>>, ValueTask<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<EitherUnsafe<L, B>> BindT<L, A, B>(this ValueTask<EitherUnsafe<L, A>> ma, Func<A, EitherUnsafe<L, B>> f) =>
+            default(TransAsyncSync<MValueTask<EitherUnsafe<L, A>>, ValueTask<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .Bind<MValueTask<EitherUnsafe<L, B>>, ValueTask<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<EitherUnsafe<L, B>> MapT<L, A, B>(this ValueTask<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MValueTask<EitherUnsafe<L, A>>, ValueTask<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .Map<MValueTask<EitherUnsafe<L, B>>, ValueTask<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, L, A>(this ValueTask<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<EitherUnsafe<L, A>>, ValueTask<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, L, A>(this ValueTask<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<EitherUnsafe<L, A>>, ValueTask<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<L, A>(this ValueTask<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<EitherUnsafe<L, A>>, ValueTask<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<L, A>(this ValueTask<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<EitherUnsafe<L, A>>, ValueTask<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<L, A>(this ValueTask<EitherUnsafe<L, A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MValueTask<EitherUnsafe<L, A>>, ValueTask<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<EitherUnsafe<L, A>> FilterT<L, A>(this ValueTask<EitherUnsafe<L, A>> ma, Func<A, bool> f)
+        {
+            ValueTask<EitherUnsafe<L, A>> Do(EitherUnsafe<L, A> a) => default(MValueTask<EitherUnsafe<L, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static ValueTask<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this ValueTask<EitherUnsafe<L, A>> x, ValueTask<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static ValueTask<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this ValueTask<EitherUnsafe<L, A>> x, ValueTask<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static ValueTask<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this ValueTask<EitherUnsafe<L, A>> x, ValueTask<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static ValueTask<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this ValueTask<EitherUnsafe<L, A>> x, ValueTask<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static ValueTask<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this ValueTask<EitherUnsafe<L, A>> x, ValueTask<EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, L, A>(this ValueTask<EitherUnsafe<L, A>> x, ValueTask<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, L, A>(this ValueTask<EitherUnsafe<L, A>> x, ValueTask<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static ValueTask<EitherUnsafe<L, B>> ApplyT<L, A, B>(this Func<A, B> fab, ValueTask<EitherUnsafe<L, A>> fa) =>
+            default(ApplValueTask< EitherUnsafe<L, A>, EitherUnsafe<L, B>>).Apply(
+                default(MValueTask< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>).ReturnAsync(
+                    Task.FromResult<Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>((EitherUnsafe<L, A> a) => 
+                        default(ApplEitherUnsafe<L, A, B>).Apply(
+                            default(MEitherUnsafe<L, Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static ValueTask<EitherUnsafe<L, C>> ApplyT<L, A, B, C>(this Func<A, B, C> fabc, ValueTask<EitherUnsafe<L, A>> fa, ValueTask<EitherUnsafe<L, B>> fb) =>
+            default(ApplValueTask< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>).Apply(
+                default(MValueTask< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>).ReturnAsync(
+                    Task.FromResult<Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>((EitherUnsafe<L, A> a) =>
+                        (EitherUnsafe<L, B> b) =>
+                            default(ApplEitherUnsafe<L, A, B, C>).Apply(
+                                default(MEitherUnsafe<L, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `TryAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -11432,6 +13525,305 @@ namespace LanguageExt
         public static Task<Try<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<Try<A>> fa, Task<Try<B>> fb) =>
             default(ApplTask< Try<A>, Try<B>, Try<C>>).Apply(
                 default(MTask< Func<Try<A>, Func<Try<B>, Try<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Try<A>, Func<Try<B>, Try<C>>>>((Try<A> a) =>
+                        (Try<B> b) =>
+                            default(ApplTry< A, B, C>).Apply(
+                                default(MTry< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`ValueTask&lt;Try&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static ValueTask<Try<C>> SelectMany< A, B, C>(
+            this ValueTask<Try<A>> ma,
+            Func<A, ValueTask<Try<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MTry<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Try&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Try<A>> Where< A>(this ValueTask<Try<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Try<A>> Do(Try<A> a) => default(MValueTask<Try<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Try<B>> Select< A, B>(this ValueTask<Try<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MValueTask<Try<B>>).ReturnAsync(_ => default(MTry<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `ValueTask&lt;Try&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Try&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `ValueTask&lt;Try&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA,  A>(this ValueTask<Try<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MValueTask<Try<A>>, ValueTask<Try<A>>, MTry<A>, Try<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `ValueTask&lt;Try&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Try&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `ValueTask&lt;Try&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT< A>(this ValueTask<Try<A>> ma) =>
+            default(TransAsyncSync<MValueTask<Try<A>>, ValueTask<Try<A>>, MTry<A>, Try<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`ValueTask&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Try<B>> BindT< A, B>(this ValueTask<Try<A>> ma, Func<A, Try<B>> f) =>
+            default(TransAsyncSync<MValueTask<Try<A>>, ValueTask<Try<A>>, MTry<A>, Try<A>, A>)
+                .Bind<MValueTask<Try<B>>, ValueTask<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Try<B>> MapT< A, B>(this ValueTask<Try<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MValueTask<Try<A>>, ValueTask<Try<A>>, MTry<A>, Try<A>, A>)
+                .Map<MValueTask<Try<B>>, ValueTask<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S,  A>(this ValueTask<Try<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Try<A>>, ValueTask<Try<A>>, MTry<A>, Try<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S,  A>(this ValueTask<Try<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Try<A>>, ValueTask<Try<A>>, MTry<A>, Try<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT< A>(this ValueTask<Try<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Try<A>>, ValueTask<Try<A>>, MTry<A>, Try<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT< A>(this ValueTask<Try<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Try<A>>, ValueTask<Try<A>>, MTry<A>, Try<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `ValueTask&lt;Try&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT< A>(this ValueTask<Try<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MValueTask<Try<A>>, ValueTask<Try<A>>, MTry<A>, Try<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Try&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Try<A>> FilterT< A>(this ValueTask<Try<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Try<A>> Do(Try<A> a) => default(MValueTask<Try<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static ValueTask<Try<A>> PlusT<NUM,  A>(this ValueTask<Try<A>> x, ValueTask<Try<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static ValueTask<Try<A>> SubtractT<NUM,  A>(this ValueTask<Try<A>> x, ValueTask<Try<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static ValueTask<Try<A>> ProductT<NUM,  A>(this ValueTask<Try<A>> x, ValueTask<Try<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static ValueTask<Try<A>> DivideT<NUM,  A>(this ValueTask<Try<A>> x, ValueTask<Try<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static ValueTask<Try<A>> AppendT<SEMI,  A>(this ValueTask<Try<A>> x, ValueTask<Try<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<Try<A>> x, ValueTask<Try<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<Try<A>> x, ValueTask<Try<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Try&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Try&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static ValueTask<Try<B>> ApplyT< A, B>(this Func<A, B> fab, ValueTask<Try<A>> fa) =>
+            default(ApplValueTask< Try<A>, Try<B>>).Apply(
+                default(MValueTask< Func<Try<A>, Try<B>>>).ReturnAsync(
+                    Task.FromResult<Func<Try<A>, Try<B>>>((Try<A> a) => 
+                        default(ApplTry< A, B>).Apply(
+                            default(MTry< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Try&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `ValueTask&lt;Try&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Try&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static ValueTask<Try<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, ValueTask<Try<A>> fa, ValueTask<Try<B>> fb) =>
+            default(ApplValueTask< Try<A>, Try<B>, Try<C>>).Apply(
+                default(MValueTask< Func<Try<A>, Func<Try<B>, Try<C>>>>).ReturnAsync(
                     Task.FromResult<Func<Try<A>, Func<Try<B>, Try<C>>>>((Try<A> a) =>
                         (Try<B> b) =>
                             default(ApplTry< A, B, C>).Apply(
@@ -12946,6 +15338,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`ValueTask&lt;TryOption&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static ValueTask<TryOption<C>> SelectMany< A, B, C>(
+            this ValueTask<TryOption<A>> ma,
+            Func<A, ValueTask<TryOption<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MTryOption<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;TryOption&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<TryOption<A>> Where< A>(this ValueTask<TryOption<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<TryOption<A>> Do(TryOption<A> a) => default(MValueTask<TryOption<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<TryOption<B>> Select< A, B>(this ValueTask<TryOption<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MValueTask<TryOption<B>>).ReturnAsync(_ => default(MTryOption<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `ValueTask&lt;TryOption&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;TryOption&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `ValueTask&lt;TryOption&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA,  A>(this ValueTask<TryOption<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MValueTask<TryOption<A>>, ValueTask<TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `ValueTask&lt;TryOption&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;TryOption&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `ValueTask&lt;TryOption&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT< A>(this ValueTask<TryOption<A>> ma) =>
+            default(TransAsyncSync<MValueTask<TryOption<A>>, ValueTask<TryOption<A>>, MTryOption<A>, TryOption<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`ValueTask&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<TryOption<B>> BindT< A, B>(this ValueTask<TryOption<A>> ma, Func<A, TryOption<B>> f) =>
+            default(TransAsyncSync<MValueTask<TryOption<A>>, ValueTask<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .Bind<MValueTask<TryOption<B>>, ValueTask<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<TryOption<B>> MapT< A, B>(this ValueTask<TryOption<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MValueTask<TryOption<A>>, ValueTask<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .Map<MValueTask<TryOption<B>>, ValueTask<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S,  A>(this ValueTask<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<TryOption<A>>, ValueTask<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S,  A>(this ValueTask<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<TryOption<A>>, ValueTask<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT< A>(this ValueTask<TryOption<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<TryOption<A>>, ValueTask<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT< A>(this ValueTask<TryOption<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<TryOption<A>>, ValueTask<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `ValueTask&lt;TryOption&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT< A>(this ValueTask<TryOption<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MValueTask<TryOption<A>>, ValueTask<TryOption<A>>, MTryOption<A>, TryOption<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;TryOption&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<TryOption<A>> FilterT< A>(this ValueTask<TryOption<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<TryOption<A>> Do(TryOption<A> a) => default(MValueTask<TryOption<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static ValueTask<TryOption<A>> PlusT<NUM,  A>(this ValueTask<TryOption<A>> x, ValueTask<TryOption<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static ValueTask<TryOption<A>> SubtractT<NUM,  A>(this ValueTask<TryOption<A>> x, ValueTask<TryOption<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static ValueTask<TryOption<A>> ProductT<NUM,  A>(this ValueTask<TryOption<A>> x, ValueTask<TryOption<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static ValueTask<TryOption<A>> DivideT<NUM,  A>(this ValueTask<TryOption<A>> x, ValueTask<TryOption<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static ValueTask<TryOption<A>> AppendT<SEMI,  A>(this ValueTask<TryOption<A>> x, ValueTask<TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<TryOption<A>> x, ValueTask<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<TryOption<A>> x, ValueTask<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;TryOption&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static ValueTask<TryOption<B>> ApplyT< A, B>(this Func<A, B> fab, ValueTask<TryOption<A>> fa) =>
+            default(ApplValueTask< TryOption<A>, TryOption<B>>).Apply(
+                default(MValueTask< Func<TryOption<A>, TryOption<B>>>).ReturnAsync(
+                    Task.FromResult<Func<TryOption<A>, TryOption<B>>>((TryOption<A> a) => 
+                        default(ApplTryOption< A, B>).Apply(
+                            default(MTryOption< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;TryOption&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `ValueTask&lt;TryOption&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static ValueTask<TryOption<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, ValueTask<TryOption<A>> fa, ValueTask<TryOption<B>> fb) =>
+            default(ApplValueTask< TryOption<A>, TryOption<B>, TryOption<C>>).Apply(
+                default(MValueTask< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>((TryOption<A> a) =>
+                        (TryOption<B> b) =>
+                            default(ApplTryOption< A, B, C>).Apply(
+                                default(MTryOption< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `TryAsync&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -14297,6 +16988,258 @@ namespace LanguageExt
         public static Task<IEnumerable<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<IEnumerable<A>> fa, Task<IEnumerable<B>> fb) =>
             default(ApplTask< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>).Apply(
                 default(MTask< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>((IEnumerable<A> a) =>
+                        (IEnumerable<B> b) =>
+                            default(ApplEnumerable< A, B, C>).Apply(
+                                default(MEnumerable< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `ValueTask&lt;IEnumerable&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;IEnumerable&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `ValueTask&lt;IEnumerable&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA,  A>(this ValueTask<IEnumerable<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MValueTask<IEnumerable<A>>, ValueTask<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `ValueTask&lt;IEnumerable&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;IEnumerable&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `ValueTask&lt;IEnumerable&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT< A>(this ValueTask<IEnumerable<A>> ma) =>
+            default(TransAsyncSync<MValueTask<IEnumerable<A>>, ValueTask<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`ValueTask&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<IEnumerable<B>> BindT< A, B>(this ValueTask<IEnumerable<A>> ma, Func<A, IEnumerable<B>> f) =>
+            default(TransAsyncSync<MValueTask<IEnumerable<A>>, ValueTask<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .Bind<MValueTask<IEnumerable<B>>, ValueTask<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<IEnumerable<B>> MapT< A, B>(this ValueTask<IEnumerable<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MValueTask<IEnumerable<A>>, ValueTask<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .Map<MValueTask<IEnumerable<B>>, ValueTask<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S,  A>(this ValueTask<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<IEnumerable<A>>, ValueTask<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S,  A>(this ValueTask<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<IEnumerable<A>>, ValueTask<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT< A>(this ValueTask<IEnumerable<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<IEnumerable<A>>, ValueTask<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT< A>(this ValueTask<IEnumerable<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<IEnumerable<A>>, ValueTask<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `ValueTask&lt;IEnumerable&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT< A>(this ValueTask<IEnumerable<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MValueTask<IEnumerable<A>>, ValueTask<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;IEnumerable&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<IEnumerable<A>> FilterT< A>(this ValueTask<IEnumerable<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<IEnumerable<A>> Do(IEnumerable<A> a) => default(MValueTask<IEnumerable<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static ValueTask<IEnumerable<A>> PlusT<NUM,  A>(this ValueTask<IEnumerable<A>> x, ValueTask<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static ValueTask<IEnumerable<A>> SubtractT<NUM,  A>(this ValueTask<IEnumerable<A>> x, ValueTask<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static ValueTask<IEnumerable<A>> ProductT<NUM,  A>(this ValueTask<IEnumerable<A>> x, ValueTask<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static ValueTask<IEnumerable<A>> DivideT<NUM,  A>(this ValueTask<IEnumerable<A>> x, ValueTask<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static ValueTask<IEnumerable<A>> AppendT<SEMI,  A>(this ValueTask<IEnumerable<A>> x, ValueTask<IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<IEnumerable<A>> x, ValueTask<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<IEnumerable<A>> x, ValueTask<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;IEnumerable&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static ValueTask<IEnumerable<B>> ApplyT< A, B>(this Func<A, B> fab, ValueTask<IEnumerable<A>> fa) =>
+            default(ApplValueTask< IEnumerable<A>, IEnumerable<B>>).Apply(
+                default(MValueTask< Func<IEnumerable<A>, IEnumerable<B>>>).ReturnAsync(
+                    Task.FromResult<Func<IEnumerable<A>, IEnumerable<B>>>((IEnumerable<A> a) => 
+                        default(ApplEnumerable< A, B>).Apply(
+                            default(MEnumerable< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;IEnumerable&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `ValueTask&lt;IEnumerable&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static ValueTask<IEnumerable<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, ValueTask<IEnumerable<A>> fa, ValueTask<IEnumerable<B>> fb) =>
+            default(ApplValueTask< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>).Apply(
+                default(MValueTask< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>).ReturnAsync(
                     Task.FromResult<Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>((IEnumerable<A> a) =>
                         (IEnumerable<B> b) =>
                             default(ApplEnumerable< A, B, C>).Apply(
@@ -15706,6 +18649,305 @@ namespace LanguageExt
         public static Task<Seq<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, Task<Seq<A>> fa, Task<Seq<B>> fb) =>
             default(ApplTask< Seq<A>, Seq<B>, Seq<C>>).Apply(
                 default(MTask< Func<Seq<A>, Func<Seq<B>, Seq<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Seq<A>, Func<Seq<B>, Seq<C>>>>((Seq<A> a) =>
+                        (Seq<B> b) =>
+                            default(ApplSeq< A, B, C>).Apply(
+                                default(MSeq< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`ValueTask&lt;Seq&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static ValueTask<Seq<C>> SelectMany< A, B, C>(
+            this ValueTask<Seq<A>> ma,
+            Func<A, ValueTask<Seq<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MSeq<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Seq&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Seq<A>> Where< A>(this ValueTask<Seq<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Seq<A>> Do(Seq<A> a) => default(MValueTask<Seq<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Seq<B>> Select< A, B>(this ValueTask<Seq<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MValueTask<Seq<B>>).ReturnAsync(_ => default(MSeq<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `ValueTask&lt;Seq&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Seq&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `ValueTask&lt;Seq&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA,  A>(this ValueTask<Seq<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MValueTask<Seq<A>>, ValueTask<Seq<A>>, MSeq<A>, Seq<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `ValueTask&lt;Seq&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Seq&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `ValueTask&lt;Seq&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT< A>(this ValueTask<Seq<A>> ma) =>
+            default(TransAsyncSync<MValueTask<Seq<A>>, ValueTask<Seq<A>>, MSeq<A>, Seq<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`ValueTask&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Seq<B>> BindT< A, B>(this ValueTask<Seq<A>> ma, Func<A, Seq<B>> f) =>
+            default(TransAsyncSync<MValueTask<Seq<A>>, ValueTask<Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .Bind<MValueTask<Seq<B>>, ValueTask<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Seq<B>> MapT< A, B>(this ValueTask<Seq<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MValueTask<Seq<A>>, ValueTask<Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .Map<MValueTask<Seq<B>>, ValueTask<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S,  A>(this ValueTask<Seq<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Seq<A>>, ValueTask<Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S,  A>(this ValueTask<Seq<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Seq<A>>, ValueTask<Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT< A>(this ValueTask<Seq<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Seq<A>>, ValueTask<Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT< A>(this ValueTask<Seq<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Seq<A>>, ValueTask<Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `ValueTask&lt;Seq&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT< A>(this ValueTask<Seq<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MValueTask<Seq<A>>, ValueTask<Seq<A>>, MSeq<A>, Seq<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Seq&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Seq<A>> FilterT< A>(this ValueTask<Seq<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Seq<A>> Do(Seq<A> a) => default(MValueTask<Seq<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static ValueTask<Seq<A>> PlusT<NUM,  A>(this ValueTask<Seq<A>> x, ValueTask<Seq<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static ValueTask<Seq<A>> SubtractT<NUM,  A>(this ValueTask<Seq<A>> x, ValueTask<Seq<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static ValueTask<Seq<A>> ProductT<NUM,  A>(this ValueTask<Seq<A>> x, ValueTask<Seq<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static ValueTask<Seq<A>> DivideT<NUM,  A>(this ValueTask<Seq<A>> x, ValueTask<Seq<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static ValueTask<Seq<A>> AppendT<SEMI,  A>(this ValueTask<Seq<A>> x, ValueTask<Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<Seq<A>> x, ValueTask<Seq<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<Seq<A>> x, ValueTask<Seq<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Seq&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Seq&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static ValueTask<Seq<B>> ApplyT< A, B>(this Func<A, B> fab, ValueTask<Seq<A>> fa) =>
+            default(ApplValueTask< Seq<A>, Seq<B>>).Apply(
+                default(MValueTask< Func<Seq<A>, Seq<B>>>).ReturnAsync(
+                    Task.FromResult<Func<Seq<A>, Seq<B>>>((Seq<A> a) => 
+                        default(ApplSeq< A, B>).Apply(
+                            default(MSeq< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Seq&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `ValueTask&lt;Seq&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Seq&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static ValueTask<Seq<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, ValueTask<Seq<A>> fa, ValueTask<Seq<B>> fb) =>
+            default(ApplValueTask< Seq<A>, Seq<B>, Seq<C>>).Apply(
+                default(MValueTask< Func<Seq<A>, Func<Seq<B>, Seq<C>>>>).ReturnAsync(
                     Task.FromResult<Func<Seq<A>, Func<Seq<B>, Seq<C>>>>((Seq<A> a) =>
                         (Seq<B> b) =>
                             default(ApplSeq< A, B, C>).Apply(
@@ -17220,6 +20462,305 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound value type</typeparam>
         /// <typeparam name="B">Intermediate inner bound value type</typeparam>
         /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`ValueTask&lt;Set&lt;C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static ValueTask<Set<C>> SelectMany< A, B, C>(
+            this ValueTask<Set<A>> ma,
+            Func<A, ValueTask<Set<B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MSet<C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Set&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Set<A>> Where< A>(this ValueTask<Set<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Set<A>> Do(Set<A> a) => default(MValueTask<Set<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Set<B>> Select< A, B>(this ValueTask<Set<A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MValueTask<Set<B>>).ReturnAsync(_ => default(MSet<B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `ValueTask&lt;Set&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Set&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `ValueTask&lt;Set&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA,  A>(this ValueTask<Set<A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MValueTask<Set<A>>, ValueTask<Set<A>>, MSet<A>, Set<A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `ValueTask&lt;Set&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Set&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `ValueTask&lt;Set&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT< A>(this ValueTask<Set<A>> ma) =>
+            default(TransAsyncSync<MValueTask<Set<A>>, ValueTask<Set<A>>, MSet<A>, Set<A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`ValueTask&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Set<B>> BindT< A, B>(this ValueTask<Set<A>> ma, Func<A, Set<B>> f) =>
+            default(TransAsyncSync<MValueTask<Set<A>>, ValueTask<Set<A>>, MSet<A>, Set<A>, A>)
+                .Bind<MValueTask<Set<B>>, ValueTask<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Set<B>> MapT< A, B>(this ValueTask<Set<A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MValueTask<Set<A>>, ValueTask<Set<A>>, MSet<A>, Set<A>, A>)
+                .Map<MValueTask<Set<B>>, ValueTask<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S,  A>(this ValueTask<Set<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Set<A>>, ValueTask<Set<A>>, MSet<A>, Set<A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S,  A>(this ValueTask<Set<A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Set<A>>, ValueTask<Set<A>>, MSet<A>, Set<A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT< A>(this ValueTask<Set<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Set<A>>, ValueTask<Set<A>>, MSet<A>, Set<A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT< A>(this ValueTask<Set<A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Set<A>>, ValueTask<Set<A>>, MSet<A>, Set<A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `ValueTask&lt;Set&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT< A>(this ValueTask<Set<A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MValueTask<Set<A>>, ValueTask<Set<A>>, MSet<A>, Set<A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Set&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Set<A>> FilterT< A>(this ValueTask<Set<A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Set<A>> Do(Set<A> a) => default(MValueTask<Set<A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static ValueTask<Set<A>> PlusT<NUM,  A>(this ValueTask<Set<A>> x, ValueTask<Set<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static ValueTask<Set<A>> SubtractT<NUM,  A>(this ValueTask<Set<A>> x, ValueTask<Set<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static ValueTask<Set<A>> ProductT<NUM,  A>(this ValueTask<Set<A>> x, ValueTask<Set<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static ValueTask<Set<A>> DivideT<NUM,  A>(this ValueTask<Set<A>> x, ValueTask<Set<A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static ValueTask<Set<A>> AppendT<SEMI,  A>(this ValueTask<Set<A>> x, ValueTask<Set<A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<Set<A>> x, ValueTask<Set<A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<Set<A>> x, ValueTask<Set<A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Set&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Set&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static ValueTask<Set<B>> ApplyT< A, B>(this Func<A, B> fab, ValueTask<Set<A>> fa) =>
+            default(ApplValueTask< Set<A>, Set<B>>).Apply(
+                default(MValueTask< Func<Set<A>, Set<B>>>).ReturnAsync(
+                    Task.FromResult<Func<Set<A>, Set<B>>>((Set<A> a) => 
+                        default(ApplSet< A, B>).Apply(
+                            default(MSet< Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Set&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `ValueTask&lt;Set&lt;A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Set&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static ValueTask<Set<C>> ApplyT< A, B, C>(this Func<A, B, C> fabc, ValueTask<Set<A>> fa, ValueTask<Set<B>> fb) =>
+            default(ApplValueTask< Set<A>, Set<B>, Set<C>>).Apply(
+                default(MValueTask< Func<Set<A>, Func<Set<B>, Set<C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Set<A>, Func<Set<B>, Set<C>>>>((Set<A> a) =>
+                        (Set<B> b) =>
+                            default(ApplSet< A, B, C>).Apply(
+                                default(MSet< Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
         /// <param name="ma">The `TryAsync&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
         /// <param name="bind">The bind function to apply</param>
         /// <param name="project">The projection function to apply after the bind</param>
@@ -18712,6 +22253,305 @@ namespace LanguageExt
         public static Task<Validation<FAIL, C>> ApplyT<FAIL, A, B, C>(this Func<A, B, C> fabc, Task<Validation<FAIL, A>> fa, Task<Validation<FAIL, B>> fb) =>
             default(ApplTask< Validation<FAIL, A>, Validation<FAIL, B>, Validation<FAIL, C>>).Apply(
                 default(MTask< Func<Validation<FAIL, A>, Func<Validation<FAIL, B>, Validation<FAIL, C>>>>).ReturnAsync(
+                    Task.FromResult<Func<Validation<FAIL, A>, Func<Validation<FAIL, B>, Validation<FAIL, C>>>>((Validation<FAIL, A> a) =>
+                        (Validation<FAIL, B> b) =>
+                            default(ApplValidation<FAIL, A, B, C>).Apply(
+                                default(MValidation<FAIL, Func<A, Func<B, C>>>).Return(curry(fabc)), a, b))), fa, fb);
+
+        /// <summary>
+        /// Monadic bind and project operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Intermediate inner bound value type</typeparam>
+        /// <typeparam name="C">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="bind">The bind function to apply</param>
+        /// <param name="project">The projection function to apply after the bind</param>
+        /// <returns>`ValueTask&lt;Validation&lt;FAIL, C&gt;&gt;` which is the result of performing bind then project</returns>
+        [Pure]
+        public static ValueTask<Validation<FAIL, C>> SelectMany<FAIL, A, B, C>(
+            this ValueTask<Validation<FAIL, A>> ma,
+            Func<A, ValueTask<Validation<FAIL, B>>> bind,
+            Func<A, B, C> project) =>
+            ma.BindT(a =>
+                bind(a).BindT(b =>
+                    default(MValidation<FAIL, C>).Return(project(a, b))));
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// `true` then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Validation<FAIL, A>> Where<FAIL, A>(this ValueTask<Validation<FAIL, A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Validation<FAIL, A>> Do(Validation<FAIL, A> a) => default(MValueTask<Validation<FAIL, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Validation<FAIL, B>> Select<FAIL, A, B>(this ValueTask<Validation<FAIL, A>> ma, Func<A, B> f) =>
+            ma.BindT(a => default(MValueTask<Validation<FAIL, B>>).ReturnAsync(_ => default(MValidation<FAIL, B>).Return(f(a)).AsTask()));
+
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<A> SumT<NumA, FAIL, A>(this ValueTask<Validation<FAIL, A>> ma)
+            where NumA : struct, Num<A> =>
+                default(TransAsyncSync<MValueTask<Validation<FAIL, A>>, ValueTask<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>).Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
+        [Pure]
+        public static Task<int> CountT<FAIL, A>(this ValueTask<Validation<FAIL, A>> ma) =>
+            default(TransAsyncSync<MValueTask<Validation<FAIL, A>>, ValueTask<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>).Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`ValueTask&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Validation<FAIL, B>> BindT<FAIL, A, B>(this ValueTask<Validation<FAIL, A>> ma, Func<A, Validation<FAIL, B>> f) =>
+            default(TransAsyncSync<MValueTask<Validation<FAIL, A>>, ValueTask<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .Bind<MValueTask<Validation<FAIL, B>>, ValueTask<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`ValueTask&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<Validation<FAIL, B>> MapT<FAIL, A, B>(this ValueTask<Validation<FAIL, A>> ma, Func<A, B> f) =>
+            default(TransAsyncSync<MValueTask<Validation<FAIL, A>>, ValueTask<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .Map<MValueTask<Validation<FAIL, B>>, ValueTask<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldT<S, FAIL, A>(this ValueTask<Validation<FAIL, A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Validation<FAIL, A>>, ValueTask<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static Task<S> FoldBackT<S, FAIL, A>(this ValueTask<Validation<FAIL, A>> ma, S state, Func<S, A, S> f) =>
+            default(TransAsyncSync<MValueTask<Validation<FAIL, A>>, ValueTask<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static Task<bool> ExistsT<FAIL, A>(this ValueTask<Validation<FAIL, A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Validation<FAIL, A>>, ValueTask<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static Task<bool> ForAllT<FAIL, A>(this ValueTask<Validation<FAIL, A>> ma, Func<A, bool> f) =>
+            default(TransAsyncSync<MValueTask<Validation<FAIL, A>>, ValueTask<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Task<Unit> IterT<FAIL, A>(this ValueTask<Validation<FAIL, A>> ma, Action<A> f) =>
+            default(TransAsyncSync<MValueTask<Validation<FAIL, A>>, ValueTask<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>)
+                .Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static ValueTask<Validation<FAIL, A>> FilterT<FAIL, A>(this ValueTask<Validation<FAIL, A>> ma, Func<A, bool> f)
+        {
+            ValueTask<Validation<FAIL, A>> Do(Validation<FAIL, A> a) => default(MValueTask<Validation<FAIL, A>>).ReturnAsync(_ => a.Filter(f).AsTask());
+            return ma.Bind(Do);
+        }
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static ValueTask<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this ValueTask<Validation<FAIL, A>> x, ValueTask<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static ValueTask<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this ValueTask<Validation<FAIL, A>> x, ValueTask<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static ValueTask<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this ValueTask<Validation<FAIL, A>> x, ValueTask<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static ValueTask<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this ValueTask<Validation<FAIL, A>> x, ValueTask<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static ValueTask<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this ValueTask<Validation<FAIL, A>> x, ValueTask<Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static Task<int> CompareT<ORD, FAIL, A>(this ValueTask<Validation<FAIL, A>> x, ValueTask<Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static Task<bool> EqualsT<EQ, FAIL, A>(this ValueTask<Validation<FAIL, A>> x, ValueTask<Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static ValueTask<Validation<FAIL, B>> ApplyT<FAIL, A, B>(this Func<A, B> fab, ValueTask<Validation<FAIL, A>> fa) =>
+            default(ApplValueTask< Validation<FAIL, A>, Validation<FAIL, B>>).Apply(
+                default(MValueTask< Func<Validation<FAIL, A>, Validation<FAIL, B>>>).ReturnAsync(
+                    Task.FromResult<Func<Validation<FAIL, A>, Validation<FAIL, B>>>((Validation<FAIL, A> a) => 
+                        default(ApplValidation<FAIL, A, B>).Apply(
+                            default(MValidation<FAIL, Func<A, B>>).Return(fab), 
+                            a))),
+                fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;`</param>
+        /// <returns>`ValueTask&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static ValueTask<Validation<FAIL, C>> ApplyT<FAIL, A, B, C>(this Func<A, B, C> fabc, ValueTask<Validation<FAIL, A>> fa, ValueTask<Validation<FAIL, B>> fb) =>
+            default(ApplValueTask< Validation<FAIL, A>, Validation<FAIL, B>, Validation<FAIL, C>>).Apply(
+                default(MValueTask< Func<Validation<FAIL, A>, Func<Validation<FAIL, B>, Validation<FAIL, C>>>>).ReturnAsync(
                     Task.FromResult<Func<Validation<FAIL, A>, Func<Validation<FAIL, B>, Validation<FAIL, C>>>>((Validation<FAIL, A> a) =>
                         (Validation<FAIL, B> b) =>
                             default(ApplValidation<FAIL, A, B, C>).Apply(

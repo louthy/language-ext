@@ -7,6 +7,11 @@ namespace LanguageExt
 {
     public static class OptionRxExtensions
     {
+        public static IObservable<B> Choose<A, B>(this IObservable<A> ma, Func<A, Option<B>> f) =>
+            ma.Select(f)
+              .Where(x => x.IsSome)
+              .Select(x => (B)x);
+        
         public static IObservable<A> ToObservable<A>(this Option<A> ma) =>
             ma.IsSome
                 ? Observable.Return(ma.Cast())

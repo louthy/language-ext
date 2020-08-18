@@ -211,7 +211,7 @@ namespace LanguageExt
             where FOLD : struct, BiFoldableAsync<F, A, B>
             where EQ   : struct, Eq<A>
         {
-            foreach (var x in (await toBiSeqAsync<FOLD, F, A, B>(foldable)).Lefts())
+            foreach (var x in (await toBiSeqAsync<FOLD, F, A, B>(foldable).ConfigureAwait(false)).Lefts())
             {
                 if (equals<EQ, A>(x, item)) return true;
             }
@@ -231,7 +231,7 @@ namespace LanguageExt
             where FOLD : struct, BiFoldableAsync<F, A, B>
             where EQ   : struct, Eq<B>
         {
-            foreach (var x in (await toBiSeqAsync<FOLD, F, A, B>(foldable)).Rights())
+            foreach (var x in (await toBiSeqAsync<FOLD, F, A, B>(foldable).ConfigureAwait(false)).Rights())
             {
                 if (equals<EQ, B>(x, item)) return true;
             }
@@ -250,7 +250,7 @@ namespace LanguageExt
         public static async Task<bool> biForAllAsync<FOLD, F, A, B>(F foldable, Func<A, bool> preda, Func<B, bool> predb)
             where FOLD : struct, BiFoldableAsync<F, A, B>
         {
-            foreach (var item in await toBiSeqAsync<FOLD, F, A, B>(foldable))
+            foreach (var item in await toBiSeqAsync<FOLD, F, A, B>(foldable).ConfigureAwait(false))
             {
                 if (!item.Match(Left: preda, Right: predb)) return false;
             }
@@ -271,7 +271,7 @@ namespace LanguageExt
         public static async Task<bool> biExistsAsync<FOLD, F, A, B>(F foldable, Func<A, bool> preda, Func<B, bool> predb)
             where FOLD : struct, BiFoldableAsync<F, A, B>
         {
-            foreach (var item in await toBiSeqAsync<FOLD, F, A, B>(foldable))
+            foreach (var item in await toBiSeqAsync<FOLD, F, A, B>(foldable).ConfigureAwait(false))
             {
                 if (item.Match(Left: preda, Right: predb)) return true;
             }

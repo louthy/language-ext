@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt
@@ -44,6 +45,9 @@ namespace LanguageExt
         
         public static Stck<Validation<MonoidFail, FAIL, B>> Sequence<MonoidFail, FAIL, A, B>(this Validation<MonoidFail, FAIL, A> ta, Func<A, Stck<B>> f)
             where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            ta.Map(f).Traverse(Prelude.identity);
+
+        public static Stck<EffPure<B>> Sequence<A, B>(this EffPure<A> ta, Func<A, Stck<B>> f) =>
             ta.Map(f).Traverse(Prelude.identity);
     }
 }

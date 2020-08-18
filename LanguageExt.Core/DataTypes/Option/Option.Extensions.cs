@@ -242,6 +242,20 @@ public static class OptionExtensions
             : ma.Value;
 
     /// <summary>
+    /// Match for an optional boolean
+    /// </summary>
+    /// <param name="ma">Optional boolean</param>
+    /// <param name="True">Match for Some(true)</param>
+    /// <param name="False">Match for Some(false)</param>
+    /// <param name="None">Match for None</param>
+    /// <typeparam name="R"></typeparam>
+    /// <returns></returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static R Match<R>(this Option<bool> ma, Func<R> True, Func<R> False, Func<R> None) =>
+        ma.Match(Some: x => x ? True() : False(), None: None());
+
+    /// <summary>
     /// Match over a list of options
     /// </summary>
     /// <typeparam name="T">Type of the bound values</typeparam>

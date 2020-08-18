@@ -385,5 +385,27 @@ namespace LanguageExt
                 }
             }
         }
+        
+        public static EitherUnsafe<L, EffPure<B>> Traverse<L, A, B>(this EffPure<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        {
+            var tres = ma.RunIO();
+            
+            if (tres.IsBottom)
+            {
+                return EitherUnsafe<L, EffPure<B>>.Bottom;
+            }
+            else if (tres.IsFail)
+            {
+                return RightUnsafe(FailEff<B>(tres.Error));
+            }
+            else if (tres.Value.IsLeft)
+            {
+                return EitherUnsafe<L, EffPure<B>>.Left((L)tres.Value);
+            }
+            else
+            {
+                return EitherUnsafe<L, EffPure<B>>.Right(SuccessEff(f((A)tres.Value)));
+            }
+        }
     }
 }

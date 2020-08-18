@@ -21,7 +21,7 @@ namespace LanguageExt
             return new OptionAsync<Arr<B>>(Go(ma, f));
             async Task<(bool, Arr<B>)> Go(Arr<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data));
+                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
                 return rb.Exists(d => !d.IsSome)
                      ? (false, default)
                      : (true, new Arr<B>(rb.Map(d => d.Value)));
@@ -33,7 +33,7 @@ namespace LanguageExt
             return new OptionAsync<HashSet<B>>(Go(ma, f));
             async Task<(bool, HashSet<B>)> Go(HashSet<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data));
+                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, new HashSet<B>(rb.Map(d => d.Value)));
@@ -52,9 +52,9 @@ namespace LanguageExt
                 var rb = new List<B>();
                 foreach (var a in ma)
                 {
-                    var mb = await a;
-                    if (mb.IsNone) return (false, default);
-                    rb.Add(f(mb.Value));
+                    var (isSome, b) = await a.Data;
+                    if (!isSome) return (false, default);
+                    rb.Add(f(b));
                 }
                 return (true, rb);
             };
@@ -68,7 +68,7 @@ namespace LanguageExt
             return new OptionAsync<IEnumerable<B>>(Go(ma, f));
             async Task<(bool, IEnumerable<B>)> Go(IEnumerable<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, Prelude.identity);
+                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, Prelude.identity).ConfigureAwait(false);
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, rb.Map(d => d.Value));
@@ -94,7 +94,7 @@ namespace LanguageExt
             return new OptionAsync<Lst<B>>(Go(ma, f));
             async Task<(bool, Lst<B>)> Go(Lst<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data));
+                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, new Lst<B>(rb.Map(d => d.Value)));
@@ -106,7 +106,7 @@ namespace LanguageExt
             return new OptionAsync<Que<B>>(Go(ma, f));
             async Task<(bool, Que<B>)> Go(Que<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data));
+                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, new Que<B>(rb.Map(d => d.Value)));
@@ -126,9 +126,9 @@ namespace LanguageExt
                 var ix = 0;
                 foreach (var a in ma)
                 {
-                    var mb = await a;
-                    if (mb.IsNone) return (false, default);
-                    rb[ix] = f(mb.Value);
+                    var (isSome, b) = await a.Data;
+                    if (!isSome) return (false, default);
+                    rb[ix] = f(b);
                     ix++;
                 }
                 return (true, Seq.FromArray<B>(rb));
@@ -143,7 +143,7 @@ namespace LanguageExt
             return new OptionAsync<Seq<B>>(Go(ma, f));
             async Task<(bool, Seq<B>)> Go(Seq<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, Prelude.identity);
+                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, Prelude.identity).ConfigureAwait(false);
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, Seq.FromArray<B>(rb.Map(d => d.Value).ToArray()));
@@ -168,7 +168,7 @@ namespace LanguageExt
             return new OptionAsync<Set<B>>(Go(ma, f));
             async Task<(bool, Set<B>)> Go(Set<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data));
+                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, new Set<B>(rb.Map(d => d.Value)));
@@ -180,7 +180,7 @@ namespace LanguageExt
             return new OptionAsync<Stck<B>>(Go(ma, f));
             async Task<(bool, Stck<B>)> Go(Stck<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Reverse().Map(a => a.Map(f).Data));
+                var rb = await Task.WhenAll(ma.Reverse().Map(a => a.Map(f).Data)).ConfigureAwait(false);
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, new Stck<B>(rb.Map(d => d.Value)));
@@ -196,10 +196,10 @@ namespace LanguageExt
             return new OptionAsync<EitherAsync<L, B>>(Go(ma, f));
             async Task<(bool, EitherAsync<L, B>)> Go(EitherAsync<L, OptionAsync<A>> ma, Func<A, B> f)
             {
-                var da = await ma.Data;
+                var da = await ma.Data.ConfigureAwait(false);
                 if (da.State == EitherStatus.IsBottom) return (false, default);
                 if (da.State == EitherStatus.IsLeft) return (true, EitherAsync<L, B>.Left(da.Left));
-                var (isSome, value) = await da.Right.Data;
+                var (isSome, value) = await da.Right.Data.ConfigureAwait(false);
                 if (!isSome) return (false, default);
                 return (true, EitherAsync<L, B>.Right(f(value)));
             }
@@ -210,9 +210,9 @@ namespace LanguageExt
             return new OptionAsync<OptionAsync<B>>(Go(ma, f));
             async Task<(bool, OptionAsync<B>)> Go(OptionAsync<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var (isSomeA, valueA) = await ma.Data;
+                var (isSomeA, valueA) = await ma.Data.ConfigureAwait(false);
                 if (!isSomeA) return (true, OptionAsync<B>.None);
-                var (isSomeB, valueB) = await valueA.Data;
+                var (isSomeB, valueB) = await valueA.Data.ConfigureAwait(false);
                 if (!isSomeB) return (false, default);
                 return (true, OptionAsync<B>.Some(f(valueB)));
             }
@@ -223,10 +223,10 @@ namespace LanguageExt
             return new OptionAsync<TryAsync<B>>(Go(ma, f));
             async Task<(bool, TryAsync<B>)> Go(TryAsync<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var resultA = await ma.Try();
+                var resultA = await ma.Try().ConfigureAwait(false);
                 if (resultA.IsBottom) return (false, default);
                 if (resultA.IsFaulted) return (true, TryAsyncFail<B>(resultA.Exception));
-                var (isSome, value) = await resultA.Value.Data;
+                var (isSome, value) = await resultA.Value.Data.ConfigureAwait(false);
                 if (!isSome) return (false, default);
                 return (true, TryAsync<B>(f(value)));
             }
@@ -237,11 +237,11 @@ namespace LanguageExt
             return new OptionAsync<TryOptionAsync<B>>(Go(ma, f));
             async Task<(bool, TryOptionAsync<B>)> Go(TryOptionAsync<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var resultA = await ma.Try();
+                var resultA = await ma.Try().ConfigureAwait(false);
                 if (resultA.IsBottom) return (false, default);
                 if (resultA.IsNone) return (true, TryOptionalAsync<B>(None));
                 if (resultA.IsFaulted) return (true, TryOptionAsyncFail<B>(resultA.Exception));
-                var (isSome, value) = await resultA.Value.Value.Data;
+                var (isSome, value) = await resultA.Value.Value.Data.ConfigureAwait(false);
                 if (!isSome) return (false, default);
                 return (true, TryOptionAsync<B>(f(value)));
             }
@@ -252,10 +252,36 @@ namespace LanguageExt
             return new OptionAsync<Task<B>>(Go(ma, f));
             async Task<(bool, Task<B>)> Go(Task<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var result = await ma;
-                var (isSome, value) = await result.Data;
+                var result = await ma.ConfigureAwait(false);
+                var (isSome, value) = await result.Data.ConfigureAwait(false);
                 if (!isSome) return (false, default);
                 return (true, f(value).AsTask());
+            }
+        }
+
+        public static OptionAsync<ValueTask<B>> Traverse<A, B>(this ValueTask<OptionAsync<A>> ma, Func<A, B> f)
+        {
+            return new OptionAsync<ValueTask<B>>(Go(ma, f).AsTask());
+            async ValueTask<(bool, ValueTask<B>)> Go(ValueTask<OptionAsync<A>> ma, Func<A, B> f)
+            {
+                var result = await ma.ConfigureAwait(false);
+                var (isSome, value) = await result.Data.ConfigureAwait(false);
+                if (!isSome) return (false, default);
+                return (true, f(value).AsValueTask());
+            }
+        }
+                
+        public static OptionAsync<AffPure<B>> Traverse<A, B>(this AffPure<OptionAsync<A>> ma, Func<A, B> f)
+        {
+            return new OptionAsync<AffPure<B>>(Go(ma, f));
+            async Task<(bool, AffPure<B>)> Go(AffPure<OptionAsync<A>> ma, Func<A, B> f)
+            {
+                var resultA = await ma.RunIO().ConfigureAwait(false);
+                if (resultA.IsBottom) return (false, default);
+                if (resultA.IsFail) return (true, FailAff<B>(resultA.Error));
+                var (isSome, value) = await resultA.Value.Data.ConfigureAwait(false);
+                if (!isSome) return (false, default);
+                return (true, SuccessAff<B>(f(value)));
             }
         }
 
@@ -270,7 +296,7 @@ namespace LanguageExt
             {
                 if(ma.IsBottom) return (false, default);
                 if(ma.IsLeft) return (true, Left<L, B>(ma.LeftValue));
-                var (isSome, value) = await ma.RightValue.Data;
+                var (isSome, value) = await ma.RightValue.Data.ConfigureAwait(false);
                 if(!isSome) return (false, default);
                 return (true, f(value));
             }
@@ -283,7 +309,7 @@ namespace LanguageExt
             {
                 if(ma.IsBottom) return (false, default);
                 if(ma.IsLeft) return (true, LeftUnsafe<L, B>(ma.LeftValue));
-                var (isSome, value) = await ma.RightValue.Data;
+                var (isSome, value) = await ma.RightValue.Data.ConfigureAwait(false);
                 if(!isSome) return (false, default);
                 return (true, f(value));
             }
@@ -295,7 +321,7 @@ namespace LanguageExt
             async Task<(bool, Identity<B>)> Go(Identity<OptionAsync<A>> ma, Func<A, B> f)
             {
                 if(ma.IsBottom) return (false, default);
-                var (isSome, value) = await ma.Value.Data;
+                var (isSome, value) = await ma.Value.Data.ConfigureAwait(false);
                 if(!isSome) return (false, default);
                 return (true, new Identity<B>(f(value)));
             }
@@ -307,7 +333,7 @@ namespace LanguageExt
             async Task<(bool, Option<B>)> Go(Option<OptionAsync<A>> ma, Func<A, B> f)
             {
                 if(ma.IsNone) return (true, Option<B>.None);
-                var (isSome, value) = await ma.Value.Data;
+                var (isSome, value) = await ma.Value.Data.ConfigureAwait(false);
                 if(!isSome) return (false, default);
                 return (true, Option<B>.Some(f(value)));
             }
@@ -319,7 +345,7 @@ namespace LanguageExt
             async Task<(bool, OptionUnsafe<B>)> Go(OptionUnsafe<OptionAsync<A>> ma, Func<A, B> f)
             {
                 if(ma.IsNone) return (true, OptionUnsafe<B>.None);
-                var (isSome, value) = await ma.Value.Data;
+                var (isSome, value) = await ma.Value.Data.ConfigureAwait(false);
                 if(!isSome) return (false, default);
                 return (true, OptionUnsafe<B>.Some(f(value)));
             }
@@ -335,7 +361,7 @@ namespace LanguageExt
                     var ra = ma.Try();
                     if(ra.IsBottom) return (false, default);
                     if (ra.IsFaulted) return (true, TryFail<B>(ra.Exception));
-                    var (isSome, value) = await ra.Value.Data;
+                    var (isSome, value) = await ra.Value.Data.ConfigureAwait(false);
                     if(!isSome) return (false, default);
                     return (true, Try<B>(f(value)));
                 }
@@ -357,7 +383,7 @@ namespace LanguageExt
                     if (ra.IsBottom) return (false, default);
                     if (ra.IsNone) return (true, TryOptional<B>(None));
                     if (ra.IsFaulted) return (true, TryOptionFail<B>(ra.Exception));
-                    var (isSome, value) = await ra.Value.Value.Data;
+                    var (isSome, value) = await ra.Value.Value.Data.ConfigureAwait(false);
                     if (!isSome) return (false, default);
                     return (true, TryOption<B>(f(value)));
                 }
@@ -374,7 +400,7 @@ namespace LanguageExt
             async Task<(bool, Validation<Fail, B>)> Go(Validation<Fail, OptionAsync<A>> ma, Func<A, B> f)
             {
                 if(ma.IsFail) return (true, Fail<Fail, B>(ma.FailValue));
-                var (isSome, value) = await ma.SuccessValue.Data;
+                var (isSome, value) = await ma.SuccessValue.Data.ConfigureAwait(false);
                 if(!isSome) return (false, default);
                 return (true, f(value));
             }
@@ -387,10 +413,31 @@ namespace LanguageExt
             async Task<(bool, Validation<MonoidFail, Fail, B>)> Go(Validation<MonoidFail, Fail, OptionAsync<A>> ma, Func<A, B> f)
             {
                 if(ma.IsFail) return (true, Fail<MonoidFail, Fail, B>(ma.FailValue));
-                var (isSome, value) = await ma.SuccessValue.Data;
+                var (isSome, value) = await ma.SuccessValue.Data.ConfigureAwait(false);
                 if(!isSome) return (false, default);
                 return (true, f(value));
             }
         }
+        
+        public static OptionAsync<EffPure<B>> Traverse<A, B>(this EffPure<OptionAsync<A>> ma, Func<A, B> f)
+        {
+            try
+            {
+                return new OptionAsync<EffPure<B>>(Go(ma, f));
+                async Task<(bool, EffPure<B>)> Go(EffPure<OptionAsync<A>> ma, Func<A, B> f)
+                {
+                    var ra = ma.RunIO();
+                    if(ra.IsBottom) return (false, default);
+                    if (ra.IsFail) return (true, FailEff<B>(ra.Error));
+                    var (isSome, value) = await ra.Value.Data.ConfigureAwait(false);
+                    if(!isSome) return (false, default);
+                    return (true, SuccessEff<B>(f(value)));
+                }
+            }
+            catch (Exception e)
+            {
+                return FailEff<B>(e);
+            }
+        }        
     }
 }

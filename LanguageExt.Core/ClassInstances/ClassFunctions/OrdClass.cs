@@ -22,11 +22,6 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly Option<Error> Error;
         public static readonly Func<A, A, int> Compare;
-        public static readonly Func<A, A, Task<int>> CompareAsync;
-        public new static readonly Func<A, A, bool> Equals;
-        public static readonly Func<A, A, Task<bool>> EqualsAsync;
-        public new static readonly Func<A, int> GetHashCode;
-        public static readonly Func<A, Task<int>> GetHashCodeAsync;
         
         static OrdClass()
         {
@@ -62,21 +57,28 @@ namespace LanguageExt.ClassInstances
                 Error = Some(Common.Error.New(e));
                 Compare = (A x, A y) => throw e;
             }
-            finally
-            {
-                GetHashCode = HashableClass<A>.GetHashCode;
-                Equals = EqClass<A>.Equals;
-                GetHashCodeAsync =HashableClass<A>.GetHashCodeAsync;
-                EqualsAsync = EqClass<A>.EqualsAsync;
-                CompareAsync = (x, y) => Compare(x, y).AsTask();
-            }
         }
 
+        public static Task<int> CompareAsync(A x, A y) =>
+            Compare(x, y).AsTask();
+
+        public static bool Equals(A x, A y) =>
+            EqClass<A>.Equals(x, y);
+
+        public static Task<bool> EqualsAsync(A x, A y) =>
+            EqClass<A>.EqualsAsync(x, y);
+
+        public static int GetHashCode(A x) =>
+            HashableClass<A>.GetHashCode(x);
+
+        public static Task<int> GetHashCodeAsync(A x) =>
+            HashableClass<A>.GetHashCodeAsync(x);
+        
         static Func<A, A, int> MakePrimitiveCompare(string fullName) =>
             fullName switch
             {
                 "LangaugeExt.bigint" => (Func<A, A, int>)(object)(Func<bigint, bigint, int>)default(OrdBigInt).Compare,
-                "System.intean" => (Func<A, A, int>)(object)(Func<bool, bool, int>)default(OrdBool).Compare,
+                "System.Boolean" => (Func<A, A, int>)(object)(Func<bool, bool, int>)default(OrdBool).Compare,
                 "System.DateTime" => (Func<A, A, int>)(object)(Func<DateTime, DateTime, int>)default(OrdDateTime).Compare,
                 "System.Decimal" => (Func<A, A, int>)(object)(Func<decimal, decimal, int>)default(OrdDecimal).Compare,
                 "System.Single" => (Func<A, A, int>)(object)(Func<float, float, int>)default(OrdFloat).Compare,
