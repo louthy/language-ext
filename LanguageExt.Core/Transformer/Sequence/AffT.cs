@@ -141,6 +141,16 @@ namespace LanguageExt
             ta.Map(f).Sequence();
         
         [Pure]
+        public static Aff<RT, Option<A>> Sequence<RT, A>(this Option<Aff<RT, A>> mma) 
+            where RT : struct, HasCancel<RT> =>
+            mma.Traverse(identity);
+        
+        [Pure]
+        public static Aff<RT, Option<B>> Sequence<RT, A, B>(this Option<A> ta, Func<A, Aff<RT, B>> f) 
+            where RT : struct, HasCancel<RT> =>
+            ta.Map(f).Sequence();
+        
+        [Pure]
         public static Aff<RT, OptionUnsafe<A>> Sequence<RT, A>(this OptionUnsafe<Aff<RT, A>> mma) 
             where RT : struct, HasCancel<RT> =>
             mma.Traverse(identity);

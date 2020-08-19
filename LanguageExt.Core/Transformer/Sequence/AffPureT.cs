@@ -117,6 +117,14 @@ namespace LanguageExt
             ta.Map(f).Sequence();
         
         [Pure]
+        public static AffPure<Option<A>> Sequence<A>(this Option<AffPure<A>> mma) =>
+            mma.Traverse(identity);
+        
+        [Pure]
+        public static AffPure<Option<B>> Sequence<A, B>(this Option<A> ta, Func<A, AffPure<B>> f) =>
+            ta.Map(f).Sequence();
+        
+        [Pure]
         public static AffPure<OptionUnsafe<A>> Sequence<A>(this OptionUnsafe<AffPure<A>> mma) =>
             mma.Traverse(identity);
         
