@@ -25,7 +25,46 @@ namespace LanguageExt.Thunks
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
             ThunkAsync<Env, A>.Lazy(async env =>
             {
-                while (true)
+                mma.SpinIfEvaluating();
+
+                switch (mma.state)
+                {
+                    case IsSuccess:
+                        var sma = mma.value;
+                        sma.SpinIfEvaluating();
+
+                        switch (sma.state)
+                        {
+                            case IsSuccess:
+                                return Fin<A>.Succ(sma.value);
+
+                            case NotEvaluated:
+                                return await sma.Value(env).ConfigureAwait(false);
+
+                            default:
+                                return Fin<A>.Fail(sma.error);
+                        }
+
+                    case NotEvaluated:
+                        var ema = await mma.fun(env).ConfigureAwait(false);
+                        if (ema.IsSucc)
+                        {
+                            return await ema.Value.Value(env).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            return Fin<A>.Fail(ema.Error);
+                        }
+
+                    default:
+                        return Fin<A>.Fail(mma.error);                    
+                }
+            });      
+        
+        [Pure, MethodImpl(Thunk.mops)]
+        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<ThunkAsync<Env, A>> mma) where Env : struct, HasCancel<Env> =>
+            mma is null ? throw new ArgumentNullException(nameof(mma)) :
+                ThunkAsync<Env, A>.Lazy(async env =>
                 {
                     mma.SpinIfEvaluating();
 
@@ -33,25 +72,22 @@ namespace LanguageExt.Thunks
                     {
                         case IsSuccess:
                             var sma = mma.value;
-                            while (true)
+                            sma.SpinIfEvaluating();
+
+                            switch (sma.state)
                             {
-                                sma.SpinIfEvaluating();
+                                case IsSuccess:
+                                    return Fin<A>.Succ(sma.value);
 
-                                switch (sma.state)
-                                {
-                                    case IsSuccess:
-                                        return Fin<A>.Succ(sma.value);
+                                case NotEvaluated:
+                                    return await sma.Value(env).ConfigureAwait(false);
 
-                                    case NotEvaluated:
-                                        return await sma.Value(env).ConfigureAwait(false);
-
-                                    default:
-                                        return Fin<A>.Fail(sma.error);
-                                }
+                                default:
+                                    return Fin<A>.Fail(sma.error);
                             }
 
                         case NotEvaluated:
-                            var ema = await mma.fun(env).ConfigureAwait(false);
+                            var ema = await mma.fun().ConfigureAwait(false);
                             if (ema.IsSucc)
                             {
                                 return await ema.Value.Value(env).ConfigureAwait(false);
@@ -64,54 +100,6 @@ namespace LanguageExt.Thunks
                         default:
                             return Fin<A>.Fail(mma.error);                    
                     }
-                }
-            });      
-        
-        [Pure, MethodImpl(Thunk.mops)]
-        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<ThunkAsync<Env, A>> mma) where Env : struct, HasCancel<Env> =>
-            mma is null ? throw new ArgumentNullException(nameof(mma)) :
-                ThunkAsync<Env, A>.Lazy(async env =>
-                {
-                    while (true)
-                    {
-                        mma.SpinIfEvaluating();
-
-                        switch (mma.state)
-                        {
-                            case IsSuccess:
-                                var sma = mma.value;
-                                while (true)
-                                {
-                                    sma.SpinIfEvaluating();
-
-                                    switch (sma.state)
-                                    {
-                                        case IsSuccess:
-                                            return Fin<A>.Succ(sma.value);
-
-                                        case NotEvaluated:
-                                            return await sma.Value(env).ConfigureAwait(false);
-
-                                        default:
-                                            return Fin<A>.Fail(sma.error);
-                                    }
-                                }
-
-                            case NotEvaluated:
-                                var ema = await mma.fun().ConfigureAwait(false);
-                                if (ema.IsSucc)
-                                {
-                                    return await ema.Value.Value(env).ConfigureAwait(false);
-                                }
-                                else
-                                {
-                                    return Fin<A>.Fail(ema.Error);
-                                }
-
-                            default:
-                                return Fin<A>.Fail(mma.error);                    
-                        }
-                    }
                 });    
         
         
@@ -120,174 +108,28 @@ namespace LanguageExt.Thunks
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
                 ThunkAsync<Env, A>.Lazy(async env =>
                 {
-                    while (true)
-                    {
-                        mma.SpinIfEvaluating();
-
-                        switch (mma.state)
-                        {
-                            case IsSuccess:
-                                var sma = mma.value;
-                                while (true)
-                                {
-                                    sma.SpinIfEvaluating();
-
-                                    switch (sma.state)
-                                    {
-                                        case IsSuccess:
-                                            return Fin<A>.Succ(sma.value);
-
-                                        case NotEvaluated:
-                                            return sma.Value(env);
-
-                                        default:
-                                            return Fin<A>.Fail(sma.error);
-                                    }
-                                }
-
-                            case NotEvaluated:
-                                var ema = await mma.fun().ConfigureAwait(false);
-                                if (ema.IsSucc)
-                                {
-                                    return ema.Value.Value(env);
-                                }
-                                else
-                                {
-                                    return Fin<A>.Fail(ema.Error);
-                                }
-
-                            default:
-                                return Fin<A>.Fail(mma.error);                    
-                        }
-                    }
-                });          
-        
-        [Pure, MethodImpl(Thunk.mops)]
-        public static ThunkAsync<Env, A> Flatten<Env, A>(this Thunk<ThunkAsync<Env, A>> mma) where Env : struct, HasCancel<Env> =>
-            mma is null ? throw new ArgumentNullException(nameof(mma)) :
-                ThunkAsync<Env, A>.Lazy(async env =>
-                {
-                    while (true)
-                    {
-                        mma.SpinIfEvaluating();
-
-                        switch (mma.state)
-                        {
-                            case IsSuccess:
-                                var sma = mma.value;
-                                while (true)
-                                {
-                                    sma.SpinIfEvaluating();
-
-                                    switch (sma.state)
-                                    {
-                                        case IsSuccess:
-                                            return Fin<A>.Succ(sma.value);
-
-                                        case NotEvaluated:
-                                            return await sma.Value(env).ConfigureAwait(false);
-
-                                        default:
-                                            return Fin<A>.Fail(sma.error);
-                                    }
-                                }
-
-                            case NotEvaluated:
-                                var ema = mma.fun();
-                                if (ema.IsSucc)
-                                {
-                                    return await ema.Value.Value(env).ConfigureAwait(false);
-                                }
-                                else
-                                {
-                                    return Fin<A>.Fail(ema.Error);
-                                }
-
-                            default:
-                                return Fin<A>.Fail(mma.error);                    
-                        }
-                    }
-                });         
-        
-        [Pure, MethodImpl(Thunk.mops)]
-        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Env, ThunkAsync<A>> mma) where Env : struct, HasCancel<Env> =>
-            mma is null ? throw new ArgumentNullException(nameof(mma)) :
-            ThunkAsync<Env, A>.Lazy(async env =>
-            {
-                while (true)
-                {
                     mma.SpinIfEvaluating();
 
                     switch (mma.state)
                     {
                         case IsSuccess:
                             var sma = mma.value;
-                            while (true)
+                            sma.SpinIfEvaluating();
+
+                            switch (sma.state)
                             {
-                                sma.SpinIfEvaluating();
+                                case IsSuccess:
+                                    return Fin<A>.Succ(sma.value);
 
-                                switch (sma.state)
-                                {
-                                    case IsSuccess:
-                                        return Fin<A>.Succ(sma.value);
+                                case NotEvaluated:
+                                    return sma.Value(env);
 
-                                    case NotEvaluated:
-                                        return await sma.Value().ConfigureAwait(false);
-
-                                    default:
-                                        return Fin<A>.Fail(sma.error);
-                                }
+                                default:
+                                    return Fin<A>.Fail(sma.error);
                             }
 
                         case NotEvaluated:
-                            var ema = await mma.fun(env).ConfigureAwait(false);
-                            if (ema.IsSucc)
-                            {
-                                return await ema.Value.Value().ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                return Fin<A>.Fail(ema.Error);
-                            }
-
-                        default:
-                            return Fin<A>.Fail(mma.error);                    
-                    }
-                }
-            });             
-        
-        [Pure, MethodImpl(Thunk.mops)]
-        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Env, Thunk<Env, A>> mma) where Env : struct, HasCancel<Env> =>
-            mma is null ? throw new ArgumentNullException(nameof(mma)) :
-            ThunkAsync<Env, A>.Lazy(async env =>
-            {
-                while (true)
-                {
-                    mma.SpinIfEvaluating();
-
-                    switch (mma.state)
-                    {
-                        case IsSuccess:
-                            var sma = mma.value;
-                            while (true)
-                            {
-                                sma.SpinIfEvaluating();
-
-                                switch (sma.state)
-                                {
-                                    case IsSuccess:
-                                        return Fin<A>.Succ(sma.value);
-
-                                    case NotEvaluated:
-                                        return sma.Value(env);
-
-                                    default:
-                                        return Fin<A>.Fail(sma.error);
-                                }
-                            }
-
-                        case NotEvaluated:
-                            var ema = await mma.fun(env).ConfigureAwait(false);
+                            var ema = await mma.fun().ConfigureAwait(false);
                             if (ema.IsSucc)
                             {
                                 return ema.Value.Value(env);
@@ -300,6 +142,128 @@ namespace LanguageExt.Thunks
                         default:
                             return Fin<A>.Fail(mma.error);                    
                     }
+                });          
+        
+        [Pure, MethodImpl(Thunk.mops)]
+        public static ThunkAsync<Env, A> Flatten<Env, A>(this Thunk<ThunkAsync<Env, A>> mma) where Env : struct, HasCancel<Env> =>
+            mma is null ? throw new ArgumentNullException(nameof(mma)) :
+                ThunkAsync<Env, A>.Lazy(async env =>
+                {
+                    mma.SpinIfEvaluating();
+
+                    switch (mma.state)
+                    {
+                        case IsSuccess:
+                            var sma = mma.value;
+                            sma.SpinIfEvaluating();
+
+                            switch (sma.state)
+                            {
+                                case IsSuccess:
+                                    return Fin<A>.Succ(sma.value);
+
+                                case NotEvaluated:
+                                    return await sma.Value(env).ConfigureAwait(false);
+
+                                default:
+                                    return Fin<A>.Fail(sma.error);
+                            }
+
+                        case NotEvaluated:
+                            var ema = mma.fun();
+                            if (ema.IsSucc)
+                            {
+                                return await ema.Value.Value(env).ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                return Fin<A>.Fail(ema.Error);
+                            }
+
+                        default:
+                            return Fin<A>.Fail(mma.error);                    
+                    }
+                });         
+        
+        [Pure, MethodImpl(Thunk.mops)]
+        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Env, ThunkAsync<A>> mma) where Env : struct, HasCancel<Env> =>
+            mma is null ? throw new ArgumentNullException(nameof(mma)) :
+            ThunkAsync<Env, A>.Lazy(async env =>
+            {
+                mma.SpinIfEvaluating();
+
+                switch (mma.state)
+                {
+                    case IsSuccess:
+                        var sma = mma.value;
+                        sma.SpinIfEvaluating();
+
+                        switch (sma.state)
+                        {
+                            case IsSuccess:
+                                return Fin<A>.Succ(sma.value);
+
+                            case NotEvaluated:
+                                return await sma.Value().ConfigureAwait(false);
+
+                            default:
+                                return Fin<A>.Fail(sma.error);
+                        }
+
+                    case NotEvaluated:
+                        var ema = await mma.fun(env).ConfigureAwait(false);
+                        if (ema.IsSucc)
+                        {
+                            return await ema.Value.Value().ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            return Fin<A>.Fail(ema.Error);
+                        }
+
+                    default:
+                        return Fin<A>.Fail(mma.error);                    
+                }
+            });             
+        
+        [Pure, MethodImpl(Thunk.mops)]
+        public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Env, Thunk<Env, A>> mma) where Env : struct, HasCancel<Env> =>
+            mma is null ? throw new ArgumentNullException(nameof(mma)) :
+            ThunkAsync<Env, A>.Lazy(async env =>
+            {
+                mma.SpinIfEvaluating();
+
+                switch (mma.state)
+                {
+                    case IsSuccess:
+                        var sma = mma.value;
+                        sma.SpinIfEvaluating();
+
+                        switch (sma.state)
+                        {
+                            case IsSuccess:
+                                return Fin<A>.Succ(sma.value);
+
+                            case NotEvaluated:
+                                return sma.Value(env);
+
+                            default:
+                                return Fin<A>.Fail(sma.error);
+                        }
+
+                    case NotEvaluated:
+                        var ema = await mma.fun(env).ConfigureAwait(false);
+                        if (ema.IsSucc)
+                        {
+                            return ema.Value.Value(env);
+                        }
+                        else
+                        {
+                            return Fin<A>.Fail(ema.Error);
+                        }
+
+                    default:
+                        return Fin<A>.Fail(mma.error);                    
                 }
             });
         
@@ -309,45 +273,39 @@ namespace LanguageExt.Thunks
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
                 ThunkAsync<Env, A>.Lazy(async env =>
                 {
-                    while (true)
+                    mma.SpinIfEvaluating();
+
+                    switch (mma.state)
                     {
-                        mma.SpinIfEvaluating();
+                        case IsSuccess:
+                            var sma = mma.value;
+                            sma.SpinIfEvaluating();
 
-                        switch (mma.state)
-                        {
-                            case IsSuccess:
-                                var sma = mma.value;
-                                while (true)
-                                {
-                                    sma.SpinIfEvaluating();
+                            switch (sma.state)
+                            {
+                                case IsSuccess:
+                                    return Fin<A>.Succ(sma.value);
 
-                                    switch (sma.state)
-                                    {
-                                        case IsSuccess:
-                                            return Fin<A>.Succ(sma.value);
+                                case NotEvaluated:
+                                    return await sma.Value(env).ConfigureAwait(false);
 
-                                        case NotEvaluated:
-                                            return await sma.Value(env).ConfigureAwait(false);
+                                default:
+                                    return Fin<A>.Fail(sma.error);
+                            }
 
-                                        default:
-                                            return Fin<A>.Fail(sma.error);
-                                    }
-                                }
+                        case NotEvaluated:
+                            var ema = mma.fun(env);
+                            if (ema.IsSucc)
+                            {
+                                return await ema.Value.Value(env).ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                return Fin<A>.Fail(ema.Error);
+                            }
 
-                            case NotEvaluated:
-                                var ema = mma.fun(env);
-                                if (ema.IsSucc)
-                                {
-                                    return await ema.Value.Value(env).ConfigureAwait(false);
-                                }
-                                else
-                                {
-                                    return Fin<A>.Fail(ema.Error);
-                                }
-
-                            default:
-                                return Fin<A>.Fail(mma.error);                    
-                        }
+                        default:
+                            return Fin<A>.Fail(mma.error);                    
                     }
                 });           
  
@@ -356,45 +314,39 @@ namespace LanguageExt.Thunks
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
             ThunkAsync<Env, A>.Lazy(async env =>
             {
-                while (true)
+                mma.SpinIfEvaluating();
+
+                switch (mma.state)
                 {
-                    mma.SpinIfEvaluating();
+                    case IsSuccess:
+                        var sma = mma.value;
+                        sma.SpinIfEvaluating();
 
-                    switch (mma.state)
-                    {
-                        case IsSuccess:
-                            var sma = mma.value;
-                            while (true)
-                            {
-                                sma.SpinIfEvaluating();
+                        switch (sma.state)
+                        {
+                            case IsSuccess:
+                                return Fin<A>.Succ(sma.value);
 
-                                switch (sma.state)
-                                {
-                                    case IsSuccess:
-                                        return Fin<A>.Succ(sma.value);
+                            case NotEvaluated:
+                                return sma.Value();
 
-                                    case NotEvaluated:
-                                        return sma.Value();
+                            default:
+                                return Fin<A>.Fail(sma.error);
+                        }
 
-                                    default:
-                                        return Fin<A>.Fail(sma.error);
-                                }
-                            }
+                    case NotEvaluated:
+                        var ema = await mma.fun(env).ConfigureAwait(false);
+                        if (ema.IsSucc)
+                        {
+                            return ema.Value.Value();
+                        }
+                        else
+                        {
+                            return Fin<A>.Fail(ema.Error);
+                        }
 
-                        case NotEvaluated:
-                            var ema = await mma.fun(env).ConfigureAwait(false);
-                            if (ema.IsSucc)
-                            {
-                                return ema.Value.Value();
-                            }
-                            else
-                            {
-                                return Fin<A>.Fail(ema.Error);
-                            }
-
-                        default:
-                            return Fin<A>.Fail(mma.error);
-                    }
+                    default:
+                        return Fin<A>.Fail(mma.error);
                 }
             });  
         
@@ -404,45 +356,39 @@ namespace LanguageExt.Thunks
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
                 ThunkAsync<Env, A>.Lazy(async env =>
                 {
-                    while (true)
+                    mma.SpinIfEvaluating();
+
+                    switch (mma.state)
                     {
-                        mma.SpinIfEvaluating();
+                        case IsSuccess:
+                            var sma = mma.value;
+                            sma.SpinIfEvaluating();
 
-                        switch (mma.state)
-                        {
-                            case IsSuccess:
-                                var sma = mma.value;
-                                while (true)
-                                {
-                                    sma.SpinIfEvaluating();
+                            switch (sma.state)
+                            {
+                                case IsSuccess:
+                                    return Fin<A>.Succ(sma.value);
 
-                                    switch (sma.state)
-                                    {
-                                        case IsSuccess:
-                                            return Fin<A>.Succ(sma.value);
+                                case NotEvaluated:
+                                    return await sma.Value().ConfigureAwait(false);
 
-                                        case NotEvaluated:
-                                            return await sma.Value().ConfigureAwait(false);
+                                default:
+                                    return Fin<A>.Fail(sma.error);
+                            }
 
-                                        default:
-                                            return Fin<A>.Fail(sma.error);
-                                    }
-                                }
+                        case NotEvaluated:
+                            var ema = mma.fun(env);
+                            if (ema.IsSucc)
+                            {
+                                return await ema.Value.Value().ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                return Fin<A>.Fail(ema.Error);
+                            }
 
-                            case NotEvaluated:
-                                var ema = mma.fun(env);
-                                if (ema.IsSucc)
-                                {
-                                    return await ema.Value.Value().ConfigureAwait(false);
-                                }
-                                else
-                                {
-                                    return Fin<A>.Fail(ema.Error);
-                                }
-
-                            default:
-                                return Fin<A>.Fail(mma.error);
-                        }
+                        default:
+                            return Fin<A>.Fail(mma.error);
                     }
                 }); 
  
@@ -451,7 +397,88 @@ namespace LanguageExt.Thunks
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
             ThunkAsync<A>.Lazy(async () =>
             {
-                while (true)
+                mma.SpinIfEvaluating();
+
+                switch (mma.state)
+                {
+                    case IsSuccess:
+                        var sma = mma.value;
+                        sma.SpinIfEvaluating();
+
+                        switch (sma.state)
+                        {
+                            case IsSuccess:
+                                return Fin<A>.Succ(sma.value);
+
+                            case NotEvaluated:
+                                return await sma.Value().ConfigureAwait(false);
+
+                            default:
+                                return Fin<A>.Fail(sma.error);
+                        }
+
+                    case NotEvaluated:
+                        var ema = await mma.fun().ConfigureAwait(false);
+                        if (ema.IsSucc)
+                        {
+                            return await ema.Value.Value().ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            return Fin<A>.Fail(ema.Error);
+                        }
+
+                    default:
+                        return Fin<A>.Fail(mma.error);                    
+                }
+            });      
+
+        [Pure, MethodImpl(Thunk.mops)]
+        public static ThunkAsync<A> Flatten<A>(this ThunkAsync<Thunk<A>> mma) =>
+            mma is null ? throw new ArgumentNullException(nameof(mma)) :
+            ThunkAsync<A>.Lazy(async () =>
+            {
+                mma.SpinIfEvaluating();
+
+                switch (mma.state)
+                {
+                    case IsSuccess:
+                        var sma = mma.value;
+                        sma.SpinIfEvaluating();
+
+                        switch (sma.state)
+                        {
+                            case IsSuccess:
+                                return Fin<A>.Succ(sma.value);
+
+                            case NotEvaluated:
+                                return sma.Value();
+
+                            default:
+                                return Fin<A>.Fail(sma.error);
+                        }
+
+                    case NotEvaluated:
+                        var ema = await mma.fun().ConfigureAwait(false);
+                        if (ema.IsSucc)
+                        {
+                            return ema.Value.Value();
+                        }
+                        else
+                        {
+                            return Fin<A>.Fail(ema.Error);
+                        }
+
+                    default:
+                        return Fin<A>.Fail(mma.error);                    
+                }
+            });      
+        
+
+        [Pure, MethodImpl(Thunk.mops)]
+        public static ThunkAsync<A> Flatten<A>(this Thunk<ThunkAsync<A>> mma) =>
+            mma is null ? throw new ArgumentNullException(nameof(mma)) :
+                ThunkAsync<A>.Lazy(async () =>
                 {
                     mma.SpinIfEvaluating();
 
@@ -459,25 +486,22 @@ namespace LanguageExt.Thunks
                     {
                         case IsSuccess:
                             var sma = mma.value;
-                            while (true)
+                            sma.SpinIfEvaluating();
+
+                            switch (sma.state)
                             {
-                                sma.SpinIfEvaluating();
+                                case IsSuccess:
+                                    return Fin<A>.Succ(sma.value);
 
-                                switch (sma.state)
-                                {
-                                    case IsSuccess:
-                                        return Fin<A>.Succ(sma.value);
+                                case NotEvaluated:
+                                    return await sma.Value().ConfigureAwait(false);
 
-                                    case NotEvaluated:
-                                        return await sma.Value().ConfigureAwait(false);
-
-                                    default:
-                                        return Fin<A>.Fail(sma.error);
-                                }
+                                default:
+                                    return Fin<A>.Fail(sma.error);
                             }
 
                         case NotEvaluated:
-                            var ema = await mma.fun().ConfigureAwait(false);
+                            var ema = mma.fun();
                             if (ema.IsSucc)
                             {
                                 return await ema.Value.Value().ConfigureAwait(false);
@@ -490,102 +514,6 @@ namespace LanguageExt.Thunks
                         default:
                             return Fin<A>.Fail(mma.error);                    
                     }
-                }
-            });      
-
-        [Pure, MethodImpl(Thunk.mops)]
-        public static ThunkAsync<A> Flatten<A>(this ThunkAsync<Thunk<A>> mma) =>
-            mma is null ? throw new ArgumentNullException(nameof(mma)) :
-            ThunkAsync<A>.Lazy(async () =>
-            {
-                while (true)
-                {
-                    mma.SpinIfEvaluating();
-
-                    switch (mma.state)
-                    {
-                        case IsSuccess:
-                            var sma = mma.value;
-                            while (true)
-                            {
-                                sma.SpinIfEvaluating();
-
-                                switch (sma.state)
-                                {
-                                    case IsSuccess:
-                                        return Fin<A>.Succ(sma.value);
-
-                                    case NotEvaluated:
-                                        return sma.Value();
-
-                                    default:
-                                        return Fin<A>.Fail(sma.error);
-                                }
-                            }
-
-                        case NotEvaluated:
-                            var ema = await mma.fun().ConfigureAwait(false);
-                            if (ema.IsSucc)
-                            {
-                                return ema.Value.Value();
-                            }
-                            else
-                            {
-                                return Fin<A>.Fail(ema.Error);
-                            }
-
-                        default:
-                            return Fin<A>.Fail(mma.error);                    
-                    }
-                }
-            });      
-        
-
-        [Pure, MethodImpl(Thunk.mops)]
-        public static ThunkAsync<A> Flatten<A>(this Thunk<ThunkAsync<A>> mma) =>
-            mma is null ? throw new ArgumentNullException(nameof(mma)) :
-                ThunkAsync<A>.Lazy(async () =>
-                {
-                    while (true)
-                    {
-                        mma.SpinIfEvaluating();
-
-                        switch (mma.state)
-                        {
-                            case IsSuccess:
-                                var sma = mma.value;
-                                while (true)
-                                {
-                                    sma.SpinIfEvaluating();
-
-                                    switch (sma.state)
-                                    {
-                                        case IsSuccess:
-                                            return Fin<A>.Succ(sma.value);
-
-                                        case NotEvaluated:
-                                            return await sma.Value().ConfigureAwait(false);
-
-                                        default:
-                                            return Fin<A>.Fail(sma.error);
-                                    }
-                                }
-
-                            case NotEvaluated:
-                                var ema = mma.fun();
-                                if (ema.IsSucc)
-                                {
-                                    return await ema.Value.Value().ConfigureAwait(false);
-                                }
-                                else
-                                {
-                                    return Fin<A>.Fail(ema.Error);
-                                }
-
-                            default:
-                                return Fin<A>.Fail(mma.error);                    
-                        }
-                    }
                 });           
         
         [Pure, MethodImpl(Thunk.mops)]
@@ -593,7 +521,46 @@ namespace LanguageExt.Thunks
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
             Thunk<Env, A>.Lazy(env =>
             {
-                while (true)
+                mma.SpinIfEvaluating();
+
+                switch (mma.state)
+                {
+                    case IsSuccess:
+                        var sma = mma.value;
+                        mma.SpinIfEvaluating();
+
+                        switch (sma.state)
+                        {
+                            case IsSuccess:
+                                return Fin<A>.Succ(sma.value);
+
+                            case NotEvaluated:
+                                return sma.Value(env);
+
+                            default:
+                                return Fin<A>.Fail(sma.error);
+                        }
+
+                    case NotEvaluated:
+                        var ema = mma.fun(env);
+                        if (ema.IsSucc)
+                        {
+                            return ema.Value.Value(env);
+                        }
+                        else
+                        {
+                            return Fin<A>.Fail(ema.Error);
+                        }
+
+                    default:
+                        return Fin<A>.Fail(mma.error);                    
+                }
+            });
+        
+        [Pure, MethodImpl(Thunk.mops)]
+        public static Thunk<Env, A> Flatten<Env, A>(this Thunk<Thunk<Env, A>> mma) =>
+            mma is null ? throw new ArgumentNullException(nameof(mma)) :
+                Thunk<Env, A>.Lazy(env =>
                 {
                     mma.SpinIfEvaluating();
 
@@ -601,25 +568,22 @@ namespace LanguageExt.Thunks
                     {
                         case IsSuccess:
                             var sma = mma.value;
-                            while (true)
+                            mma.SpinIfEvaluating();
+
+                            switch (sma.state)
                             {
-                                mma.SpinIfEvaluating();
+                                case IsSuccess:
+                                    return Fin<A>.Succ(sma.value);
 
-                                switch (sma.state)
-                                {
-                                    case IsSuccess:
-                                        return Fin<A>.Succ(sma.value);
+                                case NotEvaluated:
+                                    return sma.Value(env);
 
-                                    case NotEvaluated:
-                                        return sma.Value(env);
-
-                                    default:
-                                        return Fin<A>.Fail(sma.error);
-                                }
+                                default:
+                                    return Fin<A>.Fail(sma.error);
                             }
 
                         case NotEvaluated:
-                            var ema = mma.fun(env);
+                            var ema = mma.fun();
                             if (ema.IsSucc)
                             {
                                 return ema.Value.Value(env);
@@ -632,54 +596,6 @@ namespace LanguageExt.Thunks
                         default:
                             return Fin<A>.Fail(mma.error);                    
                     }
-                }
-            });
-        
-        [Pure, MethodImpl(Thunk.mops)]
-        public static Thunk<Env, A> Flatten<Env, A>(this Thunk<Thunk<Env, A>> mma) =>
-            mma is null ? throw new ArgumentNullException(nameof(mma)) :
-                Thunk<Env, A>.Lazy(env =>
-                {
-                    while (true)
-                    {
-                        mma.SpinIfEvaluating();
-
-                        switch (mma.state)
-                        {
-                            case IsSuccess:
-                                var sma = mma.value;
-                                while (true)
-                                {
-                                    mma.SpinIfEvaluating();
-
-                                    switch (sma.state)
-                                    {
-                                        case IsSuccess:
-                                            return Fin<A>.Succ(sma.value);
-
-                                        case NotEvaluated:
-                                            return sma.Value(env);
-
-                                        default:
-                                            return Fin<A>.Fail(sma.error);
-                                    }
-                                }
-
-                            case NotEvaluated:
-                                var ema = mma.fun();
-                                if (ema.IsSucc)
-                                {
-                                    return ema.Value.Value(env);
-                                }
-                                else
-                                {
-                                    return Fin<A>.Fail(ema.Error);
-                                }
-
-                            default:
-                                return Fin<A>.Fail(mma.error);                    
-                        }
-                    }
                 });        
         
         [Pure]
@@ -687,45 +603,39 @@ namespace LanguageExt.Thunks
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
             Thunk<Env, A>.Lazy(env =>
             {
-                while (true)
+                mma.SpinIfEvaluating();
+
+                switch (mma.state)
                 {
-                    mma.SpinIfEvaluating();
+                    case IsSuccess:
+                        var sma = mma.value;
+                        sma.SpinIfEvaluating();
 
-                    switch (mma.state)
-                    {
-                        case IsSuccess:
-                            var sma = mma.value;
-                            while (true)
-                            {
-                                sma.SpinIfEvaluating();
+                        switch (sma.state)
+                        {
+                            case IsSuccess:
+                                return Fin<A>.Succ(sma.value);
 
-                                switch (sma.state)
-                                {
-                                    case IsSuccess:
-                                        return Fin<A>.Succ(sma.value);
+                            case NotEvaluated:
+                                return sma.Value();
 
-                                    case NotEvaluated:
-                                        return sma.Value();
+                            default:
+                                return Fin<A>.Fail(sma.error);
+                        }
 
-                                    default:
-                                        return Fin<A>.Fail(sma.error);
-                                }
-                            }
+                    case NotEvaluated:
+                        var ema = mma.fun(env);
+                        if (ema.IsSucc)
+                        {
+                            return ema.Value.Value();
+                        }
+                        else
+                        {
+                            return Fin<A>.Fail(ema.Error);
+                        }
 
-                        case NotEvaluated:
-                            var ema = mma.fun(env);
-                            if (ema.IsSucc)
-                            {
-                                return ema.Value.Value();
-                            }
-                            else
-                            {
-                                return Fin<A>.Fail(ema.Error);
-                            }
-
-                        default:
-                            return Fin<A>.Fail(mma.error);
-                    }
+                    default:
+                        return Fin<A>.Fail(mma.error);
                 }
             });          
         
@@ -734,45 +644,39 @@ namespace LanguageExt.Thunks
             mma is null ? throw new ArgumentNullException(nameof(mma)) :
             Thunk<A>.Lazy(() =>
             {
-                while (true)
+                mma.SpinIfEvaluating();
+
+                switch (mma.state)
                 {
-                    mma.SpinIfEvaluating();
+                    case IsSuccess:
+                        var sma = mma.value;
+                        sma.SpinIfEvaluating();
 
-                    switch (mma.state)
-                    {
-                        case IsSuccess:
-                            var sma = mma.value;
-                            while (true)
-                            {
-                                sma.SpinIfEvaluating();
+                        switch (sma.state)
+                        {
+                            case IsSuccess:
+                                return Fin<A>.Succ(sma.value);
 
-                                switch (sma.state)
-                                {
-                                    case IsSuccess:
-                                        return Fin<A>.Succ(sma.value);
+                            case NotEvaluated:
+                                return sma.Value();
 
-                                    case NotEvaluated:
-                                        return sma.Value();
+                            default:
+                                return Fin<A>.Fail(sma.error);
+                        }
 
-                                    default:
-                                        return Fin<A>.Fail(sma.error);
-                                }
-                            }
+                    case NotEvaluated:
+                        var ema = mma.fun();
+                        if (ema.IsSucc)
+                        {
+                            return ema.Value.Value();
+                        }
+                        else
+                        {
+                            return Fin<A>.Fail(ema.Error);
+                        }
 
-                        case NotEvaluated:
-                            var ema = mma.fun();
-                            if (ema.IsSucc)
-                            {
-                                return ema.Value.Value();
-                            }
-                            else
-                            {
-                                return Fin<A>.Fail(ema.Error);
-                            }
-
-                        default:
-                            return Fin<A>.Fail(mma.error);
-                    }
+                    default:
+                        return Fin<A>.Fail(mma.error);
                 }
             });
     }
