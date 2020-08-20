@@ -40,7 +40,21 @@ namespace LanguageExt
         /// </summary>
         [MethodImpl(AffOpt.mops)]
         public async ValueTask RunUnitIO(Env env) =>
-            await thunk.Value(env).ConfigureAwait(false);
+            ignore(await thunk.Value(env).ConfigureAwait(false));
+
+        /// <summary>
+        /// Launch the async process without awaiting the result
+        /// </summary>
+        /// <returns></returns>
+        [MethodImpl(AffOpt.mops)]
+        public Aff<Env, Unit> FireAndForget()
+        {
+            var t = thunk;
+            return Aff<Env, Unit>(env => { 
+                ignore(t.Value(env));
+                return unit.AsValueTask();
+            });
+        }
 
         /// <summary>
         /// Lift an asynchronous effect into the Aff monad

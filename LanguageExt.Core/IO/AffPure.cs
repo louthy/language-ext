@@ -35,6 +35,20 @@ namespace LanguageExt
             thunk.Value();
 
         /// <summary>
+        /// Launch the async process without awaiting the result
+        /// </summary>
+        /// <returns></returns>
+        [MethodImpl(AffOpt.mops)]
+        public AffPure<Unit> FireAndForget()
+        {
+            var t = thunk;
+            return Aff<Unit>(() => { 
+                ignore(t.Value());
+                return unit.AsValueTask();
+            });
+        }
+
+        /// <summary>
         /// Custom awaiter so Aff can be used with async/await 
         /// </summary>
         public AffAwaiter<A> GetAwaiter() =>
