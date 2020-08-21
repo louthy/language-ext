@@ -33,7 +33,8 @@ namespace LanguageExt
     [Serializable]
     public abstract class NumType<SELF, NUM, A, PRED> :
         IEquatable<SELF>,
-        IComparable<SELF>
+        IComparable<SELF>,
+        IComparable
         where NUM : struct, Num<A>
         where PRED : struct, Pred<A>
         where SELF : NumType<SELF, NUM, A, PRED>
@@ -188,6 +189,10 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             Value?.GetHashCode() ?? 0;
+
+        [Pure]
+        public int CompareTo(object obj) =>
+            obj is SELF t ? CompareTo(t) : 1;
 
         [Pure]
         public static SELF operator -(NumType<SELF, NUM, A, PRED> x) =>

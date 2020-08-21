@@ -28,7 +28,8 @@ namespace LanguageExt
     [Serializable]
     public abstract class NewType<NEWTYPE, A, PRED, ORD> :
         IEquatable<NEWTYPE>,
-        IComparable<NEWTYPE>
+        IComparable<NEWTYPE>,
+        IComparable
         where PRED    : struct, Pred<A>
         where NEWTYPE : NewType<NEWTYPE, A, PRED, ORD>
         where ORD     : struct, Ord<A>
@@ -103,6 +104,10 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             default(OrdNewType<NEWTYPE, ORD, A, PRED>).GetHashCode(this);
+
+        [Pure]
+        public int CompareTo(object obj) =>
+            obj is NEWTYPE t ? CompareTo(t) : 1;
 
         [Pure]
         public static bool operator ==(NewType<NEWTYPE, A, PRED, ORD> lhs, NewType<NEWTYPE, A, PRED, ORD> rhs) =>
