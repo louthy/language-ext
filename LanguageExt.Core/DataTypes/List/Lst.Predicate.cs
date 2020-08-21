@@ -22,7 +22,8 @@ namespace LanguageExt
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
         IEquatable<Lst<PRED, A>>,
-        IComparable<Lst<PRED, A>>
+        IComparable<Lst<PRED, A>>,
+        IComparable
         where PRED : struct, Pred<ListInfo>
     {
         readonly LstInternal<A> value;
@@ -341,6 +342,10 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             Value.GetHashCode();
+
+        [Pure]
+        public int CompareTo(object obj) =>
+            obj is Lst<PRED, A> t ? CompareTo(t) : 1;
 
         [Pure]
         public bool Equals(Lst<PRED, A> other) =>

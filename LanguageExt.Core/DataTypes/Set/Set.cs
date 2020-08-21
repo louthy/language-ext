@@ -23,6 +23,7 @@ namespace LanguageExt
         IEnumerable<A>,
         IEquatable<Set<A>>,
         IComparable<Set<A>>,
+        IComparable,
         IReadOnlyCollection<A>
     {
         public static readonly Set<A> Empty = new Set<A>(SetInternal<OrdDefault<A>, A>.Empty);
@@ -579,9 +580,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public override bool Equals(object obj) =>
-            obj is Set<A> && 
-            !ReferenceEquals(obj, null) &&
-            Equals((Set<A>)obj);
+            obj is Set<A> set && Equals(set);
 
         /// <summary>
         /// Get the hash code.  Calculated from all items in the set.
@@ -592,6 +591,10 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             Value.GetHashCode();
+
+        [Pure]
+        public int CompareTo(object obj) =>
+            obj is Set<A> t ? CompareTo(t) : 1;
 
         /// <summary>
         /// Format the collection as `[a, b, c, ...]`

@@ -41,6 +41,7 @@ namespace LanguageExt
         IEither,
         IComparable<EitherUnsafe<L, R>>,
         IComparable<R>,
+        IComparable,
         IEquatable<EitherUnsafe<L, R>>,
         IEquatable<R>,
         ISerializable
@@ -375,6 +376,10 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             hashCode<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
+
+        [Pure]
+        public int CompareTo(object obj) =>
+            obj is EitherUnsafe<L, R> t ? CompareTo(t) : 1;
 
         /// <summary>
         /// Equality check

@@ -19,6 +19,7 @@ namespace LanguageExt
     public struct Lst<A> :
         IEnumerable<A>,
         IComparable<Lst<A>>,
+        IComparable,
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
         IEquatable<Lst<A>>
@@ -496,6 +497,10 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() =>
             Value.GetHashCode();
+
+        [Pure]
+        public int CompareTo(object obj) =>
+            obj is Lst<A> t ? CompareTo(t) : 1;
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -14,7 +14,8 @@ namespace LanguageExt
     public struct BiMap<A, B> :
         IEnumerable<(A Left, B Right)>,
         IComparable<BiMap<A, B>>,
-        IEquatable<BiMap<A, B>>
+        IEquatable<BiMap<A, B>>,
+        IComparable
     {
         readonly Map<A, B> Left;
         readonly Map<B, A> Right;
@@ -373,6 +374,10 @@ namespace LanguageExt
         public int CompareTo(BiMap<A, B> rhs) =>
             Left.CompareTo(rhs.Left);
 
+        [Pure]
+        public int CompareTo(object obj) =>
+            obj is BiMap<A, B> t ? CompareTo(t) : 1;
+        
         [Pure]
         public override bool Equals(object obj) =>
             obj is BiMap<A, B> bm && Equals(bm);

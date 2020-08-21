@@ -10,7 +10,7 @@ namespace LanguageExt
     /// <summary>
     /// BigInteger convenience wrapper
     /// </summary>
-    public struct bigint
+    public struct bigint : IComparable, IComparable<bigint>, IEquatable<bigint>
     {
         public readonly BigInteger Value;
 
@@ -757,6 +757,9 @@ namespace LanguageExt
         /// </returns>
         public override int GetHashCode() =>
             Value.GetHashCode();
+
+        public int CompareTo(object obj) =>
+            obj is bigint t ? CompareTo(t) : 1;
 
         /// <summary>
         /// Converts a bigint value to a byte array.

@@ -12,7 +12,8 @@ namespace LanguageExt
     /// <typeparam name="A">Bound value type</typeparam>
     public struct Identity<A> : 
         IEquatable<Identity<A>>, 
-        IComparable<Identity<A>>
+        IComparable<Identity<A>>, 
+        IComparable
     {
         public static readonly Identity<A> Bottom = default(Identity<A>);
 
@@ -52,31 +53,44 @@ namespace LanguageExt
 
         public static bool operator <=(Identity<A> lhs, Identity<A> rhs) =>
             lhs.CompareTo(rhs) <= 0;
- 
+
+        [Pure]
         public bool Equals(Identity<A> other) =>
             default(EqDefault<A>).Equals(value, other.value) && IsBottom == other.IsBottom;
 
+        [Pure]
         public override bool Equals(object obj) =>
             obj is Identity<A> other && Equals(other);
 
+        [Pure]
         public override int GetHashCode() =>
             default(HashableDefault<A>).GetHashCode(value);
 
+        [Pure]
+        public int CompareTo(object obj) =>
+            obj is Identity<A> t ? CompareTo(t) : 1;
+
+        [Pure]
         public int CompareTo(Identity<A> other) =>
             default(OrdDefault<A>).Compare(value, other.value);
 
+        [Pure]
         public Identity<B> Map<B>(Func<A, B> f) =>
             new Identity<B>(f(Value));
 
+        [Pure]
         public Identity<B> Select<B>(Func<A, B> f) =>
             new Identity<B>(f(Value));
 
+        [Pure]
         public Identity<B> Bind<B>(Func<A, Identity<B>> f) =>
             f(Value);
 
+        [Pure]
         public Identity<B> SelectMany<B>(Func<A, Identity<B>> f) =>
             f(Value);
 
+        [Pure]
         public Identity<C> SelectMany<B, C>(Func<A, Identity<B>> bind, Func<A, B, C> project)
         {
             var a = Value;

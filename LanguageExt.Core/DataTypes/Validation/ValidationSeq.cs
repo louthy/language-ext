@@ -22,6 +22,7 @@ namespace LanguageExt
         IEnumerable<ValidationData<FAIL, SUCCESS>>,
         IComparable<Validation<FAIL, SUCCESS>>,
         IComparable<SUCCESS>,
+        IComparable,
         IEquatable<Validation<FAIL, SUCCESS>>,
         IEquatable<SUCCESS>,
         ISerializable
@@ -375,6 +376,11 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             hashCode<FoldValidation<FAIL, SUCCESS>, Validation<FAIL, SUCCESS>, Seq<FAIL>, SUCCESS>(this);
+
+
+        [Pure]
+        public int CompareTo(object obj) =>
+            obj is Validation<FAIL, SUCCESS> t ? CompareTo(t) : 1;
 
         /// <summary>
         /// Equality check

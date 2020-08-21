@@ -23,7 +23,8 @@ namespace LanguageExt
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
         IEquatable<Arr<A>>,
-        IComparable<Arr<A>>
+        IComparable<Arr<A>>,
+        IComparable
     {
         /// <summary>
         /// Empty array
@@ -641,6 +642,11 @@ namespace LanguageExt
                 ? (hashCode = FNV32.Hash<HashableDefault<A>, A>(Value))
                 : hashCode;
 
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int CompareTo(object obj) =>
+            obj is Arr<A> t ? CompareTo(t) : 1;
+        
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(Arr<A> other) =>

@@ -24,7 +24,7 @@ namespace LanguageExt
 #pragma warning disable CS0618 // Remove ISeq complaint
         ISeq<A>,
 #pragma warning restore CS0618
-        IComparable<Seq<A>>, IEquatable<Seq<A>>
+        IComparable<Seq<A>>, IEquatable<Seq<A>>, IComparable
     {
         /// <summary>
         /// Empty sequence
@@ -847,9 +847,14 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() =>
-            hash = hash == 0
+            hash == 0
                 ? (hash = Value.GetHashCode(FNV32.OffsetBasis))
                 : hash;
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int CompareTo(object obj) =>
+            obj is Seq<A> t ? CompareTo(t) : 1;
 
         /// <summary>
         /// Format the collection as `[a, b, c, ...]`
@@ -967,13 +972,17 @@ namespace LanguageExt
             }
 
             // Iterate through both sides
-            var iterA = GetEnumerator();
-            var iterB = rhs.GetEnumerator();
-            while(iterA.MoveNext() && iterB.MoveNext())
-            { 
-                if (!default(EqA).Equals(iterA.Current, iterB.Current))
+            using (var iterA = GetEnumerator())
+            {
+                using (var iterB = rhs.GetEnumerator())
                 {
-                    return false;
+                    while (iterA.MoveNext() && iterB.MoveNext())
+                    {
+                        if (!default(EqA).Equals(iterA.Current, iterB.Current))
+                        {
+                            return false;
+                        }
+                    }
                 }
             }
             return true;
@@ -1064,12 +1073,16 @@ namespace LanguageExt
             if (cmp != 0) return cmp;
 
             // Iterate through both sides
-            var iterA = GetEnumerator();
-            var iterB = rhs.GetEnumerator();
-            while (iterA.MoveNext() && iterB.MoveNext())
+            using (var iterA = GetEnumerator())
             {
-                cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
-                if (cmp != 0) return cmp;
+                using (var iterB = rhs.GetEnumerator())
+                {
+                    while (iterA.MoveNext() && iterB.MoveNext())
+                    {
+                        cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
+                        if (cmp != 0) return cmp;
+                    }
+                }
             }
             return 0;
         }
@@ -1094,13 +1107,18 @@ namespace LanguageExt
             if (cmp != 0) return cmp;
 
             // Iterate through both sides
-            var iterA = GetEnumerator();
-            var iterB = rhs.GetEnumerator();
-            while (iterA.MoveNext() && iterB.MoveNext())
+            using (var iterA = GetEnumerator())
             {
-                cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
-                if (cmp != 0) return cmp;
+                using (var iterB = rhs.GetEnumerator())
+                {
+                    while (iterA.MoveNext() && iterB.MoveNext())
+                    {
+                        cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
+                        if (cmp != 0) return cmp;
+                    }
+                }
             }
+
             return 0;
         }
 

@@ -1,7 +1,11 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
+using System.Runtime.Serialization;
+using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.DataTypes.Serialisation;
 using static LanguageExt.Prelude;
@@ -12,7 +16,13 @@ namespace LanguageExt
     /// Equivalent of `Either<Error, A>`
     /// Called `Fin` because it is expected to be used as the concrete result of a computation
     /// </summary>
-    public struct Fin<A>
+    [Serializable]
+    public struct Fin<A> : 
+        IComparable<Fin<A>>, 
+        IComparable, 
+        IEquatable<Fin<A>>,
+        IEnumerable<Fin<A>>,
+        ISerializable
     {
         internal readonly EitherData<Error, A> data;
 
@@ -117,11 +127,74 @@ namespace LanguageExt
                         .IfNone(() => EitherData.Left<Error, B>(Error.New($"Can't cast success value of `Err<{nameof(A)}>` to `Err<{nameof(B)}>` ")))
                     : EitherData.Left<Error, B>(Error));
 
+        public int CompareTo(Fin<A> other)
+        {
+            var cmp = data.State.CompareTo(other.data.State);
+            if (cmp != 0) return 0;
+            return data.State switch
+            {
+                EitherStatus.IsRight  => default(OrdDefault<A>).Compare(data.Right, other.data.Right),
+                EitherStatus.IsLeft   => 0,
+                EitherStatus.IsBottom => 0,
+                _                     => throw new NotSupportedException()
+            };
+        }
+
+        public bool Equals(Fin<A> other) =>
+            data.State == other.data.State && data.State switch
+            {
+                EitherStatus.IsRight  => default(EqDefault<A>).Equals(data.Right, other.data.Right),
+                EitherStatus.IsLeft   => true,
+                EitherStatus.IsBottom => true,
+                _                     => throw new NotSupportedException()
+            };
+
+        public IEnumerator<Fin<A>> GetEnumerator()
+        {
+            if (IsSucc)
+            {
+                yield return Value;
+            }
+        }
+
         [Pure, MethodImpl(AffOpt.mops)]
         public override string ToString() =>
             IsSucc
                 ? $"Succ({Value})"
                 : $"Fail({Error})";
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("State", data.State);
+            if (data.State == EitherStatus.IsRight) info.AddValue("Succ", data.Right);
+            if (data.State == EitherStatus.IsLeft) info.AddValue("Fail", data.Left);
+        }
+        
+        Fin(SerializationInfo info, StreamingContext context)
+        {
+            var state = (EitherStatus)info.GetValue("State", typeof(EitherStatus));
+            switch(state)
+            {
+                case EitherStatus.IsBottom:
+                    data = default;
+                    break;
+                case EitherStatus.IsRight:
+                    data = EitherData.Right<Error, A>((A)info.GetValue("Succ", typeof(A)));
+                    break;
+                case EitherStatus.IsLeft:
+                    data = EitherData.Left<Error, A>((Error)info.GetValue("Fail", typeof(Error)));
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+            GetEnumerator();
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public int CompareTo(object obj) =>
+            obj is Fin<A> t ? CompareTo(t) : 1;
 
         [Pure, MethodImpl(AffOpt.mops)]
         public B Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>

@@ -38,6 +38,7 @@ namespace LanguageExt
         IOptional,
         IEquatable<Option<A>>,
         IComparable<Option<A>>,
+        IComparable,
         ISerializable
     {
         internal readonly A Value;
@@ -345,6 +346,10 @@ namespace LanguageExt
             isSome 
                 ? Value.GetHashCode() 
                 : 0;
+        
+        [Pure]
+        public int CompareTo(object obj) =>
+            obj is Option<A> t ? CompareTo(t) : 1;
 
         /// <summary>
         /// Get a string representation of the Option

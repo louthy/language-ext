@@ -23,7 +23,8 @@ namespace LanguageExt
     public struct Map<OrdK, K, V> :
         IEnumerable<(K Key, V Value)>,
         IEquatable<Map<OrdK, K, V>>,
-        IComparable<Map<OrdK, K, V>>
+        IComparable<Map<OrdK, K, V>>,
+        IComparable
         where OrdK : struct, Ord<K>
     {
         readonly MapInternal<OrdK, K, V> value;
@@ -721,6 +722,10 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             Value.GetHashCode();
+
+        [Pure]
+        public int CompareTo(object obj) =>
+            obj is Map<OrdK, K, V> t ? CompareTo(t) : 1;
 
         /// <summary>
         /// Impure iteration of the bound values in the structure

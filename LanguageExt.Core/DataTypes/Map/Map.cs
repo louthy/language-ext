@@ -27,6 +27,7 @@ namespace LanguageExt
     public struct Map<K, V> :
         IEnumerable<(K Key, V Value)>,
         IComparable<Map<K, V>>,
+        IComparable,
         IEquatable<Map<K, V>>
     {
         readonly MapInternal<OrdDefault<K>, K, V> value;
@@ -968,6 +969,11 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() =>
             Value.GetHashCode();
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int CompareTo(object obj) =>
+            obj is Map<K, V> t ? CompareTo(t) : 1;
 
         /// <summary>
         /// Impure iteration of the bound values in the structure

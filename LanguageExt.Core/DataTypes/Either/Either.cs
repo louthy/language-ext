@@ -39,6 +39,7 @@ namespace LanguageExt
         IEither,
         IComparable<Either<L, R>>,
         IComparable<R>,
+        IComparable,
         IComparable<EitherRight<R>>,
         IEquatable<Either<L, R>>,
         IEquatable<EitherRight<R>>,
@@ -71,7 +72,6 @@ namespace LanguageExt
         }
 
 
-        [Pure]
         Either(SerializationInfo info, StreamingContext context)
         {
             State = (EitherStatus)info.GetValue("State", typeof(EitherStatus));
@@ -452,6 +452,10 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             hashCode<MEither<L, R>, Either<L, R>, L, R>(this);
+
+        [Pure]
+        public int CompareTo(object obj) =>
+            obj is Either<L, R> t ? CompareTo(t) : 1;
 
         /// <summary>
         /// Equality check

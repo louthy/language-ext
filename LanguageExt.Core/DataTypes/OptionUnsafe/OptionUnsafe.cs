@@ -35,7 +35,8 @@ namespace LanguageExt
         IEnumerable<A>,
         IOptional,
         IEquatable<OptionUnsafe<A>>,
-        IComparable<OptionUnsafe<A>>
+        IComparable<OptionUnsafe<A>>,
+        IComparable
     {
         internal readonly A Value;
         internal readonly bool isSome;
@@ -348,6 +349,10 @@ namespace LanguageExt
             isSome
                 ? Value?.GetHashCode() ?? 0
                 : 0;
+        
+        [Pure]
+        public int CompareTo(object obj) =>
+            obj is OptionUnsafe<A> t ? CompareTo(t) : 1;
 
         /// <summary>
         /// Get a string representation of the OptionUnsafe
