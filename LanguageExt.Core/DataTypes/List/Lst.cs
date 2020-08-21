@@ -485,8 +485,12 @@ namespace LanguageExt
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Equals(object obj) =>
-            obj is Lst<A> && Equals((Lst<A>)obj);
+        public override bool Equals(object obj) => obj switch 
+        {
+            Lst<A>         s => Equals(s),
+            IEnumerable<A> e => Equals(e.Freeze()),
+            _                => false
+        };
 
         /// <summary>
         /// Get the hash code
@@ -499,8 +503,12 @@ namespace LanguageExt
             Value.GetHashCode();
 
         [Pure]
-        public int CompareTo(object obj) =>
-            obj is Lst<A> t ? CompareTo(t) : 1;
+        public int CompareTo(object obj) => obj switch 
+        {
+            Lst<A>         s => CompareTo(s),
+            IEnumerable<A> e => CompareTo(e.Freeze()),
+            _                => 1
+        };
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

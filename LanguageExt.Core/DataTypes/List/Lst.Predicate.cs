@@ -331,8 +331,12 @@ namespace LanguageExt
             Wrap(Value.Subtract(rhs.Value));
 
         [Pure]
-        public override bool Equals(object obj) =>
-            obj is Lst<PRED, A> && Equals((Lst<PRED, A>)obj);
+        public override bool Equals(object obj) => obj switch 
+        {
+            Lst<PRED, A>   s => Equals(s),
+            IEnumerable<A> e => Equals(new Lst<PRED, A>(e)),
+            _                => false
+        };
 
         /// <summary>
         /// Get the hash code
@@ -344,8 +348,12 @@ namespace LanguageExt
             Value.GetHashCode();
 
         [Pure]
-        public int CompareTo(object obj) =>
-            obj is Lst<PRED, A> t ? CompareTo(t) : 1;
+        public int CompareTo(object obj) => obj switch 
+        {
+            Lst<PRED, A>   s => CompareTo(s),
+            IEnumerable<A> e => CompareTo(new Lst<PRED, A>(e)),
+            _                => 1
+        };
 
         [Pure]
         public bool Equals(Lst<PRED, A> other) =>

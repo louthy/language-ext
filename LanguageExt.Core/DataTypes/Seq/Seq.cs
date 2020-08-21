@@ -853,8 +853,12 @@ namespace LanguageExt
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo(object obj) =>
-            obj is Seq<A> t ? CompareTo(t) : 1;
+        public int CompareTo(object obj) => obj switch 
+        {
+            Seq<A>         s => CompareTo(s),
+            IEnumerable<A> e => CompareTo(Seq(e)),
+            _                => 1
+        };
 
         /// <summary>
         /// Format the collection as `[a, b, c, ...]`
@@ -935,8 +939,12 @@ namespace LanguageExt
         /// Equality test
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Equals(object obj) =>
-            obj is Seq<A> seq && Equals(seq);
+        public override bool Equals(object obj) => obj switch 
+        {
+            Seq<A>         s => Equals(s),
+            IEnumerable<A> e => Equals(Seq(e)),
+            _                => false
+        };
 
         /// <summary>
         /// Equality test
