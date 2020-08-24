@@ -263,7 +263,7 @@ namespace LanguageExt
             }
         }
                 
-        public static Option<EffPure<B>> Traverse<A, B>(this EffPure<Option<A>> ma, Func<A, B> f)
+        public static Option<Eff<B>> Traverse<A, B>(this Eff<Option<A>> ma, Func<A, B> f)
         {
             var tres = ma.RunIO();
 

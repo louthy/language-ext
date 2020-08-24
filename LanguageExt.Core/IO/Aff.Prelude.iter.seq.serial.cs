@@ -38,7 +38,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<A>> ma, Func<A, AffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<A>> ma, Func<A, Aff<Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO(env).ConfigureAwait(false);
@@ -80,7 +80,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<A>> ma, Func<A, EffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<A>> ma, Func<A, Eff<Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO(env).ConfigureAwait(false);
@@ -101,7 +101,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(AffPure<Seq<A>> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Seq<A>> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -122,7 +122,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static AffPure<Unit> iter<A>(AffPure<Seq<A>> ma, Func<A, AffPure<Unit>> f) =>
+        public static Aff<Unit> iter<A>(Aff<Seq<A>> ma, Func<A, Aff<Unit>> f) =>
             AffMaybe(async () =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -143,7 +143,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(AffPure<Seq<A>> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Seq<A>> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -164,7 +164,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static AffPure<Unit> iter<A>(AffPure<Seq<A>> ma, Func<A, EffPure<Unit>> f) =>
+        public static Aff<Unit> iter<A>(Aff<Seq<A>> ma, Func<A, Eff<Unit>> f) =>
             AffMaybe(async () =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -211,7 +211,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Aff<Env, A>>> ma, Func<A, AffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Aff<Env, A>>> ma, Func<A, Aff<Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO(env).ConfigureAwait(false);
@@ -257,7 +257,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Aff<Env, A>>> ma, Func<A, EffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Aff<Env, A>>> ma, Func<A, Eff<Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO(env).ConfigureAwait(false);
@@ -280,7 +280,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(AffPure<Seq<Aff<Env, A>>> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Seq<Aff<Env, A>>> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -303,7 +303,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(AffPure<Seq<Aff<Env, A>>> ma, Func<A, AffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Seq<Aff<Env, A>>> ma, Func<A, Aff<Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -326,7 +326,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(AffPure<Seq<Aff<Env, A>>> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Seq<Aff<Env, A>>> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -349,7 +349,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(AffPure<Seq<Aff<Env, A>>> ma, Func<A, EffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Seq<Aff<Env, A>>> ma, Func<A, Eff<Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -375,7 +375,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<AffPure<A>>> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Aff<A>>> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO(env).ConfigureAwait(false);
@@ -398,7 +398,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<AffPure<A>>> ma, Func<A, AffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Aff<A>>> ma, Func<A, Aff<Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO(env).ConfigureAwait(false);
@@ -421,7 +421,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<AffPure<A>>> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Aff<A>>> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO(env).ConfigureAwait(false);
@@ -444,7 +444,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<AffPure<A>>> ma, Func<A, EffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Aff<A>>> ma, Func<A, Eff<Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO(env).ConfigureAwait(false);
@@ -467,7 +467,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(AffPure<Seq<AffPure<A>>> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Seq<Aff<A>>> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -490,7 +490,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static AffPure<Unit> iter<A>(AffPure<Seq<AffPure<A>>> ma, Func<A, AffPure<Unit>> f) =>
+        public static Aff<Unit> iter<A>(Aff<Seq<Aff<A>>> ma, Func<A, Aff<Unit>> f) =>
             AffMaybe(async () =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -513,7 +513,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(AffPure<Seq<AffPure<A>>> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Seq<Aff<A>>> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -536,7 +536,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static AffPure<Unit> iter<A>(AffPure<Seq<AffPure<A>>> ma, Func<A, EffPure<Unit>> f) =>
+        public static Aff<Unit> iter<A>(Aff<Seq<Aff<A>>> ma, Func<A, Eff<Unit>> f) =>
             AffMaybe(async () =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -586,7 +586,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Eff<Env, A>>> ma, Func<A, AffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Eff<Env, A>>> ma, Func<A, Aff<Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO(env).ConfigureAwait(false);
@@ -632,7 +632,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Eff<Env, A>>> ma, Func<A, EffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Eff<Env, A>>> ma, Func<A, Eff<Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO(env).ConfigureAwait(false);
@@ -655,7 +655,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(AffPure<Seq<Eff<Env, A>>> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Seq<Eff<Env, A>>> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -678,7 +678,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(AffPure<Seq<Eff<Env, A>>> ma, Func<A, AffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Seq<Eff<Env, A>>> ma, Func<A, Aff<Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -701,7 +701,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(AffPure<Seq<Eff<Env, A>>> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Seq<Eff<Env, A>>> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -724,7 +724,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(AffPure<Seq<Eff<Env, A>>> ma, Func<A, EffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Seq<Eff<Env, A>>> ma, Func<A, Eff<Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -752,7 +752,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<EffPure<A>>> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Eff<A>>> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO(env).ConfigureAwait(false);
@@ -775,7 +775,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<EffPure<A>>> ma, Func<A, AffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Eff<A>>> ma, Func<A, Aff<Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO(env).ConfigureAwait(false);
@@ -798,7 +798,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<EffPure<A>>> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Eff<A>>> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO(env).ConfigureAwait(false);
@@ -821,7 +821,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<EffPure<A>>> ma, Func<A, EffPure<Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Env, Seq<Eff<A>>> ma, Func<A, Eff<Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO(env).ConfigureAwait(false);
@@ -844,7 +844,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(AffPure<Seq<EffPure<A>>> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Seq<Eff<A>>> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -867,7 +867,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static AffPure<Unit> iter<A>(AffPure<Seq<EffPure<A>>> ma, Func<A, AffPure<Unit>> f) =>
+        public static Aff<Unit> iter<A>(Aff<Seq<Eff<A>>> ma, Func<A, Aff<Unit>> f) =>
             AffMaybe(async () =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -890,7 +890,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> iter<Env, A>(AffPure<Seq<EffPure<A>>> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, Unit> iter<Env, A>(Aff<Seq<Eff<A>>> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, Unit>(async env =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);
@@ -913,7 +913,7 @@ namespace LanguageExt
         /// <param name="ma">Collection to iterate</param>
         /// <param name="f">Function to apply to each item in the collection</param>
         /// <returns>Unit</returns>
-        public static AffPure<Unit> iter<A>(AffPure<Seq<EffPure<A>>> ma, Func<A, EffPure<Unit>> f) =>
+        public static Aff<Unit> iter<A>(Aff<Seq<Eff<A>>> ma, Func<A, Eff<Unit>> f) =>
             AffMaybe(async () =>
             {
                 var xs = await ma.RunIO().ConfigureAwait(false);

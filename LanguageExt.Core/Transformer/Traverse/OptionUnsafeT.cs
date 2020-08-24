@@ -263,7 +263,7 @@ namespace LanguageExt
             }
         }
                 
-        public static OptionUnsafe<EffPure<B>> Traverse<A, B>(this EffPure<OptionUnsafe<A>> ma, Func<A, B> f)
+        public static OptionUnsafe<Eff<B>> Traverse<A, B>(this Eff<OptionUnsafe<A>> ma, Func<A, B> f)
         {
             var tres = ma.RunIO();
 

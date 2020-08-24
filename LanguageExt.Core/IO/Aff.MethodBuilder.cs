@@ -32,13 +32,13 @@ namespace LanguageExt
             this.stateMachine = machine;
 
         public void SetException(Exception ex) =>
-            Task = new AffPure<A>(ThunkAsync<A>.Fail(
+            Task = new Aff<A>(ThunkAsync<A>.Fail(
                 ex is AffException ioex
                     ? ioex.Error
                     : (Error)ex));
 
         public void SetResult(A result) =>
-            Task = new AffPure<A>(ThunkAsync<A>.Success(result));
+            Task = new Aff<A>(ThunkAsync<A>.Success(result));
 
         public void AwaitOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine machine)
             where TAwaiter : INotifyCompletion
@@ -52,6 +52,6 @@ namespace LanguageExt
         {
         }
 
-        public AffPure<A> Task { get; private set; }
+        public Aff<A> Task { get; private set; }
     }
 }

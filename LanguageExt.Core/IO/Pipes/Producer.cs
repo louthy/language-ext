@@ -46,7 +46,7 @@ namespace LanguageExt.Pipes
         /// <returns>Producer</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<Env, B, R> use<Env, B, H, R>(
-            AffPure<H> Acq,
+            Aff<H> Acq,
             Func<H, Unit> Rel,
             Func<H, Producer<Env, B, R>> Use) where Env : struct, HasCancel<Env> =>
                 PipesInternal.Use(Acq, Use, Rel);
@@ -63,7 +63,7 @@ namespace LanguageExt.Pipes
         /// <returns>Producer</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<Env, B, R> use<Env, B, H, R>(
-            AffPure<H> Acq,
+            Aff<H> Acq,
             Func<H, Producer<Env, B, R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
@@ -99,7 +99,7 @@ namespace LanguageExt.Pipes
         /// <returns>Producer</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<Env, B, R> use<Env, B, H, R>(
-            EffPure<H> Acq,
+            Eff<H> Acq,
             Func<H, Producer<Env, B, R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
@@ -161,28 +161,28 @@ namespace LanguageExt.Pipes
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<Env, A, R> repeatM<Env, A, R>(AffPure<A> ma) where Env : struct, HasCancel<Env> =>
+        public static Producer<Env, A, R> repeatM<Env, A, R>(Aff<A> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, A, A>(ma) | Proxy.cat<Env, A, R>();
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<Env, A, Unit> repeatM<Env, A>(AffPure<A> ma) where Env : struct, HasCancel<Env> =>
+        public static Producer<Env, A, Unit> repeatM<Env, A>(Aff<A> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, A, A>(ma) | Proxy.cat<Env, A, Unit>();
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<Env, A, R> repeatM<Env, A, R>(EffPure<A> ma) where Env : struct, HasCancel<Env> =>
+        public static Producer<Env, A, R> repeatM<Env, A, R>(Eff<A> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, A, A>(ma) | Proxy.cat<Env, A, R>();
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<Env, A, Unit> repeatM<Env, A>(EffPure<A> ma) where Env : struct, HasCancel<Env> =>
+        public static Producer<Env, A, Unit> repeatM<Env, A>(Eff<A> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, A, A>(ma) | Proxy.cat<Env, A, Unit>();
 
         
@@ -190,14 +190,14 @@ namespace LanguageExt.Pipes
         /// Lift the IO monad into the Producer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<Env, B, R> liftIO<Env, B, R>(EffPure<R> ma) where Env : struct, HasCancel<Env> =>
+        public static Producer<Env, B, R> liftIO<Env, B, R>(Eff<R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Void, Unit, Unit, B, R>(ma).ToProducer();
 
         /// <summary>
         /// Lift the IO monad into the Producer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<Env, B, R> liftIO<Env, B, R>(AffPure<R> ma) where Env : struct, HasCancel<Env> =>
+        public static Producer<Env, B, R> liftIO<Env, B, R>(Aff<R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Void, Unit, Unit, B, R>(ma).ToProducer();
 
         /// <summary>

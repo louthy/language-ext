@@ -32,11 +32,11 @@ namespace LanguageExt.Pipes
         }
 
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Env, R> liftIO<Env, R>(AffPure<R> ma) where Env : struct, HasCancel<Env> =>
+        public static Effect<Env, R> liftIO<Env, R>(Aff<R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Void, Unit, Unit, Void, R>(ma).ToEffect();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Env, R> liftIO<Env, R>(EffPure<R> ma) where Env : struct, HasCancel<Env> =>
+        public static Effect<Env, R> liftIO<Env, R>(Eff<R> ma) where Env : struct, HasCancel<Env> =>
             liftIO<Env, Void, Unit, Unit, Void, R>(ma).ToEffect();
 
         [Pure, MethodImpl(Proxy.mops)]

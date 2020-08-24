@@ -15,7 +15,7 @@ namespace LanguageExt
     {
         readonly ValueTaskAwaiter<Fin<A>> awaiter;
 
-        internal AffAwaiter(AffPure<A> ma) =>
+        internal AffAwaiter(Aff<A> ma) =>
             this.awaiter = ma.RunIO().GetAwaiter();
 
         public bool IsCompleted =>

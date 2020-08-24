@@ -270,16 +270,16 @@ namespace LanguageExt
             }
         }
         
-        public static TryAsync<AffPure<B>> Traverse<A, B>(this AffPure<TryAsync<A>> ma, Func<A, B> f)
+        public static TryAsync<Aff<B>> Traverse<A, B>(this Aff<TryAsync<A>> ma, Func<A, B> f)
         {
             return ToTry(() => Go(ma, f));
-            async Task<Result<AffPure<B>>> Go(AffPure<TryAsync<A>> ma, Func<A, B> f)
+            async Task<Result<Aff<B>>> Go(Aff<TryAsync<A>> ma, Func<A, B> f)
             {
                 var ra = await ma.RunIO().ConfigureAwait(false);
-                if (ra.IsFail) return new Result<AffPure<B>>(FailAff<B>(ra.Error));
+                if (ra.IsFail) return new Result<Aff<B>>(FailAff<B>(ra.Error));
                 var rb = await ra.Value.Try().ConfigureAwait(false);
-                if (rb.IsFaulted) return new Result<AffPure<B>>(rb.Exception);
-                return new Result<AffPure<B>>(SuccessAff<B>(f(rb.Value)));
+                if (rb.IsFaulted) return new Result<Aff<B>>(rb.Exception);
+                return new Result<Aff<B>>(SuccessAff<B>(f(rb.Value)));
             }
         }
         
@@ -402,16 +402,16 @@ namespace LanguageExt
             }
         }
         
-        public static TryAsync<EffPure<B>> Traverse<A, B>(this EffPure<TryAsync<A>> ma, Func<A, B> f)
+        public static TryAsync<Eff<B>> Traverse<A, B>(this Eff<TryAsync<A>> ma, Func<A, B> f)
         {
             return ToTry(() => Go(ma, f));
-            async Task<Result<EffPure<B>>> Go(EffPure<TryAsync<A>> ma, Func<A, B> f)
+            async Task<Result<Eff<B>>> Go(Eff<TryAsync<A>> ma, Func<A, B> f)
             {
                 var ra = ma.RunIO();
-                if (ra.IsFail) return new Result<EffPure<B>>(FailEff<B>(ra.Error));
+                if (ra.IsFail) return new Result<Eff<B>>(FailEff<B>(ra.Error));
                 var rb = await ra.Value.Try().ConfigureAwait(false);
-                if (rb.IsFaulted) return new Result<EffPure<B>>(rb.Exception);
-                return new Result<EffPure<B>>(SuccessEff<B>(f(rb.Value)));
+                if (rb.IsFaulted) return new Result<Eff<B>>(rb.Exception);
+                return new Result<Eff<B>>(SuccessEff<B>(f(rb.Value)));
             }
         }
     }

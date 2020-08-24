@@ -11,7 +11,7 @@ namespace LanguageExt.Pipes
             where H : IDisposable =>
             Use(acq, h => f(h).ToProxy(), dispose).ToProducer(); 
  
-        public static Producer<Env, B, R> Use<H, Env, B, R>(AffPure<H> acq, Func<H, Producer<Env, B, R>> f, Func<H, Unit> dispose)
+        public static Producer<Env, B, R> Use<H, Env, B, R>(Aff<H> acq, Func<H, Producer<Env, B, R>> f, Func<H, Unit> dispose)
             where Env : struct, HasCancel<Env> =>
             Use(acq, h => f(h).ToProxy(), dispose).ToProducer();
         
@@ -20,7 +20,7 @@ namespace LanguageExt.Pipes
             where H : IDisposable =>
             Use(acq, h => f(h).ToProxy(), dispose).ToConsumer(); 
  
-        public static Consumer<Env, A, R> Use<H, Env, A, R>(AffPure<H> acq, Func<H, Consumer<Env, A, R>> f, Func<H, Unit> dispose)
+        public static Consumer<Env, A, R> Use<H, Env, A, R>(Aff<H> acq, Func<H, Consumer<Env, A, R>> f, Func<H, Unit> dispose)
             where Env : struct, HasCancel<Env> =>
             Use(acq, h => f(h).ToProxy(), dispose).ToConsumer();
         
@@ -29,11 +29,11 @@ namespace LanguageExt.Pipes
             where H : IDisposable =>
             Use(acq, h => f(h).ToProxy(), dispose).ToPipe(); 
  
-        public static Pipe<Env, A, B, R> Use<H, Env, A, B, R>(AffPure<H> acq, Func<H, Pipe<Env, A, B, R>> f, Func<H, Unit> dispose)
+        public static Pipe<Env, A, B, R> Use<H, Env, A, B, R>(Aff<H> acq, Func<H, Pipe<Env, A, B, R>> f, Func<H, Unit> dispose)
             where Env : struct, HasCancel<Env> =>
             Use(acq, h => f(h).ToProxy(), dispose).ToPipe(); 
  
-        public static Proxy<Env, A1, A, B1, B, R> Use<H, Env, A1, A, B1, B, R>(AffPure<H> acq, Func<H, Proxy<Env, A1, A, B1, B, R>> f, Func<H, Unit> dispose)
+        public static Proxy<Env, A1, A, B1, B, R> Use<H, Env, A1, A, B1, B, R>(Aff<H> acq, Func<H, Proxy<Env, A1, A, B1, B, R>> f, Func<H, Unit> dispose)
             where Env : struct, HasCancel<Env>
         {
             return new M<Env, A1, A, B1, B, R>(AffMaybe<Env, Proxy<Env, A1, A, B1, B, R>>(async env => {

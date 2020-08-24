@@ -111,7 +111,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public EffPure<A> SwapEff(Func<A, EffPure<A>> f) =>
+        public Eff<A> SwapEff(Func<A, Eff<A>> f) =>
             EffMaybe<A>(() =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -228,7 +228,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public AffPure<A> SwapAff(Func<A, AffPure<A>> f) =>
+        public Aff<A> SwapAff(Func<A, Aff<A>> f) =>
             AffMaybe<A>(async () =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -272,7 +272,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public AffPure<A> SwapAff(Func<A, ValueTask<A>> f) =>
+        public Aff<A> SwapAff(Func<A, ValueTask<A>> f) =>
             AffMaybe<A>(async () =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -392,7 +392,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public EffPure<A> SwapEff<X>(X x, Func<X, A, EffPure<A>> f) =>
+        public Eff<A> SwapEff<X>(X x, Func<X, A, Eff<A>> f) =>
             EffMaybe<A>(() =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -511,7 +511,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public AffPure<A> SwapAff<X>(X x, Func<X, A, AffPure<A>> f) =>
+        public Aff<A> SwapAff<X>(X x, Func<X, A, Aff<A>> f) =>
             AffMaybe<A>(async () =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -556,7 +556,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public AffPure<A> SwapAff<X>(X x, Func<X, A, ValueTask<A>> f) =>
+        public Aff<A> SwapAff<X>(X x, Func<X, A, ValueTask<A>> f) =>
             AffMaybe<A>(async () =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -679,7 +679,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public EffPure<A> SwapEff<X, Y>(X x, Y y, Func<X, Y, A, EffPure<A>> f) =>
+        public Eff<A> SwapEff<X, Y>(X x, Y y, Func<X, Y, A, Eff<A>> f) =>
             EffMaybe<A>(() =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -801,7 +801,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public AffPure<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, AffPure<A>> f) =>
+        public Aff<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, Aff<A>> f) =>
             AffMaybe<A>(async () =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -847,7 +847,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public AffPure<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, ValueTask<A>> f) =>
+        public Aff<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, ValueTask<A>> f) =>
             AffMaybe<A>(async () =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));

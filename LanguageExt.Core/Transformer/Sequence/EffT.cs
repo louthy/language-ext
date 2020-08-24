@@ -149,11 +149,11 @@ namespace LanguageExt
             ta.Map(f).Sequence();
         
         [Pure]
-        public static Eff<RT, EffPure<A>> Sequence<RT, A>(this EffPure<Eff<RT, A>> mma)  =>
+        public static Eff<RT, Eff<A>> Sequence<RT, A>(this Eff<Eff<RT, A>> mma)  =>
             mma.Traverse(identity);
 
         [Pure]
-        public static Eff<RT, EffPure<B>> Sequence<RT, A, B>(this EffPure<A> ta, Func<A, Eff<RT, B>> f)  =>
+        public static Eff<RT, Eff<B>> Sequence<RT, A, B>(this Eff<A> ta, Func<A, Eff<RT, B>> f)  =>
             ta.Map(f).Sequence();
     }
 }

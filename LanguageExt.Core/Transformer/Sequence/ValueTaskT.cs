@@ -74,10 +74,10 @@ namespace LanguageExt
         public static ValueTask<EitherAsync<L, B>> Sequence<L, A, B>(this EitherAsync<L, A> ta, Func<A, ValueTask<B>> f) =>
             ta.Map(f).Sequence();    
 
-        public static ValueTask<AffPure<B>> Sequence<A, B>(this AffPure<A> ta, Func<A, ValueTask<B>> f) =>
+        public static ValueTask<Aff<B>> Sequence<A, B>(this Aff<A> ta, Func<A, ValueTask<B>> f) =>
             ta.Map(f).Traverse(Prelude.identity);
 
-        public static ValueTask<EffPure<B>> Sequence<A, B>(this EffPure<A> ta, Func<A, ValueTask<B>> f) =>
+        public static ValueTask<Eff<B>> Sequence<A, B>(this Eff<A> ta, Func<A, ValueTask<B>> f) =>
             ta.Map(f).Traverse(Prelude.identity);
     }
 }

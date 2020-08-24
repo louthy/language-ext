@@ -386,17 +386,17 @@ namespace LanguageExt
             }
         }
         
-        public static Aff<RT, AffPure<B>> Traverse<RT, A, B>(this AffPure<Aff<RT, A>> ma, Func<A, B> f)
+        public static Aff<RT, Aff<B>> Traverse<RT, A, B>(this Aff<Aff<RT, A>> ma, Func<A, B> f)
             where RT : struct, HasCancel<RT>
         {
-            return AffMaybe<RT, AffPure<B>>(env => Go(env, ma, f));
-            async ValueTask<Fin<AffPure<B>>> Go(RT env, AffPure<Aff<RT, A>> ma, Func<A, B> f)
+            return AffMaybe<RT, Aff<B>>(env => Go(env, ma, f));
+            async ValueTask<Fin<Aff<B>>> Go(RT env, Aff<Aff<RT, A>> ma, Func<A, B> f)
             {
                 var ra = await ma.RunIO().ConfigureAwait(false);
-                if (ra.IsFail) return FinSucc<AffPure<B>>(FailAff<B>(ra.Error));
+                if (ra.IsFail) return FinSucc<Aff<B>>(FailAff<B>(ra.Error));
                 var rb = await ra.Value.RunIO(env).ConfigureAwait(false);
-                if (rb.IsFail) return FinFail<AffPure<B>>(rb.Error);
-                return FinSucc<AffPure<B>>(SuccessAff<B>(f(rb.Value)));
+                if (rb.IsFail) return FinFail<Aff<B>>(rb.Error);
+                return FinSucc<Aff<B>>(SuccessAff<B>(f(rb.Value)));
             }
         }
         
@@ -542,17 +542,17 @@ namespace LanguageExt
             }
         }
         
-        public static Aff<RT, EffPure<B>> Traverse<RT, A, B>(this EffPure<Aff<RT, A>> ma, Func<A, B> f)
+        public static Aff<RT, Eff<B>> Traverse<RT, A, B>(this Eff<Aff<RT, A>> ma, Func<A, B> f)
             where RT : struct, HasCancel<RT>
         {
-            return AffMaybe<RT, EffPure<B>>(env => Go(env, ma, f));
-            async ValueTask<Fin<EffPure<B>>> Go(RT env, EffPure<Aff<RT, A>> ma, Func<A, B> f)
+            return AffMaybe<RT, Eff<B>>(env => Go(env, ma, f));
+            async ValueTask<Fin<Eff<B>>> Go(RT env, Eff<Aff<RT, A>> ma, Func<A, B> f)
             {
                 var ra = ma.RunIO();
-                if (ra.IsFail) return FinSucc<EffPure<B>>(FailEff<B>(ra.Error));
+                if (ra.IsFail) return FinSucc<Eff<B>>(FailEff<B>(ra.Error));
                 var rb = await ra.Value.RunIO(env).ConfigureAwait(false);
-                if (rb.IsFail) return FinFail<EffPure<B>>(rb.Error);
-                return FinSucc<EffPure<B>>(SuccessEff<B>(f(rb.Value)));
+                if (rb.IsFail) return FinFail<Eff<B>>(rb.Error);
+                return FinSucc<Eff<B>>(SuccessEff<B>(f(rb.Value)));
             }
         }
     }

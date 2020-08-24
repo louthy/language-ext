@@ -17,7 +17,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static AffPure<R> use<H, R>(EffPure<H> Acq, Func<H, AffPure<R>> Use) where H : IDisposable =>
+        public static Aff<R> use<H, R>(Eff<H> Acq, Func<H, Aff<R>> Use) where H : IDisposable =>
             AffMaybe(async () => {
                 var h = Acq.RunIO();
                 try
@@ -36,7 +36,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Aff<Env, R> use<Env, H, R>(EffPure<H> Acq, Func<H, Aff<Env, R>> Use)
+        public static Aff<Env, R> use<Env, H, R>(Eff<H> Acq, Func<H, Aff<Env, R>> Use)
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
             AffMaybe<Env, R>(async env => {
@@ -57,7 +57,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static EffPure<R> use<H, R>(EffPure<H> Acq, Func<H, EffPure<R>> Use) where H : IDisposable =>
+        public static Eff<R> use<H, R>(Eff<H> Acq, Func<H, Eff<R>> Use) where H : IDisposable =>
             EffMaybe(() => {
                 var h = Acq.RunIO();
                 try
@@ -76,7 +76,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Eff<Env, R> use<Env, H, R>(EffPure<H> Acq, Func<H, Eff<Env, R>> Use)
+        public static Eff<Env, R> use<Env, H, R>(Eff<H> Acq, Func<H, Eff<Env, R>> Use)
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
             EffMaybe<Env, R>(env => {
@@ -98,7 +98,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Aff<Env, R> use<Env, H, R>(Eff<Env, H> Acq, Func<H, AffPure<R>> Use) 
+        public static Aff<Env, R> use<Env, H, R>(Eff<Env, H> Acq, Func<H, Aff<R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
             AffMaybe<Env, R>(async env => {
@@ -140,7 +140,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Eff<Env, R> use<Env, H, R>(Eff<Env, H> Acq, Func<H, EffPure<R>> Use) 
+        public static Eff<Env, R> use<Env, H, R>(Eff<Env, H> Acq, Func<H, Eff<R>> Use) 
             where Env : struct, HasCancel<Env>
             where H : IDisposable =>
             EffMaybe<Env, R>(env => {

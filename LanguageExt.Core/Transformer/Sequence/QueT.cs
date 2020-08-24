@@ -46,7 +46,7 @@ namespace LanguageExt
             where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
             ta.Map(f).Traverse(Prelude.identity);
 
-        public static Que<EffPure<B>> Sequence<A, B>(this EffPure<A> ta, Func<A, Que<B>> f) =>
+        public static Que<Eff<B>> Sequence<A, B>(this Eff<A> ta, Func<A, Que<B>> f) =>
             ta.Map(f).Traverse(Prelude.identity);
     }
 }

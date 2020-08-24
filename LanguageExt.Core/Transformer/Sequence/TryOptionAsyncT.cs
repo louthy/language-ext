@@ -80,10 +80,10 @@ namespace LanguageExt
         public static TryOptionAsync<EitherAsync<L, B>> Sequence<L, A, B>(this EitherAsync<L, A> ta, Func<A, TryOptionAsync<B>> f) =>
             ta.Map(f).Sequence();
 
-        public static TryOptionAsync<AffPure<B>> Sequence<A, B>(this AffPure<A> ta, Func<A, TryOptionAsync<B>> f) =>
+        public static TryOptionAsync<Aff<B>> Sequence<A, B>(this Aff<A> ta, Func<A, TryOptionAsync<B>> f) =>
             ta.Map(f).Traverse(Prelude.identity);
 
-        public static TryOptionAsync<EffPure<B>> Sequence<A, B>(this EffPure<A> ta, Func<A, TryOptionAsync<B>> f) =>
+        public static TryOptionAsync<Eff<B>> Sequence<A, B>(this Eff<A> ta, Func<A, TryOptionAsync<B>> f) =>
             ta.Map(f).Traverse(Prelude.identity);
     }
 }

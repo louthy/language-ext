@@ -57,7 +57,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -123,7 +123,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -156,7 +156,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -189,7 +189,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -222,7 +222,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -255,7 +255,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -321,7 +321,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -354,7 +354,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -387,7 +387,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -454,7 +454,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -520,7 +520,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -553,7 +553,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -586,7 +586,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -619,7 +619,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -652,7 +652,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -718,7 +718,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -751,7 +751,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -784,7 +784,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -817,7 +817,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -850,7 +850,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -883,7 +883,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -916,7 +916,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -949,7 +949,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -982,7 +982,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1015,7 +1015,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1048,7 +1048,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1081,7 +1081,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1114,7 +1114,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1147,7 +1147,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1180,7 +1180,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, AffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1213,7 +1213,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1246,7 +1246,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1279,7 +1279,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1312,7 +1312,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1345,7 +1345,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1378,7 +1378,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1411,7 +1411,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1444,7 +1444,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1477,7 +1477,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1510,7 +1510,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1543,7 +1543,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1576,7 +1576,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, EffPure<bool>> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1638,7 +1638,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1694,7 +1694,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, EffPure<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<Env, A> ma, S state, Func<S, A, Eff<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1722,7 +1722,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1750,7 +1750,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(AffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Aff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1778,7 +1778,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1806,7 +1806,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)
@@ -1834,7 +1834,7 @@ namespace LanguageExt
         /// <typeparam name="S">State value type</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> foldWhile<Env, S, A>(EffPure<A> ma, S state, Func<S, A, AffPure<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
+        public static Aff<Env, S> foldWhile<Env, S, A>(Eff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
             AffMaybe<Env, S>(async env =>
         {
             while (true)

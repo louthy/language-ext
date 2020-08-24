@@ -20,7 +20,7 @@ namespace LanguageExt
         //
 
         [Pure]
-        public static EffPure<Arr<B>> Traverse<A, B>(this Arr<EffPure<A>> ma, Func<A, B> f) =>
+        public static Eff<Arr<B>> Traverse<A, B>(this Arr<Eff<A>> ma, Func<A, B> f) =>
             EffMaybe<Arr<B>>(() =>
             {
                 var rs = new List<B>();
@@ -35,7 +35,7 @@ namespace LanguageExt
 
 
         [Pure]
-        public static EffPure<HashSet<B>> Traverse<A, B>(this HashSet<EffPure<A>> ma, Func<A, B> f) =>
+        public static Eff<HashSet<B>> Traverse<A, B>(this HashSet<Eff<A>> ma, Func<A, B> f) =>
             EffMaybe<HashSet<B>>(() =>
             {
                 var rs = new List<B>();
@@ -50,7 +50,7 @@ namespace LanguageExt
 
         
         [Pure]
-        public static EffPure<IEnumerable<B>> Traverse<A, B>(this IEnumerable<EffPure<A>> ma, Func<A, B> f) =>
+        public static Eff<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Eff<A>> ma, Func<A, B> f) =>
             EffMaybe<IEnumerable<B>>(() =>
             {
                 var rs = new List<B>();
@@ -64,7 +64,7 @@ namespace LanguageExt
             });
 
         [Pure]
-        public static EffPure<Lst<B>> Traverse<A, B>(this Lst<EffPure<A>> ma, Func<A, B> f) =>
+        public static Eff<Lst<B>> Traverse<A, B>(this Lst<Eff<A>> ma, Func<A, B> f) =>
             EffMaybe<Lst<B>>(() =>
             {
                 var rs = new List<B>();
@@ -79,7 +79,7 @@ namespace LanguageExt
 
 
         [Pure]
-        public static EffPure<Que<B>> Traverse<A, B>(this Que<EffPure<A>> ma, Func<A, B> f) =>
+        public static Eff<Que<B>> Traverse<A, B>(this Que<Eff<A>> ma, Func<A, B> f) =>
             EffMaybe<Que<B>>(() =>
             {
                 var rs = new List<B>();
@@ -94,7 +94,7 @@ namespace LanguageExt
 
 
         [Pure]
-        public static EffPure<Seq<B>> Traverse<A, B>(this Seq<EffPure<A>> ma, Func<A, B> f) =>
+        public static Eff<Seq<B>> Traverse<A, B>(this Seq<Eff<A>> ma, Func<A, B> f) =>
             EffMaybe<Seq<B>>(() =>
             {
                 var rs = new List<B>();
@@ -108,7 +108,7 @@ namespace LanguageExt
             });
 
         [Pure]
-        public static EffPure<Set<B>> Traverse<A, B>(this Set<EffPure<A>> ma, Func<A, B> f) =>
+        public static Eff<Set<B>> Traverse<A, B>(this Set<Eff<A>> ma, Func<A, B> f) =>
             EffMaybe<Set<B>>(() =>
             {
                 var rs = new List<B>();
@@ -123,7 +123,7 @@ namespace LanguageExt
         
 
         [Pure]
-        public static EffPure<Stck<B>> Traverse<A, B>(this Stck<EffPure<A>> ma, Func<A, B> f) =>
+        public static Eff<Stck<B>> Traverse<A, B>(this Stck<Eff<A>> ma, Func<A, B> f) =>
             EffMaybe<Stck<B>>(() =>
             {
                 var rs = new List<B>();
@@ -141,10 +141,10 @@ namespace LanguageExt
         // Sync types
         // 
         
-        public static EffPure<Either<L, B>> Traverse<L, A, B>(this Either<L, EffPure<A>> ma, Func<A, B> f)
+        public static Eff<Either<L, B>> Traverse<L, A, B>(this Either<L, Eff<A>> ma, Func<A, B> f)
         {
             return EffMaybe<Either<L, B>>(() => Go(ma, f));
-            Fin<Either<L, B>> Go(Either<L, EffPure<A>> ma, Func<A, B> f)
+            Fin<Either<L, B>> Go(Either<L, Eff<A>> ma, Func<A, B> f)
             {
                 if(ma.IsBottom) return default;
                 if(ma.IsLeft) return FinSucc<Either<L, B>>(ma.LeftValue);
@@ -154,10 +154,10 @@ namespace LanguageExt
             }
         }
 
-        public static EffPure<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, EffPure<A>> ma, Func<A, B> f)
+        public static Eff<EitherUnsafe<L, B>> Traverse<L, A, B>(this EitherUnsafe<L, Eff<A>> ma, Func<A, B> f)
         {
             return EffMaybe<EitherUnsafe<L, B>>(() => Go(ma, f));
-            Fin<EitherUnsafe<L, B>> Go(EitherUnsafe<L, EffPure<A>> ma, Func<A, B> f)
+            Fin<EitherUnsafe<L, B>> Go(EitherUnsafe<L, Eff<A>> ma, Func<A, B> f)
             {
                 if(ma.IsBottom) return default;
                 if(ma.IsLeft) return FinSucc<EitherUnsafe<L, B>>(ma.LeftValue);
@@ -167,10 +167,10 @@ namespace LanguageExt
             }
         }
 
-        public static EffPure<Identity<B>> Traverse<A, B>(this Identity<EffPure<A>> ma, Func<A, B> f)
+        public static Eff<Identity<B>> Traverse<A, B>(this Identity<Eff<A>> ma, Func<A, B> f)
         {
             return EffMaybe<Identity<B>>(() => Go(ma, f));
-            Fin<Identity<B>> Go(Identity<EffPure<A>> ma, Func<A, B> f)
+            Fin<Identity<B>> Go(Identity<Eff<A>> ma, Func<A, B> f)
             {
                 if(ma.IsBottom) return default;
                 var rb = ma.Value.RunIO();
@@ -179,10 +179,10 @@ namespace LanguageExt
             }
         }
 
-        public static EffPure<Option<B>> Traverse<A, B>(this Option<EffPure<A>> ma, Func<A, B> f)
+        public static Eff<Option<B>> Traverse<A, B>(this Option<Eff<A>> ma, Func<A, B> f)
         {
             return EffMaybe<Option<B>>(() => Go(ma, f));
-            Fin<Option<B>> Go(Option<EffPure<A>> ma, Func<A, B> f)
+            Fin<Option<B>> Go(Option<Eff<A>> ma, Func<A, B> f)
             {
                 if(ma.IsNone) return FinSucc<Option<B>>(None);
                 var rb = ma.Value.RunIO();
@@ -191,10 +191,10 @@ namespace LanguageExt
             }
         }
         
-        public static EffPure<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<EffPure<A>> ma, Func<A, B> f)
+        public static Eff<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<Eff<A>> ma, Func<A, B> f)
         {
             return EffMaybe<OptionUnsafe<B>>(() => Go(ma, f));
-            Fin<OptionUnsafe<B>> Go(OptionUnsafe<EffPure<A>> ma, Func<A, B> f)
+            Fin<OptionUnsafe<B>> Go(OptionUnsafe<Eff<A>> ma, Func<A, B> f)
             {
                 if(ma.IsNone) return FinSucc<OptionUnsafe<B>>(None);
                 var rb = ma.Value.RunIO();
@@ -203,10 +203,10 @@ namespace LanguageExt
             }
         }
         
-        public static EffPure<Try<B>> Traverse<A, B>(this Try<EffPure<A>> ma, Func<A, B> f)
+        public static Eff<Try<B>> Traverse<A, B>(this Try<Eff<A>> ma, Func<A, B> f)
         {
             return EffMaybe<Try<B>>(() => Go(ma, f));
-            Fin<Try<B>> Go(Try<EffPure<A>> ma, Func<A, B> f)
+            Fin<Try<B>> Go(Try<Eff<A>> ma, Func<A, B> f)
             {
                 var ra = ma.Try();
                 if (ra.IsFaulted) return FinSucc<Try<B>>(TryFail<B>(ra.Exception));
@@ -216,10 +216,10 @@ namespace LanguageExt
             }
         }
         
-        public static EffPure<TryOption<B>> Traverse<A, B>(this TryOption<EffPure<A>> ma, Func<A, B> f)
+        public static Eff<TryOption<B>> Traverse<A, B>(this TryOption<Eff<A>> ma, Func<A, B> f)
         {
             return EffMaybe<TryOption<B>>(() => Go(ma, f));
-            Fin<TryOption<B>> Go(TryOption<EffPure<A>> ma, Func<A, B> f)
+            Fin<TryOption<B>> Go(TryOption<Eff<A>> ma, Func<A, B> f)
             {
                 var ra = ma.Try();
                 if (ra.IsBottom) return default;
@@ -231,10 +231,10 @@ namespace LanguageExt
             }
         }
         
-        public static EffPure<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, EffPure<A>> ma, Func<A, B> f)
+        public static Eff<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Eff<A>> ma, Func<A, B> f)
         {
             return EffMaybe<Validation<Fail, B>>(() => Go(ma, f));
-            Fin<Validation<Fail, B>> Go(Validation<Fail, EffPure<A>> ma, Func<A, B> f)
+            Fin<Validation<Fail, B>> Go(Validation<Fail, Eff<A>> ma, Func<A, B> f)
             {
                 if (ma.IsFail) return FinSucc<Validation<Fail, B>>(Fail<Fail, B>(ma.FailValue));
                 var rb = ma.SuccessValue.RunIO();
@@ -243,11 +243,11 @@ namespace LanguageExt
             }
         }
         
-        public static EffPure<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, EffPure<A>> ma, Func<A, B> f)
+        public static Eff<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Eff<A>> ma, Func<A, B> f)
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
             return EffMaybe<Validation<MonoidFail, Fail, B>>(() => Go(ma, f));
-            Fin<Validation<MonoidFail, Fail, B>> Go(Validation<MonoidFail, Fail, EffPure<A>> ma, Func<A, B> f)
+            Fin<Validation<MonoidFail, Fail, B>> Go(Validation<MonoidFail, Fail, Eff<A>> ma, Func<A, B> f)
             {
                 if (ma.IsFail) return FinSucc<Validation<MonoidFail, Fail, B>>(Fail<MonoidFail, Fail, B>(ma.FailValue));
                 var rb = ma.SuccessValue.RunIO();

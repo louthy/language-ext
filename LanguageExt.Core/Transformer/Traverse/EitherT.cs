@@ -393,13 +393,13 @@ namespace LanguageExt
             }
         }        
 
-        public static Either<L, EffPure<B>> Traverse<L, A, B>(this EffPure<Either<L, A>> ma, Func<A, B> f)
+        public static Either<L, Eff<B>> Traverse<L, A, B>(this Eff<Either<L, A>> ma, Func<A, B> f)
         {
             var tres = ma.RunIO();
             
             if (tres.IsBottom)
             {
-                return Either<L, EffPure<B>>.Bottom;
+                return Either<L, Eff<B>>.Bottom;
             }
             else if (tres.IsFail)
             {
@@ -407,11 +407,11 @@ namespace LanguageExt
             }
             else if (tres.Value.IsLeft)
             {
-                return Either<L, EffPure<B>>.Left((L)tres.Value);
+                return Either<L, Eff<B>>.Left((L)tres.Value);
             }
             else
             {
-                return Either<L, EffPure<B>>.Right(SuccessEff(f((A)tres.Value)));
+                return Either<L, Eff<B>>.Right(SuccessEff(f((A)tres.Value)));
             }
         }
     }

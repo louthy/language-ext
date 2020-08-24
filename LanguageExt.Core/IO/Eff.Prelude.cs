@@ -38,8 +38,8 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Synchronous IO monad that captures the effect</returns>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static EffPure<A> EffMaybe<A>(Func<Fin<A>> f) =>
-            LanguageExt.EffPure<A>.EffectMaybe(f);
+        public static Eff<A> EffMaybe<A>(Func<Fin<A>> f) =>
+            LanguageExt.Eff<A>.EffectMaybe(f);
 
         /// <summary>
         /// Construct an effect that will either succeed or have an exceptional failure
@@ -48,8 +48,8 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Synchronous IO monad that captures the effect</returns>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static EffPure<A> Eff<A>(Func<A> f) =>
-            LanguageExt.EffPure<A>.Effect(f);
+        public static Eff<A> Eff<A>(Func<A> f) =>
+            LanguageExt.Eff<A>.Effect(f);
 
         /// <summary>
         /// Construct an successful effect with a pure value
@@ -58,8 +58,8 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Synchronous IO monad that captures the pure value</returns>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static EffPure<A> SuccessEff<A>(A value) =>
-            LanguageExt.EffPure<A>.Success(value);
+        public static Eff<A> SuccessEff<A>(A value) =>
+            LanguageExt.Eff<A>.Success(value);
 
         /// <summary>
         /// Construct a failed effect
@@ -68,8 +68,8 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Synchronous IO monad that captures the failure</returns>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static EffPure<A> FailEff<A>(Error error) =>
-            LanguageExt.EffPure<A>.Fail(error);
+        public static Eff<A> FailEff<A>(Error error) =>
+            LanguageExt.Eff<A>.Fail(error);
         
         /// <summary>
         /// Create a new local context for the environment by mapping the outer environment and then
@@ -97,18 +97,18 @@ namespace LanguageExt
         /// Unit effect
         /// </summary>
         /// <remarks>Always succeeds with a Unit value</remarks>
-        public static readonly EffPure<Unit> unitEff = SuccessEff(unit);
+        public static readonly Eff<Unit> unitEff = SuccessEff(unit);
 
         /// <summary>
         /// True effect
         /// </summary>
         /// <remarks>Always succeeds with a boolean true value</remarks>
-        public static readonly EffPure<bool> trueEff = SuccessEff(true);
+        public static readonly Eff<bool> trueEff = SuccessEff(true);
 
         /// <summary>
         /// False effect
         /// </summary>
         /// <remarks>Always succeeds with a boolean false value</remarks>
-        public static readonly EffPure<bool> falseEff = SuccessEff(false);
+        public static readonly Eff<bool> falseEff = SuccessEff(false);
     }
 }

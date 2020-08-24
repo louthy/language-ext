@@ -281,18 +281,18 @@ namespace LanguageExt
             }
         }
         
-        public static EitherAsync<L, AffPure<B>> Traverse<L, A, B>(this AffPure<EitherAsync<L, A>> ma, Func<A, B> f)
+        public static EitherAsync<L, Aff<B>> Traverse<L, A, B>(this Aff<EitherAsync<L, A>> ma, Func<A, B> f)
         {
-            return new EitherAsync<L, AffPure<B>>(Go(ma, f));
-            async Task<EitherData<L, AffPure<B>>> Go(AffPure<EitherAsync<L, A>> ma, Func<A, B> f)
+            return new EitherAsync<L, Aff<B>>(Go(ma, f));
+            async Task<EitherData<L, Aff<B>>> Go(Aff<EitherAsync<L, A>> ma, Func<A, B> f)
             {
                 var result = await ma.RunIO().ConfigureAwait(false);
-                if (result.IsBottom) return EitherData<L, AffPure<B>>.Bottom;
-                if (result.IsFail) return EitherData.Right<L, AffPure<B>>(FailAff<B>(result.Error));
+                if (result.IsBottom) return EitherData<L, Aff<B>>.Bottom;
+                if (result.IsFail) return EitherData.Right<L, Aff<B>>(FailAff<B>(result.Error));
                 var db = await result.Value.Data.ConfigureAwait(false);
-                if (db.State == EitherStatus.IsBottom) return EitherData<L, AffPure<B>>.Bottom;
-                if (db.State == EitherStatus.IsLeft) return EitherData.Left<L, AffPure<B>>(db.Left);
-                return EitherData.Right<L, AffPure<B>>(SuccessAff<B>(f(db.Right)));
+                if (db.State == EitherStatus.IsBottom) return EitherData<L, Aff<B>>.Bottom;
+                if (db.State == EitherStatus.IsLeft) return EitherData.Left<L, Aff<B>>(db.Left);
+                return EitherData.Right<L, Aff<B>>(SuccessAff<B>(f(db.Right)));
             }
         }
 
@@ -466,20 +466,20 @@ namespace LanguageExt
             }
         }
          
-        public static EitherAsync<L, EffPure<B>> Traverse<L, A, B>(this EffPure<EitherAsync<L, A>> ma, Func<A, B> f)
+        public static EitherAsync<L, Eff<B>> Traverse<L, A, B>(this Eff<EitherAsync<L, A>> ma, Func<A, B> f)
         {
             try
             {
-                return new EitherAsync<L, EffPure<B>>(Go(ma, f));
-                async Task<EitherData<L, EffPure<B>>> Go(EffPure<EitherAsync<L, A>> ma, Func<A, B> f)
+                return new EitherAsync<L, Eff<B>>(Go(ma, f));
+                async Task<EitherData<L, Eff<B>>> Go(Eff<EitherAsync<L, A>> ma, Func<A, B> f)
                 {
                     var ra = ma.RunIO();
-                    if (ra.IsBottom) return EitherData<L, EffPure<B>>.Bottom;
-                    if (ra.IsFail) return EitherData.Right<L, EffPure<B>>(FailEff<B>(ra.Error));
+                    if (ra.IsBottom) return EitherData<L, Eff<B>>.Bottom;
+                    if (ra.IsFail) return EitherData.Right<L, Eff<B>>(FailEff<B>(ra.Error));
                     var da = await ra.Value.Data.ConfigureAwait(false);
-                    if(da.State == EitherStatus.IsBottom) return EitherData<L, EffPure<B>>.Bottom;
-                    if(da.State == EitherStatus.IsLeft) return EitherData.Left<L, EffPure<B>>(da.Left);
-                    return EitherData.Right<L, EffPure<B>>(SuccessEff<B>(f(da.Right)));
+                    if(da.State == EitherStatus.IsBottom) return EitherData<L, Eff<B>>.Bottom;
+                    if(da.State == EitherStatus.IsLeft) return EitherData.Left<L, Eff<B>>(da.Left);
+                    return EitherData.Right<L, Eff<B>>(SuccessEff<B>(f(da.Right)));
                 }
             }
             catch (Exception e)

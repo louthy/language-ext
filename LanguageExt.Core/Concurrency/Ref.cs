@@ -107,7 +107,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public AffPure<A> SwapAff(Func<A, AffPure<A>> f) =>
+        public Aff<A> SwapAff(Func<A, Aff<A>> f) =>
             AffMaybe(async () =>
             {
                 var fv = await f(Value).RunIO().ConfigureAwait(false);
@@ -122,7 +122,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public EffPure<A> SwapEff(Func<A, EffPure<A>> f) =>
+        public Eff<A> SwapEff(Func<A, Eff<A>> f) =>
             EffMaybe(() =>
             {
                 var fv = f(Value).RunIO();
@@ -193,7 +193,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public AffPure<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, AffPure<A>> f) =>
+        public Aff<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, Aff<A>> f) =>
             AffMaybe(async () =>
             {
                 var fv = await f(x, y, Value).RunIO().ConfigureAwait(false);
@@ -208,7 +208,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public EffPure<A> SwapEff<X, Y>(X x, Y y, Func<X, Y, A, EffPure<A>> f) =>
+        public Eff<A> SwapEff<X, Y>(X x, Y y, Func<X, Y, A, Eff<A>> f) =>
             EffMaybe(() =>
             {
                 var fv = f(x, y, Value).RunIO();
@@ -279,7 +279,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public AffPure<A> SwapAff<X>(X x, Func<X, A, AffPure<A>> f) =>
+        public Aff<A> SwapAff<X>(X x, Func<X, A, Aff<A>> f) =>
             AffMaybe(async () =>
             {
                 var fv = await f(x, Value).RunIO().ConfigureAwait(false);
@@ -294,7 +294,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public EffPure<A> SwapEff<X>(X x, Func<X, A, EffPure<A>> f) =>
+        public Eff<A> SwapEff<X>(X x, Func<X, A, Eff<A>> f) =>
             EffMaybe(() =>
             {
                 var fv = f(x, Value).RunIO();

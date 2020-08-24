@@ -279,17 +279,17 @@ namespace LanguageExt
             }
         }
         
-        public static TryOptionAsync<AffPure<B>> Traverse<A, B>(this AffPure<TryOptionAsync<A>> ma, Func<A, B> f)
+        public static TryOptionAsync<Aff<B>> Traverse<A, B>(this Aff<TryOptionAsync<A>> ma, Func<A, B> f)
         {
             return ToTry(() => Go(ma, f));
-            async Task<OptionalResult<AffPure<B>>> Go(AffPure<TryOptionAsync<A>> ma, Func<A, B> f)
+            async Task<OptionalResult<Aff<B>>> Go(Aff<TryOptionAsync<A>> ma, Func<A, B> f)
             {
                 var ra = await ma.RunIO().ConfigureAwait(false);
-                if (ra.IsFail) return new OptionalResult<AffPure<B>>(FailAff<B>(ra.Error));
+                if (ra.IsFail) return new OptionalResult<Aff<B>>(FailAff<B>(ra.Error));
                 var rb = await ra.Value.Try().ConfigureAwait(false);
-                if (rb.IsFaulted) return new OptionalResult<AffPure<B>>(rb.Exception);
-                if(rb.IsNone) return OptionalResult<AffPure<B>>.None;
-                return new OptionalResult<AffPure<B>>(SuccessAff<B>(f(rb.Value.Value)));
+                if (rb.IsFaulted) return new OptionalResult<Aff<B>>(rb.Exception);
+                if(rb.IsNone) return OptionalResult<Aff<B>>.None;
+                return new OptionalResult<Aff<B>>(SuccessAff<B>(f(rb.Value.Value)));
             }
         }
 
@@ -421,17 +421,17 @@ namespace LanguageExt
             }
         }
         
-        public static TryOptionAsync<EffPure<B>> Traverse<A, B>(this EffPure<TryOptionAsync<A>> ma, Func<A, B> f)
+        public static TryOptionAsync<Eff<B>> Traverse<A, B>(this Eff<TryOptionAsync<A>> ma, Func<A, B> f)
         {
             return ToTry(() => Go(ma, f));
-            async Task<OptionalResult<EffPure<B>>> Go(EffPure<TryOptionAsync<A>> ma, Func<A, B> f)
+            async Task<OptionalResult<Eff<B>>> Go(Eff<TryOptionAsync<A>> ma, Func<A, B> f)
             {
                 var ra = ma.RunIO();
-                if (ra.IsFail) return new OptionalResult<EffPure<B>>(FailEff<B>(ra.Error));
+                if (ra.IsFail) return new OptionalResult<Eff<B>>(FailEff<B>(ra.Error));
                 var rb = await ra.Value.Try().ConfigureAwait(false);
-                if (rb.IsFaulted) return new OptionalResult<EffPure<B>>(rb.Exception);
-                if(rb.IsNone) return OptionalResult<EffPure<B>>.None;
-                return OptionalResult<EffPure<B>>.Some(SuccessEff<B>(f(rb.Value.Value)));
+                if (rb.IsFaulted) return new OptionalResult<Eff<B>>(rb.Exception);
+                if(rb.IsNone) return OptionalResult<Eff<B>>.None;
+                return OptionalResult<Eff<B>>.Some(SuccessEff<B>(f(rb.Value.Value)));
             }
         }
     }

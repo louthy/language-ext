@@ -29,8 +29,8 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Asynchronous IO monad that captures the effect</returns>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static AffPure<A> AffMaybe<A>(Func<ValueTask<Fin<A>>> f) =>
-            LanguageExt.AffPure<A>.EffectMaybe(f);
+        public static Aff<A> AffMaybe<A>(Func<ValueTask<Fin<A>>> f) =>
+            LanguageExt.Aff<A>.EffectMaybe(f);
         
         /// <summary>
         /// Construct an effect that will either succeed or have an exceptional failure
@@ -49,8 +49,8 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Asynchronous IO monad that captures the effect</returns>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static AffPure<A> Aff<A>(Func<ValueTask<A>> f) =>
-            LanguageExt.AffPure<A>.Effect(f);
+        public static Aff<A> Aff<A>(Func<ValueTask<A>> f) =>
+            LanguageExt.Aff<A>.Effect(f);
 
         /// <summary>
         /// Construct an successful effect with a pure value
@@ -59,8 +59,8 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Asynchronous IO monad that captures the pure value</returns>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static AffPure<A> SuccessAff<A>(A value) =>
-            LanguageExt.AffPure<A>.Success(value);
+        public static Aff<A> SuccessAff<A>(A value) =>
+            LanguageExt.Aff<A>.Success(value);
 
         /// <summary>
         /// Construct a failed effect
@@ -69,8 +69,8 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Synchronous IO monad that captures the failure</returns>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static AffPure<A> FailAff<A>(Error error) =>
-            LanguageExt.AffPure<A>.Fail(error);        
+        public static Aff<A> FailAff<A>(Error error) =>
+            LanguageExt.Aff<A>.Fail(error);        
 
         /// <summary>
         /// Create a new local context for the environment by mapping the outer environment and then
@@ -118,7 +118,7 @@ namespace LanguageExt
         /// <param name="ma">Operation to run on the new thread</param>
         /// <typeparam name="A">Bound value</typeparam>
         /// <returns>Non-blocking, returns immediately</returns>
-        public static AffPure<Unit> fork<A>(AffPure<A> ma) =>
+        public static Aff<Unit> fork<A>(Aff<A> ma) =>
             AffMaybe<Unit>(() =>
             {
                 try

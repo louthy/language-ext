@@ -271,10 +271,10 @@ namespace LanguageExt
             }
         }
                 
-        public static OptionAsync<AffPure<B>> Traverse<A, B>(this AffPure<OptionAsync<A>> ma, Func<A, B> f)
+        public static OptionAsync<Aff<B>> Traverse<A, B>(this Aff<OptionAsync<A>> ma, Func<A, B> f)
         {
-            return new OptionAsync<AffPure<B>>(Go(ma, f));
-            async Task<(bool, AffPure<B>)> Go(AffPure<OptionAsync<A>> ma, Func<A, B> f)
+            return new OptionAsync<Aff<B>>(Go(ma, f));
+            async Task<(bool, Aff<B>)> Go(Aff<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var resultA = await ma.RunIO().ConfigureAwait(false);
                 if (resultA.IsBottom) return (false, default);
@@ -419,12 +419,12 @@ namespace LanguageExt
             }
         }
         
-        public static OptionAsync<EffPure<B>> Traverse<A, B>(this EffPure<OptionAsync<A>> ma, Func<A, B> f)
+        public static OptionAsync<Eff<B>> Traverse<A, B>(this Eff<OptionAsync<A>> ma, Func<A, B> f)
         {
             try
             {
-                return new OptionAsync<EffPure<B>>(Go(ma, f));
-                async Task<(bool, EffPure<B>)> Go(EffPure<OptionAsync<A>> ma, Func<A, B> f)
+                return new OptionAsync<Eff<B>>(Go(ma, f));
+                async Task<(bool, Eff<B>)> Go(Eff<OptionAsync<A>> ma, Func<A, B> f)
                 {
                     var ra = ma.RunIO();
                     if(ra.IsBottom) return (false, default);

@@ -86,7 +86,7 @@ namespace LanguageExt
                 Fail: es => HashSet(Validation<MonoidFail, Fail, B>.Fail(es)),
                 Succ: xs => xs.Map(x => Success<MonoidFail, Fail, B>(f(x))));
 
-        public static HashSet<EffPure<B>> Traverse<A, B>(this EffPure<HashSet<A>> ma, Func<A, B> f) =>
+        public static HashSet<Eff<B>> Traverse<A, B>(this Eff<HashSet<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: ex => HashSet(FailEff<B>(ex)),
                 Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).RunIO().Value;    

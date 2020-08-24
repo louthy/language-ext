@@ -48,7 +48,7 @@ namespace LanguageExt
         public static EitherUnsafe<L, Validation<FAIL, B>> Sequence<FAIL, L, A, B>(this Validation<FAIL, A> ta, Func<A, EitherUnsafe<L, B>> f) => 
             ta.Map(f).Sequence();
          
-        public static EitherUnsafe<L, EffPure<B>> Sequence<L, A, B>(this EffPure<A> ta, Func<A, EitherUnsafe<L, B>> f) =>
+        public static EitherUnsafe<L, Eff<B>> Sequence<L, A, B>(this Eff<A> ta, Func<A, EitherUnsafe<L, B>> f) =>
             ta.Map(f).Traverse(Prelude.identity);
     }
 }

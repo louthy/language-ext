@@ -372,14 +372,14 @@ namespace LanguageExt
                 ? new A[] {Value}
                 : new A[0];
         
-        public Unit ThrowIfFail()
+        public A ThrowIfFail()
         {
             if (IsFail)
             {
                 ExceptionDispatchInfo.Capture(Error).Throw();
             }
 
-            return unit;
+            return Value;
         }
     }
 }

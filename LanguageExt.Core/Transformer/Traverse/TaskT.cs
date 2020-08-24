@@ -179,7 +179,7 @@ namespace LanguageExt
             return ValueTaskSucc(f(a));
         }
         
-        public static async Task<AffPure<B>> Traverse<A, B>(this AffPure<Task<A>> ma, Func<A, B> f)
+        public static async Task<Aff<B>> Traverse<A, B>(this Aff<Task<A>> ma, Func<A, B> f)
         {
             var da = await ma.RunIO().ConfigureAwait(false);
             if (da.IsBottom) throw new BottomException();
@@ -253,7 +253,7 @@ namespace LanguageExt
             return Validation<MonoidFail, Fail, B>.Success(f(await ma.SuccessValue.ConfigureAwait(false)));
         }
         
-        public static async Task<EffPure<B>> Traverse<A, B>(this EffPure<Task<A>> ma, Func<A, B> f)
+        public static async Task<Eff<B>> Traverse<A, B>(this Eff<Task<A>> ma, Func<A, B> f)
         {
             var mr = ma.RunIO();
             if (mr.IsBottom) return FailEff<B>(BottomException.Default);

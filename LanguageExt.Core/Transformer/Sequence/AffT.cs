@@ -393,22 +393,22 @@ namespace LanguageExt
             ta.Map(f).Sequence();
 
         [Pure]
-        public static Aff<RT, AffPure<A>> Sequence<RT, A>(this AffPure<Aff<RT, A>> mma)
+        public static Aff<RT, Aff<A>> Sequence<RT, A>(this Aff<Aff<RT, A>> mma)
             where RT : struct, HasCancel<RT> =>
             mma.Traverse(identity);
 
         [Pure]
-        public static Aff<RT, AffPure<B>> Sequence<RT, A, B>(this AffPure<A> ta, Func<A, Aff<RT, B>> f) 
+        public static Aff<RT, Aff<B>> Sequence<RT, A, B>(this Aff<A> ta, Func<A, Aff<RT, B>> f) 
             where RT : struct, HasCancel<RT> =>
             ta.Map(f).Sequence();
         
         [Pure]
-        public static Aff<RT, EffPure<A>> Sequence<RT, A>(this EffPure<Aff<RT, A>> mma) 
+        public static Aff<RT, Eff<A>> Sequence<RT, A>(this Eff<Aff<RT, A>> mma) 
             where RT : struct, HasCancel<RT> =>
             mma.Traverse(identity);
 
         [Pure]
-        public static Aff<RT, EffPure<B>> Sequence<RT, A, B>(this EffPure<A> ta, Func<A, Aff<RT, B>> f) 
+        public static Aff<RT, Eff<B>> Sequence<RT, A, B>(this Eff<A> ta, Func<A, Aff<RT, B>> f) 
             where RT : struct, HasCancel<RT> =>
             ta.Map(f).Sequence();
             

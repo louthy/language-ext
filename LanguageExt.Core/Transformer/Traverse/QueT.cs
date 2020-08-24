@@ -86,7 +86,7 @@ namespace LanguageExt
                 Fail: ex => Queue(Validation<MonoidFail, Fail, B>.Fail(ex)),
                 Succ: xs => xs.Map(x => Success<MonoidFail, Fail, B>(f(x))));
 
-        public static Que<EffPure<B>> Traverse<A, B>(this EffPure<Que<A>> ma, Func<A, B> f) =>
+        public static Que<Eff<B>> Traverse<A, B>(this Eff<Que<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: ex => Queue(FailEff<B>(ex)),
                 Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).RunIO().Value;    

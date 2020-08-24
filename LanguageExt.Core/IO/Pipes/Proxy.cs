@@ -20,14 +20,14 @@ namespace LanguageExt.Pipes
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(AffPure<R> ma) where Env : struct, HasCancel<Env> =>
+        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(Aff<R> ma) where Env : struct, HasCancel<Env> =>
             new M<Env, A1, A, B1, B, R>(ma.Map(Pure<Env, A1, A, B1, B, R>).WithEnv<Env>());
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(EffPure<R> ma) where Env : struct, HasCancel<Env> =>
+        public static Proxy<Env, A1, A, B1, B, R> liftIO<Env, A1, A, B1, B, R>(Eff<R> ma) where Env : struct, HasCancel<Env> =>
             new M<Env, A1, A, B1, B, R>(ma.Map(Pure<Env, A1, A, B1, B, R>).ToAsyncWithEnv<Env>());
 
         /// <summary>

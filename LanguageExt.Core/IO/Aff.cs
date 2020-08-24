@@ -107,7 +107,7 @@ namespace LanguageExt
                 }));
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, A> operator |(Aff<Env, A> ma, LanguageExt.AffPure<A> mb) =>
+        public static Aff<Env, A> operator |(Aff<Env, A> ma, LanguageExt.Aff<A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
                 async env =>
                 {
@@ -118,7 +118,7 @@ namespace LanguageExt
                 }));
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, A> operator |(LanguageExt.AffPure<A> ma, Aff<Env, A> mb) =>
+        public static Aff<Env, A> operator |(LanguageExt.Aff<A> ma, Aff<Env, A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
                 async env =>
                 {
@@ -163,13 +163,13 @@ namespace LanguageExt
         /// <summary>
         /// Implicit conversion from pure Aff
         /// </summary>
-        public static implicit operator Aff<Env, A>(AffPure<A> ma) =>
+        public static implicit operator Aff<Env, A>(Aff<A> ma) =>
             EffectMaybe(env => ma.RunIO());
 
         /// <summary>
         /// Implicit conversion from pure Eff
         /// </summary>
-        public static implicit operator Aff<Env, A>(EffPure<A> ma) =>
+        public static implicit operator Aff<Env, A>(Eff<A> ma) =>
             EffectMaybe(env => ma.RunIO().AsValueTask());
 
         /// <summary>
@@ -181,6 +181,10 @@ namespace LanguageExt
 
     public static partial class AffExtensions
     {
+        //
+        // Sequence (with tuples)
+        //
+        
         /// <summary>
         /// Run the two effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
         /// </summary>
@@ -257,6 +261,10 @@ namespace LanguageExt
                        select (r1, r2, r3, r4, r5);
             });
 
+        //
+        // Map
+        //
+
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> Map<Env, A, B>(this Aff<Env, A> ma, Func<A, B> f) where Env : struct, HasCancel<Env> =>
             new Aff<Env, B>(ma.thunk.Map(f));
@@ -273,6 +281,10 @@ namespace LanguageExt
         public static Aff<Env, A> MapFailAsync<Env, A>(this Aff<Env, A> ma, Func<Error, ValueTask<Error>> f) where Env : struct, HasCancel<Env> =>
             ma.BiMapAsync(x => x.AsValueTask(), f);
 
+        //
+        // Bi-map
+        //
+
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> BiMap<Env, A, B>(this Aff<Env, A> ma, Func<A, B> Succ, Func<Error, Error> Fail) where Env : struct, HasCancel<Env> =>
             new Aff<Env, B>(ma.thunk.BiMap(Succ, Fail));
@@ -281,28 +293,319 @@ namespace LanguageExt
         public static Aff<Env, B> BiMapAsync<Env, A, B>(this Aff<Env, A> ma, Func<A, ValueTask<B>> Succ, Func<Error, ValueTask<Error>> Fail) where Env : struct, HasCancel<Env> =>
             new Aff<Env, B>(ma.thunk.BiMapAsync(Succ, Fail));
 
+        //
+        // Match
+        //
+
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> Match<Env, A, B>(this Aff<Env, A> ma, Func<A, B> Succ, Func<Error, B> Fail) where Env : struct, HasCancel<Env> =>
             Aff<Env, B>(async env =>
             {
-
                 var r = await ma.RunIO(env).ConfigureAwait(false);
                 return r.IsSucc
                     ? Succ(r.Value)
                     : Fail(r.Error);
             });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, B> Match<Env, A, B>(this Aff<Env, A> ma, Func<A, B> Succ, Aff<Env, B> Fail) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, B>(async env =>
+            {
+                var r = await ma.RunIO(env).ConfigureAwait(false);
+                return r.IsSucc
+                    ? Succ(r.Value)
+                    : await Fail.RunIO(env).ConfigureAwait(false);
+            });
 
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, B> Match<Env, A, B>(this Aff<Env, A> ma, Aff<Env, B> Succ, Func<Error, B> Fail) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, B>(async env =>
+            {
+                var r = await ma.RunIO(env).ConfigureAwait(false);
+                return r.IsSucc
+                    ? await Succ.RunIO(env).ConfigureAwait(false)
+                    : Fail(r.Error);
+            });
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, B> Match<Env, A, B>(this Aff<Env, A> ma, Aff<Env, B> Succ, Aff<Env, B> Fail) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, B>(async env =>
+            {
+                var r = await ma.RunIO(env).ConfigureAwait(false);
+                return r.IsSucc
+                    ? await Succ.RunIO(env).ConfigureAwait(false)
+                    : await Fail.RunIO(env).ConfigureAwait(false);
+            });
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, B> Match<Env, A, B>(this Aff<Env, A> ma, B Succ, Func<Error, B> Fail) where Env : struct, HasCancel<Env> =>
+            Aff<Env, B>(async env =>
+            {
+                var r = await ma.RunIO(env).ConfigureAwait(false);
+                return r.IsSucc
+                    ? Succ
+                    : Fail(r.Error);
+            });
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, B> Match<Env, A, B>(this Aff<Env, A> ma, Func<A, B> Succ, B Fail) where Env : struct, HasCancel<Env> =>
+            Aff<Env, B>(async env =>
+                        {
+                            var r = await ma.RunIO(env).ConfigureAwait(false);
+                            return r.IsSucc
+                                       ? Succ(r.Value)
+                                       : Fail;
+                        });
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, B> Match<Env, A, B>(this Aff<Env, A> ma, B Succ, B Fail) where Env : struct, HasCancel<Env> =>
+            Aff<Env, B>(async env =>
+                        {
+                            var r = await ma.RunIO(env).ConfigureAwait(false);
+                            return r.IsSucc
+                                       ? Succ
+                                       : Fail;
+                        });
+        
+        //
+        // IfNone
+        //
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> IfFail<Env, A>(this Aff<Env, A> ma, Func<Error, A> f) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, A>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    return res.IsSucc
+                               ? res
+                               : Fin<A>.Succ(f(res.Error));
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> IfFail<Env, A>(this Aff<Env, A> ma, A alternative) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, A>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    return res.IsSucc
+                               ? res
+                               : Fin<A>.Succ(alternative);
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> IfFail<Env, A>(this Aff<Env, A> ma, Aff<Env, A> alternative) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, A>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    return res.IsSucc
+                               ? res
+                               : await alternative.RunIO(env).ConfigureAwait(false);
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> IfFail<Env, A>(this Aff<Env, A> ma, Aff<A> alternative) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, A>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    return res.IsSucc
+                               ? res
+                               : await alternative.RunIO().ConfigureAwait(false);
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> IfFail<Env, A>(this Aff<Env, A> ma, Eff<Env, A> alternative) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, A>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    return res.IsSucc
+                               ? res
+                               : alternative.RunIO(env);
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> IfFail<Env, A>(this Aff<Env, A> ma, Eff<A> alternative) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, A>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    return res.IsSucc
+                               ? res
+                               : alternative.RunIO();
+                });
+        
+        //
+        // Iter / Do
+        //
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, Unit> Iter<Env, A>(this Aff<Env, A> ma, Func<A, Unit> f) where Env : struct, HasCancel<Env> =>
+            Aff<Env, Unit>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    if (res.IsSucc)
+                    {
+                        f(res.Value);
+                    }
+                    return unit;
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, Unit> Iter<Env, A>(this Aff<Env, A> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+            Aff<Env, Unit>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    if (res.IsSucc)
+                    {
+                        ignore(await f(res.Value).RunIO(env).ConfigureAwait(false));
+                    }
+                    return unit;
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, Unit> Iter<Env, A>(this Aff<Env, A> ma, Func<A, Aff<Unit>> f) where Env : struct, HasCancel<Env> =>
+            Aff<Env, Unit>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    if (res.IsSucc)
+                    {
+                        ignore(await f(res.Value).RunIO().ConfigureAwait(false));
+                    }
+                    return unit;
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, Unit> Iter<Env, A>(this Aff<Env, A> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+            Aff<Env, Unit>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    if (res.IsSucc)
+                    {
+                        ignore(f(res.Value).RunIO(env));
+                    }
+                    return unit;
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, Unit> Iter<Env, A>(this Aff<Env, A> ma, Func<A, Eff<Unit>> f) where Env : struct, HasCancel<Env> =>
+            Aff<Env, Unit>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    if (res.IsSucc)
+                    {
+                        ignore(f(res.Value).RunIO());
+                    }
+                    return unit;
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> Do<Env, A>(this Aff<Env, A> ma, Func<A, Unit> f) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, A>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    if (res.IsSucc)
+                    {
+                        f(res.Value);
+                    }
+                    return res;
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> Do<Env, A>(this Aff<Env, A> ma, Func<A, Aff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, A>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    if (res.IsSucc)
+                    {
+                        var ures = await f(res.Value).RunIO(env).ConfigureAwait(false);
+                        return ures.IsFail
+                                   ? Fin<A>.Fail(ures.Error)
+                                   : res;
+                    }
+                    return res;
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> Do<Env, A>(this Aff<Env, A> ma, Func<A, Eff<Env, Unit>> f) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, A>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    if (res.IsSucc)
+                    {
+                        var ures = f(res.Value).RunIO(env);
+                        return ures.IsFail
+                                   ? Fin<A>.Fail(ures.Error)
+                                   : res;
+                    }
+                    return res;
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> Do<Env, A>(this Aff<Env, A> ma, Func<A, Aff<Unit>> f) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, A>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    if (res.IsSucc)
+                    {
+                        var ures = await f(res.Value).RunIO().ConfigureAwait(false);
+                        return ures.IsFail
+                                   ? Fin<A>.Fail(ures.Error)
+                                   : res;
+                    }
+                    return res;
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> Do<Env, A>(this Aff<Env, A> ma, Func<A, Eff<Unit>> f) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, A>(
+                async env =>
+                {
+                    var res = await ma.RunIO(env).ConfigureAwait(false);
+                    if (res.IsSucc)
+                    {
+                        var ures = f(res.Value).RunIO();
+                        return ures.IsFail
+                                   ? Fin<A>.Fail(ures.Error)
+                                   : res;
+                    }
+                    return res;
+                });
+        
+        //
+        // Filter / Where
+        //
+        
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> Filter<Env, A>(this Aff<Env, A> ma, Func<A, bool> f) where Env : struct, HasCancel<Env> =>
             ma.Bind(x => f(x) ? SuccessEff<A>(x) : FailEff<A>(Error.New(Thunk.CancelledText)));
 
 
         [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> Where<Env, A>(this Aff<Env, A> ma, Func<A, bool> f) where Env : struct, HasCancel<Env> =>
+            Filter(ma, f);
+
+        //
+        // Bind
+        //
+
+        [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> Bind<Env, A, B>(this Aff<Env, A> ma, Func<A, Aff<Env, B>> f) where Env : struct, HasCancel<Env> =>
             new Aff<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, B> Bind<Env, A, B>(this Aff<Env, A> ma, Func<A, AffPure<B>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, B> Bind<Env, A, B>(this Aff<Env, A> ma, Func<A, Aff<B>> f) where Env : struct, HasCancel<Env> =>
             new Aff<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(AffOpt.mops)]
@@ -310,9 +613,12 @@ namespace LanguageExt
             new Aff<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, B> Bind<Env, A, B>(this Aff<Env, A> ma, Func<A, LanguageExt.EffPure<B>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, B> Bind<Env, A, B>(this Aff<Env, A> ma, Func<A, LanguageExt.Eff<B>> f) where Env : struct, HasCancel<Env> =>
             new Aff<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
+        //
+        // Bi-Bind
+        //
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> BiBind<Env, A, B>(this Aff<Env, A> ma, Func<A, Aff<Env, B>> Succ, Func<Error, Aff<Env, B>> Fail) where Env : struct, HasCancel<Env> =>
@@ -320,7 +626,7 @@ namespace LanguageExt
                 .Flatten();
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, B> BiBind<Env, A, B>(this Aff<Env, A> ma, Func<A, AffPure<B>> Succ, Func<Error, AffPure<B>> Fail) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, B> BiBind<Env, A, B>(this Aff<Env, A> ma, Func<A, Aff<B>> Succ, Func<Error, Aff<B>> Fail) where Env : struct, HasCancel<Env> =>
             ma.Match(Succ, Fail)
                 .Flatten();
 
@@ -330,17 +636,20 @@ namespace LanguageExt
                 .Flatten();
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, B> BiBind<Env, A, B>(this Aff<Env, A> ma, Func<A, LanguageExt.EffPure<B>> Succ, Func<Error, LanguageExt.EffPure<B>> Fail) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, B> BiBind<Env, A, B>(this Aff<Env, A> ma, Func<A, LanguageExt.Eff<B>> Succ, Func<Error, LanguageExt.Eff<B>> Fail) where Env : struct, HasCancel<Env> =>
             ma.Match(Succ, Fail)
                 .Flatten();
 
+        //
+        // Flatten (monadic join)
+        //
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> Flatten<Env, A>(this Aff<Env, Aff<Env, A>> ma) where Env : struct, HasCancel<Env> =>
             new Aff<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, A> Flatten<Env, A>(this Aff<Env, AffPure<A>> ma) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, A> Flatten<Env, A>(this Aff<Env, Aff<A>> ma) where Env : struct, HasCancel<Env> =>
             new Aff<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
 
         [Pure, MethodImpl(AffOpt.mops)]
@@ -348,20 +657,27 @@ namespace LanguageExt
             new Aff<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, A> Flatten<Env, A>(this Aff<Env, LanguageExt.EffPure<A>> ma) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, A> Flatten<Env, A>(this Aff<Env, LanguageExt.Eff<A>> ma) where Env : struct, HasCancel<Env> =>
             new Aff<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
 
+        //
+        // Select
+        //
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> Select<Env, A, B>(this Aff<Env, A> ma, Func<A, B> f) where Env : struct, HasCancel<Env> =>
             Map(ma, f);
+
+        //
+        // SelectMany
+        //
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> SelectMany<Env, A, B>(this Aff<Env, A> ma, Func<A, Aff<Env, B>> f) where Env : struct, HasCancel<Env> =>
             Bind(ma, f);
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, B> SelectMany<Env, A, B>(this Aff<Env, A> ma, Func<A, AffPure<B>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, B> SelectMany<Env, A, B>(this Aff<Env, A> ma, Func<A, Aff<B>> f) where Env : struct, HasCancel<Env> =>
             Bind(ma, f);
 
         [Pure, MethodImpl(AffOpt.mops)]
@@ -369,16 +685,15 @@ namespace LanguageExt
             Bind(ma, f);
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, B> SelectMany<Env, A, B>(this Aff<Env, A> ma, Func<A, LanguageExt.EffPure<B>> f) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, B> SelectMany<Env, A, B>(this Aff<Env, A> ma, Func<A, LanguageExt.Eff<B>> f) where Env : struct, HasCancel<Env> =>
             Bind(ma, f);
-
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, C> SelectMany<Env, A, B, C>(this Aff<Env, A> ma, Func<A, Aff<Env, B>> bind, Func<A, B, C> project) where Env : struct, HasCancel<Env> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, C> SelectMany<Env, A, B, C>(this Aff<Env, A> ma, Func<A, AffPure<B>> bind, Func<A, B, C> project) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, C> SelectMany<Env, A, B, C>(this Aff<Env, A> ma, Func<A, Aff<B>> bind, Func<A, B, C> project) where Env : struct, HasCancel<Env> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
 
         [Pure, MethodImpl(AffOpt.mops)]
@@ -386,14 +701,12 @@ namespace LanguageExt
             Bind(ma, x => Map(bind(x), y => project(x, y)));
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, C> SelectMany<Env, A, B, C>(this Aff<Env, A> ma, Func<A, LanguageExt.EffPure<B>> bind, Func<A, B, C> project) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, C> SelectMany<Env, A, B, C>(this Aff<Env, A> ma, Func<A, LanguageExt.Eff<B>> bind, Func<A, B, C> project) where Env : struct, HasCancel<Env> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
 
-
-        [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, A> Where<Env, A>(this Aff<Env, A> ma, Func<A, bool> f) where Env : struct, HasCancel<Env> =>
-            Filter(ma, f);
-
+        //
+        // Zip
+        //
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, (A, B)> Zip<Env, A, B>(this Aff<Env, A> ma, Aff<Env, B> mb) where Env : struct, HasCancel<Env> =>
@@ -421,7 +734,7 @@ namespace LanguageExt
             }));
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, (A, B)> Zip<Env, A, B>(this Aff<Env, A> ma, AffPure<B> mb) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, (A, B)> Zip<Env, A, B>(this Aff<Env, A> ma, Aff<B> mb) where Env : struct, HasCancel<Env> =>
             new Aff<Env, (A, B)>(ThunkAsync<Env, (A, B)>.Lazy(async e =>
             {
                 var ta = ma.RunIO(e).AsTask();
@@ -447,7 +760,7 @@ namespace LanguageExt
 
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, (A, B)> Zip<Env, A, B>(this AffPure<A> ma, Aff<Env, B> mb) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, (A, B)> Zip<Env, A, B>(this Aff<A> ma, Aff<Env, B> mb) where Env : struct, HasCancel<Env> =>
             new Aff<Env, (A, B)>(ThunkAsync<Env, (A, B)>.Lazy(async e =>
             {
                 var ta = ma.RunIO().AsTask();
@@ -472,7 +785,7 @@ namespace LanguageExt
             }));
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, (A, B)> Zip<Env, A, B>(this Aff<Env, A> ma, LanguageExt.EffPure<B> mb) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, (A, B)> Zip<Env, A, B>(this Aff<Env, A> ma, LanguageExt.Eff<B> mb) where Env : struct, HasCancel<Env> =>
             new Aff<Env, (A, B)>(ThunkAsync<Env, (A, B)>.Lazy(async e =>
             {
                 var ta = ma.RunIO(e).AsTask();
@@ -489,7 +802,7 @@ namespace LanguageExt
             }));
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, (A, B)> Zip<Env, A, B>(this LanguageExt.EffPure<A> ma, Aff<Env, B> mb) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, (A, B)> Zip<Env, A, B>(this LanguageExt.Eff<A> ma, Aff<Env, B> mb) where Env : struct, HasCancel<Env> =>
             new Aff<Env, (A, B)>(ThunkAsync<Env, (A, B)>.Lazy(async e =>
             {
                 var ra = ma.RunIO();

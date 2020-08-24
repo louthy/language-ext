@@ -94,7 +94,7 @@ namespace LanguageExt
                 Fail: ex => List(Validation<MonoidFail, Fail, B>.Fail(ex)),
                 Succ: xs => xs.Map(x => Success<MonoidFail, Fail, B>(f(x))));
 
-        public static Lst<EffPure<B>> Traverse<A, B>(this EffPure<Lst<A>> ma, Func<A, B> f) =>
+        public static Lst<Eff<B>> Traverse<A, B>(this Eff<Lst<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: ex => List(FailEff<B>(ex)),
                 Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).RunIO().Value;    

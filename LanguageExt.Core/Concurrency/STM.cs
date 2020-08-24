@@ -53,7 +53,7 @@ namespace LanguageExt
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
-        internal static AffPure<R> DoTransaction<R>(AffPure<R> op, Isolation isolation) =>
+        internal static Aff<R> DoTransaction<R>(Aff<R> op, Isolation isolation) =>
             transaction.Value == null
                 ? RunTransaction(op, isolation)
                 : op;
@@ -71,7 +71,7 @@ namespace LanguageExt
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
-        internal static EffPure<R> DoTransaction<R>(EffPure<R> op, Isolation isolation) =>
+        internal static Eff<R> DoTransaction<R>(Eff<R> op, Isolation isolation) =>
             transaction.Value == null
                 ? RunTransaction(op, isolation)
                 : op;
@@ -216,7 +216,7 @@ namespace LanguageExt
         /// <summary>
         /// Runs the transaction
         /// </summary>
-        static AffPure<R> RunTransaction<R>(AffPure<R> op, Isolation isolation) =>
+        static Aff<R> RunTransaction<R>(Aff<R> op, Isolation isolation) =>
             AffMaybe(async () =>
             {
                 var retries = maxRetries;
@@ -259,7 +259,7 @@ namespace LanguageExt
         /// <summary>
         /// Runs the transaction
         /// </summary>
-        static EffPure<R> RunTransaction<R>(EffPure<R> op, Isolation isolation) =>
+        static Eff<R> RunTransaction<R>(Eff<R> op, Isolation isolation) =>
             EffMaybe(() =>
             {
                 var retries = maxRetries;

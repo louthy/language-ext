@@ -263,16 +263,16 @@ namespace LanguageExt
             }
         }
         
-        public static Eff<RT, EffPure<B>> Traverse<RT, A, B>(this EffPure<Eff<RT, A>> ma, Func<A, B> f)
+        public static Eff<RT, Eff<B>> Traverse<RT, A, B>(this Eff<Eff<RT, A>> ma, Func<A, B> f)
         {
-            return EffMaybe<RT, EffPure<B>>(env => Go(env, ma, f));
-            Fin<EffPure<B>> Go(RT env, EffPure<Eff<RT, A>> ma, Func<A, B> f)
+            return EffMaybe<RT, Eff<B>>(env => Go(env, ma, f));
+            Fin<Eff<B>> Go(RT env, Eff<Eff<RT, A>> ma, Func<A, B> f)
             {
                 var ra = ma.RunIO();
-                if (ra.IsFail) return FinSucc<EffPure<B>>(FailEff<B>(ra.Error));
+                if (ra.IsFail) return FinSucc<Eff<B>>(FailEff<B>(ra.Error));
                 var rb = ra.Value.RunIO(env);
-                if (rb.IsFail) return FinFail<EffPure<B>>(rb.Error);
-                return FinSucc<EffPure<B>>(SuccessEff<B>(f(rb.Value)));
+                if (rb.IsFail) return FinFail<Eff<B>>(rb.Error);
+                return FinSucc<Eff<B>>(SuccessEff<B>(f(rb.Value)));
             }
         }
     }

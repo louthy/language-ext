@@ -405,21 +405,21 @@ namespace LanguageExt
             }
         }
         
-        public static Validation<Fail, EffPure<B>> Traverse<Fail, A, B>(this EffPure<Validation<Fail, A>> ma, Func<A, B> f)
+        public static Validation<Fail, Eff<B>> Traverse<Fail, A, B>(this Eff<Validation<Fail, A>> ma, Func<A, B> f)
         {
             var tres = ma.RunIO();
             
             if (tres.IsBottom || tres.IsFail)
             {
-                return Validation<Fail, EffPure<B>>.Success(FailEff<B>(tres.Error));
+                return Validation<Fail, Eff<B>>.Success(FailEff<B>(tres.Error));
             }
             else if (tres.Value.IsFail)
             {
-                return Validation<Fail, EffPure<B>>.Fail((Seq<Fail>)tres.Value);
+                return Validation<Fail, Eff<B>>.Fail((Seq<Fail>)tres.Value);
             }
             else
             {
-                return Validation<Fail, EffPure<B>>.Success(SuccessEff(f((A)tres.Value)));
+                return Validation<Fail, Eff<B>>.Success(SuccessEff(f((A)tres.Value)));
             }
         }
     }

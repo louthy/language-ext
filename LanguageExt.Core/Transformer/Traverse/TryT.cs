@@ -249,14 +249,14 @@ namespace LanguageExt
             }
         };
         
-        public static Try<EffPure<B>> Traverse<A, B>(this EffPure<Try<A>> ma, Func<A, B> f) => () =>
+        public static Try<Eff<B>> Traverse<A, B>(this Eff<Try<A>> ma, Func<A, B> f) => () =>
         {
             var mb = ma.RunIO();
-            if (mb.IsBottom) return Result<EffPure<B>>.Bottom;
-            if (mb.IsFail) return new Result<EffPure<B>>(FailEff<B>(mb.Error));
+            if (mb.IsBottom) return Result<Eff<B>>.Bottom;
+            if (mb.IsFail) return new Result<Eff<B>>(FailEff<B>(mb.Error));
             var mr = mb.Value.Try();
-            if (mr.IsBottom) return Result<EffPure<B>>.Bottom;
-            if (mr.IsFaulted) return new Result<EffPure<B>>(mr.Exception);
-            return new Result<EffPure<B>>(SuccessEff<B>(f(mr.Value)));
+            if (mr.IsBottom) return Result<Eff<B>>.Bottom;
+            if (mr.IsFaulted) return new Result<Eff<B>>(mr.Exception);
+            return new Result<Eff<B>>(SuccessEff<B>(f(mr.Value)));
         };    }
 }
