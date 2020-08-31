@@ -154,7 +154,7 @@ namespace TestBed
             File.WriteAllLines(path, lines);
             return unit;
         }
-        public Person ReadFromDB() => new Person("Spider", "Man");
+        public Person ReadFromDB() => new Person("Spider", "Man", 50);
         public int Zero => 0;
     }
 
@@ -329,5 +329,7 @@ namespace TestBed
         [Ord(typeof(OrdStringOrdinalIgnoreCase))]
         [Hashable(typeof(HashableStringOrdinalIgnoreCase))]
         public readonly string Surname;
+
+        public readonly int? Age;
     }
 }

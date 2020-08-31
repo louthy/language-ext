@@ -282,13 +282,14 @@ namespace LanguageExt.CodeGen
         public static TypeDeclarationSyntax AddWith(TransformationContext context, TypeDeclarationSyntax partialClass, TypeSyntax returnType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members)
         {
             var withParms = members.Select(m => (Id: m.Identifier,
-                                                Type: m.Type,
-                                                Info: context.SemanticModel.GetTypeInfo(m.Type)))
+                                                 Type: m.Type,
+                                                 Info: context.SemanticModel.GetTypeInfo(m.Type),
+                                                 Nlbl: m.Type is NullableTypeSyntax))
                                    .Select(m => (m.Id,
                                                  m.Type,
                                                  m.Info,
                                                  IsGeneric: !m.Info.Type.IsValueType && !m.Info.Type.IsReferenceType,
-                                                 ParamType: m.Info.Type.IsValueType
+                                                 ParamType: m.Info.Type.IsValueType && !m.Nlbl 
                                                      ? NullableType(m.Type)
                                                      : m.Type))
                                    .Select(m =>
