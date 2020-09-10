@@ -66,7 +66,7 @@ namespace LanguageExt
         /// before any transaction is committed (within a `sync`)</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Ref<A> Ref<A>(A value, Func<A, bool> validator = null) =>
-            STM.NewRef(value);
+            STM.NewRef(value, validator);
 
         /// <summary>
         /// Run the op within a new transaction
