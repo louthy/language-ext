@@ -398,5 +398,25 @@ namespace LanguageExt.Tests
             var actual = generate(actualLength, identity).Take(tryToTake);
             Assert.Equal(expect, actual);
         }
+        
+        [Fact]
+        public void SeqConcatTest()
+        {
+            var seq1 = (from x in new[] { 1 }
+                        select x).ToSeq();
+
+            var seq2 = (from x in new[] { 2 }
+                        select x).ToSeq();
+
+
+            var seq3 = (from x in new[] { 3 }
+                        select x).ToSeq();
+
+            Assert.Equal(
+                Seq(1, 2, 3),
+                seq1
+                   .Concat(seq2)
+                   .Concat(seq3));
+        }
     }
 }

@@ -313,17 +313,17 @@ namespace LanguageExt
                         // lhs lazy, rhs lazy
                         // return SeqConcat
                         case SeqType.Lazy:
-                            return new Seq<A>(new SeqConcat<A>(Seq(value, rhs.Value)));
+                            return new Seq<A>(new SeqConcat<A>(Seq(value, rhs.value)));
 
                         // lhs lazy, rhs strict
                         // force lhs to be strict and concat the two 
                         case SeqType.Strict:
-                            return new Seq<A>(((SeqStrict<A>)value.Strict()).Append((SeqStrict<A>)rhs.Value));
+                            return new Seq<A>(((SeqStrict<A>)value.Strict()).Append((SeqStrict<A>)rhs.value));
 
                         // lhs lazy, rhs concat
                         // prepend rhs with lhs
                         case SeqType.Concat:
-                            return new Seq<A>(((SeqConcat<A>)rhs.value).ConsSeq(Value));
+                            return new Seq<A>(((SeqConcat<A>)rhs.value).ConsSeq(value));
                     }
                     break;
 
@@ -339,17 +339,17 @@ namespace LanguageExt
                         // lhs strict, rhs lazy
                         // return SeqConcat
                         case SeqType.Lazy:
-                            return new Seq<A>(new SeqConcat<A>(Seq(value, rhs.Value)));
+                            return new Seq<A>(new SeqConcat<A>(Seq(value, rhs.value)));
 
                         // lhs strict, rhs strict
                         // append the two
                         case SeqType.Strict:
-                            return new Seq<A>(((SeqStrict<A>)value).Append((SeqStrict<A>)rhs.Value));
+                            return new Seq<A>(((SeqStrict<A>)value).Append((SeqStrict<A>)rhs.value));
 
                         // lhs strict, rhs concat
                         // prepend rhs with lhs
                         case SeqType.Concat:
-                            return new Seq<A>(((SeqConcat<A>)rhs.value).ConsSeq(Value));
+                            return new Seq<A>(((SeqConcat<A>)rhs.value).ConsSeq(value));
                     }
                     break;
 
@@ -366,12 +366,12 @@ namespace LanguageExt
                         // add rhs to concat
                         case SeqType.Lazy:
                         case SeqType.Strict:
-                            return new Seq<A>(((SeqConcat<A>)value).AddSeq(Value));
+                            return new Seq<A>(((SeqConcat<A>)value).AddSeq(rhs.value));
 
                         // lhs concat, rhs concat
                         // add rhs to concat
                         case SeqType.Concat:
-                            return new Seq<A>(((SeqConcat<A>)value).AddSeqRange(((SeqConcat<A>)Value).ms));
+                            return new Seq<A>(((SeqConcat<A>)value).AddSeqRange(((SeqConcat<A>)rhs.value).ms));
                     }
                     break;
             }
