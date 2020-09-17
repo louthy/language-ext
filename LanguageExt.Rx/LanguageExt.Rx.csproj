@@ -7,8 +7,8 @@
         <DefineConstants>CONTRACTS_FULL</DefineConstants>
     </PropertyGroup>
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;netstandard2.1;net461</TargetFrameworks>
-        <PackageVersion>3.5.16-beta</PackageVersion>
+        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+        <PackageVersion>3.5.17-beta</PackageVersion>
         <PackageId>LanguageExt.Rx</PackageId>
         <Title>LanguageExt.Rx</Title>
         <Authors>Paul Louth</Authors>

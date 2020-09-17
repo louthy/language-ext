@@ -7,10 +7,10 @@
   <!--<Sdk Name="CodeGeneration.Roslyn.Plugin.Sdk" Version="0.7.5-alpha" />-->
 
   <PropertyGroup>
-    <PackageVersion>3.5.16-beta</PackageVersion>
+    <PackageVersion>3.5.17-beta</PackageVersion>
     <PackageId>LanguageExt.CodeGen</PackageId>
     <Title>LanguageExt.CodeGen</Title>
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <Authors>Paul Louth</Authors>
     <Summary>Functional language code-generation for C#</Summary>
