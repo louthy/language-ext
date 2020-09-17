@@ -371,7 +371,70 @@ namespace LanguageExt
             IsSucc
                 ? new A[] {Value}
                 : new A[0];
-        
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Option<A> ToOption() =>
+            IsSucc
+                ? Some(Value)
+                : None;
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public OptionAsync<A> ToOptionAsync() =>
+            IsSucc
+                ? SomeAsync(Value)
+                : None;
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public OptionUnsafe<A> ToOptionUnsafe() =>
+            IsSucc
+                ? SomeUnsafe(Value)
+                : None;
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Either<Error, A> ToEither() =>
+            data.State switch
+            {
+                EitherStatus.IsRight => Right<Error, A>(Value),
+                EitherStatus.IsLeft  => Left<Error, A>(Error),
+                _                    => default
+            };
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public EitherUnsafe<Error, A> ToEitherUnsafe() =>
+            data.State switch
+            {
+                EitherStatus.IsRight => RightUnsafe<Error, A>(Value),
+                EitherStatus.IsLeft  => LeftUnsafe<Error, A>(Error),
+                _                    => default
+            };
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public EitherAsync<Error, A> ToEitherAsync() =>
+            data.State switch
+            {
+                EitherStatus.IsRight => RightAsync<Error, A>(Value),
+                EitherStatus.IsLeft  => LeftAsync<Error, A>(Error),
+                _                    => default
+            };
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Eff<A> ToEff() =>
+            data.State switch
+            {
+                EitherStatus.IsRight => SuccessEff<A>(Value),
+                EitherStatus.IsLeft  => FailEff<A>(Error),
+                _                    => default
+            };
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Aff<A> ToAff() =>
+            data.State switch
+            {
+                EitherStatus.IsRight => SuccessAff<A>(Value),
+                EitherStatus.IsLeft  => FailAff<A>(Error),
+                _                    => default
+            };
+
         public A ThrowIfFail()
         {
             if (IsFail)

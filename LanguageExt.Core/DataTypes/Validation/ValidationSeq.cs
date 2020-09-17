@@ -9,6 +9,8 @@ using LanguageExt.ClassInstances;
 using System.Runtime.Serialization;
 using LanguageExt.DataTypes.Serialisation;
 using System.Collections;
+using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 
 namespace LanguageExt
 {
@@ -462,6 +464,24 @@ namespace LanguageExt
         public Seq<FAIL> FailAsEnumerable() =>
             Match(Succ: _ => Seq<FAIL>.Empty, Fail: e => e);
 
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Eff<SUCCESS> ToEff(Func<Seq<FAIL>, Error> Fail) =>
+            state switch
+            {
+                Validation.StateType.Success => SuccessEff<SUCCESS>(SuccessValue),
+                _                            => FailEff<SUCCESS>(Fail(FailValue))
+            };
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Aff<SUCCESS> ToAff(Func<Seq<FAIL>, Error> Fail) =>
+            state switch
+            {
+                Validation.StateType.Success => SuccessAff<SUCCESS>(SuccessValue),
+                _                            => FailAff<SUCCESS>(Fail(FailValue))
+            };
+        
         /// <summary>
         /// Convert the Validation to an Option
         /// </summary>

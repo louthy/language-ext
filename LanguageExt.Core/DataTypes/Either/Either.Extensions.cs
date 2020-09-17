@@ -10,6 +10,7 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 
 /// <summary>
 /// Extension methods for Either
@@ -397,15 +398,89 @@ public static class EitherExtensions
         (await self.ConfigureAwait(false)).ForAll(pred);
 
     public static async Task<bool> ForAllAsync<L, R>(this Either<L, Task<R>> self, Func<R, bool> pred) =>
-        self.IsRight
-            ? pred(await self.RightValue.ConfigureAwait(false))
-            : true;
+        self.IsRight && pred(await self.RightValue.ConfigureAwait(false));
 
     public static async Task<bool> ExistsAsync<L, R>(this Task<Either<L, R>> self, Func<R, bool> pred) =>
         (await self.ConfigureAwait(false)).Exists(pred);
 
     public static async Task<bool> ExistsAsync<L, R>(this Either<L, Task<R>> self, Func<R, bool> pred) =>
-        self.IsRight
-            ? pred(await self.RightValue.ConfigureAwait(false))
-            : false;
+        self.IsRight && pred(await self.RightValue.ConfigureAwait(false));
+
+    /// <summary>
+    /// Convert to an Eff
+    /// </summary>
+    /// <returns>Eff monad</returns>
+    [Pure]
+    public static Eff<R> ToEff<R>(this Either<Error, R> ma) =>
+        ma.State switch
+        {
+            EitherStatus.IsRight => SuccessEff<R>(ma.RightValue),
+            EitherStatus.IsLeft  => FailEff<R>(ma.LeftValue),
+            _                    => default // bottom
+        };
+
+    /// <summary>
+    /// Convert to an Aff
+    /// </summary>
+    /// <returns>Aff monad</returns>
+    [Pure]
+    public static Aff<R> ToAff<R>(this Either<Error, R> ma) =>
+        ma.State switch
+        {
+            EitherStatus.IsRight => SuccessAff<R>(ma.RightValue),
+            EitherStatus.IsLeft  => FailAff<R>(ma.LeftValue),
+            _                    => default // bottom
+        };
+
+    /// <summary>
+    /// Convert to an Eff
+    /// </summary>
+    /// <returns>Eff monad</returns>
+    [Pure]
+    public static Eff<R> ToEff<R>(this Either<Exception, R> ma) =>
+        ma.State switch
+        {
+            EitherStatus.IsRight => SuccessEff<R>(ma.RightValue),
+            EitherStatus.IsLeft  => FailEff<R>(ma.LeftValue),
+            _                    => default // bottom
+        };
+
+    /// <summary>
+    /// Convert to an Aff
+    /// </summary>
+    /// <returns>Aff monad</returns>
+    [Pure]
+    public static Aff<R> ToAff<R>(this Either<Exception, R> ma) =>
+        ma.State switch
+        {
+            EitherStatus.IsRight => SuccessAff<R>(ma.RightValue),
+            EitherStatus.IsLeft  => FailAff<R>(ma.LeftValue),
+            _                    => default // bottom
+        };
+
+    /// <summary>
+    /// Convert to an Eff
+    /// </summary>
+    /// <returns>Eff monad</returns>
+    [Pure]
+    public static Eff<R> ToEff<R>(this Either<string, R> ma) =>
+        ma.State switch
+        {
+            EitherStatus.IsRight => SuccessEff<R>(ma.RightValue),
+            EitherStatus.IsLeft  => FailEff<R>(Error.New(ma.LeftValue)),
+            _                    => default // bottom
+        };
+
+    /// <summary>
+    /// Convert to an Aff
+    /// </summary>
+    /// <returns>Aff monad</returns>
+    [Pure]
+    public static Aff<R> ToAff<R>(this Either<string, R> ma) =>
+        ma.State switch
+        {
+            EitherStatus.IsRight => SuccessAff<R>(ma.RightValue),
+            EitherStatus.IsLeft  => FailAff<R>(Error.New(ma.LeftValue)),
+            _                    => default // bottom
+        };
 }

@@ -9,6 +9,8 @@ using LanguageExt.ClassInstances;
 using System.Runtime.Serialization;
 using LanguageExt.DataTypes.Serialisation;
 using System.Collections;
+using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt
@@ -34,7 +36,6 @@ namespace LanguageExt
         readonly SUCCESS success;
         readonly Validation.StateType state;
 
-        [Pure]
         Validation(SUCCESS success)
         {
             if (isnull(success)) throw new ValueIsNullException();
@@ -43,7 +44,6 @@ namespace LanguageExt
             this.state = Validation.StateType.Success;
         }
 
-        [Pure]
         Validation(FAIL fail)
         {
             if (isnull(fail)) throw new ValueIsNullException();
@@ -55,7 +55,6 @@ namespace LanguageExt
         /// <summary>
         /// Ctor that facilitates serialisation
         /// </summary>
-        [Pure]
         public Validation(IEnumerable<ValidationData<MonoidFail, FAIL, SUCCESS>> validationData)
         {
             var seq = Seq(validationData);
@@ -76,7 +75,6 @@ namespace LanguageExt
         /// <summary>
         /// Ctor that facilitates serialisation
         /// </summary>
-        [Pure]
         Validation(SerializationInfo info, StreamingContext context)
         {
             state = (Validation.StateType)info.GetValue("State", typeof(Validation.StateType));
@@ -469,6 +467,24 @@ namespace LanguageExt
         public Seq<FAIL> FailAsEnumerable() =>
             leftAsEnumerable<FoldValidation<MonoidFail, FAIL, SUCCESS>, Validation<MonoidFail, FAIL, SUCCESS>, FAIL, SUCCESS>(this);
 
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Eff<SUCCESS> ToEff(Func<FAIL, Error> Fail) =>
+            state switch
+            {
+                Validation.StateType.Success => SuccessEff<SUCCESS>(SuccessValue),
+                _                            => FailEff<SUCCESS>(Fail(FailValue))
+            };
+
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Aff<SUCCESS> ToAff(Func<FAIL, Error> Fail) =>
+            state switch
+            {
+                Validation.StateType.Success => SuccessAff<SUCCESS>(SuccessValue),
+                _                            => FailAff<SUCCESS>(Fail(FailValue))
+            };
+        
         /// <summary>
         /// Convert the Validation to an Option
         /// </summary>

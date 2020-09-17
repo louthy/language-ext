@@ -1,6 +1,7 @@
 ﻿using System;
 using LanguageExt;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using LanguageExt.Common;
@@ -61,6 +62,26 @@ public static class TaskTryExtensions
                 return new Result<A>(e);
             }
         };
+
+    /// <summary>
+    /// Convert the structure to an Eff
+    /// </summary>
+    /// <returns>An Eff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<A> ToEff<A>(this Try<A> ma) =>
+        Prelude.EffMaybe(() =>
+            ma.Match(Succ: Fin<A>.Succ, 
+                     Fail: e => Fin<A>.Fail(e)));
+
+    /// <summary>
+    /// Convert the structure to an Aff
+    /// </summary>
+    /// <returns>An Aff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Aff<A> ToAff<A>(this Try<A> ma) =>
+        ToEff(ma);
 
     /// <summary>
     /// Invoke a delegate if the Try returns a value successfully

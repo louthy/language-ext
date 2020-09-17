@@ -496,6 +496,34 @@ namespace LanguageExt
             toOptionUnsafe<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
+        /// Convert to an Eff
+        /// </summary>
+        /// <param name="Left">Map the left value to the Eff Error</param>
+        /// <returns>Eff monad</returns>
+        [Pure]
+        public Eff<R> ToEff(Func<L, Common.Error> Left) =>
+            State switch
+            {
+                EitherStatus.IsRight => SuccessEff<R>(RightValue),
+                EitherStatus.IsLeft  => FailEff<R>(Left(LeftValue)),
+                _                    => default // bottom
+            };
+
+        /// <summary>
+        /// Convert to an Aff
+        /// </summary>
+        /// <param name="Left">Map the left value to the Eff Error</param>
+        /// <returns>Aff monad</returns>
+        [Pure]
+        public Aff<R> ToAff(Func<L, Common.Error> Left) =>
+            State switch
+            {
+                EitherStatus.IsRight => SuccessAff<R>(RightValue),
+                EitherStatus.IsLeft  => FailAff<R>(Left(LeftValue)),
+                _                    => default // bottom
+            };
+        
+        /// <summary>
         /// Convert the EitherUnsafe to an EitherUnsafeUnsafe
         /// </summary>
         /// <returns>EitherUnsafeUnsafe</returns>
@@ -569,18 +597,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static bool operator true(EitherUnsafe<L, R> value) =>
-            value.IsBottom
-                ? false
-                : value.IsRight;
+            !value.IsBottom && value.IsRight;
 
         /// <summary>
         /// Override of the False operator to return True if the EitherUnsafe is Left
         /// </summary>
         [Pure]
         public static bool operator false(EitherUnsafe<L, R> value) =>
-            value.IsBottom
-                ? false
-                : value.IsLeft;
+            !value.IsBottom && value.IsLeft;
 
         /// <summary>
         /// CompareTo override

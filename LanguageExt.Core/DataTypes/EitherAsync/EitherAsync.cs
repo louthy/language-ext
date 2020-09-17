@@ -855,6 +855,24 @@ namespace LanguageExt
                 Bottom: () => Option<R>.None).ToAsync();
 
         /// <summary>
+        /// Convert to an Aff
+        /// </summary>
+        /// <param name="Left">Map the left value to the Eff Error</param>
+        /// <returns>Aff monad</returns>
+        [Pure]
+        public Aff<R> ToAff(Func<L, Common.Error> Left)
+        {
+            var self = this;
+            return AffMaybe<R>(Go);
+
+            ValueTask<Fin<R>> Go() =>
+                self.Match(
+                    Right: Fin<R>.Succ,
+                    Left: l => Fin<R>.Fail(Left(l)),
+                    Bottom: () => default ).ToValue();
+        }
+        
+        /// <summary>
         /// Convert the Either to an EitherUnsafe
         /// </summary>
         /// <returns>EitherUnsafe</returns>

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 
 namespace LanguageExt
 {
@@ -475,6 +476,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Type of the bound value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Type GetUnderlyingType() =>
             typeof(A);
 
@@ -483,6 +485,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> ToArray() =>
             isSome
                 ? Arr.create(Value)
@@ -493,6 +496,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An immutable list of zero or one items</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Lst<A> ToList() =>
             isSome
                 ? List.create(Value)
@@ -503,6 +507,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable sequence of zero or one items</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> ToSeq() =>
             isSome
                 ? Seq1(Value)
@@ -513,10 +518,54 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<A> AsEnumerable() =>
             ToSeq();
-
+        
+        /// <summary>
+        /// Convert the structure to an Eff
+        /// </summary>
+        /// <returns>An Eff representation of the structure</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Eff<A> ToEff() =>
+            ToEff(Error.New("None"));
+        
+        /// <summary>
+        /// Convert the structure to an Eff
+        /// </summary>
+        /// <param name="Fail">Default value if the structure is in a None state</param>
+        /// <returns>An Eff representation of the structure</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Eff<A> ToEff(Error Fail) =>
+            isSome
+                ? SuccessEff<A>(Value)
+                : FailEff<A>(Fail);
+        
+        /// <summary>
+        /// Convert the structure to an Aff
+        /// </summary>
+        /// <returns>An Aff representation of the structure</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Aff<A> ToAff() =>
+            ToAff(Error.New("None"));
+        
+        /// <summary>
+        /// Convert the structure to an Aff
+        /// </summary>
+        /// <param name="Fail">Default value if the structure is in a None state</param>
+        /// <returns>An Aff representation of the structure</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Aff<A> ToAff(Error Fail) =>
+            isSome
+                ? SuccessAff<A>(Value)
+                : FailAff<A>(Fail);
+        
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<FAIL, A> ToValidation<FAIL>(FAIL defaultFailureValue) =>
             isSome
                 ? Success<FAIL, A>(Value)
@@ -528,6 +577,7 @@ namespace LanguageExt
         /// <param name="defaultLeftValue">Default value if the structure is in a None state</param>
         /// <returns>An Either representation of the structure</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public EitherUnsafe<L, A> ToEither<L>(L defaultLeftValue) =>
             isSome
                 ? RightUnsafe<L, A>(Value)
@@ -540,6 +590,7 @@ namespace LanguageExt
         /// structure is in a None state</param>
         /// <returns>An Either representation of the structure</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public EitherUnsafe<L, A> ToEither<L>(Func<L> Left) =>
             isSome
                 ? RightUnsafe<L, A>(Value)

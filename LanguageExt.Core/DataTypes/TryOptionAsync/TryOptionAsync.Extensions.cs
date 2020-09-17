@@ -1139,6 +1139,66 @@ public static class TryOptionAsyncExtensions
             Some: v => Success<Exception, Option<A>>(Option<A>.Some(v)),
             None: () => Success<Exception, Option<A>>(Option<A>.None),
             Fail: e => Fail<Exception, Option<A>>(e));
+    
+    /// <summary>
+    /// Convert the structure to an Aff
+    /// </summary>
+    /// <returns>An Aff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Aff<A> ToAff<A>(this TryOptionAsync<A> ma) =>
+        Prelude.AffMaybe(async () => await
+            ma.Match(Some: Fin<A>.Succ,
+                     None: () => Fin<A>.Fail(Error.New("None")),
+                     Fail: e => Fin<A>.Fail(e)));
+    
+    /// <summary>
+    /// Convert the structure to an Aff
+    /// </summary>
+    /// <returns>An Aff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Aff<A> ToAff<A>(this TryOptionAsync<A> ma, Error None) =>
+        Prelude.AffMaybe(async () => await
+            ma.Match(Some: Fin<A>.Succ,
+                     None: () => Fin<A>.Fail(None),
+                     Fail: e => Fin<A>.Fail(e)));
+    
+    /// <summary>
+    /// Convert the structure to an Aff
+    /// </summary>
+    /// <returns>An Aff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Aff<A> ToAff<A>(this TryOptionAsync<A> ma, Func<Error> None) =>
+        Prelude.AffMaybe(async () => await
+            ma.Match(Some: Fin<A>.Succ,
+                     None: () => Fin<A>.Fail(None()),
+                     Fail: e => Fin<A>.Fail(e)));
+    
+    /// <summary>
+    /// Convert the structure to an Aff
+    /// </summary>
+    /// <returns>An Aff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Aff<A> ToAff<A>(this TryOptionAsync<A> ma, A None) =>
+        Prelude.AffMaybe(async () => await
+             ma.Match(Some: Fin<A>.Succ,
+                      None: () => Fin<A>.Succ(None),
+                      Fail: e => Fin<A>.Fail(e)));
+    
+    /// <summary>
+    /// Convert the structure to an Aff
+    /// </summary>
+    /// <returns>An Aff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Aff<A> ToAff<A>(this TryOptionAsync<A> ma, Func<A> None) =>
+        Prelude.AffMaybe(async () => await
+            ma.Match(Some: Fin<A>.Succ,
+                     None: () => Fin<A>.Succ(None()),
+                     Fail: e => Fin<A>.Fail(e)));
 
     [Pure]
     public static Task<Option<A>> ToOption<A>(this TryOptionAsync<A> self) =>

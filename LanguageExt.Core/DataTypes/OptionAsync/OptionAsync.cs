@@ -9,6 +9,7 @@ using LanguageExt.ClassInstances;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using LanguageExt.Common;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt
@@ -470,6 +471,37 @@ namespace LanguageExt
         [Pure]
         public Task<IEnumerable<A>> AsEnumerable() =>
             asEnumerableAsync<MOptionAsync<A>, OptionAsync<A>, A>(this);
+        
+        /// <summary>
+        /// Convert the structure to an Aff
+        /// </summary>
+        /// <returns>An Aff representation of the structure</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Aff<A> ToAff() =>
+            ToAff(Error.New("None"));
+
+        /// <summary>
+        /// Convert the structure to an Aff
+        /// </summary>
+        /// <param name="Fail">Default value if the structure is in a None state</param>
+        /// <returns>An Aff representation of the structure</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Aff<A> ToAff(Error Fail)
+        {
+            var ldata = data;
+            return AffMaybe(Go);
+            
+            async ValueTask<Fin<A>> Go()
+            {
+                var d = await ldata;
+                
+                return d.IsSome
+                    ? Fin<A>.Succ(d.Value)
+                    : Fin<A>.Fail(Fail);
+            }
+        }
 
         /// <summary>
         /// Convert the structure to an Either
@@ -515,7 +547,7 @@ namespace LanguageExt
         /// <returns>An Option representation of the structure</returns>
         [Pure]
         public Task<Option<A>> ToOption() =>
-            Match(x => Option<A>.Some(x), () => Option<A>.None);
+            Match(Option<A>.Some, () => Option<A>.None);
 
         /// <summary>
         /// Convert the structure to a OptionUnsafe

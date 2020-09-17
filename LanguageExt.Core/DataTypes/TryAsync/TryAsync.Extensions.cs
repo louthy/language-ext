@@ -18,6 +18,18 @@ using LanguageExt.DataTypes.Serialisation;
 public static class TryAsyncExtensions
 {
     /// <summary>
+    /// Convert the structure to an Aff
+    /// </summary>
+    /// <returns>An Aff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Aff<A> ToAff<A>(this TryAsync<A> ma) =>
+        Prelude.AffMaybe(() =>
+             ma.Match(Succ: x => Fin<A>.Succ(x), 
+                      Fail: e => Fin<A>.Fail(e))
+               .ToValue());
+    
+    /// <summary>
     /// Use for pattern-matching the case of the target
     /// </summary>
     [Pure]

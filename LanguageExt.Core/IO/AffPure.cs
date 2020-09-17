@@ -172,6 +172,86 @@ namespace LanguageExt
     public static partial class AffExtensions
     {
         //
+        // Sequence (with tuples)
+        //
+        
+        /// <summary>
+        /// Run the two effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
+        /// </summary>
+        public static Aff<(A, B)> Sequence<A, B>(this (Aff<A>, Aff< B>) ms) => 
+            AffMaybe<(A, B)>(async () =>
+            {
+                var t1 = ms.Item1.RunIO().AsTask();
+                var t2 = ms.Item2.RunIO().AsTask();
+                
+                var tasks = new Task[] {t1, t2};
+                await Task.WhenAll(tasks);
+                return from r1 in t1.Result
+                       from r2 in t2.Result
+                       select (r1, r2);
+            });
+
+        /// <summary>
+        /// Run the three effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
+        /// </summary>
+        public static Aff<(A, B, C)> Sequence<A, B, C>(this (Aff<A>, Aff<B>, Aff<C>) ms) => 
+            AffMaybe<(A, B, C)>(async () =>
+            {
+                var t1 = ms.Item1.RunIO().AsTask();
+                var t2 = ms.Item2.RunIO().AsTask();
+                var t3 = ms.Item3.RunIO().AsTask();
+                
+                var tasks = new Task[] {t1, t2, t3};
+                await Task.WhenAll(tasks);
+                return from r1 in t1.Result
+                       from r2 in t2.Result
+                       from r3 in t3.Result
+                       select (r1, r2, r3);
+            });
+
+        /// <summary>
+        /// Run the four effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
+        /// </summary>
+        public static Aff<(A, B, C, D)> Sequence<A, B, C, D>(this (Aff<A>, Aff<B>, Aff<C>, Aff< D>) ms) => 
+            AffMaybe<(A, B, C, D)>(async () =>
+            {
+                var t1 = ms.Item1.RunIO().AsTask();
+                var t2 = ms.Item2.RunIO().AsTask();
+                var t3 = ms.Item3.RunIO().AsTask();
+                var t4 = ms.Item4.RunIO().AsTask();
+                
+                var tasks = new Task[] {t1, t2, t3, t4};
+                await Task.WhenAll(tasks);
+                return from r1 in t1.Result
+                       from r2 in t2.Result
+                       from r3 in t3.Result
+                       from r4 in t4.Result
+                       select (r1, r2, r3, r4);
+            });
+
+        /// <summary>
+        /// Run the five effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
+        /// </summary>
+        public static Aff<(A, B, C, D, E)> Sequence<A, B, C, D, E>(this (Aff<A>, Aff<B>, Aff<C>, Aff<D>, Aff<E>) ms) => 
+            AffMaybe<(A, B, C, D, E)>(async () =>
+            {
+                var t1 = ms.Item1.RunIO().AsTask();
+                var t2 = ms.Item2.RunIO().AsTask();
+                var t3 = ms.Item3.RunIO().AsTask();
+                var t4 = ms.Item4.RunIO().AsTask();
+                var t5 = ms.Item5.RunIO().AsTask();
+                
+                var tasks = new Task[] {t1, t2, t3, t4, t5};
+                await Task.WhenAll(tasks);
+                return from r1 in t1.Result
+                       from r2 in t2.Result
+                       from r3 in t3.Result
+                       from r4 in t4.Result
+                       from r5 in t5.Result
+                       select (r1, r2, r3, r4, r5);
+            });
+        
+        //
         // Map
         //
         

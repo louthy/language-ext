@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -291,6 +293,15 @@ namespace LanguageExt
             await source.ConfigureAwait(false);
             return unit;
         }
+
+        /// <summary>
+        /// Convert the structure to an Aff
+        /// </summary>
+        /// <returns>An Aff representation of the structure</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<A> ToAff<A>(this Task<A> ma) =>
+            Aff(async () => await ma);
 
         /// <summary>
         /// Tasks a lazy sequence of tasks and iterates them in a 'measured way'.  A default window size of

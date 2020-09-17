@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 
@@ -48,6 +49,15 @@ namespace LanguageExt
         [Pure]
         public static ValueTask<A> ToValue<A>(this Task<A> self) =>
             new ValueTask<A>(self);
+
+        /// <summary>
+        /// Convert the structure to an Aff
+        /// </summary>
+        /// <returns>An Aff representation of the structure</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<A> ToAff<A>(this ValueTask<A> ma) =>
+            Aff(() => ma);
 
         /// <summary>
         /// Flatten the nested Task type

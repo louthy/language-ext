@@ -9,6 +9,7 @@ using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using LanguageExt.Common;
 
 /// <summary>
@@ -305,7 +306,112 @@ public static class TryOptionExtensions
 
         return Unit.Default;
     }
+    
+    /// <summary>
+    /// Convert the structure to an Eff
+    /// </summary>
+    /// <returns>An Eff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<A> ToEff<A>(this TryOption<A> ma) =>
+        Prelude.EffMaybe(() =>
+            ma.Match(Some: Fin<A>.Succ,
+                     None: () => Fin<A>.Fail(Error.New("None")),
+                     Fail: e => Fin<A>.Fail(e)));
+    
+    /// <summary>
+    /// Convert the structure to an Eff
+    /// </summary>
+    /// <returns>An Eff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<A> ToEff<A>(this TryOption<A> ma, Error None) =>
+        Prelude.EffMaybe(() =>
+            ma.Match(Some: Fin<A>.Succ,
+                     None: () => Fin<A>.Fail(None),
+                     Fail: e => Fin<A>.Fail(e)));
+    
+    /// <summary>
+    /// Convert the structure to an Eff
+    /// </summary>
+    /// <returns>An Eff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<A> ToEff<A>(this TryOption<A> ma, Func<Error> None) =>
+        Prelude.EffMaybe(() =>
+            ma.Match(Some: Fin<A>.Succ,
+                     None: () => Fin<A>.Fail(None()),
+                     Fail: e => Fin<A>.Fail(e)));
+    
+    /// <summary>
+    /// Convert the structure to an Eff
+    /// </summary>
+    /// <returns>An Eff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<A> ToEff<A>(this TryOption<A> ma, A None) =>
+        Prelude.EffMaybe(() =>
+            ma.Match(Some: Fin<A>.Succ,
+                     None: () => Fin<A>.Succ(None),
+                     Fail: e => Fin<A>.Fail(e)));
+    
+    /// <summary>
+    /// Convert the structure to an Eff
+    /// </summary>
+    /// <returns>An Eff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<A> ToEff<A>(this TryOption<A> ma, Func<A> None) =>
+        Prelude.EffMaybe(() =>
+            ma.Match(Some: Fin<A>.Succ,
+                     None: () => Fin<A>.Succ(None()),
+                     Fail: e => Fin<A>.Fail(e)));
 
+    /// <summary>
+    /// Convert the structure to an Aff
+    /// </summary>
+    /// <returns>An Aff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Aff<A> ToAff<A>(this TryOption<A> ma) =>
+        ToEff(ma);
+    
+    /// <summary>
+    /// Convert the structure to an Aff
+    /// </summary>
+    /// <returns>An Aff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Aff<A> ToAff<A>(this TryOption<A> ma, Error None) =>
+        ToEff(ma, None);
+    
+    /// <summary>
+    /// Convert the structure to an Aff
+    /// </summary>
+    /// <returns>An Aff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Aff<A> ToAff<A>(this TryOption<A> ma, Func<Error> None) =>
+        ToEff(ma, None);
+    
+    /// <summary>
+    /// Convert the structure to an Aff
+    /// </summary>
+    /// <returns>An Aff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Aff<A> ToAff<A>(this TryOption<A> ma, A None) =>
+        ToEff(ma, None);
+
+    /// <summary>
+    /// Convert the structure to an Aff
+    /// </summary>
+    /// <returns>An Aff representation of the structure</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Aff<A> ToAff<A>(this TryOption<A> ma, Func<A> None) =>
+        ToEff(ma, None);
+    
     [Pure]
     public static Option<A> ToOption<A>(this TryOption<A> self)
     {

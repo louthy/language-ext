@@ -1108,8 +1108,6 @@ namespace LanguageExt
         [Pure]
         public int CompareTo<OrdA>(Seq<A> rhs) where OrdA : struct, Ord<A>
         {
-            if (rhs == null) return 1;
-
             // Differing lengths?
             var cmp = Count.CompareTo(rhs.Count);
             if (cmp != 0) return cmp;

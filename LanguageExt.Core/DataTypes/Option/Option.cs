@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt
@@ -533,6 +534,48 @@ namespace LanguageExt
             isSome
                 ? Success<FAIL, A>(Value)
                 : Fail<FAIL, A>(defaultFailureValue);
+        
+        /// <summary>
+        /// Convert the structure to an Eff
+        /// </summary>
+        /// <returns>An Eff representation of the structure</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Eff<A> ToEff() =>
+            ToEff(Error.New("None"));
+        
+        /// <summary>
+        /// Convert the structure to an Eff
+        /// </summary>
+        /// <param name="Fail">Default value if the structure is in a None state</param>
+        /// <returns>An Eff representation of the structure</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Eff<A> ToEff(Error Fail) =>
+            isSome
+                ? SuccessEff<A>(Value)
+                : FailEff<A>(Fail);
+        
+        /// <summary>
+        /// Convert the structure to an Aff
+        /// </summary>
+        /// <returns>An Aff representation of the structure</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Aff<A> ToAff() =>
+            ToAff(Error.New("None"));
+        
+        /// <summary>
+        /// Convert the structure to an Aff
+        /// </summary>
+        /// <param name="Fail">Default value if the structure is in a None state</param>
+        /// <returns>An Aff representation of the structure</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Aff<A> ToAff(Error Fail) =>
+            isSome
+                ? SuccessAff<A>(Value)
+                : FailAff<A>(Fail);
 
         /// <summary>
         /// Convert the structure to an Either

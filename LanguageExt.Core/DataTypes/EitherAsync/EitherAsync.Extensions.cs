@@ -7,6 +7,7 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 
 /// <summary>
 /// Extension methods for Either
@@ -286,4 +287,49 @@ public static class EitherAsyncExtensions
     [Pure]
     public static EitherAsync<L, Func<T2, Func<T3, R>>> ParMap<L, T1, T2, T3, R>(this EitherAsync<L, T1> self, Func<T1, T2, T3, R> func) =>
         self.Map(curry(func));
+    
+    /// <summary>
+    /// Convert to an Aff
+    /// </summary>
+    /// <returns>Aff monad</returns>
+    [Pure]
+    public static Aff<R> ToAff<R>(EitherAsync<Error, R> ma)
+    {
+        return AffMaybe<R>(Go);
+        ValueTask<Fin<R>> Go() =>
+            ma.Match(
+                Right: Fin<R>.Succ,
+                Left:  Fin<R>.Fail,
+                Bottom: () => default).ToValue();
+    }    
+    
+    /// <summary>
+    /// Convert to an Aff
+    /// </summary>
+    /// <returns>Aff monad</returns>
+    [Pure]
+    public static Aff<R> ToAff<R>(EitherAsync<Exception, R> ma)
+    {
+        return AffMaybe<R>(Go);
+        ValueTask<Fin<R>> Go() =>
+            ma.Match(
+                Right: Fin<R>.Succ,
+                Left: l => Fin<R>.Fail(l),
+                Bottom: () => default).ToValue();
+    }    
+    
+    /// <summary>
+    /// Convert to an Aff
+    /// </summary>
+    /// <returns>Aff monad</returns>
+    [Pure]
+    public static Aff<R> ToAff<R>(EitherAsync<string, R> ma)
+    {
+        return AffMaybe<R>(Go);
+        ValueTask<Fin<R>> Go() =>
+            ma.Match(
+                Right: Fin<R>.Succ,
+                Left: l => Fin<R>.Fail(Error.New(l)),
+                Bottom: () => default).ToValue();
+    }    
 }
