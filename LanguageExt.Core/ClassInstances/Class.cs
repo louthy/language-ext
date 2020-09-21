@@ -27,8 +27,8 @@ namespace LanguageExt.ClassInstances
         {
             var genParams = typeof(A).GetTypeInfo().GenericTypeArguments.Map(x => x.Name);
 
-            All = ClassInstancesAssembly.ClassInstances.ContainsKey(typeof(A))
-                      ? ClassInstancesAssembly.ClassInstances[typeof(A)]
+            All = ClassInstancesAssembly.Default.ClassInstances.ContainsKey(typeof(A))
+                      ? ClassInstancesAssembly.Default.ClassInstances[typeof(A)]
                       : new GSet();
 
             if (All.Count == 1)
@@ -96,8 +96,8 @@ namespace LanguageExt.ClassInstances
                         .ToArray()
                         );
 
-                var all = ClassInstancesAssembly.ClassInstances.ContainsKey(hkType)
-                            ? ClassInstancesAssembly.ClassInstances[hkType]
+                var all = ClassInstancesAssembly.Default.ClassInstances.ContainsKey(hkType)
+                            ? ClassInstancesAssembly.Default.ClassInstances[hkType]
                             : new GSet();
 
 

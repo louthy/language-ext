@@ -39,6 +39,11 @@ class Program
         //                                                                                                    //
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
+
+        var r1 = new RecordTest("Paul", "Louth");
+        var r2 = new RecordTest("Paul", "Louth");
+
+        var r = r1 == r2;
     }
 
     public struct Maybe<A>
@@ -65,6 +70,18 @@ class Program
 
         public static implicit operator Eff<A>(Maybe<A> ma) =>
             ma.ma;
+    }
+
+    public class RecordTest : Record<RecordTest>
+    {
+        public RecordTest(string name, string fullName)
+        {
+            Name     = name;
+            FullName = fullName;
+        }
+
+        public string Name { get;  }
+        public string FullName { get;  }
     }
 }
 

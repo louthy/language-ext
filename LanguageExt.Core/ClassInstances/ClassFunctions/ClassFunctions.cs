@@ -13,7 +13,7 @@ namespace LanguageExt.ClassInstances
         static ClassFunctions()
         {
             var types = new Dictionary<string, Type>();
-            foreach (var type in ClassInstancesAssembly.AllClassInstances ?? new List<Type>())
+            foreach (var type in ClassInstancesAssembly.Default.AllClassInstances ?? new List<Type>())
             {
                 var gens = type.GetGenericArguments();
                 var name = type.Name;

@@ -9,9 +9,22 @@ namespace LanguageExt
 {
     class Reflect
     {
+        static bool Intersects<A>(A[] ma, A[] mb)
+        {
+            foreach (var a in ma)
+            {
+                foreach (var b in mb)
+                {
+                    if (a.Equals(b)) return true;
+                }
+            }
+
+            return false;
+        }
+
         public static IEnumerable<FieldInfo> GetPublicInstanceFields<A>(bool includeBase, params Type[] excludeAttrs)
         {
-            var excludeAttrsSet = toSet(excludeAttrs.Map(a => a.Name));
+            var excludeAttrsSet = excludeAttrs.Map(a => a.Name).ToArray();
             var publicFields = typeof(A)
                 .GetTypeInfo()
                 .GetAllFields(includeBase)
@@ -21,7 +34,7 @@ namespace LanguageExt
                 .Where(f =>
                 {
                     if (!f.IsPublic || f.IsStatic) return false;
-                    if (toSet(f.CustomAttributes.Map(a => a.AttributeType.Name)).Intersect(excludeAttrsSet).Any()) return false;
+                    if (Intersects(f.CustomAttributes.Map(a => a.AttributeType.Name).ToArray(), excludeAttrsSet)) return false;
                     return true;
                 });
 
@@ -32,7 +45,7 @@ namespace LanguageExt
                                     .OrderBy(p => p.MetadataToken)
 #endif
                                     .Where(p => p.CanRead && p.GetMethod.IsPublic && !IsStatic(p))
-                                    .Where(p => !toSet(p.CustomAttributes.Map(a => a.AttributeType.Name)).Intersect(excludeAttrsSet).Any())
+                                    .Where(p => !Intersects(p.CustomAttributes.Map(a => a.AttributeType.Name).ToArray(), excludeAttrsSet))
                                     .ToArray();
 
             var backingFields = typeof(A)
