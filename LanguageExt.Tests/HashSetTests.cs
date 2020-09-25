@@ -5,6 +5,7 @@ using Xunit;
 using System;
 using System.Linq;
 using LanguageExt.ClassInstances;
+using Newtonsoft.Json;
 
 namespace LanguageExt.Tests
 {
@@ -196,6 +197,33 @@ namespace LanguageExt.Tests
             Assert.True(HashSet<int>(1, 2).Equals(HashSet<int>(1, 2)));
             Assert.False(HashSet<int>(1, 2).Equals(HashSet<int>(1, 2, 3)));
             Assert.False(HashSet<int>(1, 2, 3).Equals(HashSet<int>(1, 2)));
+        }
+        
+        [Fact]
+        public void HashSet_WithDefaultSettings_SerializationTest()
+        {
+            var source = HashSet(123, 456);
+            var json   = JsonConvert.SerializeObject(source);
+            var result = JsonConvert.DeserializeObject<HashSet<int>>(json);
+
+            Assert.Equal(source, result);
+        }
+
+        [Fact]
+        public void HashSet_WithEchoCustomSettings_SerializationTest()
+        {
+            var settings = new JsonSerializerSettings
+                           {
+                               TypeNameHandling               = TypeNameHandling.All,
+                               TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
+                               MissingMemberHandling          = MissingMemberHandling.Ignore
+                           };
+
+            var source = HashSet(123, 456);
+            var json   = JsonConvert.SerializeObject(source, settings);
+            var result = JsonConvert.DeserializeObject<HashSet<int>>(json, settings);
+
+            Assert.Equal(source, result);
         }
     }
 }
