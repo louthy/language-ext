@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 using static LanguageExt.Parsec.ParserResult;
 using static LanguageExt.Parsec.Internal;
 using static LanguageExt.Parsec.Prim;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt.Parsec
 {
@@ -46,6 +47,14 @@ namespace LanguageExt.Parsec
         /// <returns>The parsed character</returns>
         public static Parser<char> ch(char c) =>
             satisfy(x => x == c).label($"'{c}'");
+
+        /// <summary>
+        /// ch(c) parses a single character c
+        /// </summary>
+        /// <typeparam name="EQ">Eq<char> type-class</typeparam>
+        /// <returns>The parsed character</returns>
+        public static Parser<char> ch<EQ>(char c) where EQ : Eq<char> =>
+            satisfy(x => default(EQ).Equals(x, c)).label($"'{c}'");
 
         /// <summary>
         /// The parser satisfy(pred) succeeds for any character for which the
@@ -233,5 +242,12 @@ namespace LanguageExt.Parsec
         /// </summary>
         public static Parser<string> str(string s) =>
             asString(chain(Seq(s.Map(ch)))).label($"'{s}'");
+
+        /// <summary>
+        /// Parse a string case insensitive (char by char)
+        /// <typeparam name="EQ">Eq<char> type-class</typeparam>
+        /// </summary>
+        public static Parser<string> str<EQ>(string s) where EQ: Eq<char>  =>
+            asString(chain(Seq(s.Map(ch<EQ>)))).label($"'{s}'");
     }
 }

@@ -14,6 +14,7 @@ using static LanguageExt.Parsec.Char;
 using static LanguageExt.Parsec.Expr;
 using static LanguageExt.Parsec.Token;
 using LanguageExt.UnitsOfMeasure;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt.Tests
 {
@@ -284,6 +285,20 @@ namespace LanguageExt.Tests
             var r = parse(p, "no match");
 
             Assert.True(r.IsFaulted);
+        }
+
+        [Fact]
+        public void StringOrdinalIgnoreCase()
+        {
+            var p = str<EqCharOrdinalIgnoreCase>("Hello");
+            var r = parse(p, "hello");
+
+            Assert.Equal("hello", parse(p, "hello").ToOption());
+            Assert.Equal("Hello", parse(p, "Hello").ToOption());
+            Assert.Equal("HELLO" , parse(p, "HELLO").ToOption());
+            Assert.Equal("hELLO", parse(p, "hELLO").ToOption());
+            Assert.True(parse(p, "olleH").IsFaulted);
+            Assert.True(parse(p, "Héllo").IsFaulted);
         }
 
         [Fact]
