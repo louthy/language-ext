@@ -20,13 +20,13 @@ namespace LanguageExt.Parsec
             spaces = skipMany(space).label("white space");
             control = satisfy(System.Char.IsControl).label("control");
             tab = satisfy(c => c == '\t').label("tab");
-            newline = satisfy(c => c == '\n').label("lf new-line");
+            LF = satisfy(c => c == '\n').label("lf new-line");
             CR = satisfy(c => c == '\r').label("cr carriage-return");
             CRLF = (from cr in ch('\r')
                     from nl in ch('\n')
                     select nl)
                    .label("crlf new-line");
-            endOfLine = either(newline, CRLF).label("new-line");
+            endOfLine = either(LF, CRLF).label("new-line");
             digit = satisfy(System.Char.IsDigit).label("digit");
             letter = satisfy(System.Char.IsLetter).label("letter");
             alphaNum = satisfy(System.Char.IsLetterOrDigit).label("letter or digit");
@@ -145,7 +145,7 @@ namespace LanguageExt.Parsec
         /// Parses a line-feed newline char (\n)
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> newline;
+        public static readonly Parser<char> LF;
 
         /// <summary>
         /// Parses a carriage-return char (\r)
@@ -155,13 +155,13 @@ namespace LanguageExt.Parsec
 
         /// <summary>
         /// Parses a carriage-return then line-feed
-        /// Returns the new-line.
+        /// Returns a LF character(\'\\n\').
         /// </summary>
         public static readonly Parser<char> CRLF;
 
         /// <summary>
-        /// Parses a CRLF (see 'crlf') or LF (see 'newline') end-of-line.
-        /// Returns a newline character(\'\\n\').
+        /// Parses a CRLF (see 'CRLF') or LF (see 'LF') end-of-line.
+        /// Returns a LF character(\'\\n\').
         /// </summary>
         public static readonly Parser<char> endOfLine;
 
