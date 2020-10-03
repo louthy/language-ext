@@ -28,6 +28,20 @@ namespace LanguageExt.Tests
             Assert.False(IsEqualGeneral<EqString, string>("not", "same"));
         }
 
+        [Fact]
+        public void EqStringOrdinalIgnoreCase()
+        {
+            Assert.True(IsEqualGeneral<EqStringOrdinalIgnoreCase, string>("Test", "test"));
+            Assert.False(IsEqualGeneral<EqStringOrdinalIgnoreCase, string>("Test", "Tést"));
+        }
+
+        [Fact]
+        public void EqCharOrdinalIgnoreCase()
+        {
+            Assert.True(IsEqualGeneral<EqCharOrdinalIgnoreCase, char>('T', 't'));
+            Assert.False(IsEqualGeneral<EqCharOrdinalIgnoreCase, char>('e', 'é'));
+        }
+
         public bool IsEqualGeneral<EQ, A>(A x, A y) where EQ : struct, Eq<A> => 
             equals<EQ, A>(x, y);
 

@@ -291,7 +291,6 @@ namespace LanguageExt.Tests
         public void StringOrdinalIgnoreCase()
         {
             var p = str<EqCharOrdinalIgnoreCase>("Hello");
-            var r = parse(p, "hello");
 
             Assert.Equal("hello", parse(p, "hello").ToOption());
             Assert.Equal("Hello", parse(p, "Hello").ToOption());
