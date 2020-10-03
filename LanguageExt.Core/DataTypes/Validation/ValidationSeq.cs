@@ -704,7 +704,7 @@ namespace LanguageExt
             forall<FoldValidation<FAIL, SUCCESS>, Validation<FAIL, SUCCESS>, SUCCESS>(this, Success);
 
         /// <summary>
-        /// Invokes a predicate on the value of the Validation if it's in the Success state
+        /// Invokes either predicate on the value(s) of the Validation
         /// </summary>
         /// <typeparam name="L">Fail</typeparam>
         /// <typeparam name="R">Success</typeparam>
