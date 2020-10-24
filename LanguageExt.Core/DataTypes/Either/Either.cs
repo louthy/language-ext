@@ -503,17 +503,17 @@ namespace LanguageExt
             rightToArray<MEither<L, R>, Either<L, R>, L, R>(this);
 
         /// <summary>
-        /// Project the Either into a Lst R
+        /// Project the Either into a Lst L
         /// </summary>
-        /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
+        /// <returns>If the Either is in a Left state, a Lst of L with one item.  A zero length Lst L otherwise</returns>
         [Pure]
         public Lst<L> LeftToList() =>
             leftToList<MEither<L, R>, Either<L, R>, L, R>(this);
 
         /// <summary>
-        /// Project the Either into an ImmutableArray R
+        /// Project the Either into an ImmutableArray L
         /// </summary>
-        /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
+        /// <returns>If the Either is in a Left state, a ImmutableArray of L with one item.  A zero length ImmutableArray of L otherwise</returns>
         [Pure]
         public Arr<L> LeftToArray() =>
             leftToArray<MEither<L, R>, Either<L, R>, L, R>(this);
