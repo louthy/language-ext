@@ -23,4 +23,23 @@ namespace LanguageExt.ClassInstances
         public Task<int> GetHashCodeAsync(char x) =>
             GetHashCode(x).AsTask();
     }
+
+    /// <summary>
+    /// Char hash (ordinal, ignore case)
+    /// </summary>
+    public struct HashableCharOrdinalIgnoreCase : Hashable<char>
+    {
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        public int GetHashCode(char x) =>
+            (x >= 'a' && x <= 'z') ? x - 0x20 : x;
+
+        [Pure]
+        public Task<int> GetHashCodeAsync(char x) =>
+            GetHashCode(x).AsTask();
+    }
 }
