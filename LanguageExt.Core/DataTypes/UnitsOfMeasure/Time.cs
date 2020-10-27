@@ -14,7 +14,8 @@ namespace LanguageExt.UnitsOfMeasure
     /// </summary>
     public struct Time :
         IComparable<Time>,
-        IEquatable<Time>
+        IEquatable<Time>,
+        IComparable
     {
         readonly double Value;
 
@@ -39,6 +40,11 @@ namespace LanguageExt.UnitsOfMeasure
 
         public override int GetHashCode() =>
             Value.GetHashCode();
+
+        public int CompareTo(object obj) =>
+            obj is null ? 1
+            : obj is Time other ? CompareTo(other)
+            : throw new ArgumentException($"must be of type {nameof(Time)}");
 
         public int CompareTo(Time other) =>
             Value.CompareTo(other.Value);

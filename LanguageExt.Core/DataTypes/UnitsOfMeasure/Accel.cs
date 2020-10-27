@@ -14,7 +14,8 @@ namespace LanguageExt.UnitsOfMeasure
     /// </summary>
     public struct Accel :
         IComparable<Accel>,
-        IEquatable<Accel>
+        IEquatable<Accel>,
+        IComparable
     {
         readonly double Value;
 
@@ -39,6 +40,11 @@ namespace LanguageExt.UnitsOfMeasure
 
         public override int GetHashCode() =>
             Value.GetHashCode();
+
+        public int CompareTo(object obj) => 
+            obj is null ? 1
+            : obj is Accel other ? CompareTo(other)
+            : throw new ArgumentException($"must be of type {nameof(Accel)}");
 
         public int CompareTo(Accel other) =>
             Value.CompareTo(other.Value);

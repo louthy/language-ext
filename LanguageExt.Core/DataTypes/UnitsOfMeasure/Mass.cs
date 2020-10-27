@@ -2,7 +2,10 @@ using System;
 
 namespace LanguageExt.UnitsOfMeasure
 {
-    public struct Mass : IComparable<Mass>, IEquatable<Mass>
+    public struct Mass : 
+        IComparable<Mass>, 
+        IEquatable<Mass>, 
+        IComparable
     {
         readonly double Value;
 
@@ -11,6 +14,11 @@ namespace LanguageExt.UnitsOfMeasure
 
         public override string ToString() =>
             Kilograms + " kg";
+
+        public int CompareTo(object obj) =>
+            obj is null ? 1
+            : obj is Mass other ? CompareTo(other)
+            : throw new ArgumentException($"must be of type {nameof(Mass)}");
 
         public int CompareTo(Mass other) =>
             Kilograms.CompareTo(other.Kilograms);
