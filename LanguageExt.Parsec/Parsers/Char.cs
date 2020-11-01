@@ -21,13 +21,16 @@ namespace LanguageExt.Parsec
             spaces = skipMany(space).label("white space");
             control = satisfy(System.Char.IsControl).label("control");
             tab = satisfy(c => c == '\t').label("tab");
+#pragma warning disable CS0618 // Type or member is obsolete
             newline = satisfy(c => c == '\n').label("lf new-line");
+#pragma warning restore CS0618 // Type or member is obsolete
+            LF = satisfy(c => c == '\n').label("lf new-line");
             CR = satisfy(c => c == '\r').label("cr carriage-return");
             CRLF = (from cr in ch('\r')
                     from nl in ch('\n')
                     select nl)
                    .label("crlf new-line");
-            endOfLine = either(newline, CRLF).label("new-line");
+            endOfLine = either(LF, CRLF).label("new-line");
             digit = satisfy(System.Char.IsDigit).label("digit");
             letter = satisfy(System.Char.IsLetter).label("letter");
             alphaNum = satisfy(System.Char.IsLetterOrDigit).label("letter or digit");
@@ -151,9 +154,10 @@ namespace LanguageExt.Parsec
         public static readonly Parser<char> tab;
 
         /// <summary>
-        /// Parses a line-feed newline char (\n)
+        /// Equivalent to `LF`. Parses a line-feed newline char (\n). 
         /// Returns the parsed character.
         /// </summary>
+        [Obsolete("This parses only \\n (regardless of environment). Use (explicit) parser `LF` instead. Related parsers: `CRLF` and `endOfLine` (parsing CRLF or LF).")]
         public static readonly Parser<char> newline;
 
         /// <summary>
@@ -162,6 +166,12 @@ namespace LanguageExt.Parsec
         /// </summary>
         public static readonly Parser<char> CR;
 
+        /// <summary>
+        /// Parses a line-feed newline char (\n)
+        /// Returns the parsed character.
+        /// </summary>
+        public static readonly Parser<char> LF;
+ 
         /// <summary>
         /// Parses a carriage-return then line-feed
         /// Returns the new-line.
