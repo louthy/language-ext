@@ -9,7 +9,8 @@ namespace LanguageExt.UnitsOfMeasure
     /// </summary>
     public struct VelocitySq :
         IComparable<VelocitySq>,
-        IEquatable<VelocitySq>
+        IEquatable<VelocitySq>,
+        IComparable
     {
         readonly double Value;
 
@@ -34,6 +35,11 @@ namespace LanguageExt.UnitsOfMeasure
 
         public override int GetHashCode() =>
             Value.GetHashCode();
+
+        public int CompareTo(object obj) =>
+            obj is null ? 1
+            : obj is VelocitySq other ? CompareTo(other)
+            : throw new ArgumentException($"must be of type {nameof(VelocitySq)}");
 
         public int CompareTo(VelocitySq other) =>
             Value.CompareTo(other.Value);

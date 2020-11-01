@@ -6,7 +6,8 @@ namespace LanguageExt.UnitsOfMeasure
 {
     public struct Temperature :
         IComparable<Temperature>,
-        IEquatable<Temperature>
+        IEquatable<Temperature>,
+        IComparable
     {
         internal enum UnitType
         {
@@ -102,6 +103,11 @@ namespace LanguageExt.UnitsOfMeasure
               : rhs.Type == UnitType.F ? Math.Abs(rhs.Value - Value) < epsilon
               : throw new NotSupportedException(Type.ToString())
           : throw new NotSupportedException(Type.ToString());
+
+        public int CompareTo(object obj) =>
+            obj is null ? 1
+            : obj is Temperature other ? CompareTo(other)
+            : throw new ArgumentException($"must be of type {nameof(Temperature)}");
 
         public int CompareTo(Temperature rhs) =>
             Type == UnitType.K ?
