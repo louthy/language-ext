@@ -34,6 +34,11 @@ namespace LanguageExt
             toHashSet(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToSystemArray(), f)
                 .Map(toList));
 
+        public static HashSet<Fin<B>> Traverse<A, B>(this Fin<HashSet<A>> ma, Func<A, B> f) =>
+            ma.Match(
+                Fail: er => HashSet(Fin<B>.Fail(er)),
+                Succ: xs => xs.Map(x => FinSucc(f(x))));
+
         public static HashSet<Option<B>> Traverse<A, B>(this Option<HashSet<A>> ma, Func<A, B> f) =>
             ma.Match(
                 None: () => HashSet(Option<B>.None),

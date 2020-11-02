@@ -34,6 +34,11 @@ namespace LanguageExt
             toQueue(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToSystemArray(), f)
                 .Map(toList));
 
+        public static Que<Fin<B>> Traverse<A, B>(this Fin<Que<A>> ma, Func<A, B> f) =>
+            ma.Match(
+                Fail: er => Queue(FinFail<B>(er)),
+                Succ: xs => xs.Map(x => FinSucc(f(x))));
+
         public static Que<Option<B>> Traverse<A, B>(this Option<Que<A>> ma, Func<A, B> f) =>
             ma.Match(
                 None: () => Queue(Option<B>.None),

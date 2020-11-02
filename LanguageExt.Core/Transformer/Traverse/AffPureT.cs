@@ -404,6 +404,18 @@ namespace LanguageExt
             }
         }
 
+        public static Aff<Fin<B>> Traverse<A, B>(this Fin<Aff<A>> ma, Func<A, B> f)
+        {
+            return AffMaybe<Fin<B>>(() => Go(ma, f));
+            async ValueTask<Fin<Fin<B>>> Go(Fin<Aff<A>> ma, Func<A, B> f)
+            {
+                if(ma.IsFail) return FinSucc<Fin<B>>(ma.Cast<B>());
+                var rb = await ma.Value.RunIO().ConfigureAwait(false);
+                if(rb.IsFail) return FinFail<Fin<B>>(rb.Error);
+                return FinSucc<Fin<B>>(Fin<B>.Succ(f(rb.Value)));
+            }
+        }
+
         public static Aff<Option<B>> Traverse<A, B>(this Option<Aff<A>> ma, Func<A, B> f)
         {
             return AffMaybe<Option<B>>(() => Go(ma, f));

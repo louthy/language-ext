@@ -179,6 +179,18 @@ namespace LanguageExt
             }
         }
 
+        public static Eff<Fin<B>> Traverse<A, B>(this Fin<Eff<A>> ma, Func<A, B> f)
+        {
+            return EffMaybe<Fin<B>>(() => Go(ma, f));
+            Fin<Fin<B>> Go(Fin<Eff<A>> ma, Func<A, B> f)
+            {
+                if(ma.IsFail) return FinSucc<Fin<B>>(ma.Cast<B>());
+                var rb = ma.Value.RunIO();
+                if(rb.IsFail) return FinFail<Fin<B>>(rb.Error);
+                return FinSucc<Fin<B>>(Fin<B>.Succ(f(rb.Value)));
+            }
+        }
+        
         public static Eff<Option<B>> Traverse<A, B>(this Option<Eff<A>> ma, Func<A, B> f)
         {
             return EffMaybe<Option<B>>(() => Go(ma, f));

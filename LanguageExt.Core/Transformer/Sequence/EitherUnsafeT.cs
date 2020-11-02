@@ -24,6 +24,9 @@ namespace LanguageExt
         public static EitherUnsafe<L, Lst<B>> Sequence<L, A, B>(this Lst<A> ta, Func<A, EitherUnsafe<L, B>> f) =>
             ta.Map(f).Sequence();
         
+        public static EitherUnsafe<L, Fin<B>> Sequence<L, A, B>(this Fin<A> ta, Func<A, EitherUnsafe<L, B>> f) =>
+            ta.Map(f).Sequence();
+        
         public static EitherUnsafe<L, Option<B>> Sequence<L, A, B>(this Option<A> ta, Func<A, EitherUnsafe<L, B>> f) =>
             ta.Map(f).Sequence();
         

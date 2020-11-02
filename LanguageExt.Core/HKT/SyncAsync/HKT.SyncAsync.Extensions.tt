@@ -21,6 +21,7 @@
         T("Trans", "Arr"),
         T("Trans", "HashSet"),
         T("Trans", "Lst"),
+        T("Trans", "Fin"),
         T("Trans", "Option"),
         T("Trans", "OptionUnsafe"),
         T("Trans", "Either", "L"),

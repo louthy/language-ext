@@ -31,6 +31,9 @@ namespace LanguageExt
         public static EitherAsync<L, Lst<B>> Sequence<L, A, B>(this Lst<A> ta, Func<A, EitherAsync<L, B>> f) =>
             ta.Map(f).Sequence();
         
+        public static EitherAsync<L, Fin<B>> Sequence<L, A, B>(this Fin<A> ta, Func<A, EitherAsync<L, B>> f) =>
+            ta.Map(f).Sequence();
+        
         public static EitherAsync<L, Option<B>> Sequence<L, A, B>(this Option<A> ta, Func<A, EitherAsync<L, B>> f) =>
             ta.Map(f).Sequence();
         

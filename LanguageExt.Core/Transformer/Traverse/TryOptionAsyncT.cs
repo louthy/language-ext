@@ -338,6 +338,19 @@ namespace LanguageExt
             }
         }
 
+        public static TryOptionAsync<Fin<B>> Traverse<A, B>(this Fin<TryOptionAsync<A>> ma, Func<A, B> f)
+        {
+            return ToTry(() => Go(ma, f));
+            async Task<OptionalResult<Fin<B>>> Go(Fin<TryOptionAsync<A>> ma, Func<A, B> f)
+            {
+                if(ma.IsFail) return OptionalResult<Fin<B>>.Some(ma.Cast<B>());
+                var rb = await ma.Value.Try().ConfigureAwait(false);
+                if(rb.IsFaulted) return new OptionalResult<Fin<B>>(rb.Exception);
+                if(rb.IsNone) return OptionalResult<Fin<B>>.None;
+                return OptionalResult<Fin<B>>.Some(FinSucc(f(rb.Value.Value)));
+            }
+        }
+
         public static TryOptionAsync<Option<B>> Traverse<A, B>(this Option<TryOptionAsync<A>> ma, Func<A, B> f)
         {
             return ToTry(() => Go(ma, f));

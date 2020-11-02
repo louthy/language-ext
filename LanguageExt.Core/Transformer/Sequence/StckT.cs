@@ -22,6 +22,9 @@ namespace LanguageExt
         public static Stck<IEnumerable<B>> Sequence<A, B>(this IEnumerable<A> ta, Func<A, Stck<B>> f) =>
             ta.Map(f).Traverse(Prelude.identity);
         
+        public static Stck<Fin<B>> Sequence<A, B>(this Fin<A> ta, Func<A, Stck<B>> f) =>
+            ta.Map(f).Traverse(Prelude.identity);
+        
         public static Stck<Option<B>> Sequence<A, B>(this Option<A> ta, Func<A, Stck<B>> f) =>
             ta.Map(f).Traverse(Prelude.identity);
         

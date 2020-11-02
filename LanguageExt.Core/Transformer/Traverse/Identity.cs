@@ -58,6 +58,11 @@ namespace LanguageExt
             return new Identity<Lst<B>>(new Lst<B>(res));            
         }
         
+        public static Identity<Fin<B>> Traverse<A, B>(this Fin<Identity<A>> ma, Func<A, B> f) =>
+            ma.Match(
+                Succ: x => new Identity<Fin<B>>(f(x.Value)),
+                Fail: e => new Identity<Fin<B>>(Fin<B>.Fail(e)));
+        
         public static Identity<Option<B>> Traverse<A, B>(this Option<Identity<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Some: x => new Identity<Option<B>>(f(x.Value)),

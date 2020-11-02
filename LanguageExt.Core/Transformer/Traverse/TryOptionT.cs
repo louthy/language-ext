@@ -111,6 +111,16 @@ namespace LanguageExt
             return new OptionalResult<Lst<B>>(new Lst<B>(res));
         };
 
+        public static TryOption<Fin<B>> Traverse<A, B>(this Fin<TryOption<A>> ma, Func<A, B> f) => () =>
+        {
+            if (ma.IsFail) return new OptionalResult<Fin<B>>(ma.Cast<B>());
+            var mr = ma.Value();
+            if (mr.IsBottom) return new OptionalResult<Fin<B>>(BottomException.Default);
+            if (mr.IsFaulted) return new OptionalResult<Fin<B>>(mr.Exception);
+            if (mr.IsNone) return OptionalResult<Fin<B>>.None;
+            return new OptionalResult<Fin<B>>(Fin<B>.Succ(f(mr.Value.Value)));
+        };
+
         public static TryOption<Option<B>> Traverse<A, B>(this Option<TryOption<A>> ma, Func<A, B> f) => () =>
         {
             if (ma.IsNone) return new OptionalResult<Option<B>>(Option<B>.None);

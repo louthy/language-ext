@@ -51,5 +51,4 @@ namespace LanguageExt.TypeClasses
         [Pure]
         FUV BiMap(FAB ma, Func<A, U> fa, Func<B, V> fb);
     }
-
 }

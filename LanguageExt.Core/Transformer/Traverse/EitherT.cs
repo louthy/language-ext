@@ -222,6 +222,26 @@ namespace LanguageExt
             }
         }
         
+        public static Either<L, Fin<B>> Traverse<L, A, B>(this Fin<Either<L, A>> ma, Func<A, B> f)
+        {
+            if (ma.IsFail)
+            {
+                return Right(ma.Cast<B>());
+            }
+            else
+            {
+                var mb = (Either<L, A>)ma;
+                if (mb.IsLeft)
+                {
+                    return Either<L, Fin<B>>.Left((L)mb);
+                }
+                else
+                {
+                    return Either<L, Fin<B>>.Right(f((A)mb));
+                }
+            }
+        }        
+        
         public static Either<L, Option<B>> Traverse<L, A, B>(this Option<Either<L, A>> ma, Func<A, B> f)
         {
             if (ma.IsNone)

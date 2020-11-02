@@ -37,6 +37,11 @@ namespace LanguageExt
                 .Map(toList)
                 .ToArr();
 
+        public static Arr<Fin<B>> Traverse<A, B>(this Fin<Arr<A>> ma, Func<A, B> f) =>
+            ma.Match(
+                Fail: er => Array(Fin<B>.Fail(er)),
+                Succ: xs => xs.Map(x => FinSucc(f(x))));
+
         public static Arr<Option<B>> Traverse<A, B>(this Option<Arr<A>> ma, Func<A, B> f) =>
             ma.Match(
                 None: () => Array(Option<B>.None),

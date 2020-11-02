@@ -30,6 +30,10 @@ namespace LanguageExt
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
             ta.Map(f).Traverse(Prelude.identity);
         
+        public static Validation<MonoidFail, Fail, Fin<B>> Sequence<MonoidFail, Fail, A, B>(this Fin<A> ta, Func<A, Validation<MonoidFail, Fail, B>> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+            ta.Map(f).Traverse(Prelude.identity);
+        
         public static Validation<MonoidFail, Fail, Option<B>> Sequence<MonoidFail, Fail, A, B>(this Option<A> ta, Func<A, Validation<MonoidFail, Fail, B>> f)
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
             ta.Map(f).Traverse(Prelude.identity);

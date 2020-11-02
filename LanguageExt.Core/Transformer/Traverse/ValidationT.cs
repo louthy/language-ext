@@ -144,6 +144,27 @@ namespace LanguageExt
                 : Validation<MonoidFail, Fail, Lst<B>>.Fail(errs);
         }
         
+        public static Validation<MonoidFail, Fail, Fin<B>> Traverse<MonoidFail, Fail, A, B>(this Fin<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
+            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+        {
+            if (ma.IsFail)
+            {
+                return Validation<MonoidFail, Fail, Fin<B>>.Success(ma.Cast<B>());
+            }
+            else
+            {
+                var mb = (Validation<MonoidFail, Fail, A>)ma;
+                if (mb.IsFail)
+                {
+                    return Validation<MonoidFail, Fail, Fin<B>>.Fail(mb.FailValue);
+                }
+                else
+                {
+                    return Validation<MonoidFail, Fail, Fin<B>>.Success(f((A)mb));
+                }
+            }
+        }        
+        
         public static Validation<MonoidFail, Fail, Option<B>> Traverse<MonoidFail, Fail, A, B>(this Option<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {

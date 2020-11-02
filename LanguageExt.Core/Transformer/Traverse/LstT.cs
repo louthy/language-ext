@@ -37,6 +37,11 @@ namespace LanguageExt
                 .Map(toList)
                 .Freeze();
 
+        public static Lst<Fin<B>> Traverse<A, B>(this Fin<Lst<A>> ma, Func<A, B> f) =>
+            ma.Match(
+                Fail: er => List(Fin<B>.Fail(er)),
+                Succ: xs => xs.Map(x => FinSucc(f(x))));
+
         public static Lst<Option<B>> Traverse<A, B>(this Option<Lst<A>> ma, Func<A, B> f) =>
             ma.Match(
                 None: () => List(Option<B>.None),

@@ -86,6 +86,22 @@ namespace LanguageExt
             return Option<Lst<B>>.Some(new Lst<B>(res));                
         }
 
+        public static Option<Fin<B>> Traverse<A, B>(this Fin<Option<A>> ma, Func<A, B> f)
+        {
+            if (ma.IsFail)
+            {
+                return Some<Fin<B>>(ma.Cast<B>());
+            }
+            else if (ma.Value.IsNone)
+            {
+                return None;
+            }
+            else
+            {
+                return Some(FinSucc(f(ma.Value.Value)));
+            }
+        }
+
         public static Option<Option<B>> Traverse<A, B>(this Option<Option<A>> ma, Func<A, B> f)
         {
             if (ma.IsNone)

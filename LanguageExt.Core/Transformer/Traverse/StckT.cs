@@ -34,6 +34,11 @@ namespace LanguageExt
             toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToSystemArray(), f)
                 .Map(toList));
 
+        public static Stck<Fin<B>> Traverse<A, B>(this Fin<Stck<A>> ma, Func<A, B> f) =>
+            ma.Match(
+                Fail: er => Stack(FinFail<B>(er)),
+                Succ: xs => xs.Map(x => FinSucc(f(x))));
+
         public static Stck<Option<B>> Traverse<A, B>(this Option<Stck<A>> ma, Func<A, B> f) =>
             ma.Match(
                 None: () => Stack(Option<B>.None),

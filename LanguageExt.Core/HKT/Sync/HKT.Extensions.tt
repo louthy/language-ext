@@ -12,6 +12,7 @@
         T("SeqTrans", "Arr"),
         T("SeqTrans", "HashSet"),
         T("SeqTrans", "Lst"),
+        T("Trans", "Fin"),
         T("Trans", "Option"),
         T("Trans", "OptionUnsafe"),
         T("Trans", "Either", "L"),

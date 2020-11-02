@@ -47,7 +47,7 @@
         /// <returns>`FLIPPED_OUTER_B`</returns>
         [Pure]
         public static FLIPPED_OUTER_B traverse<GENS, A, B>(OUTER_A ma, Func<A, B> f) =>
-            ma.Traverse<GENS, A, A>(f);
+            ma.Traverse<GENS, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `OUTER_A`, traverses the inner

@@ -41,6 +41,14 @@ namespace LanguageExt
             ta.Map(f).Sequence();
         
         [Pure]
+        public static Aff<Fin<A>> Sequence<A>(this Fin<Aff<A>> mma) =>
+            mma.Traverse(identity);
+        
+        [Pure]
+        public static Aff<Fin<B>> Sequence<A, B>(this Fin<A> ta, Func<A, Aff<B>> f) =>
+            ta.Map(f).Sequence();
+        
+        [Pure]
         public static Aff<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Aff<A>> mma) =>
             mma.Traverse(identity);
         

@@ -60,8 +60,7 @@ namespace LanguageExt
         /// <returns>`Arr&lt;Arr&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Arr<Arr<B>> traverse< A, B>(Arr<Arr<A>> ma, Func<A, B> f) =>
-            SeqTrans<MArr<Arr<A>>, Arr<Arr<A>>, MArr<A>, Arr<A>, A>
-                .Inst.Traverse<MArr<Arr<B>>, Arr<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Arr&lt;Arr&lt;A&gt;&gt;`, traverses the inner
@@ -344,8 +343,7 @@ namespace LanguageExt
         /// <returns>`HashSet&lt;Arr&lt;B&gt;&gt;`</returns>
         [Pure]
         public static HashSet<Arr<B>> traverse< A, B>(Arr<HashSet<A>> ma, Func<A, B> f) =>
-            SeqTrans<MArr<HashSet<A>>, Arr<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
-                .Inst.Traverse<MHashSet<Arr<B>>, HashSet<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Arr&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
@@ -628,8 +626,7 @@ namespace LanguageExt
         /// <returns>`Lst&lt;Arr&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Lst<Arr<B>> traverse< A, B>(Arr<Lst<A>> ma, Func<A, B> f) =>
-            SeqTrans<MArr<Lst<A>>, Arr<Lst<A>>, MLst<A>, Lst<A>, A>
-                .Inst.Traverse<MLst<Arr<B>>, Lst<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Arr&lt;Lst&lt;A&gt;&gt;`, traverses the inner
@@ -863,6 +860,289 @@ namespace LanguageExt
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class FinT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Arr&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Arr&lt;Fin&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Arr&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Arr<Fin<A>> ma)
+            where NumA : struct, Num<A> =>
+                SeqTrans<MArr<Fin<A>>, Arr<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Arr&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Arr&lt;Fin&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Arr&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Arr<Fin<A>> ma) =>
+            SeqTrans<MArr<Fin<A>>, Arr<Fin<A>>, MFin<A>, Fin<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Arr&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Arr&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Arr<Fin<B>> bindT< A, B>(Arr<Fin<A>> ma, Func<A, Fin<B>> f) =>
+            SeqTrans<MArr<Fin<A>>, Arr<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MArr<Fin<B>>, Arr<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Arr&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Arr&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Arr&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Arr&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Arr<B>> traverse< A, B>(Arr<Fin<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Arr&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Arr&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Arr<A>> sequence< A>(Arr<Fin<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Arr&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Arr&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Arr<Fin<B>> mapT< A, B>(Arr<Fin<A>> ma, Func<A, B> f) =>
+            SeqTrans<MArr<Fin<A>>, Arr<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Map<MArr<Fin<B>>, Arr<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Arr&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Arr<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            SeqTrans<MArr<Fin<A>>, Arr<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Arr&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Arr<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            SeqTrans<MArr<Fin<A>>, Arr<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Arr&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Arr<Fin<A>> ma, Func<A, bool> f) =>
+            SeqTrans<MArr<Fin<A>>, Arr<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Arr&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Arr<Fin<A>> ma, Func<A, bool> f) =>
+            SeqTrans<MArr<Fin<A>>, Arr<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Arr&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Arr&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Arr<Fin<A>> ma, Action<A> f) =>
+            SeqTrans<MArr<Fin<A>>, Arr<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Arr&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Arr<Fin<A>> filterT< A>(Arr<Fin<A>> ma, Func<A, bool> pred) =>
+            SeqTrans<MArr<Fin<A>>, Arr<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MArr<Fin<A>>, Arr<Fin<A>>, MFin<A>, Fin<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MFin<A>).Return(a)
+                        : default(MFin<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Arr<Fin<A>> plusT<NUM,  A>(Arr<Fin<A>> x, Arr<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Arr<Fin<A>> subtractT<NUM,  A>(Arr<Fin<A>> x, Arr<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Arr<Fin<A>> productT<NUM,  A>(Arr<Fin<A>> x, Arr<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Arr<Fin<A>> divideT<NUM,  A>(Arr<Fin<A>> x, Arr<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Arr<Fin<A>> appendT<SEMI,  A>(Arr<Fin<A>> x, Arr<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Arr<Fin<A>> x, Arr<Fin<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Arr<Fin<A>> x, Arr<Fin<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Arr&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Arr&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Arr<Fin<B>> applyT< A, B>(Func<A, B> fab, Arr<Fin<A>> fa) =>
+            ApplArr< Fin<A>, Fin<B>>.Inst.Apply(
+                 MArr< Func<Fin<A>, Fin<B>>>.Inst.Return((Fin<A> a) => ApplFin< A, B>.Inst.Apply(
+                     MFin< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Arr&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Arr&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Arr&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Arr<Fin<C>> applyT< A, B, C>(Func<A, B, C> fabc, Arr<Fin<A>> fa, Arr<Fin<B>> fb) =>
+            ApplArr< Fin<A>, Fin<B>, Fin<C>>.Inst.Apply(
+                MArr< Func<Fin<A>, Func<Fin<B>, Fin<C>>>>.Inst.Return(
+                    (Fin<A> a) =>
+                        (Fin<B> b) =>
+                            ApplFin< A, B, C>.Inst.Apply(
+                                MFin< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionT
     {
         /// <summary>
@@ -912,8 +1192,7 @@ namespace LanguageExt
         /// <returns>`Option&lt;Arr&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Option<Arr<B>> traverse< A, B>(Arr<Option<A>> ma, Func<A, B> f) =>
-            Trans<MArr<Option<A>>, Arr<Option<A>>, MOption<A>, Option<A>, A>
-                .Inst.Traverse<MOption<Arr<B>>, Option<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Arr&lt;Option&lt;A&gt;&gt;`, traverses the inner
@@ -1196,8 +1475,7 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe&lt;Arr&lt;B&gt;&gt;`</returns>
         [Pure]
         public static OptionUnsafe<Arr<B>> traverse< A, B>(Arr<OptionUnsafe<A>> ma, Func<A, B> f) =>
-            Trans<MArr<OptionUnsafe<A>>, Arr<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
-                .Inst.Traverse<MOptionUnsafe<Arr<B>>, OptionUnsafe<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Arr&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
@@ -1480,8 +1758,7 @@ namespace LanguageExt
         /// <returns>`Either&lt;L, Arr&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Either<L, Arr<B>> traverse<L, A, B>(Arr<Either<L, A>> ma, Func<A, B> f) =>
-            Trans<MArr<Either<L, A>>, Arr<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
-                .Inst.Traverse<MEither<L, Arr<B>>, Either<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Arr&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
@@ -1764,8 +2041,7 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe&lt;L, Arr&lt;B&gt;&gt;`</returns>
         [Pure]
         public static EitherUnsafe<L, Arr<B>> traverse<L, A, B>(Arr<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            Trans<MArr<EitherUnsafe<L, A>>, Arr<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
-                .Inst.Traverse<MEitherUnsafe<L, Arr<B>>, EitherUnsafe<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Arr&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
@@ -2048,8 +2324,7 @@ namespace LanguageExt
         /// <returns>`Try&lt;Arr&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Try<Arr<B>> traverse< A, B>(Arr<Try<A>> ma, Func<A, B> f) =>
-            Trans<MArr<Try<A>>, Arr<Try<A>>, MTry<A>, Try<A>, A>
-                .Inst.Traverse<MTry<Arr<B>>, Try<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Arr&lt;Try&lt;A&gt;&gt;`, traverses the inner
@@ -2332,8 +2607,7 @@ namespace LanguageExt
         /// <returns>`TryOption&lt;Arr&lt;B&gt;&gt;`</returns>
         [Pure]
         public static TryOption<Arr<B>> traverse< A, B>(Arr<TryOption<A>> ma, Func<A, B> f) =>
-            Trans<MArr<TryOption<A>>, Arr<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
-                .Inst.Traverse<MTryOption<Arr<B>>, TryOption<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Arr&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
@@ -2616,8 +2890,7 @@ namespace LanguageExt
         /// <returns>`IEnumerable&lt;Arr&lt;B&gt;&gt;`</returns>
         [Pure]
         public static IEnumerable<Arr<B>> traverse< A, B>(Arr<IEnumerable<A>> ma, Func<A, B> f) =>
-            SeqTrans<MArr<IEnumerable<A>>, Arr<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
-                .Inst.Traverse<MEnumerable<Arr<B>>, IEnumerable<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Arr&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
@@ -2900,8 +3173,7 @@ namespace LanguageExt
         /// <returns>`Seq&lt;Arr&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Seq<Arr<B>> traverse< A, B>(Arr<Seq<A>> ma, Func<A, B> f) =>
-            SeqTrans<MArr<Seq<A>>, Arr<Seq<A>>, MSeq<A>, Seq<A>, A>
-                .Inst.Traverse<MSeq<Arr<B>>, Seq<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Arr&lt;Seq&lt;A&gt;&gt;`, traverses the inner
@@ -3184,8 +3456,7 @@ namespace LanguageExt
         /// <returns>`Set&lt;Arr&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Set<Arr<B>> traverse< A, B>(Arr<Set<A>> ma, Func<A, B> f) =>
-            SeqTrans<MArr<Set<A>>, Arr<Set<A>>, MSet<A>, Set<A>, A>
-                .Inst.Traverse<MSet<Arr<B>>, Set<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Arr&lt;Set&lt;A&gt;&gt;`, traverses the inner
@@ -3468,8 +3739,7 @@ namespace LanguageExt
         /// <returns>`Validation&lt;FAIL, Arr&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Validation<FAIL, Arr<B>> traverse<FAIL, A, B>(Arr<Validation<FAIL, A>> ma, Func<A, B> f) =>
-            Trans<MArr<Validation<FAIL, A>>, Arr<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
-                .Inst.Traverse<MValidation<FAIL, Arr<B>>, Validation<FAIL, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Arr&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
@@ -3752,8 +4022,7 @@ namespace LanguageExt
         /// <returns>`Arr&lt;HashSet&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Arr<HashSet<B>> traverse< A, B>(HashSet<Arr<A>> ma, Func<A, B> f) =>
-            SeqTrans<MHashSet<Arr<A>>, HashSet<Arr<A>>, MArr<A>, Arr<A>, A>
-                .Inst.Traverse<MArr<HashSet<B>>, Arr<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `HashSet&lt;Arr&lt;A&gt;&gt;`, traverses the inner
@@ -4036,8 +4305,7 @@ namespace LanguageExt
         /// <returns>`HashSet&lt;HashSet&lt;B&gt;&gt;`</returns>
         [Pure]
         public static HashSet<HashSet<B>> traverse< A, B>(HashSet<HashSet<A>> ma, Func<A, B> f) =>
-            SeqTrans<MHashSet<HashSet<A>>, HashSet<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
-                .Inst.Traverse<MHashSet<HashSet<B>>, HashSet<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `HashSet&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
@@ -4320,8 +4588,7 @@ namespace LanguageExt
         /// <returns>`Lst&lt;HashSet&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Lst<HashSet<B>> traverse< A, B>(HashSet<Lst<A>> ma, Func<A, B> f) =>
-            SeqTrans<MHashSet<Lst<A>>, HashSet<Lst<A>>, MLst<A>, Lst<A>, A>
-                .Inst.Traverse<MLst<HashSet<B>>, Lst<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `HashSet&lt;Lst&lt;A&gt;&gt;`, traverses the inner
@@ -4555,6 +4822,289 @@ namespace LanguageExt
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class FinT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `HashSet&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet&lt;Fin&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `HashSet&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(HashSet<Fin<A>> ma)
+            where NumA : struct, Num<A> =>
+                SeqTrans<MHashSet<Fin<A>>, HashSet<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `HashSet&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet&lt;Fin&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `HashSet&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(HashSet<Fin<A>> ma) =>
+            SeqTrans<MHashSet<Fin<A>>, HashSet<Fin<A>>, MFin<A>, Fin<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`HashSet&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static HashSet<Fin<B>> bindT< A, B>(HashSet<Fin<A>> ma, Func<A, Fin<B>> f) =>
+            SeqTrans<MHashSet<Fin<A>>, HashSet<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MHashSet<Fin<B>>, HashSet<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `HashSet&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;HashSet&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;HashSet&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<HashSet<B>> traverse< A, B>(HashSet<Fin<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `HashSet&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<HashSet<A>> sequence< A>(HashSet<Fin<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`HashSet&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static HashSet<Fin<B>> mapT< A, B>(HashSet<Fin<A>> ma, Func<A, B> f) =>
+            SeqTrans<MHashSet<Fin<A>>, HashSet<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Map<MHashSet<Fin<B>>, HashSet<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `HashSet&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(HashSet<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            SeqTrans<MHashSet<Fin<A>>, HashSet<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `HashSet&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(HashSet<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            SeqTrans<MHashSet<Fin<A>>, HashSet<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(HashSet<Fin<A>> ma, Func<A, bool> f) =>
+            SeqTrans<MHashSet<Fin<A>>, HashSet<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(HashSet<Fin<A>> ma, Func<A, bool> f) =>
+            SeqTrans<MHashSet<Fin<A>>, HashSet<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `HashSet&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(HashSet<Fin<A>> ma, Action<A> f) =>
+            SeqTrans<MHashSet<Fin<A>>, HashSet<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `HashSet&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static HashSet<Fin<A>> filterT< A>(HashSet<Fin<A>> ma, Func<A, bool> pred) =>
+            SeqTrans<MHashSet<Fin<A>>, HashSet<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MHashSet<Fin<A>>, HashSet<Fin<A>>, MFin<A>, Fin<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MFin<A>).Return(a)
+                        : default(MFin<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static HashSet<Fin<A>> plusT<NUM,  A>(HashSet<Fin<A>> x, HashSet<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static HashSet<Fin<A>> subtractT<NUM,  A>(HashSet<Fin<A>> x, HashSet<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static HashSet<Fin<A>> productT<NUM,  A>(HashSet<Fin<A>> x, HashSet<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static HashSet<Fin<A>> divideT<NUM,  A>(HashSet<Fin<A>> x, HashSet<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static HashSet<Fin<A>> appendT<SEMI,  A>(HashSet<Fin<A>> x, HashSet<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(HashSet<Fin<A>> x, HashSet<Fin<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(HashSet<Fin<A>> x, HashSet<Fin<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `HashSet&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`HashSet&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static HashSet<Fin<B>> applyT< A, B>(Func<A, B> fab, HashSet<Fin<A>> fa) =>
+            ApplHashSet< Fin<A>, Fin<B>>.Inst.Apply(
+                 MHashSet< Func<Fin<A>, Fin<B>>>.Inst.Return((Fin<A> a) => ApplFin< A, B>.Inst.Apply(
+                     MFin< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `HashSet&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `HashSet&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`HashSet&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static HashSet<Fin<C>> applyT< A, B, C>(Func<A, B, C> fabc, HashSet<Fin<A>> fa, HashSet<Fin<B>> fb) =>
+            ApplHashSet< Fin<A>, Fin<B>, Fin<C>>.Inst.Apply(
+                MHashSet< Func<Fin<A>, Func<Fin<B>, Fin<C>>>>.Inst.Return(
+                    (Fin<A> a) =>
+                        (Fin<B> b) =>
+                            ApplFin< A, B, C>.Inst.Apply(
+                                MFin< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionT
     {
         /// <summary>
@@ -4604,8 +5154,7 @@ namespace LanguageExt
         /// <returns>`Option&lt;HashSet&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Option<HashSet<B>> traverse< A, B>(HashSet<Option<A>> ma, Func<A, B> f) =>
-            Trans<MHashSet<Option<A>>, HashSet<Option<A>>, MOption<A>, Option<A>, A>
-                .Inst.Traverse<MOption<HashSet<B>>, Option<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `HashSet&lt;Option&lt;A&gt;&gt;`, traverses the inner
@@ -4888,8 +5437,7 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe&lt;HashSet&lt;B&gt;&gt;`</returns>
         [Pure]
         public static OptionUnsafe<HashSet<B>> traverse< A, B>(HashSet<OptionUnsafe<A>> ma, Func<A, B> f) =>
-            Trans<MHashSet<OptionUnsafe<A>>, HashSet<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
-                .Inst.Traverse<MOptionUnsafe<HashSet<B>>, OptionUnsafe<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `HashSet&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
@@ -5172,8 +5720,7 @@ namespace LanguageExt
         /// <returns>`Either&lt;L, HashSet&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Either<L, HashSet<B>> traverse<L, A, B>(HashSet<Either<L, A>> ma, Func<A, B> f) =>
-            Trans<MHashSet<Either<L, A>>, HashSet<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
-                .Inst.Traverse<MEither<L, HashSet<B>>, Either<L, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `HashSet&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
@@ -5456,8 +6003,7 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe&lt;L, HashSet&lt;B&gt;&gt;`</returns>
         [Pure]
         public static EitherUnsafe<L, HashSet<B>> traverse<L, A, B>(HashSet<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            Trans<MHashSet<EitherUnsafe<L, A>>, HashSet<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
-                .Inst.Traverse<MEitherUnsafe<L, HashSet<B>>, EitherUnsafe<L, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `HashSet&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
@@ -5740,8 +6286,7 @@ namespace LanguageExt
         /// <returns>`Try&lt;HashSet&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Try<HashSet<B>> traverse< A, B>(HashSet<Try<A>> ma, Func<A, B> f) =>
-            Trans<MHashSet<Try<A>>, HashSet<Try<A>>, MTry<A>, Try<A>, A>
-                .Inst.Traverse<MTry<HashSet<B>>, Try<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `HashSet&lt;Try&lt;A&gt;&gt;`, traverses the inner
@@ -6024,8 +6569,7 @@ namespace LanguageExt
         /// <returns>`TryOption&lt;HashSet&lt;B&gt;&gt;`</returns>
         [Pure]
         public static TryOption<HashSet<B>> traverse< A, B>(HashSet<TryOption<A>> ma, Func<A, B> f) =>
-            Trans<MHashSet<TryOption<A>>, HashSet<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
-                .Inst.Traverse<MTryOption<HashSet<B>>, TryOption<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `HashSet&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
@@ -6308,8 +6852,7 @@ namespace LanguageExt
         /// <returns>`IEnumerable&lt;HashSet&lt;B&gt;&gt;`</returns>
         [Pure]
         public static IEnumerable<HashSet<B>> traverse< A, B>(HashSet<IEnumerable<A>> ma, Func<A, B> f) =>
-            SeqTrans<MHashSet<IEnumerable<A>>, HashSet<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
-                .Inst.Traverse<MEnumerable<HashSet<B>>, IEnumerable<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `HashSet&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
@@ -6592,8 +7135,7 @@ namespace LanguageExt
         /// <returns>`Seq&lt;HashSet&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Seq<HashSet<B>> traverse< A, B>(HashSet<Seq<A>> ma, Func<A, B> f) =>
-            SeqTrans<MHashSet<Seq<A>>, HashSet<Seq<A>>, MSeq<A>, Seq<A>, A>
-                .Inst.Traverse<MSeq<HashSet<B>>, Seq<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `HashSet&lt;Seq&lt;A&gt;&gt;`, traverses the inner
@@ -6876,8 +7418,7 @@ namespace LanguageExt
         /// <returns>`Set&lt;HashSet&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Set<HashSet<B>> traverse< A, B>(HashSet<Set<A>> ma, Func<A, B> f) =>
-            SeqTrans<MHashSet<Set<A>>, HashSet<Set<A>>, MSet<A>, Set<A>, A>
-                .Inst.Traverse<MSet<HashSet<B>>, Set<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `HashSet&lt;Set&lt;A&gt;&gt;`, traverses the inner
@@ -7160,8 +7701,7 @@ namespace LanguageExt
         /// <returns>`Validation&lt;FAIL, HashSet&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Validation<FAIL, HashSet<B>> traverse<FAIL, A, B>(HashSet<Validation<FAIL, A>> ma, Func<A, B> f) =>
-            Trans<MHashSet<Validation<FAIL, A>>, HashSet<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
-                .Inst.Traverse<MValidation<FAIL, HashSet<B>>, Validation<FAIL, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `HashSet&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
@@ -7444,8 +7984,7 @@ namespace LanguageExt
         /// <returns>`Arr&lt;Lst&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Arr<Lst<B>> traverse< A, B>(Lst<Arr<A>> ma, Func<A, B> f) =>
-            SeqTrans<MLst<Arr<A>>, Lst<Arr<A>>, MArr<A>, Arr<A>, A>
-                .Inst.Traverse<MArr<Lst<B>>, Arr<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Lst&lt;Arr&lt;A&gt;&gt;`, traverses the inner
@@ -7728,8 +8267,7 @@ namespace LanguageExt
         /// <returns>`HashSet&lt;Lst&lt;B&gt;&gt;`</returns>
         [Pure]
         public static HashSet<Lst<B>> traverse< A, B>(Lst<HashSet<A>> ma, Func<A, B> f) =>
-            SeqTrans<MLst<HashSet<A>>, Lst<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
-                .Inst.Traverse<MHashSet<Lst<B>>, HashSet<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Lst&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
@@ -8012,8 +8550,7 @@ namespace LanguageExt
         /// <returns>`Lst&lt;Lst&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Lst<Lst<B>> traverse< A, B>(Lst<Lst<A>> ma, Func<A, B> f) =>
-            SeqTrans<MLst<Lst<A>>, Lst<Lst<A>>, MLst<A>, Lst<A>, A>
-                .Inst.Traverse<MLst<Lst<B>>, Lst<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Lst&lt;Lst&lt;A&gt;&gt;`, traverses the inner
@@ -8247,6 +8784,289 @@ namespace LanguageExt
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class FinT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Lst&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Lst&lt;Fin&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Lst&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Lst<Fin<A>> ma)
+            where NumA : struct, Num<A> =>
+                SeqTrans<MLst<Fin<A>>, Lst<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Lst&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Lst&lt;Fin&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Lst&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Lst<Fin<A>> ma) =>
+            SeqTrans<MLst<Fin<A>>, Lst<Fin<A>>, MFin<A>, Fin<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Lst&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Lst&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Lst<Fin<B>> bindT< A, B>(Lst<Fin<A>> ma, Func<A, Fin<B>> f) =>
+            SeqTrans<MLst<Fin<A>>, Lst<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MLst<Fin<B>>, Lst<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Lst&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Lst&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Lst&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Lst&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Lst<B>> traverse< A, B>(Lst<Fin<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Lst&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Lst&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Lst<A>> sequence< A>(Lst<Fin<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Lst&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Lst&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Lst<Fin<B>> mapT< A, B>(Lst<Fin<A>> ma, Func<A, B> f) =>
+            SeqTrans<MLst<Fin<A>>, Lst<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Map<MLst<Fin<B>>, Lst<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Lst&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Lst<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            SeqTrans<MLst<Fin<A>>, Lst<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Lst&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Lst<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            SeqTrans<MLst<Fin<A>>, Lst<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Lst&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Lst<Fin<A>> ma, Func<A, bool> f) =>
+            SeqTrans<MLst<Fin<A>>, Lst<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Lst&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Lst<Fin<A>> ma, Func<A, bool> f) =>
+            SeqTrans<MLst<Fin<A>>, Lst<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Lst&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Lst&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Lst<Fin<A>> ma, Action<A> f) =>
+            SeqTrans<MLst<Fin<A>>, Lst<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Lst&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Lst<Fin<A>> filterT< A>(Lst<Fin<A>> ma, Func<A, bool> pred) =>
+            SeqTrans<MLst<Fin<A>>, Lst<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MLst<Fin<A>>, Lst<Fin<A>>, MFin<A>, Fin<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MFin<A>).Return(a)
+                        : default(MFin<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Lst<Fin<A>> plusT<NUM,  A>(Lst<Fin<A>> x, Lst<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Lst<Fin<A>> subtractT<NUM,  A>(Lst<Fin<A>> x, Lst<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Lst<Fin<A>> productT<NUM,  A>(Lst<Fin<A>> x, Lst<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Lst<Fin<A>> divideT<NUM,  A>(Lst<Fin<A>> x, Lst<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Lst<Fin<A>> appendT<SEMI,  A>(Lst<Fin<A>> x, Lst<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Lst<Fin<A>> x, Lst<Fin<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Lst<Fin<A>> x, Lst<Fin<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Lst&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Lst&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Lst<Fin<B>> applyT< A, B>(Func<A, B> fab, Lst<Fin<A>> fa) =>
+            ApplLst< Fin<A>, Fin<B>>.Inst.Apply(
+                 MLst< Func<Fin<A>, Fin<B>>>.Inst.Return((Fin<A> a) => ApplFin< A, B>.Inst.Apply(
+                     MFin< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Lst&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Lst&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Lst&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Lst<Fin<C>> applyT< A, B, C>(Func<A, B, C> fabc, Lst<Fin<A>> fa, Lst<Fin<B>> fb) =>
+            ApplLst< Fin<A>, Fin<B>, Fin<C>>.Inst.Apply(
+                MLst< Func<Fin<A>, Func<Fin<B>, Fin<C>>>>.Inst.Return(
+                    (Fin<A> a) =>
+                        (Fin<B> b) =>
+                            ApplFin< A, B, C>.Inst.Apply(
+                                MFin< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionT
     {
         /// <summary>
@@ -8296,8 +9116,7 @@ namespace LanguageExt
         /// <returns>`Option&lt;Lst&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Option<Lst<B>> traverse< A, B>(Lst<Option<A>> ma, Func<A, B> f) =>
-            Trans<MLst<Option<A>>, Lst<Option<A>>, MOption<A>, Option<A>, A>
-                .Inst.Traverse<MOption<Lst<B>>, Option<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Lst&lt;Option&lt;A&gt;&gt;`, traverses the inner
@@ -8580,8 +9399,7 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe&lt;Lst&lt;B&gt;&gt;`</returns>
         [Pure]
         public static OptionUnsafe<Lst<B>> traverse< A, B>(Lst<OptionUnsafe<A>> ma, Func<A, B> f) =>
-            Trans<MLst<OptionUnsafe<A>>, Lst<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
-                .Inst.Traverse<MOptionUnsafe<Lst<B>>, OptionUnsafe<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Lst&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
@@ -8864,8 +9682,7 @@ namespace LanguageExt
         /// <returns>`Either&lt;L, Lst&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Either<L, Lst<B>> traverse<L, A, B>(Lst<Either<L, A>> ma, Func<A, B> f) =>
-            Trans<MLst<Either<L, A>>, Lst<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
-                .Inst.Traverse<MEither<L, Lst<B>>, Either<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Lst&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
@@ -9148,8 +9965,7 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe&lt;L, Lst&lt;B&gt;&gt;`</returns>
         [Pure]
         public static EitherUnsafe<L, Lst<B>> traverse<L, A, B>(Lst<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            Trans<MLst<EitherUnsafe<L, A>>, Lst<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
-                .Inst.Traverse<MEitherUnsafe<L, Lst<B>>, EitherUnsafe<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Lst&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
@@ -9432,8 +10248,7 @@ namespace LanguageExt
         /// <returns>`Try&lt;Lst&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Try<Lst<B>> traverse< A, B>(Lst<Try<A>> ma, Func<A, B> f) =>
-            Trans<MLst<Try<A>>, Lst<Try<A>>, MTry<A>, Try<A>, A>
-                .Inst.Traverse<MTry<Lst<B>>, Try<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Lst&lt;Try&lt;A&gt;&gt;`, traverses the inner
@@ -9716,8 +10531,7 @@ namespace LanguageExt
         /// <returns>`TryOption&lt;Lst&lt;B&gt;&gt;`</returns>
         [Pure]
         public static TryOption<Lst<B>> traverse< A, B>(Lst<TryOption<A>> ma, Func<A, B> f) =>
-            Trans<MLst<TryOption<A>>, Lst<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
-                .Inst.Traverse<MTryOption<Lst<B>>, TryOption<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Lst&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
@@ -10000,8 +10814,7 @@ namespace LanguageExt
         /// <returns>`IEnumerable&lt;Lst&lt;B&gt;&gt;`</returns>
         [Pure]
         public static IEnumerable<Lst<B>> traverse< A, B>(Lst<IEnumerable<A>> ma, Func<A, B> f) =>
-            SeqTrans<MLst<IEnumerable<A>>, Lst<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
-                .Inst.Traverse<MEnumerable<Lst<B>>, IEnumerable<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Lst&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
@@ -10284,8 +11097,7 @@ namespace LanguageExt
         /// <returns>`Seq&lt;Lst&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Seq<Lst<B>> traverse< A, B>(Lst<Seq<A>> ma, Func<A, B> f) =>
-            SeqTrans<MLst<Seq<A>>, Lst<Seq<A>>, MSeq<A>, Seq<A>, A>
-                .Inst.Traverse<MSeq<Lst<B>>, Seq<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Lst&lt;Seq&lt;A&gt;&gt;`, traverses the inner
@@ -10568,8 +11380,7 @@ namespace LanguageExt
         /// <returns>`Set&lt;Lst&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Set<Lst<B>> traverse< A, B>(Lst<Set<A>> ma, Func<A, B> f) =>
-            SeqTrans<MLst<Set<A>>, Lst<Set<A>>, MSet<A>, Set<A>, A>
-                .Inst.Traverse<MSet<Lst<B>>, Set<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Lst&lt;Set&lt;A&gt;&gt;`, traverses the inner
@@ -10852,8 +11663,7 @@ namespace LanguageExt
         /// <returns>`Validation&lt;FAIL, Lst&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Validation<FAIL, Lst<B>> traverse<FAIL, A, B>(Lst<Validation<FAIL, A>> ma, Func<A, B> f) =>
-            Trans<MLst<Validation<FAIL, A>>, Lst<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
-                .Inst.Traverse<MValidation<FAIL, Lst<B>>, Validation<FAIL, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Lst&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
@@ -11090,6 +11900,3968 @@ namespace LanguageExt
     public static partial class ArrT
     {
         /// <summary>
+        /// Finds total of all the `Num<A>`s in `Fin&lt;Arr&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Arr&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Fin&lt;Arr&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Fin<Arr<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MFin<Arr<A>>, Fin<Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Fin&lt;Arr&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Arr&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Fin&lt;Arr&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Fin<Arr<A>> ma) =>
+            Trans<MFin<Arr<A>>, Fin<Arr<A>>, MArr<A>, Arr<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Fin&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Arr<B>> bindT< A, B>(Fin<Arr<A>> ma, Func<A, Arr<B>> f) =>
+            Trans<MFin<Arr<A>>, Fin<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Bind<MFin<Arr<B>>, Fin<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Fin&lt;Arr&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Arr&lt;Fin&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Arr&lt;Fin&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Arr<Fin<B>> traverse< A, B>(Fin<Arr<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Fin&lt;Arr&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Arr&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Arr<Fin<A>> sequence< A>(Fin<Arr<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Arr&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Arr<B>> mapT< A, B>(Fin<Arr<A>> ma, Func<A, B> f) =>
+            Trans<MFin<Arr<A>>, Fin<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Map<MFin<Arr<B>>, Fin<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Fin<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Arr<A>>, Fin<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Fin<Arr<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Arr<A>>, Fin<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Fin<Arr<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Arr<A>>, Fin<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Fin<Arr<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Arr<A>>, Fin<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Fin&lt;Arr&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Fin<Arr<A>> ma, Action<A> f) =>
+            Trans<MFin<Arr<A>>, Fin<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Fin<Arr<A>> filterT< A>(Fin<Arr<A>> ma, Func<A, bool> pred) =>
+            Trans<MFin<Arr<A>>, Fin<Arr<A>>, MArr<A>, Arr<A>, A>
+                .Inst.Bind<MFin<Arr<A>>, Fin<Arr<A>>, MArr<A>, Arr<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MArr<A>).Return(a)
+                        : default(MArr<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Fin<Arr<A>> plusT<NUM,  A>(Fin<Arr<A>> x, Fin<Arr<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Fin<Arr<A>> subtractT<NUM,  A>(Fin<Arr<A>> x, Fin<Arr<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Fin<Arr<A>> productT<NUM,  A>(Fin<Arr<A>> x, Fin<Arr<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Fin<Arr<A>> divideT<NUM,  A>(Fin<Arr<A>> x, Fin<Arr<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Fin<Arr<A>> appendT<SEMI,  A>(Fin<Arr<A>> x, Fin<Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Fin<Arr<A>> x, Fin<Arr<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Fin<Arr<A>> x, Fin<Arr<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Arr&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Arr&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Fin<Arr<B>> applyT< A, B>(Func<A, B> fab, Fin<Arr<A>> fa) =>
+            ApplFin< Arr<A>, Arr<B>>.Inst.Apply(
+                 MFin< Func<Arr<A>, Arr<B>>>.Inst.Return((Arr<A> a) => ApplArr< A, B>.Inst.Apply(
+                     MArr< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Arr&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Fin&lt;Arr&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Arr&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Fin<Arr<C>> applyT< A, B, C>(Func<A, B, C> fabc, Fin<Arr<A>> fa, Fin<Arr<B>> fb) =>
+            ApplFin< Arr<A>, Arr<B>, Arr<C>>.Inst.Apply(
+                MFin< Func<Arr<A>, Func<Arr<B>, Arr<C>>>>.Inst.Return(
+                    (Arr<A> a) =>
+                        (Arr<B> b) =>
+                            ApplArr< A, B, C>.Inst.Apply(
+                                MArr< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class HashSetT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Fin&lt;HashSet&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;HashSet&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Fin&lt;HashSet&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Fin<HashSet<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MFin<HashSet<A>>, Fin<HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Fin&lt;HashSet&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;HashSet&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Fin&lt;HashSet&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Fin<HashSet<A>> ma) =>
+            Trans<MFin<HashSet<A>>, Fin<HashSet<A>>, MHashSet<A>, HashSet<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Fin&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<HashSet<B>> bindT< A, B>(Fin<HashSet<A>> ma, Func<A, HashSet<B>> f) =>
+            Trans<MFin<HashSet<A>>, Fin<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Bind<MFin<HashSet<B>>, Fin<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Fin&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `HashSet&lt;Fin&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`HashSet&lt;Fin&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static HashSet<Fin<B>> traverse< A, B>(Fin<HashSet<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Fin&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `HashSet&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static HashSet<Fin<A>> sequence< A>(Fin<HashSet<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<HashSet<B>> mapT< A, B>(Fin<HashSet<A>> ma, Func<A, B> f) =>
+            Trans<MFin<HashSet<A>>, Fin<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Map<MFin<HashSet<B>>, Fin<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Fin<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<HashSet<A>>, Fin<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Fin<HashSet<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<HashSet<A>>, Fin<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Fin<HashSet<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<HashSet<A>>, Fin<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Fin<HashSet<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<HashSet<A>>, Fin<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Fin&lt;HashSet&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Fin<HashSet<A>> ma, Action<A> f) =>
+            Trans<MFin<HashSet<A>>, Fin<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Fin<HashSet<A>> filterT< A>(Fin<HashSet<A>> ma, Func<A, bool> pred) =>
+            Trans<MFin<HashSet<A>>, Fin<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
+                .Inst.Bind<MFin<HashSet<A>>, Fin<HashSet<A>>, MHashSet<A>, HashSet<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MHashSet<A>).Return(a)
+                        : default(MHashSet<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Fin<HashSet<A>> plusT<NUM,  A>(Fin<HashSet<A>> x, Fin<HashSet<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Fin<HashSet<A>> subtractT<NUM,  A>(Fin<HashSet<A>> x, Fin<HashSet<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Fin<HashSet<A>> productT<NUM,  A>(Fin<HashSet<A>> x, Fin<HashSet<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Fin<HashSet<A>> divideT<NUM,  A>(Fin<HashSet<A>> x, Fin<HashSet<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Fin<HashSet<A>> appendT<SEMI,  A>(Fin<HashSet<A>> x, Fin<HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Fin<HashSet<A>> x, Fin<HashSet<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Fin<HashSet<A>> x, Fin<HashSet<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;HashSet&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Fin<HashSet<B>> applyT< A, B>(Func<A, B> fab, Fin<HashSet<A>> fa) =>
+            ApplFin< HashSet<A>, HashSet<B>>.Inst.Apply(
+                 MFin< Func<HashSet<A>, HashSet<B>>>.Inst.Return((HashSet<A> a) => ApplHashSet< A, B>.Inst.Apply(
+                     MHashSet< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;HashSet&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Fin&lt;HashSet&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;HashSet&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Fin<HashSet<C>> applyT< A, B, C>(Func<A, B, C> fabc, Fin<HashSet<A>> fa, Fin<HashSet<B>> fb) =>
+            ApplFin< HashSet<A>, HashSet<B>, HashSet<C>>.Inst.Apply(
+                MFin< Func<HashSet<A>, Func<HashSet<B>, HashSet<C>>>>.Inst.Return(
+                    (HashSet<A> a) =>
+                        (HashSet<B> b) =>
+                            ApplHashSet< A, B, C>.Inst.Apply(
+                                MHashSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class LstT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Fin&lt;Lst&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Lst&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Fin&lt;Lst&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Fin<Lst<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MFin<Lst<A>>, Fin<Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Fin&lt;Lst&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Lst&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Fin&lt;Lst&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Fin<Lst<A>> ma) =>
+            Trans<MFin<Lst<A>>, Fin<Lst<A>>, MLst<A>, Lst<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Fin&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Lst<B>> bindT< A, B>(Fin<Lst<A>> ma, Func<A, Lst<B>> f) =>
+            Trans<MFin<Lst<A>>, Fin<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Bind<MFin<Lst<B>>, Fin<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Fin&lt;Lst&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Lst&lt;Fin&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Lst&lt;Fin&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Lst<Fin<B>> traverse< A, B>(Fin<Lst<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Fin&lt;Lst&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Lst&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Lst<Fin<A>> sequence< A>(Fin<Lst<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Lst&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Lst<B>> mapT< A, B>(Fin<Lst<A>> ma, Func<A, B> f) =>
+            Trans<MFin<Lst<A>>, Fin<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Map<MFin<Lst<B>>, Fin<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Fin<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Lst<A>>, Fin<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Fin<Lst<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Lst<A>>, Fin<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Fin<Lst<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Lst<A>>, Fin<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Fin<Lst<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Lst<A>>, Fin<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Fin&lt;Lst&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Fin<Lst<A>> ma, Action<A> f) =>
+            Trans<MFin<Lst<A>>, Fin<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Fin<Lst<A>> filterT< A>(Fin<Lst<A>> ma, Func<A, bool> pred) =>
+            Trans<MFin<Lst<A>>, Fin<Lst<A>>, MLst<A>, Lst<A>, A>
+                .Inst.Bind<MFin<Lst<A>>, Fin<Lst<A>>, MLst<A>, Lst<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MLst<A>).Return(a)
+                        : default(MLst<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Fin<Lst<A>> plusT<NUM,  A>(Fin<Lst<A>> x, Fin<Lst<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Fin<Lst<A>> subtractT<NUM,  A>(Fin<Lst<A>> x, Fin<Lst<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Fin<Lst<A>> productT<NUM,  A>(Fin<Lst<A>> x, Fin<Lst<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Fin<Lst<A>> divideT<NUM,  A>(Fin<Lst<A>> x, Fin<Lst<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Fin<Lst<A>> appendT<SEMI,  A>(Fin<Lst<A>> x, Fin<Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Fin<Lst<A>> x, Fin<Lst<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Fin<Lst<A>> x, Fin<Lst<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Lst&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Lst&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Fin<Lst<B>> applyT< A, B>(Func<A, B> fab, Fin<Lst<A>> fa) =>
+            ApplFin< Lst<A>, Lst<B>>.Inst.Apply(
+                 MFin< Func<Lst<A>, Lst<B>>>.Inst.Return((Lst<A> a) => ApplLst< A, B>.Inst.Apply(
+                     MLst< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Lst&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Fin&lt;Lst&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Lst&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Fin<Lst<C>> applyT< A, B, C>(Func<A, B, C> fabc, Fin<Lst<A>> fa, Fin<Lst<B>> fb) =>
+            ApplFin< Lst<A>, Lst<B>, Lst<C>>.Inst.Apply(
+                MFin< Func<Lst<A>, Func<Lst<B>, Lst<C>>>>.Inst.Return(
+                    (Lst<A> a) =>
+                        (Lst<B> b) =>
+                            ApplLst< A, B, C>.Inst.Apply(
+                                MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class FinT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Fin&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Fin&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Fin&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Fin<Fin<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MFin<Fin<A>>, Fin<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Fin&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Fin&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Fin&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Fin<Fin<A>> ma) =>
+            Trans<MFin<Fin<A>>, Fin<Fin<A>>, MFin<A>, Fin<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Fin&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Fin<B>> bindT< A, B>(Fin<Fin<A>> ma, Func<A, Fin<B>> f) =>
+            Trans<MFin<Fin<A>>, Fin<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MFin<Fin<B>>, Fin<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Fin&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Fin&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Fin&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Fin<B>> traverse< A, B>(Fin<Fin<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Fin&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Fin<A>> sequence< A>(Fin<Fin<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Fin<B>> mapT< A, B>(Fin<Fin<A>> ma, Func<A, B> f) =>
+            Trans<MFin<Fin<A>>, Fin<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Map<MFin<Fin<B>>, Fin<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Fin<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Fin<A>>, Fin<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Fin<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Fin<A>>, Fin<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Fin<Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Fin<A>>, Fin<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Fin<Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Fin<A>>, Fin<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Fin&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Fin<Fin<A>> ma, Action<A> f) =>
+            Trans<MFin<Fin<A>>, Fin<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Fin<Fin<A>> filterT< A>(Fin<Fin<A>> ma, Func<A, bool> pred) =>
+            Trans<MFin<Fin<A>>, Fin<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MFin<Fin<A>>, Fin<Fin<A>>, MFin<A>, Fin<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MFin<A>).Return(a)
+                        : default(MFin<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Fin<Fin<A>> plusT<NUM,  A>(Fin<Fin<A>> x, Fin<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Fin<Fin<A>> subtractT<NUM,  A>(Fin<Fin<A>> x, Fin<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Fin<Fin<A>> productT<NUM,  A>(Fin<Fin<A>> x, Fin<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Fin<Fin<A>> divideT<NUM,  A>(Fin<Fin<A>> x, Fin<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Fin<Fin<A>> appendT<SEMI,  A>(Fin<Fin<A>> x, Fin<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Fin<Fin<A>> x, Fin<Fin<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Fin<Fin<A>> x, Fin<Fin<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Fin<Fin<B>> applyT< A, B>(Func<A, B> fab, Fin<Fin<A>> fa) =>
+            ApplFin< Fin<A>, Fin<B>>.Inst.Apply(
+                 MFin< Func<Fin<A>, Fin<B>>>.Inst.Return((Fin<A> a) => ApplFin< A, B>.Inst.Apply(
+                     MFin< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Fin&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Fin<Fin<C>> applyT< A, B, C>(Func<A, B, C> fabc, Fin<Fin<A>> fa, Fin<Fin<B>> fb) =>
+            ApplFin< Fin<A>, Fin<B>, Fin<C>>.Inst.Apply(
+                MFin< Func<Fin<A>, Func<Fin<B>, Fin<C>>>>.Inst.Return(
+                    (Fin<A> a) =>
+                        (Fin<B> b) =>
+                            ApplFin< A, B, C>.Inst.Apply(
+                                MFin< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class OptionT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Fin&lt;Option&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Option&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Fin&lt;Option&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Fin<Option<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MFin<Option<A>>, Fin<Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Fin&lt;Option&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Option&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Fin&lt;Option&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Fin<Option<A>> ma) =>
+            Trans<MFin<Option<A>>, Fin<Option<A>>, MOption<A>, Option<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Fin&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Option<B>> bindT< A, B>(Fin<Option<A>> ma, Func<A, Option<B>> f) =>
+            Trans<MFin<Option<A>>, Fin<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Bind<MFin<Option<B>>, Fin<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Fin&lt;Option&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Option&lt;Fin&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Option&lt;Fin&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Option<Fin<B>> traverse< A, B>(Fin<Option<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Fin&lt;Option&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Option&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Option&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Option<Fin<A>> sequence< A>(Fin<Option<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Option&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Option<B>> mapT< A, B>(Fin<Option<A>> ma, Func<A, B> f) =>
+            Trans<MFin<Option<A>>, Fin<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Map<MFin<Option<B>>, Fin<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Fin<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Option<A>>, Fin<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Fin<Option<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Option<A>>, Fin<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Fin<Option<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Option<A>>, Fin<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Fin<Option<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Option<A>>, Fin<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Fin&lt;Option&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Fin<Option<A>> ma, Action<A> f) =>
+            Trans<MFin<Option<A>>, Fin<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Fin&lt;Option&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Fin<Option<A>> filterT< A>(Fin<Option<A>> ma, Func<A, bool> pred) =>
+            Trans<MFin<Option<A>>, Fin<Option<A>>, MOption<A>, Option<A>, A>
+                .Inst.Bind<MFin<Option<A>>, Fin<Option<A>>, MOption<A>, Option<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOption<A>).Return(a)
+                        : default(MOption<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Fin<Option<A>> plusT<NUM,  A>(Fin<Option<A>> x, Fin<Option<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Fin<Option<A>> subtractT<NUM,  A>(Fin<Option<A>> x, Fin<Option<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Fin<Option<A>> productT<NUM,  A>(Fin<Option<A>> x, Fin<Option<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Fin<Option<A>> divideT<NUM,  A>(Fin<Option<A>> x, Fin<Option<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Fin<Option<A>> appendT<SEMI,  A>(Fin<Option<A>> x, Fin<Option<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Fin<Option<A>> x, Fin<Option<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Fin<Option<A>> x, Fin<Option<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Option&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Option&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Fin<Option<B>> applyT< A, B>(Func<A, B> fab, Fin<Option<A>> fa) =>
+            ApplFin< Option<A>, Option<B>>.Inst.Apply(
+                 MFin< Func<Option<A>, Option<B>>>.Inst.Return((Option<A> a) => ApplOption< A, B>.Inst.Apply(
+                     MOption< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Option&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Fin&lt;Option&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Option&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Fin<Option<C>> applyT< A, B, C>(Func<A, B, C> fabc, Fin<Option<A>> fa, Fin<Option<B>> fb) =>
+            ApplFin< Option<A>, Option<B>, Option<C>>.Inst.Apply(
+                MFin< Func<Option<A>, Func<Option<B>, Option<C>>>>.Inst.Return(
+                    (Option<A> a) =>
+                        (Option<B> b) =>
+                            ApplOption< A, B, C>.Inst.Apply(
+                                MOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class OptionUnsafeT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Fin&lt;OptionUnsafe&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Fin&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Fin<OptionUnsafe<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MFin<OptionUnsafe<A>>, Fin<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Fin&lt;OptionUnsafe&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Fin&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Fin<OptionUnsafe<A>> ma) =>
+            Trans<MFin<OptionUnsafe<A>>, Fin<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Fin&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<OptionUnsafe<B>> bindT< A, B>(Fin<OptionUnsafe<A>> ma, Func<A, OptionUnsafe<B>> f) =>
+            Trans<MFin<OptionUnsafe<A>>, Fin<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Bind<MFin<OptionUnsafe<B>>, Fin<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Fin&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `OptionUnsafe&lt;Fin&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionUnsafe&lt;Fin&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static OptionUnsafe<Fin<B>> traverse< A, B>(Fin<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Fin&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `OptionUnsafe&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static OptionUnsafe<Fin<A>> sequence< A>(Fin<OptionUnsafe<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<OptionUnsafe<B>> mapT< A, B>(Fin<OptionUnsafe<A>> ma, Func<A, B> f) =>
+            Trans<MFin<OptionUnsafe<A>>, Fin<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Map<MFin<OptionUnsafe<B>>, Fin<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Fin<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<OptionUnsafe<A>>, Fin<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Fin<OptionUnsafe<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<OptionUnsafe<A>>, Fin<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Fin<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<OptionUnsafe<A>>, Fin<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Fin<OptionUnsafe<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<OptionUnsafe<A>>, Fin<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Fin&lt;OptionUnsafe&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Fin<OptionUnsafe<A>> ma, Action<A> f) =>
+            Trans<MFin<OptionUnsafe<A>>, Fin<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Fin<OptionUnsafe<A>> filterT< A>(Fin<OptionUnsafe<A>> ma, Func<A, bool> pred) =>
+            Trans<MFin<OptionUnsafe<A>>, Fin<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
+                .Inst.Bind<MFin<OptionUnsafe<A>>, Fin<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MOptionUnsafe<A>).Return(a)
+                        : default(MOptionUnsafe<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Fin<OptionUnsafe<A>> plusT<NUM,  A>(Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Fin<OptionUnsafe<A>> subtractT<NUM,  A>(Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Fin<OptionUnsafe<A>> productT<NUM,  A>(Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Fin<OptionUnsafe<A>> divideT<NUM,  A>(Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Fin<OptionUnsafe<A>> appendT<SEMI,  A>(Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;OptionUnsafe&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Fin<OptionUnsafe<B>> applyT< A, B>(Func<A, B> fab, Fin<OptionUnsafe<A>> fa) =>
+            ApplFin< OptionUnsafe<A>, OptionUnsafe<B>>.Inst.Apply(
+                 MFin< Func<OptionUnsafe<A>, OptionUnsafe<B>>>.Inst.Return((OptionUnsafe<A> a) => ApplOptionUnsafe< A, B>.Inst.Apply(
+                     MOptionUnsafe< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;OptionUnsafe&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Fin&lt;OptionUnsafe&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;OptionUnsafe&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Fin<OptionUnsafe<C>> applyT< A, B, C>(Func<A, B, C> fabc, Fin<OptionUnsafe<A>> fa, Fin<OptionUnsafe<B>> fb) =>
+            ApplFin< OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>>.Inst.Apply(
+                MFin< Func<OptionUnsafe<A>, Func<OptionUnsafe<B>, OptionUnsafe<C>>>>.Inst.Return(
+                    (OptionUnsafe<A> a) =>
+                        (OptionUnsafe<B> b) =>
+                            ApplOptionUnsafe< A, B, C>.Inst.Apply(
+                                MOptionUnsafe< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class EitherT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Fin&lt;Either&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Either&lt;L, A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Fin&lt;Either&lt;L, A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA, L, A>(Fin<Either<L, A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MFin<Either<L, A>>, Fin<Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Fin&lt;Either&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Either&lt;L, A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Fin&lt;Either&lt;L, A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT<L, A>(Fin<Either<L, A>> ma) =>
+            Trans<MFin<Either<L, A>>, Fin<Either<L, A>>, MEither<L, A>, Either<L, A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Fin&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Either<L, B>> bindT<L, A, B>(Fin<Either<L, A>> ma, Func<A, Either<L, B>> f) =>
+            Trans<MFin<Either<L, A>>, Fin<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Bind<MFin<Either<L, B>>, Fin<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Fin&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Either&lt;L, Fin&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Either&lt;L, Fin&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Either<L, Fin<B>> traverse<L, A, B>(Fin<Either<L, A>> ma, Func<A, B> f) =>
+            ma.Traverse<L, A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Fin&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Either&lt;L, Fin&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse<L, A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Either<L, Fin<A>> sequence<L, A>(Fin<Either<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Either<L, B>> mapT<L, A, B>(Fin<Either<L, A>> ma, Func<A, B> f) =>
+            Trans<MFin<Either<L, A>>, Fin<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Map<MFin<Either<L, B>>, Fin<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S, L, A>(Fin<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Either<L, A>>, Fin<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S, L, A>(Fin<Either<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Either<L, A>>, Fin<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT<L, A>(Fin<Either<L, A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Either<L, A>>, Fin<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT<L, A>(Fin<Either<L, A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Either<L, A>>, Fin<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Fin&lt;Either&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT<L, A>(Fin<Either<L, A>> ma, Action<A> f) =>
+            Trans<MFin<Either<L, A>>, Fin<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Fin<Either<L, A>> filterT<L, A>(Fin<Either<L, A>> ma, Func<A, bool> pred) =>
+            Trans<MFin<Either<L, A>>, Fin<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
+                .Inst.Bind<MFin<Either<L, A>>, Fin<Either<L, A>>, MEither<L, A>, Either<L, A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MEither<L, A>).Return(a)
+                        : default(MEither<L, A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Fin<Either<L, A>> plusT<NUM, L, A>(Fin<Either<L, A>> x, Fin<Either<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Fin<Either<L, A>> subtractT<NUM, L, A>(Fin<Either<L, A>> x, Fin<Either<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Fin<Either<L, A>> productT<NUM, L, A>(Fin<Either<L, A>> x, Fin<Either<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Fin<Either<L, A>> divideT<NUM, L, A>(Fin<Either<L, A>> x, Fin<Either<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Fin<Either<L, A>> appendT<SEMI, L, A>(Fin<Either<L, A>> x, Fin<Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD, L, A>(Fin<Either<L, A>> x, Fin<Either<L, A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ, L, A>(Fin<Either<L, A>> x, Fin<Either<L, A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Either&lt;L, A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Fin<Either<L, B>> applyT<L, A, B>(Func<A, B> fab, Fin<Either<L, A>> fa) =>
+            ApplFin< Either<L, A>, Either<L, B>>.Inst.Apply(
+                 MFin< Func<Either<L, A>, Either<L, B>>>.Inst.Return((Either<L, A> a) => ApplEither<L, A, B>.Inst.Apply(
+                     MEither<L, Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Either&lt;L, A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Fin&lt;Either&lt;L, A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Either&lt;L, B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Fin<Either<L, C>> applyT<L, A, B, C>(Func<A, B, C> fabc, Fin<Either<L, A>> fa, Fin<Either<L, B>> fb) =>
+            ApplFin< Either<L, A>, Either<L, B>, Either<L, C>>.Inst.Apply(
+                MFin< Func<Either<L, A>, Func<Either<L, B>, Either<L, C>>>>.Inst.Return(
+                    (Either<L, A> a) =>
+                        (Either<L, B> b) =>
+                            ApplEither<L, A, B, C>.Inst.Apply(
+                                MEither<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class EitherUnsafeT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA, L, A>(Fin<EitherUnsafe<L, A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MFin<EitherUnsafe<L, A>>, Fin<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT<L, A>(Fin<EitherUnsafe<L, A>> ma) =>
+            Trans<MFin<EitherUnsafe<L, A>>, Fin<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Fin&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<EitherUnsafe<L, B>> bindT<L, A, B>(Fin<EitherUnsafe<L, A>> ma, Func<A, EitherUnsafe<L, B>> f) =>
+            Trans<MFin<EitherUnsafe<L, A>>, Fin<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Bind<MFin<EitherUnsafe<L, B>>, Fin<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `EitherUnsafe&lt;L, Fin&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherUnsafe&lt;L, Fin&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static EitherUnsafe<L, Fin<B>> traverse<L, A, B>(Fin<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            ma.Traverse<L, A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse<L, A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static EitherUnsafe<L, Fin<A>> sequence<L, A>(Fin<EitherUnsafe<L, A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<EitherUnsafe<L, B>> mapT<L, A, B>(Fin<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
+            Trans<MFin<EitherUnsafe<L, A>>, Fin<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Map<MFin<EitherUnsafe<L, B>>, Fin<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S, L, A>(Fin<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<EitherUnsafe<L, A>>, Fin<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S, L, A>(Fin<EitherUnsafe<L, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<EitherUnsafe<L, A>>, Fin<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT<L, A>(Fin<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+            Trans<MFin<EitherUnsafe<L, A>>, Fin<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT<L, A>(Fin<EitherUnsafe<L, A>> ma, Func<A, bool> f) =>
+            Trans<MFin<EitherUnsafe<L, A>>, Fin<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT<L, A>(Fin<EitherUnsafe<L, A>> ma, Action<A> f) =>
+            Trans<MFin<EitherUnsafe<L, A>>, Fin<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Fin<EitherUnsafe<L, A>> filterT<L, A>(Fin<EitherUnsafe<L, A>> ma, Func<A, bool> pred) =>
+            Trans<MFin<EitherUnsafe<L, A>>, Fin<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
+                .Inst.Bind<MFin<EitherUnsafe<L, A>>, Fin<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MEitherUnsafe<L, A>).Return(a)
+                        : default(MEitherUnsafe<L, A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Fin<EitherUnsafe<L, A>> plusT<NUM, L, A>(Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Fin<EitherUnsafe<L, A>> subtractT<NUM, L, A>(Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Fin<EitherUnsafe<L, A>> productT<NUM, L, A>(Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Fin<EitherUnsafe<L, A>> divideT<NUM, L, A>(Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Fin<EitherUnsafe<L, A>> appendT<SEMI, L, A>(Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD, L, A>(Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ, L, A>(Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Fin<EitherUnsafe<L, B>> applyT<L, A, B>(Func<A, B> fab, Fin<EitherUnsafe<L, A>> fa) =>
+            ApplFin< EitherUnsafe<L, A>, EitherUnsafe<L, B>>.Inst.Apply(
+                 MFin< Func<EitherUnsafe<L, A>, EitherUnsafe<L, B>>>.Inst.Return((EitherUnsafe<L, A> a) => ApplEitherUnsafe<L, A, B>.Inst.Apply(
+                     MEitherUnsafe<L, Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;EitherUnsafe&lt;L, B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Fin<EitherUnsafe<L, C>> applyT<L, A, B, C>(Func<A, B, C> fabc, Fin<EitherUnsafe<L, A>> fa, Fin<EitherUnsafe<L, B>> fb) =>
+            ApplFin< EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>>.Inst.Apply(
+                MFin< Func<EitherUnsafe<L, A>, Func<EitherUnsafe<L, B>, EitherUnsafe<L, C>>>>.Inst.Return(
+                    (EitherUnsafe<L, A> a) =>
+                        (EitherUnsafe<L, B> b) =>
+                            ApplEitherUnsafe<L, A, B, C>.Inst.Apply(
+                                MEitherUnsafe<L, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class TryT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Fin&lt;Try&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Try&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Fin&lt;Try&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Fin<Try<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MFin<Try<A>>, Fin<Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Fin&lt;Try&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Try&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Fin&lt;Try&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Fin<Try<A>> ma) =>
+            Trans<MFin<Try<A>>, Fin<Try<A>>, MTry<A>, Try<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Fin&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Try<B>> bindT< A, B>(Fin<Try<A>> ma, Func<A, Try<B>> f) =>
+            Trans<MFin<Try<A>>, Fin<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Bind<MFin<Try<B>>, Fin<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Fin&lt;Try&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Try&lt;Fin&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Try&lt;Fin&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Try<Fin<B>> traverse< A, B>(Fin<Try<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Fin&lt;Try&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Try&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Try&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Try<Fin<A>> sequence< A>(Fin<Try<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Try&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Try<B>> mapT< A, B>(Fin<Try<A>> ma, Func<A, B> f) =>
+            Trans<MFin<Try<A>>, Fin<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Map<MFin<Try<B>>, Fin<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Fin<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Try<A>>, Fin<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Fin<Try<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Try<A>>, Fin<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Fin<Try<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Try<A>>, Fin<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Fin<Try<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Try<A>>, Fin<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Fin&lt;Try&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Fin<Try<A>> ma, Action<A> f) =>
+            Trans<MFin<Try<A>>, Fin<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Fin&lt;Try&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Fin<Try<A>> filterT< A>(Fin<Try<A>> ma, Func<A, bool> pred) =>
+            Trans<MFin<Try<A>>, Fin<Try<A>>, MTry<A>, Try<A>, A>
+                .Inst.Bind<MFin<Try<A>>, Fin<Try<A>>, MTry<A>, Try<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MTry<A>).Return(a)
+                        : default(MTry<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Fin<Try<A>> plusT<NUM,  A>(Fin<Try<A>> x, Fin<Try<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Fin<Try<A>> subtractT<NUM,  A>(Fin<Try<A>> x, Fin<Try<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Fin<Try<A>> productT<NUM,  A>(Fin<Try<A>> x, Fin<Try<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Fin<Try<A>> divideT<NUM,  A>(Fin<Try<A>> x, Fin<Try<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Fin<Try<A>> appendT<SEMI,  A>(Fin<Try<A>> x, Fin<Try<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Fin<Try<A>> x, Fin<Try<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Fin<Try<A>> x, Fin<Try<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Try&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Try&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Fin<Try<B>> applyT< A, B>(Func<A, B> fab, Fin<Try<A>> fa) =>
+            ApplFin< Try<A>, Try<B>>.Inst.Apply(
+                 MFin< Func<Try<A>, Try<B>>>.Inst.Return((Try<A> a) => ApplTry< A, B>.Inst.Apply(
+                     MTry< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Try&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Fin&lt;Try&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Try&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Fin<Try<C>> applyT< A, B, C>(Func<A, B, C> fabc, Fin<Try<A>> fa, Fin<Try<B>> fb) =>
+            ApplFin< Try<A>, Try<B>, Try<C>>.Inst.Apply(
+                MFin< Func<Try<A>, Func<Try<B>, Try<C>>>>.Inst.Return(
+                    (Try<A> a) =>
+                        (Try<B> b) =>
+                            ApplTry< A, B, C>.Inst.Apply(
+                                MTry< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class TryOptionT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Fin&lt;TryOption&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;TryOption&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Fin&lt;TryOption&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Fin<TryOption<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MFin<TryOption<A>>, Fin<TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Fin&lt;TryOption&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;TryOption&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Fin&lt;TryOption&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Fin<TryOption<A>> ma) =>
+            Trans<MFin<TryOption<A>>, Fin<TryOption<A>>, MTryOption<A>, TryOption<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Fin&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<TryOption<B>> bindT< A, B>(Fin<TryOption<A>> ma, Func<A, TryOption<B>> f) =>
+            Trans<MFin<TryOption<A>>, Fin<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Bind<MFin<TryOption<B>>, Fin<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Fin&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `TryOption&lt;Fin&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`TryOption&lt;Fin&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static TryOption<Fin<B>> traverse< A, B>(Fin<TryOption<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Fin&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `TryOption&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static TryOption<Fin<A>> sequence< A>(Fin<TryOption<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<TryOption<B>> mapT< A, B>(Fin<TryOption<A>> ma, Func<A, B> f) =>
+            Trans<MFin<TryOption<A>>, Fin<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Map<MFin<TryOption<B>>, Fin<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Fin<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<TryOption<A>>, Fin<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Fin<TryOption<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<TryOption<A>>, Fin<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Fin<TryOption<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<TryOption<A>>, Fin<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Fin<TryOption<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<TryOption<A>>, Fin<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Fin&lt;TryOption&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Fin<TryOption<A>> ma, Action<A> f) =>
+            Trans<MFin<TryOption<A>>, Fin<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Fin<TryOption<A>> filterT< A>(Fin<TryOption<A>> ma, Func<A, bool> pred) =>
+            Trans<MFin<TryOption<A>>, Fin<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
+                .Inst.Bind<MFin<TryOption<A>>, Fin<TryOption<A>>, MTryOption<A>, TryOption<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MTryOption<A>).Return(a)
+                        : default(MTryOption<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Fin<TryOption<A>> plusT<NUM,  A>(Fin<TryOption<A>> x, Fin<TryOption<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Fin<TryOption<A>> subtractT<NUM,  A>(Fin<TryOption<A>> x, Fin<TryOption<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Fin<TryOption<A>> productT<NUM,  A>(Fin<TryOption<A>> x, Fin<TryOption<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Fin<TryOption<A>> divideT<NUM,  A>(Fin<TryOption<A>> x, Fin<TryOption<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Fin<TryOption<A>> appendT<SEMI,  A>(Fin<TryOption<A>> x, Fin<TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Fin<TryOption<A>> x, Fin<TryOption<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Fin<TryOption<A>> x, Fin<TryOption<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;TryOption&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Fin<TryOption<B>> applyT< A, B>(Func<A, B> fab, Fin<TryOption<A>> fa) =>
+            ApplFin< TryOption<A>, TryOption<B>>.Inst.Apply(
+                 MFin< Func<TryOption<A>, TryOption<B>>>.Inst.Return((TryOption<A> a) => ApplTryOption< A, B>.Inst.Apply(
+                     MTryOption< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;TryOption&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Fin&lt;TryOption&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;TryOption&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Fin<TryOption<C>> applyT< A, B, C>(Func<A, B, C> fabc, Fin<TryOption<A>> fa, Fin<TryOption<B>> fb) =>
+            ApplFin< TryOption<A>, TryOption<B>, TryOption<C>>.Inst.Apply(
+                MFin< Func<TryOption<A>, Func<TryOption<B>, TryOption<C>>>>.Inst.Return(
+                    (TryOption<A> a) =>
+                        (TryOption<B> b) =>
+                            ApplTryOption< A, B, C>.Inst.Apply(
+                                MTryOption< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class IEnumerableT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Fin&lt;IEnumerable&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;IEnumerable&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Fin&lt;IEnumerable&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Fin<IEnumerable<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MFin<IEnumerable<A>>, Fin<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Fin&lt;IEnumerable&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;IEnumerable&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Fin&lt;IEnumerable&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Fin<IEnumerable<A>> ma) =>
+            Trans<MFin<IEnumerable<A>>, Fin<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Fin&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<IEnumerable<B>> bindT< A, B>(Fin<IEnumerable<A>> ma, Func<A, IEnumerable<B>> f) =>
+            Trans<MFin<IEnumerable<A>>, Fin<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
+                .Inst.Bind<MFin<IEnumerable<B>>, Fin<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Fin&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `IEnumerable&lt;Fin&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`IEnumerable&lt;Fin&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static IEnumerable<Fin<B>> traverse< A, B>(Fin<IEnumerable<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Fin&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `IEnumerable&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static IEnumerable<Fin<A>> sequence< A>(Fin<IEnumerable<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<IEnumerable<B>> mapT< A, B>(Fin<IEnumerable<A>> ma, Func<A, B> f) =>
+            Trans<MFin<IEnumerable<A>>, Fin<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
+                .Inst.Map<MFin<IEnumerable<B>>, Fin<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Fin<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<IEnumerable<A>>, Fin<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Fin<IEnumerable<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<IEnumerable<A>>, Fin<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Fin<IEnumerable<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<IEnumerable<A>>, Fin<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Fin<IEnumerable<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<IEnumerable<A>>, Fin<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Fin&lt;IEnumerable&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Fin<IEnumerable<A>> ma, Action<A> f) =>
+            Trans<MFin<IEnumerable<A>>, Fin<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Fin<IEnumerable<A>> filterT< A>(Fin<IEnumerable<A>> ma, Func<A, bool> pred) =>
+            Trans<MFin<IEnumerable<A>>, Fin<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
+                .Inst.Bind<MFin<IEnumerable<A>>, Fin<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MEnumerable<A>).Return(a)
+                        : default(MEnumerable<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Fin<IEnumerable<A>> plusT<NUM,  A>(Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Fin<IEnumerable<A>> subtractT<NUM,  A>(Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Fin<IEnumerable<A>> productT<NUM,  A>(Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Fin<IEnumerable<A>> divideT<NUM,  A>(Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Fin<IEnumerable<A>> appendT<SEMI,  A>(Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;IEnumerable&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Fin<IEnumerable<B>> applyT< A, B>(Func<A, B> fab, Fin<IEnumerable<A>> fa) =>
+            ApplFin< IEnumerable<A>, IEnumerable<B>>.Inst.Apply(
+                 MFin< Func<IEnumerable<A>, IEnumerable<B>>>.Inst.Return((IEnumerable<A> a) => ApplEnumerable< A, B>.Inst.Apply(
+                     MEnumerable< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;IEnumerable&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Fin&lt;IEnumerable&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;IEnumerable&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Fin<IEnumerable<C>> applyT< A, B, C>(Func<A, B, C> fabc, Fin<IEnumerable<A>> fa, Fin<IEnumerable<B>> fb) =>
+            ApplFin< IEnumerable<A>, IEnumerable<B>, IEnumerable<C>>.Inst.Apply(
+                MFin< Func<IEnumerable<A>, Func<IEnumerable<B>, IEnumerable<C>>>>.Inst.Return(
+                    (IEnumerable<A> a) =>
+                        (IEnumerable<B> b) =>
+                            ApplEnumerable< A, B, C>.Inst.Apply(
+                                MEnumerable< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class SeqT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Fin&lt;Seq&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Seq&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Fin&lt;Seq&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Fin<Seq<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MFin<Seq<A>>, Fin<Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Fin&lt;Seq&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Seq&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Fin&lt;Seq&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Fin<Seq<A>> ma) =>
+            Trans<MFin<Seq<A>>, Fin<Seq<A>>, MSeq<A>, Seq<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Fin&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Seq<B>> bindT< A, B>(Fin<Seq<A>> ma, Func<A, Seq<B>> f) =>
+            Trans<MFin<Seq<A>>, Fin<Seq<A>>, MSeq<A>, Seq<A>, A>
+                .Inst.Bind<MFin<Seq<B>>, Fin<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Fin&lt;Seq&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Seq&lt;Fin&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Seq&lt;Fin&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Seq<Fin<B>> traverse< A, B>(Fin<Seq<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Fin&lt;Seq&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Seq&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Seq<Fin<A>> sequence< A>(Fin<Seq<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Seq&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Seq<B>> mapT< A, B>(Fin<Seq<A>> ma, Func<A, B> f) =>
+            Trans<MFin<Seq<A>>, Fin<Seq<A>>, MSeq<A>, Seq<A>, A>
+                .Inst.Map<MFin<Seq<B>>, Fin<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Fin<Seq<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Seq<A>>, Fin<Seq<A>>, MSeq<A>, Seq<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Fin<Seq<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Seq<A>>, Fin<Seq<A>>, MSeq<A>, Seq<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Fin<Seq<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Seq<A>>, Fin<Seq<A>>, MSeq<A>, Seq<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Fin<Seq<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Seq<A>>, Fin<Seq<A>>, MSeq<A>, Seq<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Fin&lt;Seq&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Fin<Seq<A>> ma, Action<A> f) =>
+            Trans<MFin<Seq<A>>, Fin<Seq<A>>, MSeq<A>, Seq<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Fin<Seq<A>> filterT< A>(Fin<Seq<A>> ma, Func<A, bool> pred) =>
+            Trans<MFin<Seq<A>>, Fin<Seq<A>>, MSeq<A>, Seq<A>, A>
+                .Inst.Bind<MFin<Seq<A>>, Fin<Seq<A>>, MSeq<A>, Seq<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MSeq<A>).Return(a)
+                        : default(MSeq<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Fin<Seq<A>> plusT<NUM,  A>(Fin<Seq<A>> x, Fin<Seq<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Fin<Seq<A>> subtractT<NUM,  A>(Fin<Seq<A>> x, Fin<Seq<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Fin<Seq<A>> productT<NUM,  A>(Fin<Seq<A>> x, Fin<Seq<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Fin<Seq<A>> divideT<NUM,  A>(Fin<Seq<A>> x, Fin<Seq<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Fin<Seq<A>> appendT<SEMI,  A>(Fin<Seq<A>> x, Fin<Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Fin<Seq<A>> x, Fin<Seq<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Fin<Seq<A>> x, Fin<Seq<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Seq&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Seq&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Fin<Seq<B>> applyT< A, B>(Func<A, B> fab, Fin<Seq<A>> fa) =>
+            ApplFin< Seq<A>, Seq<B>>.Inst.Apply(
+                 MFin< Func<Seq<A>, Seq<B>>>.Inst.Return((Seq<A> a) => ApplSeq< A, B>.Inst.Apply(
+                     MSeq< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Seq&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Fin&lt;Seq&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Seq&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Fin<Seq<C>> applyT< A, B, C>(Func<A, B, C> fabc, Fin<Seq<A>> fa, Fin<Seq<B>> fb) =>
+            ApplFin< Seq<A>, Seq<B>, Seq<C>>.Inst.Apply(
+                MFin< Func<Seq<A>, Func<Seq<B>, Seq<C>>>>.Inst.Return(
+                    (Seq<A> a) =>
+                        (Seq<B> b) =>
+                            ApplSeq< A, B, C>.Inst.Apply(
+                                MSeq< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class SetT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Fin&lt;Set&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Set&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Fin&lt;Set&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Fin<Set<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MFin<Set<A>>, Fin<Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Fin&lt;Set&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Set&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Fin&lt;Set&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Fin<Set<A>> ma) =>
+            Trans<MFin<Set<A>>, Fin<Set<A>>, MSet<A>, Set<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Fin&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Set<B>> bindT< A, B>(Fin<Set<A>> ma, Func<A, Set<B>> f) =>
+            Trans<MFin<Set<A>>, Fin<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Bind<MFin<Set<B>>, Fin<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Fin&lt;Set&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Set&lt;Fin&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Set&lt;Fin&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Set<Fin<B>> traverse< A, B>(Fin<Set<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Fin&lt;Set&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Set&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Set&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Set<Fin<A>> sequence< A>(Fin<Set<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Set&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Set<B>> mapT< A, B>(Fin<Set<A>> ma, Func<A, B> f) =>
+            Trans<MFin<Set<A>>, Fin<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Map<MFin<Set<B>>, Fin<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Fin<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Set<A>>, Fin<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Fin<Set<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Set<A>>, Fin<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Fin<Set<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Set<A>>, Fin<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Fin<Set<A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Set<A>>, Fin<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Fin&lt;Set&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Fin<Set<A>> ma, Action<A> f) =>
+            Trans<MFin<Set<A>>, Fin<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Fin&lt;Set&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Fin<Set<A>> filterT< A>(Fin<Set<A>> ma, Func<A, bool> pred) =>
+            Trans<MFin<Set<A>>, Fin<Set<A>>, MSet<A>, Set<A>, A>
+                .Inst.Bind<MFin<Set<A>>, Fin<Set<A>>, MSet<A>, Set<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MSet<A>).Return(a)
+                        : default(MSet<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Fin<Set<A>> plusT<NUM,  A>(Fin<Set<A>> x, Fin<Set<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Fin<Set<A>> subtractT<NUM,  A>(Fin<Set<A>> x, Fin<Set<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Fin<Set<A>> productT<NUM,  A>(Fin<Set<A>> x, Fin<Set<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Fin<Set<A>> divideT<NUM,  A>(Fin<Set<A>> x, Fin<Set<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Fin<Set<A>> appendT<SEMI,  A>(Fin<Set<A>> x, Fin<Set<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Fin<Set<A>> x, Fin<Set<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Fin<Set<A>> x, Fin<Set<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Set&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Set&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Fin<Set<B>> applyT< A, B>(Func<A, B> fab, Fin<Set<A>> fa) =>
+            ApplFin< Set<A>, Set<B>>.Inst.Apply(
+                 MFin< Func<Set<A>, Set<B>>>.Inst.Return((Set<A> a) => ApplSet< A, B>.Inst.Apply(
+                     MSet< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Set&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Fin&lt;Set&lt;A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Set&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Fin<Set<C>> applyT< A, B, C>(Func<A, B, C> fabc, Fin<Set<A>> fa, Fin<Set<B>> fb) =>
+            ApplFin< Set<A>, Set<B>, Set<C>>.Inst.Apply(
+                MFin< Func<Set<A>, Func<Set<B>, Set<C>>>>.Inst.Return(
+                    (Set<A> a) =>
+                        (Set<B> b) =>
+                            ApplSet< A, B, C>.Inst.Apply(
+                                MSet< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class ValidationT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Fin&lt;Validation&lt;FAIL, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Fin&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA, FAIL, A>(Fin<Validation<FAIL, A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MFin<Validation<FAIL, A>>, Fin<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Fin&lt;Validation&lt;FAIL, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Fin&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT<FAIL, A>(Fin<Validation<FAIL, A>> ma) =>
+            Trans<MFin<Validation<FAIL, A>>, Fin<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Fin&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Validation<FAIL, B>> bindT<FAIL, A, B>(Fin<Validation<FAIL, A>> ma, Func<A, Validation<FAIL, B>> f) =>
+            Trans<MFin<Validation<FAIL, A>>, Fin<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
+                .Inst.Bind<MFin<Validation<FAIL, B>>, Fin<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Fin&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Validation&lt;FAIL, Fin&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Validation&lt;FAIL, Fin&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Validation<FAIL, Fin<B>> traverse<FAIL, A, B>(Fin<Validation<FAIL, A>> ma, Func<A, B> f) =>
+            ma.Traverse<FAIL, A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Fin&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Validation&lt;FAIL, Fin&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Validation<FAIL, Fin<A>> sequence<FAIL, A>(Fin<Validation<FAIL, A>> ma) =>
+            ma.Traverse<FAIL, A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Fin<Validation<FAIL, B>> mapT<FAIL, A, B>(Fin<Validation<FAIL, A>> ma, Func<A, B> f) =>
+            Trans<MFin<Validation<FAIL, A>>, Fin<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
+                .Inst.Map<MFin<Validation<FAIL, B>>, Fin<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S, FAIL, A>(Fin<Validation<FAIL, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Validation<FAIL, A>>, Fin<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Fin&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S, FAIL, A>(Fin<Validation<FAIL, A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MFin<Validation<FAIL, A>>, Fin<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT<FAIL, A>(Fin<Validation<FAIL, A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Validation<FAIL, A>>, Fin<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT<FAIL, A>(Fin<Validation<FAIL, A>> ma, Func<A, bool> f) =>
+            Trans<MFin<Validation<FAIL, A>>, Fin<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Fin&lt;Validation&lt;FAIL, A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT<FAIL, A>(Fin<Validation<FAIL, A>> ma, Action<A> f) =>
+            Trans<MFin<Validation<FAIL, A>>, Fin<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Fin&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Fin<Validation<FAIL, A>> filterT<FAIL, A>(Fin<Validation<FAIL, A>> ma, Func<A, bool> pred) =>
+            Trans<MFin<Validation<FAIL, A>>, Fin<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
+                .Inst.Bind<MFin<Validation<FAIL, A>>, Fin<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MValidation<FAIL, A>).Return(a)
+                        : default(MValidation<FAIL, A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Fin<Validation<FAIL, A>> plusT<NUM, FAIL, A>(Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Fin<Validation<FAIL, A>> subtractT<NUM, FAIL, A>(Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Fin<Validation<FAIL, A>> productT<NUM, FAIL, A>(Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Fin<Validation<FAIL, A>> divideT<NUM, FAIL, A>(Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Fin<Validation<FAIL, A>> appendT<SEMI, FAIL, A>(Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD, FAIL, A>(Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ, FAIL, A>(Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Validation&lt;FAIL, A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Fin<Validation<FAIL, B>> applyT<FAIL, A, B>(Func<A, B> fab, Fin<Validation<FAIL, A>> fa) =>
+            ApplFin< Validation<FAIL, A>, Validation<FAIL, B>>.Inst.Apply(
+                 MFin< Func<Validation<FAIL, A>, Validation<FAIL, B>>>.Inst.Return((Validation<FAIL, A> a) => ApplValidation<FAIL, A, B>.Inst.Apply(
+                     MValidation<FAIL, Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Fin&lt;Validation&lt;FAIL, A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Fin&lt;Validation&lt;FAIL, A&gt;&gt;`</param>
+        /// <returns>`Fin&lt;Validation&lt;FAIL, B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Fin<Validation<FAIL, C>> applyT<FAIL, A, B, C>(Func<A, B, C> fabc, Fin<Validation<FAIL, A>> fa, Fin<Validation<FAIL, B>> fb) =>
+            ApplFin< Validation<FAIL, A>, Validation<FAIL, B>, Validation<FAIL, C>>.Inst.Apply(
+                MFin< Func<Validation<FAIL, A>, Func<Validation<FAIL, B>, Validation<FAIL, C>>>>.Inst.Return(
+                    (Validation<FAIL, A> a) =>
+                        (Validation<FAIL, B> b) =>
+                            ApplValidation<FAIL, A, B, C>.Inst.Apply(
+                                MValidation<FAIL, Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
+    public static partial class ArrT
+    {
+        /// <summary>
         /// Finds total of all the `Num<A>`s in `Option&lt;Arr&lt;A&gt;&gt;`
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -11136,8 +15908,7 @@ namespace LanguageExt
         /// <returns>`Arr&lt;Option&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Arr<Option<B>> traverse< A, B>(Option<Arr<A>> ma, Func<A, B> f) =>
-            SeqTrans<MOption<Arr<A>>, Option<Arr<A>>, MArr<A>, Arr<A>, A>
-                .Inst.Traverse<MArr<Option<B>>, Arr<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Option&lt;Arr&lt;A&gt;&gt;`, traverses the inner
@@ -11420,8 +16191,7 @@ namespace LanguageExt
         /// <returns>`HashSet&lt;Option&lt;B&gt;&gt;`</returns>
         [Pure]
         public static HashSet<Option<B>> traverse< A, B>(Option<HashSet<A>> ma, Func<A, B> f) =>
-            SeqTrans<MOption<HashSet<A>>, Option<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
-                .Inst.Traverse<MHashSet<Option<B>>, HashSet<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Option&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
@@ -11704,8 +16474,7 @@ namespace LanguageExt
         /// <returns>`Lst&lt;Option&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Lst<Option<B>> traverse< A, B>(Option<Lst<A>> ma, Func<A, B> f) =>
-            SeqTrans<MOption<Lst<A>>, Option<Lst<A>>, MLst<A>, Lst<A>, A>
-                .Inst.Traverse<MLst<Option<B>>, Lst<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Option&lt;Lst&lt;A&gt;&gt;`, traverses the inner
@@ -11939,6 +16708,289 @@ namespace LanguageExt
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class FinT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Option&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Option&lt;Fin&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Option&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Option<Fin<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOption<Fin<A>>, Option<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Option&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Option&lt;Fin&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Option&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Option<Fin<A>> ma) =>
+            Trans<MOption<Fin<A>>, Option<Fin<A>>, MFin<A>, Fin<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Option&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Option&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Option<Fin<B>> bindT< A, B>(Option<Fin<A>> ma, Func<A, Fin<B>> f) =>
+            Trans<MOption<Fin<A>>, Option<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MOption<Fin<B>>, Option<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Option&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Option&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Option&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Option&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Option<B>> traverse< A, B>(Option<Fin<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Option&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Option&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Option&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Option<A>> sequence< A>(Option<Fin<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Option&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Option&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Option<Fin<B>> mapT< A, B>(Option<Fin<A>> ma, Func<A, B> f) =>
+            Trans<MOption<Fin<A>>, Option<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Map<MOption<Fin<B>>, Option<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Option&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Option<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Fin<A>>, Option<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Option&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Option<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOption<Fin<A>>, Option<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Option&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Option<Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MOption<Fin<A>>, Option<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Option&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Option<Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MOption<Fin<A>>, Option<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Option&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Option&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Option<Fin<A>> ma, Action<A> f) =>
+            Trans<MOption<Fin<A>>, Option<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Option&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Option&lt;Fin&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Option<Fin<A>> filterT< A>(Option<Fin<A>> ma, Func<A, bool> pred) =>
+            Trans<MOption<Fin<A>>, Option<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MOption<Fin<A>>, Option<Fin<A>>, MFin<A>, Fin<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MFin<A>).Return(a)
+                        : default(MFin<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Option&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Option<Fin<A>> plusT<NUM,  A>(Option<Fin<A>> x, Option<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Option&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Option<Fin<A>> subtractT<NUM,  A>(Option<Fin<A>> x, Option<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Option&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Option<Fin<A>> productT<NUM,  A>(Option<Fin<A>> x, Option<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Option&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Option<Fin<A>> divideT<NUM,  A>(Option<Fin<A>> x, Option<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Option&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Option<Fin<A>> appendT<SEMI,  A>(Option<Fin<A>> x, Option<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Option<Fin<A>> x, Option<Fin<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Option&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Option<Fin<A>> x, Option<Fin<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Option&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Option&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Option<Fin<B>> applyT< A, B>(Func<A, B> fab, Option<Fin<A>> fa) =>
+            ApplOption< Fin<A>, Fin<B>>.Inst.Apply(
+                 MOption< Func<Fin<A>, Fin<B>>>.Inst.Return((Fin<A> a) => ApplFin< A, B>.Inst.Apply(
+                     MFin< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Option&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Option&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Option&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Option<Fin<C>> applyT< A, B, C>(Func<A, B, C> fabc, Option<Fin<A>> fa, Option<Fin<B>> fb) =>
+            ApplOption< Fin<A>, Fin<B>, Fin<C>>.Inst.Apply(
+                MOption< Func<Fin<A>, Func<Fin<B>, Fin<C>>>>.Inst.Return(
+                    (Fin<A> a) =>
+                        (Fin<B> b) =>
+                            ApplFin< A, B, C>.Inst.Apply(
+                                MFin< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionT
     {
         /// <summary>
@@ -11988,8 +17040,7 @@ namespace LanguageExt
         /// <returns>`Option&lt;Option&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Option<Option<B>> traverse< A, B>(Option<Option<A>> ma, Func<A, B> f) =>
-            Trans<MOption<Option<A>>, Option<Option<A>>, MOption<A>, Option<A>, A>
-                .Inst.Traverse<MOption<Option<B>>, Option<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Option&lt;Option&lt;A&gt;&gt;`, traverses the inner
@@ -12272,8 +17323,7 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe&lt;Option&lt;B&gt;&gt;`</returns>
         [Pure]
         public static OptionUnsafe<Option<B>> traverse< A, B>(Option<OptionUnsafe<A>> ma, Func<A, B> f) =>
-            Trans<MOption<OptionUnsafe<A>>, Option<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
-                .Inst.Traverse<MOptionUnsafe<Option<B>>, OptionUnsafe<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Option&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
@@ -12556,8 +17606,7 @@ namespace LanguageExt
         /// <returns>`Either&lt;L, Option&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Either<L, Option<B>> traverse<L, A, B>(Option<Either<L, A>> ma, Func<A, B> f) =>
-            Trans<MOption<Either<L, A>>, Option<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
-                .Inst.Traverse<MEither<L, Option<B>>, Either<L, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Option&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
@@ -12840,8 +17889,7 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe&lt;L, Option&lt;B&gt;&gt;`</returns>
         [Pure]
         public static EitherUnsafe<L, Option<B>> traverse<L, A, B>(Option<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            Trans<MOption<EitherUnsafe<L, A>>, Option<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
-                .Inst.Traverse<MEitherUnsafe<L, Option<B>>, EitherUnsafe<L, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Option&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
@@ -13124,8 +18172,7 @@ namespace LanguageExt
         /// <returns>`Try&lt;Option&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Try<Option<B>> traverse< A, B>(Option<Try<A>> ma, Func<A, B> f) =>
-            Trans<MOption<Try<A>>, Option<Try<A>>, MTry<A>, Try<A>, A>
-                .Inst.Traverse<MTry<Option<B>>, Try<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Option&lt;Try&lt;A&gt;&gt;`, traverses the inner
@@ -13408,8 +18455,7 @@ namespace LanguageExt
         /// <returns>`TryOption&lt;Option&lt;B&gt;&gt;`</returns>
         [Pure]
         public static TryOption<Option<B>> traverse< A, B>(Option<TryOption<A>> ma, Func<A, B> f) =>
-            Trans<MOption<TryOption<A>>, Option<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
-                .Inst.Traverse<MTryOption<Option<B>>, TryOption<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Option&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
@@ -13692,8 +18738,7 @@ namespace LanguageExt
         /// <returns>`IEnumerable&lt;Option&lt;B&gt;&gt;`</returns>
         [Pure]
         public static IEnumerable<Option<B>> traverse< A, B>(Option<IEnumerable<A>> ma, Func<A, B> f) =>
-            SeqTrans<MOption<IEnumerable<A>>, Option<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
-                .Inst.Traverse<MEnumerable<Option<B>>, IEnumerable<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Option&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
@@ -13976,8 +19021,7 @@ namespace LanguageExt
         /// <returns>`Seq&lt;Option&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Seq<Option<B>> traverse< A, B>(Option<Seq<A>> ma, Func<A, B> f) =>
-            SeqTrans<MOption<Seq<A>>, Option<Seq<A>>, MSeq<A>, Seq<A>, A>
-                .Inst.Traverse<MSeq<Option<B>>, Seq<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Option&lt;Seq&lt;A&gt;&gt;`, traverses the inner
@@ -14260,8 +19304,7 @@ namespace LanguageExt
         /// <returns>`Set&lt;Option&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Set<Option<B>> traverse< A, B>(Option<Set<A>> ma, Func<A, B> f) =>
-            SeqTrans<MOption<Set<A>>, Option<Set<A>>, MSet<A>, Set<A>, A>
-                .Inst.Traverse<MSet<Option<B>>, Set<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Option&lt;Set&lt;A&gt;&gt;`, traverses the inner
@@ -14544,8 +19587,7 @@ namespace LanguageExt
         /// <returns>`Validation&lt;FAIL, Option&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Validation<FAIL, Option<B>> traverse<FAIL, A, B>(Option<Validation<FAIL, A>> ma, Func<A, B> f) =>
-            Trans<MOption<Validation<FAIL, A>>, Option<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
-                .Inst.Traverse<MValidation<FAIL, Option<B>>, Validation<FAIL, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Option&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
@@ -14828,8 +19870,7 @@ namespace LanguageExt
         /// <returns>`Arr&lt;OptionUnsafe&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Arr<OptionUnsafe<B>> traverse< A, B>(OptionUnsafe<Arr<A>> ma, Func<A, B> f) =>
-            SeqTrans<MOptionUnsafe<Arr<A>>, OptionUnsafe<Arr<A>>, MArr<A>, Arr<A>, A>
-                .Inst.Traverse<MArr<OptionUnsafe<B>>, Arr<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Arr&lt;A&gt;&gt;`, traverses the inner
@@ -15112,8 +20153,7 @@ namespace LanguageExt
         /// <returns>`HashSet&lt;OptionUnsafe&lt;B&gt;&gt;`</returns>
         [Pure]
         public static HashSet<OptionUnsafe<B>> traverse< A, B>(OptionUnsafe<HashSet<A>> ma, Func<A, B> f) =>
-            SeqTrans<MOptionUnsafe<HashSet<A>>, OptionUnsafe<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
-                .Inst.Traverse<MHashSet<OptionUnsafe<B>>, HashSet<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
@@ -15396,8 +20436,7 @@ namespace LanguageExt
         /// <returns>`Lst&lt;OptionUnsafe&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Lst<OptionUnsafe<B>> traverse< A, B>(OptionUnsafe<Lst<A>> ma, Func<A, B> f) =>
-            SeqTrans<MOptionUnsafe<Lst<A>>, OptionUnsafe<Lst<A>>, MLst<A>, Lst<A>, A>
-                .Inst.Traverse<MLst<OptionUnsafe<B>>, Lst<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Lst&lt;A&gt;&gt;`, traverses the inner
@@ -15631,6 +20670,289 @@ namespace LanguageExt
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class FinT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `OptionUnsafe&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe&lt;Fin&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(OptionUnsafe<Fin<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MOptionUnsafe<Fin<A>>, OptionUnsafe<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `OptionUnsafe&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe&lt;Fin&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `OptionUnsafe&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(OptionUnsafe<Fin<A>> ma) =>
+            Trans<MOptionUnsafe<Fin<A>>, OptionUnsafe<Fin<A>>, MFin<A>, Fin<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`OptionUnsafe&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionUnsafe<Fin<B>> bindT< A, B>(OptionUnsafe<Fin<A>> ma, Func<A, Fin<B>> f) =>
+            Trans<MOptionUnsafe<Fin<A>>, OptionUnsafe<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MOptionUnsafe<Fin<B>>, OptionUnsafe<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `OptionUnsafe&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;OptionUnsafe&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;OptionUnsafe&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<OptionUnsafe<B>> traverse< A, B>(OptionUnsafe<Fin<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<OptionUnsafe<A>> sequence< A>(OptionUnsafe<Fin<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`OptionUnsafe&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static OptionUnsafe<Fin<B>> mapT< A, B>(OptionUnsafe<Fin<A>> ma, Func<A, B> f) =>
+            Trans<MOptionUnsafe<Fin<A>>, OptionUnsafe<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Map<MOptionUnsafe<Fin<B>>, OptionUnsafe<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionUnsafe&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(OptionUnsafe<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Fin<A>>, OptionUnsafe<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `OptionUnsafe&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(OptionUnsafe<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MOptionUnsafe<Fin<A>>, OptionUnsafe<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(OptionUnsafe<Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionUnsafe<Fin<A>>, OptionUnsafe<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(OptionUnsafe<Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MOptionUnsafe<Fin<A>>, OptionUnsafe<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `OptionUnsafe&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(OptionUnsafe<Fin<A>> ma, Action<A> f) =>
+            Trans<MOptionUnsafe<Fin<A>>, OptionUnsafe<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `OptionUnsafe&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static OptionUnsafe<Fin<A>> filterT< A>(OptionUnsafe<Fin<A>> ma, Func<A, bool> pred) =>
+            Trans<MOptionUnsafe<Fin<A>>, OptionUnsafe<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MOptionUnsafe<Fin<A>>, OptionUnsafe<Fin<A>>, MFin<A>, Fin<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MFin<A>).Return(a)
+                        : default(MFin<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static OptionUnsafe<Fin<A>> plusT<NUM,  A>(OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static OptionUnsafe<Fin<A>> subtractT<NUM,  A>(OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static OptionUnsafe<Fin<A>> productT<NUM,  A>(OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static OptionUnsafe<Fin<A>> divideT<NUM,  A>(OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static OptionUnsafe<Fin<A>> appendT<SEMI,  A>(OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `OptionUnsafe&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`OptionUnsafe&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static OptionUnsafe<Fin<B>> applyT< A, B>(Func<A, B> fab, OptionUnsafe<Fin<A>> fa) =>
+            ApplOptionUnsafe< Fin<A>, Fin<B>>.Inst.Apply(
+                 MOptionUnsafe< Func<Fin<A>, Fin<B>>>.Inst.Return((Fin<A> a) => ApplFin< A, B>.Inst.Apply(
+                     MFin< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `OptionUnsafe&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `OptionUnsafe&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`OptionUnsafe&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static OptionUnsafe<Fin<C>> applyT< A, B, C>(Func<A, B, C> fabc, OptionUnsafe<Fin<A>> fa, OptionUnsafe<Fin<B>> fb) =>
+            ApplOptionUnsafe< Fin<A>, Fin<B>, Fin<C>>.Inst.Apply(
+                MOptionUnsafe< Func<Fin<A>, Func<Fin<B>, Fin<C>>>>.Inst.Return(
+                    (Fin<A> a) =>
+                        (Fin<B> b) =>
+                            ApplFin< A, B, C>.Inst.Apply(
+                                MFin< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionT
     {
         /// <summary>
@@ -15680,8 +21002,7 @@ namespace LanguageExt
         /// <returns>`Option&lt;OptionUnsafe&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Option<OptionUnsafe<B>> traverse< A, B>(OptionUnsafe<Option<A>> ma, Func<A, B> f) =>
-            Trans<MOptionUnsafe<Option<A>>, OptionUnsafe<Option<A>>, MOption<A>, Option<A>, A>
-                .Inst.Traverse<MOption<OptionUnsafe<B>>, Option<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Option&lt;A&gt;&gt;`, traverses the inner
@@ -15964,8 +21285,7 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe&lt;OptionUnsafe&lt;B&gt;&gt;`</returns>
         [Pure]
         public static OptionUnsafe<OptionUnsafe<B>> traverse< A, B>(OptionUnsafe<OptionUnsafe<A>> ma, Func<A, B> f) =>
-            Trans<MOptionUnsafe<OptionUnsafe<A>>, OptionUnsafe<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
-                .Inst.Traverse<MOptionUnsafe<OptionUnsafe<B>>, OptionUnsafe<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
@@ -16248,8 +21568,7 @@ namespace LanguageExt
         /// <returns>`Either&lt;L, OptionUnsafe&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Either<L, OptionUnsafe<B>> traverse<L, A, B>(OptionUnsafe<Either<L, A>> ma, Func<A, B> f) =>
-            Trans<MOptionUnsafe<Either<L, A>>, OptionUnsafe<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
-                .Inst.Traverse<MEither<L, OptionUnsafe<B>>, Either<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
@@ -16532,8 +21851,7 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe&lt;L, OptionUnsafe&lt;B&gt;&gt;`</returns>
         [Pure]
         public static EitherUnsafe<L, OptionUnsafe<B>> traverse<L, A, B>(OptionUnsafe<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            Trans<MOptionUnsafe<EitherUnsafe<L, A>>, OptionUnsafe<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
-                .Inst.Traverse<MEitherUnsafe<L, OptionUnsafe<B>>, EitherUnsafe<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
@@ -16816,8 +22134,7 @@ namespace LanguageExt
         /// <returns>`Try&lt;OptionUnsafe&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Try<OptionUnsafe<B>> traverse< A, B>(OptionUnsafe<Try<A>> ma, Func<A, B> f) =>
-            Trans<MOptionUnsafe<Try<A>>, OptionUnsafe<Try<A>>, MTry<A>, Try<A>, A>
-                .Inst.Traverse<MTry<OptionUnsafe<B>>, Try<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Try&lt;A&gt;&gt;`, traverses the inner
@@ -17100,8 +22417,7 @@ namespace LanguageExt
         /// <returns>`TryOption&lt;OptionUnsafe&lt;B&gt;&gt;`</returns>
         [Pure]
         public static TryOption<OptionUnsafe<B>> traverse< A, B>(OptionUnsafe<TryOption<A>> ma, Func<A, B> f) =>
-            Trans<MOptionUnsafe<TryOption<A>>, OptionUnsafe<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
-                .Inst.Traverse<MTryOption<OptionUnsafe<B>>, TryOption<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
@@ -17384,8 +22700,7 @@ namespace LanguageExt
         /// <returns>`IEnumerable&lt;OptionUnsafe&lt;B&gt;&gt;`</returns>
         [Pure]
         public static IEnumerable<OptionUnsafe<B>> traverse< A, B>(OptionUnsafe<IEnumerable<A>> ma, Func<A, B> f) =>
-            SeqTrans<MOptionUnsafe<IEnumerable<A>>, OptionUnsafe<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
-                .Inst.Traverse<MEnumerable<OptionUnsafe<B>>, IEnumerable<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
@@ -17668,8 +22983,7 @@ namespace LanguageExt
         /// <returns>`Seq&lt;OptionUnsafe&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Seq<OptionUnsafe<B>> traverse< A, B>(OptionUnsafe<Seq<A>> ma, Func<A, B> f) =>
-            SeqTrans<MOptionUnsafe<Seq<A>>, OptionUnsafe<Seq<A>>, MSeq<A>, Seq<A>, A>
-                .Inst.Traverse<MSeq<OptionUnsafe<B>>, Seq<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Seq&lt;A&gt;&gt;`, traverses the inner
@@ -17952,8 +23266,7 @@ namespace LanguageExt
         /// <returns>`Set&lt;OptionUnsafe&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Set<OptionUnsafe<B>> traverse< A, B>(OptionUnsafe<Set<A>> ma, Func<A, B> f) =>
-            SeqTrans<MOptionUnsafe<Set<A>>, OptionUnsafe<Set<A>>, MSet<A>, Set<A>, A>
-                .Inst.Traverse<MSet<OptionUnsafe<B>>, Set<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Set&lt;A&gt;&gt;`, traverses the inner
@@ -18236,8 +23549,7 @@ namespace LanguageExt
         /// <returns>`Validation&lt;FAIL, OptionUnsafe&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Validation<FAIL, OptionUnsafe<B>> traverse<FAIL, A, B>(OptionUnsafe<Validation<FAIL, A>> ma, Func<A, B> f) =>
-            Trans<MOptionUnsafe<Validation<FAIL, A>>, OptionUnsafe<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
-                .Inst.Traverse<MValidation<FAIL, OptionUnsafe<B>>, Validation<FAIL, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
@@ -18520,8 +23832,7 @@ namespace LanguageExt
         /// <returns>`Arr&lt;Either&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Arr<Either<L, B>> traverse<L, A, B>(Either<L, Arr<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEither<L, Arr<A>>, Either<L, Arr<A>>, MArr<A>, Arr<A>, A>
-                .Inst.Traverse<MArr<Either<L, B>>, Arr<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Either&lt;L, Arr&lt;A&gt;&gt;`, traverses the inner
@@ -18804,8 +24115,7 @@ namespace LanguageExt
         /// <returns>`HashSet&lt;Either&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static HashSet<Either<L, B>> traverse<L, A, B>(Either<L, HashSet<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEither<L, HashSet<A>>, Either<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
-                .Inst.Traverse<MHashSet<Either<L, B>>, HashSet<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Either&lt;L, HashSet&lt;A&gt;&gt;`, traverses the inner
@@ -19088,8 +24398,7 @@ namespace LanguageExt
         /// <returns>`Lst&lt;Either&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Lst<Either<L, B>> traverse<L, A, B>(Either<L, Lst<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEither<L, Lst<A>>, Either<L, Lst<A>>, MLst<A>, Lst<A>, A>
-                .Inst.Traverse<MLst<Either<L, B>>, Lst<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Either&lt;L, Lst&lt;A&gt;&gt;`, traverses the inner
@@ -19323,6 +24632,289 @@ namespace LanguageExt
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class FinT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Either&lt;L, Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Either&lt;L, Fin&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Either&lt;L, Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA, L, A>(Either<L, Fin<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MEither<L, Fin<A>>, Either<L, Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Either&lt;L, Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Either&lt;L, Fin&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Either&lt;L, Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT<L, A>(Either<L, Fin<A>> ma) =>
+            Trans<MEither<L, Fin<A>>, Either<L, Fin<A>>, MFin<A>, Fin<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Either&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Either&lt;L, Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Either<L, Fin<B>> bindT<L, A, B>(Either<L, Fin<A>> ma, Func<A, Fin<B>> f) =>
+            Trans<MEither<L, Fin<A>>, Either<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MEither<L, Fin<B>>, Either<L, Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Either&lt;L, Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Either&lt;L, B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Either&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Either&lt;L, B&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Either<L, B>> traverse<L, A, B>(Either<L, Fin<A>> ma, Func<A, B> f) =>
+            ma.Traverse<L, A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Either&lt;L, Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse<L, A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Either&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Either<L, A>> sequence<L, A>(Either<L, Fin<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Either&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Either&lt;L, Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Either<L, Fin<B>> mapT<L, A, B>(Either<L, Fin<A>> ma, Func<A, B> f) =>
+            Trans<MEither<L, Fin<A>>, Either<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Map<MEither<L, Fin<B>>, Either<L, Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Either&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S, L, A>(Either<L, Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Fin<A>>, Either<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Either&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S, L, A>(Either<L, Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEither<L, Fin<A>>, Either<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Either&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT<L, A>(Either<L, Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MEither<L, Fin<A>>, Either<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Either&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT<L, A>(Either<L, Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MEither<L, Fin<A>>, Either<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Either&lt;L, Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Either&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT<L, A>(Either<L, Fin<A>> ma, Action<A> f) =>
+            Trans<MEither<L, Fin<A>>, Either<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Either&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Either<L, Fin<A>> filterT<L, A>(Either<L, Fin<A>> ma, Func<A, bool> pred) =>
+            Trans<MEither<L, Fin<A>>, Either<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MEither<L, Fin<A>>, Either<L, Fin<A>>, MFin<A>, Fin<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MFin<A>).Return(a)
+                        : default(MFin<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Either<L, Fin<A>> plusT<NUM, L, A>(Either<L, Fin<A>> x, Either<L, Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Either<L, Fin<A>> subtractT<NUM, L, A>(Either<L, Fin<A>> x, Either<L, Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Either<L, Fin<A>> productT<NUM, L, A>(Either<L, Fin<A>> x, Either<L, Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Either<L, Fin<A>> divideT<NUM, L, A>(Either<L, Fin<A>> x, Either<L, Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Either<L, Fin<A>> appendT<SEMI, L, A>(Either<L, Fin<A>> x, Either<L, Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD, L, A>(Either<L, Fin<A>> x, Either<L, Fin<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ, L, A>(Either<L, Fin<A>> x, Either<L, Fin<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Either&lt;L, Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Either&lt;L, Fin&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Either<L, Fin<B>> applyT<L, A, B>(Func<A, B> fab, Either<L, Fin<A>> fa) =>
+            ApplEither<L, Fin<A>, Fin<B>>.Inst.Apply(
+                 MEither<L, Func<Fin<A>, Fin<B>>>.Inst.Return((Fin<A> a) => ApplFin< A, B>.Inst.Apply(
+                     MFin< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Either&lt;L, Fin&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Either&lt;L, Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Either&lt;L, Fin&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Either<L, Fin<C>> applyT<L, A, B, C>(Func<A, B, C> fabc, Either<L, Fin<A>> fa, Either<L, Fin<B>> fb) =>
+            ApplEither<L, Fin<A>, Fin<B>, Fin<C>>.Inst.Apply(
+                MEither<L, Func<Fin<A>, Func<Fin<B>, Fin<C>>>>.Inst.Return(
+                    (Fin<A> a) =>
+                        (Fin<B> b) =>
+                            ApplFin< A, B, C>.Inst.Apply(
+                                MFin< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionT
     {
         /// <summary>
@@ -19372,8 +24964,7 @@ namespace LanguageExt
         /// <returns>`Option&lt;Either&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Option<Either<L, B>> traverse<L, A, B>(Either<L, Option<A>> ma, Func<A, B> f) =>
-            Trans<MEither<L, Option<A>>, Either<L, Option<A>>, MOption<A>, Option<A>, A>
-                .Inst.Traverse<MOption<Either<L, B>>, Option<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Either&lt;L, Option&lt;A&gt;&gt;`, traverses the inner
@@ -19656,8 +25247,7 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe&lt;Either&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static OptionUnsafe<Either<L, B>> traverse<L, A, B>(Either<L, OptionUnsafe<A>> ma, Func<A, B> f) =>
-            Trans<MEither<L, OptionUnsafe<A>>, Either<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
-                .Inst.Traverse<MOptionUnsafe<Either<L, B>>, OptionUnsafe<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Either&lt;L, OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
@@ -19940,8 +25530,7 @@ namespace LanguageExt
         /// <returns>`Either&lt;L, Either&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Either<L, Either<L, B>> traverse<L, A, B>(Either<L, Either<L, A>> ma, Func<A, B> f) =>
-            Trans<MEither<L, Either<L, A>>, Either<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
-                .Inst.Traverse<MEither<L, Either<L, B>>, Either<L, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Either&lt;L, Either&lt;L, A&gt;&gt;`, traverses the inner
@@ -20224,8 +25813,7 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe&lt;L, Either&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static EitherUnsafe<L, Either<L, B>> traverse<L, A, B>(Either<L, EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            Trans<MEither<L, EitherUnsafe<L, A>>, Either<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
-                .Inst.Traverse<MEitherUnsafe<L, Either<L, B>>, EitherUnsafe<L, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Either&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
@@ -20508,8 +26096,7 @@ namespace LanguageExt
         /// <returns>`Try&lt;Either&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Try<Either<L, B>> traverse<L, A, B>(Either<L, Try<A>> ma, Func<A, B> f) =>
-            Trans<MEither<L, Try<A>>, Either<L, Try<A>>, MTry<A>, Try<A>, A>
-                .Inst.Traverse<MTry<Either<L, B>>, Try<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Either&lt;L, Try&lt;A&gt;&gt;`, traverses the inner
@@ -20792,8 +26379,7 @@ namespace LanguageExt
         /// <returns>`TryOption&lt;Either&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static TryOption<Either<L, B>> traverse<L, A, B>(Either<L, TryOption<A>> ma, Func<A, B> f) =>
-            Trans<MEither<L, TryOption<A>>, Either<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
-                .Inst.Traverse<MTryOption<Either<L, B>>, TryOption<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Either&lt;L, TryOption&lt;A&gt;&gt;`, traverses the inner
@@ -21076,8 +26662,7 @@ namespace LanguageExt
         /// <returns>`IEnumerable&lt;Either&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static IEnumerable<Either<L, B>> traverse<L, A, B>(Either<L, IEnumerable<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEither<L, IEnumerable<A>>, Either<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
-                .Inst.Traverse<MEnumerable<Either<L, B>>, IEnumerable<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Either&lt;L, IEnumerable&lt;A&gt;&gt;`, traverses the inner
@@ -21360,8 +26945,7 @@ namespace LanguageExt
         /// <returns>`Seq&lt;Either&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Seq<Either<L, B>> traverse<L, A, B>(Either<L, Seq<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEither<L, Seq<A>>, Either<L, Seq<A>>, MSeq<A>, Seq<A>, A>
-                .Inst.Traverse<MSeq<Either<L, B>>, Seq<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Either&lt;L, Seq&lt;A&gt;&gt;`, traverses the inner
@@ -21644,8 +27228,7 @@ namespace LanguageExt
         /// <returns>`Set&lt;Either&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Set<Either<L, B>> traverse<L, A, B>(Either<L, Set<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEither<L, Set<A>>, Either<L, Set<A>>, MSet<A>, Set<A>, A>
-                .Inst.Traverse<MSet<Either<L, B>>, Set<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Either&lt;L, Set&lt;A&gt;&gt;`, traverses the inner
@@ -21928,8 +27511,7 @@ namespace LanguageExt
         /// <returns>`Validation&lt;FAIL, Either&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Validation<FAIL, Either<L, B>> traverse<L, FAIL, A, B>(Either<L, Validation<FAIL, A>> ma, Func<A, B> f) =>
-            Trans<MEither<L, Validation<FAIL, A>>, Either<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
-                .Inst.Traverse<MValidation<FAIL, Either<L, B>>, Validation<FAIL, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
+            ma.Traverse<L, FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Either&lt;L, Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
@@ -22212,8 +27794,7 @@ namespace LanguageExt
         /// <returns>`Arr&lt;EitherUnsafe&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Arr<EitherUnsafe<L, B>> traverse<L, A, B>(EitherUnsafe<L, Arr<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEitherUnsafe<L, Arr<A>>, EitherUnsafe<L, Arr<A>>, MArr<A>, Arr<A>, A>
-                .Inst.Traverse<MArr<EitherUnsafe<L, B>>, Arr<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Arr&lt;A&gt;&gt;`, traverses the inner
@@ -22496,8 +28077,7 @@ namespace LanguageExt
         /// <returns>`HashSet&lt;EitherUnsafe&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static HashSet<EitherUnsafe<L, B>> traverse<L, A, B>(EitherUnsafe<L, HashSet<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEitherUnsafe<L, HashSet<A>>, EitherUnsafe<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
-                .Inst.Traverse<MHashSet<EitherUnsafe<L, B>>, HashSet<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, HashSet&lt;A&gt;&gt;`, traverses the inner
@@ -22780,8 +28360,7 @@ namespace LanguageExt
         /// <returns>`Lst&lt;EitherUnsafe&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Lst<EitherUnsafe<L, B>> traverse<L, A, B>(EitherUnsafe<L, Lst<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEitherUnsafe<L, Lst<A>>, EitherUnsafe<L, Lst<A>>, MLst<A>, Lst<A>, A>
-                .Inst.Traverse<MLst<EitherUnsafe<L, B>>, Lst<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Lst&lt;A&gt;&gt;`, traverses the inner
@@ -23015,6 +28594,289 @@ namespace LanguageExt
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class FinT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA, L, A>(EitherUnsafe<L, Fin<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MEitherUnsafe<L, Fin<A>>, EitherUnsafe<L, Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT<L, A>(EitherUnsafe<L, Fin<A>> ma) =>
+            Trans<MEitherUnsafe<L, Fin<A>>, EitherUnsafe<L, Fin<A>>, MFin<A>, Fin<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`EitherUnsafe&lt;L, Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherUnsafe<L, Fin<B>> bindT<L, A, B>(EitherUnsafe<L, Fin<A>> ma, Func<A, Fin<B>> f) =>
+            Trans<MEitherUnsafe<L, Fin<A>>, EitherUnsafe<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MEitherUnsafe<L, Fin<B>>, EitherUnsafe<L, Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;EitherUnsafe&lt;L, B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;EitherUnsafe&lt;L, B&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<EitherUnsafe<L, B>> traverse<L, A, B>(EitherUnsafe<L, Fin<A>> ma, Func<A, B> f) =>
+            ma.Traverse<L, A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse<L, A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<EitherUnsafe<L, A>> sequence<L, A>(EitherUnsafe<L, Fin<A>> ma) =>
+            ma.Traverse<L, A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`EitherUnsafe&lt;L, Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static EitherUnsafe<L, Fin<B>> mapT<L, A, B>(EitherUnsafe<L, Fin<A>> ma, Func<A, B> f) =>
+            Trans<MEitherUnsafe<L, Fin<A>>, EitherUnsafe<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Map<MEitherUnsafe<L, Fin<B>>, EitherUnsafe<L, Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S, L, A>(EitherUnsafe<L, Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Fin<A>>, EitherUnsafe<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S, L, A>(EitherUnsafe<L, Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MEitherUnsafe<L, Fin<A>>, EitherUnsafe<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT<L, A>(EitherUnsafe<L, Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MEitherUnsafe<L, Fin<A>>, EitherUnsafe<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT<L, A>(EitherUnsafe<L, Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MEitherUnsafe<L, Fin<A>>, EitherUnsafe<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT<L, A>(EitherUnsafe<L, Fin<A>> ma, Action<A> f) =>
+            Trans<MEitherUnsafe<L, Fin<A>>, EitherUnsafe<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static EitherUnsafe<L, Fin<A>> filterT<L, A>(EitherUnsafe<L, Fin<A>> ma, Func<A, bool> pred) =>
+            Trans<MEitherUnsafe<L, Fin<A>>, EitherUnsafe<L, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MEitherUnsafe<L, Fin<A>>, EitherUnsafe<L, Fin<A>>, MFin<A>, Fin<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MFin<A>).Return(a)
+                        : default(MFin<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static EitherUnsafe<L, Fin<A>> plusT<NUM, L, A>(EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static EitherUnsafe<L, Fin<A>> subtractT<NUM, L, A>(EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static EitherUnsafe<L, Fin<A>> productT<NUM, L, A>(EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static EitherUnsafe<L, Fin<A>> divideT<NUM, L, A>(EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static EitherUnsafe<L, Fin<A>> appendT<SEMI, L, A>(EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD, L, A>(EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ, L, A>(EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherUnsafe&lt;L, Fin&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static EitherUnsafe<L, Fin<B>> applyT<L, A, B>(Func<A, B> fab, EitherUnsafe<L, Fin<A>> fa) =>
+            ApplEitherUnsafe<L, Fin<A>, Fin<B>>.Inst.Apply(
+                 MEitherUnsafe<L, Func<Fin<A>, Fin<B>>>.Inst.Return((Fin<A> a) => ApplFin< A, B>.Inst.Apply(
+                     MFin< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`EitherUnsafe&lt;L, Fin&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static EitherUnsafe<L, Fin<C>> applyT<L, A, B, C>(Func<A, B, C> fabc, EitherUnsafe<L, Fin<A>> fa, EitherUnsafe<L, Fin<B>> fb) =>
+            ApplEitherUnsafe<L, Fin<A>, Fin<B>, Fin<C>>.Inst.Apply(
+                MEitherUnsafe<L, Func<Fin<A>, Func<Fin<B>, Fin<C>>>>.Inst.Return(
+                    (Fin<A> a) =>
+                        (Fin<B> b) =>
+                            ApplFin< A, B, C>.Inst.Apply(
+                                MFin< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionT
     {
         /// <summary>
@@ -23064,8 +28926,7 @@ namespace LanguageExt
         /// <returns>`Option&lt;EitherUnsafe&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Option<EitherUnsafe<L, B>> traverse<L, A, B>(EitherUnsafe<L, Option<A>> ma, Func<A, B> f) =>
-            Trans<MEitherUnsafe<L, Option<A>>, EitherUnsafe<L, Option<A>>, MOption<A>, Option<A>, A>
-                .Inst.Traverse<MOption<EitherUnsafe<L, B>>, Option<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Option&lt;A&gt;&gt;`, traverses the inner
@@ -23348,8 +29209,7 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe&lt;EitherUnsafe&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static OptionUnsafe<EitherUnsafe<L, B>> traverse<L, A, B>(EitherUnsafe<L, OptionUnsafe<A>> ma, Func<A, B> f) =>
-            Trans<MEitherUnsafe<L, OptionUnsafe<A>>, EitherUnsafe<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
-                .Inst.Traverse<MOptionUnsafe<EitherUnsafe<L, B>>, OptionUnsafe<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
@@ -23632,8 +29492,7 @@ namespace LanguageExt
         /// <returns>`Either&lt;L, EitherUnsafe&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Either<L, EitherUnsafe<L, B>> traverse<L, A, B>(EitherUnsafe<L, Either<L, A>> ma, Func<A, B> f) =>
-            Trans<MEitherUnsafe<L, Either<L, A>>, EitherUnsafe<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
-                .Inst.Traverse<MEither<L, EitherUnsafe<L, B>>, Either<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Either&lt;L, A&gt;&gt;`, traverses the inner
@@ -23916,8 +29775,7 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe&lt;L, EitherUnsafe&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static EitherUnsafe<L, EitherUnsafe<L, B>> traverse<L, A, B>(EitherUnsafe<L, EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            Trans<MEitherUnsafe<L, EitherUnsafe<L, A>>, EitherUnsafe<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
-                .Inst.Traverse<MEitherUnsafe<L, EitherUnsafe<L, B>>, EitherUnsafe<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
@@ -24200,8 +30058,7 @@ namespace LanguageExt
         /// <returns>`Try&lt;EitherUnsafe&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Try<EitherUnsafe<L, B>> traverse<L, A, B>(EitherUnsafe<L, Try<A>> ma, Func<A, B> f) =>
-            Trans<MEitherUnsafe<L, Try<A>>, EitherUnsafe<L, Try<A>>, MTry<A>, Try<A>, A>
-                .Inst.Traverse<MTry<EitherUnsafe<L, B>>, Try<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Try&lt;A&gt;&gt;`, traverses the inner
@@ -24484,8 +30341,7 @@ namespace LanguageExt
         /// <returns>`TryOption&lt;EitherUnsafe&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static TryOption<EitherUnsafe<L, B>> traverse<L, A, B>(EitherUnsafe<L, TryOption<A>> ma, Func<A, B> f) =>
-            Trans<MEitherUnsafe<L, TryOption<A>>, EitherUnsafe<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
-                .Inst.Traverse<MTryOption<EitherUnsafe<L, B>>, TryOption<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, TryOption&lt;A&gt;&gt;`, traverses the inner
@@ -24768,8 +30624,7 @@ namespace LanguageExt
         /// <returns>`IEnumerable&lt;EitherUnsafe&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static IEnumerable<EitherUnsafe<L, B>> traverse<L, A, B>(EitherUnsafe<L, IEnumerable<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEitherUnsafe<L, IEnumerable<A>>, EitherUnsafe<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
-                .Inst.Traverse<MEnumerable<EitherUnsafe<L, B>>, IEnumerable<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, IEnumerable&lt;A&gt;&gt;`, traverses the inner
@@ -25052,8 +30907,7 @@ namespace LanguageExt
         /// <returns>`Seq&lt;EitherUnsafe&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Seq<EitherUnsafe<L, B>> traverse<L, A, B>(EitherUnsafe<L, Seq<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEitherUnsafe<L, Seq<A>>, EitherUnsafe<L, Seq<A>>, MSeq<A>, Seq<A>, A>
-                .Inst.Traverse<MSeq<EitherUnsafe<L, B>>, Seq<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Seq&lt;A&gt;&gt;`, traverses the inner
@@ -25336,8 +31190,7 @@ namespace LanguageExt
         /// <returns>`Set&lt;EitherUnsafe&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Set<EitherUnsafe<L, B>> traverse<L, A, B>(EitherUnsafe<L, Set<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEitherUnsafe<L, Set<A>>, EitherUnsafe<L, Set<A>>, MSet<A>, Set<A>, A>
-                .Inst.Traverse<MSet<EitherUnsafe<L, B>>, Set<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Set&lt;A&gt;&gt;`, traverses the inner
@@ -25620,8 +31473,7 @@ namespace LanguageExt
         /// <returns>`Validation&lt;FAIL, EitherUnsafe&lt;L, B&gt;&gt;`</returns>
         [Pure]
         public static Validation<FAIL, EitherUnsafe<L, B>> traverse<L, FAIL, A, B>(EitherUnsafe<L, Validation<FAIL, A>> ma, Func<A, B> f) =>
-            Trans<MEitherUnsafe<L, Validation<FAIL, A>>, EitherUnsafe<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
-                .Inst.Traverse<MValidation<FAIL, EitherUnsafe<L, B>>, Validation<FAIL, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
+            ma.Traverse<L, FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
@@ -25904,8 +31756,7 @@ namespace LanguageExt
         /// <returns>`Arr&lt;Try&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Arr<Try<B>> traverse< A, B>(Try<Arr<A>> ma, Func<A, B> f) =>
-            SeqTrans<MTry<Arr<A>>, Try<Arr<A>>, MArr<A>, Arr<A>, A>
-                .Inst.Traverse<MArr<Try<B>>, Arr<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Try&lt;Arr&lt;A&gt;&gt;`, traverses the inner
@@ -26188,8 +32039,7 @@ namespace LanguageExt
         /// <returns>`HashSet&lt;Try&lt;B&gt;&gt;`</returns>
         [Pure]
         public static HashSet<Try<B>> traverse< A, B>(Try<HashSet<A>> ma, Func<A, B> f) =>
-            SeqTrans<MTry<HashSet<A>>, Try<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
-                .Inst.Traverse<MHashSet<Try<B>>, HashSet<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Try&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
@@ -26472,8 +32322,7 @@ namespace LanguageExt
         /// <returns>`Lst&lt;Try&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Lst<Try<B>> traverse< A, B>(Try<Lst<A>> ma, Func<A, B> f) =>
-            SeqTrans<MTry<Lst<A>>, Try<Lst<A>>, MLst<A>, Lst<A>, A>
-                .Inst.Traverse<MLst<Try<B>>, Lst<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Try&lt;Lst&lt;A&gt;&gt;`, traverses the inner
@@ -26707,6 +32556,289 @@ namespace LanguageExt
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class FinT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Try&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Try&lt;Fin&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Try&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Try<Fin<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MTry<Fin<A>>, Try<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Try&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Try&lt;Fin&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Try&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Try<Fin<A>> ma) =>
+            Trans<MTry<Fin<A>>, Try<Fin<A>>, MFin<A>, Fin<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Try&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Try&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Try<Fin<B>> bindT< A, B>(Try<Fin<A>> ma, Func<A, Fin<B>> f) =>
+            Trans<MTry<Fin<A>>, Try<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MTry<Fin<B>>, Try<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Try&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Try&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Try&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Try&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Try<B>> traverse< A, B>(Try<Fin<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Try&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Try&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Try&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Try<A>> sequence< A>(Try<Fin<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Try&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Try&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Try<Fin<B>> mapT< A, B>(Try<Fin<A>> ma, Func<A, B> f) =>
+            Trans<MTry<Fin<A>>, Try<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Map<MTry<Fin<B>>, Try<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Try&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Try<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Fin<A>>, Try<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Try&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Try<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTry<Fin<A>>, Try<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Try&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Try<Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MTry<Fin<A>>, Try<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Try&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Try<Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MTry<Fin<A>>, Try<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Try&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Try&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Try<Fin<A>> ma, Action<A> f) =>
+            Trans<MTry<Fin<A>>, Try<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Try&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Try&lt;Fin&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Try<Fin<A>> filterT< A>(Try<Fin<A>> ma, Func<A, bool> pred) =>
+            Trans<MTry<Fin<A>>, Try<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MTry<Fin<A>>, Try<Fin<A>>, MFin<A>, Fin<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MFin<A>).Return(a)
+                        : default(MFin<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Try&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Try<Fin<A>> plusT<NUM,  A>(Try<Fin<A>> x, Try<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Try&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Try<Fin<A>> subtractT<NUM,  A>(Try<Fin<A>> x, Try<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Try&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Try<Fin<A>> productT<NUM,  A>(Try<Fin<A>> x, Try<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Try&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Try<Fin<A>> divideT<NUM,  A>(Try<Fin<A>> x, Try<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Try&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Try<Fin<A>> appendT<SEMI,  A>(Try<Fin<A>> x, Try<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Try<Fin<A>> x, Try<Fin<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Try&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Try<Fin<A>> x, Try<Fin<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Try&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Try&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Try<Fin<B>> applyT< A, B>(Func<A, B> fab, Try<Fin<A>> fa) =>
+            ApplTry< Fin<A>, Fin<B>>.Inst.Apply(
+                 MTry< Func<Fin<A>, Fin<B>>>.Inst.Return((Fin<A> a) => ApplFin< A, B>.Inst.Apply(
+                     MFin< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Try&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Try&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Try&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Try<Fin<C>> applyT< A, B, C>(Func<A, B, C> fabc, Try<Fin<A>> fa, Try<Fin<B>> fb) =>
+            ApplTry< Fin<A>, Fin<B>, Fin<C>>.Inst.Apply(
+                MTry< Func<Fin<A>, Func<Fin<B>, Fin<C>>>>.Inst.Return(
+                    (Fin<A> a) =>
+                        (Fin<B> b) =>
+                            ApplFin< A, B, C>.Inst.Apply(
+                                MFin< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionT
     {
         /// <summary>
@@ -26756,8 +32888,7 @@ namespace LanguageExt
         /// <returns>`Option&lt;Try&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Option<Try<B>> traverse< A, B>(Try<Option<A>> ma, Func<A, B> f) =>
-            Trans<MTry<Option<A>>, Try<Option<A>>, MOption<A>, Option<A>, A>
-                .Inst.Traverse<MOption<Try<B>>, Option<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Try&lt;Option&lt;A&gt;&gt;`, traverses the inner
@@ -27040,8 +33171,7 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe&lt;Try&lt;B&gt;&gt;`</returns>
         [Pure]
         public static OptionUnsafe<Try<B>> traverse< A, B>(Try<OptionUnsafe<A>> ma, Func<A, B> f) =>
-            Trans<MTry<OptionUnsafe<A>>, Try<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
-                .Inst.Traverse<MOptionUnsafe<Try<B>>, OptionUnsafe<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Try&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
@@ -27324,8 +33454,7 @@ namespace LanguageExt
         /// <returns>`Either&lt;L, Try&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Either<L, Try<B>> traverse<L, A, B>(Try<Either<L, A>> ma, Func<A, B> f) =>
-            Trans<MTry<Either<L, A>>, Try<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
-                .Inst.Traverse<MEither<L, Try<B>>, Either<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Try&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
@@ -27608,8 +33737,7 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe&lt;L, Try&lt;B&gt;&gt;`</returns>
         [Pure]
         public static EitherUnsafe<L, Try<B>> traverse<L, A, B>(Try<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            Trans<MTry<EitherUnsafe<L, A>>, Try<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
-                .Inst.Traverse<MEitherUnsafe<L, Try<B>>, EitherUnsafe<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Try&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
@@ -27892,8 +34020,7 @@ namespace LanguageExt
         /// <returns>`Try&lt;Try&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Try<Try<B>> traverse< A, B>(Try<Try<A>> ma, Func<A, B> f) =>
-            Trans<MTry<Try<A>>, Try<Try<A>>, MTry<A>, Try<A>, A>
-                .Inst.Traverse<MTry<Try<B>>, Try<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Try&lt;Try&lt;A&gt;&gt;`, traverses the inner
@@ -28176,8 +34303,7 @@ namespace LanguageExt
         /// <returns>`TryOption&lt;Try&lt;B&gt;&gt;`</returns>
         [Pure]
         public static TryOption<Try<B>> traverse< A, B>(Try<TryOption<A>> ma, Func<A, B> f) =>
-            Trans<MTry<TryOption<A>>, Try<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
-                .Inst.Traverse<MTryOption<Try<B>>, TryOption<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Try&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
@@ -28460,8 +34586,7 @@ namespace LanguageExt
         /// <returns>`IEnumerable&lt;Try&lt;B&gt;&gt;`</returns>
         [Pure]
         public static IEnumerable<Try<B>> traverse< A, B>(Try<IEnumerable<A>> ma, Func<A, B> f) =>
-            SeqTrans<MTry<IEnumerable<A>>, Try<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
-                .Inst.Traverse<MEnumerable<Try<B>>, IEnumerable<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Try&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
@@ -28744,8 +34869,7 @@ namespace LanguageExt
         /// <returns>`Seq&lt;Try&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Seq<Try<B>> traverse< A, B>(Try<Seq<A>> ma, Func<A, B> f) =>
-            SeqTrans<MTry<Seq<A>>, Try<Seq<A>>, MSeq<A>, Seq<A>, A>
-                .Inst.Traverse<MSeq<Try<B>>, Seq<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Try&lt;Seq&lt;A&gt;&gt;`, traverses the inner
@@ -29028,8 +35152,7 @@ namespace LanguageExt
         /// <returns>`Set&lt;Try&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Set<Try<B>> traverse< A, B>(Try<Set<A>> ma, Func<A, B> f) =>
-            SeqTrans<MTry<Set<A>>, Try<Set<A>>, MSet<A>, Set<A>, A>
-                .Inst.Traverse<MSet<Try<B>>, Set<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Try&lt;Set&lt;A&gt;&gt;`, traverses the inner
@@ -29312,8 +35435,7 @@ namespace LanguageExt
         /// <returns>`Validation&lt;FAIL, Try&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Validation<FAIL, Try<B>> traverse<FAIL, A, B>(Try<Validation<FAIL, A>> ma, Func<A, B> f) =>
-            Trans<MTry<Validation<FAIL, A>>, Try<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
-                .Inst.Traverse<MValidation<FAIL, Try<B>>, Validation<FAIL, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Try&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
@@ -29596,8 +35718,7 @@ namespace LanguageExt
         /// <returns>`Arr&lt;TryOption&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Arr<TryOption<B>> traverse< A, B>(TryOption<Arr<A>> ma, Func<A, B> f) =>
-            SeqTrans<MTryOption<Arr<A>>, TryOption<Arr<A>>, MArr<A>, Arr<A>, A>
-                .Inst.Traverse<MArr<TryOption<B>>, Arr<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `TryOption&lt;Arr&lt;A&gt;&gt;`, traverses the inner
@@ -29880,8 +36001,7 @@ namespace LanguageExt
         /// <returns>`HashSet&lt;TryOption&lt;B&gt;&gt;`</returns>
         [Pure]
         public static HashSet<TryOption<B>> traverse< A, B>(TryOption<HashSet<A>> ma, Func<A, B> f) =>
-            SeqTrans<MTryOption<HashSet<A>>, TryOption<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
-                .Inst.Traverse<MHashSet<TryOption<B>>, HashSet<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `TryOption&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
@@ -30164,8 +36284,7 @@ namespace LanguageExt
         /// <returns>`Lst&lt;TryOption&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Lst<TryOption<B>> traverse< A, B>(TryOption<Lst<A>> ma, Func<A, B> f) =>
-            SeqTrans<MTryOption<Lst<A>>, TryOption<Lst<A>>, MLst<A>, Lst<A>, A>
-                .Inst.Traverse<MLst<TryOption<B>>, Lst<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `TryOption&lt;Lst&lt;A&gt;&gt;`, traverses the inner
@@ -30399,6 +36518,289 @@ namespace LanguageExt
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class FinT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `TryOption&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption&lt;Fin&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `TryOption&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(TryOption<Fin<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MTryOption<Fin<A>>, TryOption<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `TryOption&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption&lt;Fin&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `TryOption&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(TryOption<Fin<A>> ma) =>
+            Trans<MTryOption<Fin<A>>, TryOption<Fin<A>>, MFin<A>, Fin<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`TryOption&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOption<Fin<B>> bindT< A, B>(TryOption<Fin<A>> ma, Func<A, Fin<B>> f) =>
+            Trans<MTryOption<Fin<A>>, TryOption<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MTryOption<Fin<B>>, TryOption<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `TryOption&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;TryOption&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;TryOption&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<TryOption<B>> traverse< A, B>(TryOption<Fin<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `TryOption&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<TryOption<A>> sequence< A>(TryOption<Fin<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`TryOption&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static TryOption<Fin<B>> mapT< A, B>(TryOption<Fin<A>> ma, Func<A, B> f) =>
+            Trans<MTryOption<Fin<A>>, TryOption<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Map<MTryOption<Fin<B>>, TryOption<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `TryOption&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(TryOption<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Fin<A>>, TryOption<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `TryOption&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(TryOption<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MTryOption<Fin<A>>, TryOption<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(TryOption<Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MTryOption<Fin<A>>, TryOption<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(TryOption<Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MTryOption<Fin<A>>, TryOption<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `TryOption&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(TryOption<Fin<A>> ma, Action<A> f) =>
+            Trans<MTryOption<Fin<A>>, TryOption<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `TryOption&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static TryOption<Fin<A>> filterT< A>(TryOption<Fin<A>> ma, Func<A, bool> pred) =>
+            Trans<MTryOption<Fin<A>>, TryOption<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MTryOption<Fin<A>>, TryOption<Fin<A>>, MFin<A>, Fin<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MFin<A>).Return(a)
+                        : default(MFin<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static TryOption<Fin<A>> plusT<NUM,  A>(TryOption<Fin<A>> x, TryOption<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static TryOption<Fin<A>> subtractT<NUM,  A>(TryOption<Fin<A>> x, TryOption<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static TryOption<Fin<A>> productT<NUM,  A>(TryOption<Fin<A>> x, TryOption<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static TryOption<Fin<A>> divideT<NUM,  A>(TryOption<Fin<A>> x, TryOption<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static TryOption<Fin<A>> appendT<SEMI,  A>(TryOption<Fin<A>> x, TryOption<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(TryOption<Fin<A>> x, TryOption<Fin<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(TryOption<Fin<A>> x, TryOption<Fin<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `TryOption&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`TryOption&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static TryOption<Fin<B>> applyT< A, B>(Func<A, B> fab, TryOption<Fin<A>> fa) =>
+            ApplTryOption< Fin<A>, Fin<B>>.Inst.Apply(
+                 MTryOption< Func<Fin<A>, Fin<B>>>.Inst.Return((Fin<A> a) => ApplFin< A, B>.Inst.Apply(
+                     MFin< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `TryOption&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `TryOption&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`TryOption&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static TryOption<Fin<C>> applyT< A, B, C>(Func<A, B, C> fabc, TryOption<Fin<A>> fa, TryOption<Fin<B>> fb) =>
+            ApplTryOption< Fin<A>, Fin<B>, Fin<C>>.Inst.Apply(
+                MTryOption< Func<Fin<A>, Func<Fin<B>, Fin<C>>>>.Inst.Return(
+                    (Fin<A> a) =>
+                        (Fin<B> b) =>
+                            ApplFin< A, B, C>.Inst.Apply(
+                                MFin< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionT
     {
         /// <summary>
@@ -30448,8 +36850,7 @@ namespace LanguageExt
         /// <returns>`Option&lt;TryOption&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Option<TryOption<B>> traverse< A, B>(TryOption<Option<A>> ma, Func<A, B> f) =>
-            Trans<MTryOption<Option<A>>, TryOption<Option<A>>, MOption<A>, Option<A>, A>
-                .Inst.Traverse<MOption<TryOption<B>>, Option<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `TryOption&lt;Option&lt;A&gt;&gt;`, traverses the inner
@@ -30732,8 +37133,7 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe&lt;TryOption&lt;B&gt;&gt;`</returns>
         [Pure]
         public static OptionUnsafe<TryOption<B>> traverse< A, B>(TryOption<OptionUnsafe<A>> ma, Func<A, B> f) =>
-            Trans<MTryOption<OptionUnsafe<A>>, TryOption<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
-                .Inst.Traverse<MOptionUnsafe<TryOption<B>>, OptionUnsafe<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `TryOption&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
@@ -31016,8 +37416,7 @@ namespace LanguageExt
         /// <returns>`Either&lt;L, TryOption&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Either<L, TryOption<B>> traverse<L, A, B>(TryOption<Either<L, A>> ma, Func<A, B> f) =>
-            Trans<MTryOption<Either<L, A>>, TryOption<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
-                .Inst.Traverse<MEither<L, TryOption<B>>, Either<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `TryOption&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
@@ -31300,8 +37699,7 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe&lt;L, TryOption&lt;B&gt;&gt;`</returns>
         [Pure]
         public static EitherUnsafe<L, TryOption<B>> traverse<L, A, B>(TryOption<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            Trans<MTryOption<EitherUnsafe<L, A>>, TryOption<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
-                .Inst.Traverse<MEitherUnsafe<L, TryOption<B>>, EitherUnsafe<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `TryOption&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
@@ -31584,8 +37982,7 @@ namespace LanguageExt
         /// <returns>`Try&lt;TryOption&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Try<TryOption<B>> traverse< A, B>(TryOption<Try<A>> ma, Func<A, B> f) =>
-            Trans<MTryOption<Try<A>>, TryOption<Try<A>>, MTry<A>, Try<A>, A>
-                .Inst.Traverse<MTry<TryOption<B>>, Try<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `TryOption&lt;Try&lt;A&gt;&gt;`, traverses the inner
@@ -31868,8 +38265,7 @@ namespace LanguageExt
         /// <returns>`TryOption&lt;TryOption&lt;B&gt;&gt;`</returns>
         [Pure]
         public static TryOption<TryOption<B>> traverse< A, B>(TryOption<TryOption<A>> ma, Func<A, B> f) =>
-            Trans<MTryOption<TryOption<A>>, TryOption<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
-                .Inst.Traverse<MTryOption<TryOption<B>>, TryOption<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `TryOption&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
@@ -32152,8 +38548,7 @@ namespace LanguageExt
         /// <returns>`IEnumerable&lt;TryOption&lt;B&gt;&gt;`</returns>
         [Pure]
         public static IEnumerable<TryOption<B>> traverse< A, B>(TryOption<IEnumerable<A>> ma, Func<A, B> f) =>
-            SeqTrans<MTryOption<IEnumerable<A>>, TryOption<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
-                .Inst.Traverse<MEnumerable<TryOption<B>>, IEnumerable<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `TryOption&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
@@ -32436,8 +38831,7 @@ namespace LanguageExt
         /// <returns>`Seq&lt;TryOption&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Seq<TryOption<B>> traverse< A, B>(TryOption<Seq<A>> ma, Func<A, B> f) =>
-            SeqTrans<MTryOption<Seq<A>>, TryOption<Seq<A>>, MSeq<A>, Seq<A>, A>
-                .Inst.Traverse<MSeq<TryOption<B>>, Seq<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `TryOption&lt;Seq&lt;A&gt;&gt;`, traverses the inner
@@ -32720,8 +39114,7 @@ namespace LanguageExt
         /// <returns>`Set&lt;TryOption&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Set<TryOption<B>> traverse< A, B>(TryOption<Set<A>> ma, Func<A, B> f) =>
-            SeqTrans<MTryOption<Set<A>>, TryOption<Set<A>>, MSet<A>, Set<A>, A>
-                .Inst.Traverse<MSet<TryOption<B>>, Set<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `TryOption&lt;Set&lt;A&gt;&gt;`, traverses the inner
@@ -33004,8 +39397,7 @@ namespace LanguageExt
         /// <returns>`Validation&lt;FAIL, TryOption&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Validation<FAIL, TryOption<B>> traverse<FAIL, A, B>(TryOption<Validation<FAIL, A>> ma, Func<A, B> f) =>
-            Trans<MTryOption<Validation<FAIL, A>>, TryOption<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
-                .Inst.Traverse<MValidation<FAIL, TryOption<B>>, Validation<FAIL, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `TryOption&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
@@ -33288,8 +39680,7 @@ namespace LanguageExt
         /// <returns>`Arr&lt;IEnumerable&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Arr<IEnumerable<B>> traverse< A, B>(IEnumerable<Arr<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEnumerable<Arr<A>>, IEnumerable<Arr<A>>, MArr<A>, Arr<A>, A>
-                .Inst.Traverse<MArr<IEnumerable<B>>, Arr<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `IEnumerable&lt;Arr&lt;A&gt;&gt;`, traverses the inner
@@ -33572,8 +39963,7 @@ namespace LanguageExt
         /// <returns>`HashSet&lt;IEnumerable&lt;B&gt;&gt;`</returns>
         [Pure]
         public static HashSet<IEnumerable<B>> traverse< A, B>(IEnumerable<HashSet<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEnumerable<HashSet<A>>, IEnumerable<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
-                .Inst.Traverse<MHashSet<IEnumerable<B>>, HashSet<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `IEnumerable&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
@@ -33856,8 +40246,7 @@ namespace LanguageExt
         /// <returns>`Lst&lt;IEnumerable&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Lst<IEnumerable<B>> traverse< A, B>(IEnumerable<Lst<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEnumerable<Lst<A>>, IEnumerable<Lst<A>>, MLst<A>, Lst<A>, A>
-                .Inst.Traverse<MLst<IEnumerable<B>>, Lst<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `IEnumerable&lt;Lst&lt;A&gt;&gt;`, traverses the inner
@@ -34091,6 +40480,289 @@ namespace LanguageExt
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class FinT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `IEnumerable&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable&lt;Fin&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(IEnumerable<Fin<A>> ma)
+            where NumA : struct, Num<A> =>
+                SeqTrans<MEnumerable<Fin<A>>, IEnumerable<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `IEnumerable&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable&lt;Fin&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `IEnumerable&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(IEnumerable<Fin<A>> ma) =>
+            SeqTrans<MEnumerable<Fin<A>>, IEnumerable<Fin<A>>, MFin<A>, Fin<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`IEnumerable&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static IEnumerable<Fin<B>> bindT< A, B>(IEnumerable<Fin<A>> ma, Func<A, Fin<B>> f) =>
+            SeqTrans<MEnumerable<Fin<A>>, IEnumerable<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MEnumerable<Fin<B>>, IEnumerable<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `IEnumerable&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;IEnumerable&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;IEnumerable&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<IEnumerable<B>> traverse< A, B>(IEnumerable<Fin<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `IEnumerable&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<IEnumerable<A>> sequence< A>(IEnumerable<Fin<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`IEnumerable&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static IEnumerable<Fin<B>> mapT< A, B>(IEnumerable<Fin<A>> ma, Func<A, B> f) =>
+            SeqTrans<MEnumerable<Fin<A>>, IEnumerable<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Map<MEnumerable<Fin<B>>, IEnumerable<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `IEnumerable&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(IEnumerable<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            SeqTrans<MEnumerable<Fin<A>>, IEnumerable<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `IEnumerable&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(IEnumerable<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            SeqTrans<MEnumerable<Fin<A>>, IEnumerable<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(IEnumerable<Fin<A>> ma, Func<A, bool> f) =>
+            SeqTrans<MEnumerable<Fin<A>>, IEnumerable<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(IEnumerable<Fin<A>> ma, Func<A, bool> f) =>
+            SeqTrans<MEnumerable<Fin<A>>, IEnumerable<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `IEnumerable&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(IEnumerable<Fin<A>> ma, Action<A> f) =>
+            SeqTrans<MEnumerable<Fin<A>>, IEnumerable<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `IEnumerable&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static IEnumerable<Fin<A>> filterT< A>(IEnumerable<Fin<A>> ma, Func<A, bool> pred) =>
+            SeqTrans<MEnumerable<Fin<A>>, IEnumerable<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MEnumerable<Fin<A>>, IEnumerable<Fin<A>>, MFin<A>, Fin<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MFin<A>).Return(a)
+                        : default(MFin<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static IEnumerable<Fin<A>> plusT<NUM,  A>(IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static IEnumerable<Fin<A>> subtractT<NUM,  A>(IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static IEnumerable<Fin<A>> productT<NUM,  A>(IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static IEnumerable<Fin<A>> divideT<NUM,  A>(IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static IEnumerable<Fin<A>> appendT<SEMI,  A>(IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `IEnumerable&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`IEnumerable&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static IEnumerable<Fin<B>> applyT< A, B>(Func<A, B> fab, IEnumerable<Fin<A>> fa) =>
+            ApplEnumerable< Fin<A>, Fin<B>>.Inst.Apply(
+                 MEnumerable< Func<Fin<A>, Fin<B>>>.Inst.Return((Fin<A> a) => ApplFin< A, B>.Inst.Apply(
+                     MFin< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `IEnumerable&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `IEnumerable&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`IEnumerable&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static IEnumerable<Fin<C>> applyT< A, B, C>(Func<A, B, C> fabc, IEnumerable<Fin<A>> fa, IEnumerable<Fin<B>> fb) =>
+            ApplEnumerable< Fin<A>, Fin<B>, Fin<C>>.Inst.Apply(
+                MEnumerable< Func<Fin<A>, Func<Fin<B>, Fin<C>>>>.Inst.Return(
+                    (Fin<A> a) =>
+                        (Fin<B> b) =>
+                            ApplFin< A, B, C>.Inst.Apply(
+                                MFin< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionT
     {
         /// <summary>
@@ -34140,8 +40812,7 @@ namespace LanguageExt
         /// <returns>`Option&lt;IEnumerable&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Option<IEnumerable<B>> traverse< A, B>(IEnumerable<Option<A>> ma, Func<A, B> f) =>
-            Trans<MEnumerable<Option<A>>, IEnumerable<Option<A>>, MOption<A>, Option<A>, A>
-                .Inst.Traverse<MOption<IEnumerable<B>>, Option<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `IEnumerable&lt;Option&lt;A&gt;&gt;`, traverses the inner
@@ -34424,8 +41095,7 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe&lt;IEnumerable&lt;B&gt;&gt;`</returns>
         [Pure]
         public static OptionUnsafe<IEnumerable<B>> traverse< A, B>(IEnumerable<OptionUnsafe<A>> ma, Func<A, B> f) =>
-            Trans<MEnumerable<OptionUnsafe<A>>, IEnumerable<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
-                .Inst.Traverse<MOptionUnsafe<IEnumerable<B>>, OptionUnsafe<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `IEnumerable&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
@@ -34708,8 +41378,7 @@ namespace LanguageExt
         /// <returns>`Either&lt;L, IEnumerable&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Either<L, IEnumerable<B>> traverse<L, A, B>(IEnumerable<Either<L, A>> ma, Func<A, B> f) =>
-            Trans<MEnumerable<Either<L, A>>, IEnumerable<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
-                .Inst.Traverse<MEither<L, IEnumerable<B>>, Either<L, IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `IEnumerable&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
@@ -34992,8 +41661,7 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe&lt;L, IEnumerable&lt;B&gt;&gt;`</returns>
         [Pure]
         public static EitherUnsafe<L, IEnumerable<B>> traverse<L, A, B>(IEnumerable<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            Trans<MEnumerable<EitherUnsafe<L, A>>, IEnumerable<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
-                .Inst.Traverse<MEitherUnsafe<L, IEnumerable<B>>, EitherUnsafe<L, IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `IEnumerable&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
@@ -35276,8 +41944,7 @@ namespace LanguageExt
         /// <returns>`Try&lt;IEnumerable&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Try<IEnumerable<B>> traverse< A, B>(IEnumerable<Try<A>> ma, Func<A, B> f) =>
-            Trans<MEnumerable<Try<A>>, IEnumerable<Try<A>>, MTry<A>, Try<A>, A>
-                .Inst.Traverse<MTry<IEnumerable<B>>, Try<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `IEnumerable&lt;Try&lt;A&gt;&gt;`, traverses the inner
@@ -35560,8 +42227,7 @@ namespace LanguageExt
         /// <returns>`TryOption&lt;IEnumerable&lt;B&gt;&gt;`</returns>
         [Pure]
         public static TryOption<IEnumerable<B>> traverse< A, B>(IEnumerable<TryOption<A>> ma, Func<A, B> f) =>
-            Trans<MEnumerable<TryOption<A>>, IEnumerable<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
-                .Inst.Traverse<MTryOption<IEnumerable<B>>, TryOption<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `IEnumerable&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
@@ -35844,8 +42510,7 @@ namespace LanguageExt
         /// <returns>`IEnumerable&lt;IEnumerable&lt;B&gt;&gt;`</returns>
         [Pure]
         public static IEnumerable<IEnumerable<B>> traverse< A, B>(IEnumerable<IEnumerable<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEnumerable<IEnumerable<A>>, IEnumerable<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
-                .Inst.Traverse<MEnumerable<IEnumerable<B>>, IEnumerable<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `IEnumerable&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
@@ -36128,8 +42793,7 @@ namespace LanguageExt
         /// <returns>`Seq&lt;IEnumerable&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Seq<IEnumerable<B>> traverse< A, B>(IEnumerable<Seq<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEnumerable<Seq<A>>, IEnumerable<Seq<A>>, MSeq<A>, Seq<A>, A>
-                .Inst.Traverse<MSeq<IEnumerable<B>>, Seq<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `IEnumerable&lt;Seq&lt;A&gt;&gt;`, traverses the inner
@@ -36412,8 +43076,7 @@ namespace LanguageExt
         /// <returns>`Set&lt;IEnumerable&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Set<IEnumerable<B>> traverse< A, B>(IEnumerable<Set<A>> ma, Func<A, B> f) =>
-            SeqTrans<MEnumerable<Set<A>>, IEnumerable<Set<A>>, MSet<A>, Set<A>, A>
-                .Inst.Traverse<MSet<IEnumerable<B>>, Set<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `IEnumerable&lt;Set&lt;A&gt;&gt;`, traverses the inner
@@ -36696,8 +43359,7 @@ namespace LanguageExt
         /// <returns>`Validation&lt;FAIL, IEnumerable&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Validation<FAIL, IEnumerable<B>> traverse<FAIL, A, B>(IEnumerable<Validation<FAIL, A>> ma, Func<A, B> f) =>
-            Trans<MEnumerable<Validation<FAIL, A>>, IEnumerable<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
-                .Inst.Traverse<MValidation<FAIL, IEnumerable<B>>, Validation<FAIL, IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `IEnumerable&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
@@ -36980,8 +43642,7 @@ namespace LanguageExt
         /// <returns>`Arr&lt;Seq&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Arr<Seq<B>> traverse< A, B>(Seq<Arr<A>> ma, Func<A, B> f) =>
-            SeqTrans<MSeq<Arr<A>>, Seq<Arr<A>>, MArr<A>, Arr<A>, A>
-                .Inst.Traverse<MArr<Seq<B>>, Arr<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Seq&lt;Arr&lt;A&gt;&gt;`, traverses the inner
@@ -37264,8 +43925,7 @@ namespace LanguageExt
         /// <returns>`HashSet&lt;Seq&lt;B&gt;&gt;`</returns>
         [Pure]
         public static HashSet<Seq<B>> traverse< A, B>(Seq<HashSet<A>> ma, Func<A, B> f) =>
-            SeqTrans<MSeq<HashSet<A>>, Seq<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
-                .Inst.Traverse<MHashSet<Seq<B>>, HashSet<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Seq&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
@@ -37548,8 +44208,7 @@ namespace LanguageExt
         /// <returns>`Lst&lt;Seq&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Lst<Seq<B>> traverse< A, B>(Seq<Lst<A>> ma, Func<A, B> f) =>
-            SeqTrans<MSeq<Lst<A>>, Seq<Lst<A>>, MLst<A>, Lst<A>, A>
-                .Inst.Traverse<MLst<Seq<B>>, Lst<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Seq&lt;Lst&lt;A&gt;&gt;`, traverses the inner
@@ -37783,6 +44442,289 @@ namespace LanguageExt
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class FinT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Seq&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Seq&lt;Fin&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Seq&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Seq<Fin<A>> ma)
+            where NumA : struct, Num<A> =>
+                SeqTrans<MSeq<Fin<A>>, Seq<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Seq&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Seq&lt;Fin&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Seq&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Seq<Fin<A>> ma) =>
+            SeqTrans<MSeq<Fin<A>>, Seq<Fin<A>>, MFin<A>, Fin<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Seq&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Seq&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Seq<Fin<B>> bindT< A, B>(Seq<Fin<A>> ma, Func<A, Fin<B>> f) =>
+            SeqTrans<MSeq<Fin<A>>, Seq<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MSeq<Fin<B>>, Seq<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Seq&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Seq&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Seq&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Seq&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Seq<B>> traverse< A, B>(Seq<Fin<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Seq&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Seq&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Seq&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Seq<A>> sequence< A>(Seq<Fin<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Seq&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Seq&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Seq<Fin<B>> mapT< A, B>(Seq<Fin<A>> ma, Func<A, B> f) =>
+            SeqTrans<MSeq<Fin<A>>, Seq<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Map<MSeq<Fin<B>>, Seq<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Seq&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Seq<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            SeqTrans<MSeq<Fin<A>>, Seq<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Seq&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Seq<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            SeqTrans<MSeq<Fin<A>>, Seq<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Seq&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Seq<Fin<A>> ma, Func<A, bool> f) =>
+            SeqTrans<MSeq<Fin<A>>, Seq<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Seq&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Seq<Fin<A>> ma, Func<A, bool> f) =>
+            SeqTrans<MSeq<Fin<A>>, Seq<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Seq&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Seq&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Seq<Fin<A>> ma, Action<A> f) =>
+            SeqTrans<MSeq<Fin<A>>, Seq<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Seq&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Seq<Fin<A>> filterT< A>(Seq<Fin<A>> ma, Func<A, bool> pred) =>
+            SeqTrans<MSeq<Fin<A>>, Seq<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MSeq<Fin<A>>, Seq<Fin<A>>, MFin<A>, Fin<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MFin<A>).Return(a)
+                        : default(MFin<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Seq<Fin<A>> plusT<NUM,  A>(Seq<Fin<A>> x, Seq<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Seq<Fin<A>> subtractT<NUM,  A>(Seq<Fin<A>> x, Seq<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Seq<Fin<A>> productT<NUM,  A>(Seq<Fin<A>> x, Seq<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Seq<Fin<A>> divideT<NUM,  A>(Seq<Fin<A>> x, Seq<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Seq<Fin<A>> appendT<SEMI,  A>(Seq<Fin<A>> x, Seq<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Seq<Fin<A>> x, Seq<Fin<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Seq<Fin<A>> x, Seq<Fin<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Seq&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Seq&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Seq<Fin<B>> applyT< A, B>(Func<A, B> fab, Seq<Fin<A>> fa) =>
+            ApplSeq< Fin<A>, Fin<B>>.Inst.Apply(
+                 MSeq< Func<Fin<A>, Fin<B>>>.Inst.Return((Fin<A> a) => ApplFin< A, B>.Inst.Apply(
+                     MFin< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Seq&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Seq&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Seq&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Seq<Fin<C>> applyT< A, B, C>(Func<A, B, C> fabc, Seq<Fin<A>> fa, Seq<Fin<B>> fb) =>
+            ApplSeq< Fin<A>, Fin<B>, Fin<C>>.Inst.Apply(
+                MSeq< Func<Fin<A>, Func<Fin<B>, Fin<C>>>>.Inst.Return(
+                    (Fin<A> a) =>
+                        (Fin<B> b) =>
+                            ApplFin< A, B, C>.Inst.Apply(
+                                MFin< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionT
     {
         /// <summary>
@@ -37832,8 +44774,7 @@ namespace LanguageExt
         /// <returns>`Option&lt;Seq&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Option<Seq<B>> traverse< A, B>(Seq<Option<A>> ma, Func<A, B> f) =>
-            Trans<MSeq<Option<A>>, Seq<Option<A>>, MOption<A>, Option<A>, A>
-                .Inst.Traverse<MOption<Seq<B>>, Option<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Seq&lt;Option&lt;A&gt;&gt;`, traverses the inner
@@ -38116,8 +45057,7 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe&lt;Seq&lt;B&gt;&gt;`</returns>
         [Pure]
         public static OptionUnsafe<Seq<B>> traverse< A, B>(Seq<OptionUnsafe<A>> ma, Func<A, B> f) =>
-            Trans<MSeq<OptionUnsafe<A>>, Seq<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
-                .Inst.Traverse<MOptionUnsafe<Seq<B>>, OptionUnsafe<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Seq&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
@@ -38400,8 +45340,7 @@ namespace LanguageExt
         /// <returns>`Either&lt;L, Seq&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Either<L, Seq<B>> traverse<L, A, B>(Seq<Either<L, A>> ma, Func<A, B> f) =>
-            Trans<MSeq<Either<L, A>>, Seq<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
-                .Inst.Traverse<MEither<L, Seq<B>>, Either<L, Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Seq&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
@@ -38684,8 +45623,7 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe&lt;L, Seq&lt;B&gt;&gt;`</returns>
         [Pure]
         public static EitherUnsafe<L, Seq<B>> traverse<L, A, B>(Seq<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            Trans<MSeq<EitherUnsafe<L, A>>, Seq<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
-                .Inst.Traverse<MEitherUnsafe<L, Seq<B>>, EitherUnsafe<L, Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Seq&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
@@ -38968,8 +45906,7 @@ namespace LanguageExt
         /// <returns>`Try&lt;Seq&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Try<Seq<B>> traverse< A, B>(Seq<Try<A>> ma, Func<A, B> f) =>
-            Trans<MSeq<Try<A>>, Seq<Try<A>>, MTry<A>, Try<A>, A>
-                .Inst.Traverse<MTry<Seq<B>>, Try<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Seq&lt;Try&lt;A&gt;&gt;`, traverses the inner
@@ -39252,8 +46189,7 @@ namespace LanguageExt
         /// <returns>`TryOption&lt;Seq&lt;B&gt;&gt;`</returns>
         [Pure]
         public static TryOption<Seq<B>> traverse< A, B>(Seq<TryOption<A>> ma, Func<A, B> f) =>
-            Trans<MSeq<TryOption<A>>, Seq<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
-                .Inst.Traverse<MTryOption<Seq<B>>, TryOption<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Seq&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
@@ -39536,8 +46472,7 @@ namespace LanguageExt
         /// <returns>`IEnumerable&lt;Seq&lt;B&gt;&gt;`</returns>
         [Pure]
         public static IEnumerable<Seq<B>> traverse< A, B>(Seq<IEnumerable<A>> ma, Func<A, B> f) =>
-            SeqTrans<MSeq<IEnumerable<A>>, Seq<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
-                .Inst.Traverse<MEnumerable<Seq<B>>, IEnumerable<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Seq&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
@@ -39820,8 +46755,7 @@ namespace LanguageExt
         /// <returns>`Seq&lt;Seq&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Seq<Seq<B>> traverse< A, B>(Seq<Seq<A>> ma, Func<A, B> f) =>
-            SeqTrans<MSeq<Seq<A>>, Seq<Seq<A>>, MSeq<A>, Seq<A>, A>
-                .Inst.Traverse<MSeq<Seq<B>>, Seq<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Seq&lt;Seq&lt;A&gt;&gt;`, traverses the inner
@@ -40104,8 +47038,7 @@ namespace LanguageExt
         /// <returns>`Set&lt;Seq&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Set<Seq<B>> traverse< A, B>(Seq<Set<A>> ma, Func<A, B> f) =>
-            SeqTrans<MSeq<Set<A>>, Seq<Set<A>>, MSet<A>, Set<A>, A>
-                .Inst.Traverse<MSet<Seq<B>>, Set<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Seq&lt;Set&lt;A&gt;&gt;`, traverses the inner
@@ -40388,8 +47321,7 @@ namespace LanguageExt
         /// <returns>`Validation&lt;FAIL, Seq&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Validation<FAIL, Seq<B>> traverse<FAIL, A, B>(Seq<Validation<FAIL, A>> ma, Func<A, B> f) =>
-            Trans<MSeq<Validation<FAIL, A>>, Seq<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
-                .Inst.Traverse<MValidation<FAIL, Seq<B>>, Validation<FAIL, Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Seq&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
@@ -40672,8 +47604,7 @@ namespace LanguageExt
         /// <returns>`Arr&lt;Set&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Arr<Set<B>> traverse< A, B>(Set<Arr<A>> ma, Func<A, B> f) =>
-            SeqTrans<MSet<Arr<A>>, Set<Arr<A>>, MArr<A>, Arr<A>, A>
-                .Inst.Traverse<MArr<Set<B>>, Arr<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Set&lt;Arr&lt;A&gt;&gt;`, traverses the inner
@@ -40956,8 +47887,7 @@ namespace LanguageExt
         /// <returns>`HashSet&lt;Set&lt;B&gt;&gt;`</returns>
         [Pure]
         public static HashSet<Set<B>> traverse< A, B>(Set<HashSet<A>> ma, Func<A, B> f) =>
-            SeqTrans<MSet<HashSet<A>>, Set<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
-                .Inst.Traverse<MHashSet<Set<B>>, HashSet<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Set&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
@@ -41240,8 +48170,7 @@ namespace LanguageExt
         /// <returns>`Lst&lt;Set&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Lst<Set<B>> traverse< A, B>(Set<Lst<A>> ma, Func<A, B> f) =>
-            SeqTrans<MSet<Lst<A>>, Set<Lst<A>>, MLst<A>, Lst<A>, A>
-                .Inst.Traverse<MLst<Set<B>>, Lst<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Set&lt;Lst&lt;A&gt;&gt;`, traverses the inner
@@ -41475,6 +48404,289 @@ namespace LanguageExt
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class FinT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Set&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Set&lt;Fin&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Set&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA,  A>(Set<Fin<A>> ma)
+            where NumA : struct, Num<A> =>
+                SeqTrans<MSet<Fin<A>>, Set<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Set&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Set&lt;Fin&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Set&lt;Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT< A>(Set<Fin<A>> ma) =>
+            SeqTrans<MSet<Fin<A>>, Set<Fin<A>>, MFin<A>, Fin<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Set&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Set&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Set<Fin<B>> bindT< A, B>(Set<Fin<A>> ma, Func<A, Fin<B>> f) =>
+            SeqTrans<MSet<Fin<A>>, Set<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MSet<Fin<B>>, Set<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Set&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Set&lt;B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Set&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Set&lt;B&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Set<B>> traverse< A, B>(Set<Fin<A>> ma, Func<A, B> f) =>
+            ma.Traverse< A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Set&lt;Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse< A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Set&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Set&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Set<A>> sequence< A>(Set<Fin<A>> ma) =>
+            ma.Traverse< A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Set&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Set&lt;Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Set<Fin<B>> mapT< A, B>(Set<Fin<A>> ma, Func<A, B> f) =>
+            SeqTrans<MSet<Fin<A>>, Set<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Map<MSet<Fin<B>>, Set<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Set&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S,  A>(Set<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            SeqTrans<MSet<Fin<A>>, Set<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Set&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S,  A>(Set<Fin<A>> ma, S state, Func<S, A, S> f) =>
+            SeqTrans<MSet<Fin<A>>, Set<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Set&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT< A>(Set<Fin<A>> ma, Func<A, bool> f) =>
+            SeqTrans<MSet<Fin<A>>, Set<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Set&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT< A>(Set<Fin<A>> ma, Func<A, bool> f) =>
+            SeqTrans<MSet<Fin<A>>, Set<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Set&lt;Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Set&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT< A>(Set<Fin<A>> ma, Action<A> f) =>
+            SeqTrans<MSet<Fin<A>>, Set<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Set&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Set&lt;Fin&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Set<Fin<A>> filterT< A>(Set<Fin<A>> ma, Func<A, bool> pred) =>
+            SeqTrans<MSet<Fin<A>>, Set<Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MSet<Fin<A>>, Set<Fin<A>>, MFin<A>, Fin<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MFin<A>).Return(a)
+                        : default(MFin<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Set&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Set<Fin<A>> plusT<NUM,  A>(Set<Fin<A>> x, Set<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Set&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Set<Fin<A>> subtractT<NUM,  A>(Set<Fin<A>> x, Set<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Set&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Set<Fin<A>> productT<NUM,  A>(Set<Fin<A>> x, Set<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Set&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Set<Fin<A>> divideT<NUM,  A>(Set<Fin<A>> x, Set<Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Set&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Set<Fin<A>> appendT<SEMI,  A>(Set<Fin<A>> x, Set<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD,  A>(Set<Fin<A>> x, Set<Fin<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Set&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ,  A>(Set<Fin<A>> x, Set<Fin<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Set&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Set&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Set<Fin<B>> applyT< A, B>(Func<A, B> fab, Set<Fin<A>> fa) =>
+            ApplSet< Fin<A>, Fin<B>>.Inst.Apply(
+                 MSet< Func<Fin<A>, Fin<B>>>.Inst.Return((Fin<A> a) => ApplFin< A, B>.Inst.Apply(
+                     MFin< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Set&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Set&lt;Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Set&lt;Fin&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Set<Fin<C>> applyT< A, B, C>(Func<A, B, C> fabc, Set<Fin<A>> fa, Set<Fin<B>> fb) =>
+            ApplSet< Fin<A>, Fin<B>, Fin<C>>.Inst.Apply(
+                MSet< Func<Fin<A>, Func<Fin<B>, Fin<C>>>>.Inst.Return(
+                    (Fin<A> a) =>
+                        (Fin<B> b) =>
+                            ApplFin< A, B, C>.Inst.Apply(
+                                MFin< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionT
     {
         /// <summary>
@@ -41524,8 +48736,7 @@ namespace LanguageExt
         /// <returns>`Option&lt;Set&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Option<Set<B>> traverse< A, B>(Set<Option<A>> ma, Func<A, B> f) =>
-            Trans<MSet<Option<A>>, Set<Option<A>>, MOption<A>, Option<A>, A>
-                .Inst.Traverse<MOption<Set<B>>, Option<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Set&lt;Option&lt;A&gt;&gt;`, traverses the inner
@@ -41808,8 +49019,7 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe&lt;Set&lt;B&gt;&gt;`</returns>
         [Pure]
         public static OptionUnsafe<Set<B>> traverse< A, B>(Set<OptionUnsafe<A>> ma, Func<A, B> f) =>
-            Trans<MSet<OptionUnsafe<A>>, Set<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
-                .Inst.Traverse<MOptionUnsafe<Set<B>>, OptionUnsafe<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Set&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
@@ -42092,8 +49302,7 @@ namespace LanguageExt
         /// <returns>`Either&lt;L, Set&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Either<L, Set<B>> traverse<L, A, B>(Set<Either<L, A>> ma, Func<A, B> f) =>
-            Trans<MSet<Either<L, A>>, Set<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
-                .Inst.Traverse<MEither<L, Set<B>>, Either<L, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Set&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
@@ -42376,8 +49585,7 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe&lt;L, Set&lt;B&gt;&gt;`</returns>
         [Pure]
         public static EitherUnsafe<L, Set<B>> traverse<L, A, B>(Set<EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            Trans<MSet<EitherUnsafe<L, A>>, Set<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
-                .Inst.Traverse<MEitherUnsafe<L, Set<B>>, EitherUnsafe<L, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.Traverse<L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Set&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
@@ -42660,8 +49868,7 @@ namespace LanguageExt
         /// <returns>`Try&lt;Set&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Try<Set<B>> traverse< A, B>(Set<Try<A>> ma, Func<A, B> f) =>
-            Trans<MSet<Try<A>>, Set<Try<A>>, MTry<A>, Try<A>, A>
-                .Inst.Traverse<MTry<Set<B>>, Try<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Set&lt;Try&lt;A&gt;&gt;`, traverses the inner
@@ -42944,8 +50151,7 @@ namespace LanguageExt
         /// <returns>`TryOption&lt;Set&lt;B&gt;&gt;`</returns>
         [Pure]
         public static TryOption<Set<B>> traverse< A, B>(Set<TryOption<A>> ma, Func<A, B> f) =>
-            Trans<MSet<TryOption<A>>, Set<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
-                .Inst.Traverse<MTryOption<Set<B>>, TryOption<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Set&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
@@ -43228,8 +50434,7 @@ namespace LanguageExt
         /// <returns>`IEnumerable&lt;Set&lt;B&gt;&gt;`</returns>
         [Pure]
         public static IEnumerable<Set<B>> traverse< A, B>(Set<IEnumerable<A>> ma, Func<A, B> f) =>
-            SeqTrans<MSet<IEnumerable<A>>, Set<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
-                .Inst.Traverse<MEnumerable<Set<B>>, IEnumerable<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Set&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
@@ -43512,8 +50717,7 @@ namespace LanguageExt
         /// <returns>`Seq&lt;Set&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Seq<Set<B>> traverse< A, B>(Set<Seq<A>> ma, Func<A, B> f) =>
-            SeqTrans<MSet<Seq<A>>, Set<Seq<A>>, MSeq<A>, Seq<A>, A>
-                .Inst.Traverse<MSeq<Set<B>>, Seq<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Set&lt;Seq&lt;A&gt;&gt;`, traverses the inner
@@ -43796,8 +51000,7 @@ namespace LanguageExt
         /// <returns>`Set&lt;Set&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Set<Set<B>> traverse< A, B>(Set<Set<A>> ma, Func<A, B> f) =>
-            SeqTrans<MSet<Set<A>>, Set<Set<A>>, MSet<A>, Set<A>, A>
-                .Inst.Traverse<MSet<Set<B>>, Set<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.Traverse< A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Set&lt;Set&lt;A&gt;&gt;`, traverses the inner
@@ -44080,8 +51283,7 @@ namespace LanguageExt
         /// <returns>`Validation&lt;FAIL, Set&lt;B&gt;&gt;`</returns>
         [Pure]
         public static Validation<FAIL, Set<B>> traverse<FAIL, A, B>(Set<Validation<FAIL, A>> ma, Func<A, B> f) =>
-            Trans<MSet<Validation<FAIL, A>>, Set<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
-                .Inst.Traverse<MValidation<FAIL, Set<B>>, Validation<FAIL, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Set&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
@@ -44364,8 +51566,7 @@ namespace LanguageExt
         /// <returns>`Arr&lt;Validation&lt;FAIL, B&gt;&gt;`</returns>
         [Pure]
         public static Arr<Validation<FAIL, B>> traverse<FAIL, A, B>(Validation<FAIL, Arr<A>> ma, Func<A, B> f) =>
-            SeqTrans<MValidation<FAIL, Arr<A>>, Validation<FAIL, Arr<A>>, MArr<A>, Arr<A>, A>
-                .Inst.Traverse<MArr<Validation<FAIL, B>>, Arr<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Arr&lt;A&gt;&gt;`, traverses the inner
@@ -44648,8 +51849,7 @@ namespace LanguageExt
         /// <returns>`HashSet&lt;Validation&lt;FAIL, B&gt;&gt;`</returns>
         [Pure]
         public static HashSet<Validation<FAIL, B>> traverse<FAIL, A, B>(Validation<FAIL, HashSet<A>> ma, Func<A, B> f) =>
-            SeqTrans<MValidation<FAIL, HashSet<A>>, Validation<FAIL, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
-                .Inst.Traverse<MHashSet<Validation<FAIL, B>>, HashSet<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, HashSet&lt;A&gt;&gt;`, traverses the inner
@@ -44932,8 +52132,7 @@ namespace LanguageExt
         /// <returns>`Lst&lt;Validation&lt;FAIL, B&gt;&gt;`</returns>
         [Pure]
         public static Lst<Validation<FAIL, B>> traverse<FAIL, A, B>(Validation<FAIL, Lst<A>> ma, Func<A, B> f) =>
-            SeqTrans<MValidation<FAIL, Lst<A>>, Validation<FAIL, Lst<A>>, MLst<A>, Lst<A>, A>
-                .Inst.Traverse<MLst<Validation<FAIL, B>>, Lst<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Lst&lt;A&gt;&gt;`, traverses the inner
@@ -45167,6 +52366,289 @@ namespace LanguageExt
                                 MLst< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
 
     }
+    public static partial class FinT
+    {
+        /// <summary>
+        /// Finds total of all the `Num<A>`s in `Validation&lt;FAIL, Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Validation&lt;FAIL, Fin&lt;A&gt;&gt;` to perform the sum operation on</param>
+        /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static A sumT<NumA, FAIL, A>(Validation<FAIL, Fin<A>> ma)
+            where NumA : struct, Num<A> =>
+                Trans<MValidation<FAIL, Fin<A>>, Validation<FAIL, Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
+
+        /// <summary>
+        /// Finds the number of bound values in the `Validation&lt;FAIL, Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Validation&lt;FAIL, Fin&lt;A&gt;&gt;` to perform the count operation on</param>
+        /// <returns>Number of `A`s in `Validation&lt;FAIL, Fin&lt;A&gt;&gt;`</returns>
+        [Pure]
+        public static int countT<FAIL, A>(Validation<FAIL, Fin<A>> ma) =>
+            Trans<MValidation<FAIL, Fin<A>>, Validation<FAIL, Fin<A>>, MFin<A>, Fin<A>, A>.Inst.Count(ma);
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Validation&lt;FAIL, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`Validation&lt;FAIL, Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Validation<FAIL, Fin<B>> bindT<FAIL, A, B>(Validation<FAIL, Fin<A>> ma, Func<A, Fin<B>> f) =>
+            Trans<MValidation<FAIL, Fin<A>>, Validation<FAIL, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MValidation<FAIL, Fin<B>>, Validation<FAIL, Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Traverse operation.  Takes a value of type `Validation&lt;FAIL, Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Validation&lt;FAIL, B&gt;&gt;` (by applying `a` to `f`).  So 
+        /// it 'flips' the types whilst maintaining the rules of the inner and outer 
+        /// types.  
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Validation&lt;FAIL, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Validation&lt;FAIL, B&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Validation<FAIL, B>> traverse<FAIL, A, B>(Validation<FAIL, Fin<A>> ma, Func<A, B> f) =>
+            ma.Traverse<FAIL, A, B>(f);
+
+        /// <summary>
+        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Fin&lt;A&gt;&gt;`, traverses the inner
+        /// values of type `A`, and returns `Fin&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
+        /// whilst maintaining the rules of the inner and outer types.  This is the
+        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Validation&lt;FAIL, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
+        [Pure]
+        public static Fin<Validation<FAIL, A>> sequence<FAIL, A>(Validation<FAIL, Fin<A>> ma) =>
+            ma.Traverse<FAIL, A, A>(identity);
+
+        /// <summary>
+        /// Functor map operation.  This maps the bound value(s) of the nested monads
+        /// using the provided function `f`.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `Validation&lt;FAIL, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The mapping function to apply</param>
+        /// <returns>`Validation&lt;FAIL, Fin&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static Validation<FAIL, Fin<B>> mapT<FAIL, A, B>(Validation<FAIL, Fin<A>> ma, Func<A, B> f) =>
+            Trans<MValidation<FAIL, Fin<A>>, Validation<FAIL, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Map<MValidation<FAIL, Fin<B>>, Validation<FAIL, Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing the bound value(s) of the nested
+        /// monadic type, whilst applying the aggregate state and bound value to `f` to
+        /// produce the new aggregate state (which is then returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Validation&lt;FAIL, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldT<S, FAIL, A>(Validation<FAIL, Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MValidation<FAIL, Fin<A>>, Validation<FAIL, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, state, f);
+
+        /// <summary>
+        /// Create an aggregate value by traversing (in the opposite direction to `Fold`) 
+        /// the bound value(s) of the nested monadic type, whilst applying the aggregate 
+        /// state and bound value to `f` to produce the new aggregate state (which is then 
+        /// returned).
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="ma">The `Validation&lt;FAIL, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The folding function to apply</param>
+        /// <returns>The new aggregate state (which is then returned)</returns>
+        [Pure]
+        public static S foldBackT<S, FAIL, A>(Validation<FAIL, Fin<A>> ma, S state, Func<S, A, S> f) =>
+            Trans<MValidation<FAIL, Fin<A>>, Validation<FAIL, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.FoldBack(ma, state, f);
+
+        /// <summary>
+        /// Returns true if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Validation&lt;FAIL, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if any of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then false is returned.</returns>
+        [Pure]
+        public static bool existsT<FAIL, A>(Validation<FAIL, Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MValidation<FAIL, Fin<A>>, Validation<FAIL, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, false, (s, x) => s || f(x));
+
+        /// <summary>
+        /// Returns true if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Validation&lt;FAIL, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>True if all of the bound value(s) return true when applied to the 
+        /// predicate `f`.  If there are no bound values then true is returned.</returns>
+        [Pure]
+        public static bool forallT<FAIL, A>(Validation<FAIL, Fin<A>> ma, Func<A, bool> f) =>
+            Trans<MValidation<FAIL, Fin<A>>, Validation<FAIL, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, true, (s, x) => s && f(x));
+
+        /// <summary>
+        /// Side-effecting operation to iterate all of the bound value(s) in `Validation&lt;FAIL, Fin&lt;A&gt;&gt;`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Validation&lt;FAIL, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The action that contains the side-effects</param>
+        public static Unit iterT<FAIL, A>(Validation<FAIL, Fin<A>> ma, Action<A> f) =>
+            Trans<MValidation<FAIL, Fin<A>>, Validation<FAIL, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
+
+        /// <summary>
+        /// Filter operation.  Applies the bound value to the predicate `f`. If
+        /// true then that value is retained, else filtered out.
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <param name="ma">The `Validation&lt;FAIL, Fin&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The predicate function</param>
+        /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;` with the predicate `f(a)` applied</returns>
+        [Pure]
+        public static Validation<FAIL, Fin<A>> filterT<FAIL, A>(Validation<FAIL, Fin<A>> ma, Func<A, bool> pred) =>
+            Trans<MValidation<FAIL, Fin<A>>, Validation<FAIL, Fin<A>>, MFin<A>, Fin<A>, A>
+                .Inst.Bind<MValidation<FAIL, Fin<A>>, Validation<FAIL, Fin<A>>, MFin<A>, Fin<A>, A>(ma, 
+                    a => pred(a)
+                        ? default(MFin<A>).Return(a)
+                        : default(MFin<A>).Zero());
+
+        /// <summary>
+        /// Adds the two inner `Num<A>` types together
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
+        [Pure]
+        public static Validation<FAIL, Fin<A>> plusT<NUM, FAIL, A>(Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Plus, x, y);
+
+        /// <summary>
+        /// Finds the difference between two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
+        [Pure]
+        public static Validation<FAIL, Fin<A>> subtractT<NUM, FAIL, A>(Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Subtract, x, y);
+
+        /// <summary>
+        /// Finds the product of two inner `Num<A>` types
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
+        [Pure]
+        public static Validation<FAIL, Fin<A>> productT<NUM, FAIL, A>(Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Product, x, y);
+
+        /// <summary>
+        /// Divides `x` by `y`, which are both `Num<A>`s
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="NUM">`Num<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
+        [Pure]
+        public static Validation<FAIL, Fin<A>> divideT<NUM, FAIL, A>(Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where NUM : struct, Num<A> =>
+            applyT(default(NUM).Divide, x, y);
+
+        /// <summary>
+        /// Semigroup append operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="SEMI">`Semigroup<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
+        [Pure]
+        public static Validation<FAIL, Fin<A>> appendT<SEMI, FAIL, A>(Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+            applyT(default(SEMI).Append, x, y);
+
+        /// <summary>
+        /// `Ord` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="ORD">`Ord<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
+        [Pure]
+        public static int compareT<ORD, FAIL, A>(Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where ORD : struct, Ord<A> =>
+            applyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
+
+        /// <summary>
+        /// `Eq` compare operation on the inner bound values
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="EQ">`Eq<A>` class instance</typeparam>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
+        [Pure]
+        public static bool equalsT<EQ, FAIL, A>(Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where EQ : struct, Eq<A> =>
+            applyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
+
+        /// <summary>
+        /// Apply `fa` to `fab`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fab">Functor</param>
+        /// <param name="fa">Monad of `Validation&lt;FAIL, Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Validation&lt;FAIL, Fin&lt;B&gt;&gt;` which is the result of performing `fab(fa)`</returns>
+        [Pure]
+        public static Validation<FAIL, Fin<B>> applyT<FAIL, A, B>(Func<A, B> fab, Validation<FAIL, Fin<A>> fa) =>
+            ApplValidation<FAIL, Fin<A>, Fin<B>>.Inst.Apply(
+                 MValidation<FAIL, Func<Fin<A>, Fin<B>>>.Inst.Return((Fin<A> a) => ApplFin< A, B>.Inst.Apply(
+                     MFin< Func<A, B>>.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        /// <summary>
+        /// Apply `fa` and `fb` to `fabc`
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="fabc">Functor</param>
+        /// <param name="fa">Monad of `Validation&lt;FAIL, Fin&lt;A&gt;&gt;`</param>
+        /// <param name="fb">Monad of `Validation&lt;FAIL, Fin&lt;A&gt;&gt;`</param>
+        /// <returns>`Validation&lt;FAIL, Fin&lt;B&gt;&gt;` which is the result of performing `fabc(fa, fb)`</returns>
+        [Pure]
+        public static Validation<FAIL, Fin<C>> applyT<FAIL, A, B, C>(Func<A, B, C> fabc, Validation<FAIL, Fin<A>> fa, Validation<FAIL, Fin<B>> fb) =>
+            ApplValidation<FAIL, Fin<A>, Fin<B>, Fin<C>>.Inst.Apply(
+                MValidation<FAIL, Func<Fin<A>, Func<Fin<B>, Fin<C>>>>.Inst.Return(
+                    (Fin<A> a) =>
+                        (Fin<B> b) =>
+                            ApplFin< A, B, C>.Inst.Apply(
+                                MFin< Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
+    }
     public static partial class OptionT
     {
         /// <summary>
@@ -45216,8 +52698,7 @@ namespace LanguageExt
         /// <returns>`Option&lt;Validation&lt;FAIL, B&gt;&gt;`</returns>
         [Pure]
         public static Option<Validation<FAIL, B>> traverse<FAIL, A, B>(Validation<FAIL, Option<A>> ma, Func<A, B> f) =>
-            Trans<MValidation<FAIL, Option<A>>, Validation<FAIL, Option<A>>, MOption<A>, Option<A>, A>
-                .Inst.Traverse<MOption<Validation<FAIL, B>>, Option<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Option&lt;A&gt;&gt;`, traverses the inner
@@ -45500,8 +52981,7 @@ namespace LanguageExt
         /// <returns>`OptionUnsafe&lt;Validation&lt;FAIL, B&gt;&gt;`</returns>
         [Pure]
         public static OptionUnsafe<Validation<FAIL, B>> traverse<FAIL, A, B>(Validation<FAIL, OptionUnsafe<A>> ma, Func<A, B> f) =>
-            Trans<MValidation<FAIL, OptionUnsafe<A>>, Validation<FAIL, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
-                .Inst.Traverse<MOptionUnsafe<Validation<FAIL, B>>, OptionUnsafe<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
@@ -45784,8 +53264,7 @@ namespace LanguageExt
         /// <returns>`Either&lt;L, Validation&lt;FAIL, B&gt;&gt;`</returns>
         [Pure]
         public static Either<L, Validation<FAIL, B>> traverse<FAIL, L, A, B>(Validation<FAIL, Either<L, A>> ma, Func<A, B> f) =>
-            Trans<MValidation<FAIL, Either<L, A>>, Validation<FAIL, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
-                .Inst.Traverse<MEither<L, Validation<FAIL, B>>, Either<L, Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.Traverse<FAIL, L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Either&lt;L, A&gt;&gt;`, traverses the inner
@@ -46068,8 +53547,7 @@ namespace LanguageExt
         /// <returns>`EitherUnsafe&lt;L, Validation&lt;FAIL, B&gt;&gt;`</returns>
         [Pure]
         public static EitherUnsafe<L, Validation<FAIL, B>> traverse<FAIL, L, A, B>(Validation<FAIL, EitherUnsafe<L, A>> ma, Func<A, B> f) =>
-            Trans<MValidation<FAIL, EitherUnsafe<L, A>>, Validation<FAIL, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
-                .Inst.Traverse<MEitherUnsafe<L, Validation<FAIL, B>>, EitherUnsafe<L, Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.Traverse<FAIL, L, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
@@ -46352,8 +53830,7 @@ namespace LanguageExt
         /// <returns>`Try&lt;Validation&lt;FAIL, B&gt;&gt;`</returns>
         [Pure]
         public static Try<Validation<FAIL, B>> traverse<FAIL, A, B>(Validation<FAIL, Try<A>> ma, Func<A, B> f) =>
-            Trans<MValidation<FAIL, Try<A>>, Validation<FAIL, Try<A>>, MTry<A>, Try<A>, A>
-                .Inst.Traverse<MTry<Validation<FAIL, B>>, Try<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Try&lt;A&gt;&gt;`, traverses the inner
@@ -46636,8 +54113,7 @@ namespace LanguageExt
         /// <returns>`TryOption&lt;Validation&lt;FAIL, B&gt;&gt;`</returns>
         [Pure]
         public static TryOption<Validation<FAIL, B>> traverse<FAIL, A, B>(Validation<FAIL, TryOption<A>> ma, Func<A, B> f) =>
-            Trans<MValidation<FAIL, TryOption<A>>, Validation<FAIL, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
-                .Inst.Traverse<MTryOption<Validation<FAIL, B>>, TryOption<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, TryOption&lt;A&gt;&gt;`, traverses the inner
@@ -46920,8 +54396,7 @@ namespace LanguageExt
         /// <returns>`IEnumerable&lt;Validation&lt;FAIL, B&gt;&gt;`</returns>
         [Pure]
         public static IEnumerable<Validation<FAIL, B>> traverse<FAIL, A, B>(Validation<FAIL, IEnumerable<A>> ma, Func<A, B> f) =>
-            SeqTrans<MValidation<FAIL, IEnumerable<A>>, Validation<FAIL, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
-                .Inst.Traverse<MEnumerable<Validation<FAIL, B>>, IEnumerable<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, IEnumerable&lt;A&gt;&gt;`, traverses the inner
@@ -47204,8 +54679,7 @@ namespace LanguageExt
         /// <returns>`Seq&lt;Validation&lt;FAIL, B&gt;&gt;`</returns>
         [Pure]
         public static Seq<Validation<FAIL, B>> traverse<FAIL, A, B>(Validation<FAIL, Seq<A>> ma, Func<A, B> f) =>
-            SeqTrans<MValidation<FAIL, Seq<A>>, Validation<FAIL, Seq<A>>, MSeq<A>, Seq<A>, A>
-                .Inst.Traverse<MSeq<Validation<FAIL, B>>, Seq<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Seq&lt;A&gt;&gt;`, traverses the inner
@@ -47488,8 +54962,7 @@ namespace LanguageExt
         /// <returns>`Set&lt;Validation&lt;FAIL, B&gt;&gt;`</returns>
         [Pure]
         public static Set<Validation<FAIL, B>> traverse<FAIL, A, B>(Validation<FAIL, Set<A>> ma, Func<A, B> f) =>
-            SeqTrans<MValidation<FAIL, Set<A>>, Validation<FAIL, Set<A>>, MSet<A>, Set<A>, A>
-                .Inst.Traverse<MSet<Validation<FAIL, B>>, Set<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Set&lt;A&gt;&gt;`, traverses the inner
@@ -47772,8 +55245,7 @@ namespace LanguageExt
         /// <returns>`Validation&lt;FAIL, Validation&lt;FAIL, B&gt;&gt;`</returns>
         [Pure]
         public static Validation<FAIL, Validation<FAIL, B>> traverse<FAIL, A, B>(Validation<FAIL, Validation<FAIL, A>> ma, Func<A, B> f) =>
-            Trans<MValidation<FAIL, Validation<FAIL, A>>, Validation<FAIL, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
-                .Inst.Traverse<MValidation<FAIL, Validation<FAIL, B>>, Validation<FAIL, Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
+            ma.Traverse<FAIL, A, B>(f);
 
         /// <summary>
         /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Validation&lt;FAIL, A&gt;&gt;`, traverses the inner

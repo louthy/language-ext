@@ -24,6 +24,9 @@ namespace LanguageExt
         public static Either<L, Lst<B>> Sequence<L, A, B>(this Lst<A> ta, Func<A, Either<L, B>> f) =>
             ta.Map(f).Sequence();
         
+        public static Either<L, Fin<B>> Sequence<L, A, B>(this Fin<A> ta, Func<A, Either<L, B>> f) =>
+            ta.Map(f).Sequence();
+        
         public static Either<L, Option<B>> Sequence<L, A, B>(this Option<A> ta, Func<A, Either<L, B>> f) =>
             ta.Map(f).Sequence();
         

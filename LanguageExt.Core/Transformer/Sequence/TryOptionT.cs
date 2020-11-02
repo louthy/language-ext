@@ -24,6 +24,12 @@ namespace LanguageExt
         public static TryOption<Lst<B>> Sequence<A, B>(this Lst<A> ta, Func<A, TryOption<B>> f) =>
             ta.Map(f).Sequence();
         
+        public static TryOption<Fin<B>> Sequence<A, B>(this Fin<A> ta, Func<A, TryOption<B>> f) =>
+            ta.Map(f).Sequence();
+        
+        public static TryOption<Option<B>> Sequence<A, B>(this Option<A> ta, Func<A, TryOption<B>> f) =>
+            ta.Map(f).Sequence();
+        
         public static TryOption<OptionUnsafe<B>> Sequence<A, B>(this OptionUnsafe<A> ta, Func<A, TryOption<B>> f) =>
             ta.Map(f).Sequence();
         

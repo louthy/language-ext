@@ -103,6 +103,15 @@ namespace LanguageExt
             return new Result<Lst<B>>(new Lst<B>(res));
         };
 
+        public static Try<Fin<B>> Traverse<A, B>(this Fin<Try<A>> ma, Func<A, B> f) => () =>
+        {
+            if (ma.IsFail) return new Result<Fin<B>>(ma.Cast<B>());
+            var mr = ma.Value();
+            if (mr.IsBottom) return new Result<Fin<B>>(BottomException.Default);
+            if (mr.IsFaulted) return new Result<Fin<B>>(mr.Exception);
+            return new Result<Fin<B>>(Fin<B>.Succ(f(mr.Value)));
+        };
+        
         public static Try<Option<B>> Traverse<A, B>(this Option<Try<A>> ma, Func<A, B> f) => () =>
         {
             if (ma.IsNone) return new Result<Option<B>>(Option<B>.None);

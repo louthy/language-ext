@@ -12,6 +12,7 @@
         T("SeqTrans", "Arr"),
         T("SeqTrans", "HashSet"),
         T("SeqTrans", "Lst"),
+        T("Trans", "Fin"),
         T("Trans", "Option"),
         T("Trans", "OptionUnsafe"),
         T("Trans", "Either", "L"),
@@ -22,7 +23,7 @@
         T("SeqTrans", "Seq"),
         T("SeqTrans", "Set"),
         T("Trans", "Validation", "FAIL")
-    };
+    }; 
 
     StringWrapper template = System.IO.File.ReadAllText(this.Host.ResolvePath("HKT.Prelude.Template.txt"));
 #>

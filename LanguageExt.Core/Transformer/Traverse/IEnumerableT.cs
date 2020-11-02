@@ -34,6 +34,11 @@ namespace LanguageExt
             CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToSystemArray(), f)
                 .Map(toList);
 
+        public static IEnumerable<Fin<B>> Traverse<A, B>(this Fin<IEnumerable<A>> ma, Func<A, B> f) =>
+            ma.Match(
+                Fail: er => new[] {Fin<B>.Fail(er)},
+                Succ: xs => xs.Map(x => FinSucc(f(x))));
+
         public static IEnumerable<Option<B>> Traverse<A, B>(this Option<IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
                 None: () => new[] {Option<B>.None},

@@ -27,6 +27,9 @@ namespace LanguageExt
         public static IEnumerable<Lst<B>> Sequence<A, B>(this Lst<A> ma, Func<A, IEnumerable<B>> f) =>
             ma.Map(f).Sequence();
         
+        public static IEnumerable<Fin<B>> Sequence<A, B>(this Fin<A> ma, Func<A, IEnumerable<B>> f) =>
+            ma.Map(f).Sequence();
+        
         public static IEnumerable<Option<B>> Sequence<A, B>(this Option<A> ma, Func<A, IEnumerable<B>> f) =>
             ma.Map(f).Sequence();
         

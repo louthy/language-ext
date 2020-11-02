@@ -84,6 +84,20 @@ namespace LanguageExt
                 ? ma.Error
                 : throw new EitherIsNotLeftException();
 
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Fin<A> operator |(Fin<A> left, Fin<A> right) =>
+            left.IsSucc
+                ? left
+                : right;
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static bool operator true(Fin<A> ma) =>
+            ma.IsSucc;
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static bool operator false(Fin<A> ma) =>
+            ma.IsFail;
+        
         internal A Value 
         { 
             [MethodImpl(AffOpt.mops)]
@@ -300,6 +314,12 @@ namespace LanguageExt
             IsSucc
                 ? Fin<B>.Succ(Succ(Value))
                 : Fin<B>.Fail(Fail(Error));
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Fin<B> BiMap<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
+            IsSucc
+                ? Fin<B>.Succ(Succ(Value))
+                : Fin<B>.Succ(Fail(Error));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public Fin<B> Select<B>(Func<A, B> f) =>

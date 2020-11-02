@@ -341,6 +341,19 @@ namespace LanguageExt
             }
         }
 
+        public static EitherAsync<L, Fin<B>> Traverse<L, A, B>(this Fin<EitherAsync<L, A>> ma, Func<A, B> f)
+        {
+            return new EitherAsync<L, Fin<B>>(Go(ma, f));
+            async Task<EitherData<L, Fin<B>>> Go(Fin<EitherAsync<L, A>> ma, Func<A, B> f)
+            {
+                if(ma.IsFail) return EitherData.Right<L, Fin<B>>(ma.Cast<B>());
+                var da = await ma.Value.Data.ConfigureAwait(false);
+                if(da.State == EitherStatus.IsBottom) return EitherData<L, Fin<B>>.Bottom;
+                if(da.State == EitherStatus.IsLeft) return EitherData.Left<L, Fin<B>>(da.Left);
+                return EitherData.Right<L, Fin<B>>(f(da.Right));
+            }
+        }
+        
         public static EitherAsync<L, Option<B>> Traverse<L, A, B>(this Option<EitherAsync<L, A>> ma, Func<A, B> f)
         {
             return new EitherAsync<L, Option<B>>(Go(ma, f));

@@ -31,6 +31,9 @@ namespace LanguageExt
         public static ValueTask<ValueTask<B>> Sequence<A, B>(this ValueTask<A> ta, Func<A, ValueTask<B>> f) =>
             ta.Map(f).Sequence();
         
+        public static ValueTask<Fin<B>> Sequence<A, B>(this Fin<A> ta, Func<A, ValueTask<B>> f) =>
+            ta.Map(f).Sequence();
+        
         public static ValueTask<Option<B>> Sequence<A, B>(this Option<A> ta, Func<A, ValueTask<B>> f) =>
             ta.Map(f).Sequence();
         

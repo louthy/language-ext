@@ -211,6 +211,12 @@ namespace LanguageExt
         public static async ValueTask<Identity<B>> Traverse<A, B>(this Identity<ValueTask<A>> ma, Func<A, B> f) =>
             new Identity<B>(f(await ma.Value.ConfigureAwait(false)));
         
+        public static async ValueTask<Fin<B>> Traverse<A, B>(this Fin<ValueTask<A>> ma, Func<A, B> f)
+        {
+            if (ma.IsFail) return ma.Cast<B>();
+            return Fin<B>.Succ(f(await ma.Value.ConfigureAwait(false)));
+        }
+        
         public static async ValueTask<Option<B>> Traverse<A, B>(this Option<ValueTask<A>> ma, Func<A, B> f)
         {
             if (ma.IsNone) return Option<B>.None;

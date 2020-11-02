@@ -37,6 +37,11 @@ namespace LanguageExt
                 .Map(toList)
                 .ToSeq();
 
+        public static Seq<Fin<B>> Traverse<A, B>(this Fin<Seq<A>> ma, Func<A, B> f) =>
+            ma.Match(
+                Fail: er => Seq1(FinFail<B>(er)),
+                Succ: xs => xs.Map(x => FinSucc(f(x))));
+
         public static Seq<Option<B>> Traverse<A, B>(this Option<Seq<A>> ma, Func<A, B> f) =>
             ma.Match(
                 None: () => Seq1(Option<B>.None),

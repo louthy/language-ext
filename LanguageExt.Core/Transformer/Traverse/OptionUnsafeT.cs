@@ -86,6 +86,22 @@ namespace LanguageExt
             return OptionUnsafe<Lst<B>>.Some(new Lst<B>(res));                
         }
 
+        public static OptionUnsafe<Fin<B>> Traverse<A, B>(this Fin<OptionUnsafe<A>> ma, Func<A, B> f)
+        {
+            if (ma.IsFail)
+            {
+                return SomeUnsafe<Fin<B>>(ma.Cast<B>());
+            }
+            else if (ma.Value.IsNone)
+            {
+                return None;
+            }
+            else
+            {
+                return SomeUnsafe(FinSucc(f(ma.Value.Value)));
+            }
+        }
+
         public static OptionUnsafe<Option<B>> Traverse<A, B>(this Option<OptionUnsafe<A>> ma, Func<A, B> f)
         {
             if (ma.IsNone)

@@ -21,6 +21,9 @@ namespace LanguageExt
         public static Que<IEnumerable<B>> Sequence<A, B>(this IEnumerable<A> ta, Func<A, Que<B>> f) =>
             ta.Map(f).Traverse(Prelude.identity);
         
+        public static Que<Fin<B>> Sequence<A, B>(this Fin<A> ta, Func<A, Que<B>> f) =>
+            ta.Map(f).Traverse(Prelude.identity);
+        
         public static Que<Option<B>> Sequence<A, B>(this Option<A> ta, Func<A, Que<B>> f) =>
             ta.Map(f).Traverse(Prelude.identity);
         

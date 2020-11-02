@@ -24,6 +24,9 @@ namespace LanguageExt
         public static HashSet<Lst<B>> Sequence<A, B>(this Lst<A> ta, Func<A, HashSet<B>> f) =>
             ta.Map(f).Sequence();
         
+        public static HashSet<Fin<B>> Sequence<A, B>(this Fin<A> ta, Func<A, HashSet<B>> f) =>
+            ta.Map(f).Sequence();
+        
         public static HashSet<Option<B>> Sequence<A, B>(this Option<A> ta, Func<A, HashSet<B>> f) =>
             ta.Map(f).Sequence();
         

@@ -119,6 +119,26 @@ namespace LanguageExt
             return new Lst<B>(res);
         }
         
+        public static EitherUnsafe<L, Fin<B>> Traverse<L, A, B>(this Fin<EitherUnsafe<L, A>> ma, Func<A, B> f)
+        {
+            if (ma.IsFail)
+            {
+                return Right(ma.Cast<B>());
+            }
+            else
+            {
+                var mb = (EitherUnsafe<L, A>)ma;
+                if (mb.IsLeft)
+                {
+                    return EitherUnsafe<L, Fin<B>>.Left((L)mb);
+                }
+                else
+                {
+                    return EitherUnsafe<L, Fin<B>>.Right(f((A)mb));
+                }
+            }
+        }        
+        
         public static EitherUnsafe<L, Option<B>> Traverse<L, A, B>(this Option<EitherUnsafe<L, A>> ma, Func<A, B> f)
         {
             if (ma.IsNone)

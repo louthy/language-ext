@@ -24,6 +24,9 @@ namespace LanguageExt
         public static Validation<Fail, Lst<B>> Sequence<Fail, A, B>(this Lst<A> ta, Func<A, Validation<Fail, B>> f) =>
             ta.Map(f).Sequence();
         
+        public static Validation<Fail, Fin<B>> Sequence<Fail, A, B>(this Fin<A> ta, Func<A, Validation<Fail, B>> f) =>
+            ta.Map(f).Sequence();
+        
         public static Validation<Fail, Option<B>> Sequence<Fail, A, B>(this Option<A> ta, Func<A, Validation<Fail, B>> f) =>
             ta.Map(f).Sequence();
         

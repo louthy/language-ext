@@ -445,6 +445,19 @@ namespace LanguageExt
             }
         }
 
+        public static Aff<RT, Fin<B>> Traverse<RT, A, B>(this Fin<Aff<RT, A>> ma, Func<A, B> f)
+            where RT : struct, HasCancel<RT>
+        {
+            return AffMaybe<RT, Fin<B>>(env => Go(env, ma, f));
+            async ValueTask<Fin<Fin<B>>> Go(RT env, Fin<Aff<RT, A>> ma, Func<A, B> f)
+            {
+                if(ma.IsFail) return FinSucc<Fin<B>>(ma.Cast<B>());
+                var rb = await ma.Value.RunIO(env).ConfigureAwait(false);
+                if(rb.IsFail) return FinFail<Fin<B>>(rb.Error);
+                return FinSucc<Fin<B>>(Fin<B>.Succ(f(rb.Value)));
+            }
+        }
+
         public static Aff<RT, Option<B>> Traverse<RT, A, B>(this Option<Aff<RT, A>> ma, Func<A, B> f)
             where RT : struct, HasCancel<RT>
         {

@@ -171,6 +171,26 @@ namespace LanguageExt
                 : Validation<Fail, Lst<B>>.Fail(Seq.FromArray(errs.ToArray()));
         }
         
+        public static Validation<Fail, Fin<B>> Traverse<Fail, A, B>(this Fin<Validation<Fail, A>> ma, Func<A, B> f)
+        {
+            if (ma.IsFail)
+            {
+                return Validation<Fail, Fin<B>>.Success(ma.Cast<B>());
+            }
+            else
+            {
+                var mb = (Validation<Fail, A>)ma;
+                if (mb.IsFail)
+                {
+                    return Validation<Fail, Fin<B>>.Fail((Seq<Fail>)mb);
+                }
+                else
+                {
+                    return Validation<Fail, Fin<B>>.Success(f((A)mb));
+                }
+            }
+        }        
+        
         public static Validation<Fail, Option<B>> Traverse<Fail, A, B>(this Option<Validation<Fail, A>> ma, Func<A, B> f)
         {
             if (ma.IsNone)

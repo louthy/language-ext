@@ -34,6 +34,12 @@ namespace LanguageExt
         public static TryOptionAsync<TryAsync<B>> Sequence<A, B>(this TryAsync<A> ta, Func<A, TryOptionAsync<B>> f) =>
             ta.Map(f).Sequence();
         
+        public static TryOptionAsync<Fin<B>> Sequence<A, B>(this Fin<A> ta, Func<A, TryOptionAsync<B>> f) =>
+            ta.Map(f).Sequence();
+        
+        public static TryOptionAsync<Option<B>> Sequence<A, B>(this Option<A> ta, Func<A, TryOptionAsync<B>> f) =>
+            ta.Map(f).Sequence();
+        
         public static TryOptionAsync<OptionUnsafe<B>> Sequence<A, B>(this OptionUnsafe<A> ta, Func<A, TryOptionAsync<B>> f) =>
             ta.Map(f).Sequence();
         

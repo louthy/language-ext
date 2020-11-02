@@ -31,6 +31,9 @@ namespace LanguageExt
         public static Task<Task<B>> Sequence<A, B>(this Task<A> ta, Func<A, Task<B>> f) =>
             ta.Map(f).Sequence();
         
+        public static Task<Fin<B>> Sequence<A, B>(this Fin<A> ta, Func<A, Task<B>> f) =>
+            ta.Map(f).Sequence();
+        
         public static Task<Option<B>> Sequence<A, B>(this Option<A> ta, Func<A, Task<B>> f) =>
             ta.Map(f).Sequence();
         
