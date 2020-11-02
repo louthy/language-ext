@@ -290,7 +290,7 @@ namespace LanguageExt
         public LstInternal<A> RemoveRange(int index, int count)
         {
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-            if (index + count >= Root.Count) throw new IndexOutOfRangeException();
+            if (index + count > Root.Count) throw new IndexOutOfRangeException();
 
             var self = this;
             for (; count > 0; count--)
