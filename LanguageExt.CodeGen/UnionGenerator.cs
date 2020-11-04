@@ -862,6 +862,12 @@ namespace LanguageExt.CodeGen
                                 .ToList();
 
             return ClassDeclaration($"_{applyTo.Identifier}Base")
+                .WithAttributeLists(SingletonList<AttributeListSyntax>(
+                    AttributeList(
+                        SingletonSeparatedList<AttributeSyntax>(
+                            Attribute(
+                                QualifiedName(
+                                    IdentifierName("System"), IdentifierName("Serializable")))))))
                 .WithModifiers(applyTo.Modifiers)
                 .WithTypeParameterList(applyTo.TypeParameterList)
                 .WithConstraintClauses(applyTo.ConstraintClauses)
