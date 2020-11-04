@@ -402,6 +402,15 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        public void RemoveRange()
+        {
+            var list = List(1, 2, 3, 4);
+
+            Assert.Equal(list.RemoveRange(2, 2), List(1, 2));
+            Assert.Throws<IndexOutOfRangeException>(() => list.RemoveRange(2, 3));
+        }
+
+        [Fact]
         public void SetItemManyTest()
         {
             var range = Range(0, 100).Freeze();
