@@ -88,15 +88,49 @@ public static class ParserExtensions
         inp =>
             self(inp).Match(
                 EmptyOK: (x, rem, msg) => pred(x) ? EmptyOK(x, rem, msg) : EmptyError<T>(ParserError.SysUnexpect(inp.Pos, $"\"{x}\"")),
-                EmptyError: msg => EmptyError<T>(msg),
+                EmptyError: EmptyError<T>,
                 ConsumedOK: (x, rem, msg) => pred(x) ? ConsumedOK(x, rem, msg) : EmptyError<T>(ParserError.SysUnexpect(inp.Pos, $"\"{x}\"")),
-                ConsumedError: msg => ConsumedError<T>(msg));
+                ConsumedError: ConsumedError<T>);
 
     public static Parser<U> Map<T, U>(this Parser<T> self, Func<T, U> map) =>
         self.Select(map);
 
     public static Parser<U> Select<T, U>(this Parser<T> self, Func<T, U> map) =>
         inp => self(inp).Select(map);
+
+    public static Parser<B> Bind<A, B>(this Parser<A> self, Func<A, Parser<B>> f) =>
+        self.SelectMany(f);
+ 
+    public static Parser<B> SelectMany<A, B>(
+        this Parser<A> self,
+        Func<A, Parser<B>> f) =>
+        inp =>
+        {
+            Debug.Assert(inp != null);
+
+            var t = self(inp);
+
+            // cok
+            if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
+            {
+                return f(t.Reply.Result)(t.Reply.State);
+            }
+
+            // eok
+            if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
+            {
+                return f(t.Reply.Result)(t.Reply.State);
+            }
+
+            // cerr
+            if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
+            {
+                return ConsumedError<B>(t.Reply.Error);
+            }
+
+            // eerr
+            return EmptyError<B>(t.Reply.Error);
+        };
 
     public static Parser<V> SelectMany<T, U, V>(
         this Parser<T> self,
@@ -176,6 +210,9 @@ public static class ParserExtensions
                 return EmptyError<V>(t.Reply.Error);
             };
 
+    public static Parser<A> Flatten<A>(this Parser<Parser<A>> mma) =>
+        mma.Bind(identity);
+ 
     public static Parser<T> Flatten<T>(this Parser<Option<T>> p, Func<string> failureText) =>
         from value in p
         from returnValue in value.Match(result, compose(failureText, failure<T>))

@@ -98,6 +98,40 @@ public static class ParserIOExtensions
 
     public static Parser<I, U> Select<I, O, U>(this Parser<I, O> self, Func<O, U> map) =>
         inp => self(inp).Select(map);
+    
+    public static Parser<I, B> Bind<I, A, B>(this Parser<I, A> self, Func<A, Parser<I, B>> f) =>
+        self.SelectMany(f);
+ 
+    public static Parser<I, B> SelectMany<I, A, B>(
+        this Parser<I, A> self,
+        Func<A, Parser<I, B>> f) =>
+        inp =>
+        {
+            Debug.Assert(inp != null);
+
+            var t = self(inp);
+
+            // cok
+            if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
+            {
+                return f(t.Reply.Result)(t.Reply.State);
+            }
+
+            // eok
+            if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
+            {
+                return f(t.Reply.Result)(t.Reply.State);
+            }
+
+            // cerr
+            if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
+            {
+                return ConsumedError<I, B>(t.Reply.Error);
+            }
+
+            // eerr
+            return EmptyError<I, B>(t.Reply.Error);
+        };    
 
     public static Parser<I, V> SelectMany<I, O, U, V>(
         this Parser<I, O> self,
@@ -176,4 +210,8 @@ public static class ParserIOExtensions
                 // eerr
                 return EmptyError<I, V>(t.Reply.Error);
             };
+    
+    public static Parser<I, A> Flatten<I, A>(this Parser<I, Parser<I, A>> mma) =>
+        mma.Bind(identity);
+ 
 }
