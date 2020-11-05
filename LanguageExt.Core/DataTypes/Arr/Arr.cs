@@ -138,15 +138,34 @@ namespace LanguageExt
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Value[index];
         }
+
         /// <summary>
         /// Reference version for use in pattern-matching
         /// </summary>
+        /// <remarks>
+        ///
+        ///     Empty collection     = result is null
+        ///     Singleton collection = result is A
+        ///     More                 = result is (A, Seq<A>) -- head and tail
+        ///
+        ///  Example:
+        ///
+        ///     var res = arr.Case switch
+        ///     {
+        ///       
+        ///        A value         => ...,
+        ///        (var x, var xs) => ...,
+        ///        _               => ...
+        ///     }
+        ///
+        /// </remarks>
         [Pure]
-        public SeqCase<A> Case
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Seq.FromArray(Value).Case;
-        }
+        public object Case =>
+            IsEmpty
+                ? null
+                : Count == 1
+                    ? this[0]
+                    : Seq(this).Case;
 
         /// <summary>
         /// Number of items in the array

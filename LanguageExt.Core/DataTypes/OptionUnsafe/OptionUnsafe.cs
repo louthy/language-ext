@@ -103,11 +103,17 @@ namespace LanguageExt
         /// <summary>
         /// Reference version of option for use in pattern-matching
         /// </summary>
+        /// <remarks>
+        ///
+        ///     Some = result is A
+        ///     None = result is null
+        ///
+        /// </remarks>
         [Pure]
-        public OptionCase<A> Case =>
+        public object Case =>
             IsSome
-                ? SomeCase<A>.New(Value)
-                : NoneCase<A>.Default;
+                ? (object)Value
+                : null;
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -17,14 +17,20 @@ public static class TryExtensions
     /// <summary>
     /// Use for pattern-matching the case of the target
     /// </summary>
+    /// <remarks>
+    ///
+    ///     Try succeeds = result is A
+    ///     Try fails    = result is LanguageExt.Common.Error
+    ///
+    /// </remarks>
     [Pure]
-    public static TryCase<A> Case<A>(this Try<A> ma)
+    public static object Case<A>(this Try<A> ma)
     {
-        if (ma == null) return FailCase<A>.New(Error.Bottom);
+        if (ma == null) return Error.Bottom;
         var res = ma.Try();
         return res.IsSuccess
-            ? SuccCase<A>.New(res.Value)
-            : FailCase<A>.New(res.Exception);
+            ? res.Value
+            : (object)Error.New(res.Exception);
     }
 
     /// <summary>

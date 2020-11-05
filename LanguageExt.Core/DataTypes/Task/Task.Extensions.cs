@@ -20,17 +20,23 @@ namespace LanguageExt
         /// <summary>
         /// Use for pattern-matching the case of the target
         /// </summary>
+        /// <remarks>
+        ///
+        ///     Task succeeds = result is A
+        ///     Task fails    = result is LanguageExt.Common.Error
+        ///
+        /// </remarks>
         [Pure]
-        public static async Task<TryCase<A>> Case<A>(this Task<A> ma)
+        public static async Task<object> Case<A>(this Task<A> ma)
         {
-            if (ma == null) return FailCase<A>.New(Common.Error.Bottom);
+            if (ma == null) return Common.Error.Bottom;
             try
             {
-                return SuccCase<A>.New(await ma.ConfigureAwait(false));
+                return await ma.ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                return FailCase<A>.New(ex);
+                return Error.New(ex);
             }
         }
 

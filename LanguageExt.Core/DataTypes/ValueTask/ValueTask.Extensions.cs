@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -19,16 +20,22 @@ namespace LanguageExt
         /// <summary>
         /// Use for pattern-matching the case of the target
         /// </summary>
+        /// <remarks>
+        ///
+        ///     Task succeeds = result is A
+        ///     Task fails    = result is LanguageExt.Common.Error
+        ///
+        /// </remarks>
         [Pure]
-        public static async ValueTask<TryCase<A>> Case<A>(this ValueTask<A> ma)
+        public static async ValueTask<object> Case<A>(this ValueTask<A> ma)
         {
             try
             {
-                return SuccCase<A>.New(await ma.ConfigureAwait(false));
+                return await ma.ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                return FailCase<A>.New(ex);
+                return Error.New(ex);
             }
         }
 

@@ -105,12 +105,19 @@ namespace LanguageExt
         /// <summary>
         /// Reference version for use in pattern-matching
         /// </summary>
+        /// <remarks>
+        ///
+        ///    Left   = result is L
+        ///    Right  = result is R
+        ///    Bottom = result is null 
+        /// 
+        /// </remarks>
         [Pure]
-        public EitherCase<L, R> Case =>
+        public object Case =>
             State switch
             {
-                EitherStatus.IsRight => RightCase<L, R>.New(right),
-                EitherStatus.IsLeft  => LeftCase<L, R>.New(left),
+                EitherStatus.IsRight => right,
+                EitherStatus.IsLeft  => left,
                 _                    => null
             };
 

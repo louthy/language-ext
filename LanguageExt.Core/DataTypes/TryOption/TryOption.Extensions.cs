@@ -20,16 +20,21 @@ public static class TryOptionExtensions
     /// <summary>
     /// Use for pattern-matching the case of the target
     /// </summary>
+    /// <remarks>
+    ///     TryOption Some = result is A
+    ///     TryOption None = result is null
+    ///     TryOption Fail = result is LanguageExt.Common.Error
+    /// </remarks>
     [Pure]
-    public static TryCase<A> Case<A>(this TryOption<A> ma)
+    public static object Case<A>(this TryOption<A> ma)
     {
-        if (ma == null) return FailCase<A>.New(Error.Bottom);
+        if (ma == null) return Error.Bottom;
         var res = ma.Try();
         return res.IsSome
-            ? SuccCase<A>.New(res.Value.Value)
+            ? res.Value.Value
             : res.IsNone 
-                ? NoneCase<A>.Default
-                : FailCase<A>.New(res.Exception);
+                ? null
+                : (object)Error.New(res.Exception);
     }
 
     /// <summary>

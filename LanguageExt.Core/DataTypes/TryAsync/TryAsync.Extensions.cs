@@ -32,14 +32,20 @@ public static class TryAsyncExtensions
     /// <summary>
     /// Use for pattern-matching the case of the target
     /// </summary>
+    /// <remarks>
+    ///
+    ///     TryAsync succeeds = result is A
+    ///     TryAsync fails    = result is LanguageExt.Common.Error
+    ///
+    /// </remarks>
     [Pure]
-    public static async Task<TryCase<A>> Case<A>(this TryAsync<A> ma)
+    public static async ValueTask<object> Case<A>(this TryAsync<A> ma)
     {
-        if (ma == null) return FailCase<A>.New(Error.Bottom);
+        if (ma == null) return Error.Bottom;
         var res = await ma.Try().ConfigureAwait(false);
         return res.IsSuccess
-            ? SuccCase<A>.New(res.Value)
-            : FailCase<A>.New(res.Exception);
+            ? res.Value
+            : (object)Error.New(res.Exception);
     }
 
     /// <summary>

@@ -70,12 +70,12 @@ namespace LanguageExt
         /// Reference version for use in pattern-matching
         /// </summary>
         [Pure]
-        public SeqCase<A> Case =>
+        public object Case =>
             IsEmpty 
-                ? EmptyCase<A>.Default
+                ? null
                 : Tail.IsEmpty 
-                    ? HeadCase<A>.New(Head)
-                    : HeadTailCase<A>.New(Head, Tail);
+                    ? (object)Head
+                    : (Head, Tail);
 
         public void Deconstruct(out A head, out Seq<A> tail)
         {

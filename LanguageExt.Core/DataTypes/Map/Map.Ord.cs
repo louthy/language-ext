@@ -48,13 +48,30 @@ namespace LanguageExt
 
         internal MapInternal<OrdK, K, V> Value =>
             value ?? MapInternal<OrdK, K, V>.Empty;
-
+        
         /// <summary>
         /// Reference version for use in pattern-matching
         /// </summary>
+        /// <remarks>
+        ///
+        ///     Empty collection     = null
+        ///     Singleton collection = (K, V)
+        ///     More                 = ((K, V), Seq<(K, V)>)   -- head and tail
+        ///
+        ///     var res = list.Case switch
+        ///     {
+        ///       
+        ///        (var x, var xs) => ...,
+        ///        A value         => ...,
+        ///        _               => ...
+        ///     }
+        /// 
+        /// </remarks>
         [Pure]
-        public SeqCase<(K Key, V Value)> Case =>
-            Seq<(K Key, V Value)>(Value).Case;
+        public object Case =>
+            IsEmpty 
+                ? null
+                : Seq(this).Case;
 
         /// <summary>
         /// 'this' accessor

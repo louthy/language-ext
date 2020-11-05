@@ -51,7 +51,7 @@ namespace LanguageExt
         /// Reference version for use in pattern-matching
         /// </summary>
         [Pure]
-        public SeqCase<A> Case =>
+        public object Case =>
             Prelude.Seq(this).Case;
 
         /// <summary>

@@ -106,13 +106,18 @@ namespace LanguageExt
         /// <summary>
         /// Reference version for use in pattern-matching
         /// </summary>
+        /// <remarks>
+        ///     Validation Succ   = result is SUCCESS
+        ///     Validation Fail   = result is Seq<FAIL>
+        ///     Validation Bottom = result is Seq<FAIL>.Empty
+        /// </remarks>
         [Pure]
-        public ValidationCase<Seq<FAIL>, SUCCESS> Case =>
+        public object Case =>
             state switch
             {
-                Validation.StateType.Success => SuccCase<Seq<FAIL>, SUCCESS>.New(success),
-                Validation.StateType.Fail    => FailCase<Seq<FAIL>, SUCCESS>.New(fail),
-                _                            => null
+                Validation.StateType.Success => success,
+                Validation.StateType.Fail    => fail,
+                _                            => Seq<FAIL>.Empty
             };
 
         [Pure]

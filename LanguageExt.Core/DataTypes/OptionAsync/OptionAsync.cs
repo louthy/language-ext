@@ -113,17 +113,23 @@ namespace LanguageExt
         /// <summary>
         /// Reference version of option for use in pattern-matching
         /// </summary>
+        /// <remarks>
+        ///
+        ///     Some = result is ValueTask<A>
+        ///     None = result is ValueTask<null>
+        ///
+        /// </remarks>
         [Pure]
-        public Task<OptionCase<A>> Case =>
+        public ValueTask<object> Case =>
             GetCase();
 
         [Pure]
-        async Task<OptionCase<A>> GetCase()
+        async ValueTask<object> GetCase()
         {
             var (isSome, value) = await data.ConfigureAwait(false);
             return isSome
-                ? SomeCase<A>.New(value)
-                : NoneCase<A>.Default;
+                ? (object)value
+                : null;
         }
 
         /// <summary>

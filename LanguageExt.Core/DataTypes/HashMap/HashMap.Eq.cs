@@ -63,13 +63,6 @@ namespace LanguageExt
             new HashMap<EqK, K, U>(value);
 
         /// <summary>
-        /// Reference version for use in pattern-matching
-        /// </summary>
-        [Pure]
-        public SeqCase<(K Key, V Value)> Case =>
-            Seq<(K Key, V Value)>(Value).Case;
-
-        /// <summary>
         /// 'this' accessor
         /// </summary>
         /// <param name="key">Key</param>

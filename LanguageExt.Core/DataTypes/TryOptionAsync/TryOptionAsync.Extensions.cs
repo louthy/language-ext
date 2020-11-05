@@ -20,16 +20,21 @@ public static class TryOptionAsyncExtensions
     /// <summary>
     /// Use for pattern-matching the case of the target
     /// </summary>
+    /// <remarks>
+    ///     TryOptionAsync Some = result is A
+    ///     TryOptionAsync None = result is null
+    ///     TryOptionAsync Fail = result is LanguageExt.Common.Error
+    /// </remarks>
     [Pure]
-    public static async Task<TryCase<A>> Case<A>(this TryOptionAsync<A> ma)
+    public static async ValueTask<object> Case<A>(this TryOptionAsync<A> ma)
     {
-        if (ma == null) return FailCase<A>.New(Error.Bottom);
+        if (ma == null) return Error.Bottom;
         var res = await ma.Try().ConfigureAwait(false);
         return res.IsSome
-            ? SuccCase<A>.New(res.Value.Value)
+            ? res.Value.Value
             : res.IsNone
-                ? NoneCase<A>.Default
-                : FailCase<A>.New(res.Exception);
+                ? null
+                : (object)Error.New(res.Exception);
     }
 
     /// <summary>

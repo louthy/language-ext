@@ -46,10 +46,27 @@ namespace LanguageExt
         /// <summary>
         /// Reference version for use in pattern-matching
         /// </summary>
+        /// <remarks>
+        ///
+        ///     Empty collection     = null
+        ///     Singleton collection = A
+        ///     More                 = (A, Seq<A>)   -- head and tail
+        ///
+        ///     var res = stack.Case switch
+        ///     {
+        ///       
+        ///        (var x, var xs) => ...,
+        ///        A value         => ...,
+        ///        _               => ...
+        ///     }
+        /// 
+        /// </remarks>
         [Pure]
-        public SeqCase<A> Case =>
-            Seq(Value).Case;
-
+        public object Case =>
+            IsEmpty
+                ? null
+                : Seq(Value).Case;
+        
         /// <summary>
         /// Number of items in the stack
         /// </summary>

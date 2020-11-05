@@ -140,11 +140,4 @@ namespace LanguageExt
         public Type GetUnderlyingType() =>
             typeof(A);
     }
-
-    public static class Some
-    {
-        [Pure]
-        public static SomeCase<T> Create<T>(T x) =>
-            new SomeCase<T>(x);
-    }
 }

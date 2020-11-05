@@ -74,13 +74,6 @@ namespace LanguageExt
                 });
 
         /// <summary>
-        /// Reference version for use in pattern-matching
-        /// </summary>
-        [Pure]
-        public SeqCase<A> Case =>
-            Seq(this).Case;
-
-        /// <summary>
         /// 'this' accessor
         /// </summary>
         /// <param name="key">Key</param>

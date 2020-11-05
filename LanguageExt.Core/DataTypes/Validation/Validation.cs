@@ -170,13 +170,18 @@ namespace LanguageExt
         /// <summary>
         /// Reference version for use in pattern-matching
         /// </summary>
+        /// <remarks>
+        ///     Validation Succ   = result is SUCCESS
+        ///     Validation Fail   = result is FAIL
+        ///     Validation Bottom = result is mempty FAIL
+        /// </remarks>
         [Pure]
-        public ValidationCase<FAIL, SUCCESS> Case =>
+        public object Case =>
             state switch
             {
-                Validation.StateType.Success => SuccCase<FAIL, SUCCESS>.New(success),
-                Validation.StateType.Fail    => FailCase<FAIL, SUCCESS>.New(fail),
-                _                            => null
+                Validation.StateType.Success => success,
+                Validation.StateType.Fail    => fail,
+                _                            => default(MonoidFail).Empty()
             };
 
         /// <summary>

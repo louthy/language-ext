@@ -64,6 +64,18 @@ namespace LanguageExt
             get => data.State == EitherStatus.IsBottom;
         }
         
+        /// <summary>
+        /// Reference version for use in pattern-matching
+        /// </summary>
+        [Pure]
+        public object Case =>
+            data.State switch
+            {
+                EitherStatus.IsRight => data.Right,
+                EitherStatus.IsLeft  => data.Left,
+                _                    => null
+            };        
+        
         [Pure, MethodImpl(AffOpt.mops)]
         public static implicit operator Fin<A>(A value) =>
             Fin<A>.Succ(value);

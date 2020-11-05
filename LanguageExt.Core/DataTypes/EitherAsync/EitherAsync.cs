@@ -93,17 +93,17 @@ namespace LanguageExt
         /// Reference version for use in pattern-matching
         /// </summary>
         [Pure]
-        public Task<EitherCase<L, R>> Case =>
+        public ValueTask<object> Case =>
             GetCase();
 
         [Pure]
-        async Task<EitherCase<L, R>> GetCase()
+        async ValueTask<object> GetCase()
         {
             var data = await Data.ConfigureAwait(false);
             return data.State switch
             {
-                EitherStatus.IsRight => RightCase<L, R>.New(data.Right),
-                EitherStatus.IsLeft  => LeftCase<L, R>.New(data.Left),
+                EitherStatus.IsRight => data.Right,
+                EitherStatus.IsLeft  => data.Left,
                 _                    => null
             };
         }
