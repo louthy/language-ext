@@ -108,6 +108,33 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        public async void FluentSomeNoneTest()
+        {
+            var res1 = await GetValue(true)
+                .Some(x => x + 10)
+                .None(0);
+
+            var res2 = await GetValue(false)
+                .Some(x => x + 10)
+                .None(() => 0);
+
+            var res3 = -1;
+            await GetValue(true)
+                .Some(x => { res3 = x + 10; })
+                .None(() => { res3 = 0; });
+
+            var res4 = -1;
+            await GetValue(false)
+                .Some(x => { res4 = x + 10; })
+                .None(() => { res4 = 0; });
+
+            Assert.True(res1 == 1010);
+            Assert.True(res2 == 0);
+            Assert.True(res3 == 1010);
+            Assert.True(res4 == 0);
+        }
+
+        [Fact]
         public async Task MapTest()
         {
             var x = OptionAsync<int>.Some(1);
@@ -271,5 +298,10 @@ namespace LanguageExt.Tests
 
         //    taskOpt = optTask.Sequence();
         //}
+
+        private static OptionAsync<int> GetValue(bool select) =>
+            select
+                ? OptionAsync<int>.Some(1000)
+                : OptionAsync<int>.None;
     }
 }
