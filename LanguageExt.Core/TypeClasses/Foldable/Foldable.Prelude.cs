@@ -24,7 +24,7 @@ namespace LanguageExt
         /// <param name="f">Folder function, applied for each item in fa</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        public static S fold<FOLD, F, A, S>(F fa, S state, Func<S, A, S> f) where FOLD : Foldable<F, A> =>
+        public static S fold<FOLD, F, A, S>(F fa, S state, Func<S, A, S> f) where FOLD : struct, Foldable<F, A> =>
             default(FOLD).Fold(fa, state, f)(unit);
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace LanguageExt
         /// <param name="f">Folder function, applied for each item in fa</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        public static S foldBack<FOLD, F, A, S>(F fa, S state, Func<S, A, S> f) where FOLD : Foldable<F, A> =>
+        public static S foldBack<FOLD, F, A, S>(F fa, S state, Func<S, A, S> f) where FOLD : struct, Foldable<F, A> =>
             default(FOLD).FoldBack(fa, state, f)(unit);
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <param name="self">Foldable to perform the operation on</param>
-        public static Unit iter<FOLD, F, A>(F fa, Action<A> action) where FOLD : Foldable<F, A>
+        public static Unit iter<FOLD, F, A>(F fa, Action<A> action) where FOLD : struct, Foldable<F, A>
         {
             foreach (var item in toSeq<FOLD, F, A>(fa))
             {
@@ -65,7 +65,7 @@ namespace LanguageExt
         /// <param name="fa">Foldable</param>
         /// <returns>Sequence of As</returns>
         [Pure]
-        public static Seq<A> toSeq<FOLD, F, A>(F fa) where FOLD : Foldable<F, A> =>
+        public static Seq<A> toSeq<FOLD, F, A>(F fa) where FOLD : struct, Foldable<F, A> =>
             default(FOLD).FoldBack(fa, Seq<A>.Empty, (s, x) => x.Cons(s))(unit);
 
 
@@ -77,7 +77,7 @@ namespace LanguageExt
         /// <param name="self">Foldable to performt the operation on</param>
         /// <returns>Sequence of As that represent the value(s) in the structure</returns>
         [Pure]
-        public static Seq<B> collect<FOLD, F, A, B>(F self, Func<A, B> f) where FOLD : Foldable<F, A> =>
+        public static Seq<B> collect<FOLD, F, A, B>(F self, Func<A, B> f) where FOLD : struct, Foldable<F, A> =>
             default(FOLD).FoldBack(self, Seq<B>.Empty, (s, x) => f(x).Cons(s))(unit);
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace LanguageExt
         /// <param name="fa">Foldable</param>
         /// <returns>First A produced by the foldable</returns>
         [Pure]
-        public static A head<FOLD, F, A>(F fa) where FOLD : Foldable<F, A> =>
+        public static A head<FOLD, F, A>(F fa) where FOLD :struct,  Foldable<F, A> =>
             toSeq<FOLD, F, A>(fa).Head();
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace LanguageExt
         /// <param name="fa">Foldable</param>
         /// <returns>First A produced by the foldable (Or None if no items produced)</returns>
         [Pure]
-        public static Option<A> headOrNone<FOLD, F, A>(F fa) where FOLD : Foldable<F, A> =>
+        public static Option<A> headOrNone<FOLD, F, A>(F fa) where FOLD :struct,  Foldable<F, A> =>
             toSeq<FOLD, F, A>(fa).HeadOrNone();
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace LanguageExt
         /// <param name="fail">Fail case</param>
         /// <returns>First A produced by the foldable (Or Fail if no items produced)</returns>
         [Pure]
-        public static Validation<FAIL, A> headOrInvalid<FOLD, F, FAIL, A>(F fa, FAIL fail) where FOLD : Foldable<F, A> =>
+        public static Validation<FAIL, A> headOrInvalid<FOLD, F, FAIL, A>(F fa, FAIL fail) where FOLD : struct, Foldable<F, A> =>
             toSeq<FOLD, F, A>(fa).HeadOrInvalid(fail);
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace LanguageExt
         /// <param name="left">Left case</param>
         /// <returns>First A produced by the foldable (Or Left if no items produced)</returns>
         [Pure]
-        public static Either<L, A> headOrLeft<FOLD, F, L, A>(F fa, L left) where FOLD : Foldable<F, A> =>
+        public static Either<L, A> headOrLeft<FOLD, F, L, A>(F fa, L left) where FOLD : struct, Foldable<F, A> =>
             toSeq<FOLD, F, A>(fa).HeadOrLeft(left);
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace LanguageExt
         /// <param name="fa">Foldable</param>
         /// <returns>Last A produced by the foldable</returns>
         [Pure]
-        public static A last<FOLD, F, A>(F fa) where FOLD : Foldable<F, A> =>
+        public static A last<FOLD, F, A>(F fa) where FOLD : struct, Foldable<F, A> =>
             toSeq<FOLD, F, A>(fa).Last();
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace LanguageExt
         /// <param name="fa">Foldable</param>
         /// <returns>Last A produced by the foldable (Or None if no items produced)</returns>
         [Pure]
-        public static Option<A> lastOrNone<FOLD, F, A>(F fa) where FOLD : Foldable<F, A> =>
+        public static Option<A> lastOrNone<FOLD, F, A>(F fa) where FOLD : struct, Foldable<F, A> =>
             toSeq<FOLD, F, A>(fa)
                 .Map(x => Prelude.Some(x))
                 .DefaultIfEmpty(Option<A>.None)
@@ -152,7 +152,7 @@ namespace LanguageExt
         /// <param name="fa">Foldable</param>
         /// <returns>True if empty, False otherwise</returns>
         [Pure]
-        public static bool isEmpty<FOLD, F, A>(F fa) where FOLD : Foldable<F, A> =>
+        public static bool isEmpty<FOLD, F, A>(F fa) where FOLD : struct, Foldable<F, A> =>
             !toSeq<FOLD, F, A>(fa).Any();
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace LanguageExt
         /// <param name="fa">Foldable</param>
         /// <returns>True if empty, False otherwise</returns>
         [Pure]
-        public static int count<FOLD, F, A>(F fa) where FOLD : Foldable<F, A> =>
+        public static int count<FOLD, F, A>(F fa) where FOLD : struct, Foldable<F, A> =>
             default(FOLD).Count(fa)(unit);
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace LanguageExt
         [Pure]
         public static bool contains<EQ, FOLD, F, A>(F fa, A item)
             where EQ : struct, Eq<A>
-            where FOLD : Foldable<F, A>
+            where FOLD : struct, Foldable<F, A>
         {
             foreach(var x in toSeq<FOLD, F, A>(fa))
             {
@@ -192,7 +192,7 @@ namespace LanguageExt
         /// <returns>Sum of the numbers in the structure</returns>
         [Pure]
         public static A sum<NUM, FOLD, F, A>(F fa) 
-            where FOLD : Foldable<F, A> 
+            where FOLD : struct, Foldable<F, A> 
             where NUM : struct, Num<A> =>
                 default(FOLD).Fold(fa, fromInteger<NUM, A>(0), (s, x) => plus<NUM, A>(s, x))(unit);
 
@@ -204,7 +204,7 @@ namespace LanguageExt
         /// <returns>Product of the numbers in the structure</returns>
         [Pure]
         public static A product<NUM, FOLD, F, A>(F fa)
-            where FOLD : Foldable<F, A>
+            where FOLD : struct, Foldable<F, A>
             where NUM : struct, Num<A> =>
                 default(FOLD).Fold(fa, fromInteger<NUM, A>(1), (s, x) => product<NUM, A>(s, x))(unit);
 
@@ -217,7 +217,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate to apply</param>
         /// <returns>True if the predicate holds for all values</returns>
         [Pure]
-        public static bool forall<FOLD, F, A>(F fa, Func<A,bool> pred) where FOLD : Foldable<F, A>
+        public static bool forall<FOLD, F, A>(F fa, Func<A,bool> pred) where FOLD : struct, Foldable<F, A>
         {
             foreach(var item in toSeq<FOLD, F, A>(fa))
             {
@@ -237,7 +237,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate to apply</param>
         /// <returns>True if the predicate holds for all values</returns>
         [Pure]
-        public static bool exists<FOLD, F, A>(F fa, Func<A, bool> pred) where FOLD : Foldable<F, A>
+        public static bool exists<FOLD, F, A>(F fa, Func<A, bool> pred) where FOLD : struct, Foldable<F, A>
         {
             foreach (var item in toSeq<FOLD, F, A>(fa))
             {

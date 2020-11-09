@@ -18,7 +18,5 @@ namespace LanguageExt.TypeClasses
         /// <summary>
         [Pure]
         A Empty();
-
-        // Concat is defined in LanguageExt.TypeClass
     }
 }
