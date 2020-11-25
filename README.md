@@ -1056,6 +1056,8 @@ public void TreeTests()
 There are some [unit tests](https://github.com/louthy/language-ext/blob/master/LanguageExt.Tests/RecordTypesTest.cs) to see this in action.
 
 > Inheritance is not supported in `Record` derived types, so if you derive a type from a type that derives from `Record` then you won't magically inherit any equality, ordering, hash-code, etc. behaviours. This feature is explicitly here to implement record-like functionality, which do not support inheritance in other functional languages. Equality of origin is explicitly checked for.
+>
+> If you've looked at the source code of 'record',you will find that the internal logic of these methods is type based,That's why you can't inherit more than once.
 
 ## `RecordType<A>`
 
