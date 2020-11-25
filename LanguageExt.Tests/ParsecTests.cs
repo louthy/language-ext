@@ -301,6 +301,22 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        public void EitherStringNonConsuming()
+        {
+            var parserStr = either(str("Hello"), str("How are you"));
+
+            Assert.Equal("How are you", parse(parserStr, "How are you").ToEither().IfLeft(identity));
+        }
+
+        [Fact]
+        public void EitherStringEqNonConsuming()
+        {
+            var parserStrEq = either(str<EqCharOrdinalIgnoreCase>("Hello"), str<EqCharOrdinalIgnoreCase>("How are you"));
+
+            Assert.Equal("how are you", parse(parserStrEq, "how are you").ToEither().IfLeft(identity));
+        }
+
+        [Fact]
         public void NaturalNumberComb()
         {
             var tok = makeTokenParser(Language.HaskellStyle);
