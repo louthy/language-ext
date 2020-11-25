@@ -317,6 +317,14 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        public void ChoiceStringNonConsuming()
+        {
+            var parserStr = choice(Seq("peach", "plum", "apple", "orange").Map(str));
+
+            Assert.Equal("plum", parse(parserStr, "plum").ToEither().IfLeft(identity));
+        }
+        
+        [Fact]
         public void NaturalNumberComb()
         {
             var tok = makeTokenParser(Language.HaskellStyle);
