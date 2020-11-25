@@ -906,7 +906,7 @@ By holding onto a reference to the `Map` before and after calling `add` you esse
 There are additional transformer functions for dealing with "wrapped" maps (i.e. `Map<int, Map<int, string>>`). We only cover a limited set of the full set of `Map` functions at the moment. You can wrap `Map` up to 4 levels deep and still call things like `Fold` and `Filter`. There's  interesting variants of `Filter` and `Map` called `FilterRemoveT` and `MapRemoveT`, where if a filter or map operation leaves any keys at any level with an empty `Map` then it will auto-remove them. 
 
 ```C#
-    Map<int, Map<int, Map<int, Map<int, string>>>> wrapped = Map.create<int, Map<int, Map<int, Map<int, string>>>>();
+    Map<int,Map<int,Map<int,Map<int,string>>>> wrapped = Map.create<int,Map<int,Map<int,Map<int,string>>>>();
     
     wrapped = wrapped.AddOrUpdate(1,2,3,4,"Paul");
     wrapped = wrapped.SetItemT(1,2,3,4,"Louth");
