@@ -910,7 +910,7 @@ There are additional transformer functions for dealing with "wrapped" maps (i.e.
     
     wrapped = wrapped.AddOrUpdate(1,2,3,4,"Paul");
     wrapped = wrapped.SetItemT(1,2,3,4,"Louth");
-    var name = wrapped.Find(1,2,3,4);               // "Louth"
+    var name = wrapped.Find(1, 2, 3, 4, Some: t => t, None: () => "failed");// "Louth"
 ```
 The `Map` transformer functions:
 
