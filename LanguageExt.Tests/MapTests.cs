@@ -569,15 +569,18 @@ namespace LanguageExt.Tests
         [Fact]
         public void MapWithUnicodeChars()
         {
-            var x = Map((";", 6), ("H", 5), ("", 4), ("\u0005", -4));
-            Assert.Equal(4, x.Count);
+            // fails from net5.0 on when default OrdString is used instead of OrdStringOrdinal 
+            // https://docs.microsoft.com/en-us/dotnet/standard/base-types/string-comparison-net-5-plus
+            var x = Map<OrdStringOrdinal, string, int>(("", 4), ("\u0005", -4));
+            Assert.Equal(2, x.Count);
         }
         
         [Property]
         public void MapRandomDict(IDictionary<string, int> dict)
         {
-            dict.Remove("\u0000"); // this value fails on all targets
-            var x = toMap(dict);
+            // fails from net5.0 on when default OrdString is used instead of OrdStringOrdinal 
+            // https://docs.microsoft.com/en-us/dotnet/standard/base-types/string-comparison-net-5-plus
+            var x = toMap<OrdStringOrdinal, string, int>(dict);
             Assert.Equal(dict.Count, x.Count);
             Assert.Equal(dict.Keys.OrderBy(identity), x.Keys.OrderBy(identity));
         }
