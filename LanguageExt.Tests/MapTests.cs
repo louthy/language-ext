@@ -3,7 +3,9 @@ using static LanguageExt.Prelude;
 using static LanguageExt.Map;
 using Xunit;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using FsCheck.Xunit;
 using LanguageExt.ClassInstances;
 
 namespace LanguageExt.Tests
@@ -571,6 +573,15 @@ namespace LanguageExt.Tests
             Assert.Equal(4, x.Count);
         }
         
+        [Property]
+        public void MapRandomDict(IDictionary<string, int> dict)
+        {
+            dict.Remove("\u0000"); // this value fails on all targets
+            var x = toMap(dict);
+            Assert.Equal(dict.Count, x.Count);
+            Assert.Equal(dict.Keys.OrderBy(identity), x.Keys.OrderBy(identity));
+        }
+
         // Exponential test - takes too long to run
         //[Fact]
         //public void Issue_454()
