@@ -564,6 +564,13 @@ namespace LanguageExt.Tests
             Assert.True(m.FindExactOrSuccessor(15) == (15, 15));
         }
 
+        [Fact]
+        public void MapWithUnicodeChars()
+        {
+            var x = Map((";", 6), ("H", 5), ("", 4), ("\u0005", -4));
+            Assert.Equal(4, x.Count);
+        }
+        
         // Exponential test - takes too long to run
         //[Fact]
         //public void Issue_454()
