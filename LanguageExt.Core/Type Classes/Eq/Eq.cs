@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.Contracts;
+﻿using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
@@ -20,5 +21,25 @@ namespace LanguageExt.TypeClasses
         /// <returns>True if x and y are equal</returns>
         [Pure]
         bool Equals(A x, A y);
+    }
+
+    public static class EqExt
+    {
+        class EqEqualityComparer<A> : IEqualityComparer<A>
+        {
+            readonly Eq<A> eq;
+
+            public EqEqualityComparer(Eq<A> eq) =>
+                this.eq = eq;
+
+            public bool Equals(A x, A y) =>
+                eq.Equals(x, y);
+
+            public int GetHashCode(A obj) =>
+                eq.GetHashCode(obj);
+        }
+
+        public static IEqualityComparer<A> ToEqualityComparer<A>(this Eq<A> self) =>
+            new EqEqualityComparer<A>(self);
     }
 }
