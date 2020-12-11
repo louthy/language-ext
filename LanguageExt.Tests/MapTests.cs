@@ -564,6 +564,20 @@ namespace LanguageExt.Tests
             Assert.True(m.FindExactOrSuccessor(15) == (15, 15));
         }
 
+        [Fact]
+        public void MapWithUnicodeCharsEquality()
+        {
+            // fails from net5.0 on when default OrdString is used instead of OrdStringOrdinal 
+            // https://docs.microsoft.com/en-us/dotnet/standard/base-types/string-comparison-net-5-plus
+            var m1 = Map<OrdString, string, int>(("", 4)).TryAdd("\u0005", 4);
+            var m2 = Map<OrdString, string, int>(("\u0005", 4)).TryAdd("", 4);
+        
+            Assert.Equal(1, m1.Count);
+            Assert.Equal(1, m2.Count);
+            Assert.Equal(0,  default(OrdString).Compare(m1.Keys.Head(), m2.Keys.Head()));
+            Assert.Equal(m1, m2);
+        }
+        
         // Exponential test - takes too long to run
         //[Fact]
         //public void Issue_454()
