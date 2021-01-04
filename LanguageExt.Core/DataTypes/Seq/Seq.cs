@@ -558,7 +558,7 @@ namespace LanguageExt
         public bool IsEmpty
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Value.IsEmpty;
+            get => value?.IsEmpty ?? true;
         }
 
         /// <summary>
@@ -568,7 +568,17 @@ namespace LanguageExt
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Value.Count;
+            get => value?.Count ?? 0;
+        }
+        
+        /// <summary>
+        /// Alias of `Count`
+        /// </summary>
+        /// <returns>Number of items in the sequence</returns>
+        public int Length
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.Count ?? 0;
         }
 
         /// <summary>

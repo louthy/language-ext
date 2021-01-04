@@ -168,13 +168,33 @@ namespace LanguageExt
                     : Seq(this).Case;
 
         /// <summary>
-        /// Number of items in the array
+        /// Is the stack empty
+        /// </summary>
+        [Pure]
+        public bool IsEmpty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value == null || value.Length == 0;
+        }
+
+        /// <summary>
+        /// Number of items in the stack
         /// </summary>
         [Pure]
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Value.Length;
+            get => value?.Length ?? 0;
+        }
+
+        /// <summary>
+        /// Alias of Count
+        /// </summary>
+        [Pure]
+        public int Length
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.Length ?? 0;
         }
 
         [Pure]
@@ -411,13 +431,6 @@ namespace LanguageExt
             return index < 0
                 ? this
                 : RemoveAt(index);
-        }
-
-        [Pure]
-        public bool IsEmpty
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Value.Length == 0;
         }
 
         /// <summary>

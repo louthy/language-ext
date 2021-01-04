@@ -66,12 +66,6 @@ namespace LanguageExt
             IsEmpty
                 ? null
                 : Seq(Value).Case;
-        
-        /// <summary>
-        /// Number of items in the stack
-        /// </summary>
-        [Pure]
-        public int Count => Value.Count;
 
         /// <summary>
         /// Reverses the order of the items in the stack
@@ -82,12 +76,35 @@ namespace LanguageExt
             new Stck<A>(Value.Reverse());
 
         /// <summary>
-        /// True if the stack is empty
+        /// Is the stack empty
         /// </summary>
         [Pure]
-        public bool IsEmpty => 
-            Count == 0;
+        public bool IsEmpty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.IsEmpty ?? true;
+        }
 
+        /// <summary>
+        /// Number of items in the stack
+        /// </summary>
+        [Pure]
+        public int Count
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.Count ?? 0;
+        }
+
+        /// <summary>
+        /// Alias of Count
+        /// </summary>
+        [Pure]
+        public int Length
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.Count ?? 0;
+        }
+        
         /// <summary>
         /// Clear the stack (returns Empty)
         /// </summary>

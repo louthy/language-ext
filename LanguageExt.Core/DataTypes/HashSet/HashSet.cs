@@ -80,26 +80,35 @@ namespace LanguageExt
             Value[key];
 
         /// <summary>
-        /// Is the map empty
+        /// Is the set empty
         /// </summary>
         [Pure]
-        public bool IsEmpty =>
-            Value.IsEmpty;
+        public bool IsEmpty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.IsEmpty ?? true;
+        }
 
         /// <summary>
         /// Number of items in the set
         /// </summary>
         [Pure]
-        public int Count =>
-            Value.Count;
+        public int Count
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.Count ?? 0;
+        }
 
         /// <summary>
-        /// Number of items in the set
+        /// Alias of Count
         /// </summary>
         [Pure]
-        public int Length =>
-            Value.Count;
-
+        public int Length
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.Count ?? 0;
+        }
+        
         /// <summary>
         /// Impure iteration of the bound values in the structure
         /// </summary>

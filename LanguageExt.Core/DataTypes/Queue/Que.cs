@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 
 namespace LanguageExt
@@ -68,13 +69,35 @@ namespace LanguageExt
                 ? null
                 : Seq(Value).Case;
 
+        /// <summary>
+        /// Is the queue empty
+        /// </summary>
         [Pure]
-        public int Count =>
-            Value.Count;
+        public bool IsEmpty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.IsEmpty ?? true;
+        }
 
+        /// <summary>
+        /// Number of items in the queue
+        /// </summary>
         [Pure]
-        public bool IsEmpty =>
-            Value.IsEmpty;
+        public int Count
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.Count ?? 0;
+        }
+
+        /// <summary>
+        /// Alias of Count
+        /// </summary>
+        [Pure]
+        public int Length
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.Count ?? 0;
+        }
 
         [Pure]
         public Que<A> Clear() =>

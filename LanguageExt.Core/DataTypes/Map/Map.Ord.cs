@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 
 namespace LanguageExt
@@ -85,19 +86,31 @@ namespace LanguageExt
         /// Is the map empty
         /// </summary>
         [Pure]
-        public bool IsEmpty => Value.IsEmpty;
+        public bool IsEmpty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.IsEmpty ?? true;
+        }
 
         /// <summary>
         /// Number of items in the map
         /// </summary>
         [Pure]
-        public int Count => Value.Count;
+        public int Count
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.Count ?? 0;
+        }
 
         /// <summary>
         /// Alias of Count
         /// </summary>
         [Pure]
-        public int Length => Value.Length;
+        public int Length
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.Count ?? 0;
+        }
 
         /// <summary>
         /// Atomically adds a new item to the map

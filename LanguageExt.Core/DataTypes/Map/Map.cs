@@ -139,7 +139,7 @@ namespace LanguageExt
         public bool IsEmpty
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Value.IsEmpty;
+            get => value?.IsEmpty ?? true;
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace LanguageExt
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Value.Count;
+            get => value?.Count ?? 0;
         }
 
         /// <summary>
@@ -159,9 +159,9 @@ namespace LanguageExt
         public int Length
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Value.Length;
+            get => value?.Count ?? 0;
         }
-
+        
         /// <summary>
         /// Atomically adds a new item to the map
         /// </summary>

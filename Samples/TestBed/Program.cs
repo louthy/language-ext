@@ -40,27 +40,6 @@ class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        var option = Some(123);
-
-        var result = option.Case switch
-                     {
-                         int x => x,
-                         _     => 0
-                     };
-
-        var result2 = option.Case is string name 
-                         ? $"Hello, {name}"
-                         : "Hello stranger";
-
-        var sum = Sum(Seq(1, 2, 3, 4, 5));
     }
 
-    static int Sum(Seq<int> values) =>
-        values.Case switch
-        {
-            null                 => 0,
-            int x                => x,
-            (int x, Seq<int> xs) => x + Sum(xs),
-        };
 }
-

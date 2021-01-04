@@ -92,22 +92,31 @@ namespace LanguageExt
         /// Is the map empty
         /// </summary>
         [Pure]
-        public bool IsEmpty =>
-            Value.IsEmpty;
+        public bool IsEmpty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.IsEmpty ?? true;
+        }
 
         /// <summary>
         /// Number of items in the map
         /// </summary>
         [Pure]
-        public int Count =>
-            Value.Count;
+        public int Count
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.Count ?? 0;
+        }
 
         /// <summary>
         /// Alias of Count
         /// </summary>
         [Pure]
-        public int Length =>
-            Value.Count;
+        public int Length
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.Count ?? 0;
+        }
 
         /// <summary>
         /// Get a IReadOnlyDictionary for this map.  No mapping is required, so this is very fast.

@@ -6,6 +6,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 
@@ -118,13 +119,6 @@ namespace LanguageExt
                 : Seq(Value).Case;
 
         /// <summary>
-        /// Number of items in the set
-        /// </summary>
-        [Pure]
-        public int Count =>
-            Value.Count;
-
-        /// <summary>
         /// Add an item to the set
         /// </summary>
         /// <param name="value">Value to add to the set</param>
@@ -188,14 +182,6 @@ namespace LanguageExt
         [Pure]
         public Set<A> AddOrUpdateRange(IEnumerable<A> range) =>
             Wrap(Value.AddOrUpdateRange(range));
-
-        /// <summary>
-        /// Get the number of elements in the set
-        /// </summary>
-        /// <returns>Number of elements</returns>
-        [Pure]
-        public int Length() =>
-            Value.Count;
 
         /// <summary>
         /// Attempts to find an item in the set.  
@@ -444,12 +430,35 @@ namespace LanguageExt
             Value.SetEquals(other);
 
         /// <summary>
-        /// True if the set has no elements
+        /// Is the set empty
         /// </summary>
         [Pure]
-        public bool IsEmpty => 
-            Value.IsEmpty;
+        public bool IsEmpty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.IsEmpty ?? true;
+        }
 
+        /// <summary>
+        /// Number of items in the set
+        /// </summary>
+        [Pure]
+        public int Count
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.Count ?? 0;
+        }
+
+        /// <summary>
+        /// Alias of Count
+        /// </summary>
+        [Pure]
+        public int Length
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => value?.Count ?? 0;
+        }
+        
         /// <summary>
         /// Returns True if 'other' is a proper subset of this set
         /// </summary>
