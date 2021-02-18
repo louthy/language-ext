@@ -10,23 +10,17 @@ namespace LanguageExt.Parsec
 {
     static class InternalIO
     {
-        public static ParserResult<I,I> newstate<I>(PString<I> inp)
+        public static ParserResult<I, I> newstate<I>(PString<I> inp)
         {
             var x = inp.Value[inp.Index];
-
-            var newpos = new Pos(inp.Pos.Line, inp.Pos.Column + 1);
 
             return ConsumedOK(x,
                 new PString<I>(
                     inp.Value,
                     inp.Index + 1,
                     inp.EndIndex,
-                    newpos,
-                    inp.DefPos,
-                    onside(newpos, inp.DefPos)
-                        ? Sidedness.Onside
-                        : Sidedness.Offside,
-                    inp.UserState));
+                    inp.UserState,
+                    inp.TokenPos));
         }
 
         /// <summary>
@@ -63,13 +57,13 @@ namespace LanguageExt.Parsec
                     // cerr
                     if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                     {
-                        return ConsumedError<I, O>(mergeError(error, t.Reply.Error));
+                        return ConsumedError<I, O>(mergeError(error, t.Reply.Error), inp.TokenPos);
                     }
 
                     error = mergeError(error, t.Reply.Error);
                 }
 
-                return EmptyError<I, O>(error);
+                return EmptyError<I, O>(error, inp.TokenPos);
             };
 
         /// <summary>
@@ -107,12 +101,12 @@ namespace LanguageExt.Parsec
                         // cerr
                         if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                         {
-                            return ConsumedError<I, Seq<O>>(t.Reply.Error);
+                            return ConsumedError<I, Seq<O>>(t.Reply.Error, inp.TokenPos);
                         }
                         // eerr
                         else if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.Error)
                         {
-                            return EmptyError<I, Seq<O>>(t.Reply.Error);
+                            return EmptyError<I, Seq<O>>(t.Reply.Error, inp.TokenPos);
                         }
                         // cok
                         else if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
@@ -137,12 +131,12 @@ namespace LanguageExt.Parsec
                             // cok, cerr
                             if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                             {
-                                return ConsumedError<I, Seq<O>>(t.Reply.Error);
+                                return ConsumedError<I, Seq<O>>(t.Reply.Error, inp.TokenPos);
                             }
                             // cok, eerr
                             else if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.Error)
                             {
-                                return ConsumedError<I, Seq<O>>(mergeError(error, t.Reply.Error));
+                                return ConsumedError<I, Seq<O>>(mergeError(error, t.Reply.Error), inp.TokenPos);
                             }
                             // cok, cok
                             else if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
@@ -182,12 +176,12 @@ namespace LanguageExt.Parsec
                             // eok, cerr
                             if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                             {
-                                return ConsumedError<I, Seq<O>>(t.Reply.Error);
+                                return ConsumedError<I, Seq<O>>(t.Reply.Error, inp.TokenPos);
                             }
                             // eok, eerr
                             else if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.Error)
                             {
-                                return EmptyError<I, Seq<O>>(mergeError(error, t.Reply.Error));
+                                return EmptyError<I, Seq<O>>(mergeError(error, t.Reply.Error), inp.TokenPos);
                             }
                             // eok, cok
                             else if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)

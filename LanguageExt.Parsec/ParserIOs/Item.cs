@@ -30,7 +30,7 @@ namespace LanguageExt.Parsec
             {
                 if (inp.Index >= inp.EndIndex)
                 {
-                    return EmptyError<A, A>(ParserError.SysUnexpect(inp.Pos, "end of stream"));
+                    return EmptyError<A, A>(ParserError.SysUnexpect(inp.Pos, "end of stream"), inp.TokenPos);
                 }
                 else
                 {
@@ -44,12 +44,12 @@ namespace LanguageExt.Parsec
                         }
                         else
                         {
-                            return EmptyError<A, A>(ParserError.SysUnexpect(inp.Pos, $"\"{ns.Reply.Result}\""));
+                            return EmptyError<A, A>(ParserError.SysUnexpect(inp.Pos, $"\"{ns.Reply.Result}\""), inp.TokenPos);
                         }
                     }
                     else
                     {
-                        return EmptyError<A, A>(ParserError.SysUnexpect(inp.Pos, "end of stream"));
+                        return EmptyError<A, A>(ParserError.SysUnexpect(inp.Pos, "end of stream"), inp.TokenPos);
                     }
                 }
             };

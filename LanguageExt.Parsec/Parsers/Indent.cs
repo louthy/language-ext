@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LanguageExt.Parsec
 {
@@ -41,7 +37,7 @@ namespace LanguageExt.Parsec
         /// Parses only when indented zero or more characters past the level of the reference
         /// </summary>
         public static Parser<T> indented<T>(Parser<T> p) =>
-            indented(1, p);
+            indented(0, p);
 
         /// <summary>
         /// Parses only when indented one or more characters past the level of the reference

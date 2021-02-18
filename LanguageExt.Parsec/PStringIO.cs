@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Parsec
@@ -9,53 +10,45 @@ namespace LanguageExt.Parsec
     /// </summary>
     public class PString<T>
     {
-        internal readonly T[] Value;
+        public readonly T[] Value;
         public readonly int Index;
         public readonly int EndIndex;
-        public readonly Pos Pos;
-        public readonly Pos DefPos;
-        public readonly Sidedness Side;
         public readonly Option<object> UserState;
+        public readonly Func<T, Pos> TokenPos;
 
-        public PString(T[] value, int index, int endIndex, Pos pos, Pos defPos, Sidedness side, Option<object> userState)
+        public PString(T[] value, int index, int endIndex, Option<object> userState,  Func<T, Pos> tokenPos)
         {
-            Value = value;
-            Index = index;
-            EndIndex = endIndex;
-            Pos = pos;
-            DefPos = defPos;
-            Side = side;
+            Value     = value;
+            Index     = index;
+            EndIndex  = endIndex;
             UserState = userState;
+            TokenPos  = tokenPos;
         }
 
-        public PString<T> SetDefPos(Pos defpos) =>
-            new PString<T>(Value, Index, EndIndex, Pos, defpos, Side, UserState);
-
-        public PString<T> SetPos(Pos pos) =>
-            new PString<T>(Value, Index, EndIndex, pos, DefPos, Side, UserState);
-
-        public PString<T> SetSide(Sidedness side) =>
-            new PString<T>(Value, Index, EndIndex, Pos, DefPos, side, UserState);
+        public Pos Pos =>
+            Index < Value.Length
+                ? TokenPos(Value[Index])
+                : TokenPos(Value[Value.Length - 1]);
 
         public PString<T> SetValue(T[] value) =>
-            new PString<T>(value, Index, value.Length, Pos, DefPos, Side, UserState);
+            new PString<T>(value, Index, value.Length, UserState, TokenPos);
 
         public PString<T> SetIndex(int index) =>
-            new PString<T>(Value, index, EndIndex, Pos, DefPos, Side, UserState);
+            new PString<T>(Value, index, EndIndex, UserState, TokenPos);
 
         public PString<T> SetUserState(object state) =>
-            new PString<T>(Value, Index, EndIndex, Pos, DefPos, Side, state);
+            new PString<T>(Value, Index, EndIndex, state, TokenPos);
 
         public PString<T> SetEndIndex(int endIndex) =>
-            new PString<T>(Value, Index, endIndex, Pos, DefPos, Side, UserState);
+            new PString<T>(Value, Index, endIndex, UserState, TokenPos);
 
         public override string ToString() =>
             $"{typeof(T).Name}({Index}, {EndIndex})";
 
-        public static readonly PString<T> Zero =
-            new PString<T>(new T[0], 0, 0, Pos.Zero, Pos.Zero, Sidedness.Onside, None);
+        public static PString<T> Zero(Func<T, Pos> tokenPos) =>
+            new PString<T>(new T[0], 0, 0, None, tokenPos);
 
-        public PString<U> Cast<U>() =>
-            new PString<U>(Value.Cast<U>().ToArray(), Index, EndIndex, Pos, DefPos, Side, UserState);
+        public PString<U> Cast<U>() where U : T =>
+            new PString<U>(Value.Cast<U>().ToArray(), Index, EndIndex, UserState, u => TokenPos((T)u));
     }
 }

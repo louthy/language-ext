@@ -14,8 +14,8 @@ namespace LanguageExt.Parsec
         public static ParserResult<I, O> EmptyOK<I, O>(O value, PString<I> input, ParserError error = null) =>
             new ParserResult<I, O>(ResultTag.Empty, Reply.OK(value, input, error));
 
-        public static ParserResult<I, O> EmptyError<I, O>(ParserError error) =>
-            new ParserResult<I, O>(ResultTag.Empty, Reply.Error<I, O>(error));
+        public static ParserResult<I, O> EmptyError<I, O>(ParserError error, Func<I, Pos> tokenPos) =>
+            new ParserResult<I, O>(ResultTag.Empty, Reply.Error<I, O>(error, tokenPos));
 
         public static ParserResult<I, O> ConsumedOK<I, O>(O value, PString<I> input) =>
             new ParserResult<I, O>(ResultTag.Consumed, Reply.OK(value, input));
@@ -23,8 +23,8 @@ namespace LanguageExt.Parsec
         public static ParserResult<I, O> ConsumedOK<I, O>(O value, PString<I> input, ParserError error) =>
             new ParserResult<I, O>(ResultTag.Consumed, Reply.OK(value, input, error));
 
-        public static ParserResult<I, O> ConsumedError<I, O>(ParserError error) =>
-            new ParserResult<I, O>(ResultTag.Consumed, Reply.Error<I, O>(error));
+        public static ParserResult<I, O> ConsumedError<I, O>(ParserError error, Func<I, Pos> tokenPos) =>
+            new ParserResult<I, O>(ResultTag.Consumed, Reply.Error<I, O>(error, tokenPos));
 
     }
 

@@ -8,7 +8,7 @@ namespace LanguageExt.Parsec
     /// </summary>
     public class PString
     {
-        internal readonly string Value;
+        public readonly string Value;
         public readonly int Index;
         public readonly int EndIndex;
         public readonly Pos Pos;

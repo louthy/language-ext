@@ -21,34 +21,6 @@ namespace LanguageExt.Parsec
 
 public static class ParserExtensions
 {
-    public static Parser<char, T> ToParserIO<T>(this Parser<T> self) =>
-        inp =>
-        {
-            var res = self(new PString(new string(inp.Value), inp.Index, inp.EndIndex, inp.Pos, inp.DefPos, inp.Side, inp.UserState));
-
-            var state = res.Reply.State;
-
-            var pstr = new PString<char>(
-                        state.Value.ToCharArray(),
-                        state.Index,
-                        state.EndIndex,
-                        state.Pos,
-                        state.DefPos,
-                        state.Side,
-                        state.UserState);
-
-            var reply = res.Reply;
-
-            return new ParserResult<char, T>(
-                res.Tag,
-                new Reply<char, T>(
-                    reply.Tag,
-                    reply.Result,
-                    pstr,
-                    reply.Error));
-        };
-
-
     /// <summary>
     /// A label for the parser
     /// </summary>

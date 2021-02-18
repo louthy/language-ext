@@ -23,33 +23,6 @@ namespace LanguageExt.Parsec
 
 public static class ParserIOExtensions
 {
-    public static Parser<T> ToParser<T>(this Parser<char, T> self) =>
-        inp =>
-        {
-            var res = self(new PString<char>(inp.Value.ToCharArray(), inp.Index, inp.EndIndex, inp.Pos, inp.DefPos, inp.Side, inp.UserState));
-
-            var state = res.Reply.State;
-
-            var pstr = new PString(
-                        new string(state.Value),
-                        state.Index,
-                        state.EndIndex,
-                        state.Pos,
-                        state.DefPos,
-                        state.Side,
-                        state.UserState);
-
-            var reply = res.Reply;
-
-            return new ParserResult<T>(
-                res.Tag,
-                new Reply<T>(
-                    reply.Tag,
-                    reply.Result,
-                    pstr,
-                    reply.Error));
-        };
-
     /// <summary>
     /// A label for the parser
     /// </summary>
@@ -64,7 +37,7 @@ public static class ParserIOExtensions
             }
             if (res.Reply.Tag == ReplyTag.Error)
             {
-                return EmptyError<I, O>(ParserError.Expect(inp.Pos, res.Reply.Error.Msg, expected));
+                return EmptyError<I, O>(ParserError.Expect(inp.Pos, res.Reply.Error.Msg, expected), inp.TokenPos);
             }
             if (res.Reply.Error == null || res.Reply.Error.Tag == ParserErrorTag.Unknown)
             {
@@ -79,8 +52,11 @@ public static class ParserIOExtensions
     public static ParserResult<I, O> Parse<I, O>(this Parser<I, O> self, PString<I> input) =>
         self(input);
 
-    public static ParserResult<I, O> Parse<I, O>(this Parser<I, O> self, IEnumerable<I> input) =>
-        self(PString<I>.Zero.SetValue(input.ToArray()));
+    public static ParserResult<I, O> Parse<I, O>(this Parser<I, O> self, Seq<I> input, Func<I, Pos> tokenPos) =>
+        self(PString<I>.Zero(tokenPos).SetValue(input.ToArray()));
+
+    public static ParserResult<I, O> Parse<I, O>(this Parser<I, O> self, IEnumerable<I> input, Func<I, Pos> tokenPos) =>
+        self(PString<I>.Zero(tokenPos).SetValue(input.ToArray()));
 
     public static Parser<I, O> Filter<I, O>(this Parser<I, O> self, Func<O, bool> pred) =>
         self.Where(pred);
@@ -88,10 +64,10 @@ public static class ParserIOExtensions
     public static Parser<I, O> Where<I, O>(this Parser<I, O> self, Func<O, bool> pred) =>
         inp =>
             self(inp).Match(
-                EmptyOK: (x, rem, msg) => pred(x) ? EmptyOK(x, rem, msg) : EmptyError<I, O>(ParserError.SysUnexpect(inp.Pos, $"\"{x}\"")),
-                EmptyError: msg => EmptyError<I, O>(msg),
-                ConsumedOK: (x, rem, msg) => pred(x) ? ConsumedOK(x, rem, msg) : EmptyError<I, O>(ParserError.SysUnexpect(inp.Pos, $"\"{x}\"")),
-                ConsumedError: msg => ConsumedError<I, O>(msg));
+                EmptyOK: (x, rem, msg) => pred(x) ? EmptyOK(x, rem, msg) : EmptyError<I, O>(ParserError.SysUnexpect(inp.Pos, $"\"{x}\""), inp.TokenPos),
+                EmptyError: msg => EmptyError<I, O>(msg, inp.TokenPos),
+                ConsumedOK: (x, rem, msg) => pred(x) ? ConsumedOK(x, rem, msg) : EmptyError<I, O>(ParserError.SysUnexpect(inp.Pos, $"\"{x}\""), inp.TokenPos),
+                ConsumedError: msg => ConsumedError<I, O>(msg, inp.TokenPos));
 
     public static Parser<I, U> Map<I, O, U>(this Parser<I, O> self, Func<O, U> map) =>
         self.Select(map);
@@ -126,11 +102,11 @@ public static class ParserIOExtensions
             // cerr
             if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
             {
-                return ConsumedError<I, B>(t.Reply.Error);
+                return ConsumedError<I, B>(t.Reply.Error, inp.TokenPos);
             }
 
             // eerr
-            return EmptyError<I, B>(t.Reply.Error);
+            return EmptyError<I, B>(t.Reply.Error, inp.TokenPos);
         };    
 
     public static Parser<I, V> SelectMany<I, O, U, V>(
@@ -158,7 +134,7 @@ public static class ParserIOExtensions
                     if (u.Tag == ResultTag.Consumed && u.Reply.Tag == ReplyTag.Error)
                     {
                         // cok, cerr -> cerr
-                        return ConsumedError<I, V>(u.Reply.Error);
+                        return ConsumedError<I, V>(u.Reply.Error, inp.TokenPos);
                     }
 
                     if (u.Tag == ResultTag.Empty && u.Reply.Tag == ReplyTag.OK)
@@ -169,7 +145,7 @@ public static class ParserIOExtensions
                     }
 
                     // cok, eerr
-                    return ConsumedError<I, V>(mergeError(t.Reply.Error, u.Reply.Error));
+                    return ConsumedError<I, V>(mergeError(t.Reply.Error, u.Reply.Error), inp.TokenPos);
                 }
 
                 // eok
@@ -194,21 +170,21 @@ public static class ParserIOExtensions
                     if (u.Tag == ResultTag.Consumed && u.Reply.Tag == ReplyTag.Error)
                     {
                         // eok, cerr -> cerr
-                        return ConsumedError<I, V>(u.Reply.Error);
+                        return ConsumedError<I, V>(u.Reply.Error, inp.TokenPos);
                     }
 
                     // eok, eerr
-                    return EmptyError<I, V>(mergeError(t.Reply.Error, u.Reply.Error));
+                    return EmptyError<I, V>(mergeError(t.Reply.Error, u.Reply.Error), inp.TokenPos);
                 }
 
                 // cerr
                 if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                 {
-                    return ConsumedError<I, V>(t.Reply.Error);
+                    return ConsumedError<I, V>(t.Reply.Error, inp.TokenPos);
                 }
 
                 // eerr
-                return EmptyError<I, V>(t.Reply.Error);
+                return EmptyError<I, V>(t.Reply.Error, inp.TokenPos);
             };
     
     public static Parser<I, A> Flatten<I, A>(this Parser<I, Parser<I, A>> mma) =>

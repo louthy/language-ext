@@ -11,7 +11,10 @@ namespace LanguageExt.Parsec
         public static PString ToPString(this string value) =>
             PString.Zero.SetValue(value);
 
-        public static PString<T> ToPString<T>(this IEnumerable<T> value) =>
-            PString<T>.Zero.SetValue(value.ToArray());
+        public static PString<T> ToPString<T>(this IEnumerable<T> value, Func<T, Pos> tokenPos) =>
+            PString<T>.Zero(tokenPos).SetValue(value.ToArray());
+
+        public static PString<T> ToPString<T>(this Seq<T> value, Func<T, Pos> tokenPos) =>
+            PString<T>.Zero(tokenPos).SetValue(value.ToArray());
     }
 }

@@ -45,4 +45,9 @@
   <ItemGroup>
     <Folder Include="Transformer\Traverse\TryAsync" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="ParsecIOTests.cs">
+      <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+    </Compile>
+  </ItemGroup>
 </Project>

@@ -24,8 +24,8 @@ namespace LanguageExt.Parsec
         /// <summary>
         /// Run the parser p with the input provided
         /// </summary>
-        public static ParserResult<I, O> parse<I, O>(Parser<I, O> p, Seq<I> input) =>
-            p.Parse(input);
+        public static ParserResult<I, O> parse<I, O>(Parser<I, O> p, Seq<I> input, Func<I, Pos> tokenPos) =>
+            p.Parse(input, tokenPos);
 
         /// <summary>
         /// Lazy parser - useful in recursive scenarios.
@@ -57,8 +57,8 @@ namespace LanguageExt.Parsec
                 match(inp.UserState,
                     Some: x => x is S
                         ? ConsumedOK((S)x, inp)
-                        : EmptyError<I, S>(ParserError.Message(inp.Pos, "User state type-mismatch")),
-                    None: () => EmptyError<I, S>(ParserError.Message(inp.Pos, "No user state set")));
+                        : EmptyError<I, S>(ParserError.Message(inp.Pos, "User state type-mismatch"), inp.TokenPos),
+                    None: () => EmptyError<I, S>(ParserError.Message(inp.Pos, "No user state set"), inp.TokenPos));
 
         /// <summary>
         /// Get the current position of the parser in the source as a line
@@ -81,11 +81,11 @@ namespace LanguageExt.Parsec
         /// The parsers 'failure', 'label' and 'unexpected' are the three parsers
         /// used to generate error messages.  Of these, only 'label' is commonly
         /// used.  For an example of the use of unexpected, see the definition
-        /// of 'Text.Parsec.Combinator.notFollowedBy'.
+        /// of 'notFollowedBy'.
         /// </remarks>
         /// <param name="msg">Error message to use when parsed</param>
         public static Parser<I, O> unexpected<I, O>(string msg) =>
-            inp => EmptyError<I, O>(ParserError.Unexpect(inp.Pos, msg));
+            inp => EmptyError<I, O>(ParserError.Unexpect(inp.Pos, msg), inp.TokenPos);
 
         /// <summary>
         /// The parser failure(msg) always fails with a Message error
@@ -94,11 +94,11 @@ namespace LanguageExt.Parsec
         /// The parsers 'failure', 'label' and 'unexpected' are the three parsers
         /// used to generate error messages.  Of these, only 'label' is commonly
         /// used.  For an example of the use of unexpected, see the definition
-        /// of 'Text.Parsec.Combinator.notFollowedBy'.
+        /// of 'notFollowedBy'.
         /// </summary>
         /// <param name="msg">Error message to use when parsed</param>
         public static Parser<I, O> failure<I, O>(string msg) =>
-            inp => EmptyError<I, O>(ParserError.Message(inp.Pos, msg));
+            inp => EmptyError<I, O>(ParserError.Message(inp.Pos, msg), inp.TokenPos);
 
         /// <summary>
         /// Always success parser.  Returns the value provided.  
@@ -111,7 +111,7 @@ namespace LanguageExt.Parsec
         /// Always fails (with an Unknown error) without consuming any input
         /// </summary>
         public static Parser<I, O> zero<I, O>() =>
-            inp => EmptyError<I, O>(ParserError.Unknown(inp.Pos));
+            inp => EmptyError<I, O>(ParserError.Unknown(inp.Pos), inp.TokenPos);
 
         /// <summary>
         /// This combinator implements choice. The parser either(p,q) first
@@ -147,7 +147,7 @@ namespace LanguageExt.Parsec
                     // nerr
                     if (n.Tag == ResultTag.Empty && n.Reply.Tag == ReplyTag.Error)
                     {
-                        return EmptyError<I, O>(mergeError(m.Reply.Error, n.Reply.Error));
+                        return EmptyError<I, O>(mergeError(m.Reply.Error, n.Reply.Error), inp.TokenPos);
                     }
 
                     // cerr, cok
@@ -246,7 +246,7 @@ namespace LanguageExt.Parsec
                 var res = p(inp);
                 if (res.Tag == ResultTag.Consumed && res.Reply.Tag == ReplyTag.Error)
                 {
-                    return EmptyError<I, O>(res.Reply.Error);
+                    return EmptyError<I, O>(res.Reply.Error, inp.TokenPos);
                 }
                 else
                 {
@@ -309,13 +309,13 @@ namespace LanguageExt.Parsec
                     if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
                     {
                         // eok, eerr
-                        return EmptyError<I, Seq<O>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'many' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                        return EmptyError<I, Seq<O>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'many' is applied to a parser that accepts an empty string.", List.empty<string>()), inp.TokenPos);
                     }
 
                     // cerr
                     if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                     {
-                        return ConsumedError<I, Seq<O>>(mergeError(error, t.Reply.Error));
+                        return ConsumedError<I, Seq<O>>(mergeError(error, t.Reply.Error), inp.TokenPos);
                     }
 
                     // eerr
@@ -686,5 +686,50 @@ namespace LanguageExt.Parsec
 
             return scan;
         }
+
+        /// <summary>
+        /// Parse child tokens
+        /// </summary>
+        /// <param name="children">Parser that gets the child tokens</param>
+        /// <param name="p">Parser to run on the child tokens</param>
+        /// <typeparam name="TOKEN">Token type</typeparam>
+        /// <typeparam name="A">Type of the value to parse</typeparam>
+        /// <returns>Parser that parses a set of tokens then uses them as a new stream to parse</returns>
+        public static Parser<TOKEN, A> children<TOKEN, A>(Parser<TOKEN, Seq<TOKEN>> children, Parser<TOKEN, A> p) =>
+            inp =>
+            {
+                var cres = children(inp);
+                if (cres.Reply.Tag == ReplyTag.OK)
+                {
+                    var kids = cres.Reply.Result.ToArray();
+                    var pres = p(new PString<TOKEN>(kids, 0, kids.Length, cres.Reply.State.UserState, inp.TokenPos));
+                    
+                    return pres.Reply.Tag == ReplyTag.OK && pres.Reply.State.Index < kids.Length
+                               ? new ParserResult<TOKEN, A>(
+                                   pres.Tag,
+                                   new Reply<TOKEN, A>(
+                                       ReplyTag.Error,
+                                       pres.Reply.Result,
+                                       new PString<TOKEN>(inp.Value, cres.Reply.State.Index, inp.EndIndex, pres.Reply.State.UserState, pres.Reply.State.TokenPos),
+                                       ParserError.Unexpect(pres.Reply.State.Pos, "extra tokens in element that can't be parsed")))
+                               : new ParserResult<TOKEN, A>(
+                                   pres.Tag,
+                                   new Reply<TOKEN, A>(
+                                       pres.Reply.Tag,
+                                       pres.Reply.Result,
+                                       new PString<TOKEN>(inp.Value, cres.Reply.State.Index, inp.EndIndex, pres.Reply.State.UserState, pres.Reply.State.TokenPos),
+                                       pres.Reply.Error));
+                }
+                else
+                {
+                    return new ParserResult<TOKEN, A>(
+                        cres.Tag,
+                        new Reply<TOKEN, A>(
+                            cres.Reply.Tag,
+                            default(A),
+                            cres.Reply.State,
+                            cres.Reply.Error));
+                }
+            };        
     }
 }

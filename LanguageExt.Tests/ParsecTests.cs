@@ -15,6 +15,7 @@ using static LanguageExt.Parsec.Expr;
 using static LanguageExt.Parsec.Token;
 using LanguageExt.UnitsOfMeasure;
 using LanguageExt.ClassInstances;
+using Char = System.Char;
 
 namespace LanguageExt.Tests
 {
