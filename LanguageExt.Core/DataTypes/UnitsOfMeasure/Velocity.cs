@@ -12,7 +12,7 @@ namespace LanguageExt.UnitsOfMeasure
     /// value, then extract using various unit-of-measure
     /// accessors (MetresPerSecond, etc.) or divide by 1.MetrePerSecond()
     /// </summary>
-    public struct Velocity :
+    public readonly struct Velocity :
         IComparable<Velocity>,
         IEquatable<Velocity>,
         IComparable

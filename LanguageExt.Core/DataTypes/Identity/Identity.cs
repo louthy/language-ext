@@ -10,7 +10,7 @@ namespace LanguageExt
     /// Identity monad
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
-    public struct Identity<A> : 
+    public readonly struct Identity<A> : 
         IEquatable<Identity<A>>, 
         IComparable<Identity<A>>, 
         IComparable

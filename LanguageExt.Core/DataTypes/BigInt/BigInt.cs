@@ -10,7 +10,7 @@ namespace LanguageExt
     /// <summary>
     /// BigInteger convenience wrapper
     /// </summary>
-    public struct bigint : IComparable, IComparable<bigint>, IEquatable<bigint>
+    public readonly struct bigint : IComparable, IComparable<bigint>, IEquatable<bigint>
     {
         public readonly BigInteger Value;
 

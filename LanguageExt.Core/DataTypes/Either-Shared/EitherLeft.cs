@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace LanguageExt
 {
-    public struct EitherLeft<L> :
+    public readonly struct EitherLeft<L> :
         IEquatable<EitherLeft<L>>,
         IEquatable<L>,
         IComparable<EitherLeft<L>>,
@@ -21,7 +21,6 @@ namespace LanguageExt
         internal EitherLeft(L value) => 
             Check.NullReturn(Value = value);
 
-        [Pure]
         EitherLeft(SerializationInfo info, StreamingContext context)
         {
             var state = (EitherStatus)info.GetValue("State", typeof(EitherStatus));

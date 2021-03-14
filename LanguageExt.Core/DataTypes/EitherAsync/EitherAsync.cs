@@ -33,7 +33,7 @@ namespace LanguageExt
     /// <typeparam name="R">Right</typeparam>
     [Serializable]
     //[AsyncMethodBuilder(typeof(EitherAsyncBuilder<,>))]
-    public struct EitherAsync<L, R> :
+    public readonly struct EitherAsync<L, R> :
 #if NETSTANDARD21
         IAsyncEnumerable<R>,
 #endif

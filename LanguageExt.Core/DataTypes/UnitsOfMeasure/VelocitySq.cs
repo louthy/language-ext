@@ -7,7 +7,7 @@ namespace LanguageExt.UnitsOfMeasure
     /// Numeric VelocitySquared value
     /// Handles unit conversions automatically
     /// </summary>
-    public struct VelocitySq :
+    public readonly struct VelocitySq :
         IComparable<VelocitySq>,
         IEquatable<VelocitySq>,
         IComparable

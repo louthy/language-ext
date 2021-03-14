@@ -7,13 +7,13 @@ using static LanguageExt.Prelude;
 namespace LanguageExt.Common
 {
     [Serializable]
-    public struct Error : ISerializable, IEquatable<Error>
+    public readonly struct Error : ISerializable, IEquatable<Error>
     {
         public readonly static Error Bottom = new Error(666, "Bottom", None);
 
-        int code;
-        string message;
-        Option<Exception> exception;
+        readonly int code;
+        readonly string message;
+        readonly Option<Exception> exception;
 
         Error(int code, string message, Option<Exception> exception)
         {
@@ -35,23 +35,14 @@ namespace LanguageExt.Common
             info.AddValue("Message", Message);
         }
 
-        public int Code
-        {
-            get => message == null ? 666 : code;
-            private set => code = value;
-        }
+        public int Code =>
+            message == null ? 666 : code;
 
-        public string Message
-        {
-            get => message ?? "Bottom";
-            private set => message = value;
-        }
+        public string Message =>
+            message ?? "Bottom";
 
-        public Option<Exception> Exception
-        {
-            get => exception;
-            private set => exception = value;
-        }
+        public Option<Exception> Exception =>
+            exception;
 
         [Pure]
         public static Error New(int code, string message, Option<Exception> exception) => 

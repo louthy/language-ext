@@ -109,13 +109,13 @@ namespace LanguageExt.Thunks
                             return Thunk<Env, B>.Lazy(e =>
                             {
                                 var ev = fun(e);
-                                if (ev.IsFail)
+                                if (ev.IsSucc)
                                 {
-                                    return ev.Cast<B>();
+                                    return Fin<B>.Succ(f(ev.value));
                                 }
                                 else
                                 {
-                                    return Fin<B>.Succ(f(ev.data.Right));
+                                    return ev.Cast<B>();
                                 }
                             });
 
@@ -155,9 +155,9 @@ namespace LanguageExt.Thunks
                             return Thunk<Env, B>.Lazy(e =>
                             {
                                 var ev = fun(e);
-                                return ev.IsFail
-                                    ? Fin<B>.Fail(Fail(ev.Error))
-                                    : Fin<B>.Succ(Succ(ev.data.Right));
+                                return ev.IsSucc
+                                    ? Fin<B>.Succ(Succ(ev.value))
+                                    : Fin<B>.Fail(Fail(ev.Error));
                             });
 
                         case Thunk.IsCancelled:

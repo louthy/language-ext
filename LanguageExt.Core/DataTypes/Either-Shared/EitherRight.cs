@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace LanguageExt
 {
     [Serializable]
-    public struct EitherRight<R> : 
+    public readonly struct EitherRight<R> : 
         IEquatable<EitherRight<R>>, 
         IEquatable<R>, 
         IComparable<EitherRight<R>>, 
@@ -21,7 +21,6 @@ namespace LanguageExt
 
         internal EitherRight(R value) => Value = value;
 
-        [Pure]
         EitherRight(SerializationInfo info, StreamingContext context)
         {
             var state = (EitherStatus)info.GetValue("State", typeof(EitherStatus));

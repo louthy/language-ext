@@ -22,6 +22,15 @@ namespace LanguageExt
         /// </summary>
         public const int Prime = 16777619;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Next(int hashA, int hashB)
+        {
+            unchecked
+            {
+                return (hashA ^ hashB) * Prime;
+            }
+        }
+
         /// <summary>
         /// Calculate the hash code for an array
         /// </summary>
@@ -36,7 +45,7 @@ namespace LanguageExt
                 Span<A> span = items;
                 foreach (var item in span)
                 {
-                    hash = (default(HashA).GetHashCode(item) ^ hash) * Prime;
+                    hash = Next(default(HashA).GetHashCode(item), hash);
                 }
                 return hash;
             }
@@ -56,7 +65,7 @@ namespace LanguageExt
                 var span = new Span<A>(items, start, length);
                 foreach (var item in span)
                 {
-                    hash = (default(HashA).GetHashCode(item) ^ hash) * Prime;
+                    hash = Next(default(HashA).GetHashCode(item), hash);
                 }
                 return hash;
             }
@@ -75,7 +84,7 @@ namespace LanguageExt
             {
                 foreach (var item in items)
                 {
-                    hash = (default(HashA).GetHashCode(item) ^ hash) * Prime;
+                    hash = Next(default(HashA).GetHashCode(item), hash);
                 }
                 return hash;
             }

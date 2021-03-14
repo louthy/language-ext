@@ -2,7 +2,7 @@ using System;
 
 namespace LanguageExt.UnitsOfMeasure
 {
-    public struct Mass : 
+    public readonly struct Mass : 
         IComparable<Mass>, 
         IEquatable<Mass>, 
         IComparable

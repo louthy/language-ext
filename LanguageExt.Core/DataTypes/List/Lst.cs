@@ -16,7 +16,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">Value type</typeparam>
     [Serializable]
-    public struct Lst<A> :
+    public readonly struct Lst<A> :
         IEnumerable<A>,
         IComparable<Lst<A>>,
         IComparable,

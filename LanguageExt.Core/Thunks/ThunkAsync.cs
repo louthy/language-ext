@@ -116,13 +116,13 @@ namespace LanguageExt.Thunks
                             return ThunkAsync<B>.Lazy(async () =>
                             {
                                 var ev = await fun().ConfigureAwait(false);
-                                if (ev.IsFail)
+                                if (ev.IsSucc)
                                 {
-                                    return ev.Cast<B>();
+                                    return Fin<B>.Succ(f(ev.value));
                                 }
                                 else
                                 {
-                                    return Fin<B>.Succ(f(ev.data.Right));
+                                    return ev.Cast<B>();
                                 }
                             });
 
@@ -161,13 +161,13 @@ namespace LanguageExt.Thunks
                             return ThunkAsync<B>.Lazy(async () =>
                             {
                                 var ev = await fun().ConfigureAwait(false);
-                                if (ev.IsFail)
+                                if (ev.IsSucc)
                                 {
-                                    return Fail(ev.Error);
+                                    return Fin<B>.Succ(Succ(ev.value));
                                 }
                                 else
                                 {
-                                    return Fin<B>.Succ(Succ(ev.data.Right));
+                                    return Fail(ev.Error);
                                 }
                             });
 
@@ -206,13 +206,13 @@ namespace LanguageExt.Thunks
                             return ThunkAsync<B>.Lazy(async () =>
                             {
                                 var ev = await fun().ConfigureAwait(false);
-                                if (ev.IsFail)
+                                if (ev.IsSucc)
                                 {
-                                    return ev.Cast<B>();
+                                    return Fin<B>.Succ(await f(ev.value).ConfigureAwait(false));
                                 }
                                 else
                                 {
-                                    return Fin<B>.Succ(await f(ev.data.Right).ConfigureAwait(false));
+                                    return ev.Cast<B>();
                                 }
                             });
 
@@ -251,13 +251,13 @@ namespace LanguageExt.Thunks
                             return ThunkAsync<B>.Lazy(async () =>
                             {
                                 var ev = await fun().ConfigureAwait(false);
-                                if (ev.IsFail)
+                                if (ev.IsSucc)
                                 {
-                                    return Fin<B>.Fail(await Fail(ev.Error).ConfigureAwait(false));
+                                    return Fin<B>.Succ(await Succ(ev.value).ConfigureAwait(false));
                                 }
                                 else
                                 {
-                                    return Fin<B>.Succ(await Succ(ev.data.Right).ConfigureAwait(false));
+                                    return Fin<B>.Fail(await Fail(ev.Error).ConfigureAwait(false));
                                 }
                             });
 

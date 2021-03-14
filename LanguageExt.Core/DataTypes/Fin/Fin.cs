@@ -17,51 +17,65 @@ namespace LanguageExt
     /// Called `Fin` because it is expected to be used as the concrete result of a computation
     /// </summary>
     [Serializable]
-    public struct Fin<A> : 
+    public readonly struct Fin<A> : 
         IComparable<Fin<A>>, 
         IComparable, 
         IEquatable<Fin<A>>,
         IEnumerable<Fin<A>>,
         ISerializable
     {
-        internal readonly EitherData<Error, A> data;
+        internal readonly Error error;
+        internal readonly A value;
+        public readonly bool IsSucc;
 
         /// <summary>
         /// Ctor
         /// </summary>
         [MethodImpl(AffOpt.mops)]
-        internal Fin(EitherData<Error, A> data) =>
-            this.data = data;
+        internal Fin(in Error error)
+        {
+            this.error = error;
+            this.value = default;
+            IsSucc     = false;
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        [MethodImpl(AffOpt.mops)]
+        internal Fin(in A value)
+        {
+            this.error = default;
+            this.value = value;
+            IsSucc     = true;
+        }
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Fin<A> Succ(A value) => 
             value is null
                 ? throw new ValueIsNullException(nameof(value))
-                : new Fin<A>(EitherData.Right<Error, A>(value));
+                : new Fin<A>(value);
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Fin<A> Fail(Error error) => 
-            new Fin<A>(EitherData.Left<Error, A>(error));
+            new Fin<A>(error);
 
-        [Pure]
-        public bool IsSucc
-        {
-            [MethodImpl(AffOpt.mops)]
-            get => data.State == EitherStatus.IsRight;
-        }
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Fin<A> Fail(string error) => 
+            new Fin<A>(Error.New(error));
 
         [Pure]
         public bool IsFail
         {
             [MethodImpl(AffOpt.mops)]
-            get => data.State == EitherStatus.IsLeft || data.State == EitherStatus.IsBottom;
+            get => !IsSucc;
         }
 
         [Pure]
         public bool IsBottom
         {
             [MethodImpl(AffOpt.mops)]
-            get => data.State == EitherStatus.IsBottom;
+            get => IsFail && error.IsDefault();
         }
         
         /// <summary>
@@ -69,12 +83,9 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public object Case =>
-            data.State switch
-            {
-                EitherStatus.IsRight => data.Right,
-                EitherStatus.IsLeft  => data.Left,
-                _                    => null
-            };        
+            IsSucc 
+                ? (object)value
+                : (object)error;      
         
         [Pure, MethodImpl(AffOpt.mops)]
         public static implicit operator Fin<A>(A value) =>
@@ -113,21 +124,21 @@ namespace LanguageExt
         internal A Value 
         { 
             [MethodImpl(AffOpt.mops)]
-            get => data.State == EitherStatus.IsBottom
-                ? throw new BottomException()
-                : data.Right;  
+            get => IsSucc
+                ? value
+                : throw new ValueIsNoneException();  
         }
 
         internal Error Error 
         { 
             [MethodImpl(AffOpt.mops)]
-            get => data.State == EitherStatus.IsBottom 
+            get => IsBottom 
                 ? Error.Bottom 
-                : data.Left;  
+                : error;  
         }
         
         [Pure, MethodImpl(AffOpt.mops)]
-        static Option<T> convert<T>(object value)
+        static Option<T> convert<T>(in object value)
         {
             if (value == null)
             {
@@ -146,35 +157,29 @@ namespace LanguageExt
 
         [Pure, MethodImpl(AffOpt.mops)]
         internal Fin<B> Cast<B>() =>
-            new Fin<B>(
-                IsSucc
-                    ? convert<B>(Value)
-                        .Map(EitherData.Right<Error, B>)
-                        .IfNone(() => EitherData.Left<Error, B>(Error.New($"Can't cast success value of `Err<{nameof(A)}>` to `Err<{nameof(B)}>` ")))
-                    : EitherData.Left<Error, B>(Error));
+            IsSucc
+                ? convert<B>(Value)
+                    .Map(Fin<B>.Succ)
+                    .IfNone(() => Fin<B>.Fail(Error.New($"Can't cast success value of `{nameof(A)}` to `{nameof(B)}` ")))
+                : Fin<B>.Fail(error);
 
-        public int CompareTo(Fin<A> other)
-        {
-            var cmp = data.State.CompareTo(other.data.State);
-            if (cmp != 0) return 0;
-            return data.State switch
-            {
-                EitherStatus.IsRight  => default(OrdDefault<A>).Compare(data.Right, other.data.Right),
-                EitherStatus.IsLeft   => 0,
-                EitherStatus.IsBottom => 0,
-                _                     => throw new NotSupportedException()
-            };
-        }
+        [Pure, MethodImpl(AffOpt.mops)]
+        public int CompareTo(Fin<A> other) =>
+            IsSucc && other.IsSucc
+                ? default(OrdDefault<A>).Compare(value, other.value)
+                : !IsSucc && !other.IsSucc
+                    ? 0
+                    : IsSucc && !other.IsSucc
+                        ? 1
+                        : -1;
 
+        [Pure, MethodImpl(AffOpt.mops)]
         public bool Equals(Fin<A> other) =>
-            data.State == other.data.State && data.State switch
-            {
-                EitherStatus.IsRight  => default(EqDefault<A>).Equals(data.Right, other.data.Right),
-                EitherStatus.IsLeft   => true,
-                EitherStatus.IsBottom => true,
-                _                     => throw new NotSupportedException()
-            };
+            IsSucc && other.IsSucc
+                ? default(EqDefault<A>).Equals(value, other.value)
+                : !IsSucc && !other.IsSucc;
 
+        [Pure, MethodImpl(AffOpt.mops)]
         public IEnumerator<Fin<A>> GetEnumerator()
         {
             if (IsSucc)
@@ -191,27 +196,29 @@ namespace LanguageExt
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("State", data.State);
-            if (data.State == EitherStatus.IsRight) info.AddValue("Succ", data.Right);
-            if (data.State == EitherStatus.IsLeft) info.AddValue("Fail", data.Left);
+            info.AddValue("State", IsSucc);
+            if (IsSucc)
+            {
+                info.AddValue("Succ", value);
+            }
+            else
+            {
+                info.AddValue("Fail", error);
+            }
         }
         
         Fin(SerializationInfo info, StreamingContext context)
         {
-            var state = (EitherStatus)info.GetValue("State", typeof(EitherStatus));
-            switch(state)
+            IsSucc = (bool)info.GetValue("State", typeof(bool));
+            if (IsSucc)
             {
-                case EitherStatus.IsBottom:
-                    data = default;
-                    break;
-                case EitherStatus.IsRight:
-                    data = EitherData.Right<Error, A>((A)info.GetValue("Succ", typeof(A)));
-                    break;
-                case EitherStatus.IsLeft:
-                    data = EitherData.Left<Error, A>((Error)info.GetValue("Fail", typeof(Error)));
-                    break;
-                default:
-                    throw new NotSupportedException();
+                value = (A)info.GetValue("Succ", typeof(A));
+                error = default;
+            }
+            else
+            {
+                value = default;
+                error = (Error)info.GetValue("Fail", typeof(Error));
             }
         }
 
@@ -250,7 +257,7 @@ namespace LanguageExt
                 : Fail(Error);
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public A IfFail(A alternative) =>
+        public A IfFail(in A alternative) =>
             IsSucc
                 ? Value
                 : alternative;
@@ -296,13 +303,13 @@ namespace LanguageExt
         }
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public S Fold<S>(S state, Func<S, A, S> f) =>
+        public S Fold<S>(in S state, Func<S, A, S> f) =>
             IsSucc
                 ? f(state, Value)
                 : state;
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public S BiFold<S>(S state, Func<S, A, S> Succ, Func<S, Error, S> Fail) =>
+        public S BiFold<S>(in S state, Func<S, A, S> Succ, Func<S, Error, S> Fail) =>
             IsSucc
                 ? Succ(state, Value)
                 : Fail(state, Error);
@@ -360,12 +367,11 @@ namespace LanguageExt
         [Pure, MethodImpl(AffOpt.mops)]
         public Fin<C> SelectMany<B, C>(Func<A, Fin<B>> bind, Func<A, B, C> project)
         {
-            var a = data.Right;
             if(IsSucc)
             {
                 var mb = bind(Value);
                 return mb.IsSucc
-                    ? project(a, mb.Value)
+                    ? project(value, mb.Value)
                     : Fin<C>.Fail(mb.Error);
             }
             else
@@ -424,48 +430,33 @@ namespace LanguageExt
 
         [Pure, MethodImpl(AffOpt.mops)]
         public Either<Error, A> ToEither() =>
-            data.State switch
-            {
-                EitherStatus.IsRight => Right<Error, A>(Value),
-                EitherStatus.IsLeft  => Left<Error, A>(Error),
-                _                    => default
-            };
+            IsSucc
+                ? Right<Error, A>(Value)
+                : Left<Error, A>(Error);
 
         [Pure, MethodImpl(AffOpt.mops)]
         public EitherUnsafe<Error, A> ToEitherUnsafe() =>
-            data.State switch
-            {
-                EitherStatus.IsRight => RightUnsafe<Error, A>(Value),
-                EitherStatus.IsLeft  => LeftUnsafe<Error, A>(Error),
-                _                    => default
-            };
+            IsSucc
+                ? RightUnsafe<Error, A>(Value)
+                : LeftUnsafe<Error, A>(Error);
 
         [Pure, MethodImpl(AffOpt.mops)]
         public EitherAsync<Error, A> ToEitherAsync() =>
-            data.State switch
-            {
-                EitherStatus.IsRight => RightAsync<Error, A>(Value),
-                EitherStatus.IsLeft  => LeftAsync<Error, A>(Error),
-                _                    => default
-            };
+            IsSucc
+                ? RightAsync<Error, A>(Value)
+                : LeftAsync<Error, A>(Error);
 
         [Pure, MethodImpl(AffOpt.mops)]
         public Eff<A> ToEff() =>
-            data.State switch
-            {
-                EitherStatus.IsRight => SuccessEff<A>(Value),
-                EitherStatus.IsLeft  => FailEff<A>(Error),
-                _                    => default
-            };
+            IsSucc
+                ? SuccessEff<A>(Value)
+                : FailEff<A>(Error);
 
         [Pure, MethodImpl(AffOpt.mops)]
         public Aff<A> ToAff() =>
-            data.State switch
-            {
-                EitherStatus.IsRight => SuccessAff<A>(Value),
-                EitherStatus.IsLeft  => FailAff<A>(Error),
-                _                    => default
-            };
+            IsSucc
+                ? SuccessAff<A>(Value)
+                : FailAff<A>(Error);
 
         public A ThrowIfFail()
         {

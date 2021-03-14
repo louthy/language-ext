@@ -2,20 +2,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
     /// <summary>
     /// Immutable stack
     /// </summary>
-    /// <typeparam name="T">Stack element type</typeparam>
+    /// <typeparam name="A">Stack element type</typeparam>
     [Serializable]
-    internal class StckInternal<T> : IEnumerable<T>, IEnumerable
+    internal class StckInternal<A> : IEnumerable<A>, IEnumerable
     {
-        public readonly static StckInternal<T> Empty = new StckInternal<T>();
+        public readonly static StckInternal<A> Empty = new StckInternal<A>();
 
-        readonly T value;
-        readonly StckInternal<T> tail;
+        readonly A value;
+        readonly StckInternal<A> tail;
+        int hashCode;
 
         /// <summary>
         /// Default ctor
@@ -29,7 +31,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value"></param>
         /// <param name="tail"></param>
-        internal StckInternal(T value, StckInternal<T> tail)
+        internal StckInternal(A value, StckInternal<A> tail)
         {
             Count = tail.Count + 1;
             this.tail = tail;
@@ -39,9 +41,9 @@ namespace LanguageExt
         /// <summary>
         /// Ctor that takes an initial state as an IEnumerable T
         /// </summary>
-        public StckInternal(IEnumerable<T> initial)
+        public StckInternal(IEnumerable<A> initial)
         {
-            tail = new StckInternal<T>();
+            tail = new StckInternal<A>();
             foreach (var item in initial)
             {
                 value = item;
@@ -54,9 +56,9 @@ namespace LanguageExt
         /// <summary>
         /// Ctor that takes an initial state as a Lst T
         /// </summary>
-        internal StckInternal(Lst<T> initial)
+        internal StckInternal(Lst<A> initial)
         {
-            tail = new StckInternal<T>();
+            tail = new StckInternal<A>();
             foreach (var item in initial)
             {
                 value = item;
@@ -77,9 +79,9 @@ namespace LanguageExt
         /// </summary>
         /// <returns></returns>
         [Pure]
-        public StckInternal<T> Reverse()
+        public StckInternal<A> Reverse()
         {
-            var s = new StckInternal<T>();
+            var s = new StckInternal<A>();
             foreach (var item in this)
             {
                 s = s.Push(item);
@@ -99,7 +101,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Stck.Empty of T</returns>
         [Pure]
-        public StckInternal<T> Clear() =>
+        public StckInternal<A> Clear() =>
             Empty;
 
         /// <summary>
@@ -107,7 +109,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>IEnumerator of T</returns>
         [Pure]
-        public IEnumerator<T> GetEnumerator() =>
+        public IEnumerator<A> GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
         /// <summary>
@@ -116,9 +118,9 @@ namespace LanguageExt
         /// </summary>
         /// <returns>IEnumerable of T</returns>
         [Pure]
-        public IEnumerable<T> AsEnumerable()
+        public IEnumerable<A> AsEnumerable()
         {
-            IEnumerable<T> Yield()
+            IEnumerable<A> Yield()
             {
                 var self = this;
                 while (self.Count != 0)
@@ -137,7 +139,7 @@ namespace LanguageExt
         /// <exception cref="InvalidOperationException">Stack is empty</exception>
         /// <returns>Top item value</returns>
         [Pure]
-        public T Peek()
+        public A Peek()
         {
             if (Count > 0)
             {
@@ -156,7 +158,7 @@ namespace LanguageExt
         /// <param name="None">Handler if the stack is empty</param>
         /// <returns>Untouched stack (this)</returns>
         [Pure]
-        public StckInternal<T> Peek(Action<T> Some, Action None)
+        public StckInternal<A> Peek(Action<A> Some, Action None)
         {
             if (Count > 0)
             {
@@ -177,7 +179,7 @@ namespace LanguageExt
         /// <param name="None">Handler if the stack is empty</param>
         /// <returns>Return value from Some or None</returns>
         [Pure]
-        public R Peek<R>(Func<T, R> Some, Func<R> None) =>
+        public R Peek<R>(Func<A, R> Some, Func<R> None) =>
             Count > 0
                 ? Some(value)
                 : None();
@@ -187,7 +189,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Returns the top item value, or None</returns>
         [Pure]
-        public Option<T> TryPeek() =>
+        public Option<A> TryPeek() =>
             Count > 0
                 ? Prelude.Some(value)
                 : Prelude.None;
@@ -199,7 +201,7 @@ namespace LanguageExt
         /// <exception cref="InvalidOperationException">Stack is empty</exception>
         /// <returns>Stack with the top item popped</returns>
         [Pure]
-        public StckInternal<T> Pop()
+        public StckInternal<A> Pop()
         {
             if (Count > 0)
             {
@@ -216,10 +218,10 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Tuple of popped stack and optional top-of-stack value</returns>
         [Pure]
-        public (StckInternal<T>, Option<T>) TryPop() =>
+        public (StckInternal<A>, Option<A>) TryPop() =>
             Count > 0
-                ? (tail, Option<T>.Some(value))
-                : (this, Option<T>.None);
+                ? (tail, Option<A>.Some(value))
+                : (this, Option<A>.None);
 
         /// <summary>
         /// Pop and match
@@ -228,7 +230,7 @@ namespace LanguageExt
         /// <param name="None">Handler if the stack is empty</param>
         /// <returns>Popped stack</returns>
         [Pure]
-        public StckInternal<T> Pop(Action<T> Some, Action None)
+        public StckInternal<A> Pop(Action<A> Some, Action None)
         {
             if (Count > 0)
             {
@@ -250,7 +252,7 @@ namespace LanguageExt
         /// <param name="None">Handler if the stack is empty</param>
         /// <returns>Return value from Some or None</returns>
         [Pure]
-        public R Pop<R>(Func<StckInternal<T>, T, R> Some, Func<R> None) =>
+        public R Pop<R>(Func<StckInternal<A>, A, R> Some, Func<R> None) =>
             Count > 0
                 ? Some(tail, value)
                 : None();
@@ -261,8 +263,8 @@ namespace LanguageExt
         /// <param name="value">Item to push</param>
         /// <returns>New stack with the pushed item on top</returns>
         [Pure]
-        public StckInternal<T> Push(T value) =>
-            new StckInternal<T>(value, this);
+        public StckInternal<A> Push(A value) =>
+            new StckInternal<A>(value, this);
 
         /// <summary>
         /// Get enumerator
@@ -280,7 +282,7 @@ namespace LanguageExt
         /// will be under the 'rhs' stack.
         /// </summary>
         [Pure]
-        public static StckInternal<T> operator +(StckInternal<T> lhs, StckInternal<T> rhs) =>
+        public static StckInternal<A> operator +(StckInternal<A> lhs, StckInternal<A> rhs) =>
             lhs.Append(rhs);
 
         /// <summary>
@@ -293,7 +295,7 @@ namespace LanguageExt
         /// <param name="rhs">Stack to append</param>
         /// <returns>Appended stacks</returns>
         [Pure]
-        public StckInternal<T> Append(StckInternal<T> rhs)
+        public StckInternal<A> Append(StckInternal<A> rhs)
         {
             var self = this;
             foreach (var item in rhs.Rev())
@@ -302,5 +304,10 @@ namespace LanguageExt
             }
             return self;
         }
+
+        public override int GetHashCode() =>
+            hashCode == 0
+                ? hashCode = FNV32.Hash<HashableDefault<A>, A>(this)
+                : hashCode;
     }
 }

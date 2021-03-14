@@ -34,7 +34,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
     [Serializable]
-    public struct Option<A> :
+    public readonly struct Option<A> :
         IEnumerable<A>,
         IOptional,
         IEquatable<Option<A>>,

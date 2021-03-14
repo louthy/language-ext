@@ -12,7 +12,7 @@ namespace LanguageExt
     /// A unit type that represents `Option.None`.  This type can be implicitly
     /// converted to Option or OptionUnsafe.
     /// </summary>
-    public struct OptionNone : 
+    public readonly struct OptionNone : 
         IOptional,
         IEnumerable<Unit>,
         IEquatable<OptionNone>,

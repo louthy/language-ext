@@ -25,7 +25,7 @@ namespace LanguageExt
     /// some predicates (`Patch.composable` and `Patch.applicable`) to determine if the operation can be validly 
     /// used.
     /// </summary>
-    public struct Patch<EqA, A> : IEquatable<Patch<EqA, A>> where EqA : struct, Eq<A>
+    public readonly struct Patch<EqA, A> : IEquatable<Patch<EqA, A>> where EqA : struct, Eq<A>
     {
         /// <summary>
         /// Empty patch

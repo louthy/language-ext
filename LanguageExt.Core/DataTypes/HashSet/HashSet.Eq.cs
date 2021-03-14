@@ -13,7 +13,7 @@ namespace LanguageExt
     /// Unsorted immutable hash-set
     /// </summary>
     /// <typeparam name="A">Key type</typeparam>
-    public struct HashSet<EqA, A> :
+    public readonly struct HashSet<EqA, A> :
         IEnumerable<A>,
         IEquatable<HashSet<EqA, A>>
         where EqA : struct, Eq<A>

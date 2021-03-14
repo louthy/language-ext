@@ -12,7 +12,7 @@ namespace LanguageExt.UnitsOfMeasure
     /// value, then extract using various unit-of-measure
     /// accessors (MetresPerSecond2, etc.) or divide by 1.MetresPerSecond2()
     /// </summary>
-    public struct Accel :
+    public readonly struct Accel :
         IComparable<Accel>,
         IEquatable<Accel>,
         IComparable

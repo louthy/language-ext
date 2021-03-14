@@ -36,7 +36,7 @@ namespace LanguageExt
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
     [Serializable]
-    public struct EitherUnsafe<L, R> :
+    public readonly struct EitherUnsafe<L, R> :
         IEnumerable<EitherData<L, R>>,
         IEither,
         IComparable<EitherUnsafe<L, R>>,

@@ -14,14 +14,13 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">Stack element type</typeparam>
     [Serializable]
-    public struct Stck<A> : 
+    public readonly struct Stck<A> : 
         IEnumerable<A>, 
         IEnumerable,
         IEquatable<Stck<A>>
     {
         public readonly static Stck<A> Empty = new Stck<A>(StckInternal<A>.Empty);
 
-        int hashCode;
         readonly StckInternal<A> value;
         StckInternal<A> Value => value ?? StckInternal<A>.Empty;
 
@@ -31,7 +30,6 @@ namespace LanguageExt
         internal Stck(StckInternal<A> value)
         {
             this.value = value;
-            this.hashCode = 0;
         }
 
         /// <summary>
@@ -40,7 +38,6 @@ namespace LanguageExt
         public Stck(IEnumerable<A> initial)
         {
             value = initial.Any() ? new StckInternal<A>(initial) : StckInternal<A>.Empty;
-            this.hashCode = 0;
         }
 
         /// <summary>
@@ -332,9 +329,7 @@ namespace LanguageExt
 
         [Pure]
         public override int GetHashCode() =>
-            hashCode == 0
-                ? hashCode = FNV32.Hash<HashableDefault<A>, A>(this)
-                : hashCode;
+            Value.GetHashCode();
 
         [Pure]
         public override bool Equals(object obj) =>
@@ -342,7 +337,7 @@ namespace LanguageExt
 
         [Pure]
         public bool Equals(Stck<A> other) =>
-            (hashCode == 0 || other.hashCode == 0 || hashCode == other.hashCode) &&
+            GetHashCode() == other.GetHashCode() &&
             default(EqEnumerable<A>).Equals(this.Value, other.Value);
     }
 }

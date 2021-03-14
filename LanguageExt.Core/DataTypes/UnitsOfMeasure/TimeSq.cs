@@ -6,7 +6,7 @@ namespace LanguageExt.UnitsOfMeasure
     /// <summary>
     /// Numeric time-span squared value
     /// </summary>
-    public struct TimeSq :
+    public readonly struct TimeSq :
         IComparable<TimeSq>,
         IEquatable<TimeSq>,
         IComparable

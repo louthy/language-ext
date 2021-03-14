@@ -20,7 +20,7 @@ namespace LanguageExt
     /// <typeparam name="FAIL"></typeparam>
     /// <typeparam name="SUCCESS"></typeparam>
     [Serializable]
-    public struct Validation<FAIL, SUCCESS> :
+    public readonly struct Validation<FAIL, SUCCESS> :
         IEnumerable<ValidationData<FAIL, SUCCESS>>,
         IComparable<Validation<FAIL, SUCCESS>>,
         IComparable<SUCCESS>,

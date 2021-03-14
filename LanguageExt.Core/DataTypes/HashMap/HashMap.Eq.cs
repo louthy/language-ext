@@ -16,7 +16,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value</typeparam>
-    public struct HashMap<EqK, K, V> :
+    public readonly struct HashMap<EqK, K, V> :
         IEnumerable<(K Key, V Value)>,
         IEquatable<HashMap<EqK, K, V>>
         where EqK : struct, Eq<K>

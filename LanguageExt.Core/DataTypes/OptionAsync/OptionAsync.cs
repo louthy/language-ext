@@ -32,7 +32,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
     [AsyncMethodBuilder(typeof(OptionAsyncMethodBuilder<>))]
-    public struct OptionAsync<A> :
+    public readonly struct OptionAsync<A> :
 #if NETSTANDARD21
         IAsyncEnumerable<A>,
 #endif

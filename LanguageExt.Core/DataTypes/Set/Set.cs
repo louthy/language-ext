@@ -20,7 +20,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">Set item type</typeparam>
     [Serializable]
-    public struct Set<A> :
+    public readonly struct Set<A> :
         IEnumerable<A>,
         IEquatable<Set<A>>,
         IComparable<Set<A>>,

@@ -12,7 +12,7 @@ namespace LanguageExt.UnitsOfMeasure
     /// value, then extract using various unit-of-measure
     /// accessors (SqMetres, SqCentimetres, etc.) or divide by 1.SqMetre()
     /// </summary>
-    public struct Area :
+    public readonly struct Area :
         IComparable<Area>,
         IEquatable<Area>,
         IComparable

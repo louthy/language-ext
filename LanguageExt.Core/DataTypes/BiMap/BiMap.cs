@@ -11,7 +11,7 @@ namespace LanguageExt
     /// <typeparam name="A">A</typeparam>
     /// <typeparam name="B">B</typeparam>
     [Serializable]
-    public struct BiMap<A, B> :
+    public readonly struct BiMap<A, B> :
         IEnumerable<(A Left, B Right)>,
         IComparable<BiMap<A, B>>,
         IEquatable<BiMap<A, B>>,

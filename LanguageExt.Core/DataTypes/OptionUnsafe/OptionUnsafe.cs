@@ -32,7 +32,7 @@ namespace LanguageExt
     ///     Ord         : OrdOpt
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
-    public struct OptionUnsafe<A> :
+    public readonly struct OptionUnsafe<A> :
         IEnumerable<A>,
         IOptional,
         IEquatable<OptionUnsafe<A>>,

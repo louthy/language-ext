@@ -33,7 +33,7 @@ namespace LanguageExt
     }
 
     [Serializable]
-    public struct Some<A> : 
+    public readonly struct Some<A> : 
         IEnumerable<A>,
         IOptional
     {

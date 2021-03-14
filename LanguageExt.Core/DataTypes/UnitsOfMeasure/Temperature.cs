@@ -4,7 +4,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.UnitsOfMeasure
 {
-    public struct Temperature :
+    public readonly struct Temperature :
         IComparable<Temperature>,
         IEquatable<Temperature>,
         IComparable

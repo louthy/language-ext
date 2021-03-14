@@ -85,20 +85,12 @@ namespace LanguageExt.Parsec
             var pstr = new PString<TOKEN>(inp.Value, start, end, inp.UserState, inp.TokenPos);
             var pres = p.Parse(pstr);
             
-            return pres.Reply.Tag == ReplyTag.OK && pres.Reply.State.Index < end
-                ? new ParserResult<TOKEN, A>(
-                    pres.Tag,
-                    new Reply<TOKEN, A>(
-                        ReplyTag.Error,
-                        pres.Reply.Result,
-                        new PString<TOKEN>(inp.Value, pres.Reply.State.Index, inp.EndIndex, pres.Reply.State.UserState, pres.Reply.State.TokenPos),
-                        ParserError.Unexpect(pres.Reply.State.Pos, "extra tokens in indented section that can't be parsed")))
-                : new ParserResult<TOKEN, A>(
+            return new ParserResult<TOKEN, A>(
                       pres.Tag,
                       new Reply<TOKEN, A>(
                           pres.Reply.Tag,
                           pres.Reply.Result,
-                          new PString<TOKEN>(inp.Value, end, inp.EndIndex, pres.Reply.State.UserState, pres.Reply.State.TokenPos),
+                          new PString<TOKEN>(inp.Value, pres.Reply.State.Index, inp.EndIndex, pres.Reply.State.UserState, pres.Reply.State.TokenPos),
                           pres.Reply.Error));
         }  
     }

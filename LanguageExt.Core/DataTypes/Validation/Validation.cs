@@ -22,7 +22,7 @@ namespace LanguageExt
     /// <typeparam name="FAIL"></typeparam>
     /// <typeparam name="SUCCESS"></typeparam>
     [Serializable]
-    public struct Validation<MonoidFail, FAIL, SUCCESS> :
+    public readonly struct Validation<MonoidFail, FAIL, SUCCESS> :
         IEnumerable<ValidationData<MonoidFail, FAIL, SUCCESS>>,
         IComparable<Validation<MonoidFail, FAIL, SUCCESS>>,
         IComparable<SUCCESS>,

@@ -7,7 +7,7 @@ namespace LanguageExt
     /// <remarks>
     /// This is used in the definition of Fractional.
     /// </remarks>
-    public struct Ratio<A> 
+    public readonly struct Ratio<A> 
     {
         /// <summary>
         /// The numerator of the ratio, in non-reduced form.

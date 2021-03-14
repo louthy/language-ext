@@ -20,7 +20,7 @@ namespace LanguageExt
     /// its thing, but also benefit from a more declarative style by
     /// using `Take`, `Skip`, `Slice`, `Head`, `Tail`, `Elem` etc.
     /// </summary>
-    public struct SpanArray<A> : IEnumerable<A>
+    public readonly struct SpanArray<A> : IEnumerable<A>
     {
         public readonly A[] Data;
         public readonly int Count;

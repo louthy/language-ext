@@ -7,7 +7,7 @@ namespace LanguageExt
     /// <summary>
     /// Primitive lens type for creating well-behaved bidirectional transformations
     /// </summary>
-    public struct Lens<A, B>
+    public readonly struct Lens<A, B>
     {
         public readonly Func<A, B> Get;
         public readonly Func<B, Func<A, A>> SetF;

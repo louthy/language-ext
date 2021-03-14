@@ -21,7 +21,7 @@ namespace LanguageExt
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
     [Serializable]
-    public struct Map<OrdK, K, V> :
+    public readonly struct Map<OrdK, K, V> :
         IEnumerable<(K Key, V Value)>,
         IEquatable<Map<OrdK, K, V>>,
         IComparable<Map<OrdK, K, V>>,

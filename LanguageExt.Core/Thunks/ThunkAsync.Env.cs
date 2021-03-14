@@ -124,11 +124,11 @@ namespace LanguageExt.Thunks
                             var ev = await fun(env).ConfigureAwait(false);
                             if (ev.IsFail)
                             {
-                                return ev.Cast<B>();
+                                return Fin<B>.Succ(f(ev.value));
                             }
                             else
                             {
-                                return Fin<B>.Succ(f(ev.data.Right));
+                                return ev.Cast<B>();
                             }
                         });
 
@@ -174,9 +174,9 @@ namespace LanguageExt.Thunks
                         return ThunkAsync<Env, B>.Lazy(async env =>
                         {
                             var ev = await fun(env).ConfigureAwait(false);
-                            return ev.IsFail
-                                ? Fin<B>.Fail(Fail(ev.Error))
-                                : Fin<B>.Succ(Succ(ev.data.Right));
+                            return ev.IsSucc
+                                ? Fin<B>.Succ(Succ(ev.value))
+                                : Fin<B>.Fail(Fail(ev.Error));
                         });
 
                     case Thunk.IsCancelled:
@@ -212,13 +212,13 @@ namespace LanguageExt.Thunks
                         return ThunkAsync<Env, B>.Lazy(async env =>
                         {
                             var ev = await fun(env).ConfigureAwait(false);
-                            if (ev.IsFail)
+                            if (ev.IsSucc)
                             {
-                                return ev.Cast<B>();
+                                return Fin<B>.Succ(await f(ev.value).ConfigureAwait(false));
                             }
                             else
                             {
-                                return Fin<B>.Succ(await f(ev.data.Right).ConfigureAwait(false));
+                                return ev.Cast<B>();
                             }
                         });
 
