@@ -287,7 +287,7 @@ namespace LanguageExt.Tests
             Assert.True(output.IsBottom);
         }
 
-        private readonly Result<int> bottomResult;
+        private readonly Result<int> bottomResult = default;
         private readonly Result<int> successResult = new Result<int>(1);
         private readonly Result<int> faultResult = new Result<int>(new InvalidOperationException());
         private readonly Result<int> faultWithNullException = new Result<int>((Exception) null);
