@@ -45,6 +45,11 @@ namespace LanguageExt
         readonly int seqStart;
 
         /// <summary>
+        /// Cached hash code
+        /// </summary>
+        int selfHash = 0;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -492,6 +497,12 @@ namespace LanguageExt
 
         public SeqType Type => 
             SeqType.Lazy;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode() =>
+            selfHash == 0
+                ? selfHash = GetHashCode(FNV32.OffsetBasis)
+                : selfHash;
 
         public int GetHashCode(int hash)
         {

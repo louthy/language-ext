@@ -38,14 +38,14 @@ namespace LanguageExt.Common
     ///     var ra1 = ma.Match(Succ: x => x + 10, Fail: 0);
     ///     // ... etc ...
     /// </remarks>
-    public struct OptionalResult<A> : IEquatable<OptionalResult<A>>, IComparable<OptionalResult<A>>
+    public readonly struct OptionalResult<A> : IEquatable<OptionalResult<A>>, IComparable<OptionalResult<A>>
     {
         internal static readonly OptionalResult<A> None = new OptionalResult<A>(Prelude.None);
         internal static readonly OptionalResult<A> Bottom = default(OptionalResult<A>);
 
         internal readonly OptionalResultState State;
         internal readonly Option<A> Value;
-        Exception exception;
+        readonly Exception exception;
 
         internal Exception Exception => exception ?? BottomException.Default;
 
@@ -53,7 +53,6 @@ namespace LanguageExt.Common
         /// Constructor of a concrete value
         /// </summary>
         /// <param name="value"></param>
-        [Pure]
         public OptionalResult(Option<A> value)
         {
             State = OptionalResultState.Success;
@@ -65,7 +64,6 @@ namespace LanguageExt.Common
         /// Constructor of an error value
         /// </summary>
         /// <param name="e"></param>
-        [Pure]
         public OptionalResult(Exception e)
         {
             State = OptionalResultState.Faulted;

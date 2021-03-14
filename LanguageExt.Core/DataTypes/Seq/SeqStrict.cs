@@ -41,6 +41,11 @@ namespace LanguageExt
         int addDisallowed;
 
         /// <summary>
+        /// Cached hash code
+        /// </summary>
+        int selfHash = 0;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -467,6 +472,12 @@ namespace LanguageExt
                 return new SeqStrict<A>(data, start, count + right.count, NoCons, 0);
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode() =>
+            selfHash == 0
+                ? selfHash = GetHashCode(FNV32.OffsetBasis)
+                : selfHash;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetHashCode(int offsetBasis) =>

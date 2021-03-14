@@ -14,7 +14,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Sync
         {
             var ma = LeftUnsafe<Error, IEnumerable<int>>(Error.New("alt"));
             var mb = ma.Sequence();
-            var mc = new[] { LeftUnsafe<Error, int>(new Exception("alt")) }.AsEnumerable();
+            var mc = new[] { LeftUnsafe<Error, int>(Error.New("alt")) }.AsEnumerable();
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }

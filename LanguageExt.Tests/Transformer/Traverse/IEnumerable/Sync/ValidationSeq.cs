@@ -14,7 +14,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.IEnumerableT.Sync
         {
             var ma = Fail<Error, IEnumerable<int>>(Error.New("alt"));
             var mb = ma.Sequence();
-            IEnumerable<Validation<Error, int>> mc = new[] { Fail<Error, int>(new Exception("alt")) };
+            IEnumerable<Validation<Error, int>> mc = new[] { Fail<Error, int>(Error.New("alt")) };
 
             Assert.True(mb.ToSeq() == mc.ToSeq());
         }

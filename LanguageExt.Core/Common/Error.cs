@@ -94,7 +94,9 @@ namespace LanguageExt.Common
 
         [Pure]
         public bool Equals(Error other) =>
-            message == other.message;
+            Code == 0
+                ? Message == other.Message
+                : Code == other.Code;
 
         [Pure]
         public override bool Equals(object obj) =>
@@ -113,9 +115,9 @@ namespace LanguageExt.Common
         {
             unchecked
             {
-                var hashCode = code;
-                hashCode = (hashCode * 397) ^ (message != null ? message.GetHashCode() : 0);
-                return hashCode;
+                return Code == 0
+                           ? Message.GetHashCode()
+                           : Code;
             }
         }
         

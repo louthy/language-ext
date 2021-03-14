@@ -72,6 +72,9 @@ namespace LanguageExt
 
         public SeqType Type => SeqType.Empty;
 
+        public override int GetHashCode() =>
+            FNV32.OffsetBasis;
+
         public int GetHashCode(int offsetBasis) =>
             offsetBasis;
     }

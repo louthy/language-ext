@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace LanguageExt
@@ -9,6 +10,7 @@ namespace LanguageExt
     internal class SeqConcat<A> : ISeqInternal<A>
     {
         internal readonly Seq<ISeqInternal<A>> ms;
+        int selfHash;
 
         public SeqConcat(Seq<ISeqInternal<A>> ms)
         {
@@ -190,7 +192,15 @@ namespace LanguageExt
             }
             return new SeqStrict<A>(data, start, total, 0, 0);
         }
+        
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode() =>
+            selfHash == 0
+                ? selfHash = GetHashCode(FNV32.OffsetBasis)
+                : selfHash;        
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetHashCode(int hash)
         {
             foreach (var seq in ms)

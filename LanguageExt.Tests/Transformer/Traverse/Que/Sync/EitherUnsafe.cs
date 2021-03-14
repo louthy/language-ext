@@ -12,7 +12,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.QueT.Sync
         {
             var ma = LeftUnsafe<Error, Que<int>>(Error.New("alt"));
             var mb = ma.Traverse(identity);
-            var mc = Queue(LeftUnsafe<Error, int>(new Exception("alt")));
+            var mc = Queue(LeftUnsafe<Error, int>(Error.New("alt")));
 
             Assert.True(mb == mc);
         }

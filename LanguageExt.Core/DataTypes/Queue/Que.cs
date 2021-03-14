@@ -175,11 +175,11 @@ namespace LanguageExt
 
         [Pure]
         public override bool Equals(object obj) =>
-            obj is Que<A> && Equals((Que<A>)obj);
+            obj is Que<A> q && Equals(q);
 
         [Pure]
         public bool Equals(Que<A> other) =>
-            (hashCode == 0 || other.hashCode == 0 || hashCode == other.hashCode) &&
+            GetHashCode() == other.GetHashCode() &&
             default(EqEnumerable<A>).Equals(this.Value, other.Value);
 
         /// <summary>

@@ -20,7 +20,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">Type of the values in the sequence</typeparam>
 
-    public struct Seq<A> :
+    public readonly struct Seq<A> :
 #pragma warning disable CS0618 // Remove ISeq complaint
         ISeq<A>,
 #pragma warning restore CS0618
@@ -35,11 +35,6 @@ namespace LanguageExt
         /// Internal representation of the sequence (SeqStrict|SeqLazy|SeqEmptyInternal)
         /// </summary>
         readonly ISeqInternal<A> value;
-
-        /// <summary>
-        /// Cached hash code
-        /// </summary>
-        int hash;
 
         /// <summary>
         /// Internal value accessor - protects against `default`
@@ -63,7 +58,6 @@ namespace LanguageExt
         internal Seq(ISeqInternal<A> value)
         {
             this.value = value;
-            this.hash = 0;
         }
 
         /// <summary>
@@ -857,9 +851,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() =>
-            hash == 0
-                ? (hash = Value.GetHashCode(FNV32.OffsetBasis))
-                : hash;
+            Value.GetHashCode();
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -984,7 +976,7 @@ namespace LanguageExt
 
             // If the hash code has been calculated on both sides then 
             // check for differences
-            if (hash != 0 && rhs.hash != 0 && hash != rhs.hash)
+            if (GetHashCode() != rhs.GetHashCode())
             {
                 return false;
             }

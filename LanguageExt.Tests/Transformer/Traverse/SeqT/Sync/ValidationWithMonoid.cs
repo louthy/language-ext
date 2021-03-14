@@ -13,7 +13,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
         {
             var ma = Fail<MSeq<Error>, Seq<Error>, Seq<int>>(Seq1(Error.New("alt")));
             var mb = ma.Traverse(identity);
-            var mc = Seq1(Fail<MSeq<Error>, Seq<Error>, int>(Seq1(Error.New(new Exception("alt")))));
+            var mc = Seq1(Fail<MSeq<Error>, Seq<Error>, int>(Seq1(Error.New("alt"))));
 
             Assert.True(mb == mc);
         }

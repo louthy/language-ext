@@ -36,7 +36,7 @@ namespace LanguageExt.Common
     ///     var ra1 = ma.Match(Succ: x => x + 10, Fail: 0);
     ///     // ... etc ...
     /// </remarks>
-    public struct Result<A> : IEquatable<Result<A>>, IComparable<Result<A>>
+    public readonly struct Result<A> : IEquatable<Result<A>>, IComparable<Result<A>>
     {
         public readonly static Result<A> Bottom = default(Result<A>);
 
@@ -50,7 +50,6 @@ namespace LanguageExt.Common
         /// Constructor of a concrete value
         /// </summary>
         /// <param name="value"></param>
-        [Pure]
         public Result(A value)
         {
             State = ResultState.Success;
