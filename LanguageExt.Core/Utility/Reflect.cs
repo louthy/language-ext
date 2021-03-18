@@ -39,24 +39,24 @@ namespace LanguageExt
                 });
 
             var publicPropNames = typeof(A)
-                                    .GetTypeInfo()
-                                    .GetAllProperties(includeBase)
+                .GetTypeInfo()
+                .GetAllProperties(includeBase)
 #if !COREFX13
-                                    .OrderBy(p => p.MetadataToken)
+                .OrderBy(p => p.MetadataToken)
 #endif
-                                    .Where(p => p.CanRead && p.GetMethod.IsPublic && !IsStatic(p))
-                                    .Where(p => !Intersects(p.CustomAttributes.Map(a => a.AttributeType.Name).ToArray(), excludeAttrsSet))
-                                    .ToArray();
+                .Where(p => p.CanRead && p.GetMethod.IsPublic && !IsStatic(p))
+                .Where(p => !Intersects(p.CustomAttributes.Map(a => a.AttributeType.Name).ToArray(), excludeAttrsSet))
+                .ToArray();
 
             var backingFields = typeof(A)
-                                    .GetTypeInfo()
-                                    .GetAllFields(includeBase)
+                .GetTypeInfo()
+                .GetAllFields(includeBase)
 #if !COREFX13
-                                    .OrderBy(p => p.MetadataToken)
+                .OrderBy(p => p.MetadataToken)
 #endif
-                                    .Where(f => f.IsPrivate &&
-                                                publicPropNames.Exists(p => f.Name.StartsWith($"<{p.Name}>")))
-                                    .ToArray();
+                .Where(f => f.IsPrivate &&
+                            publicPropNames.Exists(p => f.Name.StartsWith($"<{p.Name}>")))
+                .ToArray();
 
             return EnumerableOptimal.ConcatFast(publicFields, backingFields);
         }
