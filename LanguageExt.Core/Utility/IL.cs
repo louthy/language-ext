@@ -6,8 +6,8 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
 using System.Text;
-using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using static LanguageExt.Reflect;
 
@@ -345,7 +345,7 @@ namespace LanguageExt
             il.Emit(OpCodes.Call, methodInfo);
             il.Emit(OpCodes.Ret);
 
-            return (Func<A, B, C, D, R >)dynamic.CreateDelegate(typeof(Func<A, B, C, D, R>));
+            return (Func<A, B, C, D, R>)dynamic.CreateDelegate(typeof(Func<A, B, C, D, R>));
         }
 
         /// <summary>
@@ -376,8 +376,8 @@ namespace LanguageExt
 #pragma warning disable CS0618
                 typeof(OptOutOfHashCodeAttribute),
 #pragma warning restore CS0618
-                typeof(NonHashAttribute), 
-                typeof(NonStructuralAttribute), 
+                typeof(NonHashAttribute),
+                typeof(NonStructuralAttribute),
                 typeof(NonRecordAttribute));
 
             var self = Expression.Parameter(typeof(A));
@@ -394,7 +394,7 @@ namespace LanguageExt
             {
                 var kinds = new[] { typeof(Hashable<>), typeof(Eq<>), typeof(Ord<>) };
 
-                foreach(var kind in kinds)
+                foreach (var kind in kinds)
                 {
                     var typ = typeof(Class<>)
                         .MakeGenericType(kind.MakeGenericType(f.FieldType))
@@ -404,7 +404,7 @@ namespace LanguageExt
 
                     var fres = fld.GetValue(null);
 
-                    if(fres != null)
+                    if (fres != null)
                     {
                         var method = kind
                             .GetTypeInfo()
@@ -457,11 +457,11 @@ namespace LanguageExt
                     }
                     else
                     {
-                         yield return Expression.Call(
-                                  target.MemExpr,
-                                  target.HashMethod,
-                                  Expression.PropertyOrField(self, field.Name)
-                                  );
+                        yield return Expression.Call(
+                                 target.MemExpr,
+                                 target.HashMethod,
+                                 Expression.PropertyOrField(self, field.Name)
+                                 );
                     }
                 }
             }
@@ -552,7 +552,7 @@ namespace LanguageExt
                                           .GetTypeInfo()
                                           .DeclaredProperties.Where(m => m.Name == "Default")
                                           .Single()),
-                                
+
                                   typeof(IEqualityComparer<>)
                                       .GetTypeInfo()
                                       .MakeGenericType(field.FieldType)
@@ -583,7 +583,7 @@ namespace LanguageExt
                                   Expression.PropertyOrField(self, field.Name),
                                   Expression.PropertyOrField(otherCast, field.Name)
                                   )
-                        ) 
+                        )
                     ));
 
             var orExpr = Expression.OrElse(refEq, Expression.AndAlso(notNullX, Expression.AndAlso(notNullY, expr)));
@@ -633,7 +633,7 @@ namespace LanguageExt
             var typeB = Expression.TypeEqual(other, typeof(A));
             var typesEqual = Expression.Equal(typeA, typeB);
 
-            var fieldEq = fun((FieldInfo f)=>
+            var fieldEq = fun((FieldInfo f) =>
             {
                 var typ = typeof(Class<>)
                     .MakeGenericType(typeof(Eq<>).MakeGenericType(f.FieldType))
@@ -650,13 +650,13 @@ namespace LanguageExt
                         state,
                         fieldEq(field) == null
                             ? Expression.Call(
-                                  Expression.Property(null, 
+                                  Expression.Property(null,
                                       typeof(EqualityComparer<>)
                                           .MakeGenericType(field.FieldType)
                                           .GetTypeInfo()
                                           .DeclaredProperties.Where(m => m.Name == "Default")
                                           .Single()),
-                             
+
                                   typeof(IEqualityComparer<>)
                                       .GetTypeInfo()
                                       .MakeGenericType(field.FieldType)
@@ -686,7 +686,7 @@ namespace LanguageExt
                                       Expression.PropertyOrField(other, field.Name)
                                   ))));
 
-            var orExpr = Expression.OrElse(refEq,  Expression.AndAlso(notNullX, Expression.AndAlso(notNullY, expr)));
+            var orExpr = Expression.OrElse(refEq, Expression.AndAlso(notNullX, Expression.AndAlso(notNullY, expr)));
 
             var lambda = Expression.Lambda<Func<A, A, bool>>(
                 typeof(A).GetTypeInfo().IsValueType
@@ -795,7 +795,7 @@ namespace LanguageExt
                         yield return new[] { comparer };
                     }
                     else
-                    { 
+                    {
                         var fnull = Expression.Constant(null, f.FieldType);
 
                         yield return new[] {
@@ -829,16 +829,16 @@ namespace LanguageExt
                 }
             }
 
-            var block =  Expression.Block(
-                new [] { ord },
+            var block = Expression.Block(
+                new[] { ord },
                 new[] {
                     Expression.IfThen(refEq, Expression.Return(returnTarget, Zero)),
                     Expression.IfThen(xIsNull, Expression.Return(returnTarget, Minus1)),
                     Expression.IfThen(yIsNull, Expression.Return(returnTarget, Plus1)),
                     Expression.IfThen(typesNotEqual, Expression.Return(returnTarget, Minus1))
                 }
-                .Append( Fields().Bind(identity))
-                .Append( new [] { Expression.Label(returnTarget, Zero) as Expression }));
+                .Append(Fields().Bind(identity))
+                .Append(new[] { Expression.Label(returnTarget, Zero) as Expression }));
 
             var lambda = Expression.Lambda<Func<A, A, int>>(block, self, other);
 
@@ -848,7 +848,7 @@ namespace LanguageExt
         public static Func<A, string> ToString<A>(bool includeBase)
         {
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
-            var dynamic = new DynamicMethod("FieldsToString", typeof(string), new[] { typeof(A) },true);
+            var dynamic = new DynamicMethod("FieldsToString", typeof(string), new[] { typeof(A) }, true);
             var fields = GetPublicInstanceFields<A>(
                 includeBase,
 #pragma warning disable CS0618
@@ -984,7 +984,7 @@ namespace LanguageExt
                 typeof(NonSerializedAttribute),
                 typeof(NonRecordAttribute)
                 );
-            var argNullExcept =  GetConstructor<ArgumentNullException, string>().IfNone(() => throw new Exception());
+            var argNullExcept = GetConstructor<ArgumentNullException, string>().IfNone(() => throw new Exception());
             var il = dynamic.GetILGenerator();
 
             var infoIsNotNull = il.DefineLabel();
@@ -1076,7 +1076,7 @@ namespace LanguageExt
 
             return (Action<A, SerializationInfo>)dynamic.CreateDelegate(typeof(Action<A, SerializationInfo>));
         }
-        
+
         public static Func<A, B> GetPropertyOrField<A, B>(string name) =>
             GetProperty<A, B>(name) ?? GetField<A, B>(name);
 
@@ -1089,7 +1089,7 @@ namespace LanguageExt
             var arg = typeof(A);
             var dynamic = new DynamicMethod($"{typeof(A).Name}_{name}",
                 typeof(B),
-                new[] {arg},
+                new[] { arg },
                 true);
 
             var il = dynamic.GetILGenerator();
@@ -1116,9 +1116,9 @@ namespace LanguageExt
             il.Emit(OpCodes.Ldloc_0);
             il.Emit(OpCodes.Ret);
 
-            return (Func<A, B>) dynamic.CreateDelegate(typeof(Func<A, B>));
+            return (Func<A, B>)dynamic.CreateDelegate(typeof(Func<A, B>));
         }
- 
+
         public static Func<A, B> GetField<A, B>(string name)
         {
             var fld = typeof(A).GetField(name);
@@ -1128,7 +1128,7 @@ namespace LanguageExt
             var arg = typeof(A);
             var dynamic = new DynamicMethod($"{typeof(A).Name}_{name}",
                 typeof(B),
-                new[] {arg},
+                new[] { arg },
                 true);
 
             var il = dynamic.GetILGenerator();
@@ -1146,13 +1146,13 @@ namespace LanguageExt
             il.Emit(OpCodes.Ldloc_0);
             il.Emit(OpCodes.Ret);
 
-            return (Func<A, B>) dynamic.CreateDelegate(typeof(Func<A, B>));
+            return (Func<A, B>)dynamic.CreateDelegate(typeof(Func<A, B>));
         }
 
         static string PrettyFieldName(FieldInfo field) =>
             field.Name.Split('<', '>').Match(
-                ()      => "",
-                x       => x,
+                () => "",
+                x => x,
                 (x, xs) => xs.Head);
     }
 }

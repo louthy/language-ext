@@ -71,7 +71,7 @@ namespace LanguageExt
         /// <param name="p"></param>
         /// <returns></returns>
         public static bool IsStatic
-            (PropertyInfo p) => p.GetAccessors( true ).HeadOrNone().Map( x => x.IsStatic ).IfNone( false );
+            (PropertyInfo p) => p.GetAccessors(true).HeadOrNone().Map(x => x.IsStatic).IfNone(false);
 
         public static Option<MethodInfo> GetPublicStaticMethod(Type type, string name, Type argA) =>
             type.GetTypeInfo()
@@ -300,8 +300,8 @@ namespace LanguageExt
             type != null && typeof(MulticastDelegate).IsAssignableFrom(type);
 
         public static bool IsAnonymous(Type type) =>
-            type != null && 
-            Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false) && 
+            type != null &&
+            Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false) &&
             type.IsGenericType && type.Name.Contains("AnonymousType") &&
             (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$")) &&
             type.Attributes.HasFlag(TypeAttributes.NotPublic);
