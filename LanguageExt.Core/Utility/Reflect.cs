@@ -38,7 +38,7 @@ namespace LanguageExt
                     return true;
                 });
 
-            var publicPropNames = typeof(A)
+            var publicProps = typeof(A)
                 .GetTypeInfo()
                 .GetAllProperties(includeBase)
 #if !COREFX13
@@ -55,7 +55,7 @@ namespace LanguageExt
                 .OrderBy(p => p.MetadataToken)
 #endif
                 .Where(f => f.IsPrivate &&
-                            publicPropNames.Exists(p => f.Name.StartsWith($"<{p.Name}>")))
+                            publicProps.Exists(p => f.Name.StartsWith($"<{p.Name}>")))
                 .ToArray();
 
             return EnumerableOptimal.ConcatFast(publicFields, backingFields);
