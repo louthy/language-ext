@@ -89,7 +89,7 @@ namespace LanguageExt
     }
 }
 
-public static class OpionNoneExt
+public static class OptionNoneExt
 {
     public static Option<C> SelectMany<A, C>(this Option<A> ma, Func<A, OptionNone> bind, Func<A, Unit, C> project)
     {
