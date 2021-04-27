@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>LanguageExtAnalysers</PackageId>
+    <PackageVersion>1.0.1.0</PackageVersion>
+    <Authors>Paul Louth</Authors>
+    <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
+    <Summary>Analysers for language-ext</Summary>
+    <Description>Analysers to identify common mistakes made when using the language-ext library</Description>
+    <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
+    <PackageIcon>lang-ext-small.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LanguageExtAnalysers\LanguageExtAnalysers.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\Images\lang-ext-small.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="tools\*.ps1" CopyToOutputDirectory="Always" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <Target Name="_AddAnalyzersToOutput">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(OutputPath)\LanguageExtAnalysers.dll" PackagePath="analyzers/dotnet/cs" />
+     </ItemGroup>
+  </Target>
+
+</Project>
