@@ -35,23 +35,22 @@ public static class TryExtensions
 
     /// <summary>
     /// Memoize the computation so that it's only run once
-    /// Memoize the computation so that it's only run once
     /// </summary>
     public static Try<A> Memo<A>(this Try<A> ma)
     {
-        bool run = false;
+        var run = false;
         var result = new Result<A>();
-        return (() =>
+        return () =>
         {
             if (run) return result;
             var ra = ma.Try();
-            if (result.IsSuccess)
+            if (ra.IsSuccess)
             {
                 run = true;
                 result = ra;
             }
             return ra;
-        });
+        };
     }
     
     /// <summary>
