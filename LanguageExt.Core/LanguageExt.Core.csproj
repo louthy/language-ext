@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
@@ -16,7 +16,7 @@
     <DefineConstants>NETSTANDARD21</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageVersion>3.5.26-beta</PackageVersion>
+    <PackageVersion>3.5.30-dan</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -43,7 +43,6 @@
     </None>
   </ItemGroup>
 
-
   <ItemGroup>
     <Compile Include="**\*.cs" />
     <EmbeddedResource Include="**\*.resx" />
@@ -54,6 +53,7 @@
     <None Remove="obj\**" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="LanguageExtAnalysers" Version="1.0.1" />
     <PackageReference Include="System.Reflection.Emit" Version="[4.3.0,)" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.2" />
     <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
