@@ -415,7 +415,7 @@ namespace LanguageExt
 
         public static Either<L, Eff<B>> Traverse<L, A, B>(this Eff<Either<L, A>> ma, Func<A, B> f)
         {
-            var tres = ma.RunIO();
+            var tres = ma.Run();
             
             if (tres.IsBottom)
             {

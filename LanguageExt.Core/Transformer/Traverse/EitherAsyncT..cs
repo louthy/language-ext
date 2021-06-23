@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using LanguageExt.DataTypes.Serialisation;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
-using LanguageExt.Interfaces;
+using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -64,7 +64,7 @@ namespace LanguageExt
         }
 
         public static EitherAsync<L, IEnumerable<B>> TraverseParallel<L, A, B>(this IEnumerable<EitherAsync<L, A>> ma, Func<A, B> f) =>
-            TraverseParallel(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+            TraverseParallel(ma, SysInfo.DefaultAsyncSequenceConcurrency, f);
  
         public static EitherAsync<L, IEnumerable<B>> TraverseParallel<L, A, B>(this IEnumerable<EitherAsync<L, A>> ma, int windowSize, Func<A, B> f)
         {
@@ -140,7 +140,7 @@ namespace LanguageExt
         }
 
         public static EitherAsync<L, Seq<B>> TraverseParallel<L, A, B>(this Seq<EitherAsync<L, A>> ma, Func<A, B> f) =>
-            TraverseParallel(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+            TraverseParallel(ma, SysInfo.DefaultAsyncSequenceConcurrency, f);
  
         public static EitherAsync<L, Seq<B>> TraverseParallel<L, A, B>(this Seq<EitherAsync<L, A>> ma, int windowSize, Func<A, B> f)
         {
@@ -286,7 +286,7 @@ namespace LanguageExt
             return new EitherAsync<L, Aff<B>>(Go(ma, f));
             async Task<EitherData<L, Aff<B>>> Go(Aff<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var result = await ma.RunIO().ConfigureAwait(false);
+                var result = await ma.Run().ConfigureAwait(false);
                 if (result.IsBottom) return EitherData<L, Aff<B>>.Bottom;
                 if (result.IsFail) return EitherData.Right<L, Aff<B>>(FailAff<B>(result.Error));
                 var db = await result.Value.Data.ConfigureAwait(false);
@@ -486,7 +486,7 @@ namespace LanguageExt
                 return new EitherAsync<L, Eff<B>>(Go(ma, f));
                 async Task<EitherData<L, Eff<B>>> Go(Eff<EitherAsync<L, A>> ma, Func<A, B> f)
                 {
-                    var ra = ma.RunIO();
+                    var ra = ma.Run();
                     if (ra.IsBottom) return EitherData<L, Eff<B>>.Bottom;
                     if (ra.IsFail) return EitherData.Right<L, Eff<B>>(FailEff<B>(ra.Error));
                     var da = await ra.Value.Data.ConfigureAwait(false);

@@ -6,7 +6,7 @@ namespace LanguageExt
     /// <summary>
     /// System information helper
     /// </summary>
-    public static class Sys
+    public static class SysInfo
     {
         static int processorCount;
         static int defaultAsyncSequenceConcurrency;

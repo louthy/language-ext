@@ -61,7 +61,7 @@ namespace LanguageExt
         }
 
         public static OptionAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<OptionAsync<A>> ma, Func<A, B> f) =>
-            TraverseParallel(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+            TraverseParallel(ma, SysInfo.DefaultAsyncSequenceConcurrency, f);
  
         public static OptionAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<OptionAsync<A>> ma, int windowSize, Func<A, B> f)
         {
@@ -136,7 +136,7 @@ namespace LanguageExt
         }
 
         public static OptionAsync<Seq<B>> TraverseParallel<A, B>(this Seq<OptionAsync<A>> ma, Func<A, B> f) =>
-            TraverseParallel(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+            TraverseParallel(ma, SysInfo.DefaultAsyncSequenceConcurrency, f);
  
         public static OptionAsync<Seq<B>> TraverseParallel<A, B>(this Seq<OptionAsync<A>> ma, int windowSize, Func<A, B> f)
         {
@@ -276,7 +276,7 @@ namespace LanguageExt
             return new OptionAsync<Aff<B>>(Go(ma, f));
             async Task<(bool, Aff<B>)> Go(Aff<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var resultA = await ma.RunIO().ConfigureAwait(false);
+                var resultA = await ma.Run().ConfigureAwait(false);
                 if (resultA.IsBottom) return (false, default);
                 if (resultA.IsFail) return (true, FailAff<B>(resultA.Error));
                 var (isSome, value) = await resultA.Value.Data.ConfigureAwait(false);
@@ -438,7 +438,7 @@ namespace LanguageExt
                 return new OptionAsync<Eff<B>>(Go(ma, f));
                 async Task<(bool, Eff<B>)> Go(Eff<OptionAsync<A>> ma, Func<A, B> f)
                 {
-                    var ra = ma.RunIO();
+                    var ra = ma.Run();
                     if(ra.IsBottom) return (false, default);
                     if (ra.IsFail) return (true, FailEff<B>(ra.Error));
                     var (isSome, value) = await ra.Value.Data.ConfigureAwait(false);

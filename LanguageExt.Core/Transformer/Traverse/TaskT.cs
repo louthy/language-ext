@@ -181,7 +181,7 @@ namespace LanguageExt
         
         public static async Task<Aff<B>> Traverse<A, B>(this Aff<Task<A>> ma, Func<A, B> f)
         {
-            var da = await ma.RunIO().ConfigureAwait(false);
+            var da = await ma.Run().ConfigureAwait(false);
             if (da.IsBottom) throw new BottomException();
             if (da.IsFail) return FailAff<B>(da.Error);
             var a = await da.Value.ConfigureAwait(false);
@@ -261,7 +261,7 @@ namespace LanguageExt
         
         public static async Task<Eff<B>> Traverse<A, B>(this Eff<Task<A>> ma, Func<A, B> f)
         {
-            var mr = ma.RunIO();
+            var mr = ma.Run();
             if (mr.IsBottom) return FailEff<B>(BottomException.Default);
             else if (mr.IsFail) return FailEff<B>(mr.Error);
             return SuccessEff<B>(f(await mr.Value.ConfigureAwait(false)));

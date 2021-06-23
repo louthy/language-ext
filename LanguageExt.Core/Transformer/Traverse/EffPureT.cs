@@ -8,7 +8,7 @@ using LanguageExt.DataTypes.Serialisation;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
-using LanguageExt.Interfaces;
+using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -26,7 +26,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = m.RunIO();
+                    var r = m.Run();
                     if (r.IsFail) return FinFail<Arr<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -41,7 +41,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = m.RunIO();
+                    var r = m.Run();
                     if (r.IsFail) return FinFail<HashSet<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -56,7 +56,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = m.RunIO();
+                    var r = m.Run();
                     if (r.IsFail) return FinFail<IEnumerable<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -70,7 +70,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = m.RunIO();
+                    var r = m.Run();
                     if (r.IsFail) return FinFail<Lst<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -85,7 +85,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = m.RunIO();
+                    var r = m.Run();
                     if (r.IsFail) return FinFail<Que<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -100,7 +100,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = m.RunIO();
+                    var r = m.Run();
                     if (r.IsFail) return FinFail<Seq<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -114,7 +114,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = m.RunIO();
+                    var r = m.Run();
                     if (r.IsFail) return FinFail<Set<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -129,7 +129,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = m.RunIO();
+                    var r = m.Run();
                     if (r.IsFail) return FinFail<Stck<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -148,7 +148,7 @@ namespace LanguageExt
             {
                 if(ma.IsBottom) return default;
                 if(ma.IsLeft) return FinSucc<Either<L, B>>(ma.LeftValue);
-                var rb = ma.RightValue.RunIO();
+                var rb = ma.RightValue.Run();
                 if(rb.IsFail) return FinFail<Either<L, B>>(rb.Error);
                 return FinSucc<Either<L, B>>(f(rb.Value));
             }
@@ -161,7 +161,7 @@ namespace LanguageExt
             {
                 if(ma.IsBottom) return default;
                 if(ma.IsLeft) return FinSucc<EitherUnsafe<L, B>>(ma.LeftValue);
-                var rb = ma.RightValue.RunIO();
+                var rb = ma.RightValue.Run();
                 if(rb.IsFail) return FinFail<EitherUnsafe<L, B>>(rb.Error);
                 return FinSucc<EitherUnsafe<L, B>>(f(rb.Value));
             }
@@ -173,7 +173,7 @@ namespace LanguageExt
             Fin<Identity<B>> Go(Identity<Eff<A>> ma, Func<A, B> f)
             {
                 if(ma.IsBottom) return default;
-                var rb = ma.Value.RunIO();
+                var rb = ma.Value.Run();
                 if(rb.IsFail) return FinFail<Identity<B>>(rb.Error);
                 return FinSucc<Identity<B>>(new Identity<B>(f(rb.Value)));
             }
@@ -185,7 +185,7 @@ namespace LanguageExt
             Fin<Fin<B>> Go(Fin<Eff<A>> ma, Func<A, B> f)
             {
                 if(ma.IsFail) return FinSucc<Fin<B>>(ma.Cast<B>());
-                var rb = ma.Value.RunIO();
+                var rb = ma.Value.Run();
                 if(rb.IsFail) return FinFail<Fin<B>>(rb.Error);
                 return FinSucc<Fin<B>>(Fin<B>.Succ(f(rb.Value)));
             }
@@ -197,7 +197,7 @@ namespace LanguageExt
             Fin<Option<B>> Go(Option<Eff<A>> ma, Func<A, B> f)
             {
                 if(ma.IsNone) return FinSucc<Option<B>>(None);
-                var rb = ma.Value.RunIO();
+                var rb = ma.Value.Run();
                 if(rb.IsFail) return FinFail<Option<B>>(rb.Error);
                 return FinSucc<Option<B>>(Option<B>.Some(f(rb.Value)));
             }
@@ -209,7 +209,7 @@ namespace LanguageExt
             Fin<OptionUnsafe<B>> Go(OptionUnsafe<Eff<A>> ma, Func<A, B> f)
             {
                 if(ma.IsNone) return FinSucc<OptionUnsafe<B>>(None);
-                var rb = ma.Value.RunIO();
+                var rb = ma.Value.Run();
                 if(rb.IsFail) return FinFail<OptionUnsafe<B>>(rb.Error);
                 return FinSucc<OptionUnsafe<B>>(OptionUnsafe<B>.Some(f(rb.Value)));
             }
@@ -222,7 +222,7 @@ namespace LanguageExt
             {
                 var ra = ma.Try();
                 if (ra.IsFaulted) return FinSucc<Try<B>>(TryFail<B>(ra.Exception));
-                var rb = ra.Value.RunIO();
+                var rb = ra.Value.Run();
                 if (rb.IsFail) return FinFail<Try<B>>(rb.Error);
                 return FinSucc<Try<B>>(Try<B>(f(rb.Value)));
             }
@@ -237,7 +237,7 @@ namespace LanguageExt
                 if (ra.IsBottom) return default;
                 if (ra.IsNone) return FinSucc<TryOption<B>>(TryOptional<B>(None));
                 if (ra.IsFaulted) return FinSucc<TryOption<B>>(TryOptionFail<B>(ra.Exception));
-                var rb = ra.Value.Value.RunIO();
+                var rb = ra.Value.Value.Run();
                 if (rb.IsFail) return FinFail<TryOption<B>>(rb.Error);
                 return FinSucc<TryOption<B>>(TryOption<B>(f(rb.Value)));
             }
@@ -249,7 +249,7 @@ namespace LanguageExt
             Fin<Validation<Fail, B>> Go(Validation<Fail, Eff<A>> ma, Func<A, B> f)
             {
                 if (ma.IsFail) return FinSucc<Validation<Fail, B>>(Fail<Fail, B>(ma.FailValue));
-                var rb = ma.SuccessValue.RunIO();
+                var rb = ma.SuccessValue.Run();
                 if(rb.IsFail) return FinFail<Validation<Fail, B>>(rb.Error);
                 return FinSucc<Validation<Fail, B>>(f(rb.Value));
             }
@@ -262,7 +262,7 @@ namespace LanguageExt
             Fin<Validation<MonoidFail, Fail, B>> Go(Validation<MonoidFail, Fail, Eff<A>> ma, Func<A, B> f)
             {
                 if (ma.IsFail) return FinSucc<Validation<MonoidFail, Fail, B>>(Fail<MonoidFail, Fail, B>(ma.FailValue));
-                var rb = ma.SuccessValue.RunIO();
+                var rb = ma.SuccessValue.Run();
                 if(rb.IsFail) return FinFail<Validation<MonoidFail, Fail, B>>(rb.Error);
                 return FinSucc<Validation<MonoidFail, Fail, B>>(f(rb.Value));
             }

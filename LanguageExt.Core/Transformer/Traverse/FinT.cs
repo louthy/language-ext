@@ -268,7 +268,7 @@ namespace LanguageExt
                 
         public static Fin<Eff<B>> Traverse<A, B>(this Eff<Fin<A>> ma, Func<A, B> f)
         {
-            var tres = ma.RunIO();
+            var tres = ma.Run();
 
             if (tres.IsBottom)
             {

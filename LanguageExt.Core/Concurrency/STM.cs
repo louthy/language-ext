@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using LanguageExt.Interfaces;
+using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -142,7 +142,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = await op.RunIO(env).ConfigureAwait(false);
+                        var res = await op.Run(env).ConfigureAwait(false);
                         if (res.IsFail)
                         {
                             return res;
@@ -185,7 +185,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = op.RunIO(env);
+                        var res = op.Run(env);
                         if (res.IsFail)
                         {
                             return res;
@@ -228,7 +228,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = await op.RunIO().ConfigureAwait(false);
+                        var res = await op.Run().ConfigureAwait(false);
                         if (res.IsFail)
                         {
                             return res;
@@ -271,7 +271,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = op.RunIO();
+                        var res = op.Run();
                         if (res.IsFail)
                         {
                             return res;

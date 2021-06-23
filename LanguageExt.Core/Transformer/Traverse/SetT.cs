@@ -94,6 +94,6 @@ namespace LanguageExt
         public static Set<Eff<B>> Traverse<A, B>(this Eff<Set<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: ex => Set(FailEff<B>(ex)),
-                Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).RunIO().Value;    
+                Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).Run().Value;    
     }
 }

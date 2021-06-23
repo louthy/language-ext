@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using LanguageExt.Interfaces;
+using LanguageExt.Effects.Traits;
 
 // TODO: Retrying
 // TODO: Folding

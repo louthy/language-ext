@@ -427,7 +427,7 @@ namespace LanguageExt
         
         public static Validation<Fail, Eff<B>> Traverse<Fail, A, B>(this Eff<Validation<Fail, A>> ma, Func<A, B> f)
         {
-            var tres = ma.RunIO();
+            var tres = ma.Run();
             
             if (tres.IsBottom || tres.IsFail)
             {

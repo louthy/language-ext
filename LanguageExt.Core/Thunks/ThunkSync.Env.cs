@@ -4,6 +4,8 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
+using LanguageExt.Effects.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Thunks
 {
@@ -133,7 +135,6 @@ namespace LanguageExt.Thunks
             }
         }
         
-        
         /// <summary>
         /// Functor map
         /// </summary>
@@ -181,7 +182,7 @@ namespace LanguageExt.Thunks
         /// the vast majority of the time.
         /// </summary>
         [Pure]
-        Fin<A> Eval(Env env)
+        internal Fin<A> Eval(Env env)
         {
             while (true)
             {
@@ -262,5 +263,62 @@ namespace LanguageExt.Thunks
                 Thunk.IsFailed => $"Failed({error})",
                 _ => ""
             };
+    }
+    
+    public static class ThunkExt
+    {
+        /// <summary>
+        /// Functor async map
+        /// </summary>
+        [Pure, MethodImpl(Thunk.mops)]
+        public static ThunkAsync<Env, B> MapAsync<Env, A, B>(this Thunk<Env, A> ma, Func<A, ValueTask<B>> f) where Env : struct, HasCancel<Env> =>
+            ThunkAsync<Env, B>.Lazy(async env =>
+                                    {
+                                        var ra = ma.Value(env);
+                                        if (ra.IsSucc)
+                                        {
+                                            return FinSucc(await f(ra.Value).ConfigureAwait(false));
+                                        }
+                                        else
+                                        {
+                                            return FinFail<B>(ra.Error);
+                                        }
+                                    });
+        
+        /// <summary>
+        /// Functor async map
+        /// </summary>
+        [Pure, MethodImpl(Thunk.mops)]
+        public static ThunkAsync<Env, B> MapAsync<Env, A, B>(this Thunk<A> ma, Func<A, ValueTask<B>> f) where Env : struct, HasCancel<Env> =>
+            ThunkAsync<Env, B>.Lazy(async env =>
+                                    {
+                                        var ra = ma.Value();
+                                        if (ra.IsSucc)
+                                        {
+                                            return FinSucc(await f(ra.Value).ConfigureAwait(false));
+                                        }
+                                        else
+                                        {
+                                            return FinFail<B>(ra.Error);
+                                        }
+                                    });
+        
+        /// <summary>
+        /// Functor async map
+        /// </summary>
+        [Pure, MethodImpl(Thunk.mops)]
+        public static ThunkAsync<B> MapAsync<A, B>(this Thunk<A> ma, Func<A, ValueTask<B>> f) =>
+            ThunkAsync<B>.Lazy(async () =>
+                               {
+                                    var ra = ma.Value();
+                                    if (ra.IsSucc)
+                                    {
+                                        return FinSucc(await f(ra.Value).ConfigureAwait(false));
+                                    }
+                                    else
+                                    {
+                                        return FinFail<B>(ra.Error);
+                                    }
+                               });
     }
 }

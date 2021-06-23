@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
-using LanguageExt.Interfaces;
+using LanguageExt.Effects.Traits;
 using Microsoft.CodeAnalysis;
 
 namespace LanguageExt.Thunks

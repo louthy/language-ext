@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
-using LanguageExt.Interfaces;
+using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -123,7 +123,7 @@ namespace LanguageExt
                 {
                     retries--;
                     var current = value;
-                    var newValueFinA = f(metadata, Box<A>.GetValue(value)).RunIO();
+                    var newValueFinA = f(metadata, Box<A>.GetValue(value)).Run();
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -164,7 +164,7 @@ namespace LanguageExt
                 {
                     retries--;
                     var current = value;
-                    var newValueFinA = f(metadata, Box<A>.GetValue(value)).RunIO(env);
+                    var newValueFinA = f(metadata, Box<A>.GetValue(value)).Run(env);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -239,7 +239,7 @@ namespace LanguageExt
                 {
                     retries--;
                     var current = value;
-                    var newValueFinA = await f(metadata, Box<A>.GetValue(value)).RunIO().ConfigureAwait(false);
+                    var newValueFinA = await f(metadata, Box<A>.GetValue(value)).Run().ConfigureAwait(false);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -322,7 +322,7 @@ namespace LanguageExt
                 {
                     retries--;
                     var current = value;
-                    var newFinValueA = await f(metadata, Box<A>.GetValue(value)).RunIO(env).ConfigureAwait(false);
+                    var newFinValueA = await f(metadata, Box<A>.GetValue(value)).Run(env).ConfigureAwait(false);
                     if (newFinValueA.IsFail)
                     {
                         return newFinValueA;
@@ -403,7 +403,7 @@ namespace LanguageExt
                 {
                     retries--;
                     var current = value;
-                    var newValueFinA = f(metadata, x, Box<A>.GetValue(value)).RunIO();
+                    var newValueFinA = f(metadata, x, Box<A>.GetValue(value)).Run();
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -445,7 +445,7 @@ namespace LanguageExt
                 {
                     retries--;
                     var current = value;
-                    var newValueFinA = f(metadata, x, Box<A>.GetValue(value)).RunIO(env);
+                    var newValueFinA = f(metadata, x, Box<A>.GetValue(value)).Run(env);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -522,7 +522,7 @@ namespace LanguageExt
                 {
                     retries--;
                     var current = value;
-                    var newValueFinA = await f(metadata, x, Box<A>.GetValue(value)).RunIO().ConfigureAwait(false);
+                    var newValueFinA = await f(metadata, x, Box<A>.GetValue(value)).Run().ConfigureAwait(false);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -607,7 +607,7 @@ namespace LanguageExt
                 {
                     retries--;
                     var current = value;
-                    var newFinValueA = await f(metadata, x, Box<A>.GetValue(value)).RunIO(env).ConfigureAwait(false);
+                    var newFinValueA = await f(metadata, x, Box<A>.GetValue(value)).Run(env).ConfigureAwait(false);
                     if (newFinValueA.IsFail)
                     {
                         return newFinValueA;
@@ -690,7 +690,7 @@ namespace LanguageExt
                 {
                     retries--;
                     var current = value;
-                    var newValueFinA = f(metadata, x, y, Box<A>.GetValue(value)).RunIO();
+                    var newValueFinA = f(metadata, x, y, Box<A>.GetValue(value)).Run();
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -733,7 +733,7 @@ namespace LanguageExt
                 {
                     retries--;
                     var current = value;
-                    var newValueFinA = f(metadata, x, y, Box<A>.GetValue(value)).RunIO(env);
+                    var newValueFinA = f(metadata, x, y, Box<A>.GetValue(value)).Run(env);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -812,7 +812,7 @@ namespace LanguageExt
                 {
                     retries--;
                     var current = value;
-                    var newValueFinA = await f(metadata, x, y, Box<A>.GetValue(value)).RunIO().ConfigureAwait(false);
+                    var newValueFinA = await f(metadata, x, y, Box<A>.GetValue(value)).Run().ConfigureAwait(false);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -899,7 +899,7 @@ namespace LanguageExt
                 {
                     retries--;
                     var current = value;
-                    var newFinValueA = await f(metadata, x, y, Box<A>.GetValue(value)).RunIO(env).ConfigureAwait(false);
+                    var newFinValueA = await f(metadata, x, y, Box<A>.GetValue(value)).Run(env).ConfigureAwait(false);
                     if (newFinValueA.IsFail)
                     {
                         return newFinValueA;

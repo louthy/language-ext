@@ -317,7 +317,7 @@ namespace LanguageExt
         /// awaits that too.  This continues until the end of the lazy sequence, or forever for infinite streams.
         /// </summary>
         public static Task<Unit> WindowIter<A>(this IEnumerable<Task<A>> ma, Action<A> f) =>
-            WindowIter(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+            WindowIter(ma, SysInfo.DefaultAsyncSequenceConcurrency, f);
 
         /// <summary>
         /// Tasks a lazy sequence of tasks and iterates them in a 'measured way'.  A default window size of
@@ -374,7 +374,7 @@ namespace LanguageExt
         /// end of the lazy sequence, or forever for infinite streams.
         /// </summary>
         internal static Task<IList<B>> WindowMap<A, B>(this IEnumerable<Task<A>> ma, Func<A, B> f) =>
-            WindowMap(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+            WindowMap(ma, SysInfo.DefaultAsyncSequenceConcurrency, f);
 
         /// <summary>
         /// Tasks a lazy sequence of tasks and maps them in a 'measured way'.  A default window size of

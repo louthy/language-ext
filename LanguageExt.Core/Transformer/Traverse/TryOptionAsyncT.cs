@@ -67,7 +67,7 @@ namespace LanguageExt
         }
 
         public static TryOptionAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<TryOptionAsync<A>> ma, Func<A, B> f) =>
-            TraverseParallel(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+            TraverseParallel(ma, SysInfo.DefaultAsyncSequenceConcurrency, f);
 
         public static TryOptionAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<TryOptionAsync<A>> ma, int windowSize, Func<A, B> f)
         {
@@ -140,7 +140,7 @@ namespace LanguageExt
         }
 
         public static TryOptionAsync<Seq<B>> TraverseParallel<A, B>(this Seq<TryOptionAsync<A>> ma, Func<A, B> f) =>
-            TraverseParallel(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+            TraverseParallel(ma, SysInfo.DefaultAsyncSequenceConcurrency, f);
  
         public static TryOptionAsync<Seq<B>> TraverseParallel<A, B>(this Seq<TryOptionAsync<A>> ma, int windowSize, Func<A, B> f)
         {
@@ -284,7 +284,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<OptionalResult<Aff<B>>> Go(Aff<TryOptionAsync<A>> ma, Func<A, B> f)
             {
-                var ra = await ma.RunIO().ConfigureAwait(false);
+                var ra = await ma.Run().ConfigureAwait(false);
                 if (ra.IsFail) return new OptionalResult<Aff<B>>(FailAff<B>(ra.Error));
                 var rb = await ra.Value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<Aff<B>>(rb.Exception);
@@ -439,7 +439,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<OptionalResult<Eff<B>>> Go(Eff<TryOptionAsync<A>> ma, Func<A, B> f)
             {
-                var ra = ma.RunIO();
+                var ra = ma.Run();
                 if (ra.IsFail) return new OptionalResult<Eff<B>>(FailEff<B>(ra.Error));
                 var rb = await ra.Value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<Eff<B>>(rb.Exception);

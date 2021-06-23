@@ -273,7 +273,7 @@ namespace LanguageExt
         
         public static TryOption<Eff<B>> Traverse<A, B>(this Eff<TryOption<A>> ma, Func<A, B> f) => () =>
         {
-            var mb = ma.RunIO();
+            var mb = ma.Run();
             if (mb.IsBottom) return OptionalResult<Eff<B>>.None;
             if (mb.IsFail) return new OptionalResult<Eff<B>>(FailEff<B>(mb.Error));
             var mr = mb.Value.Try();

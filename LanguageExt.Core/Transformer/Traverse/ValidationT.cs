@@ -422,7 +422,7 @@ namespace LanguageExt
         public static Validation<MonoidFail, Fail, Eff<B>> Traverse<MonoidFail, Fail, A, B>(this Eff<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
             where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
         {
-            var tres = ma.RunIO();
+            var tres = ma.Run();
             
             if (tres.IsBottom || tres.IsFail)
             {

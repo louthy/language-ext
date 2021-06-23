@@ -94,6 +94,6 @@ namespace LanguageExt
         public static Stck<Eff<B>> Traverse<A, B>(this Eff<Stck<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: ex => Stack(FailEff<B>(ex)),
-                Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).RunIO().Value;    
+                Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).Run().Value;    
     }
 }

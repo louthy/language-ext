@@ -11,7 +11,7 @@ namespace LanguageExt
     {
         [Pure]
         public static Aff<Arr<A>> SequenceParallel<A>(this Arr<Aff<A>> ma) =>
-            TraverseParallel<A, A>(ma, identity, Sys.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
  
         [Pure]
         public static Aff<Arr<A>> SequenceParallel<A>(this Arr<Aff<A>> ma, int windowSize) =>
@@ -78,7 +78,7 @@ namespace LanguageExt
         
         [Pure]
         public static Aff<IEnumerable<A>> SequenceParallel<A>(this IEnumerable<Aff<A>> ma) =>
-            TraverseParallel<A, A>(ma, identity, Sys.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
  
         [Pure]
         public static Aff<IEnumerable<A>> SequenceParallel<A>(this IEnumerable<Aff<A>> ma, int windowSize) =>
@@ -86,7 +86,7 @@ namespace LanguageExt
  
         [Pure]
         public static Aff<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<Aff<A>> ma, Func<A, B> f) =>
-            TraverseParallel<A, B>(ma, f, Sys.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<A, B>(ma, f, SysInfo.DefaultAsyncSequenceConcurrency);
         
         [Pure]
         public static Aff<IEnumerable<A>> SequenceSerial<A>(this IEnumerable<Aff<A>> ma) =>
@@ -94,7 +94,7 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<Lst<A>> SequenceParallel<A>(this Lst<Aff<A>> ma) =>
-            TraverseParallel<A, A>(ma, identity, Sys.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
  
         [Pure]
         public static Aff<Lst<A>> SequenceParallel<A>(this Lst<Aff<A>> ma, int windowSize) =>
@@ -142,7 +142,7 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<Que<A>> SequenceParallel<A>(this Que<Aff<A>> ma) =>
-            TraverseParallel<A, A>(ma, identity, Sys.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
  
         [Pure]
         public static Aff<Que<A>> SequenceParallel<A>(this Que<Aff<A>> ma, int windowSize) =>
@@ -178,7 +178,7 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<Seq<A>> SequenceParallel<A>(this Seq<Aff<A>> ma) =>
-            TraverseParallel<A, A>(ma, identity, Sys.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
  
         [Pure]
         public static Aff<Seq<A>> SequenceParallel<A>(this Seq<Aff<A>> ma, int windowSize) =>
@@ -202,7 +202,7 @@ namespace LanguageExt
          
         [Pure]
         public static Aff<Set<A>> SequenceParallel<A>(this Set<Aff<A>> ma) =>
-            TraverseParallel<A, A>(ma, identity, Sys.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
  
         [Pure]
         public static Aff<Set<A>> SequenceParallel<A>(this Set<Aff<A>> ma, int windowSize) =>
@@ -214,7 +214,7 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<HashSet<A>> SequenceParallel<A>(this HashSet<Aff<A>> ma) =>
-            TraverseParallel<A, A>(ma, identity, Sys.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
  
         [Pure]
         public static Aff<HashSet<A>> SequenceParallel<A>(this HashSet<Aff<A>> ma, int windowSize) =>
@@ -238,7 +238,7 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<Stck<A>> SequenceParallel<A>(this Stck<Aff<A>> ma) =>
-            TraverseParallel<A, A>(ma, identity, Sys.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
  
         [Pure]
         public static Aff<Stck<A>> SequenceParallel<A>(this Stck<Aff<A>> ma, int windowSize) =>

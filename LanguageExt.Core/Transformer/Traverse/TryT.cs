@@ -260,7 +260,7 @@ namespace LanguageExt
         
         public static Try<Eff<B>> Traverse<A, B>(this Eff<Try<A>> ma, Func<A, B> f) => () =>
         {
-            var mb = ma.RunIO();
+            var mb = ma.Run();
             if (mb.IsBottom) return Result<Eff<B>>.Bottom;
             if (mb.IsFail) return new Result<Eff<B>>(FailEff<B>(mb.Error));
             var mr = mb.Value.Try();

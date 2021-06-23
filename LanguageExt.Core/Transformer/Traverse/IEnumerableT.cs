@@ -93,6 +93,6 @@ namespace LanguageExt
         public static IEnumerable<Eff<B>> Traverse<A, B>(this Eff<IEnumerable<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: ex => new [] { FailEff<B>(ex) },
-                Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).RunIO().Value;    
+                Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).Run().Value;    
     }
 }

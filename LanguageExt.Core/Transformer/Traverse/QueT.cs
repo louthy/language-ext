@@ -94,6 +94,6 @@ namespace LanguageExt
         public static Que<Eff<B>> Traverse<A, B>(this Eff<Que<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: ex => Queue(FailEff<B>(ex)),
-                Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).RunIO().Value;    
+                Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).Run().Value;    
     }
 }

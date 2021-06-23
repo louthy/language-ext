@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
-using LanguageExt.Interfaces;
+using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -110,7 +110,7 @@ namespace LanguageExt
         public Aff<A> SwapAff(Func<A, Aff<A>> f) =>
             AffMaybe(async () =>
             {
-                var fv = await f(Value).RunIO().ConfigureAwait(false);
+                var fv = await f(Value).Run().ConfigureAwait(false);
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;
@@ -125,7 +125,7 @@ namespace LanguageExt
         public Eff<A> SwapEff(Func<A, Eff<A>> f) =>
             EffMaybe(() =>
             {
-                var fv = f(Value).RunIO();
+                var fv = f(Value).Run();
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;
@@ -140,7 +140,7 @@ namespace LanguageExt
         public Aff<RT, A> SwapAff<RT>(Func<A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, A>(async env =>
             {
-                var fv = await f(Value).RunIO(env).ConfigureAwait(false);
+                var fv = await f(Value).Run(env).ConfigureAwait(false);
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;
@@ -155,7 +155,7 @@ namespace LanguageExt
         public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) =>
             EffMaybe<RT, A>(env =>
             {
-                var fv = f(Value).RunIO(env);
+                var fv = f(Value).Run(env);
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;
@@ -196,7 +196,7 @@ namespace LanguageExt
         public Aff<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, Aff<A>> f) =>
             AffMaybe(async () =>
             {
-                var fv = await f(x, y, Value).RunIO().ConfigureAwait(false);
+                var fv = await f(x, y, Value).Run().ConfigureAwait(false);
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;
@@ -211,7 +211,7 @@ namespace LanguageExt
         public Eff<A> SwapEff<X, Y>(X x, Y y, Func<X, Y, A, Eff<A>> f) =>
             EffMaybe(() =>
             {
-                var fv = f(x, y, Value).RunIO();
+                var fv = f(x, y, Value).Run();
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;
@@ -226,7 +226,7 @@ namespace LanguageExt
         public Aff<RT, A> SwapAff<X, Y, RT>(X x, Y y, Func<X, Y, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, A>(async env =>
             {
-                var fv = await f(x, y, Value).RunIO(env).ConfigureAwait(false);
+                var fv = await f(x, y, Value).Run(env).ConfigureAwait(false);
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;
@@ -241,7 +241,7 @@ namespace LanguageExt
         public Eff<RT, A> SwapEff<X, Y, RT>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
             EffMaybe<RT, A>(env =>
             {
-                var fv = f(x, y, Value).RunIO(env);
+                var fv = f(x, y, Value).Run(env);
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;
@@ -282,7 +282,7 @@ namespace LanguageExt
         public Aff<A> SwapAff<X>(X x, Func<X, A, Aff<A>> f) =>
             AffMaybe(async () =>
             {
-                var fv = await f(x, Value).RunIO().ConfigureAwait(false);
+                var fv = await f(x, Value).Run().ConfigureAwait(false);
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;
@@ -297,7 +297,7 @@ namespace LanguageExt
         public Eff<A> SwapEff<X>(X x, Func<X, A, Eff<A>> f) =>
             EffMaybe(() =>
             {
-                var fv = f(x, Value).RunIO();
+                var fv = f(x, Value).Run();
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;
@@ -312,7 +312,7 @@ namespace LanguageExt
         public Aff<RT, A> SwapAff<X, RT>(X x, Func<X, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, A>(async env =>
             {
-                var fv = await f(x, Value).RunIO(env).ConfigureAwait(false);
+                var fv = await f(x, Value).Run(env).ConfigureAwait(false);
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;
@@ -327,7 +327,7 @@ namespace LanguageExt
         public Eff<RT, A> SwapEff<X, RT>(X x, Func<X, A, Eff<RT, A>> f) =>
             EffMaybe<RT, A>(env =>
             {
-                var fv = f(x, Value).RunIO(env);
+                var fv = f(x, Value).Run(env);
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;

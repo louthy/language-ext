@@ -65,7 +65,7 @@ namespace LanguageExt
         }
 
         public static TryAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<TryAsync<A>> ma, Func<A, B> f) =>
-            TraverseParallel(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+            TraverseParallel(ma, SysInfo.DefaultAsyncSequenceConcurrency, f);
  
         public static TryAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<TryAsync<A>> ma, int windowSize, Func<A, B> f)
         {
@@ -137,7 +137,7 @@ namespace LanguageExt
         }
 
         public static TryAsync<Seq<B>> TraverseParallel<A, B>(this Seq<TryAsync<A>> ma, Func<A, B> f) =>
-            TraverseParallel(ma, Sys.DefaultAsyncSequenceConcurrency, f);
+            TraverseParallel(ma, SysInfo.DefaultAsyncSequenceConcurrency, f);
  
         public static TryAsync<Seq<B>> TraverseParallel<A, B>(this Seq<TryAsync<A>> ma, int windowSize, Func<A, B> f)
         {
@@ -275,7 +275,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Aff<B>>> Go(Aff<TryAsync<A>> ma, Func<A, B> f)
             {
-                var ra = await ma.RunIO().ConfigureAwait(false);
+                var ra = await ma.Run().ConfigureAwait(false);
                 if (ra.IsFail) return new Result<Aff<B>>(FailAff<B>(ra.Error));
                 var rb = await ra.Value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new Result<Aff<B>>(rb.Exception);
@@ -419,7 +419,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Eff<B>>> Go(Eff<TryAsync<A>> ma, Func<A, B> f)
             {
-                var ra = ma.RunIO();
+                var ra = ma.Run();
                 if (ra.IsFail) return new Result<Eff<B>>(FailEff<B>(ra.Error));
                 var rb = await ra.Value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new Result<Eff<B>>(rb.Exception);

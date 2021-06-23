@@ -157,6 +157,6 @@ namespace LanguageExt
             ma.Match(
                 Succ: x => new Identity<Eff<B>>(SuccessEff(f(x.Value))),
                 Fail: e => new Identity<Eff<B>>(FailEff<B>(e)))
-                .RunIO().Value;
+                .Run().Value;
     }
 }

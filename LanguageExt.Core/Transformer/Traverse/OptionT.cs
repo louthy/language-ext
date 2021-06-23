@@ -281,7 +281,7 @@ namespace LanguageExt
                 
         public static Option<Eff<B>> Traverse<A, B>(this Eff<Option<A>> ma, Func<A, B> f)
         {
-            var tres = ma.RunIO();
+            var tres = ma.Run();
 
             if (tres.IsBottom)
             {

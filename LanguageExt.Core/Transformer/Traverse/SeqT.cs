@@ -102,6 +102,6 @@ namespace LanguageExt
         public static Seq<Eff<B>> Traverse<A, B>(this Eff<Seq<A>> ma, Func<A, B> f) =>
             ma.Match(
                 Fail: ex => Seq1(FailEff<B>(ex)),
-                Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).RunIO().Value;    
+                Succ: xs => xs.Map(x => SuccessEff<B>(f(x)))).Run().Value;    
     }
 }
