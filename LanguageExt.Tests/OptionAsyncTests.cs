@@ -61,6 +61,20 @@ namespace LanguageExt.Tests
 
             Assert.True(await mc == 100);
         }
+        
+        [Fact]
+        public async Task InitialTests4()
+        {
+            var someString = wrap("string");
+            var noneString = wrap(null);
+
+            Assert.True(await someString.IsSome);
+            await someString.IfSome(v => Assert.Equal("string", v));
+
+            Assert.True(await noneString.IsNone);
+        }
+
+        private static OptionAsync<string> wrap(string str) => Task.FromResult(str);
 
         private Task DoWork()
         {

@@ -83,7 +83,9 @@ namespace LanguageExt
         /// <returns>OptionAsync of A</returns>
         [Pure]
         public static OptionAsync<A> OptionalAsync(Task<A> value) =>
-            new OptionAsync<A>(value.Map(v => (notnull(v), v)));
+            new OptionAsync<A>(value.Map(v => isnull(v)
+                ? (false, default(A))
+                : (true, v)));
 
         /// <summary>
         /// Data accessor
