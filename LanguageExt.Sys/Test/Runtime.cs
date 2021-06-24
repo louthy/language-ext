@@ -60,7 +60,8 @@ namespace LanguageExt.Sys.Test
         HasEncoding<Runtime>,
         HasTextRead<Runtime>,
         HasTime<Runtime>,
-        HasEnvironment<Runtime>
+        HasEnvironment<Runtime>,
+        HasDirectory<Runtime>
     {
         public readonly RuntimeEnv Env;
 
@@ -163,6 +164,13 @@ namespace LanguageExt.Sys.Test
         /// <returns>File environment</returns>
         public Eff<Runtime, Traits.FileIO> FileEff =>
             Eff<Runtime, Traits.FileIO>(rt => new Test.FileIO(rt.Env.FileSystem));
+
+        /// <summary>
+        /// Access the directory environment
+        /// </summary>
+        /// <returns>Directory environment</returns>
+        public Eff<Runtime, Traits.DirectoryIO> DirectoryEff =>
+            Eff<Runtime, Traits.DirectoryIO>(rt => new Test.DirectoryIO(rt.Env.FileSystem));
         
         /// <summary>
         /// Access the TextReader environment

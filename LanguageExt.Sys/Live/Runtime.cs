@@ -35,7 +35,8 @@ namespace LanguageExt.Sys.Live
         HasEncoding<Runtime>,
         HasTextRead<Runtime>,
         HasTime<Runtime>,
-        HasEnvironment<Runtime>
+        HasEnvironment<Runtime>,
+        HasDirectory<Runtime>
     {
         readonly RuntimeEnv Env;
 
@@ -114,6 +115,13 @@ namespace LanguageExt.Sys.Live
         /// <returns>File environment</returns>
         public Eff<Runtime, Traits.FileIO> FileEff =>
             SuccessEff(Sys.Live.FileIO.Default);
+
+        /// <summary>
+        /// Access the directory environment
+        /// </summary>
+        /// <returns>Directory environment</returns>
+        public Eff<Runtime, Traits.DirectoryIO> DirectoryEff =>
+            SuccessEff(Sys.Live.DirectoryIO.Default);
 
         /// <summary>
         /// Access the TextReader environment

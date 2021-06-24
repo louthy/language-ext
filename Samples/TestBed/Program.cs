@@ -26,7 +26,7 @@ using LanguageExt.Effects;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Sys.Live;
 using LanguageExt.Sys.Traits;
-using static LanguageExt.Sys.IO.File;
+using LanguageExt.Sys.IO;
 using TestBed;
 
 public class Program
@@ -72,8 +72,8 @@ public class Program
     }
 
     static Aff<RT, int> AddLines<RT>(string path1, string path2) where RT : struct, HasFile<RT> =>
-        from lines1 in readAllLines<RT>(path1)
-        from lines2 in readAllLines<RT>(path2)
+        from lines1 in File<RT>.readAllLines(path1)
+        from lines2 in File<RT>.readAllLines(path2)
         select lines1.Count + lines2.Count;
 
     static async Aff<int> AddLines(string path1, string path2)
@@ -116,7 +116,7 @@ public class Program
 
         public static void Setup<RT>(RT runtime) where RT : struct, HasFile<RT>
         {
-            readAllLines = path => AffMaybe<Seq<string>>(async () => await readAllLines<RT>(path).Run(runtime));
+            readAllLines = path => AffMaybe<Seq<string>>(async () => await File<RT>.readAllLines(path).Run(runtime));
         }
     }
 }

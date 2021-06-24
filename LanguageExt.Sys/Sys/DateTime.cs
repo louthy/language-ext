@@ -9,43 +9,53 @@ using System.Runtime.CompilerServices;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Sys.Traits;
 
-namespace LanguageExt
+namespace LanguageExt.Sys
 {
     /// <summary>
-    /// Time IO 
+    /// DateTime IO 
     /// </summary>
-    public static class Time
+    public static class DateTime<RT>
+        where RT : struct, HasTime<RT>
     {
         /// <summary>
-        /// Current date time
+        /// Current local date time
         /// </summary>
-        [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<RT, DateTime> now<RT>()
-            where RT : struct, HasTime<RT> =>
-            default(RT).TimeEff.Map(e => e.Now);
+        public static Eff<RT, DateTime> now
+        {
+            [Pure, MethodImpl(AffOpt.mops)]
+            get => default(RT).TimeEff.Map(e => e.Now);
+        }
+
+        /// <summary>
+        /// Current universal date time
+        /// </summary>
+        public static Eff<RT, DateTime> nowUTC
+        {
+            [Pure, MethodImpl(AffOpt.mops)] 
+            get => default(RT).TimeEff.Map(e => e.UtcNow);
+        }
 
         /// <summary>
         /// Today's date 
         /// </summary>
-        [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<RT, DateTime> today<RT>()
-            where RT : struct, HasTime<RT> =>
-            default(RT).TimeEff.Map(e => e.Today);
+        public static Eff<RT, DateTime> today
+        {
+            [Pure, MethodImpl(AffOpt.mops)]
+            get => default(RT).TimeEff.Map(e => e.Today);
+        }
 
         /// <summary>
         /// Pause a task until a specified time
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<RT, Unit> sleepUntil<RT>(DateTime dt)
-            where RT : struct, HasTime<RT> =>
+        public static Aff<RT, Unit> sleepUntil(DateTime dt) =>
             default(RT).TimeEff.MapAsync(e => e.SleepUntil(dt));
 
         /// <summary>
         /// Pause a task until for a specified length of time
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<RT, Unit> sleepFor<RT>(TimeSpan ts)
-            where RT : struct, HasTime<RT> =>
+        public static Aff<RT, Unit> sleepFor(TimeSpan ts) =>
             default(RT).TimeEff.MapAsync(e => e.SleepFor(ts));
     }
 }
