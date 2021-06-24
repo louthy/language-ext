@@ -9,18 +9,18 @@ namespace LanguageExt.Sys.Test
         
         public DirectoryIO(MemoryFS fs) =>
             this.fs = fs;
-        
+
         public Unit Create(string path) =>
-            throw new NotImplementedException();
+            fs.CreateFolder(path);
 
         public Unit Delete(string path, bool recursive = true) =>
-            throw new NotImplementedException();
+            fs.DeleteFolder(path, recursive);
 
         public Option<DirectoryInfo> GetParent(string path) =>
-            throw new NotImplementedException();
+            Live.DirectoryIO.Default.GetParent(path);
 
         public bool Exists(string path) =>
-            throw new NotImplementedException();
+            fs.FolderExists(path);
 
         public Unit SetCreationTime(string path, DateTime creationTime) =>
             throw new NotImplementedException();
