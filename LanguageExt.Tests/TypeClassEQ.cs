@@ -45,5 +45,13 @@ namespace LanguageExt.Tests
         public bool IsEqualGeneral<EQ, A>(A x, A y) where EQ : struct, Eq<A> => 
             equals<EQ, A>(x, y);
 
+        [Fact]
+        public void EqualityComparer()
+        {
+            var items = Prelude.Seq("a", "A", "b");
+            var distinct = items.Distinct(default(EqStringOrdinalIgnoreCase).ToEqualityComparer());
+            
+            Assert.Equal(Prelude.Seq("a", "b"), distinct);
+        }
     }
 }
