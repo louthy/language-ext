@@ -34,7 +34,8 @@ namespace LanguageExt.Sys.Live
         HasFile<Runtime>,
         HasEncoding<Runtime>,
         HasTextRead<Runtime>,
-        HasTime<Runtime>
+        HasTime<Runtime>,
+        HasEnvironment<Runtime>
     {
         readonly RuntimeEnv Env;
 
@@ -127,5 +128,12 @@ namespace LanguageExt.Sys.Live
         /// <returns>Time environment</returns>
         public Eff<Runtime, Traits.TimeIO> TimeEff  =>
             SuccessEff(Sys.Live.TimeIO.Default);
+
+        /// <summary>
+        /// Access the operating-system environment
+        /// </summary>
+        /// <returns>Operating-system environment environment</returns>
+        public Eff<Runtime, Traits.EnvironmentIO> EnvironmentEff =>
+            SuccessEff(Sys.Live.EnvironmentIO.Default);
     }
 }

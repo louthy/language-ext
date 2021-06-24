@@ -1,7 +1,8 @@
 using System;
 using LanguageExt.Attributes;
+using LanguageExt.Effects.Traits;
 
-namespace LanguageExt.Interfaces
+namespace LanguageExt.Sys.Traits
 {
     public interface EnvironmentIO
     {
@@ -15,14 +16,14 @@ namespace LanguageExt.Interfaces
         string ExpandEnvironmentVariables(string name);
         Unit FailFast(Option<string> message);
         Unit FailFast(Option<string> message, Option<Exception> exception);
-        Arr<string> GetCommandLineArgs();
+        Seq<string> GetCommandLineArgs();
         Option<string> GetEnvironmentVariable(string variable);
         Option<string> GetEnvironmentVariable(string variable, EnvironmentVariableTarget target);
         System.Collections.IDictionary GetEnvironmentVariables();
         System.Collections.IDictionary GetEnvironmentVariables(EnvironmentVariableTarget target);
-        string GetFolderPath(Environment.SpecialFolder folder);
-        string GetFolderPath(Environment.SpecialFolder folder, Environment.SpecialFolderOption option);
-        Arr<string> GetLogicalDrives();
+        string GetFolderPath(System.Environment.SpecialFolder folder);
+        string GetFolderPath(System.Environment.SpecialFolder folder, System.Environment.SpecialFolderOption option);
+        Seq<string> GetLogicalDrives();
         bool HasShutdownStarted();
         bool Is64BitOperatingSystem();
         bool Is64BitProcess();
@@ -51,7 +52,7 @@ namespace LanguageExt.Interfaces
     /// <typeparam name="RT">Runtime</typeparam>
     [Typeclass("*")]
     public interface HasEnvironment<RT> : HasCancel<RT>
-        where RT : struct, HasCancel<RT>
+        where RT : struct, HasEnvironment<RT>, HasCancel<RT>
     {
         /// <summary>
         /// Access the environment synchronous effect environment

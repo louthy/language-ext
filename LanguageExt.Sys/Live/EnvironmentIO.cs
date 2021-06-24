@@ -1,24 +1,24 @@
 using System;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.LiveIO
+namespace LanguageExt.Sys.Live
 {
-    public struct EnvironmentIO : Interfaces.EnvironmentIO
+    public readonly struct EnvironmentIO : Sys.Traits.EnvironmentIO
     {
-        public static Interfaces.EnvironmentIO Default =>
+        public static readonly Sys.Traits.EnvironmentIO Default =
             new EnvironmentIO();
 
         /// <summary>
         /// Gets the command line for this process.
         /// </summary>
         public string CommandLine() =>
-            Environment.CommandLine;
+            System.Environment.CommandLine;
 
         /// <summary>
         /// Gets the fully qualified path of the current working directory.
         /// </summary>
         public string CurrentDirectory() =>
-            Environment.CurrentDirectory;
+            System.Environment.CurrentDirectory;
 
         /// <summary>
         /// Sets the fully qualified path of the current working directory.
@@ -26,7 +26,7 @@ namespace LanguageExt.LiveIO
         /// directory: fully qualified path of the current working directory.
         public Unit SetCurrentDirectory(string directory)
         {
-            Environment.CurrentDirectory = directory;
+            System.Environment.CurrentDirectory = directory;
             return unit;
         }
 
@@ -34,14 +34,14 @@ namespace LanguageExt.LiveIO
         /// Gets a unique identifier for the current managed thread.
         /// </summary>
         public int CurrentManagedThreadId() =>
-            Environment.CurrentManagedThreadId;
+            System.Environment.CurrentManagedThreadId;
 
         /// <summary>
         /// Terminates this process and returns an exit code to the operating system.
         /// </summary>
         public Unit Exit(int exitCode)
         {
-            Environment.Exit(exitCode);
+            System.Environment.Exit(exitCode);
             return unit;
         }
 
@@ -49,7 +49,7 @@ namespace LanguageExt.LiveIO
         /// Gets the exit code of the process.
         /// </summary>
         public int ExitCode() =>
-            Environment.ExitCode;
+            System.Environment.ExitCode;
 
         /// <summary>
         /// Sets the exit code of the process.
@@ -57,7 +57,7 @@ namespace LanguageExt.LiveIO
         // exitCode: exit code of the process
         public Unit SetExitCode(int exitCode)
         {
-            Environment.ExitCode = exitCode;
+            System.Environment.ExitCode = exitCode;
             return unit;
         }
 
@@ -66,7 +66,7 @@ namespace LanguageExt.LiveIO
         /// </summary>
         /// name: A string containing the names of zero or more environment variables. Each environment variable is quoted with the percent sign character (%).
         public string ExpandEnvironmentVariables(string name) =>
-            Environment.ExpandEnvironmentVariables(name);
+            System.Environment.ExpandEnvironmentVariables(name);
 
         /// <summary>
         /// Immediately terminates a process after writing a message to the Windows Application event log, and then includes the message in error reporting to Microsoft.
@@ -74,7 +74,7 @@ namespace LanguageExt.LiveIO
         /// message: A message that explains why the process was terminated, or null if no explanation is provided.
         public Unit FailFast(Option<string> message)
         {
-            Environment.FailFast(message.IfNone(() => null));
+            System.Environment.FailFast(message.IfNone(() => null));
             return unit;
         }
 
@@ -85,127 +85,127 @@ namespace LanguageExt.LiveIO
         /// exception: An exception that represents the error that caused the termination. This is typically the exception in a catch block.
         public Unit FailFast(Option<string> message, Option<Exception> exception)
         {
-            Environment.FailFast(message.IfNone(() => null), exception.IfNone(() => null));
+            System.Environment.FailFast(message.IfNone(() => null), exception.IfNone(() => null));
             return unit;
         }
 
         /// <summary>
         /// Returns a string array containing the command-line arguments for the current process.
         /// </summary>
-        public Arr<string> GetCommandLineArgs() =>
-            Environment.GetCommandLineArgs();
+        public Seq<string> GetCommandLineArgs() =>
+            System.Environment.GetCommandLineArgs().ToSeq();
 
         /// <summary>
-        // Retrieves the value of an environment variable from the current process.
+        /// Retrieves the value of an environment variable from the current process.
         /// </summary>
         /// variable: The name of an environment variable.
         public Option<string> GetEnvironmentVariable(string variable) =>
-            Environment.GetEnvironmentVariable(variable);
+            System.Environment.GetEnvironmentVariable(variable);
 
-        /// </summary>
+        /// <summary>
         /// Retrieves the value of an environment variable from the current process or from the Windows operating system registry key for the current user or local machine.
         /// </summary>
         /// variable: The name of an environment variable.
         public Option<string> GetEnvironmentVariable(string variable, EnvironmentVariableTarget target) =>
-            Environment.GetEnvironmentVariable(variable, target);
+            System.Environment.GetEnvironmentVariable(variable, target);
 
-        /// </summary>
+        /// <summary>
         /// Retrieves all environment variable names and their values from the current process.
         /// </summary>
         public System.Collections.IDictionary GetEnvironmentVariables() =>
-            Environment.GetEnvironmentVariables();
+            System.Environment.GetEnvironmentVariables();
 
         /// <summary>
         /// Retrieves all environment variable names and their values from the current process, or from the Windows operating system registry key for the current user or local machine.
         /// </summary>
         /// target: One of the System.EnvironmentVariableTarget values. Only System.EnvironmentVariableTarget.Process is supported on .NET Core running on Unix-based systems.
         public System.Collections.IDictionary GetEnvironmentVariables(EnvironmentVariableTarget target) =>
-            Environment.GetEnvironmentVariables(target);
+            System.Environment.GetEnvironmentVariables(target);
 
         /// <summary>
         /// Gets the path to the system special folder that is identified by the specified enumeration.
         /// </summary>
         /// folder: One of enumeration values that identifies a system special folder.
-        public string GetFolderPath(Environment.SpecialFolder folder) =>
-            Environment.GetFolderPath(folder);
+        public string GetFolderPath(System.Environment.SpecialFolder folder) =>
+            System.Environment.GetFolderPath(folder);
 
         /// <summary>
         /// Gets the path to the system special folder that is identified by the specified enumeration, and uses a specified option for accessing special folders.
         /// </summary>
-        // folder: One of the enumeration values that identifies a system special folder.
+        /// folder: One of the enumeration values that identifies a system special folder.
         /// option: One of the enumeration values that specifies options to use for accessing a special folder.
-        public string GetFolderPath(Environment.SpecialFolder folder, Environment.SpecialFolderOption option) =>
-            Environment.GetFolderPath(folder, option);
+        public string GetFolderPath(System.Environment.SpecialFolder folder, System.Environment.SpecialFolderOption option) =>
+            System.Environment.GetFolderPath(folder, option);
 
         /// <summary>
         /// Returns an array of string containing the names of the logical drives on the current computer.
         /// </summary>
         /// string[] Environment.GetLogicalDrives()
-        public Arr<string> GetLogicalDrives() =>
-            Environment.GetLogicalDrives();
+        public Seq<string> GetLogicalDrives() =>
+            System.Environment.GetLogicalDrives().ToSeq();
 
         /// <summary>
         /// Gets a value that indicates whether the current application domain is being unloaded or the common language runtime (CLR) is shutting down.
         /// </summary>
         public bool HasShutdownStarted() =>
-            Environment.HasShutdownStarted;
+            System.Environment.HasShutdownStarted;
 
         /// <summary>
-        // Determines whether the current operating system is a 64-bit operating system.
+        /// Determines whether the current operating system is a 64-bit operating system.
         /// </summary>
         public bool Is64BitOperatingSystem() =>
-            Environment.Is64BitOperatingSystem;
+            System.Environment.Is64BitOperatingSystem;
 
         /// <summary>
-        // Determines whether the current process is a 64-bit process.
+        /// Determines whether the current process is a 64-bit process.
         /// </summary>
         public bool Is64BitProcess() =>
-            Environment.Is64BitProcess;
+            System.Environment.Is64BitProcess;
 
         /// <summary>
-        // Gets the NetBIOS name of this local computer.
+        /// Gets the NetBIOS name of this local computer.
         /// </summary>
         public string MachineName() =>
-            Environment.MachineName;
+            System.Environment.MachineName;
 
         /// <summary>
         /// Gets the newline string defined for this environment.
         /// </summary>
         public string NewLine() =>
-            Environment.NewLine;
+            System.Environment.NewLine;
 
         /// <summary>
         /// Gets an OperatingSystem object that contains the current platform identifier and version number.
         /// </summary>
         public OperatingSystem OSVersion() =>
-            Environment.OSVersion;
+            System.Environment.OSVersion;
 
-        /// </summary>
+        /// <summary>
         /// Gets the number of processors on the current machine.
         /// </summary>
         public int ProcessorCount() =>
-            Environment.ProcessorCount;
+            System.Environment.ProcessorCount;
 
-        /// </summary>
+        /// <summary>
         /// Creates, modifies, or deletes an environment variable stored in the current process.
         /// </summary>
-        // variable: The name of an environment variable.
-        // value: A value to assign to variable .
+        /// variable: The name of an environment variable.
+        /// value: A value to assign to variable .
         public Unit SetEnvironmentVariable(string variable, Option<string> value)
         {
-            Environment.SetEnvironmentVariable(variable, value.IfNone(() => null));
+            System.Environment.SetEnvironmentVariable(variable, value.IfNone(() => null));
             return unit;
         }
 
         /// <summary>
         /// Creates, modifies, or deletes an environment variable stored in the current process or in the Windows operating system registry key reserved for the current user or local machine.
         /// </summary>
-        // variable: The name of an environment variable.
-        // value: A value to assign to variable.
-        // target: One of the enumeration values that specifies the location of the environment variable.
+        /// variable: The name of an environment variable.
+        /// value: A value to assign to variable.
+        /// target: One of the enumeration values that specifies the location of the environment variable.
         public Unit SetEnvironmentVariable(string variable, Option<string> value, EnvironmentVariableTarget target)
         {
-            Environment.SetEnvironmentVariable(variable, value.IfNone(() => null), target);
+            System.Environment.SetEnvironmentVariable(variable, value.IfNone(() => null), target);
             return unit;
         }
 
@@ -213,25 +213,25 @@ namespace LanguageExt.LiveIO
         /// Gets current stack trace information.
         /// </summary>
         public string StackTrace() =>
-            Environment.StackTrace;
+            System.Environment.StackTrace;
 
         /// <summary>
         /// Gets the fully qualified path of the system directory.
         /// </summary>
         public string SystemDirectory() =>
-            Environment.SystemDirectory;
+            System.Environment.SystemDirectory;
 
         /// <summary>
         /// Gets the number of bytes in the operating system's memory page.
         /// </summary>
         public int SystemPageSize() =>
-            Environment.SystemPageSize;
+            System.Environment.SystemPageSize;
 
         /// <summary>
         /// Gets the number of milliseconds elapsed since the system started.
         /// </summary>
         public int TickCount() =>
-            Environment.TickCount;
+            System.Environment.TickCount;
 
         // NOTE: This seems to be a newer interface, but I'm not sure how to handle it
         // Gets the number of milliseconds elapsed since the system started.
@@ -242,30 +242,30 @@ namespace LanguageExt.LiveIO
         /// Gets the network domain name associated with the current user.
         /// </summary>
         public string UserDomainName() =>
-            Environment.UserDomainName;
+            System.Environment.UserDomainName;
 
         /// <summary>
         /// Gets a value indicating whether the current process is running in user interactive mode.
         /// </summary>
         public bool UserInteractive() =>
-            Environment.UserInteractive;
+            System.Environment.UserInteractive;
 
         /// <summary>
         /// Gets the user name of the person who is currently logged on to the operating system.
         /// </summary>
         public string UserName() =>
-            Environment.UserName;
+            System.Environment.UserName;
 
         /// <summary>
         /// Gets a Version object that describes the major, minor, build, and revision numbers of the common language runtime.
         /// </summary>
         public Version Version() =>
-            Environment.Version;
+            System.Environment.Version;
 
         /// <summary>
         /// Gets the amount of physical memory mapped to the process context.
         /// </summary>
         public long WorkingSet() =>
-            Environment.WorkingSet;
+            System.Environment.WorkingSet;
     }
 }
