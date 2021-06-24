@@ -15,8 +15,16 @@ namespace LanguageExt.Sys.Test
         public readonly MemoryConsole Console;
         public readonly MemoryFS FileSystem;
         public readonly TestTimeSpec TimeSpec;
+        public readonly MemorySystemEnvironment SysEnv;
 
-        public RuntimeEnv(CancellationTokenSource source, CancellationToken token, Encoding encoding, MemoryConsole console, MemoryFS fileSystem, TestTimeSpec timeSpec)
+        public RuntimeEnv(
+            CancellationTokenSource source, 
+            CancellationToken token, 
+            Encoding encoding, 
+            MemoryConsole console, 
+            MemoryFS fileSystem, 
+            TestTimeSpec timeSpec,
+            MemorySystemEnvironment sysEnv)
         {
             Source     = source;
             Token      = token;
@@ -24,15 +32,22 @@ namespace LanguageExt.Sys.Test
             Console    = console;
             FileSystem = fileSystem;
             TimeSpec   = timeSpec ?? TestTimeSpec.RunningFromNow();
+            SysEnv     = sysEnv;
         }
 
-        public RuntimeEnv(CancellationTokenSource source, Encoding encoding, MemoryConsole console, MemoryFS fileSystem, TestTimeSpec timeSpec) : 
-            this(source, source.Token, encoding, console, fileSystem, timeSpec)
+        public RuntimeEnv(
+            CancellationTokenSource source, 
+            Encoding encoding, 
+            MemoryConsole console,
+            MemoryFS fileSystem, 
+            TestTimeSpec timeSpec,
+            MemorySystemEnvironment sysEnv) : 
+            this(source, source.Token, encoding, console, fileSystem, timeSpec, sysEnv)
         {
         }
 
         public RuntimeEnv LocalCancel =>
-            new RuntimeEnv(new CancellationTokenSource(), Encoding, Console, FileSystem, TimeSpec); 
+            new RuntimeEnv(new CancellationTokenSource(), Encoding, Console, FileSystem, TimeSpec, SysEnv); 
     }
 
     /// <summary>
@@ -44,7 +59,8 @@ namespace LanguageExt.Sys.Test
         HasFile<Runtime>,
         HasEncoding<Runtime>,
         HasTextRead<Runtime>,
-        HasTime<Runtime>
+        HasTime<Runtime>,
+        HasEnvironment<Runtime>
     {
         public readonly RuntimeEnv Env;
 
@@ -63,7 +79,8 @@ namespace LanguageExt.Sys.Test
                                        System.Text.Encoding.Default,
                                        new MemoryConsole(),
                                        new MemoryFS(),
-                                       timeSpec));
+                                       timeSpec,
+                                       MemorySystemEnvironment.InitFromSystem()));
 
         /// <summary>
         /// Constructor function
@@ -75,7 +92,8 @@ namespace LanguageExt.Sys.Test
                                        System.Text.Encoding.Default, 
                                        new MemoryConsole(), 
                                        new MemoryFS(),
-                                       timeSpec));
+                                       timeSpec,
+                                       MemorySystemEnvironment.InitFromSystem()));
 
         /// <summary>
         /// Constructor function
@@ -87,7 +105,8 @@ namespace LanguageExt.Sys.Test
                                        encoding, 
                                        new MemoryConsole(), 
                                        new MemoryFS(),
-                                       timeSpec));
+                                       timeSpec,
+                                       MemorySystemEnvironment.InitFromSystem()));
 
         /// <summary>
         /// Constructor function
@@ -100,7 +119,8 @@ namespace LanguageExt.Sys.Test
                                        encoding, 
                                        new MemoryConsole(), 
                                        new MemoryFS(),
-                                       timeSpec));
+                                       timeSpec,
+                                       MemorySystemEnvironment.InitFromSystem()));
 
         /// <summary>
         /// Create a new Runtime with a fresh cancellation token
@@ -157,5 +177,12 @@ namespace LanguageExt.Sys.Test
         /// <returns>Time environment</returns>
         public Eff<Runtime, Traits.TimeIO> TimeEff  =>
             Eff<Runtime, Traits.TimeIO>(rt => new Test.TimeIO(rt.Env.TimeSpec));
+
+        /// <summary>
+        /// Access the operating-system environment
+        /// </summary>
+        /// <returns>Operating-system environment environment</returns>
+        public Eff<Runtime, Traits.EnvironmentIO> EnvironmentEff =>
+            Eff<Runtime, Traits.EnvironmentIO>(rt => new Test.EnvironmentIO(rt.Env.SysEnv));
     }
 }

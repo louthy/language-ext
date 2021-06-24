@@ -117,7 +117,7 @@ namespace LanguageExt.Sys
         /// <summary>
         /// Retrieves all environment variable names and their values from the current process.
         /// </summary>
-        public static Eff<RT, System.Collections.IDictionary> getEnvironmentVariables<RT>()
+        public static Eff<RT, HashMap<string, string>> getEnvironmentVariables<RT>()
             where RT : struct, HasEnvironment<RT> =>
             default(RT).EnvironmentEff.Map(e => e.GetEnvironmentVariables());
 
@@ -125,7 +125,7 @@ namespace LanguageExt.Sys
         /// Retrieves all environment variable names and their values from the current process, or from the Windows operating system registry key for the current user or local machine.
         /// </summary>
         /// <param name="target">One of the System.EnvironmentVariableTarget values. Only System.EnvironmentVariableTarget.Process is supported on .NET Core running on Unix-based systems.</param>
-        public static Eff<RT, System.Collections.IDictionary> getEnvironmentVariables<RT>(System.EnvironmentVariableTarget target)
+        public static Eff<RT, HashMap<string, string>> getEnvironmentVariables<RT>(System.EnvironmentVariableTarget target)
             where RT : struct, HasEnvironment<RT> =>
             default(RT).EnvironmentEff.Map(e => e.GetEnvironmentVariables(target));
 

@@ -19,8 +19,8 @@ namespace LanguageExt.Sys.Traits
         Seq<string> GetCommandLineArgs();
         Option<string> GetEnvironmentVariable(string variable);
         Option<string> GetEnvironmentVariable(string variable, EnvironmentVariableTarget target);
-        System.Collections.IDictionary GetEnvironmentVariables();
-        System.Collections.IDictionary GetEnvironmentVariables(EnvironmentVariableTarget target);
+        HashMap<string, string> GetEnvironmentVariables();
+        HashMap<string, string> GetEnvironmentVariables(EnvironmentVariableTarget target);
         string GetFolderPath(System.Environment.SpecialFolder folder);
         string GetFolderPath(System.Environment.SpecialFolder folder, System.Environment.SpecialFolderOption option);
         Seq<string> GetLogicalDrives();
