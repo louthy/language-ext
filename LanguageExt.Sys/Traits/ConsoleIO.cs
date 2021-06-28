@@ -9,7 +9,7 @@ namespace LanguageExt.Sys.Traits
         ConsoleKeyInfo ReadKey();
         Unit Clear();
         int Read();
-        string ReadLine();
+        Option<string> ReadLine();
         Unit WriteLine();
         Unit WriteLine(string value);
         Unit Write(string value);

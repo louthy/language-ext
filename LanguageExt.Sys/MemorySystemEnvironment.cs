@@ -17,7 +17,6 @@ namespace LanguageExt.Sys
             ConcurrentDictionary<string, string> processEnvironmentVariables, 
             ConcurrentDictionary<string, string> userEnvironmentVariables, 
             ConcurrentDictionary<string, string> systemEnvironmentVariables, 
-            string currentDirectory, 
             int exitCode, 
             string commandLine, 
             int currentManagedThreadId, 
@@ -44,7 +43,6 @@ namespace LanguageExt.Sys
             ProcessEnvironmentVariables = processEnvironmentVariables;
             UserEnvironmentVariables    = userEnvironmentVariables;
             SystemEnvironmentVariables  = systemEnvironmentVariables;
-            CurrentDirectory            = currentDirectory;
             ExitCode                    = exitCode;
             CommandLine                 = commandLine;
             CurrentManagedThreadId      = currentManagedThreadId;
@@ -73,7 +71,6 @@ namespace LanguageExt.Sys
         public ConcurrentDictionary<string, string> ProcessEnvironmentVariables;
         public ConcurrentDictionary<string, string> UserEnvironmentVariables;
         public ConcurrentDictionary<string, string> SystemEnvironmentVariables;
-        public string CurrentDirectory;
         public int ExitCode;
         public bool HasShutdownStarted;
         
@@ -102,37 +99,35 @@ namespace LanguageExt.Sys
         public readonly Func<System.Environment.SpecialFolder, System.Environment.SpecialFolderOption, string> GetFolderPath;
         
         public MemorySystemEnvironment With(
-            ConcurrentDictionary<string, string> ProcessEnvironmentVariables = null, 
-            ConcurrentDictionary<string, string> UserEnvironmentVariables = null, 
-            ConcurrentDictionary<string, string> SystemEnvironmentVariables = null, 
-            string CurrentDirectory = null, 
+            ConcurrentDictionary<string, string>? ProcessEnvironmentVariables = null, 
+            ConcurrentDictionary<string, string>? UserEnvironmentVariables = null, 
+            ConcurrentDictionary<string, string>? SystemEnvironmentVariables = null, 
             int? ExitCode = null, 
-            string CommandLine = null, 
+            string? CommandLine = null, 
             int? CurrentManagedThreadId = null, 
             Seq<string>? CommandLineArgs = null, 
             Seq<string>? LogicalDrives = null, 
-            string NewLine = null, 
+            string? NewLine = null, 
             bool? HasShutdownStarted = null,
             bool? Is64BitOperatingSystem = null, 
             bool? Is64BitProcess = null, 
-            string MachineName = null, 
-            OperatingSystem OSVersion = null, 
+            string? MachineName = null, 
+            OperatingSystem? OSVersion = null, 
             int? ProcessorCount = null, 
-            string StackTrace = null, 
-            string SystemDirectory = null, 
+            string? StackTrace = null, 
+            string? SystemDirectory = null, 
             int? SystemPageSize = null, 
             int? TickCount = null, 
-            string UserDomainName = null, 
+            string? UserDomainName = null, 
             bool? UserInteractive = null, 
-            string UserName = null, 
-            Version Version = null, 
+            string? UserName = null, 
+            Version? Version = null, 
             long? WorkingSet = null, 
-            Func<System.Environment.SpecialFolder, System.Environment.SpecialFolderOption, string> GetFolderPath = null) =>
+            Func<System.Environment.SpecialFolder, System.Environment.SpecialFolderOption, string>? GetFolderPath = null) =>
             new MemorySystemEnvironment(
                 ProcessEnvironmentVariables ?? this.ProcessEnvironmentVariables,
                 UserEnvironmentVariables    ?? this.UserEnvironmentVariables,
                 SystemEnvironmentVariables  ?? this.SystemEnvironmentVariables,
-                CurrentDirectory            ?? this.CurrentDirectory,
                 ExitCode                    ?? this.ExitCode,
                 CommandLine                 ?? this.CommandLine,
                 CurrentManagedThreadId      ?? this.CurrentManagedThreadId,
@@ -162,7 +157,6 @@ namespace LanguageExt.Sys
                 processEnvironmentVariables: GetEnvs(EnvironmentVariableTarget.Process),
                 userEnvironmentVariables: GetEnvs(EnvironmentVariableTarget.User),
                 systemEnvironmentVariables: GetEnvs(EnvironmentVariableTarget.Machine),
-                currentDirectory: System.Environment.CurrentDirectory,
                 exitCode: System.Environment.ExitCode,
                 commandLine: System.Environment.CommandLine,
                 currentManagedThreadId: System.Environment.CurrentManagedThreadId,

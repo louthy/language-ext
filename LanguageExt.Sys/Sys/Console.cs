@@ -38,7 +38,7 @@ namespace LanguageExt.Sys
         /// <summary>
         /// Read from the console
         /// </summary>
-        public static Eff<RT, string> readLine =>
+        public static Eff<RT, Option<string>> readLine =>
             default(RT).ConsoleEff.Map(e => e.ReadLine());
 
         /// <summary>

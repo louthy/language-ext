@@ -7,8 +7,6 @@ namespace LanguageExt.Sys.Traits
     public interface EnvironmentIO
     {
         string CommandLine();
-        string CurrentDirectory();
-        Unit SetCurrentDirectory(string directory);
         int CurrentManagedThreadId();
         Unit Exit(int exitCode);
         int ExitCode();

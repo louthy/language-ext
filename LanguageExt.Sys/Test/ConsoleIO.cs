@@ -38,7 +38,7 @@ namespace LanguageExt.Sys.Test
         public int Read() =>
             mem.Read();
         
-        public string ReadLine() =>
+        public Option<string> ReadLine() =>
             mem.ReadLine();
 
         public Unit WriteLine() =>

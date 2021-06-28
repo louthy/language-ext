@@ -23,19 +23,6 @@ namespace LanguageExt.Sys
             default(RT).EnvironmentEff.Map(e => e.CommandLine());
 
         /// <summary>
-        /// Gets the fully qualified path of the current working directory.
-        /// </summary>
-        public static Eff<RT, string> currentDirectory =>
-            default(RT).EnvironmentEff.Map(e => e.CurrentDirectory());
-
-        /// <summary>
-        /// Sets the fully qualified path of the current working directory.
-        /// </summary>
-        /// <param name="directory">fully qualified path of the current working directory.</param>
-        public static Eff<RT, Unit> setCurrentDirectory(string directory) =>
-            default(RT).EnvironmentEff.Map(e => e.SetCurrentDirectory(directory));
-
-        /// <summary>
         /// Gets a unique identifier for the current managed thread.
         /// </summary>
         public static Eff<RT, int> currentManagedThreadId =>

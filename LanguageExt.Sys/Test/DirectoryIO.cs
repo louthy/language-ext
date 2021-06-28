@@ -1,17 +1,19 @@
 using System;
 using System.IO;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Sys.Test
 {
     public readonly struct DirectoryIO : Traits.DirectoryIO
     {
         readonly MemoryFS fs;
+        readonly DateTime now;
         
-        public DirectoryIO(MemoryFS fs) =>
-            this.fs = fs;
+        public DirectoryIO(MemoryFS fs, DateTime now) =>
+            (this.fs, this.now) = (fs, now);
 
         public Unit Create(string path) =>
-            fs.CreateFolder(path);
+            fs.CreateFolder(path, now);
 
         public Unit Delete(string path, bool recursive = true) =>
             fs.DeleteFolder(path, recursive);
@@ -23,81 +25,81 @@ namespace LanguageExt.Sys.Test
             fs.FolderExists(path);
 
         public Unit SetCreationTime(string path, DateTime creationTime) =>
-            throw new NotImplementedException();
+            fs.SetFolderCreationTime(path, creationTime.ToLocalTime());
 
         public Unit SetCreationTimeUtc(string path, DateTime creationTimeUtc) =>
-            throw new NotImplementedException();
+            fs.SetFolderCreationTime(path, creationTimeUtc.ToUniversalTime());
 
         public DateTime GetCreationTime(string path) =>
-            throw new NotImplementedException();
+            fs.GetFolderCreationTime(path).ToLocalTime();
 
         public DateTime GetCreationTimeUtc(string path) =>
-            throw new NotImplementedException();
+            fs.GetFolderCreationTime(path).ToUniversalTime();
 
         public Unit SetLastWriteTime(string path, DateTime lastWriteTime) =>
-            throw new NotImplementedException();
+            fs.SetFolderLastWriteTime(path, lastWriteTime.ToLocalTime());
 
         public Unit SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc) =>
-            throw new NotImplementedException();
+            fs.SetFolderLastWriteTime(path, lastWriteTimeUtc.ToUniversalTime());
 
         public DateTime GetLastWriteTime(string path) =>
-            throw new NotImplementedException();
+            fs.GetFolderLastWriteTime(path).ToLocalTime();
 
         public DateTime GetLastWriteTimeUtc(string path) =>
-            throw new NotImplementedException();
+            fs.GetFolderLastWriteTime(path).ToUniversalTime();
 
         public Unit SetLastAccessTime(string path, DateTime lastAccessTime) =>
-            throw new NotImplementedException();
+            fs.SetFolderLastAccessTime(path, lastAccessTime.ToLocalTime());
 
         public Unit SetLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc) =>
-            throw new NotImplementedException();
+            fs.SetFolderLastAccessTime(path, lastAccessTimeUtc.ToUniversalTime());
 
         public DateTime GetLastAccessTime(string path) =>
-            throw new NotImplementedException();
+            fs.GetFolderLastAccessTime(path).ToLocalTime();
 
         public DateTime GetLastAccessTimeUtc(string path) =>
-            throw new NotImplementedException();
+            fs.GetFolderLastAccessTime(path).ToUniversalTime();
 
         public Seq<string> EnumerateDirectories(string path) =>
-            throw new NotImplementedException();
+            fs.EnumerateFolders(path, "*", SearchOption.TopDirectoryOnly).ToSeq();
 
         public Seq<string> EnumerateDirectories(string path, string searchPattern) =>
-            throw new NotImplementedException();
+            fs.EnumerateFolders(path, searchPattern, SearchOption.TopDirectoryOnly).ToSeq();
 
         public Seq<string> EnumerateDirectories(string path, string searchPattern, SearchOption searchOption) =>
-            throw new NotImplementedException();
+            fs.EnumerateFolders(path, searchPattern, searchOption).ToSeq();
 
         public Seq<string> EnumerateFiles(string path) =>
-            throw new NotImplementedException();
+            fs.EnumerateFiles(path, "*", SearchOption.TopDirectoryOnly).ToSeq();
 
         public Seq<string> EnumerateFiles(string path, string searchPattern) =>
-            throw new NotImplementedException();
+            fs.EnumerateFiles(path, searchPattern, SearchOption.TopDirectoryOnly).ToSeq();
 
         public Seq<string> EnumerateFiles(string path, string searchPattern, SearchOption searchOption) =>
-            throw new NotImplementedException();
+            fs.EnumerateFiles(path, searchPattern, searchOption).ToSeq();
 
         public Seq<string> EnumerateFileSystemEntries(string path) =>
-            throw new NotImplementedException();
+            EnumerateDirectories(path) + EnumerateFiles(path);
 
         public Seq<string> EnumerateFileSystemEntries(string path, string searchPattern) =>
-            throw new NotImplementedException();
+            EnumerateDirectories(path, searchPattern) + EnumerateFiles(path, searchPattern);
 
         public Seq<string> EnumerateFileSystemEntries(string path, string searchPattern, SearchOption searchOption) =>
-            throw new NotImplementedException();
+            EnumerateDirectories(path, searchPattern, searchOption) + EnumerateFiles(path, searchPattern, searchOption);
 
         public string GetDirectoryRoot(string path) =>
-            throw new NotImplementedException();
+            Live.DirectoryIO.Default.GetDirectoryRoot(path);
 
         public string GetCurrentDirectory() =>
-            throw new NotImplementedException();
+            fs.CurrentDir;
 
         public Unit SetCurrentDirectory(string path) =>
-            throw new NotImplementedException();
+            ignore(fs.CurrentDir = path);
 
         public Unit Move(string sourceDirName, string destDirName) =>
             throw new NotImplementedException();
 
         public Seq<string> GetLogicalDrives() =>
-            throw new NotImplementedException();
+            fs.GetLogicalDrives();
     }
 }

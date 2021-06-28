@@ -16,12 +16,6 @@ namespace LanguageExt.Sys.Live
             System.Environment.CommandLine;
 
         /// <summary>
-        /// Gets the fully qualified path of the current working directory.
-        /// </summary>
-        public string CurrentDirectory() =>
-            System.Environment.CurrentDirectory;
-
-        /// <summary>
         /// Sets the fully qualified path of the current working directory.
         /// </summary>
         /// directory: fully qualified path of the current working directory.
@@ -75,7 +69,7 @@ namespace LanguageExt.Sys.Live
         /// message: A message that explains why the process was terminated, or null if no explanation is provided.
         public Unit FailFast(Option<string> message)
         {
-            System.Environment.FailFast(message.IfNone(() => null));
+            System.Environment.FailFast(message.IfNone(""));
             return unit;
         }
 
@@ -86,7 +80,7 @@ namespace LanguageExt.Sys.Live
         /// exception: An exception that represents the error that caused the termination. This is typically the exception in a catch block.
         public Unit FailFast(Option<string> message, Option<Exception> exception)
         {
-            System.Environment.FailFast(message.IfNone(() => null), exception.IfNone(() => null));
+            System.Environment.FailFast(message.IfNone(""), exception.IfNone(() => BottomException.Default));
             return unit;
         }
 
@@ -208,7 +202,7 @@ namespace LanguageExt.Sys.Live
         /// value: A value to assign to variable .
         public Unit SetEnvironmentVariable(string variable, Option<string> value)
         {
-            System.Environment.SetEnvironmentVariable(variable, value.IfNone(() => null));
+            System.Environment.SetEnvironmentVariable(variable, value.IfNone(""));
             return unit;
         }
 
@@ -220,7 +214,7 @@ namespace LanguageExt.Sys.Live
         /// target: One of the enumeration values that specifies the location of the environment variable.
         public Unit SetEnvironmentVariable(string variable, Option<string> value, EnvironmentVariableTarget target)
         {
-            System.Environment.SetEnvironmentVariable(variable, value.IfNone(() => null), target);
+            System.Environment.SetEnvironmentVariable(variable, value.IfNone(""), target);
             return unit;
         }
 

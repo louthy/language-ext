@@ -23,7 +23,7 @@ namespace LanguageExt.Sys.Test
             Encoding encoding, 
             MemoryConsole console, 
             MemoryFS fileSystem, 
-            TestTimeSpec timeSpec,
+            TestTimeSpec? timeSpec,
             MemorySystemEnvironment sysEnv)
         {
             Source     = source;
@@ -40,7 +40,7 @@ namespace LanguageExt.Sys.Test
             Encoding encoding, 
             MemoryConsole console,
             MemoryFS fileSystem, 
-            TestTimeSpec timeSpec,
+            TestTimeSpec? timeSpec,
             MemorySystemEnvironment sysEnv) : 
             this(source, source.Token, encoding, console, fileSystem, timeSpec, sysEnv)
         {
@@ -75,7 +75,7 @@ namespace LanguageExt.Sys.Test
         /// Constructor function
         /// </summary>
         /// <param name="timeSpec">Defines how time works in the runtime</param>
-        public static Runtime New(TestTimeSpec timeSpec = default) =>
+        public static Runtime New(TestTimeSpec? timeSpec = default) =>
             new Runtime(new RuntimeEnv(new CancellationTokenSource(),
                                        System.Text.Encoding.Default,
                                        new MemoryConsole(),
@@ -88,7 +88,7 @@ namespace LanguageExt.Sys.Test
         /// </summary>
         /// <param name="source">Cancellation token source</param>
         /// <param name="timeSpec">Defines how time works in the runtime</param>
-        public static Runtime New(CancellationTokenSource source, TestTimeSpec timeSpec = default) =>
+        public static Runtime New(CancellationTokenSource source, TestTimeSpec? timeSpec = default) =>
             new Runtime(new RuntimeEnv(source, 
                                        System.Text.Encoding.Default, 
                                        new MemoryConsole(), 
@@ -101,7 +101,7 @@ namespace LanguageExt.Sys.Test
         /// </summary>
         /// <param name="encoding">Text encoding</param>
         /// <param name="timeSpec">Defines how time works in the runtime</param>
-        public static Runtime New(Encoding encoding, TestTimeSpec timeSpec = default) =>
+        public static Runtime New(Encoding encoding, TestTimeSpec? timeSpec = default) =>
             new Runtime(new RuntimeEnv(new CancellationTokenSource(), 
                                        encoding, 
                                        new MemoryConsole(), 
@@ -115,7 +115,7 @@ namespace LanguageExt.Sys.Test
         /// <param name="encoding">Text encoding</param>
         /// <param name="source">Cancellation token source</param>
         /// <param name="timeSpec">Defines how time works in the runtime</param>
-        public static Runtime New(Encoding encoding, CancellationTokenSource source, TestTimeSpec timeSpec = default) =>
+        public static Runtime New(Encoding encoding, CancellationTokenSource source, TestTimeSpec? timeSpec = default) =>
             new Runtime(new RuntimeEnv(source, 
                                        encoding, 
                                        new MemoryConsole(), 
@@ -170,7 +170,9 @@ namespace LanguageExt.Sys.Test
         /// </summary>
         /// <returns>Directory environment</returns>
         public Eff<Runtime, Traits.DirectoryIO> DirectoryEff =>
-            Eff<Runtime, Traits.DirectoryIO>(rt => new Test.DirectoryIO(rt.Env.FileSystem));
+            from n in DateTime<Runtime>.now
+            from r in Eff<Runtime, Traits.DirectoryIO>(rt => new Test.DirectoryIO(rt.Env.FileSystem, n))
+            select r;
         
         /// <summary>
         /// Access the TextReader environment

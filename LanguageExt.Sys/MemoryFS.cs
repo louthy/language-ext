@@ -1,10 +1,12 @@
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Text.RegularExpressions;
 using LanguageExt.UnsafeValueAccess;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Sys
 {
@@ -19,11 +21,15 @@ namespace LanguageExt.Sys
     /// you can access its internal functionality via:
     ///
     ///     new Sys.Test.FileIO(new MemoryFS())
-    /// 
+    ///
+    /// NOTE: This isn't anywhere near as strict as the real file-system, and so it shouldn't really be used to test
+    ///       file-operations.  It should be used to test simple access to files without having to create them for
+    ///       real, or worry about what drives exist.
     /// </remarks>
     public class MemoryFS
     {
-        readonly Folder drive = new Folder("C:");
+        readonly Folder drive = new Folder("C:", DateTime.Now);
+        public string CurrentDir = "C:\\";
         
         Seq<string> ParsePath(string path) =>
             System.IO.Path.IsPathRooted(path)
@@ -31,6 +37,9 @@ namespace LanguageExt.Sys
                       .ToSeq()
                 :throw new IOException($"Path not rooted: {path}");
 
+        public Seq<string> GetLogicalDrives() =>
+            Seq1("C:\\");
+        
         string AssertDrive(string? path)
         {
             if (path != null &&
@@ -47,10 +56,41 @@ namespace LanguageExt.Sys
             }
         }
 
-        internal Unit CreateFolder(string path)
+        internal IEnumerable<string> EnumerateFolders(string path, string searchPattern, SearchOption option)
         {
             path = AssertDrive(path);
-            return Folder.PutFolder(drive, path);
+            var regex = MakePathSearchRegex(searchPattern);
+            return Folder.EnumerateFolders(drive, path, regex, option);
+        }
+
+        internal IEnumerable<string> EnumerateFiles(string path, string searchPattern, SearchOption option)
+        {
+            path = AssertDrive(path);
+            var regex = MakePathSearchRegex(searchPattern);
+            return Folder.EnumerateFiles(drive, path, regex, option);
+        }
+
+        // TODO: This will probably need some finessing
+        static Regex MakePathSearchRegex(string searchPattern) =>
+            new Regex(searchPattern.Replace(".", "\\.")
+                                   .Replace("$", "\\$")
+                                   .Replace("^", "\\^")
+                                   .Replace("\\", "\\\\")
+                                   .Replace("+", "\\+")
+                                   .Replace("{", "\\{")
+                                   .Replace("}", "\\}")
+                                   .Replace("[", "\\[")
+                                   .Replace("]", "\\]")
+                                   .Replace("(", "\\(")
+                                   .Replace(")", "\\)")
+                                   .Replace("|", "\\|")
+                                   .Replace("?", ".")
+                                   .Replace("*", ".+?"));  // Match the preceding character or subexpression 1 or more times (as few as possible).
+
+        internal Unit CreateFolder(string path, DateTime now)
+        {
+            path = AssertDrive(path);
+            return Folder.PutFolder(drive, path, now);
         }
 
         internal bool FolderExists(string path)
@@ -59,12 +99,57 @@ namespace LanguageExt.Sys
             return Folder.FolderExists(drive, path);
         }
 
+        internal string AssertFolderExists(string path)
+        {
+            path = AssertDrive(path);
+            var e = Folder.FolderExists(drive, path);
+            return e
+                       ? path
+                       : throw new DirectoryNotFoundException($"Directory not found: {path}");
+        }
+
         internal Unit DeleteFolder(string path, bool recursive)
         {
             path = AssertDrive(path);
             return Folder.DeleteFolder(drive, path, recursive);
         }
 
+        internal Unit SetFolderCreationTime(string path, DateTime dt)
+        {
+            path = AssertDrive(path);
+            return ignore(Folder.Map(drive, path, f => f.CreationTime = dt));
+        }
+
+        internal Unit SetFolderLastAccessTime(string path, DateTime dt)
+        {
+            path = AssertDrive(path);
+            return ignore(Folder.Map(drive, path, f => f.LastAccessTime = dt));
+        }
+
+        internal Unit SetFolderLastWriteTime(string path, DateTime dt)
+        {
+            path = AssertDrive(path);
+            return ignore(Folder.Map(drive, path, f => f.LastWriteTime = dt));
+        }
+
+        internal DateTime GetFolderCreationTime(string path)
+        {
+            path = AssertDrive(path);
+            return Folder.Map(drive, path, f => f.CreationTime);
+        }
+
+        internal DateTime GetFolderLastAccessTime(string path)
+        {
+            path = AssertDrive(path);
+            return Folder.Map(drive, path, f => f.LastAccessTime);
+        }
+
+        internal DateTime GetFolderLastWriteTime(string path)
+        {
+            path = AssertDrive(path);
+            return Folder.Map(drive, path, f => f.LastWriteTime);
+        }
+        
         internal Unit Delete(string path)
         {
             path = AssertDrive(path);
@@ -105,8 +190,8 @@ namespace LanguageExt.Sys
         {
             var pre = GetFile(path);
             var fin = new byte[pre.Length + data.Length];
-            Array.Copy(pre, fin, pre.Length);
-            Array.Copy(data, pre.Length, fin, 0, data.Length);
+            System.Array.Copy(pre, fin, pre.Length);
+            System.Array.Copy(data, pre.Length, fin, 0, data.Length);
             return PutFile(path, fin, true);
         }
 
@@ -121,14 +206,37 @@ namespace LanguageExt.Sys
         
         class Folder
         {
-            string Name;
+            public string Name;
+            public DateTime CreationTime;
+            public DateTime LastAccessTime;
+            public DateTime LastWriteTime;
+            readonly object sync = new();
+
             readonly ConcurrentDictionary<string, byte[]> Files = new (StringComparer.InvariantCultureIgnoreCase);
             readonly ConcurrentDictionary<string, Folder> Folders = new (StringComparer.InvariantCultureIgnoreCase);
             
-            public Folder(string name)
+            public Folder(string name, DateTime now)
             {
-                Name    = name;
+                Name           = name;
+                CreationTime   = now;
+                LastAccessTime = now;
+                LastWriteTime  = now;
             }
+
+            public static A Map<A>(Folder root, string path, Func<Folder, A> map) =>
+                Map1(root, ParsePath(path), path, map);
+
+            static A Map1<A>(Folder f, Seq<string> path, string fullPath, Func<Folder, A> map) =>
+                path.Length switch
+                {
+                    0 => Map2(f, map),
+                    _ => f.Folders.TryGetValue(path[0], out var child)
+                             ? Map1(child, path.Tail, fullPath, map)
+                             : throw new DirectoryNotFoundException($"Invalid path: {fullPath}")
+                };
+
+            static A Map2<A>(Folder f, Func<Folder, A> map) =>
+                map(f);
 
             public static Unit PutFile(Folder root, string path, byte[] data, bool overwrite) =>
                 PutFile(root, ParsePath(path), path, data, overwrite);
@@ -201,23 +309,23 @@ namespace LanguageExt.Sys
             static bool FileExists1(Folder f, string name, string fullPath) =>
                 f.Files.ContainsKey(name);
 
-            public static Unit PutFolder(Folder root, string path) =>
-                PutFolder(root, ParsePath(path), path);
+            public static Unit PutFolder(Folder root, string path, DateTime now) =>
+                PutFolder(root, ParsePath(path), path, now);
 
-            static Unit PutFolder(Folder f, Seq<string> path, string fullPath) =>
+            static Unit PutFolder(Folder f, Seq<string> path, string fullPath, DateTime now) =>
                 path.Length switch
                 {
                     0 => throw new DirectoryNotFoundException($"Invalid path: {fullPath}"),
-                    1 => AddFolder(f, path.Head),
+                    1 => AddFolder(f, path.Head, now),
                     _ => f.Folders.TryGetValue(path[0], out var child)
-                             ? PutFolder(child, path.Tail, fullPath)
+                             ? PutFolder(child, path.Tail, fullPath, now)
                              : throw new DirectoryNotFoundException($"Invalid path: {fullPath}")
                 };
 
-            static Unit AddFolder(Folder f, string name)
+            static Unit AddFolder(Folder f, string name, DateTime now)
             {
                 if (f.Files.ContainsKey(name)) throw new IOException($"File already exists with the same name: {name}");
-                f.Folders.AddOrUpdate(name, new Folder(name), (_, current) => current);
+                f.Folders.AddOrUpdate(name, new Folder(name, now), (_, current) => current);
                 return default;
             }
             
@@ -236,30 +344,32 @@ namespace LanguageExt.Sys
 
             static Unit DeleteFolder1(Folder f, string name, bool recursive)
             {
-                // TODO: Not thread-safe
-                
-                if (f.Folders.TryGetValue(name, out var fremove))
+                lock (f.sync)
                 {
-                    if (recursive)
+                    if (f.Folders.TryGetValue(name, out var fremove))
                     {
-                        f.Folders.TryRemove(name, out var _);
-                        foreach (var child in fremove.Folders)
+                        if (recursive)
                         {
-                            DeleteFolder1(fremove, child.Key, recursive);
-                        }
-                    }
-                    else
-                    {
-                        if(fremove.Folders.Count > 0)
-                        {
-                            throw new IOException("Directory not empty");
+                            f.Folders.TryRemove(name, out var _);
+                            foreach (var child in fremove.Folders)
+                            {
+                                DeleteFolder1(fremove, child.Key, recursive);
+                            }
                         }
                         else
                         {
-                            f.Folders.TryRemove(name, out var _);
+                            if (fremove.Folders.Count > 0)
+                            {
+                                throw new IOException("Directory not empty");
+                            }
+                            else
+                            {
+                                f.Folders.TryRemove(name, out var _);
+                            }
                         }
                     }
                 }
+
                 return default;
             }
             
@@ -269,20 +379,93 @@ namespace LanguageExt.Sys
             static bool FolderExists(Folder f, Seq<string> path, string fullPath) =>
                 path.Length switch
                 {
-                    0 => false,
-                    1 => FolderExists1(f, path.Head, fullPath),
+                    0 => true,
                     _ => f.Folders.TryGetValue(path[0], out var child) && FolderExists(child, path.Tail, fullPath)
                 };
 
-            static bool FolderExists1(Folder f, string name, string fullPath) =>
-                f.Folders.ContainsKey(name);
-
-            
             static Seq<string> ParsePath(string path) =>
                 System.IO.Path.IsPathRooted(path)
                     ? path.Split(new [] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
                           .ToSeq()
-                    : throw new IOException($"Path not rooted: {path}"); 
+                    : throw new IOException($"Path not rooted: {path}");
+
+            public static IEnumerable<string> EnumerateFolders(Folder f, string path, Regex regex, SearchOption option) =>
+                EnumerateFolders(f, ParsePath(path), path, regex, option);
+            
+            static IEnumerable<string> EnumerateFolders(Folder f, Seq<string> path, string fullPath, Regex regex, SearchOption option) =>
+                path.Length switch
+                {
+                    0 => EnumerateFolders1(f, fullPath, regex, option),
+                    _ => f.Folders.TryGetValue(path[0], out var child) 
+                            ? EnumerateFolders(child, path.Tail, fullPath, regex, option)
+                            : throw new DirectoryNotFoundException($"Directory not found: {fullPath}")
+                };
+
+            static IEnumerable<string> EnumerateFolders1(Folder f, string fullPath, Regex regex, SearchOption option)
+            {
+                return Yield(f, fullPath);
+
+                IEnumerable<string> Yield(Folder f, string p)
+                {
+                    foreach (var c in f.Folders)
+                    {
+                        var np = Path.Combine(p, c.Value.Name);
+                        if (regex.IsMatch(c.Value.Name))
+                        {
+                            yield return np;
+                        }
+
+                        if (option == SearchOption.AllDirectories)
+                        {
+                            foreach (var ic in Yield(c.Value, np))
+                            {
+                                yield return ic;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            public static IEnumerable<string> EnumerateFiles(Folder f, string path, Regex regex, SearchOption option) =>
+                EnumerateFiles(f, ParsePath(path), path, regex, option);
+            
+            static IEnumerable<string> EnumerateFiles(Folder f, Seq<string> path, string fullPath, Regex regex, SearchOption option) =>
+                path.Length switch
+                {
+                    0 => EnumerateFiles1(f, fullPath, regex, option),
+                    _ => f.Folders.TryGetValue(path[0], out var child) 
+                             ? EnumerateFiles(child, path.Tail, fullPath, regex, option)
+                             : throw new DirectoryNotFoundException($"Directory not found: {fullPath}")
+                };
+
+            static IEnumerable<string> EnumerateFiles1(Folder f, string fullPath, Regex regex, SearchOption option)
+            {
+                return Yield(f, fullPath);
+
+                IEnumerable<string> Yield(Folder f, string p)
+                {
+                    foreach (var c in f.Files)
+                    {
+                        var np = Path.Combine(p, c.Key);
+                        if (regex.IsMatch(c.Key))
+                        {
+                            yield return np;
+                        }
+                    }
+                    
+                    foreach (var c in f.Folders)
+                    {
+                        var np = Path.Combine(p, c.Value.Name);
+                        if (option == SearchOption.AllDirectories)
+                        {
+                            foreach (var ic in Yield(c.Value, np))
+                            {
+                                yield return ic;
+                            }
+                        }
+                    }
+                }
+            }
         }        
     }
 }

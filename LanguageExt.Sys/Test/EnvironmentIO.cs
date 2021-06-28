@@ -18,22 +18,6 @@ namespace LanguageExt.Sys.Test
             env.CommandLine;
 
         /// <summary>
-        /// Gets the fully qualified path of the current working directory.
-        /// </summary>
-        public string CurrentDirectory() =>
-            env.CurrentDirectory;
-
-        /// <summary>
-        /// Sets the fully qualified path of the current working directory.
-        /// </summary>
-        /// directory: fully qualified path of the current working directory.
-        public Unit SetCurrentDirectory(string directory)
-        {
-            env.CurrentDirectory = directory;
-            return unit;
-        }
-
-        /// <summary>
         /// Gets a unique identifier for the current managed thread.
         /// </summary>
         public int CurrentManagedThreadId() =>
@@ -79,7 +63,7 @@ namespace LanguageExt.Sys.Test
         /// message: A message that explains why the process was terminated, or null if no explanation is provided.
         public Unit FailFast(Option<string> message)
         {
-            System.Environment.FailFast(message.IfNone(() => null));
+            System.Environment.FailFast(message.IfNone(""));
             return unit;
         }
 
@@ -90,7 +74,7 @@ namespace LanguageExt.Sys.Test
         /// exception: An exception that represents the error that caused the termination. This is typically the exception in a catch block.
         public Unit FailFast(Option<string> message, Option<Exception> exception)
         {
-            System.Environment.FailFast(message.IfNone(() => null), exception.IfNone(() => null));
+            System.Environment.FailFast(message.IfNone(""), exception.IfNone(BottomException.Default));
             return unit;
         }
 

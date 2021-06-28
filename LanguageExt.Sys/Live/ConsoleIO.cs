@@ -38,7 +38,7 @@ namespace LanguageExt.Sys.Live
         public int Read() =>
             System.Console.Read();
         
-        public string ReadLine() =>
+        public Option<string> ReadLine() =>
             System.Console.ReadLine();
         
         public Unit WriteLine()
