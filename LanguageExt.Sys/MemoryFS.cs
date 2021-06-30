@@ -17,156 +17,123 @@ namespace LanguageExt.Sys
     /// <remarks>
     /// Primarily used for testing (for use with TestRuntime or your own testing runtime)
     /// 
-    /// There is no public API for this.  If you want to leverage this in other types then
+    /// There is only a simple public API for this.  If you want to leverage this in other types then
     /// you can access its internal functionality via:
     ///
     ///     new Sys.Test.FileIO(new MemoryFS())
     ///
     /// NOTE: This isn't anywhere near as strict as the real file-system, and so it shouldn't really be used to test
     ///       file-operations.  It should be used to test simple access to files without having to create them for
-    ///       real, or worry about what drives exist.
+    ///       real, or worry about what drives exist.  Error messages shouldn't be relied on, only success and failure.
     /// </remarks>
     public class MemoryFS
     {
-        readonly Folder drive = new Folder("C:", DateTime.Now);
+        readonly Folder machine = new Folder("[root]", DateTime.MinValue);
+        readonly static char[] invalidPath = Path.GetInvalidPathChars();
+        readonly static char[] invalidFile = Path.GetInvalidFileNameChars();
         public string CurrentDir = "C:\\";
-        
+
+        public MemoryFS() =>
+            Folder.PutFolder(machine, "C:", DateTime.MinValue);
+
         Seq<string> ParsePath(string path) =>
             System.IO.Path.IsPathRooted(path)
                 ? path.Split(new [] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
                       .ToSeq()
                 :throw new IOException($"Path not rooted: {path}");
 
+        /// <summary>
+        /// Get the logical in-memory drives 
+        /// </summary>
+        /// <returns>Sequence of drive names</returns>
         public Seq<string> GetLogicalDrives() =>
-            Seq1("C:\\");
+            EnumerateFolders("[root]", "*", SearchOption.TopDirectoryOnly).ToSeq();
         
-        string AssertDrive(string? path)
-        {
-            if (path != null &&
-                (path.StartsWith("C:\\") ||
-                 path.StartsWith("C:\\") ||
-                 path.StartsWith("c:/") ||
-                 path.StartsWith("c:/")))
-            {
-                return path.Substring(3);
-            }
-            else
-            {
-                throw new IOException("Only drive available in MemoryFS is C:");
-            }
-        }
+        /// <summary>
+        /// Add a logical in-memory drive
+        /// </summary>
+        public Unit AddLogicalDrive(string name) =>
+            CreateFolder($"{name.TrimEnd(':')}:", DateTime.MinValue);
 
         internal IEnumerable<string> EnumerateFolders(string path, string searchPattern, SearchOption option)
         {
-            path = AssertDrive(path);
             var regex = MakePathSearchRegex(searchPattern);
-            return Folder.EnumerateFolders(drive, path, regex, option);
+            return Folder.EnumerateFolders(machine, path, regex, option);
         }
 
         internal IEnumerable<string> EnumerateFiles(string path, string searchPattern, SearchOption option)
         {
-            path = AssertDrive(path);
             var regex = MakePathSearchRegex(searchPattern);
-            return Folder.EnumerateFiles(drive, path, regex, option);
+            return Folder.EnumerateFiles(machine, path, regex, option);
         }
 
         // TODO: This will probably need some finessing
         static Regex MakePathSearchRegex(string searchPattern) =>
-            new Regex(searchPattern.Replace(".", "\\.")
-                                   .Replace("$", "\\$")
-                                   .Replace("^", "\\^")
-                                   .Replace("\\", "\\\\")
-                                   .Replace("+", "\\+")
-                                   .Replace("{", "\\{")
-                                   .Replace("}", "\\}")
-                                   .Replace("[", "\\[")
-                                   .Replace("]", "\\]")
-                                   .Replace("(", "\\(")
-                                   .Replace(")", "\\)")
-                                   .Replace("|", "\\|")
-                                   .Replace("?", ".")
-                                   .Replace("*", ".+?"));  // Match the preceding character or subexpression 1 or more times (as few as possible).
+            new Regex(MakeAnchor(
+                          searchPattern.Replace("\\", "\\\\")
+                                       .Replace(".", "\\.")
+                                       .Replace("$", "\\$")
+                                       .Replace("^", "\\^")
+                                       .Replace("+", "\\+")
+                                       .Replace("{", "\\{")
+                                       .Replace("}", "\\}")
+                                       .Replace("[", "\\[")
+                                       .Replace("]", "\\]")
+                                       .Replace("(", "\\(")
+                                       .Replace(")", "\\)")
+                                       .Replace("|", "\\|")
+                                       .Replace("?", ".??")
+                                       .Replace("*", ".*?")));
+
+        static string MakeAnchor(string p) =>
+            $"^{p}$";
 
         internal Unit CreateFolder(string path, DateTime now)
         {
-            path = AssertDrive(path);
-            return Folder.PutFolder(drive, path, now);
+            Folder.PutFolder(machine, path, now);
+            return default;
         }
 
-        internal bool FolderExists(string path)
-        {
-            path = AssertDrive(path);
-            return Folder.FolderExists(drive, path);
-        }
+        internal bool FolderExists(string path) =>
+            Folder.FolderExists(machine, path);
 
         internal string AssertFolderExists(string path)
         {
-            path = AssertDrive(path);
-            var e = Folder.FolderExists(drive, path);
+            var e = Folder.FolderExists(machine, path);
             return e
                        ? path
                        : throw new DirectoryNotFoundException($"Directory not found: {path}");
         }
 
-        internal Unit DeleteFolder(string path, bool recursive)
-        {
-            path = AssertDrive(path);
-            return Folder.DeleteFolder(drive, path, recursive);
-        }
+        internal Unit DeleteFolder(string path, bool recursive) =>
+            Folder.DeleteFolder(machine, path, recursive);
 
-        internal Unit SetFolderCreationTime(string path, DateTime dt)
-        {
-            path = AssertDrive(path);
-            return ignore(Folder.Map(drive, path, f => f.CreationTime = dt));
-        }
+        internal Unit SetFolderCreationTime(string path, DateTime dt) =>
+            ignore(Folder.Map(machine, path, f => f.CreationTime = dt));
 
-        internal Unit SetFolderLastAccessTime(string path, DateTime dt)
-        {
-            path = AssertDrive(path);
-            return ignore(Folder.Map(drive, path, f => f.LastAccessTime = dt));
-        }
+        internal Unit SetFolderLastAccessTime(string path, DateTime dt) =>
+            ignore(Folder.Map(machine, path, f => f.LastAccessTime = dt));
 
-        internal Unit SetFolderLastWriteTime(string path, DateTime dt)
-        {
-            path = AssertDrive(path);
-            return ignore(Folder.Map(drive, path, f => f.LastWriteTime = dt));
-        }
+        internal Unit SetFolderLastWriteTime(string path, DateTime dt) =>
+            ignore(Folder.Map(machine, path, f => f.LastWriteTime = dt));
 
-        internal DateTime GetFolderCreationTime(string path)
-        {
-            path = AssertDrive(path);
-            return Folder.Map(drive, path, f => f.CreationTime);
-        }
+        internal DateTime GetFolderCreationTime(string path) =>
+            Folder.Map(machine, path, f => f.CreationTime);
 
-        internal DateTime GetFolderLastAccessTime(string path)
-        {
-            path = AssertDrive(path);
-            return Folder.Map(drive, path, f => f.LastAccessTime);
-        }
+        internal DateTime GetFolderLastAccessTime(string path) =>
+            Folder.Map(machine, path, f => f.LastAccessTime);
 
-        internal DateTime GetFolderLastWriteTime(string path)
-        {
-            path = AssertDrive(path);
-            return Folder.Map(drive, path, f => f.LastWriteTime);
-        }
+        internal DateTime GetFolderLastWriteTime(string path) =>
+            Folder.Map(machine, path, f => f.LastWriteTime);
         
-        internal Unit Delete(string path)
-        {
-            path = AssertDrive(path);
-            return Folder.DeleteFile(drive, path);
-        }
+        internal Unit Delete(string path) =>
+            Folder.DeleteFile(machine, path);
 
-        internal bool Exists(string path)
-        {
-            path = AssertDrive(path);
-            return Folder.FileExists(drive, path);
-        }
+        internal bool Exists(string path) =>
+            Folder.FileExists(machine, path);
 
-        internal byte[] GetFile(string path)
-        {
-            path = AssertDrive(path);
-            return Folder.GetFile(drive, path);
-        }
+        internal byte[] GetFile(string path) =>
+            Folder.GetFile(machine, path);
 
         internal string GetText(string path) =>
             Encoding.UTF8.GetString(GetFile(path));
@@ -174,11 +141,8 @@ namespace LanguageExt.Sys
         internal string[] GetLines(string path) =>
             Encoding.UTF8.GetString(GetFile(path)).Split('\n');
 
-        internal Unit PutFile(string path, byte[] data, bool overwrite = false)
-        {
-            path = AssertDrive(path);
-            return Folder.PutFile(drive, path, data, overwrite);
-        }
+        internal Unit PutFile(string path, byte[] data, bool overwrite = false) =>
+            Folder.PutFile(machine, path, data, overwrite);
 
         internal Unit PutText(string path, string text, bool overwrite = false) =>
             PutFile(path, Encoding.UTF8.GetBytes(text), overwrite);
@@ -223,8 +187,11 @@ namespace LanguageExt.Sys
                 LastWriteTime  = now;
             }
 
+            public override string ToString() =>
+                Name;
+
             public static A Map<A>(Folder root, string path, Func<Folder, A> map) =>
-                Map1(root, ParsePath(path), path, map);
+                Map1(root, ParseFolderPath(path), path, map);
 
             static A Map1<A>(Folder f, Seq<string> path, string fullPath, Func<Folder, A> map) =>
                 path.Length switch
@@ -239,7 +206,7 @@ namespace LanguageExt.Sys
                 map(f);
 
             public static Unit PutFile(Folder root, string path, byte[] data, bool overwrite) =>
-                PutFile(root, ParsePath(path), path, data, overwrite);
+                PutFile(root, ParseFilePath(path), path, data, overwrite);
 
             static Unit PutFile(Folder f, Seq<string> path, string fullPath, byte[] data, bool overwrite) =>
                 path.Length switch
@@ -259,7 +226,7 @@ namespace LanguageExt.Sys
             }
 
             public static Unit DeleteFile(Folder root, string path) =>
-                DeleteFile(root, ParsePath(path), path);
+                DeleteFile(root, ParseFilePath(path), path);
 
             static Unit DeleteFile(Folder f, Seq<string> path, string fullPath) =>
                 path.Length switch
@@ -278,7 +245,7 @@ namespace LanguageExt.Sys
             }
 
             public static byte[] GetFile(Folder root, string path) =>
-                GetFile(root, ParsePath(path), path);
+                GetFile(root, ParseFilePath(path), path);
 
             static byte[] GetFile(Folder f, Seq<string> path, string fullPath) =>
                 path.Length switch
@@ -296,7 +263,7 @@ namespace LanguageExt.Sys
                     : throw new FileNotFoundException($"File not found: {fullPath}");
             
             public static bool FileExists(Folder root, string path) =>
-                FileExists(root, ParsePath(path), path);
+                FileExists(root, ParseFilePath(path), path);
 
             static bool FileExists(Folder f, Seq<string> path, string fullPath) =>
                 path.Length switch
@@ -309,28 +276,27 @@ namespace LanguageExt.Sys
             static bool FileExists1(Folder f, string name, string fullPath) =>
                 f.Files.ContainsKey(name);
 
-            public static Unit PutFolder(Folder root, string path, DateTime now) =>
-                PutFolder(root, ParsePath(path), path, now);
+            public static Folder PutFolder(Folder root, string path, DateTime now) =>
+                PutFolder(root, ParseFolderPath(path), path, now);
 
-            static Unit PutFolder(Folder f, Seq<string> path, string fullPath, DateTime now) =>
+            static Folder PutFolder(Folder f, Seq<string> path, string fullPath, DateTime now) =>
                 path.Length switch
                 {
                     0 => throw new DirectoryNotFoundException($"Invalid path: {fullPath}"),
                     1 => AddFolder(f, path.Head, now),
                     _ => f.Folders.TryGetValue(path[0], out var child)
                              ? PutFolder(child, path.Tail, fullPath, now)
-                             : throw new DirectoryNotFoundException($"Invalid path: {fullPath}")
+                             : PutFolder(AddFolder(f, path.Head, now), path.Tail, fullPath, now)
                 };
 
-            static Unit AddFolder(Folder f, string name, DateTime now)
+            static Folder AddFolder(Folder f, string name, DateTime now)
             {
                 if (f.Files.ContainsKey(name)) throw new IOException($"File already exists with the same name: {name}");
-                f.Folders.AddOrUpdate(name, new Folder(name, now), (_, current) => current);
-                return default;
+                return f.Folders.AddOrUpdate(name, new Folder(name, now), (_, current) => current);
             }
             
             public static Unit DeleteFolder(Folder root, string path, bool recursive) =>
-                DeleteFolder(root, ParsePath(path), path, recursive);
+                DeleteFolder(root, ParseFolderPath(path), path, recursive);
 
             static Unit DeleteFolder(Folder f, Seq<string> path, string fullPath, bool recursive) =>
                 path.Length switch
@@ -374,7 +340,7 @@ namespace LanguageExt.Sys
             }
             
             public static bool FolderExists(Folder root, string path) =>
-                FolderExists(root, ParsePath(path), path);
+                FolderExists(root, ParseFolderPath(path), path);
 
             static bool FolderExists(Folder f, Seq<string> path, string fullPath) =>
                 path.Length switch
@@ -383,14 +349,28 @@ namespace LanguageExt.Sys
                     _ => f.Folders.TryGetValue(path[0], out var child) && FolderExists(child, path.Tail, fullPath)
                 };
 
-            static Seq<string> ParsePath(string path) =>
-                System.IO.Path.IsPathRooted(path)
-                    ? path.Split(new [] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
-                          .ToSeq()
-                    : throw new IOException($"Path not rooted: {path}");
+            static Seq<string> ParseFolderPath(string path) =>
+                ValidatePathNames(path.TrimEnd(new[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
+                                      .Split(new[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
+                                      .ToSeq());
+            
+            static Seq<string> ParseFilePath(string path) =>
+                ValidatePathNames(path.Split(new [] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
+                                       .ToSeq());
+
+            static Seq<string> ValidatePathNames(Seq<string> path)
+            {
+                if (path.IsEmpty) throw new IOException($"Invalid path: {string.Join("\\", path)}");
+                if (path.Head.Exists(invalidPath.Contains)) throw new IOException($"Invalid path: {string.Join("\\", path)}");
+                foreach (var name in path.Tail)
+                {
+                    if (name.Exists(invalidFile.Contains)) throw new IOException($"Invalid path: {string.Join("\\", path)}");
+                }
+                return path;
+            }
 
             public static IEnumerable<string> EnumerateFolders(Folder f, string path, Regex regex, SearchOption option) =>
-                EnumerateFolders(f, ParsePath(path), path, regex, option);
+                EnumerateFolders(f, ParseFolderPath(path), path, regex, option);
             
             static IEnumerable<string> EnumerateFolders(Folder f, Seq<string> path, string fullPath, Regex regex, SearchOption option) =>
                 path.Length switch
@@ -427,7 +407,7 @@ namespace LanguageExt.Sys
             }
             
             public static IEnumerable<string> EnumerateFiles(Folder f, string path, Regex regex, SearchOption option) =>
-                EnumerateFiles(f, ParsePath(path), path, regex, option);
+                EnumerateFiles(f, ParseFolderPath(path), path, regex, option);
             
             static IEnumerable<string> EnumerateFiles(Folder f, Seq<string> path, string fullPath, Regex regex, SearchOption option) =>
                 path.Length switch

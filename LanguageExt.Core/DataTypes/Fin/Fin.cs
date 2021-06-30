@@ -120,7 +120,199 @@ namespace LanguageExt
         [Pure, MethodImpl(AffOpt.mops)]
         public static bool operator false(Fin<A> ma) =>
             ma.IsFail;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <(Fin<A> lhs, A rhs) =>
+            lhs < FinSucc(rhs);
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <=(Fin<A> lhs, A rhs) =>
+            lhs <= FinSucc(rhs);
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator >(Fin<A> lhs, A rhs) =>
+            lhs > FinSucc(rhs);
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator >=(Fin<A> lhs, A rhs) =>
+            lhs >= FinSucc(rhs);
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <(A lhs, Fin<A> rhs) =>
+            FinSucc(lhs) < rhs;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <=(A lhs, Fin<A> rhs) =>
+            FinSucc(lhs) <= rhs;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator >(A lhs, Fin<A>rhs) =>
+            FinSucc(lhs) > rhs;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator >=(A lhs, Fin<A>  rhs) =>
+            FinSucc(lhs) >= rhs;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs < rhs</returns>
+        [Pure]
+        public static bool operator <(Fin<A> lhs, Fin<A> rhs) =>
+            lhs.CompareTo(rhs) < 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs <= rhs</returns>
+        [Pure]
+        public static bool operator <=(Fin<A> lhs, Fin<A> rhs) =>
+            lhs.CompareTo(rhs) <= 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs > rhs</returns>
+        [Pure]
+        public static bool operator >(Fin<A> lhs, Fin<A> rhs) =>
+            lhs.CompareTo(rhs) > 0;
+
+        /// <summary>
+        /// Comparison operator
+        /// </summary>
+        /// <param name="lhs">The left hand side of the operation</param>
+        /// <param name="rhs">The right hand side of the operation</param>
+        /// <returns>True if lhs >= rhs</returns>
+        [Pure]
+        public static bool operator >=(Fin<A> lhs, Fin<A> rhs) =>
+            lhs.CompareTo(rhs) >= 0;
+
+        /// <summary>
+        /// Equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator ==(Fin<A> lhs, A rhs) =>
+            lhs.Equals(FinSucc(rhs));
+
+        /// <summary>
+        /// Equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator ==(A lhs, Fin<A> rhs) =>
+            FinSucc(lhs).Equals(rhs);
+
+        /// <summary>
+        /// Equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator ==(Fin<A> lhs, Fin<A> rhs) =>
+            lhs.Equals(rhs);
+
+        /// <summary>
+        /// Non-equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator !=(Fin<A> lhs, A rhs) =>
+            !(lhs == rhs);
+
+        /// <summary>
+        /// Non-equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator !=(A lhs, Fin<A> rhs) =>
+            !(lhs == rhs);
+
+        /// <summary>
+        /// Non-equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator !=(Fin<A> lhs, Fin<A> rhs) =>
+            !(lhs == rhs);
+
         
+        
+        /// <summary>
+        /// Equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator ==(Fin<A> lhs, Error rhs) =>
+            lhs.Equals(FinFail<A>(rhs));
+
+        /// <summary>
+        /// Equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator ==(Error lhs, Fin<A>  rhs) =>
+            FinFail<A>(lhs).Equals(rhs);
+
+        /// <summary>
+        /// Non-equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator !=(Fin<A> lhs, Error rhs) =>
+            !(lhs == rhs);
+
+        /// <summary>
+        /// Non-equality operator override
+        /// </summary>
+        [Pure]
+        public static bool operator !=(Error lhs, Fin<A> rhs) =>
+            !(lhs == rhs);
+
         internal A Value 
         { 
             [MethodImpl(AffOpt.mops)]
@@ -175,9 +367,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(AffOpt.mops)]
         public bool Equals(Fin<A> other) =>
-            IsSucc && other.IsSucc
-                ? default(EqDefault<A>).Equals(value, other.value)
-                : !IsSucc && !other.IsSucc;
+            (IsSucc && other.IsSucc && default(EqDefault<A>).Equals(value, other.value)) || (IsSucc == other.IsSucc);
 
         [Pure, MethodImpl(AffOpt.mops)]
         public IEnumerator<Fin<A>> GetEnumerator()

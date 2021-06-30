@@ -122,7 +122,7 @@ namespace LanguageExt.Thunks
                         return ThunkAsync<Env, B>.Lazy(async env =>
                         {
                             var ev = await fun(env).ConfigureAwait(false);
-                            if (ev.IsFail)
+                            if (ev.IsSucc)
                             {
                                 return Fin<B>.Succ(f(ev.value));
                             }
