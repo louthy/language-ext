@@ -114,6 +114,93 @@ namespace LanguageExt.Tests
             var r = await comp.Run(rt);
             Assert.True(r.IsFail);
         }
+        
+        [Theory]
+        [InlineData("C:\\non-exist")]
+        [InlineData("C:\\non-exist\\also-non-exist")]
+        [InlineData("C:\\a\\b\\c\\d")]
+        public void Create_and_delete_folder(string path)
+        {
+            var rt = Runtime.New();
+
+            var comp = from p  in SuccessEff(path)
+                       from _1 in Dir.create(p)
+                       from e1 in Dir.exists(p)
+                       from _2 in Dir.delete(p)
+                       from e2 in Dir.exists(p)
+                       select (e1, e2);
+            
+            var r = comp.Run(rt);
+            Assert.True(r == (true, false), FailMsg(r));
+        }
+
+        [Theory]
+        [InlineData("C:\\non-exist")]
+        [InlineData("C:\\non-exist\\also-non-exist")]
+        [InlineData("D:\\a\\b\\c\\d")]
+        public void Delete_non_existent_folder(string path)
+        {
+            var rt = Runtime.New();
+
+            var comp = from p in SuccessEff(path)
+                       from _ in Dir.delete(p)
+                       select unit;
+            
+            var r = comp.Run(rt);
+            Assert.True(r.IsFail);
+        }
+        
+        [Theory]
+        [InlineData("C:\\non-exist", "C:\\non-exist\\test.txt")]
+        [InlineData("C:\\non-exist\\also-non-exist", "C:\\non-exist\\also-non-exist\\test.txt")]
+        public async Task File_exists(string folder, string file)
+        {
+            var rt = Runtime.New();
+
+            var comp = from _1 in Dir.create(folder)
+                       from _2 in File.writeAllText(file, "Hello, World")
+                       from ex in File.exists(file)
+                       select ex;
+            
+            var r = await comp.Run(rt);
+            Assert.True(r == true, FailMsg(r));
+        }
+        
+        [Theory]
+        [InlineData("C:\\non-exist\\test.txt")]
+        [InlineData("C:\\non-exist\\also-non-exist\\test.txt")]
+        [InlineData("X:\\non-exist\\also-non-exist\\test.txt")]
+        [InlineData("X:\\test.txt")]
+        public async Task File_doesnt_exist(string file)
+        {
+            var rt = Runtime.New();
+
+            var comp = from _2 in File.writeAllText(file, "Hello, World")
+                       from ex in File.exists(file)
+                       select ex;
+            
+            var r = await comp.Run(rt);
+            Assert.True(r.IsFail);
+        }
+
+        [Theory]
+        [InlineData("C:\\a\\b\\c\\d", new[] {"C:\\a", "C:\\a\\b", "C:\\a\\b\\c", "C:\\a\\b\\c\\d", }, "*")]
+        [InlineData("C:\\a\\b\\c", new[] {"C:\\a", "C:\\a\\b", "C:\\a\\b\\c"}, "*")]
+        [InlineData("C:\\a\\b", new[] {"C:\\a", "C:\\a\\b"}, "*")]
+        [InlineData("C:\\a", new[] {"C:\\a"}, "*")]
+        [InlineData("C:\\and\\all\\the\\arrows", new[] {"C:\\and", "C:\\and\\all", "C:\\and\\all\\the\\arrows" }, "*a*")]
+        public void Enumerate_folders(string path, string[] folders, string pattern)
+        {
+            var rt = Runtime.New();
+
+            var comp = from _1 in Dir.create(path)
+                       from ds in Dir.enumerateDirectories("C:\\", pattern, SearchOption.AllDirectories)
+                       select ds.Strict();
+
+            var r   = comp.Run(rt);
+            var dbg = ((Seq<string>)r).ToArray();
+            Assert.True(r == Seq(folders));
+        }
 
         static string FailMsg<A>(Fin<A> ma) =>
             ma.Match(Succ: _ => "", Fail: e => e.Message);

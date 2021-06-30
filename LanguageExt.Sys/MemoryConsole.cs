@@ -17,11 +17,7 @@ namespace LanguageExt.Sys
     /// buffer.
     ///
     /// There is no public API for this, other than the prepping of the keyboard buffer, which is outside of the
-    /// normal console system.  If you want to leverage this in other types then you can access its internal
-    /// functionality via:
-    ///
-    ///     new Sys.Test.ConsoleIO(new MemoryConsole())
-    /// 
+    /// normal console system.  
     /// </remarks>
     public class MemoryConsole : IEnumerable<string>
     {

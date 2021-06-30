@@ -367,7 +367,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(AffOpt.mops)]
         public bool Equals(Fin<A> other) =>
-            (IsSucc && other.IsSucc && default(EqDefault<A>).Equals(value, other.value)) || (IsSucc == other.IsSucc);
+            (IsSucc && other.IsSucc && default(EqDefault<A>).Equals(value, other.value)) || (IsSucc == false && other.IsSucc == false);
 
         [Pure, MethodImpl(AffOpt.mops)]
         public IEnumerator<Fin<A>> GetEnumerator()

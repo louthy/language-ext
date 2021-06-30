@@ -12,19 +12,14 @@ namespace LanguageExt.Sys
 {
     /// <summary>
     /// Encapsulated in-memory file-system
-    /// No public API exists for this.  Use Sys.IO.File.* to interact with the file-system
+    /// No public API exists for this other than for adding and getting the logical in-memory drives
     /// </summary>
     /// <remarks>
-    /// Primarily used for testing (for use with TestRuntime or your own testing runtime)
-    /// 
-    /// There is only a simple public API for this.  If you want to leverage this in other types then
-    /// you can access its internal functionality via:
+    /// Primarily used for testing (for use with Sys.Test.Runtime or your own runtimes)
     ///
-    ///     new Sys.Test.FileIO(new MemoryFS())
-    ///
-    /// NOTE: This isn't anywhere near as strict as the real file-system, and so it shouldn't really be used to test
-    ///       file-operations.  It should be used to test simple access to files without having to create them for
-    ///       real, or worry about what drives exist.  Error messages shouldn't be relied on, only success and failure.
+    /// This isn't anywhere near as strict as the real file-system, and so it shouldn't really be used to test
+    /// file-operations.  It should be used to test simple access to files without having to create them for
+    /// real, or worry about what drives exist.  Error messages shouldn't be relied on, only success and failure.
     /// </remarks>
     public class MemoryFS
     {
@@ -34,7 +29,7 @@ namespace LanguageExt.Sys
         public string CurrentDir = "C:\\";
 
         public MemoryFS() =>
-            Folder.PutFolder(machine, "C:", DateTime.MinValue);
+            AddLogicalDrive("C");
 
         Seq<string> ParsePath(string path) =>
             System.IO.Path.IsPathRooted(path)
@@ -302,13 +297,13 @@ namespace LanguageExt.Sys
                 path.Length switch
                 {
                     0 => throw new DirectoryNotFoundException($"Directory not found: {fullPath}"),
-                    1 => DeleteFolder1(f, path.Head, recursive),
+                    1 => DeleteFolder1(f, path.Head, fullPath, recursive),
                     _ => f.Folders.TryGetValue(path[0], out var child)
                              ? DeleteFolder(child, path.Tail, fullPath, recursive)
                              : throw new DirectoryNotFoundException($"Directory not found: {fullPath}")
                 };
 
-            static Unit DeleteFolder1(Folder f, string name, bool recursive)
+            static Unit DeleteFolder1(Folder f, string name, string fullPath, bool recursive)
             {
                 lock (f.sync)
                 {
@@ -319,7 +314,7 @@ namespace LanguageExt.Sys
                             f.Folders.TryRemove(name, out var _);
                             foreach (var child in fremove.Folders)
                             {
-                                DeleteFolder1(fremove, child.Key, recursive);
+                                DeleteFolder1(fremove, child.Key, fullPath, recursive);
                             }
                         }
                         else
@@ -333,6 +328,10 @@ namespace LanguageExt.Sys
                                 f.Folders.TryRemove(name, out var _);
                             }
                         }
+                    }
+                    else
+                    {
+                        throw new DirectoryNotFoundException($"Directory not found: {fullPath}");
                     }
                 }
 
