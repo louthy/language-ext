@@ -97,7 +97,7 @@ namespace LanguageExt.Sys.Test
             ignore(fs.CurrentDir = path);
 
         public Unit Move(string sourceDirName, string destDirName) =>
-            throw new NotImplementedException();
+            fs.Move(sourceDirName, destDirName, now);
 
         public Seq<string> GetLogicalDrives() =>
             fs.GetLogicalDrives();

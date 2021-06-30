@@ -162,14 +162,48 @@ namespace LanguageExt.Sys
 
         internal Unit CopyFile(string src, string dest, bool overwrite = false) =>
             PutFile(dest, GetFile(src), overwrite);
-        
+
+        internal Unit Move(string src, string dest, DateTime now)
+        {
+            switch (GetEntryType(src))
+            {
+                case EntryType.None: throw new DirectoryNotFoundException("Source directory or file not found");
+                    break;
+                case EntryType.Folder:
+                    CreateFolder(dest, now);
+                    break;
+                case EntryType.File:
+                    CreateFolder(Path.GetDirectoryName(dest) ?? throw new DirectoryNotFoundException(), now);
+                    break;
+            }
+
+            var (sparent, sname) = Folder.FindParent(machine, src);
+            var (dparent, dname) = Folder.FindParent(machine, dest);
+            return sparent.MoveTo(sname, dparent, dname);
+        }
+
+        EntryType GetEntryType(string path) =>
+            Folder.FileExists(machine, path)
+                ? EntryType.File
+                : Folder.FolderExists(machine, path)
+                    ? EntryType.Folder
+                    : EntryType.None;
+
+        enum EntryType
+        {
+            None,
+            File,
+            Folder
+        }
+
         class Folder
         {
             public string Name;
             public DateTime CreationTime;
             public DateTime LastAccessTime;
             public DateTime LastWriteTime;
-            readonly object sync = new();
+            
+            static readonly object sync = new();
 
             readonly ConcurrentDictionary<string, byte[]> Files = new (StringComparer.InvariantCultureIgnoreCase);
             readonly ConcurrentDictionary<string, Folder> Folders = new (StringComparer.InvariantCultureIgnoreCase);
@@ -185,92 +219,111 @@ namespace LanguageExt.Sys
             public override string ToString() =>
                 Name;
 
-            public static A Map<A>(Folder root, string path, Func<Folder, A> map) =>
-                Map1(root, ParseFolderPath(path), path, map);
-
-            static A Map1<A>(Folder f, Seq<string> path, string fullPath, Func<Folder, A> map) =>
-                path.Length switch
+            public Unit MoveTo(string name, Folder dest, string dname)
+            {
+                lock (sync)
                 {
-                    0 => Map2(f, map),
-                    _ => f.Folders.TryGetValue(path[0], out var child)
-                             ? Map1(child, path.Tail, fullPath, map)
-                             : throw new DirectoryNotFoundException($"Invalid path: {fullPath}")
-                };
+                    if (dest.Folders.ContainsKey(dname) || dest.Files.ContainsKey(dname))
+                    {
+                        throw new IOException($"Destination already exists: {dname}");
+                    }
 
-            static A Map2<A>(Folder f, Func<Folder, A> map) =>
-                map(f);
+                    if (Folders.TryRemove(name, out var srcFolder))
+                    {
+                        srcFolder.Name = name;
+                        dest.Folders.TryAdd(dname, srcFolder);
+                    }
+                    else if (Files.TryRemove(name, out var srcFile))
+                    {
+                        dest.Files.TryAdd(dname, srcFile);
+                    }
+                    else
+                    {
+                        throw new DirectoryNotFoundException("Source directory or file not found");
+                    }
+                }
 
-            public static Unit PutFile(Folder root, string path, byte[] data, bool overwrite) =>
-                PutFile(root, ParseFilePath(path), path, data, overwrite);
+                return unit;
+            }
 
-            static Unit PutFile(Folder f, Seq<string> path, string fullPath, byte[] data, bool overwrite) =>
+            public static A Map<A>(Folder root, string path, Func<Folder, A> map) =>
+                map(FindFolder(root, path));
+            
+            public static (Folder Folder, string Name) FindParent(Folder root, string path) =>
+                FindParent(root, Path.HasExtension(path) ? ParseFilePath(path) : ParseFolderPath(path), path);
+
+            static (Folder Folder, string Name) FindParent(Folder f, Seq<string> path, string fullPath) =>
                 path.Length switch
                 {
                     0 => throw new DirectoryNotFoundException($"Invalid path: {fullPath}"),
-                    1 => AddFile(f, path.Head, data, overwrite),
-                    _ => f.Folders.TryGetValue(path[0], out var child)
-                            ? PutFile(child, path.Tail, fullPath, data, overwrite)
-                            : throw new DirectoryNotFoundException($"Invalid path: {fullPath}")
+                    1 => (f, path.Head),
+                    _ => f.Folders.TryGetValue(path.Head, out var child)
+                             ? FindParent(child, path.Tail, fullPath)
+                             : throw new DirectoryNotFoundException($"Invalid path: {fullPath}")
                 };
-
-            static Unit AddFile(Folder f, string name, byte[] data, bool overwrite)
-            {
-                if (f.Folders.ContainsKey(name)) throw new IOException($"Directory already exists with the same name: {name}");
-                f.Files.AddOrUpdate(name, data, (_,_) => overwrite ? data : throw new IOException("Destination file already exists"));
-                return default;
-            }
-
-            public static Unit DeleteFile(Folder root, string path) =>
-                DeleteFile(root, ParseFilePath(path), path);
-
-            static Unit DeleteFile(Folder f, Seq<string> path, string fullPath) =>
-                path.Length switch
-                {
-                    0 => throw new FileNotFoundException($"File not found: {fullPath}"),
-                    1 => DeleteFile1(f, path.Head),
-                    _ => f.Folders.TryGetValue(path[0], out var child)
-                             ? DeleteFile(child, path.Tail, fullPath)
-                             : throw new FileNotFoundException($"File not found: {fullPath}")
-                };
-
-            static Unit DeleteFile1(Folder f, string name)
-            {
-                f.Files.TryRemove(name, out var _);
-                return default;
-            }
-
-            public static byte[] GetFile(Folder root, string path) =>
-                GetFile(root, ParseFilePath(path), path);
-
-            static byte[] GetFile(Folder f, Seq<string> path, string fullPath) =>
-                path.Length switch
-                {
-                    0 => throw new FileNotFoundException($"File not found: {fullPath}"),
-                    1 => GetFile1(f, path.Head, fullPath),
-                    _ => f.Folders.TryGetValue(path[0], out var child)
-                             ? GetFile(child, path.Tail, fullPath)
-                             : throw new FileNotFoundException($"File not found: {fullPath}")
-                };
-
-            static byte[] GetFile1(Folder f, string name, string fullPath) =>
-                f.Files.TryGetValue(name, out var d)
-                    ? d
-                    : throw new FileNotFoundException($"File not found: {fullPath}");
             
-            public static bool FileExists(Folder root, string path) =>
-                FileExists(root, ParseFilePath(path), path);
+            public static (Folder Folder, string Name, byte[]? Data) FindFile(Folder root, string path) =>
+                FindFile(root, ParseFilePath(path), path);
 
-            static bool FileExists(Folder f, Seq<string> path, string fullPath) =>
+            static (Folder Folder, string Name, byte[]? Data) FindFile(Folder f, Seq<string> path, string fullPath) =>
                 path.Length switch
+                {
+                    0 => throw new FileNotFoundException("File not found", fullPath),
+                    1 => f.Files.TryGetValue(path.Head, out var file) ? (f, path.Head, file) : (f, path.Head, null),
+                    _ => f.Folders.TryGetValue(path.Head, out var child)
+                             ? FindFile(child, path.Tail, fullPath)
+                             : throw new DirectoryNotFoundException($"Invalid path: {fullPath}")
+                };
+            
+            public static Folder FindFolder(Folder root, string path) =>
+                FindFolder(root, ParseFolderPath(path), path);
+
+            static Folder FindFolder(Folder f, Seq<string> path, string fullPath) =>
+                path.Length switch
+                {
+                    0 => f,
+                    _ => f.Folders.TryGetValue(path.Head, out var child)
+                             ? FindFolder(child, path.Tail, fullPath)
+                             : throw new DirectoryNotFoundException($"Invalid path: {fullPath}")
+                };
+
+            public static Unit PutFile(Folder root, string path, byte[] data, bool overwrite)
+            {
+                lock (sync)
+                {
+                    var (folder, fileName, exists) = FindFile(root, path);
+                    if (folder.Folders.ContainsKey(fileName)) throw new IOException($"Directory already exists with the same name: {fileName}");
+                    folder.Files.AddOrUpdate(fileName, data, (_, _) => overwrite ? data : throw new IOException("Destination file already exists"));
+                }
+
+                return default;
+            }
+
+            public static Unit DeleteFile(Folder root, string path)
+            {
+                var (folder, fileName, exists) = FindFile(root, path);
+                if (exists == null) throw new FileNotFoundException($"File not found: {path}");
+                folder.Files.TryRemove(fileName, out var _);
+                return default;
+            }
+
+            public static byte[] GetFile(Folder root, string path)
+            {
+                var (_, _, exists) = FindFile(root, path);
+                return exists ?? throw new FileNotFoundException($"File not found: {path}");
+            }
+
+            public static bool FileExists(Folder root, string path) =>
+                FileExists(root, ParseFilePath(path));
+ 
+            public static bool FileExists(Folder f, Seq<string> path) =>
+               path.Length switch
                 {
                     0 => false,
-                    1 => FileExists1(f, path.Head, fullPath),
-                    _ => f.Folders.TryGetValue(path[0], out var child) && FileExists(child, path.Tail, fullPath)
+                    1 => f.Files.ContainsKey(path.Head),
+                    _ => f.Folders.TryGetValue(path.Head, out var child) && FileExists(child, path.Tail)
                 };
-
-            static bool FileExists1(Folder f, string name, string fullPath) =>
-                f.Files.ContainsKey(name);
-
+        
             public static Folder PutFolder(Folder root, string path, DateTime now) =>
                 PutFolder(root, ParseFolderPath(path), path, now);
 
@@ -279,7 +332,7 @@ namespace LanguageExt.Sys
                 {
                     0 => throw new DirectoryNotFoundException($"Invalid path: {fullPath}"),
                     1 => AddFolder(f, path.Head, now),
-                    _ => f.Folders.TryGetValue(path[0], out var child)
+                    _ => f.Folders.TryGetValue(path.Head, out var child)
                              ? PutFolder(child, path.Tail, fullPath, now)
                              : PutFolder(AddFolder(f, path.Head, now), path.Tail, fullPath, now)
                 };
@@ -289,50 +342,43 @@ namespace LanguageExt.Sys
                 if (f.Files.ContainsKey(name)) throw new IOException($"File already exists with the same name: {name}");
                 return f.Folders.AddOrUpdate(name, new Folder(name, now), (_, current) => current);
             }
-            
-            public static Unit DeleteFolder(Folder root, string path, bool recursive) =>
-                DeleteFolder(root, ParseFolderPath(path), path, recursive);
 
-            static Unit DeleteFolder(Folder f, Seq<string> path, string fullPath, bool recursive) =>
-                path.Length switch
-                {
-                    0 => throw new DirectoryNotFoundException($"Directory not found: {fullPath}"),
-                    1 => DeleteFolder1(f, path.Head, fullPath, recursive),
-                    _ => f.Folders.TryGetValue(path[0], out var child)
-                             ? DeleteFolder(child, path.Tail, fullPath, recursive)
-                             : throw new DirectoryNotFoundException($"Directory not found: {fullPath}")
-                };
-
-            static Unit DeleteFolder1(Folder f, string name, string fullPath, bool recursive)
+            public static Unit DeleteFolder(Folder root, string path, bool recursive)
             {
-                lock (f.sync)
+                var (folder, name) = FindParent(root, path);
+                lock (sync)
                 {
-                    if (f.Folders.TryGetValue(name, out var fremove))
+                    return DeleteChildFolder(folder, name, path, recursive);
+                }
+            }
+            
+            static Unit DeleteChildFolder(Folder f, string name, string fullPath, bool recursive)
+            {
+                if (f.Folders.TryGetValue(name, out var fremove))
+                {
+                    if (recursive)
                     {
-                        if (recursive)
+                        f.Folders.TryRemove(name, out var _);
+                        foreach (var child in fremove.Folders)
                         {
-                            f.Folders.TryRemove(name, out var _);
-                            foreach (var child in fremove.Folders)
-                            {
-                                DeleteFolder1(fremove, child.Key, fullPath, recursive);
-                            }
-                        }
-                        else
-                        {
-                            if (fremove.Folders.Count > 0)
-                            {
-                                throw new IOException("Directory not empty");
-                            }
-                            else
-                            {
-                                f.Folders.TryRemove(name, out var _);
-                            }
+                            DeleteChildFolder(fremove, child.Key, fullPath, recursive);
                         }
                     }
                     else
                     {
-                        throw new DirectoryNotFoundException($"Directory not found: {fullPath}");
+                        if (fremove.Folders.Count > 0)
+                        {
+                            throw new IOException("Directory not empty");
+                        }
+                        else
+                        {
+                            f.Folders.TryRemove(name, out var _);
+                        }
                     }
+                }
+                else
+                {
+                    throw new DirectoryNotFoundException($"Directory not found: {fullPath}");
                 }
 
                 return default;
@@ -345,17 +391,19 @@ namespace LanguageExt.Sys
                 path.Length switch
                 {
                     0 => true,
-                    _ => f.Folders.TryGetValue(path[0], out var child) && FolderExists(child, path.Tail, fullPath)
+                    _ => f.Folders.TryGetValue(path.Head, out var child) && FolderExists(child, path.Tail, fullPath)
                 };
 
             static Seq<string> ParseFolderPath(string path) =>
-                ValidatePathNames(path.TrimEnd(new[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
+                ValidatePathNames(path.Trim()
+                                      .TrimEnd(new[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
                                       .Split(new[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
                                       .ToSeq());
             
             static Seq<string> ParseFilePath(string path) =>
-                ValidatePathNames(path.Split(new [] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
-                                       .ToSeq());
+                ValidatePathNames(path.Trim()
+                                      .Split(new [] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
+                                      .ToSeq());
 
             static Seq<string> ValidatePathNames(Seq<string> path)
             {
@@ -375,7 +423,7 @@ namespace LanguageExt.Sys
                 path.Length switch
                 {
                     0 => EnumerateFolders1(f, fullPath, regex, option),
-                    _ => f.Folders.TryGetValue(path[0], out var child) 
+                    _ => f.Folders.TryGetValue(path.Head, out var child) 
                             ? EnumerateFolders(child, path.Tail, fullPath, regex, option)
                             : throw new DirectoryNotFoundException($"Directory not found: {fullPath}")
                 };
@@ -412,7 +460,7 @@ namespace LanguageExt.Sys
                 path.Length switch
                 {
                     0 => EnumerateFiles1(f, fullPath, regex, option),
-                    _ => f.Folders.TryGetValue(path[0], out var child) 
+                    _ => f.Folders.TryGetValue(path.Head, out var child) 
                              ? EnumerateFiles(child, path.Tail, fullPath, regex, option)
                              : throw new DirectoryNotFoundException($"Directory not found: {fullPath}")
                 };
