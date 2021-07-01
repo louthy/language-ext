@@ -24,7 +24,7 @@ namespace LanguageExt.Sys
     /// </remarks>
     public class MemoryFS
     {
-        readonly Atom<Entry> machine = Atom<Entry>(new FolderEntry("[root]", "[root]", DateTime.MinValue, DateTime.MinValue, DateTime.MinValue, default));
+        readonly Atom<Entry> machine = Atom<Entry>(new FolderEntry("[machine]", DateTime.MinValue, DateTime.MinValue, DateTime.MinValue, default));
         readonly static char[] invalidPath = Path.GetInvalidPathChars();
         readonly static char[] invalidFile = Path.GetInvalidFileNameChars();
         public string CurrentDir = "C:\\";
@@ -59,11 +59,16 @@ namespace LanguageExt.Sys
 
         static Seq<string> ValidatePathNames(Seq<string> path)
         {
-            if (path.IsEmpty) throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
-            if (path.Head.Exists(invalidPath.Contains)) throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
+            if (path.IsEmpty) 
+                throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
+            
+            if (path.Head.Exists(invalidPath.Contains)) 
+                throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
+            
             foreach (var name in path.Tail)
             {
-                if (name.Exists(invalidFile.Contains)) throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
+                if (name.Exists(invalidFile.Contains)) 
+                    throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
             }
             return path;
         }
@@ -86,8 +91,8 @@ namespace LanguageExt.Sys
             var entry = FindEntry(path);
             return entry == null || entry is FileEntry
                        ? throw new DirectoryNotFoundException($"Directory not found: {path}")
-                       : entry.EnumerateFolders(regex, option, false)
-                              .Map(e => e.Path);
+                       : entry.EnumerateFolders(Empty, regex, option, false)
+                              .Map(e => string.Join(Path.DirectorySeparatorChar.ToString(), e.Path));
         }
 
         internal IEnumerable<string> EnumerateFiles(string path, string searchPattern, SearchOption option)
@@ -96,8 +101,8 @@ namespace LanguageExt.Sys
             var entry = FindEntry(path);
             return entry == null || entry is FileEntry
                        ? throw new DirectoryNotFoundException($"Directory not found: {path}")
-                       : entry.EnumerateFiles(regex, option)
-                              .Map(e => e.Path);
+                       : entry.EnumerateFiles(Empty, regex, option)
+                              .Map(e => string.Join(Path.DirectorySeparatorChar.ToString(), e.Path));
         }
 
         internal IEnumerable<string> EnumerateEntries(string path, string searchPattern, SearchOption option)
@@ -106,8 +111,8 @@ namespace LanguageExt.Sys
             var entry = FindEntry(path);
             return entry == null || entry is FileEntry
                        ? throw new DirectoryNotFoundException($"Directory not found: {path}")
-                       : entry.EnumerateEntries(regex, option, false)
-                              .Map(e => e.Path);
+                       : entry.EnumerateEntries(Empty, regex, option, false)
+                              .Map(e => string.Join(Path.DirectorySeparatorChar.ToString(), e.Path));
         }
 
         static Regex MakePathSearchRegex(string searchPattern) =>
@@ -138,7 +143,7 @@ namespace LanguageExt.Sys
             
             Entry go(Entry m, Seq<string> path1)
             {
-                var folder = new FolderEntry(path1.Last, string.Join(Path.DirectorySeparatorChar.ToString(), path1), now, now, now, default);
+                var folder = new FolderEntry(path1.Last, now, now, now, default);
                 return FindEntry(m, path1) switch
                        {
                            null => m.Add(path1, folder, now).IfLeft(e => throw e),
@@ -269,7 +274,7 @@ namespace LanguageExt.Sys
         internal Unit PutFile(string path, byte[] data, bool overwrite, DateTime now)
         {
             var path1 = ParsePath(path);
-            var file  = new FileEntry(path1.Last, path, now, now, now, data);
+            var file  = new FileEntry(path1.Last, now, now, now, data);
             
             machine.Swap(
                 m => FindEntry(m, path1) switch
@@ -321,12 +326,12 @@ namespace LanguageExt.Sys
                     if (esrc == null) throw new IOException($"Source doesn't exist: {src}");
                     
                     // Get the destination file or folder (it shouldn't exist)
-                    var edest = FindEntry(m, srcp);
+                    var edest = FindEntry(m, destp);
                     if (edest != null) throw new IOException($"Destination already exists: {dest}");
 
                     // Create the destination folder
                     var parent1      = ParsePath(parent);
-                    var parentFolder = new FolderEntry(parent1.Last, parent, now, now, now, default);
+                    var parentFolder = new FolderEntry(parent1.Last, now, now, now, default);
                     var eparent      = FindEntry(m, parent1);
                     if(eparent == null) m = m.Add(parent1, parentFolder, now).IfLeft(e => throw e);
 
@@ -334,7 +339,7 @@ namespace LanguageExt.Sys
                     m = m.Delete(srcp, true, now).IfLeft(e => throw e);
                     
                     // Write the entry in the new location and update the path and name
-                    m = m.Add(destp, esrc.UpdateNameAndPath(destp.Last, dest), now).IfLeft(e => throw e);
+                    m = m.Add(destp, esrc.UpdateName(destp.Last), now).IfLeft(e => throw e);
 
                     return m;
                 });
@@ -345,23 +350,21 @@ namespace LanguageExt.Sys
         abstract class Entry
         {
             public readonly string Name;
-            public readonly string Path;
             public readonly DateTime CreationTime;
             public readonly DateTime LastAccessTime;
             public readonly DateTime LastWriteTime;
  
-            protected Entry(string name, string path, DateTime creationTime, DateTime lastAccessTime, DateTime lastWriteTime)
+            protected Entry(string name, DateTime creationTime, DateTime lastAccessTime, DateTime lastWriteTime)
             {
                 Name           = name;
-                Path           = path;
                 CreationTime   = creationTime;
                 LastAccessTime = lastAccessTime;
                 LastWriteTime  = lastWriteTime;
             }
 
-            public abstract IEnumerable<Entry> EnumerateEntries(Regex searchPattern, SearchOption option, bool includeSelf);
-            public abstract IEnumerable<FolderEntry> EnumerateFolders(Regex searchPattern, SearchOption option, bool includeSelf);
-            public abstract IEnumerable<FileEntry> EnumerateFiles(Regex searchPattern, SearchOption option);
+            public abstract IEnumerable<(Seq<string> Path, Entry Entry)> EnumerateEntries(Seq<string> parent, Regex searchPattern, SearchOption option, bool includeSelf);
+            public abstract IEnumerable<(Seq<string> Path, FolderEntry Entry)> EnumerateFolders(Seq<string> parent, Regex searchPattern, SearchOption option, bool includeSelf);
+            public abstract IEnumerable<(Seq<string> Path, FileEntry Entry)> EnumerateFiles(Seq<string> parent, Regex searchPattern, SearchOption option);
             public abstract Entry? GetChild(string name);
             public abstract Either<Exception, Entry> Add(Seq<string> path, Entry entry, DateTime now);
             public abstract Either<Exception, Entry> Update(Seq<string> path, Func<Entry, Either<Exception, Entry>> update, Func<Entry, Either<Exception, Entry>> notFound, DateTime now);
@@ -370,35 +373,35 @@ namespace LanguageExt.Sys
             public abstract Entry SetCreationTime(DateTime dt);
             public abstract Entry SetLastAccessTime(DateTime dt);
             public abstract Entry SetLastWriteTime(DateTime dt);
-            public abstract Entry UpdateNameAndPath(string name, string path);
+            public abstract Entry UpdateName(string name);
         }
         
         class FileEntry : Entry
         {
             public readonly byte[] Data;
 
-            public FileEntry(string name, string path, DateTime creationTime, DateTime lastAccessTime, DateTime lastWriteTime, byte[] data) 
-                : base(name, path, creationTime, lastAccessTime, lastWriteTime) =>
-                Data = data;
+            public FileEntry(string name, DateTime creationTime, DateTime lastAccessTime, DateTime lastWriteTime, byte[] data) 
+                : base(name, creationTime, lastAccessTime, lastWriteTime) =>
+                    Data = data;
 
-            public override IEnumerable<FolderEntry> EnumerateFolders(Regex searchPattern, SearchOption option, bool includeSelf) =>
-                new FolderEntry[0];
+            public override IEnumerable<(Seq<string> Path, FolderEntry Entry)> EnumerateFolders(Seq<string> parent, Regex searchPattern, SearchOption option, bool includeSelf) =>
+                new (Seq<string>, FolderEntry)[0];
 
-            public override IEnumerable<FileEntry> EnumerateFiles(Regex searchPattern, SearchOption option) =>
+            public override IEnumerable<(Seq<string> Path, FileEntry Entry)> EnumerateFiles(Seq<string> parent, Regex searchPattern, SearchOption option) =>
                 searchPattern.IsMatch(Name)
-                    ? new FileEntry[] {this}
-                    : new FileEntry[0];
+                    ? new[] {(parent.Add(Name), this)}
+                    : new (Seq<string>, FileEntry)[0];
 
-            public override IEnumerable<Entry> EnumerateEntries(Regex searchPattern, SearchOption option, bool includeSelf) =>
+            public override IEnumerable<(Seq<string> Path, Entry Entry)> EnumerateEntries(Seq<string> parent, Regex searchPattern, SearchOption option, bool includeSelf) =>
                 includeSelf && searchPattern.IsMatch(Name)
-                    ? new Entry[] {this}
-                    : new Entry[0];    
+                    ? new[] {(parent.Add(Name), (Entry)this)}
+                    : new (Seq<string>, Entry)[0];
 
             public override Entry? GetChild(string name) =>
                 null;
 
             public override Either<Exception, Entry> Add(Seq<string> path, Entry entry, DateTime now) =>
-                new DirectoryNotFoundException($"Directory not found: {entry.Path}");
+                new DirectoryNotFoundException();
 
             public override Either<Exception, Entry> Update(Seq<string> path, Func<Entry, Either<Exception, Entry>> update, Func<Entry, Either<Exception, Entry>> notFound, DateTime now) =>
                 path.IsEmpty
@@ -412,64 +415,64 @@ namespace LanguageExt.Sys
                 true;
 
             public override Entry SetCreationTime(DateTime dt) =>
-                new FileEntry(Name, Path, dt, LastAccessTime, LastWriteTime, Data);
+                new FileEntry(Name, dt, LastAccessTime, LastWriteTime, Data);
 
             public override Entry SetLastAccessTime(DateTime dt) =>
-                new FileEntry(Name, Path, CreationTime, dt, LastWriteTime, Data);
+                new FileEntry(Name, CreationTime, dt, LastWriteTime, Data);
 
             public override Entry SetLastWriteTime(DateTime dt) =>
-                new FileEntry(Name, Path, CreationTime, LastAccessTime, dt, Data);
+                new FileEntry(Name, CreationTime, LastAccessTime, dt, Data);
 
-            public override Entry UpdateNameAndPath(string name, string path) =>
-                new FileEntry(name, path, CreationTime, LastAccessTime, LastWriteTime, Data);
+            public override Entry UpdateName(string name) =>
+                new FileEntry(name, CreationTime, LastAccessTime, LastWriteTime, Data);
         }
 
         class FolderEntry : Entry
         {
             readonly Map<OrdStringOrdinalIgnoreCase, string, Entry> Entries;
 
-            public FolderEntry(string name, string path, DateTime creationTime, DateTime lastAccessTime, DateTime lastWriteTime, Map<OrdStringOrdinalIgnoreCase, string, Entry> entries)
-                : base(name, path, creationTime, lastAccessTime, lastWriteTime) =>
-                Entries = entries;
+            public FolderEntry(string name, DateTime creationTime, DateTime lastAccessTime, DateTime lastWriteTime, Map<OrdStringOrdinalIgnoreCase, string, Entry> entries)
+                : base(name, creationTime, lastAccessTime, lastWriteTime) =>
+                    Entries = entries;
 
             IEnumerable<FileEntry> Files =>
                 Entries.Values.Choose(e => e is FileEntry f ? Some(f) : None);
 
-            public override IEnumerable<FolderEntry> EnumerateFolders(Regex searchPattern, SearchOption option, bool includeSelf)
+            public override IEnumerable<(Seq<string> Path, FolderEntry Entry)> EnumerateFolders(Seq<string> parent, Regex searchPattern, SearchOption option, bool includeSelf)
             {
                 var self = includeSelf && searchPattern.IsMatch(Name)
-                               ? new FolderEntry[] {this}
-                               : new FolderEntry[0];
+                               ? new [] {(parent.Add(Name), this)}
+                               : new (Seq<string>, FolderEntry)[0];
 
                 var children = option == SearchOption.AllDirectories
-                                   ? Entries.Values.Choose(e => e is FolderEntry f ? Some(f.EnumerateFolders(searchPattern, option, true)) : None).Bind(identity)
-                                   : new FolderEntry [0];
+                                   ? Entries.Values.Choose(e => e is FolderEntry f ? Some(f.EnumerateFolders(parent.Add(Name), searchPattern, option, true)) : None).Bind(identity)
+                                   : new (Seq<string>, FolderEntry)[0];
 
                 return self.Concat(children);
             }
 
-            public override IEnumerable<FileEntry> EnumerateFiles(Regex searchPattern, SearchOption option)
+            public override IEnumerable<(Seq<string> Path, FileEntry Entry)> EnumerateFiles(Seq<string> parent, Regex searchPattern, SearchOption option)
             {
-                var files = Files.Bind(f => f.EnumerateFiles(searchPattern, option));
+                var files = Files.Bind(f => f.EnumerateFiles(parent.Add(Name), searchPattern, option));
 
                 var children = option == SearchOption.AllDirectories
-                                   ? Entries.Values.Choose(e => e is FolderEntry f ? Some(f.EnumerateFiles(searchPattern, option)) : None).Bind(identity)
-                                   : new FileEntry [0];
+                                   ? Entries.Values.Choose(e => e is FolderEntry f ? Some(f.EnumerateFiles(parent.Add(Name), searchPattern, option)) : None).Bind(identity)
+                                   : new (Seq<string>, FileEntry) [0];
 
                 return files.Concat(children);
             }
 
-            public override IEnumerable<Entry> EnumerateEntries(Regex searchPattern, SearchOption option, bool includeSelf)
+            public override IEnumerable<(Seq<string> Path, Entry Entry)> EnumerateEntries(Seq<string> parent, Regex searchPattern, SearchOption option, bool includeSelf)
             {
                 var self = includeSelf && searchPattern.IsMatch(Name)
-                               ? new Entry[] {this}
-                               : new Entry[0];
+                               ? new [] {(parent.Add(Name), (Entry)this)}
+                               : new (Seq<string>, Entry)[0];
 
-                var files = Files.Bind(f => f.EnumerateEntries(searchPattern, option, true));
+                var files = Files.Bind(f => f.EnumerateEntries(parent.Add(Name), searchPattern, option, true));
 
                 var children = option == SearchOption.AllDirectories
-                                   ? Entries.Values.Choose(e => e is FolderEntry f ? Some(f.EnumerateEntries(searchPattern, option, true)) : None).Bind(identity)
-                                   : new FileEntry [0];
+                                   ? Entries.Values.Choose(e => e is FolderEntry f ? Some(f.EnumerateEntries(parent.Add(Name), searchPattern, option, true)) : None).Bind(identity)
+                                   : new (Seq<string>, Entry) [0];
 
                 return self.Concat(files).Concat(children);
             }
@@ -478,16 +481,16 @@ namespace LanguageExt.Sys
                 path.Length switch
                 {
                     0 => entry,
-                    1 => new FolderEntry(Name, Path, CreationTime, now, now, Entries.AddOrUpdate(entry.Name, entry)),
+                    1 => new FolderEntry(Name, CreationTime, now, now, Entries.AddOrUpdate(entry.Name, entry)),
                     _ => Entries.Find(path.Head).Case switch
                          {
                              Entry e => e.Add(path.Tail, entry, now).Case switch
                                         {
                                             Exception ex => ex,
-                                            Entry     ne => new FolderEntry(Name, Path, CreationTime, now, now, Entries.SetItem(ne.Name, ne)), 
+                                            Entry     ne => new FolderEntry(Name, CreationTime, now, now, Entries.SetItem(ne.Name, ne)), 
                                             _            => new InvalidOperationException(),
                                         },
-                             _       => new DirectoryNotFoundException($"Directory not found: {entry.Path}")
+                             _       => new DirectoryNotFoundException()
                          }
                 };
 
@@ -499,7 +502,7 @@ namespace LanguageExt.Sys
                           Entry e => e.Update(path.Tail, update, notFound, now).Case switch
                                      {
                                          Exception ex => ex,
-                                         Entry ne     => new FolderEntry(Name, Path, CreationTime, now, now, Entries.SetItem(ne.Name, ne)),
+                                         Entry ne     => new FolderEntry(Name, CreationTime, now, now, Entries.SetItem(ne.Name, ne)),
                                          _            => new InvalidOperationException(),
                                      },
                           _       => notFound(this),
@@ -511,7 +514,7 @@ namespace LanguageExt.Sys
                     0 => new DirectoryNotFoundException(),
                     1 => Entries.Find(path.Head).Case switch
                          {
-                             Entry e when recursive || e.IsEmpty => new FolderEntry(Name, Path, CreationTime, now, now, Entries.Remove(e.Name)),
+                             Entry e when recursive || e.IsEmpty => new FolderEntry(Name, CreationTime, now, now, Entries.Remove(e.Name)),
                              Entry e                             => new IOException("Directory not empty"),
                              _                                   => new IOException("Invalid path")
                          },
@@ -520,7 +523,7 @@ namespace LanguageExt.Sys
                              Entry e => e.Delete(path.Tail, recursive, now).Case switch
                                         {
                                             Exception ex => ex,
-                                            Entry     ne => new FolderEntry(Name, Path, CreationTime, now, now, Entries.SetItem(ne.Name, ne)), 
+                                            Entry     ne => new FolderEntry(Name, CreationTime, now, now, Entries.SetItem(ne.Name, ne)), 
                                             _            => new InvalidOperationException(),
                                         },
                              _       => new DirectoryNotFoundException()
@@ -538,16 +541,16 @@ namespace LanguageExt.Sys
                 Entries.IsEmpty;
 
             public override Entry SetCreationTime(DateTime dt) =>
-                new FolderEntry(Name, Path, dt, LastAccessTime, LastWriteTime, Entries);
+                new FolderEntry(Name, dt, LastAccessTime, LastWriteTime, Entries);
 
             public override Entry SetLastAccessTime(DateTime dt) =>
-                new FolderEntry(Name, Path, CreationTime, dt, LastWriteTime, Entries);
+                new FolderEntry(Name, CreationTime, dt, LastWriteTime, Entries);
 
             public override Entry SetLastWriteTime(DateTime dt) =>
-                new FolderEntry(Name, Path, CreationTime, LastAccessTime, dt, Entries);
+                new FolderEntry(Name, CreationTime, LastAccessTime, dt, Entries);
     
-            public override Entry UpdateNameAndPath(string name, string path) =>
-                new FolderEntry(name, path, CreationTime, LastAccessTime, LastWriteTime, Entries);
+            public override Entry UpdateName(string name) =>
+                new FolderEntry(name, CreationTime, LastAccessTime, LastWriteTime, Entries);
         }
     }
 }
