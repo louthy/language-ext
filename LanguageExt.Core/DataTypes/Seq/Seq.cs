@@ -1062,6 +1062,112 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Returns all initial segments of the sequence, shortest first
+        /// </summary>
+        /// <remarks>
+        /// Including the empty sequence
+        /// </remarks>
+        /// <example>
+        ///
+        ///      Seq("a", "b", "c").Inits
+        ///
+        ///      > Seq(Seq(), Seq("a"), Seq("a", "b"), Seq("a", "b", "c"))  
+        ///     
+        /// </example>
+        /// <returns>Initial segments of the sequence</returns>
+        public Seq<Seq<A>> Inits =>
+            Seq<Seq<A>>() + NonEmptyInits;
+
+        /// <summary>
+        /// Returns all initial segments of the sequence, shortest first.
+        /// </summary>
+        /// <remarks>
+        /// Not including the empty sequence
+        /// </remarks>
+        /// <example>
+        ///
+        ///      Seq("a", "b", "c").Inits
+        ///
+        ///      > Seq(Seq("a"), Seq("a", "b"), Seq("a", "b", "c"))  
+        ///     
+        /// </example>
+        /// <returns>Initial segments of the sequence</returns>
+        public Seq<Seq<A>> NonEmptyInits
+        {
+            get
+            {
+                var mma = Seq<Seq<A>>();
+                for (var i = 1; i <= Count; i++)
+                {
+                    mma = mma.Add(Take(i));
+                }
+                return mma;
+            }
+        }
+        
+        /// <summary>
+        /// Returns all final segments of the argument, longest first.
+        /// </summary>
+        /// <remarks>
+        /// Including the empty sequence
+        /// </remarks>
+        /// <example>
+        ///
+        ///      Seq("a", "b", "c").Tails
+        ///
+        ///      > Seq(Seq("a", "b", "c"), Seq("a", "b"), Seq("a"), Seq())  
+        ///     
+        /// </example>
+        /// <returns>Initial segments of the sequence</returns>
+        public Seq<Seq<A>> Tails
+        {
+            get
+            {
+                return new Seq<Seq<A>>(go(this)); 
+                static IEnumerable<Seq<A>> go(Seq<A> ma)
+                {
+                    while (!ma.IsEmpty)
+                    {
+                        yield return ma;
+                        ma = ma.Tail;
+                    }
+                    yield return Seq<A>.Empty;
+                }
+            }
+        }
+
+        
+        /// <summary>
+        /// Returns all final segments of the argument, longest first.
+        /// </summary>
+        /// <remarks>
+        /// Not including the empty sequence
+        /// </remarks>
+        /// <example>
+        ///
+        ///      Seq("a", "b", "c").Tails
+        ///
+        ///      > Seq(Seq("a", "b", "c"), Seq("a", "b"), Seq("a"))  
+        ///     
+        /// </example>
+        /// <returns>Initial segments of the sequence</returns>
+        public Seq<Seq<A>> NonEmptyTails
+        {
+            get
+            {
+                return new Seq<Seq<A>>(go(this)); 
+                static IEnumerable<Seq<A>> go(Seq<A> ma)
+                {
+                    while (!ma.IsEmpty)
+                    {
+                        yield return ma;
+                        ma = ma.Tail;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Compare to another sequence
         /// </summary>
         [Pure]

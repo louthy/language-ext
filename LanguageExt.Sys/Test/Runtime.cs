@@ -163,7 +163,9 @@ namespace LanguageExt.Sys.Test
         /// </summary>
         /// <returns>File environment</returns>
         public Eff<Runtime, Traits.FileIO> FileEff =>
-            Eff<Runtime, Traits.FileIO>(rt => new Test.FileIO(rt.Env.FileSystem));
+            from n in DateTime<Runtime>.now
+            from r in Eff<Runtime, Traits.FileIO>(rt => new Test.FileIO(rt.Env.FileSystem, n))
+            select r;
 
         /// <summary>
         /// Access the directory environment

@@ -16,7 +16,7 @@ namespace LanguageExt.Sys.Test
             fs.CreateFolder(path, now);
 
         public Unit Delete(string path, bool recursive = true) =>
-            fs.DeleteFolder(path, recursive);
+            fs.DeleteFolder(path, recursive, now);
 
         public Option<DirectoryInfo> GetParent(string path) =>
             Live.DirectoryIO.Default.GetParent(path);
@@ -25,10 +25,10 @@ namespace LanguageExt.Sys.Test
             fs.FolderExists(path);
 
         public Unit SetCreationTime(string path, DateTime creationTime) =>
-            fs.SetFolderCreationTime(path, creationTime.ToLocalTime());
+            fs.SetFolderCreationTime(path, creationTime.ToLocalTime(), now);
 
         public Unit SetCreationTimeUtc(string path, DateTime creationTimeUtc) =>
-            fs.SetFolderCreationTime(path, creationTimeUtc.ToUniversalTime());
+            fs.SetFolderCreationTime(path, creationTimeUtc.ToUniversalTime(), now);
 
         public DateTime GetCreationTime(string path) =>
             fs.GetFolderCreationTime(path).ToLocalTime();
@@ -37,10 +37,10 @@ namespace LanguageExt.Sys.Test
             fs.GetFolderCreationTime(path).ToUniversalTime();
 
         public Unit SetLastWriteTime(string path, DateTime lastWriteTime) =>
-            fs.SetFolderLastWriteTime(path, lastWriteTime.ToLocalTime());
+            fs.SetFolderLastWriteTime(path, lastWriteTime.ToLocalTime(), now);
 
         public Unit SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc) =>
-            fs.SetFolderLastWriteTime(path, lastWriteTimeUtc.ToUniversalTime());
+            fs.SetFolderLastWriteTime(path, lastWriteTimeUtc.ToUniversalTime(), now);
 
         public DateTime GetLastWriteTime(string path) =>
             fs.GetFolderLastWriteTime(path).ToLocalTime();
@@ -49,10 +49,10 @@ namespace LanguageExt.Sys.Test
             fs.GetFolderLastWriteTime(path).ToUniversalTime();
 
         public Unit SetLastAccessTime(string path, DateTime lastAccessTime) =>
-            fs.SetFolderLastAccessTime(path, lastAccessTime.ToLocalTime());
+            fs.SetFolderLastAccessTime(path, lastAccessTime.ToLocalTime(), now);
 
         public Unit SetLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc) =>
-            fs.SetFolderLastAccessTime(path, lastAccessTimeUtc.ToUniversalTime());
+            fs.SetFolderLastAccessTime(path, lastAccessTimeUtc.ToUniversalTime(), now);
 
         public DateTime GetLastAccessTime(string path) =>
             fs.GetFolderLastAccessTime(path).ToLocalTime();
@@ -79,13 +79,13 @@ namespace LanguageExt.Sys.Test
             fs.EnumerateFiles(path, searchPattern, searchOption).ToSeq();
 
         public Seq<string> EnumerateFileSystemEntries(string path) =>
-            EnumerateDirectories(path) + EnumerateFiles(path);
+            fs.EnumerateEntries(path, "*", SearchOption.TopDirectoryOnly).ToSeq();
 
         public Seq<string> EnumerateFileSystemEntries(string path, string searchPattern) =>
-            EnumerateDirectories(path, searchPattern) + EnumerateFiles(path, searchPattern);
+            fs.EnumerateEntries(path, searchPattern, SearchOption.TopDirectoryOnly).ToSeq();
 
         public Seq<string> EnumerateFileSystemEntries(string path, string searchPattern, SearchOption searchOption) =>
-            EnumerateDirectories(path, searchPattern, searchOption) + EnumerateFiles(path, searchPattern, searchOption);
+            fs.EnumerateEntries(path, searchPattern, searchOption).ToSeq();
 
         public string GetDirectoryRoot(string path) =>
             Live.DirectoryIO.Default.GetDirectoryRoot(path);

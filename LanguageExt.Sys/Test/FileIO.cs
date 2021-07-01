@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using LanguageExt;
 using System.Text;
@@ -17,21 +18,22 @@ namespace LanguageExt.Sys.Test
     public readonly struct FileIO : Sys.Traits.FileIO
     {
         readonly MemoryFS fs;
+        readonly DateTime now;
 
-        public FileIO(MemoryFS fs) =>
-            this.fs = fs;
+        public FileIO(MemoryFS fs, DateTime now) =>
+            (this.fs, this.now) = (fs, now);
         
         /// <summary>
         /// Copy file from one place to another
         /// </summary>
         public Unit Copy(string fromPath, string toPath, bool overwrite = false) =>
-            fs.CopyFile(fromPath, toPath, overwrite);
+            fs.CopyFile(fromPath, toPath, overwrite, now);
 
         /// <summary>
         /// Append lines to the end of a file
         /// </summary>
         public ValueTask<Unit> AppendAllLines(string path, IEnumerable<string> lines, Encoding encoding, CancellationToken token) =>
-            fs.AppendLines(path, lines).AsValueTask();
+            fs.AppendLines(path, lines, now).AsValueTask();
         
         /// <summary>
         /// Read all lines from a file
@@ -43,7 +45,7 @@ namespace LanguageExt.Sys.Test
         /// Write all lines to a file
         /// </summary>
         public ValueTask<Unit> WriteAllLines(string path, IEnumerable<string> lines, Encoding encoding, CancellationToken token) =>
-            fs.PutLines(path, lines).AsValueTask();
+            fs.PutLines(path, lines, true, now).AsValueTask();
 
         /// <summary>
         /// Read text from a file
@@ -55,13 +57,13 @@ namespace LanguageExt.Sys.Test
         /// Write text to a file
         /// </summary>
         public ValueTask<Unit> WriteAllText(string path, string text, Encoding encoding, CancellationToken token) =>
-            fs.PutText(path, text).AsValueTask();
+            fs.PutText(path, text, true, now).AsValueTask();
 
         /// <summary>
         /// Delete a file
         /// </summary>
         public Unit Delete(string path) =>
-            fs.Delete(path);
+            fs.Delete(path, now);
 
         /// <summary>
         /// True if a file at the path exists
@@ -79,14 +81,14 @@ namespace LanguageExt.Sys.Test
         /// Create a new text file to stream to
         /// </summary>
         public TextWriter CreateText(string path) =>
-            new SimpleTextWriter(path, fs);
+            new SimpleTextWriter(path, fs, now);
 
         /// <summary>
         /// Return a stream to append text to
         /// </summary>
         public TextWriter AppendText(string path)
         {
-            var w = new SimpleTextWriter(path, fs);
+            var w = new SimpleTextWriter(path, fs, now);
             w.Write(fs.GetText(path));
             return w;
         }
@@ -96,11 +98,12 @@ namespace LanguageExt.Sys.Test
     {
         readonly string path;
         readonly MemoryFS fs;
+        readonly DateTime now;
 
-        public SimpleTextWriter(string path, MemoryFS fs) =>
-            (this.path, this.fs) = (path, fs);
+        public SimpleTextWriter(string path, MemoryFS fs, DateTime now) =>
+            (this.path, this.fs, this.now) = (path, fs, now);
 
         protected override void Dispose(bool disposing) =>
-            fs.PutText(path, ToString());
+            fs.PutText(path, ToString(), true, now);
     }
 }
