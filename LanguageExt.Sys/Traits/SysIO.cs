@@ -11,6 +11,7 @@ namespace LanguageExt.Sys.Traits
         HasConsole<RT>, 
         HasEncoding<RT>,
         HasFile<RT>, 
+        HasDirectory<RT>,
         HasTextRead<RT>, 
         HasTime<RT>
         where RT : 
@@ -18,10 +19,10 @@ namespace LanguageExt.Sys.Traits
             HasCancel<RT>, 
             HasConsole<RT>, 
             HasFile<RT>,
+            HasDirectory<RT>,
             HasTextRead<RT>,
             HasTime<RT>,
             HasEncoding<RT>
     {
-        
     }
 }
