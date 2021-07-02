@@ -41,7 +41,9 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        await AsyncTests();
+        await ObsAffTests.Test();
+        
+        //await AsyncTests();
     }
 
     static async Task<Unit> AsyncTests()
