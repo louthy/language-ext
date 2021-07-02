@@ -14,7 +14,8 @@ namespace LanguageExt
     /// </summary>
     public struct Eff<Env, A>
     {
-        internal Thunk<Env, A> thunk;
+        internal Thunk<Env, A> Thunk => thunk ?? Thunk<Env, A>.Fail(Error.Bottom);
+        Thunk<Env, A> thunk;
 
         /// <summary>
         /// Constructor
@@ -28,14 +29,14 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
         public Fin<A> Run(Env env) =>
-            thunk.Value(env);
+            Thunk.Value(env);
 
         /// <summary>
         /// Invoke the effect
         /// </summary>
         [MethodImpl(AffOpt.mops)]
         public Unit RunUnit(Env env) =>
-            ignore(thunk.Value(env));
+            ignore(Thunk.Value(env));
 
         /// <summary>
         /// Lift a synchronous effect into the IO monad
@@ -105,7 +106,7 @@ namespace LanguageExt
         [MethodImpl(AffOpt.mops)]
         public Unit Clear()
         {
-            thunk = thunk.Clone();
+            thunk = Thunk.Clone();
             return default;
         }
 
@@ -126,7 +127,7 @@ namespace LanguageExt
  
         [Pure, MethodImpl(AffOpt.mops)]
         public static Eff<Env, B> Map<Env, A, B>(this Eff<Env, A> ma, Func<A, B> f) =>
-            new Eff<Env, B>(ma.thunk.Map(f));
+            new Eff<Env, B>(ma.Thunk.Map(f));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Eff<Env, A> MapFail<Env, A>(this Eff<Env, A> ma, Func<Error, Error> f) =>
@@ -134,7 +135,7 @@ namespace LanguageExt
         
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> MapAsync<Env, A, B>(this Eff<Env, A> ma, Func<A, ValueTask<B>> f) where Env : struct, HasCancel<Env> =>
-            new Aff<Env, B>(ma.thunk.MapAsync(f));
+            new Aff<Env, B>(ma.Thunk.MapAsync(f));
         
         //
         // Bi-map
@@ -142,7 +143,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Eff<Env, B> BiMap<Env, A, B>(this Eff<Env, A> ma, Func<A, B> Succ, Func<Error, Error> Fail) =>
-            new Eff<Env, B>(ma.thunk.BiMap(Succ, Fail));
+            new Eff<Env, B>(ma.Thunk.BiMap(Succ, Fail));
 
         //
         // Match
@@ -478,19 +479,19 @@ namespace LanguageExt
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Eff<Env, B> Bind<Env, A, B>(this Eff<Env, A> ma, Func<A, Eff<Env, B>> f) =>
-            new Eff<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
+            new Eff<Env, B>(ma.Thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Eff<Env, B> Bind<Env, A, B>(this Eff<Env, A> ma, Func<A, Eff<B>> f) =>
-            new Eff<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
+            new Eff<Env, B>(ma.Thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> Bind<Env, A, B>(this Eff<Env, A> ma, Func<A, Aff<Env, B>> f) where Env : struct, HasCancel<Env> =>
-            new Aff<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
+            new Aff<Env, B>(ma.Thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> Bind<Env, A, B>(this Eff<Env, A> ma, Func<A, Aff<B>> f) where Env : struct, HasCancel<Env> =>
-            new Aff<Env, B>(ma.thunk.Map(x => ThunkFromIO(f(x))).Flatten());
+            new Aff<Env, B>(ma.Thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         //
         // Flatten
@@ -498,19 +499,19 @@ namespace LanguageExt
         
         [Pure, MethodImpl(AffOpt.mops)]
         public static Eff<Env, A> Flatten<Env, A>(this Eff<Env, Eff<Env, A>> ma) =>
-            new Eff<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
+            new Eff<Env, A>(ma.Thunk.Map(ThunkFromIO).Flatten());
         
         [Pure, MethodImpl(AffOpt.mops)]
         public static Eff<Env, A> Flatten<Env, A>(this Eff<Env, Eff<A>> ma) =>
-            new Eff<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
+            new Eff<Env, A>(ma.Thunk.Map(ThunkFromIO).Flatten());
         
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> Flatten<Env, A>(this Eff<Env, Aff<Env, A>> ma) where Env : struct, HasCancel<Env> =>
-            new Aff<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
+            new Aff<Env, A>(ma.Thunk.Map(ThunkFromIO).Flatten());
         
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> Flatten<Env, A>(this Eff<Env, Aff<A>> ma) where Env : struct, HasCancel<Env> =>
-            new Aff<Env, A>(ma.thunk.Map(ThunkFromIO).Flatten());
+            new Aff<Env, A>(ma.Thunk.Map(ThunkFromIO).Flatten());
 
         //
         // Select
@@ -603,6 +604,6 @@ namespace LanguageExt
        
         [Pure, MethodImpl(AffOpt.mops)]
         static Thunk<Env, A> ThunkFromIO<Env, A>(Eff<Env, A> ma) =>
-            ma.thunk;
+            ma.Thunk;
     }    
 }

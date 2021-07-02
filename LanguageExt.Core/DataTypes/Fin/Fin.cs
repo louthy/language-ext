@@ -85,8 +85,22 @@ namespace LanguageExt
         public object Case =>
             IsSucc 
                 ? (object)value
-                : (object)error;      
-        
+                : (object)error;
+
+        /// <summary>
+        /// Equality
+        /// </summary>
+        public override bool Equals(object obj) =>
+            obj is Fin<A> ma && Equals(ma);
+
+        /// <summary>
+        /// Get hash code
+        /// </summary>
+        public override int GetHashCode() =>
+            IsSucc
+                ? FNV32.OffsetBasis
+                : Value.GetHashCode();
+
         [Pure, MethodImpl(AffOpt.mops)]
         public static implicit operator Fin<A>(A value) =>
             Fin<A>.Succ(value);

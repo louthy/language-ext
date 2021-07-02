@@ -81,7 +81,7 @@ namespace LanguageExt
         public static Eff<OuterEnv, A> localEff<OuterEnv, InnerEnv, A>(Func<OuterEnv, InnerEnv> f, Eff<InnerEnv, A> ma) 
             where InnerEnv : struct, HasCancel<InnerEnv> 
             where OuterEnv : struct, HasCancel<OuterEnv> =>
-            new Eff<OuterEnv, A>(Thunk<OuterEnv, A>.Lazy(oenv => ma.thunk.Value(f(oenv))));
+            new Eff<OuterEnv, A>(Thunk<OuterEnv, A>.Lazy(oenv => ma.Thunk.Value(f(oenv))));
 
         /// <summary>
         /// Unit effect

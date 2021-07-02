@@ -82,7 +82,7 @@ namespace LanguageExt
         public static Aff<OuterEnv, A> localAff<OuterEnv, InnerEnv, A>(Func<OuterEnv, InnerEnv> f, Aff<InnerEnv, A> ma) 
             where OuterEnv : struct, HasCancel<OuterEnv>
             where InnerEnv : struct, HasCancel<InnerEnv> =>
-            new Aff<OuterEnv, A>(ThunkAsync<OuterEnv, A>.Lazy(oenv => ma.thunk.Value(f(oenv))));
+            new Aff<OuterEnv, A>(ThunkAsync<OuterEnv, A>.Lazy(oenv => ma.Thunk.Value(f(oenv))));
 
         /// <summary>
         /// Environment
