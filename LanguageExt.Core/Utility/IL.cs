@@ -29,6 +29,7 @@ namespace LanguageExt
             var dynamic = new DynamicMethod("CreateInstance",
                                             ctorInfo.DeclaringType,
                                             new Type[0],
+                                            typeof(R).Module,
                                             true);
 
             var il = dynamic.GetILGenerator();
@@ -45,21 +46,32 @@ namespace LanguageExt
         public static Func<A, R> Ctor<A, R>()
         {
             var ctorInfo = GetConstructor<R, A>()
-                               .IfNone(() => throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}"));
+               .IfNone(() => throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}"));
 
             var ctorParams = ctorInfo.GetParameters();
 
-            var dynamic = new DynamicMethod("CreateInstance",
-                                            ctorInfo.DeclaringType,
-                                            ctorParams.Select(p => p.ParameterType).ToArray(),
-                                            true);
+            if (ILCapability.Available)
+            {
+                var dynamic = new DynamicMethod("CreateInstance",
+                                                ctorInfo.DeclaringType,
+                                                ctorParams.Select(p => p.ParameterType).ToArray(),
+                                                typeof(R).Module,
+                                                true);
 
-            var il = dynamic.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Newobj, ctorInfo);
-            il.Emit(OpCodes.Ret);
+                var il = dynamic.GetILGenerator();
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Newobj, ctorInfo);
+                il.Emit(OpCodes.Ret);
 
-            return (Func<A, R>)dynamic.CreateDelegate(typeof(Func<A, R>));
+                return (Func<A, R>)dynamic.CreateDelegate(typeof(Func<A, R>));
+            }
+            else
+            {
+                var arg0 = Expression.Parameter(typeof(A), "arg0");
+                var expr = Expression.New(ctorInfo, arg0);
+                var lambda = Expression.Lambda<Func<A, R>>(expr, arg0);
+                return lambda.Compile();   
+            }
         }
 
         /// <summary>
@@ -69,22 +81,34 @@ namespace LanguageExt
         public static Func<A, B, R> Ctor<A, B, R>()
         {
             var ctorInfo = GetConstructor<R, A, B>()
-                               .IfNone(() => throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}"));
+               .IfNone(() => throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}"));
 
             var ctorParams = ctorInfo.GetParameters();
 
-            var dynamic = new DynamicMethod("CreateInstance",
-                                            ctorInfo.DeclaringType,
-                                            ctorParams.Select(p => p.ParameterType).ToArray(),
-                                            true);
+            if (ILCapability.Available)
+            {
+                var dynamic = new DynamicMethod("CreateInstance",
+                                                ctorInfo.DeclaringType,
+                                                ctorParams.Select(p => p.ParameterType).ToArray(),
+                                                typeof(R).Module,
+                                                true);
 
-            var il = dynamic.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Newobj, ctorInfo);
-            il.Emit(OpCodes.Ret);
+                var il = dynamic.GetILGenerator();
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Ldarg_1);
+                il.Emit(OpCodes.Newobj, ctorInfo);
+                il.Emit(OpCodes.Ret);
 
-            return (Func<A, B, R>)dynamic.CreateDelegate(typeof(Func<A, B, R>));
+                return (Func<A, B, R>)dynamic.CreateDelegate(typeof(Func<A, B, R>));
+            }
+            else
+            {
+                var arg0   = Expression.Parameter(typeof(A), "arg0");
+                var arg1   = Expression.Parameter(typeof(B), "arg1");
+                var expr   = Expression.New(ctorInfo, arg0, arg1);
+                var lambda = Expression.Lambda<Func<A, B, R>>(expr, arg0, arg1);
+                return lambda.Compile();   
+            }
         }
 
         /// <summary>
@@ -98,19 +122,32 @@ namespace LanguageExt
 
             var ctorParams = ctorInfo.GetParameters();
 
-            var dynamic = new DynamicMethod("CreateInstance",
-                                            ctorInfo.DeclaringType,
-                                            ctorParams.Select(p => p.ParameterType).ToArray(),
-                                            true);
+            if (ILCapability.Available)
+            {
+                var dynamic = new DynamicMethod("CreateInstance",
+                                                ctorInfo.DeclaringType,
+                                                ctorParams.Select(p => p.ParameterType).ToArray(),
+                                                typeof(R).Module,
+                                                true);
 
-            var il = dynamic.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Ldarg_2);
-            il.Emit(OpCodes.Newobj, ctorInfo);
-            il.Emit(OpCodes.Ret);
+                var il = dynamic.GetILGenerator();
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Ldarg_1);
+                il.Emit(OpCodes.Ldarg_2);
+                il.Emit(OpCodes.Newobj, ctorInfo);
+                il.Emit(OpCodes.Ret);
 
-            return (Func<A, B, C, R>)dynamic.CreateDelegate(typeof(Func<A, B, C, R>));
+                return (Func<A, B, C, R>)dynamic.CreateDelegate(typeof(Func<A, B, C, R>));
+            }
+            else
+            {
+                var arg0   = Expression.Parameter(typeof(A), "arg0");
+                var arg1   = Expression.Parameter(typeof(B), "arg1");
+                var arg2   = Expression.Parameter(typeof(C), "arg2");
+                var expr   = Expression.New(ctorInfo, arg0, arg1, arg2);
+                var lambda = Expression.Lambda<Func<A, B, C, R>>(expr, arg0, arg1, arg2);
+                return lambda.Compile();   
+            }
         }
 
         /// <summary>
@@ -124,22 +161,36 @@ namespace LanguageExt
 
             if (ctorInfo == null) throw new ArgumentException($"Constructor not found for type {typeof(R).FullName}");
 
-            var ctorParams = ctorInfo.GetParameters();
+            if (ILCapability.Available)
+            {
+                var ctorParams = ctorInfo.GetParameters();
 
-            var dynamic = new DynamicMethod("CreateInstance",
-                                            ctorInfo.DeclaringType,
-                                            ctorParams.Select(p => p.ParameterType).ToArray(),
-                                            true);
+                var dynamic = new DynamicMethod("CreateInstance",
+                                                ctorInfo.DeclaringType,
+                                                ctorParams.Select(p => p.ParameterType).ToArray(),
+                                                typeof(R).Module,
+                                                true);
 
-            var il = dynamic.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Ldarg_2);
-            il.Emit(OpCodes.Ldarg_3);
-            il.Emit(OpCodes.Newobj, ctorInfo);
-            il.Emit(OpCodes.Ret);
+                var il = dynamic.GetILGenerator();
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Ldarg_1);
+                il.Emit(OpCodes.Ldarg_2);
+                il.Emit(OpCodes.Ldarg_3);
+                il.Emit(OpCodes.Newobj, ctorInfo);
+                il.Emit(OpCodes.Ret);
 
-            return (Func<A, B, C, D, R>)dynamic.CreateDelegate(typeof(Func<A, B, C, D, R>));
+                return (Func<A, B, C, D, R>)dynamic.CreateDelegate(typeof(Func<A, B, C, D, R>));
+            }
+            else
+            {
+                var arg0   = Expression.Parameter(typeof(A), "arg0");
+                var arg1   = Expression.Parameter(typeof(B), "arg1");
+                var arg2   = Expression.Parameter(typeof(C), "arg2");
+                var arg3   = Expression.Parameter(typeof(D), "arg3");
+                var expr   = Expression.New(ctorInfo, arg0, arg1, arg2, arg3);
+                var lambda = Expression.Lambda<Func<A, B, C, D, R>>(expr, arg0, arg1, arg2, arg3);
+                return lambda.Compile();   
+            }
         }
 
         /// <summary>
@@ -147,7 +198,7 @@ namespace LanguageExt
         /// </summary>
         public static Option<Func<object, R>> Func1<TYPE, R>(Type arg1, Func<MethodInfo, bool> methodPred = null)
         {
-            methodPred = methodPred ?? (_ => true);
+            methodPred ??= (_ => true);
 
             var methodInfo = typeof(TYPE)
                 .GetTypeInfo()
@@ -166,26 +217,38 @@ namespace LanguageExt
 
             var methodParams = methodInfo.GetParameters();
 
-            var dynamic = new DynamicMethod("CreateInstance",
-                                            typeof(R),
-                                            methodParams.Select(p => typeof(object)).ToArray(),
-                                            true);
-
-            var il = dynamic.GetILGenerator();
-            il.DeclareLocal(typeof(R));
-            il.Emit(OpCodes.Ldarg_0);
-            if (arg1.GetTypeInfo().IsValueType)
+            if (ILCapability.Available)
             {
-                il.Emit(OpCodes.Unbox_Any, arg1);
+                var dynamic = new DynamicMethod("CreateInstance",
+                                                typeof(R),
+                                                methodParams.Select(p => typeof(object)).ToArray(),
+                                                typeof(R).Module,
+                                                true);
+
+                var il = dynamic.GetILGenerator();
+                il.DeclareLocal(typeof(R));
+                il.Emit(OpCodes.Ldarg_0);
+                if (arg1.GetTypeInfo().IsValueType)
+                {
+                    il.Emit(OpCodes.Unbox_Any, arg1);
+                }
+                else
+                {
+                    il.Emit(OpCodes.Castclass, arg1);
+                }
+
+                il.Emit(OpCodes.Call, methodInfo);
+                il.Emit(OpCodes.Ret);
+
+                return (Func<object, R>)dynamic.CreateDelegate(typeof(Func<object, R>));
             }
             else
             {
-                il.Emit(OpCodes.Castclass, arg1);
+                var larg1  = Expression.Parameter(typeof(object), "arg1");
+                var expr   = Expression.Call(methodInfo, Expression.Convert(larg1, arg1));
+                var lambda = Expression.Lambda<Func<object, R>>(expr, larg1);
+                return lambda.Compile();   
             }
-            il.Emit(OpCodes.Call, methodInfo);
-            il.Emit(OpCodes.Ret);
-
-            return (Func<object, R>)dynamic.CreateDelegate(typeof(Func<object, R>));
         }
 
         /// <summary>
@@ -210,19 +273,30 @@ namespace LanguageExt
 
             if (methodInfo == null) return None;
 
-            var methodParams = methodInfo.GetParameters();
+            if (ILCapability.Available)
+            {
+                var methodParams = methodInfo.GetParameters();
 
-            var dynamic = new DynamicMethod("CreateInstance",
-                                            typeof(R),
-                                            methodParams.Select(p => p.ParameterType).ToArray(),
-                                            true);
+                var dynamic = new DynamicMethod("CreateInstance",
+                                                typeof(R),
+                                                methodParams.Select(p => p.ParameterType).ToArray(),
+                                                typeof(R).Module,
+                                                true);
 
-            var il = dynamic.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Call, methodInfo);
-            il.Emit(OpCodes.Ret);
+                var il = dynamic.GetILGenerator();
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Call, methodInfo);
+                il.Emit(OpCodes.Ret);
 
-            return (Func<A, R>)dynamic.CreateDelegate(typeof(Func<A, R>));
+                return (Func<A, R>)dynamic.CreateDelegate(typeof(Func<A, R>));
+            }
+            else
+            {
+                var larg0  = Expression.Parameter(typeof(A), "arg0");
+                var expr   = Expression.Call(methodInfo, larg0);
+                var lambda = Expression.Lambda<Func<A, R>>(expr, larg0);
+                return lambda.Compile();
+            }
         }
 
         /// <summary>
@@ -248,20 +322,32 @@ namespace LanguageExt
 
             if (methodInfo == null) return None;
 
-            var methodParams = methodInfo.GetParameters();
+            if (ILCapability.Available)
+            {
+                var methodParams = methodInfo.GetParameters();
 
-            var dynamic = new DynamicMethod("CreateInstance",
-                                            typeof(R),
-                                            methodParams.Select(p => p.ParameterType).ToArray(),
-                                            true);
+                var dynamic = new DynamicMethod("CreateInstance",
+                                                typeof(R),
+                                                methodParams.Select(p => p.ParameterType).ToArray(),
+                                                typeof(R).Module,
+                                                true);
 
-            var il = dynamic.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Call, methodInfo);
-            il.Emit(OpCodes.Ret);
+                var il = dynamic.GetILGenerator();
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Ldarg_1);
+                il.Emit(OpCodes.Call, methodInfo);
+                il.Emit(OpCodes.Ret);
 
-            return (Func<A, B, R>)dynamic.CreateDelegate(typeof(Func<A, B, R>));
+                return (Func<A, B, R>)dynamic.CreateDelegate(typeof(Func<A, B, R>));
+            }
+            else
+            {
+                var larg0  = Expression.Parameter(typeof(A), "arg0");
+                var larg1  = Expression.Parameter(typeof(B), "arg1");
+                var expr   = Expression.Call(methodInfo, larg0, larg1);
+                var lambda = Expression.Lambda<Func<A, B, R>>(expr, larg0, larg1);
+                return lambda.Compile();
+            }
         }
 
         /// <summary>
@@ -288,21 +374,34 @@ namespace LanguageExt
 
             if (methodInfo == null) return None;
 
-            var methodParams = methodInfo.GetParameters();
+            if(ILCapability.Available)
+            {
+                var methodParams = methodInfo.GetParameters();
 
-            var dynamic = new DynamicMethod("CreateInstance",
-                                            typeof(R),
-                                            methodParams.Select(p => p.ParameterType).ToArray(),
-                                            true);
+                var dynamic = new DynamicMethod("CreateInstance",
+                                                typeof(R),
+                                                methodParams.Select(p => p.ParameterType).ToArray(),
+                                                typeof(R).Module,
+                                                true);
 
-            var il = dynamic.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Ldarg_2);
-            il.Emit(OpCodes.Call, methodInfo);
-            il.Emit(OpCodes.Ret);
+                var il = dynamic.GetILGenerator();
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Ldarg_1);
+                il.Emit(OpCodes.Ldarg_2);
+                il.Emit(OpCodes.Call, methodInfo);
+                il.Emit(OpCodes.Ret);
 
-            return (Func<A, B, C, R>)dynamic.CreateDelegate(typeof(Func<A, B, C, R>));
+                return (Func<A, B, C, R>)dynamic.CreateDelegate(typeof(Func<A, B, C, R>));
+            }
+            else
+            {
+                var larg0  = Expression.Parameter(typeof(A), "arg0");
+                var larg1  = Expression.Parameter(typeof(B), "arg1");
+                var larg2  = Expression.Parameter(typeof(C), "arg2");
+                var expr   = Expression.Call(methodInfo, larg0, larg1, larg2);
+                var lambda = Expression.Lambda<Func<A, B, C, R>>(expr, larg0, larg1, larg2);
+                return lambda.Compile();
+            }
         }
 
         /// <summary>
@@ -330,22 +429,36 @@ namespace LanguageExt
 
             if (methodInfo == null) return None;
 
-            var methodParams = methodInfo.GetParameters();
+            if (ILCapability.Available)
+            {
+                var methodParams = methodInfo.GetParameters();
 
-            var dynamic = new DynamicMethod("CreateInstance",
-                                            typeof(R),
-                                            methodParams.Select(p => p.ParameterType).ToArray(),
-                                            true);
+                var dynamic = new DynamicMethod("CreateInstance",
+                                                typeof(R),
+                                                methodParams.Select(p => p.ParameterType).ToArray(),
+                                                typeof(R).Module,
+                                                true);
 
-            var il = dynamic.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Ldarg_2);
-            il.Emit(OpCodes.Ldarg_3);
-            il.Emit(OpCodes.Call, methodInfo);
-            il.Emit(OpCodes.Ret);
+                var il = dynamic.GetILGenerator();
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Ldarg_1);
+                il.Emit(OpCodes.Ldarg_2);
+                il.Emit(OpCodes.Ldarg_3);
+                il.Emit(OpCodes.Call, methodInfo);
+                il.Emit(OpCodes.Ret);
 
-            return (Func<A, B, C, D, R >)dynamic.CreateDelegate(typeof(Func<A, B, C, D, R>));
+                return (Func<A, B, C, D, R>)dynamic.CreateDelegate(typeof(Func<A, B, C, D, R>));
+            }
+            else
+            {
+                var larg0  = Expression.Parameter(typeof(A), "arg0");
+                var larg1  = Expression.Parameter(typeof(B), "arg1");
+                var larg2  = Expression.Parameter(typeof(C), "arg2");
+                var larg3  = Expression.Parameter(typeof(D), "arg3");
+                var expr   = Expression.Call(methodInfo, larg0, larg1, larg2, larg3);
+                var lambda = Expression.Lambda<Func<A, B, C, D, R>>(expr, larg0, larg1, larg2, larg3);
+                return lambda.Compile();
+            }
         }
 
         /// <summary>
@@ -792,7 +905,7 @@ namespace LanguageExt
 
                     if (f.FieldType.IsValueType)
                     {
-                        yield return new[] { comparer };
+                        yield return new[] { comparer as Expression };
                     }
                     else
                     { 
@@ -803,20 +916,20 @@ namespace LanguageExt
                                 Expression.And(
                                     Expression.ReferenceEqual(Expression.PropertyOrField(self, f.Name), fnull),
                                     Expression.IsFalse(Expression.ReferenceEqual(Expression.PropertyOrField(other, f.Name), fnull))),
-                                Expression.Return(returnTarget, Minus1)),
+                                Expression.Return(returnTarget, Minus1)) as Expression,
 
                             Expression.IfThen(
                                 Expression.And(
                                     Expression.ReferenceEqual(Expression.PropertyOrField(other, f.Name), fnull),
                                     Expression.IsFalse(Expression.ReferenceEqual(Expression.PropertyOrField(self, f.Name), fnull))),
-                                Expression.Return(returnTarget, Plus1)),
+                                Expression.Return(returnTarget, Plus1)) as Expression,
 
                             Expression.IfThenElse(
                                 Expression.ReferenceEqual(
                                     Expression.PropertyOrField(self, f.Name),
                                     Expression.PropertyOrField(other, f.Name)),
                                 Expression.Assign(ord, Zero),
-                                comparer)
+                                comparer) as Expression
                             };
                     }
 
@@ -847,8 +960,18 @@ namespace LanguageExt
 
         public static Func<A, string> ToString<A>(bool includeBase)
         {
+            if (!ILCapability.Available)
+            {
+                // TODO: Provide a ToString implementation that uses Expression
+                return _ => "";
+            }
+
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
-            var dynamic = new DynamicMethod("FieldsToString", typeof(string), new[] { typeof(A) },true);
+            var dynamic = new DynamicMethod("FieldsToString", 
+                                            typeof(string), 
+                                            new[] { typeof(A) },                                            
+                                            typeof(A).Module,
+                                            true);
             var fields = GetPublicInstanceFields<A>(
                 includeBase,
 #pragma warning disable CS0618
@@ -974,8 +1097,19 @@ namespace LanguageExt
 
         public static Action<A, SerializationInfo> GetObjectData<A>(bool includeBase)
         {
+            if (!ILCapability.Available)
+            {
+                // TODO: Provide a GetObjectData implementation that uses Expression
+                return (A _, SerializationInfo _) => throw new NotSupportedException();
+            }
+            
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
-            var dynamic = new DynamicMethod("GetObjectData", null, new[] { typeof(A), typeof(SerializationInfo) }, true);
+            var dynamic = new DynamicMethod(
+                "GetObjectData", 
+                null, 
+                new[] { typeof(A), typeof(SerializationInfo) }, 
+                typeof(A).Module,
+                true);
             var fields = GetPublicInstanceFields<A>(
                 includeBase,
 #pragma warning disable CS0618
@@ -1026,7 +1160,17 @@ namespace LanguageExt
 
         public static Action<A, SerializationInfo> SetObjectData<A>(bool includeBase)
         {
-            var dynamic = new DynamicMethod("SetObjectData", null, new[] { typeof(A), typeof(SerializationInfo) }, typeof(A), true);
+            if (!ILCapability.Available)
+            {
+                // TODO: Provide a SetObjectData implementation that uses Expression
+                return (A _, SerializationInfo _) => throw new NotSupportedException();
+            }
+            
+            var dynamic = new DynamicMethod("SetObjectData",
+                                            null,
+                                            new[] {typeof(A), typeof(SerializationInfo)},
+                                            typeof(A).Module,
+                                            true);
             var fields = GetPublicInstanceFields<A>(includeBase,
 #pragma warning disable CS0618
                 typeof(OptOutOfSerializationAttribute),
@@ -1085,38 +1229,50 @@ namespace LanguageExt
             var m = typeof(A).GetMethod($"get_{name}");
             if (m == null) return null;
             if (m.ReturnType != typeof(B)) return null;
-
-            var arg = typeof(A);
-            var dynamic = new DynamicMethod($"{typeof(A).Name}_{name}",
-                typeof(B),
-                new[] {arg},
-                true);
-
-            var il = dynamic.GetILGenerator();
-            il.DeclareLocal(typeof(B));
-            if (arg.IsValueType)
+            
+            if (ILCapability.Available)
             {
-                il.Emit(OpCodes.Ldarga_S, 0);
+                var arg = typeof(A);
+                var dynamic = new DynamicMethod(
+                    $"{typeof(A).Name}_{name}",
+                    typeof(B),
+                    new[] {arg},
+                    typeof(A).Module,
+                    true);
+
+                var il = dynamic.GetILGenerator();
+                il.DeclareLocal(typeof(B));
+                if (arg.IsValueType)
+                {
+                    il.Emit(OpCodes.Ldarga_S, 0);
+                }
+                else
+                {
+                    il.Emit(OpCodes.Ldarg_0);
+                }
+
+                if (m.IsVirtual)
+                {
+                    il.Emit(OpCodes.Callvirt, m);
+                }
+                else
+                {
+                    il.Emit(OpCodes.Call, m);
+                }
+
+                il.Emit(OpCodes.Stloc_0);
+                il.Emit(OpCodes.Ldloc_0);
+                il.Emit(OpCodes.Ret);
+
+                return (Func<A, B>)dynamic.CreateDelegate(typeof(Func<A, B>));
             }
             else
             {
-                il.Emit(OpCodes.Ldarg_0);
+                var larg0  = Expression.Parameter(typeof(A), "arg0");
+                var expr   = Expression.Property(larg0, m);
+                var lambda = Expression.Lambda<Func<A, B>>(expr, larg0);
+                return lambda.Compile();
             }
-
-            if (m.IsVirtual)
-            {
-                il.Emit(OpCodes.Callvirt, m);
-            }
-            else
-            {
-                il.Emit(OpCodes.Call, m);
-            }
-
-            il.Emit(OpCodes.Stloc_0);
-            il.Emit(OpCodes.Ldloc_0);
-            il.Emit(OpCodes.Ret);
-
-            return (Func<A, B>) dynamic.CreateDelegate(typeof(Func<A, B>));
         }
  
         public static Func<A, B> GetField<A, B>(string name)
@@ -1125,28 +1281,41 @@ namespace LanguageExt
             if (fld == null) return null;
             if (fld.FieldType != typeof(B)) return null;
 
-            var arg = typeof(A);
-            var dynamic = new DynamicMethod($"{typeof(A).Name}_{name}",
-                typeof(B),
-                new[] {arg},
-                true);
-
-            var il = dynamic.GetILGenerator();
-            il.DeclareLocal(typeof(B));
-            if (arg.IsValueType)
+            if (ILCapability.Available)
             {
-                il.Emit(OpCodes.Ldarga_S, 0);
+                var arg = typeof(A);
+                var dynamic = new DynamicMethod(
+                    $"{typeof(A).Name}_{name}",
+                    typeof(B),
+                    new[] {arg},
+                    typeof(A).Module,
+                    true);
+
+                var il = dynamic.GetILGenerator();
+                il.DeclareLocal(typeof(B));
+                if (arg.IsValueType)
+                {
+                    il.Emit(OpCodes.Ldarga_S, 0);
+                }
+                else
+                {
+                    il.Emit(OpCodes.Ldarg_0);
+                }
+
+                il.Emit(OpCodes.Ldfld, fld);
+                il.Emit(OpCodes.Stloc_0);
+                il.Emit(OpCodes.Ldloc_0);
+                il.Emit(OpCodes.Ret);
+
+                return (Func<A, B>)dynamic.CreateDelegate(typeof(Func<A, B>));
             }
             else
             {
-                il.Emit(OpCodes.Ldarg_0);
+                var larg0  = Expression.Parameter(typeof(A), "arg0");
+                var expr   = Expression.Field(larg0, fld);
+                var lambda = Expression.Lambda<Func<A, B>>(expr, larg0);
+                return lambda.Compile();
             }
-            il.Emit(OpCodes.Ldfld, fld);
-            il.Emit(OpCodes.Stloc_0);
-            il.Emit(OpCodes.Ldloc_0);
-            il.Emit(OpCodes.Ret);
-
-            return (Func<A, B>) dynamic.CreateDelegate(typeof(Func<A, B>));
         }
 
         static string PrettyFieldName(FieldInfo field) =>
@@ -1154,5 +1323,43 @@ namespace LanguageExt
                 ()      => "",
                 x       => x,
                 (x, xs) => xs.Head);
+    }
+    
+    public static class ILCapability
+    {
+        public static readonly bool Available;
+
+        static ILCapability() =>
+            Available = GetAvailability();
+
+        static bool GetAvailability()
+        {
+            try
+            {
+                TestSystemExceptionCtor();
+                return true;
+            }
+            catch (PlatformNotSupportedException)
+            {
+                return false;
+            }
+        }
+
+        static Func<SystemException> TestSystemExceptionCtor()
+        {
+            var type = typeof(SystemException);
+            var ctor = type.GetConstructor(new Type[0]);
+
+            var dynamic = new DynamicMethod("CreateInstance",
+                                            type,
+                                            new Type[0],
+                                            true);
+
+            var il = dynamic.GetILGenerator();
+            il.Emit(OpCodes.Newobj, ctor);
+            il.Emit(OpCodes.Ret);
+
+            return (Func<SystemException>)dynamic.CreateDelegate(typeof(Func<SystemException>));
+        }
     }
 }
