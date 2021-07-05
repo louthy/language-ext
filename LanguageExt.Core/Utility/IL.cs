@@ -958,12 +958,80 @@ namespace LanguageExt
             return lambda.Compile();
         }
 
+        static Func<A, string> ToStringExpr<A>(bool includeBase)
+        {
+            var fields = GetPublicInstanceFields<A>(
+                includeBase,
+#pragma warning disable CS0618
+                typeof(OptOutOfToStringAttribute),
+#pragma warning restore CS0618
+                typeof(NonShowAttribute),
+                typeof(NonRecordAttribute)
+                ).ToArray();
+            
+            var stringBuilder = GetConstructor<StringBuilder>().IfNone(() => throw new ArgumentException($"Constructor not found for StringBuilder"));
+            var appendChar    = GetPublicInstanceMethod<StringBuilder, char>("Append", true).IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
+            var appendString  = GetPublicInstanceMethod<StringBuilder, string>("Append", true).IfNone(() => throw new ArgumentException($"Append method found for StringBuilder"));
+            var toString      = GetPublicInstanceMethod<StringBuilder>("ToString", false).IfNone(() => throw new ArgumentException($"ToString method found for StringBuilder"));
+            var name          = typeof(A).Name;
+            var self          = Expression.Parameter(typeof(A), "self");
+            var nullA         = Expression.Constant(null, typeof(A));
+            var nullStr       = Expression.Constant(null, typeof(string));
+            var sb            = Expression.Variable(typeof(StringBuilder), "sb");
+            var tmpStr        = Expression.Variable(typeof(string), "tmpStr");
+            var result        = Expression.Variable(typeof(string), "result");
+            var returnTarget  = Expression.Label(typeof(string));
+            
+            if (name.IndexOf('`') != -1) name = name.Split('`').Head();
+
+            Expression fieldExpr(FieldInfo field)
+            {
+                var convertToString = (GetPublicStaticMethod(typeof(Convert), "ToString", field.FieldType) ||
+                                       GetPublicStaticMethod(typeof(Convert), "ToString", typeof(object)))
+                                      .IfNone(() => throw new Exception());
+
+                return Expression.Block(
+                           Expression.Assign(tmpStr, convertToString.GetParameters()[0].ParameterType == typeof(object)
+                                                        ? Expression.Call(convertToString, Expression.Convert(Expression.Field(self, field), typeof(object)))
+                                                        : Expression.Call(convertToString, Expression.Field(self, field))),
+                           Expression.IfThenElse(
+                               Expression.ReferenceEqual(tmpStr, nullStr),
+                               Expression.Call(sb, appendString, Expression.Constant("null")),
+                               Expression.Call(sb, appendString, tmpStr)));
+            }
+
+            var inner = Expression.Block(
+                fields.Select(fieldExpr).Intersperse(Expression.Call(sb, appendString, Expression.Constant(", "))));
+            
+            var outer = Expression.Block(
+                Expression.Assign(sb, Expression.New(stringBuilder)),
+                Expression.Call(sb, appendString, Expression.Constant(name)),
+                Expression.Call(sb, appendChar, Expression.Constant('(')),
+                inner,
+                Expression.Call(sb, appendChar, Expression.Constant(')')),
+                Expression.Assign(result, Expression.Call(sb, toString)));
+            
+            var expr = Expression.IfThenElse(
+                Expression.ReferenceEqual(self, nullA),
+                Expression.Assign(result, Expression.Constant("(null)")),
+                outer);
+                                  
+            var block = Expression.Block(
+                new [] { tmpStr, sb, result },
+                expr,
+                Expression.Return(returnTarget, result),
+                Expression.Label(returnTarget, result));
+            
+            var lambda = Expression.Lambda<Func<A, string>>(block, self);
+
+            return lambda.Compile();
+        }
+
         public static Func<A, string> ToString<A>(bool includeBase)
         {
             if (!ILCapability.Available)
             {
-                // TODO: Provide a ToString implementation that uses Expression
-                return _ => "";
+                return ToStringExpr<A>(includeBase);
             }
 
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
@@ -1330,7 +1398,8 @@ namespace LanguageExt
         public static readonly bool Available;
 
         static ILCapability() =>
-            Available = GetAvailability();
+            Available = false;
+            //Available = GetAvailability();
 
         static bool GetAvailability()
         {

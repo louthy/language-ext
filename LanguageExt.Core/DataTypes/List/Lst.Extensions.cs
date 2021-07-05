@@ -234,6 +234,29 @@ public static class ListExtensions
         ApplEnumerable<A, B>.Inst.Apply(fabc, fa);
 
     /// <summary>
+    /// Inject a value in between each item in the enumerable 
+    /// </summary>
+    /// <param name="ma">Enumerable to inject values into</param>
+    /// <param name="value">Item to inject</param>
+    /// <typeparam name="A">Bound type</typeparam>
+    /// <returns>An enumerable with the values injected</returns>
+    [Pure]
+    public static IEnumerable<A> Intersperse<A>(this IEnumerable<A> ma, A value)
+    {
+        var isFirst = true;
+        foreach(var item in ma)
+        {
+            if (!isFirst)
+            {
+                yield return value;
+            }
+
+            yield return item;
+            isFirst = false;
+        }
+    }
+
+    /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions
     /// </summary>
     /// <param name="fabc">IEnumerable of functions</param>
