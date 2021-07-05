@@ -209,14 +209,114 @@ namespace LanguageExt.CodeGen
 
             var returnType = ParseTypeName($"{applyToIdentifier}{applyToTypeParams}");
 
-            var cases = applyToMembers
-                               .Where(m => m is MethodDeclarationSyntax)
-                               .Select(m => m as MethodDeclarationSyntax)
-                               .Where(m => !m.Modifiers.Any(mo => mo.IsKind(SyntaxKind.StaticKeyword)))
-                               .Select(m => MakeCaseCtorFunction(applyToTypeParams, applyToConstraints, returnType, m))
+            var methods = applyToMembers
+                         .OfType<MethodDeclarationSyntax>()
+                         .Where(m => !m.Modifiers.Any(mo => mo.IsKind(SyntaxKind.StaticKeyword)))
+                         .ToList();
+
+            var cases = methods.Select(m => MakeCaseCtorFunction(applyToTypeParams, applyToConstraints, returnType, m))
                                .ToList();
 
+            var match = MakeMatchFunction(applyToTypeParams, applyToConstraints, returnType, methods);
+            cases.Add(match);
+            
             return @class.WithMembers(List(cases));
+        }
+
+        static MethodDeclarationSyntax MakeMatchFunction(
+            TypeParameterListSyntax applyToTypeParams,
+            SyntaxList<TypeParameterConstraintClauseSyntax> applyToConstraints,
+            TypeSyntax returnType,
+            List<MethodDeclarationSyntax> methods)
+        {
+            var maParam = Parameter(Identifier("_ma"))
+                         .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword)))
+                         .WithType(returnType);
+
+            var allGens = methods.Aggregate(applyToTypeParams,
+                                            (s, m) =>
+                                                m.TypeParameterList == null || m.TypeParameterList.Parameters.Count == 0
+                                                    ? s
+                                                    : m.TypeParameterList.Parameters.Aggregate(
+                                                        s,
+                                                        (s1, p) => s1.AddParameters(TypeParameter(Identifier($"{m.Identifier}_{p.Identifier}")))))
+                                 .AddParameters(TypeParameter(Identifier("RETURN")));
+
+            TypeParameterListSyntax funParams(MethodDeclarationSyntax m) =>
+                m.TypeParameterList == null || m.TypeParameterList.Parameters.Count ==0
+                    ? applyToTypeParams
+                    : m.TypeParameterList.Parameters.Aggregate(
+                        applyToTypeParams,
+                        (s, p) => s.AddParameters(TypeParameter(Identifier($"{m.Identifier}_{p.Identifier}"))));
+            
+            var fnParams = methods.Select(m =>
+                              Parameter(m.Identifier)
+                                 .WithType(
+                                      QualifiedName(
+                                          IdentifierName("System"),
+                                          GenericName(
+                                                  Identifier("Func"))
+                                             .WithTypeArgumentList(
+                                                  TypeArgumentList(
+                                                      SeparatedList<TypeSyntax>(
+                                                          new SyntaxNodeOrToken[]
+                                                          {
+                                                              ParseTypeName($"{m.Identifier.Text}{funParams(m)}"), 
+                                                              Token(SyntaxKind.CommaToken), IdentifierName("RETURN")
+                                                          }))))))
+                                  .ToList();
+
+            var otherwise = SwitchExpressionArm(
+                DiscardPattern(),
+                ThrowExpression(
+                    ObjectCreationExpression(
+                            QualifiedName(
+                                IdentifierName("LanguageExt"),
+                                IdentifierName("ValueIsNullException")))
+                       .WithArgumentList(
+                            ArgumentList())));
+
+            var matches = methods.Select(m => SwitchExpressionArm(
+                                             DeclarationPattern(
+                                                 ParseTypeName($"{m.Identifier.Text}{funParams(m)}"),
+                                                 SingleVariableDesignation(
+                                                     Identifier("value"))),
+                                             InvocationExpression(
+                                                     IdentifierName(m.Identifier.Text))
+                                                .WithArgumentList(
+                                                     ArgumentList(
+                                                         SingletonSeparatedList<ArgumentSyntax>(
+                                                             Argument(
+                                                                 IdentifierName("value")))))))
+                                 .ToList();
+
+            matches.Add(otherwise);
+            var matches1 = CodeGenUtil.Interleave(matches.Select(x => (SyntaxNodeOrToken)x).ToArray(), Token(SyntaxKind.CommaToken));
+
+            fnParams.Insert(0, maParam);
+            var fnParams1 = CodeGenUtil.Interleave(fnParams.Select(x => (SyntaxNodeOrToken)x).ToArray(), Token(SyntaxKind.CommaToken));
+
+            var method = MethodDeclaration(
+                             IdentifierName("RETURN"),
+                             Identifier("Match"))
+                        .WithModifiers(
+                             TokenList(
+                                 new[] {Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)}))
+                        .WithConstraintClauses(applyToConstraints)
+                        .WithTypeParameterList(allGens)
+                        .WithParameterList(
+                             ParameterList(
+                                 SeparatedList<ParameterSyntax>(fnParams1)))
+                        .WithExpressionBody(
+                             ArrowExpressionClause(
+                                 SwitchExpression(
+                                         IdentifierName("_ma"))
+                                    .WithArms(
+                                         SeparatedList<SwitchExpressionArmSyntax>(matches1))))
+                        .WithSemicolonToken(
+                             Token(SyntaxKind.SemicolonToken));
+
+            return method;
         }
 
         static MemberDeclarationSyntax MakeCaseCtorFunction(

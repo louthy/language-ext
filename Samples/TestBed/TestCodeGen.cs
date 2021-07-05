@@ -26,7 +26,7 @@ namespace TestBed
         string ReadAllText(string path);
         Unit WriteAllText(string path, string text);
     }
-
+    
     public static partial class FreeIO
     {
         public static FreeIO<T> Flatten2<T>(this FreeIO<FreeIO<T>> ma) => ma switch
@@ -272,6 +272,13 @@ namespace TestBed
     {
         MaybeUnion<A> JustValue(A value);
         MaybeUnion<A> NothingValue();
+    }
+
+    [Union]
+    internal interface Test<A>
+    {
+        Test<A> TestSome<B>(MaybeUnion<B> ma);
+        Test<A> TestNone();
     }
 
     //[Union]
