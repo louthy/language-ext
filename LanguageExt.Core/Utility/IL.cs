@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -1162,13 +1163,53 @@ namespace LanguageExt
             return (Func<A, string>)dynamic.CreateDelegate(typeof(Func<A, string>));
         }
 
+        static Action<A, SerializationInfo> GetObjectDataExpr<A>(bool includeBase)
+        {
+            var isValueType   = typeof(A).GetTypeInfo().IsValueType;
+            var fields        = GetPublicInstanceFields<A>(
+                                       includeBase,
+                                       #pragma warning disable CS0618
+                                       typeof(OptOutOfSerializationAttribute),
+                                       #pragma warning restore CS0618
+                                       typeof(NonSerializedAttribute),
+                                       typeof(NonRecordAttribute)
+                                   );
+            var argNullExcept = GetConstructor<ArgumentNullException, string>().IfNone(() => throw new Exception());
+            var self          = Expression.Parameter(typeof(A), "self");
+            var info          = Expression.Parameter(typeof(SerializationInfo), "info");
+
+            var returnTarget = Expression.Label();
+
+            Expression WriteField(FieldInfo field)
+            {
+                var name = PrettyFieldName(field);
+                var addValue = (GetPublicInstanceMethod<SerializationInfo>("AddValue", typeof(string), field.FieldType, true) ||
+                                GetPublicInstanceMethod<SerializationInfo>("AddValue", typeof(string), typeof(object), true))
+                               .IfNone(() => throw new Exception());
+
+                return addValue.GetParameters()[1].ParameterType == typeof(object)
+                           ? Expression.Call(info, addValue, Expression.Constant(name), Expression.Convert(Expression.Field(self, field), typeof(object)))
+                           : Expression.Call(info, addValue, Expression.Constant(name), Expression.Field(self, field));
+            }
+            
+            var block = Expression.Block(
+                Expression.IfThen(
+                    Expression.ReferenceEqual(info, Expression.Constant(null, typeof(SerializationInfo))),
+                    Expression.Throw(Expression.New(argNullExcept, Expression.Constant("info")))),
+                Expression.Block(fields.Select(WriteField)),
+                Expression.Return(returnTarget),
+                Expression.Label(returnTarget));
+            
+            var lambda = Expression.Lambda<Action<A, SerializationInfo>>(block, self, info);
+
+            return lambda.Compile();                
+        }
 
         public static Action<A, SerializationInfo> GetObjectData<A>(bool includeBase)
         {
             if (!ILCapability.Available)
             {
-                // TODO: Provide a GetObjectData implementation that uses Expression
-                return (A _, SerializationInfo _) => throw new NotSupportedException();
+                return GetObjectDataExpr<A>(includeBase);
             }
             
             var isValueType = typeof(A).GetTypeInfo().IsValueType;
@@ -1225,13 +1266,36 @@ namespace LanguageExt
 
             return (Action<A, SerializationInfo>)dynamic.CreateDelegate(typeof(Action<A, SerializationInfo>));
         }
+        
+        static Action<A, SerializationInfo> SetObjectDataExpr<A>(bool includeBase)
+        {
+            // Expression doesn't support setting of fields that are readonly or init only.
+            // So we fall back to reflection for this.  Not ideal.
+            
+            var fields = GetPublicInstanceFields<A>(includeBase,
+                #pragma warning disable CS0618
+                typeof(OptOutOfSerializationAttribute),
+                #pragma warning restore CS0618
+                typeof(NonSerializedAttribute),
+                typeof(NonRecordAttribute)
+                );
+            
+            return (A self, SerializationInfo info) =>
+            {
+                var selfType = typeof(A);
+                foreach (var field in fields)
+                {
+                    var name = PrettyFieldName(field);
+                    field.SetValue(self, info.GetValue(name, field.FieldType));
+                }
+            };
+        }        
 
         public static Action<A, SerializationInfo> SetObjectData<A>(bool includeBase)
         {
             if (!ILCapability.Available)
             {
-                // TODO: Provide a SetObjectData implementation that uses Expression
-                return (A _, SerializationInfo _) => throw new NotSupportedException();
+                return SetObjectDataExpr<A>(includeBase);
             }
             
             var dynamic = new DynamicMethod("SetObjectData",
@@ -1398,8 +1462,7 @@ namespace LanguageExt
         public static readonly bool Available;
 
         static ILCapability() =>
-            Available = false;
-            //Available = GetAvailability();
+            Available = GetAvailability();
 
         static bool GetAvailability()
         {
