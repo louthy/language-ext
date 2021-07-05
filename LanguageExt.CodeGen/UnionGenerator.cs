@@ -233,6 +233,8 @@ namespace LanguageExt.CodeGen
                          .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword)))
                          .WithType(returnType);
 
+            applyToTypeParams ??= TypeParameterList();
+            
             var allGens = methods.Aggregate(applyToTypeParams,
                                             (s, m) =>
                                                 m.TypeParameterList == null || m.TypeParameterList.Parameters.Count == 0
@@ -242,28 +244,36 @@ namespace LanguageExt.CodeGen
                                                         (s1, p) => s1.AddParameters(TypeParameter(Identifier($"{m.Identifier}_{p.Identifier}")))))
                                  .AddParameters(TypeParameter(Identifier("RETURN")));
 
-            TypeParameterListSyntax funParams(MethodDeclarationSyntax m) =>
-                m.TypeParameterList == null || m.TypeParameterList.Parameters.Count ==0
+            TypeParameterListSyntax funParams(MethodDeclarationSyntax m)
+            {
+                var ps = m.TypeParameterList == null || m.TypeParameterList.Parameters.Count == 0
                     ? applyToTypeParams
                     : m.TypeParameterList.Parameters.Aggregate(
                         applyToTypeParams,
                         (s, p) => s.AddParameters(TypeParameter(Identifier($"{m.Identifier}_{p.Identifier}"))));
-            
+
+                return ps == null
+                           ? ps
+                           : ps.Parameters.Count == 0
+                               ? null
+                               : ps;
+            }
+
             var fnParams = methods.Select(m =>
-                              Parameter(m.Identifier)
-                                 .WithType(
-                                      QualifiedName(
-                                          IdentifierName("System"),
-                                          GenericName(
-                                                  Identifier("Func"))
-                                             .WithTypeArgumentList(
-                                                  TypeArgumentList(
-                                                      SeparatedList<TypeSyntax>(
-                                                          new SyntaxNodeOrToken[]
-                                                          {
-                                                              ParseTypeName($"{m.Identifier.Text}{funParams(m)}"), 
-                                                              Token(SyntaxKind.CommaToken), IdentifierName("RETURN")
-                                                          }))))))
+                                              Parameter(m.Identifier)
+                                                 .WithType(
+                                                      QualifiedName(
+                                                          IdentifierName("System"),
+                                                          GenericName(
+                                                                  Identifier("Func"))
+                                                             .WithTypeArgumentList(
+                                                                  TypeArgumentList(
+                                                                      SeparatedList<TypeSyntax>(
+                                                                          new SyntaxNodeOrToken[]
+                                                                          {
+                                                                              ParseTypeName($"{m.Identifier.Text}{funParams(m)}"), 
+                                                                              Token(SyntaxKind.CommaToken), IdentifierName("RETURN")
+                                                                          }))))))
                                   .ToList();
 
             var otherwise = SwitchExpressionArm(

@@ -7,23 +7,23 @@ using Xunit;
 
 namespace LanguageExt.Tests
 {
+    [Union]
+    [MyUnion]
+    public abstract partial class UnionTestClass
+    {
+        public abstract UnionTestClass UnionA();
+        public abstract UnionTestClass UnionB(int i);
+        public abstract UnionTestClass UnionC(int i);
+        public abstract UnionTestClass UnionD(int i, int j);
+    }
+        
+    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+    public class MyUnionAttribute : Attribute
+    {
+    }
+        
     public partial class UnionCustomJsonSerializerTests
     {
-        [Union]
-        [MyUnion]
-        abstract partial class UnionTestClass
-        {
-            public abstract UnionTestClass A();
-            public abstract UnionTestClass B(int i);
-            public abstract UnionTestClass C(int i);
-            public abstract UnionTestClass D(int i, int j);
-        }
-        
-        [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-        public class MyUnionAttribute : Attribute
-        {
-        }
-        
         public class UnionJsonReadConverter : JsonConverter
         {
             public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => throw new NotImplementedException();
@@ -93,14 +93,14 @@ namespace LanguageExt.Tests
         public void UnionFromJson()
         {
             var json = @"{""Type"":""B"",""Value"":{""I"":42}}";
-            var x = JsonConvert.DeserializeObject<UnionTestClass>(json, new UnionJsonReadConverter()) as B;
+            var x = JsonConvert.DeserializeObject<UnionTestClass>(json, new UnionJsonReadConverter()) as UnionB;
             Assert.Equal(42, x?.I);
         }
         
         [Fact]
         public void UnionToJson()
         {
-            var x = JsonConvert.SerializeObject(UnionTestClassCon.B(42), new UnionJsonWriteConverter());
+            var x = JsonConvert.SerializeObject(UnionTestClassCon.UnionB(42), new UnionJsonWriteConverter());
             Assert.Equal(@"{""Type"":""B"",""Value"":{""I"":42}}", x);
         }
     }

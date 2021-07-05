@@ -4,15 +4,15 @@ using Xunit;
 
 namespace LanguageExt.Tests
 {
+    [Union]
+    public abstract partial class LightControl
+    {
+        public abstract LightControl OnOff(bool enabled);
+        public abstract LightControl Dimmer(int value);
+    }
+
     public partial class UnionJsonSerializerTests
     { 
-        [Union]
-        public abstract partial class LightControl
-        {
-            public abstract LightControl OnOff(bool enabled);
-            public abstract LightControl Dimmer(int value);
-        }
-
         [Fact]
         public void UnionInstanceFromJson()
         {
