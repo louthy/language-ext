@@ -8,7 +8,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-        <PackageVersion>3.5.34-beta</PackageVersion>
+        <PackageVersion>3.5.35-beta</PackageVersion>
         <PackageId>LanguageExt.Rx</PackageId>
         <Title>LanguageExt.Rx</Title>
         <Authors>Paul Louth</Authors>
