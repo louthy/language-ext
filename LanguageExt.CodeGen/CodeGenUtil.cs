@@ -2233,6 +2233,7 @@ namespace LanguageExt.CodeGen
             bool caseIsClass,
             bool caseIsPartial,
             bool includeWithAndLenses,
+            bool includeMatch,
             int tag)
         {
             var idents = applyToMembers.Select(MemberName)
@@ -2337,17 +2338,28 @@ namespace LanguageExt.CodeGen
 
             var publicMod = TokenList(Token(SyntaxKind.PublicKeyword));
 
+            var methods = applyToMembers
+                             .OfType<MethodDeclarationSyntax>()
+                             .Where(m => !m.Modifiers.Any(mo => mo.IsKind(SyntaxKind.StaticKeyword)))
+                             .ToList();
+
             var impl = new List<MemberDeclarationSyntax>();
             if (baseSpec == BaseSpec.Interface)
             {
                 impl.AddRange(
-                    applyToMembers
-                        .OfType<MethodDeclarationSyntax>()
-                        .Where(m => !m.Modifiers.Any(mo => mo.IsKind(SyntaxKind.StaticKeyword)))
+                    methods
                         .Select(m => MakeExplicitInterfaceImpl(interfaceType, includeWithAndLenses ? interfaceType : m.ReturnType, m.Identifier, m.ParameterList, m.TypeParameterList)));
             }
 
             var dtype = MakeDataTypeMembers(caseIdentifier.Text, thisType, interfaceType, caseParams, baseSpec, caseIsClass);
+            
+            // Match method only provided for abstract bases where none of the cases have generic arguments 
+            if (includeMatch && 
+                baseSpec == BaseSpec.Abstract && 
+                methods.All(m => m.TypeParameterList == null || m.TypeParameterList.Parameters.Count == 0))
+            {
+                fields.Add(MakeCaseMatch(caseIdentifier.Text, methods, applyToTypeParams));
+            }
 
             fields.AddRange(ctor);
             fields.Add(dtor);
@@ -2405,6 +2417,81 @@ namespace LanguageExt.CodeGen
             }
 
             return (true, type);
+        }
+
+        static MethodDeclarationSyntax MakeCaseMatch(
+            string caseIdentifierText, 
+            List<MethodDeclarationSyntax> methods, 
+            TypeParameterListSyntax applyToTypeParams)
+        {
+            applyToTypeParams ??= TypeParameterList();
+            
+            var allGens = methods.Aggregate(TypeParameterList(),
+                                            (s, m) =>
+                                                m.TypeParameterList == null || m.TypeParameterList.Parameters.Count == 0
+                                                    ? s
+                                                    : m.TypeParameterList.Parameters.Aggregate(
+                                                        s,
+                                                        (s1, p) => caseIdentifierText == m.Identifier.Text
+                                                                    ? s1
+                                                                    : s1.AddParameters(TypeParameter(Identifier($"{m.Identifier}_{p.Identifier}")))))
+                                 .AddParameters(TypeParameter(Identifier("RETURN")));
+
+            TypeParameterListSyntax funParams(MethodDeclarationSyntax m)
+            {
+                var ps = m.TypeParameterList == null || m.TypeParameterList.Parameters.Count == 0
+                    ? applyToTypeParams
+                    : m.TypeParameterList.Parameters.Aggregate(
+                        applyToTypeParams,
+                        (s, p) => caseIdentifierText == m.Identifier.Text
+                                      ? s.AddParameters(p)
+                                      : s.AddParameters(TypeParameter(Identifier($"{m.Identifier}_{p.Identifier}"))));
+
+                return ps == null
+                           ? ps
+                           : ps.Parameters.Count == 0
+                               ? null
+                               : ps;
+            }
+
+            var fnParams = methods.Select(m =>
+                                              Parameter(m.Identifier)
+                                                 .WithType(
+                                                      QualifiedName(
+                                                          IdentifierName("System"),
+                                                          GenericName(
+                                                                  Identifier("Func"))
+                                                             .WithTypeArgumentList(
+                                                                  TypeArgumentList(
+                                                                      SeparatedList<TypeSyntax>(
+                                                                          new SyntaxNodeOrToken[]
+                                                                          {
+                                                                              ParseTypeName($"{m.Identifier.Text}{funParams(m)}"), 
+                                                                              Token(SyntaxKind.CommaToken), IdentifierName("RETURN")
+                                                                          }))))))
+                                  .ToList();
+
+            var fnParams1 = CodeGenUtil.Interleave(fnParams.Select(x => (SyntaxNodeOrToken)x).ToArray(), Token(SyntaxKind.CommaToken));
+
+            var method = MethodDeclaration(
+                             IdentifierName("RETURN"),
+                             Identifier("Match"))
+                        .WithModifiers(
+                             TokenList(
+                                 new[] {Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword)}))
+                        .WithTypeParameterList(allGens)
+                        .WithParameterList(
+                             ParameterList(
+                                 SeparatedList<ParameterSyntax>(fnParams1)))
+                        .WithExpressionBody(
+                             ArrowExpressionClause(InvocationExpression(
+                                                           IdentifierName(caseIdentifierText))
+                                                      .WithArgumentList(
+                                                           ArgumentList(SingletonSeparatedList<ArgumentSyntax>(Argument(ThisExpression()))))))
+                        .WithSemicolonToken(
+                             Token(SyntaxKind.SemicolonToken));
+
+            return method;
         }
 
         static MemberDeclarationSyntax[] MakeConstructor(

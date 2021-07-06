@@ -42,6 +42,7 @@ namespace LanguageExt.CodeGen
                                         caseIsClass: applyTo is ClassDeclarationSyntax,
                                         caseIsPartial: true,
                                         includeWithAndLenses: true,
+                                        includeMatch: false,
                                         -1);
 
                 if (ok)

@@ -285,7 +285,7 @@ namespace TestBed
     public abstract partial class TestSimpleUnion
     {
         public abstract TestSimpleUnion Simple1(int x, int y);
-        public abstract TestSimpleUnion Simple2(int x, int y);
+        public abstract TestSimpleUnion Simple2(int x);
     }
 
     //[Union]

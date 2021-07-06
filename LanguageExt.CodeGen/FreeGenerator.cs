@@ -144,6 +144,7 @@ namespace LanguageExt.CodeGen
                             caseIsClass: true,
                             caseIsPartial: false,
                             includeWithAndLenses: false,
+                            includeMatch: true,
                             tag: m.i))
                         .ToList();
 

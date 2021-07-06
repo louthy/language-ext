@@ -32,10 +32,9 @@ namespace LanguageExt.CodeGen
                 }
 
                 var caseMembers = applyTo.Members
-                    .Where(m => m is MethodDeclarationSyntax)
-                    .Select(m => m as MethodDeclarationSyntax)
-                    .Where(m => !m.Modifiers.Any(mo => mo.IsKind(SyntaxKind.StaticKeyword)))
-                    .ToArray();
+                                         .OfType<MethodDeclarationSyntax>()
+                                         .Where(m => !m.Modifiers.Any(mo => mo.IsKind(SyntaxKind.StaticKeyword)))
+                                         .ToArray();
 
 
                 var caseRes = caseMembers
@@ -58,6 +57,7 @@ namespace LanguageExt.CodeGen
                                                     caseIsClass: true,
                                                     caseIsPartial: false,
                                                     includeWithAndLenses: true,
+                                                    includeMatch: true,
                                                     m.i))
                                    .ToList();
 
@@ -69,7 +69,8 @@ namespace LanguageExt.CodeGen
                     applyTo.Members,
                     applyTo.TypeParameterList, 
                     applyTo.ConstraintClauses,
-                    CodeGenUtil.VisibilityModifier(applyTo.Modifiers));
+                    CodeGenUtil.VisibilityModifier(applyTo.Modifiers),
+                    includeMatch: true);
 
                 if (ok)
                 {
@@ -98,42 +99,52 @@ namespace LanguageExt.CodeGen
                     return Task.FromResult(List<MemberDeclarationSyntax>());
                 }
 
-                var caseRes = applyToClass.Members
-                                        .Where(m => m is MethodDeclarationSyntax)
-                                        .Select(m => m as MethodDeclarationSyntax)
-                                        .Zip(Enumerable.Range(1, Int32.MaxValue), (m, i) => (m, i))
-                                        .Select(m => CodeGenUtil.MakeCaseType(
-                                                        context,
-                                                        progress,
-                                                        applyToClass.Identifier,
-                                                        applyToClass.Members,
-                                                        applyToClass.TypeParameterList,
-                                                        applyToClass.Modifiers,
-                                                        applyToClass.ConstraintClauses,
-                                                        m.m.Identifier,
-                                                        m.m.TypeParameterList,
-                                                        m.m.ParameterList
-                                                           .Parameters
-                                                           .Select(p => (p.Identifier, p.Type, p.Modifiers, p.AttributeLists))
-                                                           .ToList(),
-                                                        BaseSpec.Abstract,
-                                                        caseIsClass: true,
-                                                        caseIsPartial: false,
-                                                        includeWithAndLenses: true,
-                                                        m.i))
-                                        .ToList();
+                var methods = applyToClass.Members
+                                          .OfType<MethodDeclarationSyntax>()
+                                          .Where(NotOverloadableMethod)
+                                          .ToList();
 
-                var ok = caseRes.All(x => x.Success);
-                var cases = caseRes.Select(c => c.Type);
+                var caseRes = methods.Zip(Enumerable.Range(1, Int32.MaxValue), (m, i) => (m, i))
+                                     .Select(m => CodeGenUtil.MakeCaseType(
+                                                 context,
+                                                 progress,
+                                                 applyToClass.Identifier,
+                                                 applyToClass.Members,
+                                                 applyToClass.TypeParameterList,
+                                                 applyToClass.Modifiers,
+                                                 applyToClass.ConstraintClauses,
+                                                 m.m.Identifier,
+                                                 m.m.TypeParameterList,
+                                                 m.m.ParameterList
+                                                  .Parameters
+                                                  .Select(p => (p.Identifier, p.Type, p.Modifiers, p.AttributeLists))
+                                                  .ToList(),
+                                                 BaseSpec.Abstract,
+                                                 caseIsClass: true,
+                                                 caseIsPartial: false,
+                                                 includeWithAndLenses: true,
+                                                 includeMatch: true,
+                                                 m.i))
+                                     .ToList();
+
+                var ok           = caseRes.All(x => x.Success);
+                var cases        = caseRes.Select(c => c.Type);
+                var includeMatch = methods.All(m => m.TypeParameterList == null || m.TypeParameterList.Parameters.Count == 0);
 
                 var staticCtorClass = MakeStaticConstructorClass(
                     applyToClass.Identifier, 
                     applyToClass.Members, 
                     applyToClass.TypeParameterList, 
                     applyToClass.ConstraintClauses,
-                    CodeGenUtil.VisibilityModifier(applyToClass.Modifiers));
+                    CodeGenUtil.VisibilityModifier(applyToClass.Modifiers),
+                    includeMatch: !includeMatch);
 
                 var partialClass = MakeAbstractClass(applyToClass);
+                if (includeMatch)
+                {
+                    partialClass = partialClass.AddMembers(MakeAbstractMatch(methods, applyToClass.TypeParameterList));
+                }
+
                 var unionBase = MakeBaseFromAbstractClass(applyToClass);
 
                 if (ok)
@@ -153,6 +164,12 @@ namespace LanguageExt.CodeGen
                 CodeGenUtil.ReportError($"Type can't be made into a union.  It must be an interface/abstract class", "Union Code-Gen", context.ProcessingNode, progress);
                 return Task.FromResult(List<MemberDeclarationSyntax>());
             }
+        }
+
+        bool NotOverloadableMethod(MethodDeclarationSyntax method)
+        {
+            var name = method.Identifier.Text;
+            return !(name == "ToString" || name == "GetHashCode");
         }
 
         static bool AllMembersReturnInterface(
@@ -189,12 +206,78 @@ namespace LanguageExt.CodeGen
             return returnsTypesOk;
         }
 
+        static MemberDeclarationSyntax[] MakeAbstractMatch(
+            List<MethodDeclarationSyntax> methods, 
+            TypeParameterListSyntax applyToTypeParams)
+        {
+            applyToTypeParams ??= TypeParameterList();
+            
+            var allGens = methods.Aggregate(TypeParameterList(),
+                                            (s, m) =>
+                                                m.TypeParameterList == null || m.TypeParameterList.Parameters.Count == 0
+                                                    ? s
+                                                    : m.TypeParameterList.Parameters.Aggregate(
+                                                        s,
+                                                        (s1, p) => s1.AddParameters(TypeParameter(Identifier($"{m.Identifier}_{p.Identifier}")))))
+                                 .AddParameters(TypeParameter(Identifier("RETURN")));
+
+            TypeParameterListSyntax funParams(MethodDeclarationSyntax m)
+            {
+                var ps = m.TypeParameterList == null || m.TypeParameterList.Parameters.Count == 0
+                    ? applyToTypeParams
+                    : m.TypeParameterList.Parameters.Aggregate(
+                        applyToTypeParams,
+                        (s, p) => s.AddParameters(TypeParameter(Identifier($"{m.Identifier}_{p.Identifier}"))));
+
+                return ps == null
+                           ? ps
+                           : ps.Parameters.Count == 0
+                               ? null
+                               : ps;
+            }
+
+            var fnParams = methods.Select(m =>
+                                              Parameter(m.Identifier)
+                                                 .WithType(
+                                                      QualifiedName(
+                                                          IdentifierName("System"),
+                                                          GenericName(
+                                                                  Identifier("Func"))
+                                                             .WithTypeArgumentList(
+                                                                  TypeArgumentList(
+                                                                      SeparatedList<TypeSyntax>(
+                                                                          new SyntaxNodeOrToken[]
+                                                                          {
+                                                                              ParseTypeName($"{m.Identifier.Text}{funParams(m)}"), 
+                                                                              Token(SyntaxKind.CommaToken), IdentifierName("RETURN")
+                                                                          }))))))
+                                  .ToList();
+
+            var fnParams1 = CodeGenUtil.Interleave(fnParams.Select(x => (SyntaxNodeOrToken)x).ToArray(), Token(SyntaxKind.CommaToken));
+
+            var method = MethodDeclaration(
+                             IdentifierName("RETURN"),
+                             Identifier("Match"))
+                        .WithModifiers(
+                             TokenList(
+                                 new[] {Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.AbstractKeyword)}))
+                        .WithTypeParameterList(allGens)
+                        .WithParameterList(
+                             ParameterList(
+                                 SeparatedList<ParameterSyntax>(fnParams1)))
+                        .WithSemicolonToken(
+                             Token(SyntaxKind.SemicolonToken));
+
+            return new[] {method};
+        }
+
         static ClassDeclarationSyntax MakeStaticConstructorClass(
             SyntaxToken applyToIdentifier,
             SyntaxList<MemberDeclarationSyntax> applyToMembers,
             TypeParameterListSyntax applyToTypeParams,
             SyntaxList<TypeParameterConstraintClauseSyntax> applyToConstraints,
-            SyntaxToken visibilityModifier
+            SyntaxToken visibilityModifier,
+            bool includeMatch
             )
         {
             var name = applyToIdentifier;
@@ -217,9 +300,11 @@ namespace LanguageExt.CodeGen
             var cases = methods.Select(m => MakeCaseCtorFunction(applyToTypeParams, applyToConstraints, returnType, m))
                                .ToList();
 
-            var match = MakeMatchFunction(applyToTypeParams, applyToConstraints, returnType, methods);
-            cases.Add(match);
-            
+            if (includeMatch)
+            {
+                cases.Add(MakeMatchFunction(applyToTypeParams, applyToConstraints, returnType, methods));
+            }
+
             return @class.WithMembers(List(cases));
         }
 
