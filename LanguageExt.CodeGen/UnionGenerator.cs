@@ -61,8 +61,9 @@ namespace LanguageExt.CodeGen
                                                     m.i))
                                    .ToList();
 
-                var ok = caseRes.All(x => x.Success);
-                var cases = caseRes.Select(c => c.Type);
+                var ok         = caseRes.All(x => x.Success);
+                var cases      = caseRes.Select(c => c.Type);
+                var includeMap = caseMembers.All(m => m.TypeParameterList == null || m.TypeParameterList.Parameters.Count == 0);
 
                 var staticCtorClass = MakeStaticConstructorClass(
                     applyTo.Identifier, 
@@ -70,7 +71,8 @@ namespace LanguageExt.CodeGen
                     applyTo.TypeParameterList, 
                     applyTo.ConstraintClauses,
                     CodeGenUtil.VisibilityModifier(applyTo.Modifiers),
-                    includeMatch: true);
+                    includeMatch: true,
+                    includeMap: includeMap);
 
                 if (ok)
                 {
@@ -130,6 +132,7 @@ namespace LanguageExt.CodeGen
                 var ok           = caseRes.All(x => x.Success);
                 var cases        = caseRes.Select(c => c.Type);
                 var includeMatch = methods.All(m => m.TypeParameterList == null || m.TypeParameterList.Parameters.Count == 0);
+                var includeMap   = includeMatch;
 
                 var staticCtorClass = MakeStaticConstructorClass(
                     applyToClass.Identifier, 
@@ -137,7 +140,8 @@ namespace LanguageExt.CodeGen
                     applyToClass.TypeParameterList, 
                     applyToClass.ConstraintClauses,
                     CodeGenUtil.VisibilityModifier(applyToClass.Modifiers),
-                    includeMatch: !includeMatch);
+                    includeMatch: !includeMatch,
+                    includeMap: includeMap);
 
                 var partialClass = MakeAbstractClass(applyToClass);
                 if (includeMatch)
@@ -169,7 +173,7 @@ namespace LanguageExt.CodeGen
         bool NotOverloadableMethod(MethodDeclarationSyntax method)
         {
             var name = method.Identifier.Text;
-            return !(name == "ToString" || name == "GetHashCode");
+            return !(name == "ToString" || name == "GetHashCode" || name == "Map");
         }
 
         static bool AllMembersReturnInterface(
@@ -277,7 +281,8 @@ namespace LanguageExt.CodeGen
             TypeParameterListSyntax applyToTypeParams,
             SyntaxList<TypeParameterConstraintClauseSyntax> applyToConstraints,
             SyntaxToken visibilityModifier,
-            bool includeMatch
+            bool includeMatch,
+            bool includeMap
             )
         {
             var name = applyToIdentifier;
@@ -303,6 +308,12 @@ namespace LanguageExt.CodeGen
             if (includeMatch)
             {
                 cases.Add(MakeMatchFunction(applyToTypeParams, applyToConstraints, returnType, methods));
+            }
+
+            if (includeMap && applyToTypeParams != null && applyToTypeParams.Parameters.Count == 1)
+            {
+                cases.Add(CodeGenUtil.MakeMapFunction(0, "Map", applyToIdentifier, methods.ToArray(), applyToTypeParams, null, null, true));
+                cases.Add(CodeGenUtil.MakeMapFunction(0, "Select", applyToIdentifier, methods.ToArray(), applyToTypeParams, null, null, true));
             }
 
             return @class.WithMembers(List(cases));

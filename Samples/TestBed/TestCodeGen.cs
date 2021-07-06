@@ -268,10 +268,10 @@ namespace TestBed
     }
 
     [Union]
-    internal interface MaybeUnion<A>
+    internal interface MaybeUnion<T>
     {
-        MaybeUnion<A> JustValue(A value);
-        MaybeUnion<A> NothingValue();
+        MaybeUnion<T> JustValue(T value);
+        MaybeUnion<T> NothingValue();
     }
 
     [Union]

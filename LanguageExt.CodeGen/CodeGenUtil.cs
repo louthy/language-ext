@@ -23,6 +23,9 @@ namespace LanguageExt.CodeGen
         None
     }
 
+    /// <summary>
+    /// TODO: Split this up into more behaviour specific functions
+    /// </summary>
     internal static class CodeGenUtil
     {
         public static readonly TypeSyntax ExceptionType;
@@ -2672,5 +2675,268 @@ namespace LanguageExt.CodeGen
 
             return list;
         }
+        
+        public static MethodDeclarationSyntax MakeMapFunction(
+            int genIndex,
+            string functionName,
+            SyntaxToken applyToIdentifier,
+            MethodDeclarationSyntax[] applyToMembers,
+            TypeParameterListSyntax applyToTypeParams,
+            MethodDeclarationSyntax pure,
+            MethodDeclarationSyntax fail,
+            bool allAreTerminal)
+        {
+            var genA = applyToTypeParams.Parameters[genIndex].ToString();
+            var genB = CodeGenUtil.NextGenName(applyToTypeParams.Parameters.Last().ToString());
+            var genC = CodeGenUtil.NextGenName(genB);
+
+            var typeA       = MakeTypeName(applyToIdentifier.Text, genA);
+            var typeB       = MakeTypeName(applyToIdentifier.Text, genB);
+            var typeC       = MakeTypeName(applyToIdentifier.Text, genC);
+            var mapFuncType = ParseTypeName($"System.Func<{genA}, {genB}>");
+            var pureTypeA   = pure == null ? null : MakeTypeName(pure.Identifier.Text, genA);
+            var pureTypeB   = pure == null ? null : MakeTypeName(pure.Identifier.Text, genB);
+
+            var mapNextFunc = InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        InvocationExpression(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("v"),
+                                    IdentifierName("Next")))
+                            .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("n"))))),
+                        IdentifierName(functionName)))
+                .WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList(
+                            Argument(
+                                IdentifierName("f")))));
+
+            // this will only be used if we have a fail path
+            var mapFailFunc = InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        InvocationExpression(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("v"),
+                                    IdentifierName("FailNext")))
+                            .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("fn"))))),
+                        IdentifierName(functionName)))
+                .WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList(
+                            Argument(
+                                IdentifierName("f")))));
+            
+            var pureFunc = pureTypeA == null ? null : new SyntaxNodeOrToken[]
+            {
+                SwitchExpressionArm(
+                    DeclarationPattern(
+                        pureTypeA,
+                        SingleVariableDesignation(Identifier("v"))),
+                    ObjectCreationExpression(pureTypeB)
+                        .WithArgumentList(
+                            ArgumentList(
+                                SingletonSeparatedList(
+                                    Argument(
+                                        InvocationExpression(IdentifierName("f"))
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SingletonSeparatedList(
+                                                        Argument(
+                                                            MemberAccessExpression(
+                                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                                IdentifierName("v"),
+                                                                IdentifierName(
+                                                                    CodeGenUtil.MakeFirstCharUpper(pure.ParameterList
+                                                                        .Parameters.First().Identifier.Text)))))))))))),
+                Token(SyntaxKind.CommaToken)
+            };
+
+            // this will only be used if we have a fail path
+            var failFunc = fail != null
+                ? new SyntaxNodeOrToken[]
+                {
+                    SwitchExpressionArm(
+                        DeclarationPattern(
+                            MakeTypeName(fail.Identifier.Text, genA),
+                            SingleVariableDesignation(Identifier("v"))),
+                        ObjectCreationExpression(MakeTypeName(fail.Identifier.Text, genB))
+                            .WithArgumentList(
+                                fail.ParameterList.Parameters.Count == 0
+                                    ? ArgumentList()
+                                    : ArgumentList(
+                                        SingletonSeparatedList(
+                                            Argument(
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    IdentifierName("v"),
+                                                    IdentifierName(
+                                                        CodeGenUtil.MakeFirstCharUpper(fail.ParameterList
+                                                            .Parameters.First().Identifier.Text)))))))),
+                    Token(SyntaxKind.CommaToken)
+                }
+                : null;
+
+            var termimalFuncs = applyToMembers
+                .Where(m => m != pure)
+                .Where(m => m != fail)
+                .Where(m => allAreTerminal || m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
+                .SelectMany(m =>
+                    new SyntaxNodeOrToken[]
+                    {
+                        SwitchExpressionArm(
+                            DeclarationPattern(
+                                ParseTypeName($"{m.Identifier.Text}<{genA}>"),
+                                SingleVariableDesignation(Identifier("_v"))),
+                            ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SeparatedList(
+                                            m.ParameterList
+                                                .Parameters
+                                                .Select(p =>
+                                                    Argument(
+                                                        p.Type.ToString() == genA
+                                                            ? InvocationExpression(IdentifierName("f"))
+                                                               .WithArgumentList(
+                                                                    ArgumentList(
+                                                                        SingletonSeparatedList(
+                                                                            Argument(
+                                                                                MemberAccessExpression(
+                                                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                                                    IdentifierName("_v"),
+                                                                                    IdentifierName(
+                                                                                        CodeGenUtil.MakeFirstCharUpper(p.Identifier)))
+                                                                                ))))
+                                                                as ExpressionSyntax
+                                                            : MemberAccessExpression(
+                                                                  SyntaxKind.SimpleMemberAccessExpression,
+                                                                  IdentifierName("_v"),
+                                                                  IdentifierName(
+                                                                      CodeGenUtil.MakeFirstCharUpper(p.Identifier))) 
+                                                                  )))))),
+                        Token(SyntaxKind.CommaToken)
+                    });
+
+
+            var freeFuncParams = fail == null
+                ? new SyntaxNodeOrToken[] {Argument(SimpleLambdaExpression(Parameter(Identifier("n")), mapNextFunc))}
+                : new SyntaxNodeOrToken[]
+                {
+                    Argument(SimpleLambdaExpression(Parameter(Identifier("n")), mapNextFunc)),
+                    Token(SyntaxKind.CommaToken),
+                    Argument(SimpleLambdaExpression(Parameter(Identifier("fn")), mapFailFunc))
+                };
+
+            var freeFuncParamsCount = fail == null ? 1 : 2;
+
+            var freeFuncs = applyToMembers
+                .Where(_ => !allAreTerminal)
+                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
+                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsFailAttr))
+                .SelectMany(m =>
+                    new SyntaxNodeOrToken[]
+                    {
+                        SwitchExpressionArm(
+                            DeclarationPattern(
+                                ParseTypeName($"{m.Identifier.Text}<{genA}>"),
+                                SingleVariableDesignation(Identifier("v"))),
+                            ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SeparatedList<ArgumentSyntax>(
+                                            m.ParameterList
+                                                .Parameters
+                                                .Take(m.ParameterList.Parameters.Count - freeFuncParamsCount)
+                                                .SelectMany(p =>
+                                                    new SyntaxNodeOrToken[]
+                                                    {
+                                                        Argument(
+                                                            MemberAccessExpression(
+                                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                                IdentifierName("v"),
+                                                                IdentifierName(
+                                                                    CodeGenUtil.MakeFirstCharUpper(
+                                                                        p.Identifier.Text)))),
+                                                        Token(SyntaxKind.CommaToken)
+                                                    })
+                                                .Concat(freeFuncParams))))),
+                        Token(SyntaxKind.CommaToken)
+                    });
+
+            var tokens = new List<SyntaxNodeOrToken>();
+            if(pureFunc != null) 
+                tokens.AddRange(pureFunc);
+            if (failFunc != null)
+                tokens.AddRange(failFunc);
+            tokens.AddRange(termimalFuncs);
+            tokens.AddRange(freeFuncs);
+            tokens.Add(
+                SwitchExpressionArm(
+                    DiscardPattern(),
+                    ThrowExpression(
+                        ObjectCreationExpression(
+                                QualifiedName(
+                                    IdentifierName("System"),
+                                    IdentifierName("NotSupportedException")))
+                            .WithArgumentList(ArgumentList()))));
+
+            return MethodDeclaration(typeB, Identifier(functionName))
+                .WithModifiers(
+                    TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)))
+                .WithTypeParameterList(
+                    TypeParameterList(
+                        SeparatedList<TypeParameterSyntax>(
+                            new SyntaxNodeOrToken[]
+                            {
+                                TypeParameter(
+                                    Identifier(genA)),
+                                Token(SyntaxKind.CommaToken), TypeParameter(
+                                    Identifier(genB))
+                            })))
+                .WithParameterList(
+                    ParameterList(
+                        SeparatedList<ParameterSyntax>(
+                            new SyntaxNodeOrToken[]
+                            {
+                                Parameter(
+                                        Identifier("ma"))
+                                    .WithModifiers(
+                                        TokenList(
+                                            Token(SyntaxKind.ThisKeyword)))
+                                    .WithType(typeA),
+                                Token(SyntaxKind.CommaToken), Parameter(
+                                        Identifier("f"))
+                                    .WithType(mapFuncType)
+                            })))
+                .WithExpressionBody(
+                    ArrowExpressionClause(
+                        SwitchExpression(
+                                IdentifierName("ma"))
+                            .WithArms(SeparatedList<SwitchExpressionArmSyntax>(tokens))))
+                .WithSemicolonToken(
+                    Token(SyntaxKind.SemicolonToken))
+                .NormalizeWhitespace();
+        }
+
+        public static TypeSyntax MakeTypeName(string ident, string gen) =>
+            ParseTypeName($"{ident}<{gen}>");
+
+
+        public static bool IsPureAttr(AttributeSyntax s) => s.Name.ToString() == "Pure";
+        public static bool IsFailAttr(AttributeSyntax s) => s.Name.ToString() == "Fail";
+
+        public static bool HasPureAttr(MethodDeclarationSyntax m) =>
+            m.AttributeLists
+                .SelectMany(a => a.Attributes)
+                .Any(IsPureAttr);
+
+        public static bool HasFailAttr(MethodDeclarationSyntax m) =>
+            m.AttributeLists
+                .SelectMany(a => a.Attributes)
+                .Any(IsFailAttr);
     }
 }

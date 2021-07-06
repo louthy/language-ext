@@ -46,8 +46,8 @@ namespace LanguageExt.CodeGen
 
                     var thisType = ParseTypeName($"{applyTo.Identifier.Text}{applyTo.TypeParameterList}");
 
-                    var typeA = MakeTypeName(applyTo.Identifier.Text, genA);
-                    var typeB = MakeTypeName(applyTo.Identifier.Text, genB);
+                    var typeA   = CodeGenUtil.MakeTypeName(applyTo.Identifier.Text, genA);
+                    var typeB   = CodeGenUtil.MakeTypeName(applyTo.Identifier.Text, genB);
                     var mapFunc = ParseTypeName($"System.Func<{genA}, {genB}>");
 
                     var mapIsStatic = applyTo.Members
@@ -72,7 +72,7 @@ namespace LanguageExt.CodeGen
 
                     var failType = applyTo.Members
                         .OfType<MethodDeclarationSyntax>()
-                        .Where(HasFailAttr)
+                        .Where(CodeGenUtil.HasFailAttr)
                         .Where(m => m.ParameterList.Parameters.Count == 1)
                         .Select(m => m.ParameterList.Parameters.First().Type)
                         .FirstOrDefault();
@@ -84,20 +84,20 @@ namespace LanguageExt.CodeGen
                         .ToArray();
 
                     var firstPure = caseMethods
-                        .Where(HasPureAttr)
+                        .Where(CodeGenUtil.HasPureAttr)
                         .Where(m => m.ParameterList.Parameters.Count == 1)
                         .Where(m => m.ReturnType.IsEquivalentTo(typeA))
                         .Where(m => m.ParameterList.Parameters.First().Type.ToString() == genA)
                         .FirstOrDefault();
 
                     var firstFail = caseMethods
-                        .Where(HasFailAttr)
+                        .Where(CodeGenUtil.HasFailAttr)
                         .Where(m => m.ParameterList.Parameters.Count < 2)
                         .Where(m => m.ReturnType.IsEquivalentTo(typeA))
                         .FirstOrDefault();
 
                     var failTypeCount = caseMethods
-                        .Where(HasFailAttr)
+                        .Where(CodeGenUtil.HasFailAttr)
                         .Count();
 
                     if (failTypeCount > 1)
@@ -185,20 +185,6 @@ namespace LanguageExt.CodeGen
             }
         }
 
-        static bool IsPureAttr(AttributeSyntax s) => s.Name.ToString() == "Pure";
-        static bool IsFailAttr(AttributeSyntax s) => s.Name.ToString() == "Fail";
-
-        static bool HasPureAttr(MethodDeclarationSyntax m) =>
-            m.AttributeLists
-                .SelectMany(a => a.Attributes)
-                .Any(IsPureAttr);
-
-        static bool HasFailAttr(MethodDeclarationSyntax m) =>
-            m.AttributeLists
-                .SelectMany(a => a.Attributes)
-                .Any(IsFailAttr);
-
-
         static MemberDeclarationSyntax[] AddMonadDefaults(
             SyntaxToken applyToIdentifier,
             MethodDeclarationSyntax[] applyToMembers,
@@ -209,12 +195,12 @@ namespace LanguageExt.CodeGen
             var genB = CodeGenUtil.NextGenName(genA);
             var genC = CodeGenUtil.NextGenName(genB);
 
-            var typeA = MakeTypeName(applyToIdentifier.Text, genA);
-            var liftedTypeA = MakeTypeName(applyToIdentifier.Text, typeA.ToString());
-            var typeB = MakeTypeName(applyToIdentifier.Text, genB);
-            var typeC = MakeTypeName(applyToIdentifier.Text, genC);
+            var typeA        = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genA);
+            var liftedTypeA  = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, typeA.ToString());
+            var typeB        = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genB);
+            var typeC        = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genC);
             var bindFuncType = ParseTypeName($"System.Func<{genA}, {typeB}>");
-            var mapFuncType = ParseTypeName($"System.Func<{genA}, {genB}>");
+            var mapFuncType  = ParseTypeName($"System.Func<{genA}, {genB}>");
             var projFuncType = ParseTypeName($"System.Func<{genA}, {genB}, {genC}>");
 
             var comma = Token(SyntaxKind.CommaToken);
@@ -392,7 +378,7 @@ namespace LanguageExt.CodeGen
 
         static MethodDeclarationSyntax MakeFree(MethodDeclarationSyntax m, TypeSyntax freeType, TypeSyntax failType)
         {
-            if (HasPureAttr(m) || HasFailAttr(m))
+            if (CodeGenUtil.HasPureAttr(m) || CodeGenUtil.HasFailAttr(m))
             {
                 return m.WithReturnType(freeType);
             }
@@ -476,13 +462,16 @@ namespace LanguageExt.CodeGen
                     applyToIdentifier: applyToIdentifier,
                     applyToTypeParams: applyToTypeParams
                 )
-                : MakeMapFunction
+                : CodeGenUtil.MakeMapFunction
                 (
+                    genIndex: 0,
+                    "Map",
                     applyToIdentifier: applyToIdentifier,
                     applyToMembers: applyToMembers,
                     applyToTypeParams: applyToTypeParams,
                     pure: pure,
-                    fail: fail
+                    fail: fail,
+                    false
                 );
 
             var monad = AddMonadDefaults(applyToIdentifier, applyToMembers, applyToTypeParams, applyToConstraints);
@@ -521,9 +510,6 @@ namespace LanguageExt.CodeGen
             return @class.WithMembers(List(cases).Add(bind).Add(biBind).Add(map).Add(bimap).AddRange(monad));
         }
 
-        static TypeSyntax MakeTypeName(string ident, string gen) =>
-            ParseTypeName($"{ident}<{gen}>");
-
         static MethodDeclarationSyntax MakeBindFunction(
             SyntaxToken applyToIdentifier,
             MethodDeclarationSyntax[] applyToMembers,
@@ -536,9 +522,9 @@ namespace LanguageExt.CodeGen
             var genB = CodeGenUtil.NextGenName(genA);
             var genC = CodeGenUtil.NextGenName(genB);
 
-            var typeA = MakeTypeName(applyToIdentifier.Text, genA);
-            var typeB = MakeTypeName(applyToIdentifier.Text, genB);
-            var typeC = MakeTypeName(applyToIdentifier.Text, genC);
+            var typeA    = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genA);
+            var typeB    = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genB);
+            var typeC    = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genC);
             var bindFunc = ParseTypeName($"System.Func<{genA}, {typeB}>");
 
             var mapNextFunc = mapIsStatic
@@ -676,9 +662,9 @@ namespace LanguageExt.CodeGen
                 {
                     SwitchExpressionArm(
                         DeclarationPattern(
-                            MakeTypeName(fail.Identifier.Text, genA),
+                            CodeGenUtil.MakeTypeName(fail.Identifier.Text, genA),
                             SingleVariableDesignation(Identifier("v"))),
-                        ObjectCreationExpression(MakeTypeName(fail.Identifier.Text, genB))
+                        ObjectCreationExpression(CodeGenUtil.MakeTypeName(fail.Identifier.Text, genB))
                             .WithArgumentList(
                                 fail.ParameterList.Parameters.Count == 0
                                     ? ArgumentList()
@@ -698,7 +684,7 @@ namespace LanguageExt.CodeGen
 
             var termimalFuncs = applyToMembers
                 .Where(m => m != pure)
-                .Where(m => m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
+                .Where(m => m.AttributeLists.SelectMany(a => a.Attributes).Any(CodeGenUtil.IsPureAttr))
                 .SelectMany(m =>
                     new SyntaxNodeOrToken[]
                     {
@@ -706,7 +692,7 @@ namespace LanguageExt.CodeGen
                             DeclarationPattern(
                                 ParseTypeName($"{m.Identifier.Text}<{genA}>"),
                                 SingleVariableDesignation(Identifier("v"))),
-                            ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
+                            ObjectCreationExpression(CodeGenUtil.MakeTypeName(m.Identifier.Text, genB))
                                 .WithArgumentList(
                                     ArgumentList(
                                         SeparatedList(
@@ -735,8 +721,8 @@ namespace LanguageExt.CodeGen
             var freeFuncParamsCount = fail == null ? 1 : 2;
 
             var freeFuncs = applyToMembers
-                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
-                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsFailAttr))
+                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(CodeGenUtil.IsPureAttr))
+                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(CodeGenUtil.IsFailAttr))
                 .SelectMany(m =>
                     new SyntaxNodeOrToken[]
                     {
@@ -744,7 +730,7 @@ namespace LanguageExt.CodeGen
                             DeclarationPattern(
                                 ParseTypeName($"{m.Identifier.Text}<{genA}>"),
                                 SingleVariableDesignation(Identifier("v"))),
-                            ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
+                            ObjectCreationExpression(CodeGenUtil.MakeTypeName(m.Identifier.Text, genB))
                                 .WithArgumentList(
                                     ArgumentList(
                                         SeparatedList<ArgumentSyntax>(
@@ -834,16 +820,16 @@ namespace LanguageExt.CodeGen
             var genB = CodeGenUtil.NextGenName(genA);
             var genC = CodeGenUtil.NextGenName(genB);
 
-            var typeA = MakeTypeName(applyToIdentifier.Text, genA);
-            var typeB = MakeTypeName(applyToIdentifier.Text, genB);
-            var typeC = MakeTypeName(applyToIdentifier.Text, genC);
+            var typeA    = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genA);
+            var typeB    = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genB);
+            var typeC    = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genC);
             var bindFunc = ParseTypeName($"System.Func<{genA}, {typeB}>");
             var bindFailFuncType = failType != null
                 ? ParseTypeName($"System.Func<{failType}, {typeB}>")
                 : ParseTypeName($"System.Func<{typeB}>");
 
-            var pureTypeA = MakeTypeName(pure.Identifier.Text, genA);
-            var failTypeA = MakeTypeName(fail.Identifier.Text, genA);
+            var pureTypeA = CodeGenUtil.MakeTypeName(pure.Identifier.Text, genA);
+            var failTypeA = CodeGenUtil.MakeTypeName(fail.Identifier.Text, genA);
 
             var mapFunc = mapIsStatic
                 ? InvocationExpression(
@@ -1012,7 +998,7 @@ namespace LanguageExt.CodeGen
             var termimalFuncs = applyToMembers
                 .Where(m => m != pure)
                 .Where(m => m != fail)
-                .Where(m => m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
+                .Where(m => m.AttributeLists.SelectMany(a => a.Attributes).Any(CodeGenUtil.IsPureAttr))
                 .SelectMany(m =>
                     new SyntaxNodeOrToken[]
                     {
@@ -1020,7 +1006,7 @@ namespace LanguageExt.CodeGen
                             DeclarationPattern(
                                 ParseTypeName($"{m.Identifier.Text}<{genA}>"),
                                 SingleVariableDesignation(Identifier("v"))),
-                            ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
+                            ObjectCreationExpression(CodeGenUtil.MakeTypeName(m.Identifier.Text, genB))
                                 .WithArgumentList(
                                     ArgumentList(
                                         SeparatedList(
@@ -1039,7 +1025,7 @@ namespace LanguageExt.CodeGen
 
             var freeFuncs = applyToMembers
                 .Where(m => m != fail)
-                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
+                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(CodeGenUtil.IsPureAttr))
                 .SelectMany(m =>
                     new SyntaxNodeOrToken[]
                     {
@@ -1047,7 +1033,7 @@ namespace LanguageExt.CodeGen
                             DeclarationPattern(
                                 ParseTypeName($"{m.Identifier.Text}<{genA}>"),
                                 SingleVariableDesignation(Identifier("v"))),
-                            ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
+                            ObjectCreationExpression(CodeGenUtil.MakeTypeName(m.Identifier.Text, genB))
                                 .WithArgumentList(
                                     ArgumentList(
                                         SeparatedList<ArgumentSyntax>(
@@ -1138,10 +1124,10 @@ namespace LanguageExt.CodeGen
             SyntaxToken applyToIdentifier,
             TypeParameterListSyntax applyToTypeParams)
         {
-            var genA = applyToTypeParams.Parameters.First().ToString();
-            var genB = CodeGenUtil.NextGenName(genA);
-            var typeA = MakeTypeName(applyToIdentifier.Text, genA);
-            var typeB = MakeTypeName(applyToIdentifier.Text, genB);
+            var genA        = applyToTypeParams.Parameters.First().ToString();
+            var genB        = CodeGenUtil.NextGenName(genA);
+            var typeA       = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genA);
+            var typeB       = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genB);
             var mapFuncType = ParseTypeName($"System.Func<{genA}, {genB}>");
 
             return MethodDeclaration(
@@ -1194,244 +1180,16 @@ namespace LanguageExt.CodeGen
                     Token(SyntaxKind.SemicolonToken));
         }
 
-        static MethodDeclarationSyntax MakeMapFunction(
-            SyntaxToken applyToIdentifier,
-            MethodDeclarationSyntax[] applyToMembers,
-            TypeParameterListSyntax applyToTypeParams,
-            MethodDeclarationSyntax pure,
-            MethodDeclarationSyntax fail)
-        {
-            var genA = applyToTypeParams.Parameters.First().ToString();
-            var genB = CodeGenUtil.NextGenName(genA);
-            var genC = CodeGenUtil.NextGenName(genB);
-
-            var typeA = MakeTypeName(applyToIdentifier.Text, genA);
-            var typeB = MakeTypeName(applyToIdentifier.Text, genB);
-            var typeC = MakeTypeName(applyToIdentifier.Text, genC);
-            var mapFuncType = ParseTypeName($"System.Func<{genA}, {genB}>");
-            var pureTypeA = MakeTypeName(pure.Identifier.Text, genA);
-            var pureTypeB = MakeTypeName(pure.Identifier.Text, genB);
-
-            var mapNextFunc = InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        InvocationExpression(
-                                MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName("v"),
-                                    IdentifierName("Next")))
-                            .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("n"))))),
-                        IdentifierName("Map")))
-                .WithArgumentList(
-                    ArgumentList(
-                        SingletonSeparatedList(
-                            Argument(
-                                IdentifierName("f")))));
-
-            // this will only be used if we have a fail path
-            var mapFailFunc = InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        InvocationExpression(
-                                MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName("v"),
-                                    IdentifierName("FailNext")))
-                            .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("fn"))))),
-                        IdentifierName("Map")))
-                .WithArgumentList(
-                    ArgumentList(
-                        SingletonSeparatedList(
-                            Argument(
-                                IdentifierName("f")))));
-
-            var pureFunc = new SyntaxNodeOrToken[]
-            {
-                SwitchExpressionArm(
-                    DeclarationPattern(
-                        pureTypeA,
-                        SingleVariableDesignation(Identifier("v"))),
-                    ObjectCreationExpression(pureTypeB)
-                        .WithArgumentList(
-                            ArgumentList(
-                                SingletonSeparatedList(
-                                    Argument(
-                                        InvocationExpression(IdentifierName("f"))
-                                            .WithArgumentList(
-                                                ArgumentList(
-                                                    SingletonSeparatedList(
-                                                        Argument(
-                                                            MemberAccessExpression(
-                                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                                IdentifierName("v"),
-                                                                IdentifierName(
-                                                                    CodeGenUtil.MakeFirstCharUpper(pure.ParameterList
-                                                                        .Parameters.First().Identifier.Text)))))))))))),
-                Token(SyntaxKind.CommaToken)
-            };
-
-            // this will only be used if we have a fail path
-            var failFunc = fail != null
-                ? new SyntaxNodeOrToken[]
-                {
-                    SwitchExpressionArm(
-                        DeclarationPattern(
-                            MakeTypeName(fail.Identifier.Text, genA),
-                            SingleVariableDesignation(Identifier("v"))),
-                        ObjectCreationExpression(MakeTypeName(fail.Identifier.Text, genB))
-                            .WithArgumentList(
-                                fail.ParameterList.Parameters.Count == 0
-                                    ? ArgumentList()
-                                    : ArgumentList(
-                                        SingletonSeparatedList(
-                                            Argument(
-                                                MemberAccessExpression(
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    IdentifierName("v"),
-                                                    IdentifierName(
-                                                        CodeGenUtil.MakeFirstCharUpper(fail.ParameterList
-                                                            .Parameters.First().Identifier.Text)))))))),
-                    Token(SyntaxKind.CommaToken)
-                }
-                : null;
-
-            var termimalFuncs = applyToMembers
-                .Where(m => m != pure)
-                .Where(m => m != fail)
-                .Where(m => m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
-                .SelectMany(m =>
-                    new SyntaxNodeOrToken[]
-                    {
-                        SwitchExpressionArm(
-                            DeclarationPattern(
-                                ParseTypeName($"{m.Identifier.Text}<{genA}>"),
-                                SingleVariableDesignation(Identifier("v"))),
-                            ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
-                                .WithArgumentList(
-                                    ArgumentList(
-                                        SeparatedList(
-                                            m.ParameterList
-                                                .Parameters
-                                                .Select(p =>
-                                                    Argument(
-                                                        MemberAccessExpression(
-                                                            SyntaxKind.SimpleMemberAccessExpression,
-                                                            IdentifierName("v"),
-                                                            IdentifierName(
-                                                                CodeGenUtil.MakeFirstCharUpper(p.Identifier))))))))),
-                        Token(SyntaxKind.CommaToken)
-                    });
-
-
-            var freeFuncParams = fail == null
-                ? new SyntaxNodeOrToken[] {Argument(SimpleLambdaExpression(Parameter(Identifier("n")), mapNextFunc))}
-                : new SyntaxNodeOrToken[]
-                {
-                    Argument(SimpleLambdaExpression(Parameter(Identifier("n")), mapNextFunc)),
-                    Token(SyntaxKind.CommaToken),
-                    Argument(SimpleLambdaExpression(Parameter(Identifier("fn")), mapFailFunc))
-                };
-
-            var freeFuncParamsCount = fail == null ? 1 : 2;
-
-            var freeFuncs = applyToMembers
-                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
-                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsFailAttr))
-                .SelectMany(m =>
-                    new SyntaxNodeOrToken[]
-                    {
-                        SwitchExpressionArm(
-                            DeclarationPattern(
-                                ParseTypeName($"{m.Identifier.Text}<{genA}>"),
-                                SingleVariableDesignation(Identifier("v"))),
-                            ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
-                                .WithArgumentList(
-                                    ArgumentList(
-                                        SeparatedList<ArgumentSyntax>(
-                                            m.ParameterList
-                                                .Parameters
-                                                .Take(m.ParameterList.Parameters.Count - freeFuncParamsCount)
-                                                .SelectMany(p =>
-                                                    new SyntaxNodeOrToken[]
-                                                    {
-                                                        Argument(
-                                                            MemberAccessExpression(
-                                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                                IdentifierName("v"),
-                                                                IdentifierName(
-                                                                    CodeGenUtil.MakeFirstCharUpper(
-                                                                        p.Identifier.Text)))),
-                                                        Token(SyntaxKind.CommaToken)
-                                                    })
-                                                .Concat(freeFuncParams))))),
-                        Token(SyntaxKind.CommaToken)
-                    });
-
-            var tokens = new List<SyntaxNodeOrToken>();
-            tokens.AddRange(pureFunc);
-            if (failFunc != null)
-                tokens.AddRange(failFunc);
-            tokens.AddRange(termimalFuncs);
-            tokens.AddRange(freeFuncs);
-            tokens.Add(
-                SwitchExpressionArm(
-                    DiscardPattern(),
-                    ThrowExpression(
-                        ObjectCreationExpression(
-                                QualifiedName(
-                                    IdentifierName("System"),
-                                    IdentifierName("NotSupportedException")))
-                            .WithArgumentList(ArgumentList()))));
-
-            return MethodDeclaration(typeB, Identifier("Map"))
-                .WithModifiers(
-                    TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)))
-                .WithTypeParameterList(
-                    TypeParameterList(
-                        SeparatedList<TypeParameterSyntax>(
-                            new SyntaxNodeOrToken[]
-                            {
-                                TypeParameter(
-                                    Identifier(genA)),
-                                Token(SyntaxKind.CommaToken), TypeParameter(
-                                    Identifier(genB))
-                            })))
-                .WithParameterList(
-                    ParameterList(
-                        SeparatedList<ParameterSyntax>(
-                            new SyntaxNodeOrToken[]
-                            {
-                                Parameter(
-                                        Identifier("ma"))
-                                    .WithModifiers(
-                                        TokenList(
-                                            Token(SyntaxKind.ThisKeyword)))
-                                    .WithType(typeA),
-                                Token(SyntaxKind.CommaToken), Parameter(
-                                        Identifier("f"))
-                                    .WithType(mapFuncType)
-                            })))
-                .WithExpressionBody(
-                    ArrowExpressionClause(
-                        SwitchExpression(
-                                IdentifierName("ma"))
-                            .WithArms(SeparatedList<SwitchExpressionArmSyntax>(tokens))))
-                .WithSemicolonToken(
-                    Token(SyntaxKind.SemicolonToken))
-                .NormalizeWhitespace();
-        }
-
-
         static MethodDeclarationSyntax MakeBiMapExtension(
             SyntaxToken applyToIdentifier,
             TypeParameterListSyntax applyToTypeParams,
             TypeSyntax failType)
         {
-            var genA = applyToTypeParams.Parameters.First().ToString();
-            var genB = CodeGenUtil.NextGenName(genA);
-            var typeA = MakeTypeName(applyToIdentifier.Text, genA);
-            var typeB = MakeTypeName(applyToIdentifier.Text, genB);
-            var mapFuncType = ParseTypeName($"System.Func<{genA}, {genB}>");
+            var genA            = applyToTypeParams.Parameters.First().ToString();
+            var genB            = CodeGenUtil.NextGenName(genA);
+            var typeA           = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genA);
+            var typeB           = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genB);
+            var mapFuncType     = ParseTypeName($"System.Func<{genA}, {genB}>");
             var mapFailFuncType = ParseTypeName($"System.Func<{failType}, {genB}>");
 
             return MethodDeclaration(
@@ -1499,16 +1257,16 @@ namespace LanguageExt.CodeGen
             var genB = CodeGenUtil.NextGenName(genA);
             var genC = CodeGenUtil.NextGenName(genB);
 
-            var typeA = MakeTypeName(applyToIdentifier.Text, genA);
-            var typeB = MakeTypeName(applyToIdentifier.Text, genB);
-            var typeC = MakeTypeName(applyToIdentifier.Text, genC);
+            var typeA       = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genA);
+            var typeB       = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genB);
+            var typeC       = CodeGenUtil.MakeTypeName(applyToIdentifier.Text, genC);
             var mapFuncType = ParseTypeName($"System.Func<{genA}, {genB}>");
             var mapFailFuncType = failType != null
                 ? ParseTypeName($"System.Func<{failType}, {genB}>")
                 : ParseTypeName($"System.Func<{genB}>");
-            var pureTypeA = MakeTypeName(pure.Identifier.Text, genA);
-            var pureTypeB = MakeTypeName(pure.Identifier.Text, genB);
-            var failTypeA = MakeTypeName(fail.Identifier.Text, genA);
+            var pureTypeA = CodeGenUtil.MakeTypeName(pure.Identifier.Text, genA);
+            var pureTypeB = CodeGenUtil.MakeTypeName(pure.Identifier.Text, genB);
+            var failTypeA = CodeGenUtil.MakeTypeName(fail.Identifier.Text, genA);
 
 
             var mapNextFunc = InvocationExpression(
@@ -1611,7 +1369,7 @@ namespace LanguageExt.CodeGen
             var termimalFuncs = applyToMembers
                 .Where(m => m != pure)
                 .Where(m => m != fail)
-                .Where(m => m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
+                .Where(m => m.AttributeLists.SelectMany(a => a.Attributes).Any(CodeGenUtil.IsPureAttr))
                 .SelectMany(m =>
                     new SyntaxNodeOrToken[]
                     {
@@ -1619,7 +1377,7 @@ namespace LanguageExt.CodeGen
                             DeclarationPattern(
                                 ParseTypeName($"{m.Identifier.Text}<{genA}>"),
                                 SingleVariableDesignation(Identifier("v"))),
-                            ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
+                            ObjectCreationExpression(CodeGenUtil.MakeTypeName(m.Identifier.Text, genB))
                                 .WithArgumentList(
                                     ArgumentList(
                                         SeparatedList(
@@ -1637,8 +1395,8 @@ namespace LanguageExt.CodeGen
 
 
             var freeFuncs = applyToMembers
-                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsPureAttr))
-                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(IsFailAttr))
+                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(CodeGenUtil.IsPureAttr))
+                .Where(m => !m.AttributeLists.SelectMany(a => a.Attributes).Any(CodeGenUtil.IsFailAttr))
                 .SelectMany(m =>
                     new SyntaxNodeOrToken[]
                     {
@@ -1646,7 +1404,7 @@ namespace LanguageExt.CodeGen
                             DeclarationPattern(
                                 ParseTypeName($"{m.Identifier.Text}<{genA}>"),
                                 SingleVariableDesignation(Identifier("v"))),
-                            ObjectCreationExpression(MakeTypeName(m.Identifier.Text, genB))
+                            ObjectCreationExpression(CodeGenUtil.MakeTypeName(m.Identifier.Text, genB))
                                 .WithArgumentList(
                                     ArgumentList(
                                         SeparatedList<ArgumentSyntax>(
@@ -1739,7 +1497,7 @@ namespace LanguageExt.CodeGen
             MethodDeclarationSyntax pure,
             MethodDeclarationSyntax fail)
         {
-            if (HasPureAttr(method) || HasFailAttr(method))
+            if (CodeGenUtil.HasPureAttr(method) || CodeGenUtil.HasFailAttr(method))
             {
                 var typeParamList = applyToTypeParams;
                 if (method.TypeParameterList != null)
