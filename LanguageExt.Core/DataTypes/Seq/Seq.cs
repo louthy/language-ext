@@ -673,7 +673,6 @@ namespace LanguageExt
         /// <returns>
         /// Returns the original unmodified structure
         /// </returns>
-        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit Iter(Action<A> f) =>
             Value.Iter(f);

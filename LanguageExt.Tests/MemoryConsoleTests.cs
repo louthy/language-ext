@@ -38,21 +38,18 @@ namespace LanguageExt.Tests
         [InlineData("abc\ndef\n")]
         public void Read_line_followed_by_write_line(string unsplitLines)
         {
-            var lines = unsplitLines.Split('\n').ToSeq();
+            // Prep the runtime and the keyboard buffer with the typed lines
             var rt    = Runtime.New();
+            var lines = unsplitLines.Split('\n').ToSeq();
+            lines.Iter(line => rt.Env.Console.WriteKeyLine(line));
 
-            // Prep the keyboard buffer with the typed lines
-            foreach (var line in lines)
-            {
-                rt.Env.Console.WriteKeyLine(line);
-            }
-
+            // test
             var comp = repeat(from l in Console.readLine
                               from _ in Console.writeLine(l)
                               select unit) | unitEff;
             
+            // run and assert
             comp.RunUnit(rt);
-            
             Assert.True(lines == rt.Env.Console.ToSeq(), "sequences don't match");
         }
 
