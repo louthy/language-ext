@@ -38,14 +38,21 @@ namespace LanguageExt.Sys.Live
         HasEnvironment<Runtime>,
         HasDirectory<Runtime>
     {
-        readonly RuntimeEnv Env;
+        readonly RuntimeEnv env;
 
         /// <summary>
         /// Constructor
         /// </summary>
         Runtime(RuntimeEnv env) =>
-            Env = env;
+            this.env = env;
 
+
+        /// <summary>
+        /// Configuration environment accessor
+        /// </summary>
+        public RuntimeEnv Env =>
+            env ?? throw new InvalidOperationException("Runtime Env not set.  Perhaps because of using default(Runtime) or new Runtime() rather than Runtime.New()");
+        
         /// <summary>
         /// Constructor function
         /// </summary>
