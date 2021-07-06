@@ -13,7 +13,6 @@ namespace LanguageExt
     /// <summary>
     /// Asynchronous effect monad
     /// </summary>
-    [AsyncMethodBuilder(typeof(AffMethodBuilder<>))]
     public struct Aff<A>
     {
         internal const MethodImplOptions mops = MethodImplOptions.AggressiveInlining;
@@ -39,6 +38,23 @@ namespace LanguageExt
         /// Invoke the effect
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
+        public ValueTask<Fin<A>> ReRun() =>
+            Thunk.ReValue();
+        
+        /// <summary>
+        /// Clone the effect
+        /// </summary>
+        /// <remarks>
+        /// If the effect had already run, then this state will be wiped in the clone, meaning it can be re-run
+        /// </remarks>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Aff<A> Clone() =>
+            new Aff<A>(Thunk.Clone());        
+
+        /// <summary>
+        /// Invoke the effect
+        /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
         public async ValueTask<Unit> RunUnit() =>
             ignore(await Thunk.Value().ConfigureAwait(false));
 
@@ -59,8 +75,13 @@ namespace LanguageExt
         /// <summary>
         /// Custom awaiter so Aff can be used with async/await 
         /// </summary>
-        public AffAwaiter<A> GetAwaiter() =>
-            new AffAwaiter<A>(this);
+        ///
+        ///     PL: Doesn't seem to play nice with the async/await machinery, so commenting out until I can spend
+        ///         some time on it.  Will need to re-add: [AsyncMethodBuilder(typeof(AffMethodBuilder<>))] to the Aff
+        ///         struct declaration
+        /// 
+        //public AffAwaiter<A> GetAwaiter() =>
+        //    new AffAwaiter<A>(this);
         
         /// <summary>
         /// Lift an asynchronous effect into the Aff monad
@@ -161,15 +182,6 @@ namespace LanguageExt
             return r.IsFail || (r.IsSucc && f(r.Value));
         }
 
-        /// <summary>
-        /// Clear the memoised value
-        /// </summary>
-        [MethodImpl(AffOpt.mops)]
-        public Unit Clear()
-        {
-            thunk = Thunk.Clone();
-            return default;
-        }
         /// <summary>
         /// Implicit conversion from pure Eff
         /// </summary>

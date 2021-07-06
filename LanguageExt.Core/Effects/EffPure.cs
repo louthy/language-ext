@@ -34,6 +34,23 @@ namespace LanguageExt
         /// <summary>
         /// Invoke the effect
         /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Fin<A> ReRun() =>
+            Thunk.ReValue();
+
+        /// <summary>
+        /// Clone the effect
+        /// </summary>
+        /// <remarks>
+        /// If the effect had already run, then this state will be wiped in the clone, meaning it can be re-run
+        /// </remarks>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Eff<A> Clone() =>
+            new Eff<A>(Thunk.Clone());        
+
+        /// <summary>
+        /// Invoke the effect
+        /// </summary>
         [MethodImpl(AffOpt.mops)]
         public Unit RunUnit() =>
             ignore(Thunk.Value());
@@ -111,16 +128,6 @@ namespace LanguageExt
         {
             var r = Run();
             return r.IsFail || (r.IsSucc && f(r.Value));
-        }
-
-        /// <summary>
-        /// Clear the memoised value
-        /// </summary>
-        [MethodImpl(AffOpt.mops)]
-        public Unit Clear()
-        {
-            thunk = Thunk.Clone();
-            return default;
         }
     }
     

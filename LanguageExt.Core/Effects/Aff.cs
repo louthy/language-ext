@@ -39,6 +39,23 @@ namespace LanguageExt
         /// <summary>
         /// Invoke the effect
         /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public ValueTask<Fin<A>> ReRun(Env env) =>
+            Thunk.ReValue(env);
+
+        /// <summary>
+        /// Clone the effect
+        /// </summary>
+        /// <remarks>
+        /// If the effect had already run, then this state will be wiped in the clone, meaning it can be re-run
+        /// </remarks>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Aff<Env, A> Clone() =>
+            new Aff<Env, A>(Thunk.Clone());        
+
+        /// <summary>
+        /// Invoke the effect
+        /// </summary>
         [MethodImpl(AffOpt.mops)]
         public async ValueTask<Unit> RunUnit(Env env) =>
             ignore(await Thunk.Value(env).ConfigureAwait(false));
@@ -150,16 +167,6 @@ namespace LanguageExt
                         ? ra
                         : await mb.Run(env).ConfigureAwait(false);
                 }));
-        
-        /// <summary>
-        /// Clear the memoised value
-        /// </summary>
-        [MethodImpl(AffOpt.mops)]
-        public Unit Clear()
-        {
-            thunk = Thunk.Clone();
-            return default;
-        }
         
         /// <summary>
         /// Implicit conversion from pure Aff

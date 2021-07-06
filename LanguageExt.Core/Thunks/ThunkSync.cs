@@ -73,7 +73,20 @@ namespace LanguageExt.Thunks
         [Pure, MethodImpl(Thunk.mops)]
         public Fin<A> Value() =>
             Eval();
-        
+
+        /// <summary>
+        /// Value accessor (clearing the memoised value)
+        /// </summary>
+        [Pure, MethodImpl(Thunk.mops)]
+        public Fin<A> ReValue()
+        {
+            if (this.fun != null && state >= Thunk.IsSuccess)
+            {
+                state = Thunk.NotEvaluated;
+            }
+            return Value();
+        }
+
         /// <summary>
         /// Clone the thunk
         /// </summary>

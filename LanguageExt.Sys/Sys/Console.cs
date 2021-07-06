@@ -21,7 +21,9 @@ namespace LanguageExt.Sys
         /// Read a key from the console
         /// </summary>
         public static Eff<RT, ConsoleKeyInfo> readKey =>
-            default(RT).ConsoleEff.Map(e => e.ReadKey());
+            default(RT).ConsoleEff.Bind(e => e.ReadKey()
+                                              .Match(Some: SuccessEff<ConsoleKeyInfo>, 
+                                                     None: () => FailEff<ConsoleKeyInfo>(Error.New("end of stream"))));
 
         /// <summary>
         /// Clear the console
@@ -33,13 +35,17 @@ namespace LanguageExt.Sys
         /// Read from the console
         /// </summary>
         public static Eff<RT, int> read =>
-            default(RT).ConsoleEff.Map(e => e.Read());
+            default(RT).ConsoleEff.Bind(e => e.Read()
+                                             .Match(Some: SuccessEff<int>, 
+                                                    None: () => FailEff<int>(Error.New("end of stream"))));
 
         /// <summary>
         /// Read from the console
         /// </summary>
-        public static Eff<RT, Option<string>> readLine =>
-            default(RT).ConsoleEff.Map(e => e.ReadLine());
+        public static Eff<RT, string> readLine =>
+            default(RT).ConsoleEff.Bind(e => e.ReadLine()
+                                              .Match(Some: SuccessEff<string>, 
+                                                     None: () => FailEff<string>(Error.New("end of stream"))));
 
         /// <summary>
         /// Write an empty line to the console

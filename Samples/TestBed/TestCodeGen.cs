@@ -268,10 +268,10 @@ namespace TestBed
     }
 
     [Union]
-    internal interface MaybeUnion<T>
+    public abstract partial class MaybeUnion<A>
     {
-        MaybeUnion<T> JustValue(T value);
-        MaybeUnion<T> NothingValue();
+        public abstract MaybeUnion<A> JustValue(A value);
+        public abstract MaybeUnion<A> NothingValue();
     }
 
     [Union]

@@ -7,10 +7,10 @@ namespace LanguageExt.Sys.Live
     {
         public readonly static Sys.Traits.ConsoleIO Default =
             new ConsoleIO();
-        
-        public ConsoleKeyInfo ReadKey() =>
+
+        public Option<ConsoleKeyInfo> ReadKey() =>
             System.Console.ReadKey();
-        
+
         public Unit Clear()
         {
             System.Console.Clear();
@@ -34,10 +34,15 @@ namespace LanguageExt.Sys.Live
         
         public ConsoleColor Color => 
             System.Console.ForegroundColor;
-        
-        public int Read() =>
-            System.Console.Read();
-        
+
+        public Option<int> Read()
+        {
+            var k = System.Console.Read();
+            return k == -1
+                       ? None
+                       : k;
+        }
+
         public Option<string> ReadLine() =>
             System.Console.ReadLine();
         

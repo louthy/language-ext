@@ -142,7 +142,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = await op.Run(env).ConfigureAwait(false);
+                        var res = await op.ReRun(env).ConfigureAwait(false);
                         if (res.IsFail)
                         {
                             return res;
@@ -154,7 +154,6 @@ namespace LanguageExt
                     {
                         // Conflict found, so retry
                         retries--;
-                        op.Clear();
                     }
                     finally
                     {
@@ -185,7 +184,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = op.Run(env);
+                        var res = op.ReRun(env);
                         if (res.IsFail)
                         {
                             return res;
@@ -197,7 +196,6 @@ namespace LanguageExt
                     {
                         // Conflict found, so retry
                         retries--;
-                        op.Clear();
                     }
                     finally
                     {
@@ -228,7 +226,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = await op.Run().ConfigureAwait(false);
+                        var res = await op.ReRun().ConfigureAwait(false);
                         if (res.IsFail)
                         {
                             return res;
@@ -240,7 +238,6 @@ namespace LanguageExt
                     {
                         // Conflict found, so retry
                         retries--;
-                        op.Clear();
                     }
                     finally
                     {
@@ -271,7 +268,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = op.Run();
+                        var res = op.ReRun();
                         if (res.IsFail)
                         {
                             return res;
@@ -283,7 +280,6 @@ namespace LanguageExt
                     {
                         // Conflict found, so retry
                         retries--;
-                        op.Clear();
                     }
                     finally
                     {

@@ -17,7 +17,7 @@ namespace LanguageExt.Sys.Test
         public ConsoleIO(MemoryConsole mem) =>
             this.mem = mem;
         
-        public ConsoleKeyInfo ReadKey() =>
+        public Option<ConsoleKeyInfo> ReadKey() =>
             mem.ReadKey();
 
         public Unit Clear() =>
@@ -35,7 +35,7 @@ namespace LanguageExt.Sys.Test
         public ConsoleColor Color => 
             mem.Color;
         
-        public int Read() =>
+        public Option<int> Read() =>
             mem.Read();
         
         public Option<string> ReadLine() =>

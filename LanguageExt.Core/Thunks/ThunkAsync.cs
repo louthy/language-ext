@@ -96,6 +96,19 @@ namespace LanguageExt.Thunks
             Eval();
 
         /// <summary>
+        /// Value accessor (clearing the memoised value)
+        /// </summary>
+        [Pure, MethodImpl(Thunk.mops)]
+        public ValueTask<Fin<A>> ReValue()
+        {
+            if (this.fun != null && state >= Thunk.IsSuccess)
+            {
+                state = Thunk.NotEvaluated;
+            }
+            return Value();
+        }
+        
+        /// <summary>
         /// Functor map
         /// </summary>
         [Pure, MethodImpl(Thunk.mops)]

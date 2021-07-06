@@ -6,9 +6,9 @@ namespace LanguageExt.Sys.Traits
 {
     public interface ConsoleIO
     {
-        ConsoleKeyInfo ReadKey();
         Unit Clear();
-        int Read();
+        Option<ConsoleKeyInfo> ReadKey();
+        Option<int> Read();
         Option<string> ReadLine();
         Unit WriteLine();
         Unit WriteLine(string value);

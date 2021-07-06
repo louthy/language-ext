@@ -1,5 +1,5 @@
-using System.IO;
 using Xunit;
+using System.IO;
 using LanguageExt.Sys;
 using LanguageExt.Sys.IO;
 using LanguageExt.Sys.Test;

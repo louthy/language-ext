@@ -1,8 +1,9 @@
 using System;
-using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
 using LanguageExt.Effects.Traits;
+using System.Diagnostics.Contracts;
 using static LanguageExt.Pipes.Proxy;
+using System.Runtime.CompilerServices;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes
 {
@@ -16,19 +17,10 @@ namespace LanguageExt.Pipes
                 {
                     Request<Env, Void, Unit, Unit, Void, R> (var v, var _) => Proxy.closed<Aff<Env, R>>(v),
                     Respond<Env, Void, Unit, Unit, Void, R> (var v, var _) => Proxy.closed<Aff<Env, R>>(v),
-                    M<Env, Void, Unit, Unit, Void, R> (var m)              => ClearAndBind(m, Go),
+                    M<Env, Void, Unit, Unit, Void, R> (var m)              => m.Clone().Bind(Go),
                     Pure<Env, Void, Unit, Unit, Void, R> (var r)           => Aff<Env, R>.Success(r),                                                                                
                     _                                                      => throw new NotSupportedException()
                 };
-        }
-
-        [Pure, MethodImpl(Proxy.mops)]
-        static Aff<Env, R> ClearAndBind<Env, R>(
-            Aff<Env, Proxy<Env, Void, Unit, Unit, Void, R>> m, 
-            Func<Proxy<Env, Void, Unit, Unit, Void, R>, Aff<Env, R>> f) where Env : struct, HasCancel<Env>
-        {
-            m.Clear();
-            return m.Bind(f);
         }
 
         [Pure, MethodImpl(Proxy.mops)]

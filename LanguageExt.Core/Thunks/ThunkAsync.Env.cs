@@ -84,6 +84,19 @@ namespace LanguageExt.Thunks
             Eval(env);
         
         /// <summary>
+        /// Value accessor (clearing the memoised value)
+        /// </summary>
+        [Pure, MethodImpl(Thunk.mops)]
+        public ValueTask<Fin<A>> ReValue(Env env)
+        {
+            if (this.fun != null && state >= Thunk.IsSuccess)
+            {
+                state = Thunk.NotEvaluated;
+            }
+            return Value(env);
+        }
+        
+        /// <summary>
         /// Clone the thunk
         /// </summary>
         /// <remarks>For thunks that were created as pre-failed/pre-cancelled values (i.e. no delegate to run, just

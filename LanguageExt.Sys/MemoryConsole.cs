@@ -1,9 +1,11 @@
 using System;
-using System.Collections;
 using System.Threading;
+using System.Collections;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Collections.Concurrent;
+using System.Linq;
+using LanguageExt.UnsafeValueAccess;
 
 namespace LanguageExt.Sys
 {
@@ -55,6 +57,7 @@ namespace LanguageExt.Sys
         /// Write a character into the keyboard buffer
         /// </summary>
         /// <remarks>
+        /// No newline character is written
         /// Won't show in the console until Commit or Read* is called 
         /// </remarks>
         public Unit WriteKeyString(string str)
@@ -63,6 +66,19 @@ namespace LanguageExt.Sys
             {
                 WriteKeyChar(ch);
             }
+            return default;
+        }
+        
+        /// <summary>
+        /// Write a series of characters into the keyboard buffer followed by a newline
+        /// </summary>
+        /// <remarks>
+        /// Won't show in the console until Commit or Read* is called 
+        /// </remarks>
+        public Unit WriteKeyLine(string str)
+        {
+            WriteKeyString(str);
+            WriteKeyChar('\n');
             return default;
         }
 
@@ -74,27 +90,15 @@ namespace LanguageExt.Sys
         {
             while(KeyboardBuffer.Count > 0)
             {
-                Read();
+                ReadKey().Map(WriteKey);
             }
             return default;
         }
-        
-        internal ConsoleKeyInfo ReadKey()
-        {
-            while (true)
-            {
-                if (KeyboardBuffer.TryDequeue(out var key))
-                {
-                    return key;
-                }
-                else
-                {
-                    // Ugly, but should only be needed for testing
-                    Thread.Sleep(10);
-                    continue;
-                }
-            }
-        }
+
+        internal Option<ConsoleKeyInfo> ReadKey() =>
+            KeyboardBuffer.TryDequeue(out var key)
+                ? key
+                : None;
 
         internal ConsoleKey CharToConsoleKey(char ch) =>
             Enum.TryParse<ConsoleKey>(ch.ToString(), out var ck) ? ck : default;
@@ -120,9 +124,11 @@ namespace LanguageExt.Sys
         internal ConsoleColor BgColor { get; private set; } = ConsoleColor.Black;
         internal ConsoleColor Color { get; private set; } = ConsoleColor.White;
 
-        internal int Read()
+        internal Option<int> Read()
         {
-            var kc = ReadKey().KeyChar;
+            var ok = ReadKey();
+            if (ok.IsNone) return None;
+            var kc = ok.ValueUnsafe().KeyChar;
             var ch = Convert.ToChar(kc);
             if (ch == '\n')
             {
@@ -142,13 +148,15 @@ namespace LanguageExt.Sys
             return kc;
         }
 
-        internal string ReadLine()
+        internal Option<string> ReadLine()
         {
             List<char> chs = new();
             while (true)
             {
-                var ch = ReadKey().KeyChar;
-                if (ch == '\n') return new string(chs.ToArray());
+                var ok = ReadKey();
+                if (ok.IsNone) return None;
+                var ch = ok.ValueUnsafe().KeyChar;
+                if (ch.ToString() == Environment.NewLine || ch == '\n'|| ch == '\r') return new string(chs.ToArray());
                 chs.Add(ch);
             }
         }
@@ -178,9 +186,9 @@ namespace LanguageExt.Sys
         }
 
         public IEnumerator<string> GetEnumerator() =>
-            Console.GetEnumerator();
+            Console.Reverse().Skip(1).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() =>
-            Console.GetEnumerator();
+            Console.Reverse().Skip(1).GetEnumerator();
     }
 }
