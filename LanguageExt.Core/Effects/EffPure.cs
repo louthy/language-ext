@@ -167,7 +167,7 @@ namespace LanguageExt
             });
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, B> Match<Env, A, B>(this Eff<A> ma, Func<A, B> Succ, Aff<Env, B> Fail) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, B> MatchAff<Env, A, B>(this Eff<A> ma, Func<A, B> Succ, Aff<Env, B> Fail) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, B>(async env =>
             {
                 var r = ma.Run();
@@ -177,7 +177,17 @@ namespace LanguageExt
             });
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, B> Match<Env, A, B>(this Eff<A> ma, Func<A, B> Succ, Eff<Env, B> Fail) =>
+        public static Aff<Env, B> MatchAff<Env, A, B>(this Eff<A> ma, Func<A, B> Succ, Func<Error, Aff<Env, B>> Fail) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, B>(async env =>
+                             {
+                                 var r = ma.Run();
+                                 return r.IsSucc
+                                            ? Succ(r.Value)
+                                            : await Fail(r.Error).Run(env).ConfigureAwait(false);
+                             });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Func<A, B> Succ, Eff<Env, B> Fail) =>
             EffMaybe<Env, B>(env =>
             {
                 var r = ma.Run();
@@ -187,7 +197,17 @@ namespace LanguageExt
             });
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<B> Match<A, B>(this Eff<A> ma, Func<A, B> Succ, Eff<B> Fail) =>
+        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Func<A, B> Succ, Func<Error, Eff<Env, B>> Fail) =>
+            EffMaybe<Env, B>(env =>
+                             {
+                                 var r = ma.Run();
+                                 return r.IsSucc
+                                            ? Succ(r.Value)
+                                            : Fail(r.Error).Run(env);
+                             });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<B> MatchEff<A, B>(this Eff<A> ma, Func<A, B> Succ, Eff<B> Fail) =>
             EffMaybe<B>(() =>
             {
                 var r = ma.Run();
@@ -195,9 +215,19 @@ namespace LanguageExt
                     ? Succ(r.Value)
                     : Fail.Run();
             });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<B> MatchEff<A, B>(this Eff<A> ma, Func<A, B> Succ, Func<Error, Eff<B>> Fail) =>
+            EffMaybe<B>(() =>
+                        {
+                            var r = ma.Run();
+                            return r.IsSucc
+                                       ? Succ(r.Value)
+                                       : Fail(r.Error).Run();
+                        });
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, B> Match<Env, A, B>(this Eff<A> ma, Aff<Env, B> Succ, Func<Error, B> Fail) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, B> MatchAff<Env, A, B>(this Eff<A> ma, Aff<Env, B> Succ, Func<Error, B> Fail) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, B>(async env =>
             {
                 var r = ma.Run();
@@ -207,7 +237,17 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, B> Match<Env, A, B>(this Eff<A> ma, Eff<Env, B> Succ, Func<Error, B> Fail) =>
+        public static Aff<Env, B> MatchAff<Env, A, B>(this Eff<A> ma, Func<A, Aff<Env, B>> Succ, Func<Error, B> Fail) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, B>(async env =>
+                             {
+                                 var r = ma.Run();
+                                 return r.IsSucc
+                                            ? await Succ(r.Value).Run(env).ConfigureAwait(false)
+                                            : Fail(r.Error);
+                             });
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Eff<Env, B> Succ, Func<Error, B> Fail) =>
             EffMaybe<Env, B>(env =>
             {
                 var r = ma.Run();
@@ -217,7 +257,17 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<B> Match<A, B>(this Eff<A> ma, Eff<B> Succ, Func<Error, B> Fail) =>
+        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Func<A, Eff<Env, B>> Succ, Func<Error, B> Fail) =>
+            EffMaybe<Env, B>(env =>
+                             {
+                                 var r = ma.Run();
+                                 return r.IsSucc
+                                            ? Succ(r.Value).Run(env)
+                                            : Fail(r.Error);
+                             });
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<B> MatchEff<A, B>(this Eff<A> ma, Eff<B> Succ, Func<Error, B> Fail) =>
             EffMaybe<B>(() =>
             {
                 var r = ma.Run();
@@ -227,7 +277,17 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, B> Match<Env, A, B>(this Eff<A> ma, Aff<Env, B> Succ, Aff<Env, B> Fail) where Env : struct, HasCancel<Env> =>
+        public static Eff<B> MatchEff<A, B>(this Eff<A> ma, Func<A, Eff<B>> Succ, Func<Error, B> Fail) =>
+            EffMaybe<B>(() =>
+                        {
+                            var r = ma.Run();
+                            return r.IsSucc
+                                       ? Succ(r.Value).Run()
+                                       : Fail(r.Error);
+                        });
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, B> MatchAff<Env, A, B>(this Eff<A> ma, Aff<Env, B> Succ, Aff<Env, B> Fail) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, B>(async env =>
             {
                 var r = ma.Run();
@@ -237,7 +297,17 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, B> Match<Env, A, B>(this Eff<A> ma, Eff<Env, B> Succ, Eff<Env, B> Fail) =>
+        public static Aff<Env, B> MatchAff<Env, A, B>(this Eff<A> ma, Func<A, Aff<Env, B>> Succ, Func<Error, Aff<Env, B>> Fail) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, B>(async env =>
+                             {
+                                 var r = ma.Run();
+                                 return r.IsSucc
+                                            ? await Succ(r.Value).Run(env).ConfigureAwait(false)
+                                            : await Fail(r.Error).Run(env).ConfigureAwait(false);
+                             });
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Eff<Env, B> Succ, Eff<Env, B> Fail) =>
             EffMaybe<Env, B>(env =>
             {
                 var r = ma.Run();
@@ -247,7 +317,17 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<B> Match<A, B>(this Eff<A> ma, Eff<B> Succ, Eff<B> Fail) =>
+        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Func<A, Eff<Env, B>> Succ, Func<Error, Eff<Env, B>> Fail) =>
+            EffMaybe<Env, B>(env =>
+            {
+                var r = ma.Run();
+                return r.IsSucc
+                    ? Succ(r.Value).Run(env)
+                    : Fail(r.Error).Run(env);
+            });
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<B> MatchEff<A, B>(this Eff<A> ma, Eff<B> Succ, Eff<B> Fail) =>
             EffMaybe<B>(() =>
             {
                 var r = ma.Run();
@@ -255,6 +335,16 @@ namespace LanguageExt
                     ? Succ.Run()
                     : Fail.Run();
             });
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<B> MatchEff<A, B>(this Eff<A> ma, Func<A, Eff<B>> Succ, Func<Error, Eff<B>> Fail) =>
+            EffMaybe<B>(() =>
+                        {
+                            var r = ma.Run();
+                            return r.IsSucc
+                                       ? Succ(r.Value).Run()
+                                       : Fail(r.Error).Run();
+                        });
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Eff<B> Match<A, B>(this Eff<A> ma, B Succ, Func<Error, B> Fail) =>
@@ -323,7 +413,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, A> IfFail<Env, A>(this Eff<A> ma, Aff<Env, A> alternative) where Env : struct, HasCancel<Env> =>
+        public static Aff<Env, A> IfFailAff<Env, A>(this Eff<A> ma, Aff<Env, A> alternative) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, A>(
                 async env =>
                 {
@@ -334,7 +424,18 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<A> IfFail<A>(this Eff<A> ma, Aff<A> alternative) =>
+        public static Aff<Env, A> IfFailAff<Env, A>(this Eff<A> ma, Func<Error, Aff<Env, A>> alternative) where Env : struct, HasCancel<Env> =>
+            AffMaybe<Env, A>(
+                async env =>
+                {
+                    var res = ma.Run();
+                    return res.IsSucc
+                               ? res
+                               : await alternative(res.Error).Run(env).ConfigureAwait(false);
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<A> IfFailAff<A>(this Eff<A> ma, Aff<A> alternative) =>
             AffMaybe<A>(
                 async () =>
                 {
@@ -345,7 +446,18 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, A> IfFail<Env, A>(this Eff<A> ma, Eff<Env, A> alternative) =>
+        public static Aff<A> IfFailAff<A>(this Eff<A> ma, Func<Error, Aff<A>> alternative) =>
+            AffMaybe<A>(
+                async () =>
+                {
+                    var res = ma.Run();
+                    return res.IsSucc
+                               ? res
+                               : await alternative(res.Error).Run().ConfigureAwait(false);
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<Env, A> IfFailEff<Env, A>(this Eff<A> ma, Eff<Env, A> alternative) =>
             EffMaybe<Env, A>(
                 env =>
                 {
@@ -356,7 +468,18 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<A> IfFail<A>(this Eff<A> ma, Eff<A> alternative) =>
+        public static Eff<Env, A> IfFailEff<Env, A>(this Eff<A> ma, Func<Error, Eff<Env, A>> alternative) =>
+            EffMaybe<Env, A>(
+                env =>
+                {
+                    var res = ma.Run();
+                    return res.IsSucc
+                               ? res
+                               : alternative(res.Error).Run(env);
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<A> IfFailEff<A>(this Eff<A> ma, Eff<A> alternative) =>
             EffMaybe<A>(
                 () =>
                 {
@@ -364,6 +487,17 @@ namespace LanguageExt
                     return res.IsSucc
                                ? res
                                : alternative.Run();
+                });
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<A> IfFailEff<A>(this Eff<A> ma, Func<Error, Eff<A>> alternative) =>
+            EffMaybe<A>(
+                () =>
+                {
+                    var res = ma.Run();
+                    return res.IsSucc
+                               ? res
+                               : alternative(res.Error).Run();
                 });
         
         //
