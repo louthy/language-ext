@@ -51,7 +51,7 @@ namespace LanguageExt.Sys.Test
     }
 
     /// <summary>
-    /// Live IO runtime
+    /// Test IO runtime
     /// </summary>
     public readonly struct Runtime : 
         HasCancel<Runtime>,
