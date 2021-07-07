@@ -8,6 +8,8 @@ This library is quickly becoming a 'Base Class Library' for functional programmi
 
 Location | Feature | Description
 ---------|---------|------------
+`Core` | `Aff<A>` | [An asynchronous effect monad](https://github.com/louthy/language-ext/wiki/How-to-deal-with-IO)
+`Core` | `Eff<A>` | [A synchronous effect monad](https://github.com/louthy/language-ext/wiki/How-to-deal-with-IO)
 `Core` | `Arr<A>` | [Immutable array](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Arr_A.htm)
 `Core` | `Lst<A>` | [Immutable list](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Lst_A.htm)
 `Core` | `Map<K, V>` | [Immutable map](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Map_K_V.htm)
