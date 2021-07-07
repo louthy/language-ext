@@ -584,6 +584,27 @@ namespace LanguageExt
                 : FailAff<A>(Fail);
 
         /// <summary>
+        /// Convert the structure to a Fin
+        /// </summary>
+        /// <returns>A Fin representation of the structure</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Fin<A> ToFin() =>
+            ToFin(Error.New("None"));
+
+        /// <summary>
+        /// Convert the structure to a Fin
+        /// </summary>
+        /// <param name="Fail">Default value if the structure is in a None state</param>
+        /// <returns>A Fin representation of the structure</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Fin<A> ToFin(Error Fail) =>
+            isSome
+                ? FinSucc<A>(Value)
+                : FinFail<A>(Fail);
+
+        /// <summary>
         /// Convert the structure to an Either
         /// </summary>
         /// <param name="defaultLeftValue">Default value if the structure is in a None state</param>

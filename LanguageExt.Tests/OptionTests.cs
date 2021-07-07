@@ -223,6 +223,17 @@ namespace LanguageExt.Tests
             Assert.Throws<ValueIsNullException>(() => option.Map(_ => (object)null));
         }
 
+        [Fact]
+        public void OptionToFin()
+        {
+            var e = LanguageExt.Common.Error.New("Example error");
+            var some = Some(123);
+            var none = Option<int>.None;
+
+            Assert.Equal(FinSucc(123), some.ToFin());
+            Assert.True(none.ToFin(e).IsFail);
+        }
+
         private Option<string> GetStringNone()
         {
             // This should fail
