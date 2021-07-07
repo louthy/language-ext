@@ -284,7 +284,7 @@ namespace LanguageExt.Parsec
             //    from f in fractExponent(n)
             //    select f;
 
-            // -1.05e+003
+            // -1.05e+003 - optional fractional part
             var floating = from si in optionOrElse("", from x in oneOf("+-") select x.ToString())
                            from nu in asString(many(digit))
                            from frac in optionOrElse("",
@@ -300,15 +300,36 @@ namespace LanguageExt.Parsec
                            let all = $"{si}{nu}{frac}"
                            let opt = parseDouble(all)
                            from res in opt.Match(
-                               x => result(x),
+                               result,
                                () => failure<double>("Invalid floating point value")
                            )
                            select res;
 
+            // -1.05e+003 - must have fractional part
+            var fracfloat = from si in optionOrElse("", from x in oneOf("+-") select x.ToString())
+                            from nu in asString(many(digit))
+                            from frac in from pt in dot
+                                         from fr in asString(many(digit))
+                                         from ex in optionOrElse("",
+                                                                 from e in oneOf("eE")
+                                                                 from s in oneOf("+-")
+                                                                 from n in asString(many1(digit))
+                                                                 select $"{e}{s}{n}"
+                                         )
+                                         select $"{pt}{fr}{ex}"
+                            let all = $"{si}{nu}{frac}"
+                            let opt = parseDouble(all)
+                            from res in opt.Match(
+                                result,
+                                () => failure<double>("Invalid floating point value")
+                            )
+                            select res;
+            
             var natural        = lexemeInt(nat).label("natural");
             var integer        = lexemeInt(int_).label("integer");
             var float_         = lexemeDbl(floating).label("float");
-            var naturalOrFloat = lexemeEiIntDbl(natFloat).label("number");
+            var naturalOrFloat = either(attempt(fracfloat).Map(Right<int, double>), 
+                                        integer.Map(Left<int, double>)).label("number");
 
             var reservedOp = fun((string name) =>
                 lexemeUnit(

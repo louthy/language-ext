@@ -58,15 +58,6 @@ public class Program
 
         // Run with environment
         var res1 = await AddLines<Runtime>(tmp1, tmp2).Run(Runtime.New());
-        
-        // Run with wrapped environment
-        var res2 = await AddLines(tmp1, tmp2);
-
-        // Run with environment
-        var fail1 = await AddLines<Runtime>(tmp1, tmp3).Run(Runtime.New());
-        
-        // Run with wrapped environment
-        var fail2 = await AddLines(tmp1, tmp3);
 
         await OptionAsyncTest();
 
@@ -77,21 +68,6 @@ public class Program
         from lines1 in File<RT>.readAllLines(path1)
         from lines2 in File<RT>.readAllLines(path2)
         select lines1.Count + lines2.Count;
-
-    static async Aff<int> AddLines(string path1, string path2)
-    {
-        var lines1 = await MkIO.readAllLines(path1);
-        var lines2 = await MkIO.readAllLines(path2);
-        return lines1.Count + lines2.Count;
-    }
-
-    static async Aff<int> Add(Aff<int> ma, Aff<int> mb)
-    {
-        var a = await ma;
-        Console.WriteLine("Hello");
-        var b = await mb;
-        return a + b;
-    }
 
     static async Task OptionAsyncTest()
     {

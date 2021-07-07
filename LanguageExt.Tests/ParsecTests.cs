@@ -671,7 +671,61 @@ namespace LanguageExt.Tests
             Assert.Equal("john-doe@example.org", parse(QuickAndDirtyEMailParser(), "john-doe@EXAMPLE.org").ToOption());
             Assert.Equal("john.doe@example.org", parse(QuickAndDirtyEMailParser(), "john.doe@EXAMPLE.org").ToOption());
         }
-        
+
+        [Fact]
+        public void Issue889()
+        {
+            // Code adapted from the AccountingDSL example, keeping only the basic arithmetic operators
+            var opChars = "+-*/";
+
+            var definition = GenLanguageDef.Empty.With(
+                CommentStart: "/*",
+                CommentEnd: "*/",
+                CommentLine: "//",
+                NestedComments: true,
+                OpStart: oneOf(opChars),
+                OpLetter: oneOf(opChars),
+                IdentStart: letter,
+                IdentLetter: either(alphaNum, ch('_')),
+                ReservedNames: Empty,
+                ReservedOpNames: List("+", "-", "*", "/")
+            );
+
+            var lexer = makeTokenParser(definition);
+            var input = "3.14159";
+            var result = lexer.NaturalOrFloat.Parse(input).ToEither().Map(x => x.IfLeft(Double.MaxValue));
+                // > Success(Right(1418.9))
+
+            var expected = lexer.Float.Parse(input).ToEither().IfLeft(Double.MinValue);
+                // > Success(3.14159)
+
+            Assert.True(result == expected);
+        }
+
+        [Fact]
+        public void Nat_or_float_must_be_int()
+        {
+            var opChars = "+-*/";
+
+            var definition = GenLanguageDef.Empty.With(
+                CommentStart: "/*",
+                CommentEnd: "*/",
+                CommentLine: "//",
+                NestedComments: true,
+                OpStart: oneOf(opChars),
+                OpLetter: oneOf(opChars),
+                IdentStart: letter,
+                IdentLetter: either(alphaNum, ch('_')),
+                ReservedNames: Empty,
+                ReservedOpNames: List("+", "-", "*", "/")
+            );
+
+            var lexer  = makeTokenParser(definition);
+            var input  = "300";
+            var result = lexer.NaturalOrFloat.Parse(input).ToEither().Map(x => x.IfRight(0));
+            Assert.True(result == 300);
+        }
+
         [Fact]
         public void ExpressionResultShouldBeSixDueToMultiplicationOperationPriority()
         {
