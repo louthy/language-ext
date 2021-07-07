@@ -7,24 +7,6 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Sys.Live
 {
-    public class RuntimeEnv
-    {
-        public readonly CancellationTokenSource Source;
-        public readonly CancellationToken Token;
-        public readonly Encoding Encoding;
-
-        public RuntimeEnv(CancellationTokenSource source, CancellationToken token, Encoding encoding)
-        {
-            Source   = source;
-            Token    = token;
-            Encoding = encoding;
-        }
-
-        public RuntimeEnv(CancellationTokenSource source, Encoding encoding) : this(source, source.Token, encoding)
-        {
-        }
-    }
-
     /// <summary>
     /// Live IO runtime
     /// </summary>
@@ -150,5 +132,23 @@ namespace LanguageExt.Sys.Live
         /// <returns>Operating-system environment environment</returns>
         public Eff<Runtime, Traits.EnvironmentIO> EnvironmentEff =>
             SuccessEff(Sys.Live.EnvironmentIO.Default);
+    }
+    
+    public class RuntimeEnv
+    {
+        public readonly CancellationTokenSource Source;
+        public readonly CancellationToken Token;
+        public readonly Encoding Encoding;
+
+        public RuntimeEnv(CancellationTokenSource source, CancellationToken token, Encoding encoding)
+        {
+            Source   = source;
+            Token    = token;
+            Encoding = encoding;
+        }
+
+        public RuntimeEnv(CancellationTokenSource source, Encoding encoding) : this(source, source.Token, encoding)
+        {
+        }
     }
 }

@@ -7,49 +7,6 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Sys.Test
 {
-    public class RuntimeEnv
-    {
-        public readonly CancellationTokenSource Source;
-        public readonly CancellationToken Token;
-        public readonly Encoding Encoding;
-        public readonly MemoryConsole Console;
-        public readonly MemoryFS FileSystem;
-        public readonly TestTimeSpec TimeSpec;
-        public readonly MemorySystemEnvironment SysEnv;
-
-        public RuntimeEnv(
-            CancellationTokenSource source, 
-            CancellationToken token, 
-            Encoding encoding, 
-            MemoryConsole console, 
-            MemoryFS fileSystem, 
-            TestTimeSpec? timeSpec,
-            MemorySystemEnvironment sysEnv)
-        {
-            Source     = source;
-            Token      = token;
-            Encoding   = encoding;
-            Console    = console;
-            FileSystem = fileSystem;
-            TimeSpec   = timeSpec ?? TestTimeSpec.RunningFromNow();
-            SysEnv     = sysEnv;
-        }
-
-        public RuntimeEnv(
-            CancellationTokenSource source, 
-            Encoding encoding, 
-            MemoryConsole console,
-            MemoryFS fileSystem, 
-            TestTimeSpec? timeSpec,
-            MemorySystemEnvironment sysEnv) : 
-            this(source, source.Token, encoding, console, fileSystem, timeSpec, sysEnv)
-        {
-        }
-
-        public RuntimeEnv LocalCancel =>
-            new RuntimeEnv(new CancellationTokenSource(), Encoding, Console, FileSystem, TimeSpec, SysEnv); 
-    }
-
     /// <summary>
     /// Test IO runtime
     /// </summary>
@@ -202,5 +159,48 @@ namespace LanguageExt.Sys.Test
         /// <returns>Operating-system environment environment</returns>
         public Eff<Runtime, Traits.EnvironmentIO> EnvironmentEff =>
             Eff<Runtime, Traits.EnvironmentIO>(rt => new Test.EnvironmentIO(rt.Env.SysEnv));
+    }
+    
+    public class RuntimeEnv
+    {
+        public readonly CancellationTokenSource Source;
+        public readonly CancellationToken Token;
+        public readonly Encoding Encoding;
+        public readonly MemoryConsole Console;
+        public readonly MemoryFS FileSystem;
+        public readonly TestTimeSpec TimeSpec;
+        public readonly MemorySystemEnvironment SysEnv;
+
+        public RuntimeEnv(
+            CancellationTokenSource source, 
+            CancellationToken token, 
+            Encoding encoding, 
+            MemoryConsole console, 
+            MemoryFS fileSystem, 
+            TestTimeSpec? timeSpec,
+            MemorySystemEnvironment sysEnv)
+        {
+            Source     = source;
+            Token      = token;
+            Encoding   = encoding;
+            Console    = console;
+            FileSystem = fileSystem;
+            TimeSpec   = timeSpec ?? TestTimeSpec.RunningFromNow();
+            SysEnv     = sysEnv;
+        }
+
+        public RuntimeEnv(
+            CancellationTokenSource source, 
+            Encoding encoding, 
+            MemoryConsole console,
+            MemoryFS fileSystem, 
+            TestTimeSpec? timeSpec,
+            MemorySystemEnvironment sysEnv) : 
+            this(source, source.Token, encoding, console, fileSystem, timeSpec, sysEnv)
+        {
+        }
+
+        public RuntimeEnv LocalCancel =>
+            new RuntimeEnv(new CancellationTokenSource(), Encoding, Console, FileSystem, TimeSpec, SysEnv); 
     }
 }
