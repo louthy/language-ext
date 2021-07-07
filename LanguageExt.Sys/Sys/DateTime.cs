@@ -23,7 +23,7 @@ namespace LanguageExt.Sys
         public static Eff<RT, DateTime> now
         {
             [Pure, MethodImpl(AffOpt.mops)]
-            get => default(RT).TimeEff.Map(e => e.Now);
+            get => default(RT).TimeEff.Map(static e => e.Now);
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace LanguageExt.Sys
         public static Eff<RT, DateTime> nowUTC
         {
             [Pure, MethodImpl(AffOpt.mops)] 
-            get => default(RT).TimeEff.Map(e => e.UtcNow);
+            get => default(RT).TimeEff.Map(static e => e.UtcNow);
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace LanguageExt.Sys
         public static Eff<RT, DateTime> today
         {
             [Pure, MethodImpl(AffOpt.mops)]
-            get => default(RT).TimeEff.Map(e => e.Today);
+            get => default(RT).TimeEff.Map(static e => e.Today);
         }
 
         /// <summary>

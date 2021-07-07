@@ -167,7 +167,7 @@ namespace LanguageExt.Sys.IO
         /// Get the current directory
         /// </summary>
         public static Eff<RT, string> current =>
-            default(RT).DirectoryEff.Map(rt => rt.GetCurrentDirectory());
+            default(RT).DirectoryEff.Map(static rt => rt.GetCurrentDirectory());
 
         /// <summary>
         /// Set the current directory
@@ -186,6 +186,6 @@ namespace LanguageExt.Sys.IO
         /// Get the logical drives
         /// </summary>
         public static Eff<RT, Seq<string>> logicalDrives =>
-            default(RT).DirectoryEff.Map(rt => rt.GetLogicalDrives());
+            default(RT).DirectoryEff.Map(static rt => rt.GetLogicalDrives());
     }
 }

@@ -21,37 +21,37 @@ namespace LanguageExt.Sys
         /// Read a key from the console
         /// </summary>
         public static Eff<RT, ConsoleKeyInfo> readKey =>
-            default(RT).ConsoleEff.Bind(e => e.ReadKey()
-                                              .Match(Some: SuccessEff<ConsoleKeyInfo>, 
-                                                     None: () => FailEff<ConsoleKeyInfo>(Error.New("end of stream"))));
+            default(RT).ConsoleEff.Bind(static e => e.ReadKey()
+                                                     .Match(Some: SuccessEff<ConsoleKeyInfo>, 
+                                                            None: () => FailEff<ConsoleKeyInfo>(Error.New("end of stream"))));
 
         /// <summary>
         /// Clear the console
         /// </summary>
         public static Eff<RT, Unit> clear =>
-            default(RT).ConsoleEff.Map(e => e.Clear());
+            default(RT).ConsoleEff.Map(static e => e.Clear());
 
         /// <summary>
         /// Read from the console
         /// </summary>
         public static Eff<RT, int> read =>
-            default(RT).ConsoleEff.Bind(e => e.Read()
-                                             .Match(Some: SuccessEff<int>, 
-                                                    None: () => FailEff<int>(Error.New("end of stream"))));
+            default(RT).ConsoleEff.Bind(static e => e.Read()
+                                                     .Match(Some: SuccessEff<int>, 
+                                                            None: () => FailEff<int>(Error.New("end of stream"))));
 
         /// <summary>
         /// Read from the console
         /// </summary>
         public static Eff<RT, string> readLine =>
-            default(RT).ConsoleEff.Bind(e => e.ReadLine()
-                                              .Match(Some: SuccessEff<string>, 
-                                                     None: () => FailEff<string>(Error.New("end of stream"))));
+            default(RT).ConsoleEff.Bind(static e => e.ReadLine()
+                                                     .Match(Some: SuccessEff<string>, 
+                                                            None: () => FailEff<string>(Error.New("end of stream"))));
 
         /// <summary>
         /// Write an empty line to the console
         /// </summary>
         public static Eff<RT, Unit> writeEmptyLine =>
-            default(RT).ConsoleEff.Map(e => e.WriteLine());
+            default(RT).ConsoleEff.Map(static e => e.WriteLine());
 
         /// <summary>
         /// Write a line to the console
@@ -72,9 +72,9 @@ namespace LanguageExt.Sys
             default(RT).ConsoleEff.Map(e => e.SetColor(color));
 
         public static Eff<RT, ConsoleColor> bgColor =>
-            default(RT).ConsoleEff.Map(e => e.BgColor);
+            default(RT).ConsoleEff.Map(static e => e.BgColor);
 
         public static Eff<RT, ConsoleColor> color =>
-            default(RT).ConsoleEff.Map(e => e.Color);
+            default(RT).ConsoleEff.Map(static e => e.Color);
     }
 }
