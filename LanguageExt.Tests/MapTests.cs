@@ -3,7 +3,9 @@ using static LanguageExt.Prelude;
 using static LanguageExt.Map;
 using Xunit;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using FsCheck.Xunit;
 using LanguageExt.ClassInstances;
 
 namespace LanguageExt.Tests
@@ -562,6 +564,25 @@ namespace LanguageExt.Tests
             Assert.True(m.FindExactOrSuccessor(13) == (13, 13));
             Assert.True(m.FindExactOrSuccessor(14) == (15, 15));
             Assert.True(m.FindExactOrSuccessor(15) == (15, 15));
+        }
+
+        [Fact]
+        public void MapWithUnicodeChars()
+        {
+            // fails from net5.0 on when default OrdString is used instead of OrdStringOrdinal 
+            // https://docs.microsoft.com/en-us/dotnet/standard/base-types/string-comparison-net-5-plus
+            var x = Map<OrdStringOrdinal, string, int>(("", 4), ("\u0005", -4));
+            Assert.Equal(2, x.Count);
+        }
+        
+        [Property]
+        public void MapRandomDict(IDictionary<string, int> dict)
+        {
+            // fails from net5.0 on when default OrdString is used instead of OrdStringOrdinal 
+            // https://docs.microsoft.com/en-us/dotnet/standard/base-types/string-comparison-net-5-plus
+            var x = toMap<OrdStringOrdinal, string, int>(dict);
+            Assert.Equal(dict.Count, x.Count);
+            Assert.Equal(dict.Keys.OrderBy(identity), x.Keys.OrderBy(identity));
         }
 
         // Exponential test - takes too long to run
