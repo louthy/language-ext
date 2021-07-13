@@ -153,6 +153,28 @@ namespace LanguageExt
             }));
 
         [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<A> operator |(Aff<A> ma, EffCatch<A> mb) =>
+            new Aff<A>(ThunkAsync<A>.Lazy(
+                async () =>
+                {
+                    var ra = await ma.Run().ConfigureAwait(false);
+                    return ra.IsSucc
+                        ? ra
+                        : mb.Run(ra.Error);
+                }));
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<A> operator |(Aff<A> ma, AffCatch<A> mb) =>
+            new Aff<A>(ThunkAsync<A>.Lazy(
+                async () =>
+                {
+                    var ra = await ma.Run().ConfigureAwait(false);
+                    return ra.IsSucc
+                        ? ra
+                        : await mb.Run(ra.Error).ConfigureAwait(false);
+                }));
+
+        [Pure, MethodImpl(AffOpt.mops)]
         public Aff<Env, A> WithEnv<Env>() where Env : struct, HasCancel<Env>
         {
             var self = this;

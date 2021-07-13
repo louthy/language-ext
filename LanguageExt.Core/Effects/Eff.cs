@@ -95,7 +95,7 @@ namespace LanguageExt
                 }));
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, A> operator |(Eff<Env, A> ma, LanguageExt.Eff<A> mb) =>
+        public static Eff<Env, A> operator |(Eff<Env, A> ma, Eff<A> mb) =>
             new Eff<Env, A>(Thunk<Env, A>.Lazy(
                 e =>
                 {
@@ -106,7 +106,7 @@ namespace LanguageExt
                 }));
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, A> operator |(LanguageExt.Eff<A> ma, Eff<Env, A> mb) =>
+        public static Eff<Env, A> operator |(Eff<A> ma, Eff<Env, A> mb) =>
             new Eff<Env, A>(Thunk<Env, A>.Lazy(
                 e =>
                 {
@@ -114,6 +114,28 @@ namespace LanguageExt
                     return ra.IsSucc
                         ? ra
                         : mb.Run(e);
+                }));
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<Env, A> operator |(Eff<Env, A> ma, EffCatch<Env, A> mb) =>
+            new Eff<Env, A>(Thunk<Env, A>.Lazy(
+                env =>
+                {
+                    var ra = ma.Run(env);
+                    return ra.IsSucc
+                        ? ra
+                        : mb.Run(env, ra.Error);
+                }));
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<Env, A> operator |(Eff<Env, A> ma, EffCatch<A> mb) =>
+            new Eff<Env, A>(Thunk<Env, A>.Lazy(
+                env =>
+                {
+                    var ra = ma.Run(env);
+                    return ra.IsSucc
+                        ? ra
+                        : mb.Run(ra.Error);
                 }));
 
         /// <summary>

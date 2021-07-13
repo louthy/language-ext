@@ -92,7 +92,28 @@ namespace LanguageExt
                     ? ra
                     : mb.Run();
             }));
-        
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<A> operator |(Eff<A> ma, EffCatch<A> mb) => new Eff<A>(Thunk<A>.Lazy(
+            () =>
+            {
+                var ra = ma.Run();
+                return ra.IsSucc
+                    ? ra
+                    : mb.Run(ra.Error);
+            }));
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<A> operator |(Eff<A> ma, EffCatch<A> mb) =>
+            new Eff<A>(Thunk<A>.Lazy(
+                () =>
+                {
+                    var ra = ma.Run();
+                    return ra.IsSucc
+                        ? ra
+                        : mb.Run(ra.Error);
+                }));
+
         [Pure, MethodImpl(AffOpt.mops)]
         public Eff<Env, A> WithEnv<Env>()
         {

@@ -125,7 +125,7 @@ namespace LanguageExt
                 }));
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, A> operator |(Aff<Env, A> ma, LanguageExt.Aff<A> mb) =>
+        public static Aff<Env, A> operator |(Aff<Env, A> ma, Aff<A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
                 async env =>
                 {
@@ -136,7 +136,7 @@ namespace LanguageExt
                 }));
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<Env, A> operator |(LanguageExt.Aff<A> ma, Aff<Env, A> mb) =>
+        public static Aff<Env, A> operator |(Aff<A> ma, Aff<Env, A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
                 async env =>
                 {
@@ -167,7 +167,73 @@ namespace LanguageExt
                         ? ra
                         : await mb.Run(env).ConfigureAwait(false);
                 }));
-        
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> operator |(Eff<A> ma, Aff<Env, A> mb) =>
+            new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
+                async env =>
+                {
+                    var ra = ma.Run();
+                    return ra.IsSucc
+                        ? ra
+                        : await mb.Run(env).ConfigureAwait(false);
+                }));
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> operator |(Aff<Env, A> ma, Eff<A> mb) =>
+            new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
+                async env =>
+                {
+                    var ra = await ma.Run(env).ConfigureAwait(false);
+                    return ra.IsSucc
+                        ? ra
+                        : mb.Run();
+                }));
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> operator |(Aff<Env, A> ma, EffCatch<A> mb) =>
+            new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
+                async env =>
+                {
+                    var ra = await ma.Run(env).ConfigureAwait(false);
+                    return ra.IsSucc
+                        ? ra
+                        : mb.Run(ra.Error);
+                }));
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> operator |(Aff<Env, A> ma, AffCatch<A> mb) =>
+            new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
+                async env =>
+                {
+                    var ra = await ma.Run(env).ConfigureAwait(false);
+                    return ra.IsSucc
+                        ? ra
+                        : await mb.Run(ra.Error).ConfigureAwait(false);
+                }));
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> operator |(Aff<Env, A> ma, EffCatch<Env, A> mb) =>
+            new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
+                async env =>
+                {
+                    var ra = await ma.Run(env).ConfigureAwait(false);
+                    return ra.IsSucc
+                        ? ra
+                        : mb.Run(env, ra.Error);
+                }));
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> operator |(Aff<Env, A> ma, AffCatch<Env, A> mb) =>
+            new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
+                async env =>
+                {
+                    var ra = await ma.Run(env).ConfigureAwait(false);
+                    return ra.IsSucc
+                        ? ra
+                        : await mb.Run(env, ra.Error).ConfigureAwait(false);
+                }));
+
         /// <summary>
         /// Implicit conversion from pure Aff
         /// </summary>
