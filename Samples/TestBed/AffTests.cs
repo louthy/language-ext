@@ -19,9 +19,7 @@ namespace TestBed
         static Eff<RT, Unit> AskUser<RT>()
             where RT : struct, HasConsole<RT> =>
                 repeat(from l in Console<RT>.readLine
-                       from d in l == ""
-                                     ? FailEff<Unit>(Error.New(666, "user exited"))
-                                     : unitEff
+                       from d in guardEff(l == "", Error.New(666, "user exited"))
                        from _ in Console<RT>.writeLine($"{l}")
                        select unit);
     }
