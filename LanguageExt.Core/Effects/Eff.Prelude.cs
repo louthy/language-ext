@@ -84,6 +84,30 @@ namespace LanguageExt
             new Eff<OuterEnv, A>(Thunk<OuterEnv, A>.Lazy(oenv => ma.Thunk.Value(f(oenv))));
 
         /// <summary>
+        /// If `flag` is true then unit is returned, else the provided error is returned
+        /// </summary>
+        /// <param name="flag">Predicate</param>
+        /// <param name="errorIfFalse">Error if flag is false</param>
+        /// <returns>If `flag` is true then unit is returned, else the provided error is returned</returns>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<Unit> guardEff(bool flag, Error errorIfFalse) =>
+            flag
+                ? unitEff
+                : FailEff<Unit>(errorIfFalse);
+
+        /// <summary>
+        /// If `flag` is true then unit is returned, else the provided error is returned
+        /// </summary>
+        /// <param name="flag">Predicate</param>
+        /// <param name="errorIfFalse">Error if flag is false</param>
+        /// <returns>If `flag` is true then unit is returned, else the provided error is returned</returns>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<Unit> guardEff(bool flag, Func<Error> errorIfFalse) =>
+            flag
+                ? unitEff
+                : FailEff<Unit>(errorIfFalse());
+
+        /// <summary>
         /// Unit effect
         /// </summary>
         /// <remarks>Always succeeds with a Unit value</remarks>
