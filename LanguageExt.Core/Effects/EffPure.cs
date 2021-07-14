@@ -94,16 +94,6 @@ namespace LanguageExt
             }));
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<A> operator |(Eff<A> ma, EffCatch<A> mb) => new Eff<A>(Thunk<A>.Lazy(
-            () =>
-            {
-                var ra = ma.Run();
-                return ra.IsSucc
-                    ? ra
-                    : mb.Run(ra.Error);
-            }));
-
-        [Pure, MethodImpl(AffOpt.mops)]
         public static Eff<A> operator |(Eff<A> ma, EffCatch<A> mb) =>
             new Eff<A>(Thunk<A>.Lazy(
                 () =>
@@ -112,6 +102,17 @@ namespace LanguageExt
                     return ra.IsSucc
                         ? ra
                         : mb.Run(ra.Error);
+                }));
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<A> operator |(Eff<A> ma, AffCatch<A> mb) =>
+            new Aff<A>(ThunkAsync<A>.Lazy(
+                async () =>
+                {
+                    var ra = ma.Run();
+                    return ra.IsSucc
+                        ? ra
+                        : await mb.Run(ra.Error).ConfigureAwait(false);
                 }));
 
         [Pure, MethodImpl(AffOpt.mops)]

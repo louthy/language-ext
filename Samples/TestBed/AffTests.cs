@@ -8,7 +8,7 @@ using static LanguageExt.Prelude;
 
 namespace TestBed
 {
-    class AffTests
+    public class AffTests
     {
         public static Eff<RT, Unit> Main<RT>()
             where RT : struct, HasConsole<RT> =>
@@ -19,7 +19,7 @@ namespace TestBed
         static Eff<RT, Unit> AskUser<RT>()
             where RT : struct, HasConsole<RT> =>
                 repeat(from l in Console<RT>.readLine
-                       from d in guardEff(l == "", Error.New(666, "user exited"))
+                       from d in guard(l != "", Error.New(666, "user exited"))
                        from _ in Console<RT>.writeLine($"{l}")
                        select unit);
     }

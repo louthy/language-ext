@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 
 namespace LanguageExt
 {
@@ -357,5 +358,25 @@ namespace LanguageExt
         [Pure]
         public static string toString<A>(A value) =>
             value?.ToString() ?? "";
+
+        /// <summary>
+        /// Guard against continuing a monadic expression
+        /// </summary>
+        /// <param name="flag">Flag for continuing</param>
+        /// <param name="onFalse">If the flag is false, this provides the error</param>
+        /// <returns>Guard</returns>
+        [Pure]
+        public static Guard guard(bool flag, Func<Error> onFalse) =>
+            new Guard(flag, onFalse);
+
+        /// <summary>
+        /// Guard against continuing a monadic expression
+        /// </summary>
+        /// <param name="flag">Flag for continuing</param>
+        /// <param name="onFalse">If the flag is false, this provides the error</param>
+        /// <returns>Guard</returns>
+        [Pure]
+        public static Guard guard(bool flag, Error onFalse) =>
+            new Guard(flag, onFalse);
     }
 }

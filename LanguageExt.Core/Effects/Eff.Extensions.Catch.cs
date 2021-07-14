@@ -22,7 +22,7 @@ namespace LanguageExt
         /// </summary>
         public static EffCatch<A> CatchEx<A>(Func<Exception, bool> predicate, Eff<A> Fail) =>
             Catch(e => e.Exception.Map(predicate).IfNone(false), e => Fail);
--
+
         /// <summary>
         /// Catch an error if it's of a specific exception type
         /// </summary>

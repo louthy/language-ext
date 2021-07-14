@@ -41,8 +41,11 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        await ObsAffTests.Test();
-        
+        AffTests.Main<Runtime>()
+                .Run(Runtime.New());
+
+        //await ObsAffTests.Test();
+
         //await AsyncTests();
     }
 
