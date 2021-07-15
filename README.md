@@ -849,7 +849,7 @@ To create an immutable map, you no longer have to type:
 ```C#
     var dict = ImmutableDictionary.Create<string,int>();
 ```
-Instead you can use:
+Instead you can use(you need `using static LanguageExt.Map;`):
 ```C#
     var dict = Map<string,int>();
 ```
@@ -906,11 +906,11 @@ By holding onto a reference to the `Map` before and after calling `add` you esse
 There are additional transformer functions for dealing with "wrapped" maps (i.e. `Map<int, Map<int, string>>`). We only cover a limited set of the full set of `Map` functions at the moment. You can wrap `Map` up to 4 levels deep and still call things like `Fold` and `Filter`. There's  interesting variants of `Filter` and `Map` called `FilterRemoveT` and `MapRemoveT`, where if a filter or map operation leaves any keys at any level with an empty `Map` then it will auto-remove them. 
 
 ```C#
-    Map<int,Map<int,Map<int, Map<int, string>>>> wrapped = Map.create<int,Map<int,Map<int,Map<int,string>>();
+    Map<int,Map<int,Map<int,Map<int,string>>>> wrapped = Map.create<int,Map<int,Map<int,Map<int,string>>>>();
     
     wrapped = wrapped.AddOrUpdate(1,2,3,4,"Paul");
     wrapped = wrapped.SetItemT(1,2,3,4,"Louth");
-    var name = wrapped.Find(1,2,3,4);               // "Louth"
+    var name = wrapped.Find(1, 2, 3, 4, Some: t => t, None: () => "failed");// "Louth"
 ```
 The `Map` transformer functions:
 
@@ -1056,6 +1056,8 @@ public void TreeTests()
 There are some [unit tests](https://github.com/louthy/language-ext/blob/master/LanguageExt.Tests/RecordTypesTest.cs) to see this in action.
 
 > Inheritance is not supported in `Record` derived types, so if you derive a type from a type that derives from `Record` then you won't magically inherit any equality, ordering, hash-code, etc. behaviours. This feature is explicitly here to implement record-like functionality, which do not support inheritance in other functional languages. Equality of origin is explicitly checked for.
+>
+> If you've looked at the source code of 'record',you will find that the internal logic of these methods is type based,That's why you can't inherit more than once.
 
 ## `RecordType<A>`
 
