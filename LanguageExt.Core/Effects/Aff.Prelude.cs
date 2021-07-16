@@ -63,6 +63,16 @@ namespace LanguageExt
             LanguageExt.Aff<A>.Success(value);
 
         /// <summary>
+        /// Construct an successful effect with a pure value
+        /// </summary>
+        /// <param name="value">Pure value to construct the monad with</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>Asynchronous IO monad that captures the pure value</returns>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<RT, A> SuccessAff<RT, A>(A value) where RT : struct, HasCancel<RT> =>
+            LanguageExt.Aff<RT, A>.Success(value);
+
+        /// <summary>
         /// Construct a failed effect
         /// </summary>
         /// <param name="error">Error that represents the failure</param>
@@ -71,6 +81,16 @@ namespace LanguageExt
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<A> FailAff<A>(Error error) =>
             LanguageExt.Aff<A>.Fail(error);        
+
+        /// <summary>
+        /// Construct a failed effect
+        /// </summary>
+        /// <param name="error">Error that represents the failure</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>Synchronous IO monad that captures the failure</returns>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<RT, A> FailAff<RT, A>(Error error) where RT : struct, HasCancel<RT> =>
+            LanguageExt.Aff<RT, A>.Fail(error);        
 
         /// <summary>
         /// Create a new local context for the environment by mapping the outer environment and then

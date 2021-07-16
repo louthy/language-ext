@@ -116,6 +116,19 @@ namespace LanguageExt
                 }));
 
         [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<A> operator |(Eff<A> ma, CatchValue<A> value) =>
+            new Eff<A>(Thunk<A>.Lazy(
+                           () =>
+                           {
+                               var ra = ma.Run();
+                               return ra.IsSucc
+                                          ? ra
+                                          : value.Match(ra.Error)
+                                              ? FinSucc(value.Value(ra.Error))
+                                              : ra;
+                           }));
+        
+        [Pure, MethodImpl(AffOpt.mops)]
         public Eff<Env, A> WithEnv<Env>()
         {
             var self = this;

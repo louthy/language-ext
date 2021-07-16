@@ -173,6 +173,19 @@ namespace LanguageExt
                         ? ra
                         : await mb.Run(ra.Error).ConfigureAwait(false);
                 }));
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<A> operator |(Aff<A> ma, CatchValue<A> value) =>
+            new Aff<A>(ThunkAsync<A>.Lazy(
+                                async () =>
+                                {
+                                    var ra = await ma.Run().ConfigureAwait(false);
+                                    return ra.IsSucc
+                                               ? ra
+                                               : value.Match(ra.Error)
+                                                   ? FinSucc(value.Value(ra.Error))
+                                                   : ra;
+                                }));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public Aff<Env, A> WithEnv<Env>() where Env : struct, HasCancel<Env>

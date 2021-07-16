@@ -41,6 +41,17 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
+        var result = Naturals.Take(20)
+                             .Map(x => (x % 3, x % 5) switch
+                                       {
+                                           (0, 0) => "FizzBuzz",
+                                           (_, 0) => "Buzz",
+                                           (0, _) => "Fizz",
+                                           _      => x.ToString()
+                                       })
+                             .Intersperse(", ")
+                             .Concat();
+        
         AffTests<Runtime>.main.Run(Runtime.New());
 
         //await ObsAffTests.Test();

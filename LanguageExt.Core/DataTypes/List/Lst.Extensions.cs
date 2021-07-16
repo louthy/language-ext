@@ -5,6 +5,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System.Text;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 
@@ -254,6 +255,21 @@ public static class ListExtensions
             yield return item;
             isFirst = false;
         }
+    }
+
+    /// <summary>
+    /// Concact all strings into one
+    /// </summary>
+    [Pure]
+    public static string Concat(this IEnumerable<string> xs)
+    {
+        var sb = new StringBuilder();
+        foreach (var x in xs)
+        {
+            sb.Append(x);
+        }
+
+        return sb.ToString();
     }
 
     /// <summary>

@@ -116,123 +116,136 @@ namespace LanguageExt
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> operator |(Aff<Env, A> ma, Aff<Env, A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
-                async env =>
-                {
-                    var ra = await ma.Run(env).ConfigureAwait(false);
-                    return ra.IsSucc
-                        ? ra
-                        : await mb.Run(env).ConfigureAwait(false);
-                }));
+                                async env =>
+                                {
+                                    var ra = await ma.Run(env).ConfigureAwait(false);
+                                    return ra.IsSucc
+                                               ? ra
+                                               : await mb.Run(env).ConfigureAwait(false);
+                                }));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> operator |(Aff<Env, A> ma, Aff<A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
-                async env =>
-                {
-                    var ra = await ma.Run(env).ConfigureAwait(false);
-                    return ra.IsSucc
-                        ? ra
-                        : await mb.Run().ConfigureAwait(false);
-                }));
+                                async env =>
+                                {
+                                    var ra = await ma.Run(env).ConfigureAwait(false);
+                                    return ra.IsSucc
+                                               ? ra
+                                               : await mb.Run().ConfigureAwait(false);
+                                }));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> operator |(Aff<A> ma, Aff<Env, A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
-                async env =>
-                {
-                    var ra = await ma.Run().ConfigureAwait(false);
-                    return ra.IsSucc
-                        ? ra
-                        : await mb.Run(env).ConfigureAwait(false);
-                }));
+                                async env =>
+                                {
+                                    var ra = await ma.Run().ConfigureAwait(false);
+                                    return ra.IsSucc
+                                               ? ra
+                                               : await mb.Run(env).ConfigureAwait(false);
+                                }));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> operator |(Aff<Env, A> ma, Eff<Env, A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
-                async env =>
-                {
-                    var ra = await ma.Run(env).ConfigureAwait(false);
-                    return ra.IsSucc
-                        ? ra
-                        : mb.Run(env);
-                }));
+                                async env =>
+                                {
+                                    var ra = await ma.Run(env).ConfigureAwait(false);
+                                    return ra.IsSucc
+                                               ? ra
+                                               : mb.Run(env);
+                                }));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> operator |(Eff<Env, A> ma, Aff<Env, A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
-                async env =>
-                {
-                    var ra = ma.Run(env);
-                    return ra.IsSucc
-                        ? ra
-                        : await mb.Run(env).ConfigureAwait(false);
-                }));
+                                async env =>
+                                {
+                                    var ra = ma.Run(env);
+                                    return ra.IsSucc
+                                               ? ra
+                                               : await mb.Run(env).ConfigureAwait(false);
+                                }));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> operator |(Eff<A> ma, Aff<Env, A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
-                async env =>
-                {
-                    var ra = ma.Run();
-                    return ra.IsSucc
-                        ? ra
-                        : await mb.Run(env).ConfigureAwait(false);
-                }));
+                                async env =>
+                                {
+                                    var ra = ma.Run();
+                                    return ra.IsSucc
+                                               ? ra
+                                               : await mb.Run(env).ConfigureAwait(false);
+                                }));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> operator |(Aff<Env, A> ma, Eff<A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
-                async env =>
-                {
-                    var ra = await ma.Run(env).ConfigureAwait(false);
-                    return ra.IsSucc
-                        ? ra
-                        : mb.Run();
-                }));
+                                async env =>
+                                {
+                                    var ra = await ma.Run(env).ConfigureAwait(false);
+                                    return ra.IsSucc
+                                               ? ra
+                                               : mb.Run();
+                                }));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> operator |(Aff<Env, A> ma, EffCatch<A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
-                async env =>
-                {
-                    var ra = await ma.Run(env).ConfigureAwait(false);
-                    return ra.IsSucc
-                        ? ra
-                        : mb.Run(ra.Error);
-                }));
+                                async env =>
+                                {
+                                    var ra = await ma.Run(env).ConfigureAwait(false);
+                                    return ra.IsSucc
+                                               ? ra
+                                               : mb.Run(ra.Error);
+                                }));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> operator |(Aff<Env, A> ma, AffCatch<A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
-                async env =>
-                {
-                    var ra = await ma.Run(env).ConfigureAwait(false);
-                    return ra.IsSucc
-                        ? ra
-                        : await mb.Run(ra.Error).ConfigureAwait(false);
-                }));
+                                async env =>
+                                {
+                                    var ra = await ma.Run(env).ConfigureAwait(false);
+                                    return ra.IsSucc
+                                               ? ra
+                                               : await mb.Run(ra.Error).ConfigureAwait(false);
+                                }));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> operator |(Aff<Env, A> ma, EffCatch<Env, A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
-                async env =>
-                {
-                    var ra = await ma.Run(env).ConfigureAwait(false);
-                    return ra.IsSucc
-                        ? ra
-                        : mb.Run(env, ra.Error);
-                }));
+                                async env =>
+                                {
+                                    var ra = await ma.Run(env).ConfigureAwait(false);
+                                    return ra.IsSucc
+                                               ? ra
+                                               : mb.Run(env, ra.Error);
+                                }));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> operator |(Aff<Env, A> ma, AffCatch<Env, A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
-                async env =>
-                {
-                    var ra = await ma.Run(env).ConfigureAwait(false);
-                    return ra.IsSucc
-                        ? ra
-                        : await mb.Run(env, ra.Error).ConfigureAwait(false);
-                }));
+                                async env =>
+                                {
+                                    var ra = await ma.Run(env).ConfigureAwait(false);
+                                    return ra.IsSucc
+                                               ? ra
+                                               : await mb.Run(env, ra.Error).ConfigureAwait(false);
+                                }));
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> operator |(Aff<Env, A> ma, CatchValue<A> value) =>
+            new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
+                                async env =>
+                                {
+                                    var ra = await ma.Run(env).ConfigureAwait(false);
+                                    return ra.IsSucc
+                                               ? ra
+                                               : value.Match(ra.Error)
+                                                   ? FinSucc(value.Value(ra.Error))
+                                                   : ra;
+                                }));
 
         /// <summary>
         /// Implicit conversion from pure Aff

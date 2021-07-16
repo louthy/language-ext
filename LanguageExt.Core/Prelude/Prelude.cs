@@ -377,6 +377,11 @@ namespace LanguageExt
         public static bool isEmpty(string value) =>
             string.IsNullOrWhiteSpace(value);
 
+        public static readonly Func<string, Func<string, string>> strAppend =
+            x =>
+                y =>
+                    $"{x}{y}";
+
         /// <summary>
         /// Guard against continuing a monadic expression
         /// </summary>

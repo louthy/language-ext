@@ -15,7 +15,7 @@ namespace TestBed
         
         public static Eff<RT, Unit> main =>
             from _1 in askUser
-                          | match(UserExited, Console<RT>.writeLine("user existed"))
+                          | match(UserExited, unit)
                           | match(ex => ex is SystemException, Console<RT>.writeLine("system error"))
             from _2 in Console<RT>.writeLine("goodbye")
             select unit;
