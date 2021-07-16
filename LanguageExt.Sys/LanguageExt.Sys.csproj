@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>default</LangVersion>
 
-        <PackageVersion>3.5.37-beta</PackageVersion>
+        <PackageVersion>3.5.38-beta</PackageVersion>
         <PackageId>LanguageExt.Sys</PackageId>
         <Title>LanguageExt.Sys</Title>
         <Authors>Paul Louth</Authors>
