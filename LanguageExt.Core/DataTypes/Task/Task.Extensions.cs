@@ -29,7 +29,7 @@ namespace LanguageExt
         [Pure]
         public static async Task<object> Case<A>(this Task<A> ma)
         {
-            if (ma == null) return Common.Error.Bottom;
+            if (ma == null) return Common.Errors.Bottom;
             try
             {
                 return await ma.ConfigureAwait(false);

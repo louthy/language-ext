@@ -30,7 +30,7 @@ namespace LanguageExt
         }
 
         internal Error ErrorInt => Init == State.Bottom || Error.IsNone
-            ? Common.Error.Bottom
+            ? Common.Errors.Bottom
             : (Error)Error;
 
         public bool IsFaulted =>

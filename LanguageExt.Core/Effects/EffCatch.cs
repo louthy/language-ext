@@ -4,7 +4,7 @@ using LanguageExt.Common;
 
 namespace LanguageExt
 {
-    public struct EffCatch<A>
+    public readonly struct EffCatch<A>
     {
         internal readonly Func<Error, Eff<A>> fail;
 
@@ -22,7 +22,7 @@ namespace LanguageExt
             new EffCatch<A>(e => ma.fail(e) | mb.fail(e));
     }
 
-    public struct EffCatch<RT, A>
+    public readonly struct EffCatch<RT, A>
     {
         internal readonly Func<Error, Eff<RT, A>> fail;
 

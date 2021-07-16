@@ -41,7 +41,7 @@ public static class TryAsyncExtensions
     [Pure]
     public static async ValueTask<object> Case<A>(this TryAsync<A> ma)
     {
-        if (ma == null) return Error.Bottom;
+        if (ma == null) return Errors.Bottom;
         var res = await ma.Try().ConfigureAwait(false);
         return res.IsSuccess
             ? res.Value

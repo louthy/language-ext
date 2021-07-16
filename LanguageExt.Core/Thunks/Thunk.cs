@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 // TODO: Retrying
@@ -13,7 +14,6 @@ namespace LanguageExt.Thunks
     {
         internal const MethodImplOptions mops = MethodImplOptions.AggressiveInlining;
         
-        public const string CancelledText = "cancelled";
         public const int NotEvaluated = 0; 
         public const int Evaluating = 1; 
         public const int IsSuccess = 2; 

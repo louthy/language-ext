@@ -6,7 +6,7 @@ using LanguageExt.Effects.Traits;
 
 namespace LanguageExt
 {
-    public struct AffCatch<A>
+    public readonly struct AffCatch<A>
     {
         internal readonly Func<Error, Aff<A>> fail;
 
@@ -30,7 +30,7 @@ namespace LanguageExt
             new AffCatch<A>(e => ma.fail(e) | mb.fail(e));
     }
 
-    public struct AffCatch<RT, A> where RT : struct, HasCancel<RT>
+    public readonly struct AffCatch<RT, A> where RT : struct, HasCancel<RT>
     {
         internal readonly Func<Error, Aff<RT, A>> fail;
 

@@ -339,7 +339,7 @@ namespace LanguageExt
         { 
             [MethodImpl(AffOpt.mops)]
             get => IsBottom 
-                ? Error.Bottom 
+                ? Errors.Bottom 
                 : error;  
         }
         

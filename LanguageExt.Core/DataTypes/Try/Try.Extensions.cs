@@ -26,7 +26,7 @@ public static class TryExtensions
     [Pure]
     public static object Case<A>(this Try<A> ma)
     {
-        if (ma == null) return Error.Bottom;
+        if (ma == null) return Errors.Bottom;
         var res = ma.Try();
         return res.IsSuccess
             ? res.Value

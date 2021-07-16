@@ -14,7 +14,7 @@ namespace LanguageExt
     /// </summary>
     public struct Eff<Env, A>
     {
-        internal Thunk<Env, A> Thunk => thunk ?? Thunk<Env, A>.Fail(Error.Bottom);
+        internal Thunk<Env, A> Thunk => thunk ?? Thunk<Env, A>.Fail(Errors.Bottom);
         Thunk<Env, A> thunk;
 
         /// <summary>
@@ -603,7 +603,7 @@ namespace LanguageExt
         
         [Pure, MethodImpl(AffOpt.mops)]
         public static Eff<Env, A> Filter<Env, A>(this Eff<Env, A> ma, Func<A, bool> f) =>
-            ma.Bind(x => f(x) ? SuccessEff<A>(x) : FailEff<A>(Error.New(Thunk.CancelledText)));        
+            ma.Bind(x => f(x) ? SuccessEff<A>(x) : FailEff<A>(Errors.Cancelled));        
 
         //
         // Bind

@@ -31,7 +31,7 @@ using TestBed;
 
 public class Program
 {
-    static async Task Main(string[] args)
+    static void Main(string[] args)
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                                                                                    //
@@ -41,8 +41,7 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        AffTests.Main<Runtime>()
-                .Run(Runtime.New());
+        AffTests<Runtime>.main.Run(Runtime.New());
 
         //await ObsAffTests.Test();
 

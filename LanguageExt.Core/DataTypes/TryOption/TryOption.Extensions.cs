@@ -28,7 +28,7 @@ public static class TryOptionExtensions
     [Pure]
     public static object Case<A>(this TryOption<A> ma)
     {
-        if (ma == null) return Error.Bottom;
+        if (ma == null) return Errors.Bottom;
         var res = ma.Try();
         return res.IsSome
             ? res.Value.Value

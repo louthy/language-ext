@@ -255,7 +255,7 @@ public static class RWSExtensions
             if (res.IsFaulted) return res;
             return pred(res.Value)
                 ? res
-                : RWSResult<MonoidW, R, W, S, A>.New(res.Output, state, Error.Bottom);
+                : RWSResult<MonoidW, R, W, S, A>.New(res.Output, state, Errors.Bottom);
         };
 
     [Pure]

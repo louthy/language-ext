@@ -19,7 +19,7 @@ namespace LanguageExt
     public struct Aff<Env, A> 
         where Env : struct, HasCancel<Env>
     {
-        internal ThunkAsync<Env, A> Thunk => thunk ?? ThunkAsync<Env, A>.Fail(Error.Bottom);
+        internal ThunkAsync<Env, A> Thunk => thunk ?? ThunkAsync<Env, A>.Fail(Errors.Bottom);
         ThunkAsync<Env, A> thunk;
 
         /// <summary>
@@ -737,7 +737,7 @@ namespace LanguageExt
         
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> Filter<Env, A>(this Aff<Env, A> ma, Func<A, bool> f) where Env : struct, HasCancel<Env> =>
-            ma.Bind(x => f(x) ? SuccessEff<A>(x) : FailEff<A>(Error.New(Thunk.CancelledText)));
+            ma.Bind(x => f(x) ? SuccessEff<A>(x) : FailEff<A>(Errors.Cancelled));
 
 
         [Pure, MethodImpl(AffOpt.mops)]
@@ -874,7 +874,7 @@ namespace LanguageExt
                 else
                 {
                     return (ta.IsCanceled || tb.IsCanceled)
-                        ? Fin<(A, B)>.Fail(Error.New(Thunk.CancelledText))
+                        ? Fin<(A, B)>.Fail(Errors.Cancelled)
                         : ta.IsFaulted
                             ? Fin<(A, B)>.Fail(Error.New(ta.Exception))
                             : Fin<(A, B)>.Fail(Error.New(tb.Exception));
@@ -899,7 +899,7 @@ namespace LanguageExt
                 else
                 {
                     return (ta.IsCanceled || tb.IsCanceled)
-                        ? Fin<(A, B)>.Fail(Error.New(Thunk.CancelledText))
+                        ? Fin<(A, B)>.Fail(Errors.Cancelled)
                         : ta.IsFaulted
                             ? Fin<(A, B)>.Fail(Error.New(ta.Exception))
                             : Fin<(A, B)>.Fail(Error.New(tb.Exception));
@@ -925,7 +925,7 @@ namespace LanguageExt
                 else
                 {
                     return (ta.IsCanceled || tb.IsCanceled)
-                        ? Fin<(A, B)>.Fail(Error.New(Thunk.CancelledText))
+                        ? Fin<(A, B)>.Fail(Errors.Cancelled)
                         : ta.IsFaulted
                             ? Fin<(A, B)>.Fail(Error.New(ta.Exception))
                             : Fin<(A, B)>.Fail(Error.New(tb.Exception));

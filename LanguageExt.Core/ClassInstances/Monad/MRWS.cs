@@ -119,7 +119,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public RWS<MonoidW, R, W, S, A> Zero() => 
             (env, state) =>
-                RWSResult<MonoidW, R, W, S, A>.New(state, Error.Bottom);
+                RWSResult<MonoidW, R, W, S, A>.New(state, Errors.Bottom);
 
         [Pure]
         public RWS<MonoidW, R, W, S, S> Get() => 

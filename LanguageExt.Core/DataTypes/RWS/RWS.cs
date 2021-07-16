@@ -25,7 +25,7 @@ namespace LanguageExt
         Status Init;
 
         internal Error ErrorInt => Init == Status.Bottom
-            ? Common.Error.Bottom
+            ? Common.Errors.Bottom
             : (Error)Error;
 
         public bool IsFaulted =>
@@ -67,7 +67,7 @@ namespace LanguageExt
         }
 
         internal Error ErrorInt => Init == Status.Bottom || Error.IsNone
-            ? Common.Error.Bottom
+            ? Common.Errors.Bottom
             : (Error)Error;
 
         public bool IsFaulted =>

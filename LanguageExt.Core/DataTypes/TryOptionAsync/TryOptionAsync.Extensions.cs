@@ -28,7 +28,7 @@ public static class TryOptionAsyncExtensions
     [Pure]
     public static async ValueTask<object> Case<A>(this TryOptionAsync<A> ma)
     {
-        if (ma == null) return Error.Bottom;
+        if (ma == null) return Errors.Bottom;
         var res = await ma.Try().ConfigureAwait(false);
         return res.IsSome
             ? res.Value.Value

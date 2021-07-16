@@ -234,7 +234,7 @@ namespace LanguageExt.CodeGen
                                                                                                   SyntaxKind.SimpleMemberAccessExpression,
                                                                                                   IdentifierName("LanguageExt"),
                                                                                                   IdentifierName("Common")),
-                                                                                              IdentifierName("Error")),
+                                                                                              IdentifierName("Errors")),
                                                                                           IdentifierName("Bottom")))}))))))))))
                                                               .WithSemicolonToken(
                                                                   Token(SyntaxKind.SemicolonToken));

@@ -17,7 +17,7 @@ namespace LanguageExt
     {
         internal const MethodImplOptions mops = MethodImplOptions.AggressiveInlining;
 
-        internal ThunkAsync<A> Thunk => thunk ?? ThunkAsync<A>.Fail(Error.Bottom);
+        internal ThunkAsync<A> Thunk => thunk ?? ThunkAsync<A>.Fail(Errors.Bottom);
         ThunkAsync<A> thunk;
 
         /// <summary>
@@ -730,7 +730,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<A> Filter<A>(this Aff<A> ma, Func<A, bool> f) =>
-            ma.Bind(x => f(x) ? SuccessEff<A>(x) : FailEff<A>(Error.New(Thunk.CancelledText)));        
+            ma.Bind(x => f(x) ? SuccessEff<A>(x) : FailEff<A>(Errors.Cancelled));        
 
         //
         // Bind
@@ -870,7 +870,7 @@ namespace LanguageExt
                 else
                 {
                     return (ta.IsCanceled || tb.IsCanceled)
-                        ? Fin<(A, B)>.Fail(Error.New(Thunk.CancelledText))
+                        ? Fin<(A, B)>.Fail(Errors.Cancelled)
                         : ta.IsFaulted
                             ? Fin<(A, B)>.Fail(Error.New(ta.Exception))
                             : Fin<(A, B)>.Fail(Error.New(tb.Exception));

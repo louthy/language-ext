@@ -360,14 +360,22 @@ namespace LanguageExt
             value?.ToString() ?? "";
 
         /// <summary>
-        /// Guard against continuing a monadic expression
+        /// Returns true if the string is not null, nor empty, nor a whitespace
         /// </summary>
-        /// <param name="flag">Flag for continuing</param>
-        /// <param name="onFalse">If the flag is false, this provides the error</param>
-        /// <returns>Guard</returns>
+        /// <param name="value">String to test</param>
+        /// <returns>True if the string is null, empty, or whitespace</returns>
         [Pure]
-        public static Guard guard(bool flag, Func<Error> onFalse) =>
-            new Guard(flag, onFalse);
+        public static bool notEmpty(string value) =>
+            !string.IsNullOrWhiteSpace(value);
+
+        /// <summary>
+        /// Returns true if the string is null, empty, or whitespace
+        /// </summary>
+        /// <param name="value">String to test</param>
+        /// <returns>True if the string is null, empty, or whitespace</returns>
+        [Pure]
+        public static bool isEmpty(string value) =>
+            string.IsNullOrWhiteSpace(value);
 
         /// <summary>
         /// Guard against continuing a monadic expression
@@ -376,7 +384,37 @@ namespace LanguageExt
         /// <param name="onFalse">If the flag is false, this provides the error</param>
         /// <returns>Guard</returns>
         [Pure]
-        public static Guard guard(bool flag, Error onFalse) =>
-            new Guard(flag, onFalse);
+        public static Guard<E> guard<E>(bool flag, Func<E> onFalse) =>
+            new Guard<E>(flag, onFalse);
+
+        /// <summary>
+        /// Guard against continuing a monadic expression
+        /// </summary>
+        /// <param name="flag">Flag for continuing</param>
+        /// <param name="onFalse">If the flag is false, this provides the error</param>
+        /// <returns>Guard</returns>
+        [Pure]
+        public static Guard<E> guard<E>(bool flag, E onFalse) =>
+            new Guard<E>(flag, onFalse);
+
+        /// <summary>
+        /// Guard against continuing a monadic expression
+        /// </summary>
+        /// <param name="flag">Flag for continuing</param>
+        /// <param name="onFalse">If the flag is false, this provides the error</param>
+        /// <returns>Guard</returns>
+        [Pure]
+        public static Guard<Error> guard(bool flag, Func<Error> onFalse) =>
+            new Guard<Error>(flag, onFalse);
+
+        /// <summary>
+        /// Guard against continuing a monadic expression
+        /// </summary>
+        /// <param name="flag">Flag for continuing</param>
+        /// <param name="onFalse">If the flag is false, this provides the error</param>
+        /// <returns>Guard</returns>
+        [Pure]
+        public static Guard<Error> guard(bool flag, Error onFalse) =>
+            new Guard<Error>(flag, onFalse);
     }
 }

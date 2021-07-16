@@ -53,7 +53,7 @@ namespace LanguageExt.Thunks
         /// </summary>
         [Pure, MethodImpl(Thunk.mops)]
         public static ThunkAsync<Env, A> Cancelled() =>
-            new ThunkAsync<Env, A>(Thunk.IsCancelled, Error.New(Thunk.CancelledText));
+            new ThunkAsync<Env, A>(Thunk.IsCancelled, Errors.Cancelled);
 
         /// <summary>
         /// Success ctor
@@ -193,7 +193,7 @@ namespace LanguageExt.Thunks
                         });
 
                     case Thunk.IsCancelled:
-                        return ThunkAsync<Env, B>.Fail(Fail(Error.New(Thunk.CancelledText)));
+                        return ThunkAsync<Env, B>.Fail(Fail(Errors.Cancelled));
 
                     case Thunk.IsFailed:
                         return ThunkAsync<Env, B>.Fail(Fail(error));
@@ -282,7 +282,7 @@ namespace LanguageExt.Thunks
                         });
 
                     case Thunk.IsCancelled:
-                        return ThunkAsync<Env, B>.Lazy(async env => Fin<B>.Fail(await Fail(Error.New(Thunk.CancelledText)).ConfigureAwait(false)));
+                        return ThunkAsync<Env, B>.Lazy(async env => Fin<B>.Fail(await Fail(Errors.Cancelled).ConfigureAwait(false)));
 
                     case Thunk.IsFailed:
                         return ThunkAsync<Env, B>.Lazy(async env => Fin<B>.Fail(await Fail(error).ConfigureAwait(false)));
@@ -327,7 +327,7 @@ namespace LanguageExt.Thunks
                         
                         if (env.CancellationToken.IsCancellationRequested)
                         {
-                            error = Error.New(Thunk.CancelledText);
+                            error = Errors.Cancelled;
                             state = Thunk.IsCancelled; // state update must be last thing before return
                             return Fin<A>.Fail(error);
                         }
@@ -348,7 +348,7 @@ namespace LanguageExt.Thunks
                         }
                         else if (vt.IsCanceled)
                         {
-                            error = Error.New(Thunk.CancelledText);
+                            error = Errors.Cancelled;
                             state = Thunk.IsCancelled; // state update must be last thing before return
                             return Fin<A>.Fail(error);
                         }
@@ -363,7 +363,7 @@ namespace LanguageExt.Thunks
                     catch (Exception e)
                     {
                         error = e;
-                        state = e.Message == Thunk.CancelledText // state update must be last thing before return
+                        state = e.Message == Errors.CancelledText // state update must be last thing before return
                             ? Thunk.IsCancelled
                             : Thunk.IsFailed; 
                         return Fin<A>.Fail(Error.New(e));
@@ -383,7 +383,7 @@ namespace LanguageExt.Thunks
                         case Thunk.IsSuccess: 
                             return Fin<A>.Succ(value);
                         case Thunk.IsCancelled: 
-                            return Fin<A>.Fail(Error.New(Thunk.CancelledText));
+                            return Fin<A>.Fail(Errors.Cancelled);
                         case Thunk.IsFailed:
                             return Fin<A>.Fail(Error.New(error));
                         default:
