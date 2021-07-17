@@ -40,7 +40,9 @@ namespace LanguageExt
                         }
                         else
                         {
-                            return state;
+                            return value.IsSucc
+                                       ? state
+                                       : FinFail<S>(value.Error);
                         }
                     }
                     return FinFail<S>(Common.Errors.Cancelled);
@@ -107,7 +109,9 @@ namespace LanguageExt
                         }
                         else
                         {
-                            return state;
+                            return value.IsSucc
+                                       ? state
+                                       : FinFail<S>(value.Error);
                         }
                     }
                 });
