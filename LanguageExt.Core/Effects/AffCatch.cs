@@ -1,20 +1,12 @@
 ﻿using System;
-using static LanguageExt.Prelude;
+using LanguageExt.Thunks;
 using LanguageExt.Common;
 using System.Threading.Tasks;
 using LanguageExt.Effects.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public readonly struct CatchValue<A>
-    {
-        public readonly Func<Error, bool> Match;
-        public readonly Func<Error, A> Value;
-
-        public CatchValue(Func<Error, bool> match, Func<Error, A> value) =>
-            (Match, Value) = (match, value);
-    }
-
     public readonly struct AffCatch<A>
     {
         internal readonly Func<Error, Aff<A>> fail;
@@ -32,10 +24,19 @@ namespace LanguageExt
         public static AffCatch<A> operator |(CatchValue<A> ma, AffCatch<A> mb) =>
             new AffCatch<A>(e => ma.Match(e) ? SuccessEff(ma.Value(e)) : mb.fail(e));
 
+        public static AffCatch<A> operator |(CatchError ma, AffCatch<A> mb) =>
+            new AffCatch<A>(e => ma.Match(e) ? FailEff<A>(ma.Value(e)) : mb.fail(e));
+
         public static AffCatch<A> operator |(AffCatch<A> ma, CatchValue<A> mb) =>
             new AffCatch<A>(e => ma.fail(e).MatchAff(Succ: SuccessAff,
                                                      Fail: e => mb.Match(e) 
                                                                     ? SuccessAff(mb.Value(e)) 
+                                                                    : FailAff<A>(e)));
+
+        public static AffCatch<A> operator |(AffCatch<A> ma, CatchError mb) =>
+            new AffCatch<A>(e => ma.fail(e).MatchAff(Succ: SuccessAff,
+                                                     Fail: e => mb.Match(e) 
+                                                                    ? FailAff<A>(mb.Value(e)) 
                                                                     : FailAff<A>(e)));
 
         public static AffCatch<A> operator |(AffCatch<A> ma, AffCatch<A> mb) =>
@@ -65,10 +66,19 @@ namespace LanguageExt
         public static AffCatch<RT, A> operator |(CatchValue<A> ma, AffCatch<RT, A> mb) =>
             new AffCatch<RT, A>(e => ma.Match(e) ? SuccessEff(ma.Value(e)) : mb.fail(e));
 
+        public static AffCatch<RT, A> operator |(CatchError ma, AffCatch<RT, A> mb) =>
+            new AffCatch<RT, A>(e => ma.Match(e) ? FailEff<A>(ma.Value(e)) : mb.fail(e));
+
         public static AffCatch<RT, A> operator |(AffCatch<RT, A> ma, CatchValue<A> mb) =>
             new AffCatch<RT, A>(e => ma.fail(e).MatchAff(Succ: SuccessAff<RT, A>,
                                                          Fail: e => mb.Match(e) 
                                                                         ? SuccessAff<RT, A>(mb.Value(e))
+                                                                        : FailAff<RT, A>(e)));
+
+        public static AffCatch<RT, A> operator |(AffCatch<RT, A> ma, CatchError mb) =>
+            new AffCatch<RT, A>(e => ma.fail(e).MatchAff(Succ: SuccessAff<RT, A>,
+                                                         Fail: e => mb.Match(e) 
+                                                                        ? FailAff<RT, A>(mb.Value(e))
                                                                         : FailAff<RT, A>(e)));
 
         public static AffCatch<RT, A> operator |(AffCatch<RT, A> ma, AffCatch<RT, A> mb) =>
@@ -91,5 +101,35 @@ namespace LanguageExt
 
         public static AffCatch<RT, A> operator |(AffCatch<RT, A> ma, AffCatch<A> mb) =>
             new AffCatch<RT, A>(e => ma.fail(e) | mb.fail(e));
+
+        public static Aff<RT, A> operator |(Aff<A> ma, AffCatch<RT, A> mb) =>
+            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
+                           async env =>
+                           {
+                               var ra = await ma.Run().ConfigureAwait(false);
+                               return ra.IsSucc
+                                          ? ra
+                                          : await mb.Run(env, ra.Error).ConfigureAwait(false);
+                           }));
+
+        public static Aff<RT, A> operator |(Eff<A> ma, AffCatch<RT, A> mb) =>
+            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
+                               async env =>
+                               {
+                                   var ra = ma.Run();
+                                   return ra.IsSucc
+                                              ? ra
+                                              : await mb.Run(env, ra.Error).ConfigureAwait(false);
+                               }));
+
+        public static Aff<RT, A> operator |(Eff<RT, A> ma, AffCatch<RT, A> mb) =>
+            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
+                               async env =>
+                               {
+                                   var ra = ma.Run(env);
+                                   return ra.IsSucc
+                                              ? ra
+                                              : await mb.Run(env, ra.Error).ConfigureAwait(false);
+                               }));
     }
 }

@@ -150,6 +150,19 @@ namespace LanguageExt
                                                    ? FinSucc(value.Value(ra.Error))
                                                    : ra;
                                 }));
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<Env, A> operator |(Eff<Env, A> ma, CatchError value) =>
+            new Eff<Env, A>(Thunk<Env, A>.Lazy(
+                                env =>
+                                {
+                                    var ra = ma.Run(env);
+                                    return ra.IsSucc
+                                               ? ra
+                                               : value.Match(ra.Error)
+                                                   ? FinFail<A>(value.Value(ra.Error))
+                                                   : ra;
+                                }));
 
         /// <summary>
         /// Implicit conversion from pure Eff

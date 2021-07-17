@@ -61,7 +61,6 @@ namespace LanguageExt.Common
         /// Constructor of an error value
         /// </summary>
         /// <param name="e"></param>
-        [Pure]
         public Result(Exception e)
         {
             State = ResultState.Faulted;

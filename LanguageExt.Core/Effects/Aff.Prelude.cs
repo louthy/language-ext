@@ -112,45 +112,25 @@ namespace LanguageExt
             new Eff<Env, Env>(Thunk<Env, Env>.Lazy(Fin<Env>.Succ));
 
         /// <summary>
-        /// Queues the provided asynchronous IO operation to be run on a new thread
+        /// Launch the async computation without awaiting the result
         /// </summary>
-        /// <param name="ma">Operation to run on the new thread</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="A">Bound value</typeparam>
-        /// <returns>Non-blocking, returns immediately</returns>
-        public static Aff<Env, Unit> fork<Env, A>(Aff<Env, A> ma) where Env : struct, HasCancel<Env> =>
-            AffMaybe<Env, Unit>(env =>
-            {
-                try
-                {
-                    ThreadPool.QueueUserWorkItem(_ => ma.Run(env));
-                    return new ValueTask<Fin<Unit>>(Fin<Unit>.Succ(default));
-                }
-                catch (Exception e)
-                {
-                    return new ValueTask<Fin<Unit>>(Fin<Unit>.Fail(e));
-                }
-            });
+        /// <remarks>
+        /// If the parent expression has `cancel` called on it, then it will also cancel the forked child
+        /// expression.
+        ///
+        /// `Fork` returns an `Eff<Unit>` as its bound result value.  If you run it, it will cancel the
+        /// forked child expression.
+        /// </remarks>
+        /// <returns>Returns an `Eff<Unit>` as its bound value.  If it runs, it will cancel the
+        /// forked child expression</returns>
+        public static Eff<Env, Eff<Unit>> fork<Env, A>(Aff<Env, A> ma) where Env : struct, HasCancel<Env> =>
+            ma.Fork();
 
         /// <summary>
-        /// Queues the provided asynchronous IO operation to be run on a new thread
+        /// Launch the async computation without awaiting the result
         /// </summary>
-        /// <param name="ma">Operation to run on the new thread</param>
-        /// <typeparam name="A">Bound value</typeparam>
-        /// <returns>Non-blocking, returns immediately</returns>
-        public static Aff<Unit> fork<A>(Aff<A> ma) =>
-            AffMaybe<Unit>(() =>
-            {
-                try
-                {
-                    ThreadPool.QueueUserWorkItem(_ => ma.Run());
-                    return new ValueTask<Fin<Unit>>(Fin<Unit>.Succ(default));
-                }
-                catch (Exception e)
-                {
-                    return new ValueTask<Fin<Unit>>(Fin<Unit>.Fail(e));
-                }
-            });
+        public static Eff<Unit> fork<A>(Aff<A> ma) =>
+            ma.Fork();
 
         /// <summary>
         /// Create a new cancellation context and run the provided Aff in that context
@@ -160,28 +140,36 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>An asynchronous effect that captures the operation running in context</returns>
         public static Aff<Env, A> localCancel<Env, A>(Aff<Env, A> ma) where Env : struct, HasCancel<Env> =>
-            localAff<Env, Env, A>(env => env.LocalCancel, ma);
+            localAff<Env, Env, A>(static env => env.LocalCancel, ma);
+
+        /// <summary>
+        /// Create a new cancellation context and run the provided Aff in that context
+        /// </summary>
+        /// <param name="ma">Operation to run in the next context</param>
+        /// <typeparam name="Env">Runtime environment</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>An asynchronous effect that captures the operation running in context</returns>
+        public static Eff<Env, A> localCancel<Env, A>(Eff<Env, A> ma) where Env : struct, HasCancel<Env> =>
+            localEff<Env, Env, A>(static env => env.LocalCancel, ma);
 
         /// <summary>
         /// Cancel the asynchronous operation
         /// </summary>
         /// <typeparam name="Env">Environment</typeparam>
         /// <returns>Unit</returns>
-        public static Aff<Env, Unit> cancel<Env>() where Env : struct, HasCancel<Env> =>
-            from src in cancelTokenSource<Env>()
-            from res in AffMaybe<Env, Unit>(env =>
+        public static Eff<Env, Unit> cancel<Env>() where Env : struct, HasCancel<Env> =>
+            EffMaybe<Env, Unit>(static env =>
             {
-                if (src == null)
+                if (env.CancellationTokenSource == null)
                 {
-                    return Fin<Unit>.Fail(Error.New($"Environment: '{typeof(Env).FullName}' hasn't been initialised with a valid CancellationTokenSource")).AsValueTask();
+                    return Fin<Unit>.Fail(Error.New($"Environment: '{typeof(Env).FullName}' hasn't been initialised with a valid CancellationTokenSource"));
                 }
                 else
                 {
-                    src.Cancel();
-                    return Fin<Unit>.Succ(default).AsValueTask();
+                    env.CancellationTokenSource.Cancel();
+                    return Fin<Unit>.Succ(default);
                 }
-            })
-            select res;
+            });
 
         /// <summary>
         /// Cancellation token
@@ -200,6 +188,24 @@ namespace LanguageExt
         public static Eff<Env, CancellationTokenSource> cancelTokenSource<Env>() 
             where Env : struct, HasCancel<Env> =>
             Eff<Env, CancellationTokenSource>(static env => env.CancellationTokenSource);
+
+        /// <summary>
+        /// Unit effect
+        /// </summary>
+        /// <remarks>Always succeeds with a Unit value</remarks>
+        public static readonly Aff<Unit> unitAff = SuccessEff(unit);
+
+        /// <summary>
+        /// True effect
+        /// </summary>
+        /// <remarks>Always succeeds with a boolean true value</remarks>
+        public static readonly Aff<bool> trueAff = SuccessEff(true);
+
+        /// <summary>
+        /// False effect
+        /// </summary>
+        /// <remarks>Always succeeds with a boolean false value</remarks>
+        public static readonly Aff<bool> falseAff = SuccessEff(false);        
         
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one

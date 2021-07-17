@@ -141,7 +141,6 @@ namespace LanguageExt
         /// Ctor that facilitates serialisation
         /// </summary>
         /// <param name="option">None or Some A.</param>
-        [Pure]
         public Either(IEnumerable<EitherData<L, R>> either)
         {
             var first = either.Take(1).ToArray();

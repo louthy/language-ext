@@ -61,17 +61,40 @@ namespace LanguageExt
             ignore(await Thunk.Value(env).ConfigureAwait(false));
 
         /// <summary>
-        /// Launch the async process without awaiting the result
+        /// Launch the async computation without awaiting the result
         /// </summary>
-        /// <returns></returns>
+        /// <remarks>
+        /// If the parent expression has `cancel` called on it, then it will also cancel the forked child
+        /// expression.
+        ///
+        /// `Fork` returns an `Eff<Unit>` as its bound result value.  If you run it, it will cancel the
+        /// forked child expression.
+        /// </remarks>
+        /// <returns>Returns an `Eff<Unit>` as its bound value.  If it runs, it will cancel the
+        /// forked child expression</returns>
         [MethodImpl(AffOpt.mops)]
-        public Aff<Env, Unit> FireAndForget()
+        public Eff<Env, Eff<Unit>> Fork()
         {
             var t = Thunk;
-            return Aff<Env, Unit>(env => { 
-                ignore(t.Value(env));
-                return unit.AsValueTask();
-            });
+            return Eff<Env, Eff<Unit>>(
+                env =>
+                {
+                    // Create a new local runtime with its own cancellation token
+                    var lenv = env.LocalCancel;
+                    
+                    // If the parent cancels, we should too
+                    env.CancellationToken.Register(() => lenv.CancellationTokenSource.Cancel());
+                    
+                    // Run
+                    ignore(t.Value(lenv));
+                    
+                    // Return an effect that cancels the fire-and-forget expression
+                    return Eff<Unit>(() =>
+                                     {
+                                         lenv.CancellationTokenSource.Cancel();
+                                         return unit;
+                                     });
+                });
         }
 
         /// <summary>
@@ -244,6 +267,19 @@ namespace LanguageExt
                                                ? ra
                                                : value.Match(ra.Error)
                                                    ? FinSucc(value.Value(ra.Error))
+                                                   : ra;
+                                }));
+
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<Env, A> operator |(Aff<Env, A> ma, CatchError value) =>
+            new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
+                                async env =>
+                                {
+                                    var ra = await ma.Run(env).ConfigureAwait(false);
+                                    return ra.IsSucc
+                                               ? ra
+                                               : value.Match(ra.Error)
+                                                   ? FinFail<A>(value.Value(ra.Error))
                                                    : ra;
                                 }));
 

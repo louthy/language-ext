@@ -26,6 +26,6 @@ namespace LanguageExt
         }
 
         public Func<E> OnFalse =>
-            onFalse ?? throw new InvalidOperationException("Guard isn't initialised.  Probably created via new Guard() or default(Guard) and so it has no OnFalse handler");
+            onFalse ?? throw new InvalidOperationException("Guard isn't initialised. It was probably created via new Guard() or default(Guard), and so it has no OnFalse handler");
     }
 }

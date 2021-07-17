@@ -59,17 +59,14 @@ namespace LanguageExt
             ignore(await Thunk.Value().ConfigureAwait(false));
 
         /// <summary>
-        /// Launch the async process without awaiting the result
+        /// Launch the async computation without awaiting the result
         /// </summary>
         /// <returns></returns>
         [MethodImpl(AffOpt.mops)]
-        public Aff<Unit> FireAndForget()
+        public Eff<Unit> Fork()
         {
             var t = Thunk;
-            return Aff<Unit>(() => { 
-                ignore(t.Value());
-                return unit.AsValueTask();
-            });
+            return Eff<Unit>(() => ignore(t.Value()));
         }
 
         /// <summary>
@@ -186,6 +183,19 @@ namespace LanguageExt
                                                    ? FinSucc(value.Value(ra.Error))
                                                    : ra;
                                 }));
+        
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<A> operator |(Aff<A> ma, CatchError value) =>
+            new Aff<A>(ThunkAsync<A>.Lazy(
+                           async () =>
+                           {
+                               var ra = await ma.Run().ConfigureAwait(false);
+                               return ra.IsSucc
+                                          ? ra
+                                          : value.Match(ra.Error)
+                                              ? FinFail<A>(value.Value(ra.Error))
+                                              : ra;
+                           }));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public Aff<Env, A> WithEnv<Env>() where Env : struct, HasCancel<Env>

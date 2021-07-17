@@ -356,6 +356,7 @@ namespace LanguageExt
         /// Convert a value to string
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string toString<A>(A value) =>
             value?.ToString() ?? "";
 
@@ -365,6 +366,7 @@ namespace LanguageExt
         /// <param name="value">String to test</param>
         /// <returns>True if the string is null, empty, or whitespace</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool notEmpty(string value) =>
             !string.IsNullOrWhiteSpace(value);
 
@@ -374,52 +376,96 @@ namespace LanguageExt
         /// <param name="value">String to test</param>
         /// <returns>True if the string is null, empty, or whitespace</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool isEmpty(string value) =>
             string.IsNullOrWhiteSpace(value);
-
-        public static readonly Func<string, Func<string, string>> strAppend =
-            x =>
-                y =>
-                    $"{x}{y}";
+        
+        /// <summary>
+        /// Guard against continuing a monadic expression
+        /// </summary>
+        /// <param name="flag">Flag for continuing</param>
+        /// <param name="False">If the flag is false, this provides the error</param>
+        /// <returns>Guard</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Guard<E> guard<E>(bool flag, Func<E> False) =>
+            new Guard<E>(flag, False);
 
         /// <summary>
         /// Guard against continuing a monadic expression
         /// </summary>
         /// <param name="flag">Flag for continuing</param>
-        /// <param name="onFalse">If the flag is false, this provides the error</param>
+        /// <param name="False">If the flag is false, this provides the error</param>
         /// <returns>Guard</returns>
         [Pure]
-        public static Guard<E> guard<E>(bool flag, Func<E> onFalse) =>
-            new Guard<E>(flag, onFalse);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Guard<E> guard<E>(bool flag, E False) =>
+            new Guard<E>(flag, False);
 
         /// <summary>
         /// Guard against continuing a monadic expression
         /// </summary>
         /// <param name="flag">Flag for continuing</param>
-        /// <param name="onFalse">If the flag is false, this provides the error</param>
+        /// <param name="False">If the flag is false, this provides the error</param>
         /// <returns>Guard</returns>
         [Pure]
-        public static Guard<E> guard<E>(bool flag, E onFalse) =>
-            new Guard<E>(flag, onFalse);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Guard<Error> guard(bool flag, Func<Error> False) =>
+            new Guard<Error>(flag, False);
 
         /// <summary>
         /// Guard against continuing a monadic expression
         /// </summary>
         /// <param name="flag">Flag for continuing</param>
-        /// <param name="onFalse">If the flag is false, this provides the error</param>
+        /// <param name="False">If the flag is false, this provides the error</param>
         /// <returns>Guard</returns>
         [Pure]
-        public static Guard<Error> guard(bool flag, Func<Error> onFalse) =>
-            new Guard<Error>(flag, onFalse);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Guard<Error> guard(bool flag, Error False) =>
+            new Guard<Error>(flag, False);
+        
+        /// <summary>
+        /// Guard against continuing a monadic expression
+        /// </summary>
+        /// <param name="flag">Flag for continuing</param>
+        /// <param name="True">If the flag is false, this provides the error</param>
+        /// <returns>Guard</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Guard<E> notguard<E>(bool flag, Func<E> True) =>
+            new Guard<E>(!flag, True);
 
         /// <summary>
         /// Guard against continuing a monadic expression
         /// </summary>
         /// <param name="flag">Flag for continuing</param>
-        /// <param name="onFalse">If the flag is false, this provides the error</param>
+        /// <param name="True">If the flag is false, this provides the error</param>
         /// <returns>Guard</returns>
         [Pure]
-        public static Guard<Error> guard(bool flag, Error onFalse) =>
-            new Guard<Error>(flag, onFalse);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Guard<E> notguard<E>(bool flag, E True) =>
+            new Guard<E>(!flag, True);
+
+        /// <summary>
+        /// Guard against continuing a monadic expression
+        /// </summary>
+        /// <param name="flag">Flag for continuing</param>
+        /// <param name="True">If the flag is false, this provides the error</param>
+        /// <returns>Guard</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Guard<Error> notguard(bool flag, Func<Error> True) =>
+            new Guard<Error>(!flag, True);
+
+        /// <summary>
+        /// Guard against continuing a monadic expression
+        /// </summary>
+        /// <param name="flag">Flag for continuing</param>
+        /// <param name="True">If the flag is false, this provides the error</param>
+        /// <returns>Guard</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Guard<Error> notguard(bool flag, Error True) =>
+            new Guard<Error>(!flag, True);
     }
 }
