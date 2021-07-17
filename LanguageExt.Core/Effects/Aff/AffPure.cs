@@ -196,6 +196,36 @@ namespace LanguageExt
                                               ? FinFail<A>(value.Value(ra.Error))
                                               : ra;
                            }));
+        
+
+        /// <summary>
+        /// Force the operation to end after a time out delay
+        /// </summary>
+        /// <remarks>Note, the original operation continues even after this returns.  To cancel the original operation
+        /// at the same time as the timeout triggers, use Aff<RT, A> instead of Aff<A> - as it supports cancellation
+        /// tokens, and so can automatically cancel the long-running operation</remarks>
+        /// <param name="timeoutDelay">Delay for the time out</param>
+        /// <returns>Either success if the operation completed before the timeout, or Errors.TimedOut</returns>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Aff<A> Timeout(TimeSpan timeoutDelay)
+        {
+            var t = Thunk;
+            return AffMaybe<A>(
+                async () =>
+                {
+                    var delay = Task.Delay(timeoutDelay);
+                    var task  = t.Value().AsTask();
+                    await Task.WhenAny( new Task[] { delay, task });
+                    if (delay.IsCompleted)
+                    {
+                        return FinFail<A>(Errors.TimedOut);
+                    }
+                    else
+                    {
+                        return await task;
+                    }
+                });
+        }        
 
         [Pure, MethodImpl(AffOpt.mops)]
         public Aff<Env, A> WithEnv<Env>() where Env : struct, HasCancel<Env>

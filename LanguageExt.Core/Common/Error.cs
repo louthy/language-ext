@@ -9,13 +9,17 @@ namespace LanguageExt.Common
 {
     public static class Errors
     {
+        public const string CancelledText = "cancelled";
+        public const int CancelledCode = -2000000000;
+        public static readonly Error Cancelled = (CancelledCode, CancelledText);
+
         public const string BottomText = "bottom";
         public const int BottomCode = -2000000001;
         public readonly static Error Bottom = (BottomCode, BottomText);
 
-        public const string CancelledText = "cancelled";
-        public const int CancelledCode = -2000000000;
-        public static readonly Error Cancelled = (CancelledCode, CancelledText);
+        public const string TimedOutText = "timed out";
+        public const int TimedOutCode = -2000000002;
+        public static readonly Error TimedOut = (TimedOutCode, TimedOutText);    
     }
 
     [Serializable]

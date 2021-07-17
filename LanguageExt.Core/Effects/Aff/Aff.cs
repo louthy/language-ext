@@ -136,6 +136,33 @@ namespace LanguageExt
         public static Aff<Env, A> Fail(Error error) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Fail(error));
 
+        /// <summary>
+        /// Force the operation to end after a time out delay
+        /// </summary>
+        /// <param name="timeoutDelay">Delay for the time out</param>
+        /// <returns>Either success if the operation completed before the timeout, or Errors.TimedOut</returns>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public Aff<Env, A> Timeout(TimeSpan timeoutDelay)
+        {
+            var t = Thunk;
+            return AffMaybe<Env, A>(
+                async env =>
+                {
+                    var delay = Task.Delay(timeoutDelay);
+                    var task  = t.Value(env).AsTask();
+                    await Task.WhenAny( new Task[] { delay, task });
+                    if (delay.IsCompleted)
+                    {
+                        env.CancellationTokenSource.Cancel();
+                        return FinFail<A>(Errors.TimedOut);
+                    }
+                    else
+                    {
+                        return await task;
+                    }
+                });
+        }
+
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, A> operator |(Aff<Env, A> ma, Aff<Env, A> mb) =>
             new Aff<Env, A>(ThunkAsync<Env, A>.Lazy(
