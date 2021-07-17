@@ -41,10 +41,7 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        while (true)
-        {
-            AffTests<Runtime>.main.Run(Runtime.New());
-        }
+        AffTests<Runtime>.main.Run(Runtime.New());
 
         //await ObsAffTests.Test();
         //await AsyncTests();

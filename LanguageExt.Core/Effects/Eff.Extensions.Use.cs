@@ -10,7 +10,7 @@ using LanguageExt.Thunks;
 
 namespace LanguageExt
 {
-    public static partial class Prelude
+    public static partial class EffExtensions
     {
         /// <summary>
         /// Safely use a disposable resource

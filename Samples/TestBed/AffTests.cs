@@ -6,6 +6,7 @@ using LanguageExt.Sys.Live;
 using LanguageExt.Sys.Traits;
 using static LanguageExt.Prelude;
 
+
 namespace TestBed
 {
     public class AffTests<RT>
@@ -13,22 +14,23 @@ namespace TestBed
     {
         static readonly Error UserExited = Error.New(100, "user exited");
         static readonly Error SafeError = Error.New(200, "there was a problem");
-        
+
         public static Eff<RT, Unit> main =>
             from _1 in askUser
-                          | @catch(UserExited, Console<RT>.writeLine("we're sad to see you go"))
-                          | @catch(ex => ex is SystemException, from _ in Console<RT>.writeLine("system error")
-                                                                from e in FailEff<Unit>(SafeError)
-                                                                select e)
-                          | @catch(SafeError)
+                     | @catch(ex => ex is SystemException, Console<RT>.writeLine("system error"))
+                     | @catch(SafeError)
             from _2 in Console<RT>.writeLine("goodbye")
             select unit;
 
         static Eff<RT, Unit> askUser =>
-            repeat(from l in Console<RT>.readLine
-                   from d in guard(notEmpty(l), UserExited)
-                   from s in notguard(l == "err", () => throw new SystemException())
-                   from _ in Console<RT>.writeLine(l)
-                   select unit);
+            repeat(Schedule.Spaced(1000) | Schedule.Recurs(3),
+                   from _0 in Console<RT>.writeLine("Welcome")
+                   from ln in Console<RT>.readLine
+                   from _1 in guard(notEmpty(ln), UserExited)
+                   from _2 in notguard(ln == "sys", () => throw new SystemException())
+                   from _3 in notguard(ln == "err", () => throw new Exception())
+                   from _4 in Console<RT>.writeLine(ln)
+                   select unit)
+          | @catch(UserExited, unit);
     }
 }

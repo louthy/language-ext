@@ -9,912 +9,177 @@ using LanguageExt.Thunks;
 
 namespace LanguageExt
 {
-    public static partial class Prelude
+    public static partial class AffExtensions
     {
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the schedule expires or the effect fails
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> =>
-            Prelude.foldWhile(ma, state, f, pred);
- 
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="schedule">Scheduler that controls the number of folds and the delay between each fold iteration</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <typeparam name="RT">Runtime</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Aff<RT, S> Fold<RT, S, A>(this Aff<RT, A> ma, Schedule schedule, S state, Func<S, A, S> fold)
+            where RT : struct, HasCancel<RT> =>
+            ScheduleAff<RT, A>.Fold(ma, schedule, state, fold);
+
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the schedule expires, the effect fails, or the predicate returns false
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="schedule">Scheduler that controls the number of folds and the delay between each fold iteration</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns false, the fold ends</param>
+        /// <typeparam name="RT">Runtime</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Aff<RT, S> FoldWhile<RT, S, A>(this Aff<RT, A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred)
+            where RT : struct, HasCancel<RT> =>
+            ScheduleAff<RT, A>.FoldWhile(ma, schedule, state, fold, pred);
+
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the schedule expires, the effect fails, or the predicate returns true
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> =>
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="schedule">Scheduler that controls the number of folds and the delay between each fold iteration</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns true, the fold ends</param>
+        /// <typeparam name="RT">Runtime</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Aff<RT, S> FoldUntil<RT, S, A>(this Aff<RT, A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred)
+            where RT : struct, HasCancel<RT> =>
+            ScheduleAff<RT, A>.FoldUntil(ma, schedule, state, fold, pred);
         
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the effect fails
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <typeparam name="RT">Runtime</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Aff<RT, S> Fold<RT, S, A>(this Aff<RT, A> ma, S state, Func<S, A, S> fold)
+            where RT : struct, HasCancel<RT> =>
+            ScheduleAff<RT, A>.Fold(ma, Schedule.Forever, state, fold);
+
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the effect fails or the predicate returns false
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns false, the fold ends</param>
+        /// <typeparam name="RT">Runtime</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Aff<RT, S> FoldWhile<RT, S, A>(this Aff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred)
+            where RT : struct, HasCancel<RT> =>
+            ScheduleAff<RT, A>.FoldWhile(ma, Schedule.Forever, state, fold, pred);
+
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the effect fails or the predicate returns true 
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<Env, bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<S> FoldWhile<S, A>(this Aff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<bool>> pred) => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<S> FoldWhile<S, A>(this Aff<A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Aff<bool>> pred) => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Aff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<S> FoldWhile<S, A>(this Eff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Aff<bool>> pred) => 
-            Prelude.foldWhile(ma, state, f, pred);
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns true, the fold ends</param>
+        /// <typeparam name="RT">Runtime</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Aff<RT, S> FoldUntil<RT, S, A>(this Aff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred)
+            where RT : struct, HasCancel<RT> =>
+            ScheduleAff<RT, A>.FoldUntil(ma, Schedule.Forever, state, fold, pred);      
+        
         
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the schedule expires or the effect fails
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="schedule">Scheduler that controls the number of folds and the delay between each fold iteration</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Aff<S> Fold<S, A>(this Aff<A> ma, Schedule schedule, S state, Func<S, A, S> fold) =>
+            ScheduleAff<A>.Fold(ma, schedule, state, fold);
+
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the schedule expires, the effect fails, or the predicate returns false
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="schedule">Scheduler that controls the number of folds and the delay between each fold iteration</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns false, the fold ends</param>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Aff<S> FoldWhile<S, A>(this Aff<A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+            ScheduleAff<A>.FoldWhile(ma, schedule, state, fold, pred);
+
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the schedule expires, the effect fails, or the predicate returns true
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="schedule">Scheduler that controls the number of folds and the delay between each fold iteration</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns true, the fold ends</param>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Aff<S> FoldUntil<S, A>(this Aff<A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+            ScheduleAff<A>.FoldUntil(ma, schedule, state, fold, pred);
+        
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the effect fails
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Aff<S> Fold<S, A>(this Aff<A> ma, S state, Func<S, A, S> fold) =>
+            ScheduleAff<A>.Fold(ma, Schedule.Forever, state, fold);
+
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the effect fails or the predicate returns false
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns false, the fold ends</param>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Aff<S> FoldWhile<S, A>(this Aff<A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+            ScheduleAff<A>.FoldWhile(ma, Schedule.Forever, state, fold, pred);
+
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the effect fails or the predicate returns true 
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<S> FoldWhile<S, A>(this Aff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<bool>> pred) =>  
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<S> FoldWhile<S, A>(this Aff<A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Eff<bool>> pred) => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, Eff<bool>> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<S> FoldWhile<S, A>(this Eff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, Eff<bool>> pred) => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> =>
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<Env, A> ma, S state, Func<S, A, Eff<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Aff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<S> FoldWhile<S, A>(this Aff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, bool> pred) => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<Env, A> ma, S state, Func<S, A, Aff<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<A> ma, S state, Func<S, A, Aff<Env, S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
- 
-        /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
-        /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Aff<Env, S> FoldWhile<Env, S, A>(this Eff<A> ma, S state, Func<S, A, Aff<S>> f, Func<S, bool> pred) where Env : struct, HasCancel<Env> => 
-            Prelude.foldWhile(ma, state, f, pred);
-   }
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns true, the fold ends</param>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Aff<S> FoldUntil<S, A>(this Aff<A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+            ScheduleAff<A>.FoldUntil(ma, Schedule.Forever, state, fold, pred);  
+    }
 }

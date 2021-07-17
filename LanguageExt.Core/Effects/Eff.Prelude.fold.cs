@@ -12,250 +12,167 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the schedule expires or the effect fails
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Eff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Eff<Env, bool>> pred) => 
-            EffMaybe<Env, S>(env =>
-        {
-            while (true)
-            {
-                var ioCont = pred(state);
-                var cont = ioCont.ReRun(env);
-                if (cont.IsFail) return cont.Cast<S>();
-                if (!cont.Value) return state;
-                
-                var a = ma.ReRun(env);
-                if (a.IsFail) return a.Cast<S>();
-                var iostate = f(state, a.Value).ReRun(env);
-                if (iostate.IsFail) return iostate;
-                state = iostate.Value;
-            }
-        });
- 
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="schedule">Scheduler that controls the number of folds and the delay between each fold iteration</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <typeparam name="RT">Runtime</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Eff<RT, S> fold<RT, S, A>(Schedule schedule, Eff<RT, A> ma, S state, Func<S, A, S> fold) =>
+            ScheduleEff<RT, A>.Fold(ma, schedule, state, fold);
+
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the schedule expires, the effect fails, or the predicate returns false
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Eff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Eff<Env, bool>> pred) => 
-            EffMaybe<Env, S>(env =>
-        {
-            while (true)
-            {
-                var ioCont = pred(state);
-                var cont = ioCont.ReRun(env);
-                if (cont.IsFail) return cont.Cast<S>();
-                if (!cont.Value) return state;
-                
-                var a = ma.ReRun(env);
-                if (a.IsFail) return a.Cast<S>();
-                var iostate = f(state, a.Value).ReRun();
-                if (iostate.IsFail) return iostate;
-                state = iostate.Value;
-            }
-        });
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="schedule">Scheduler that controls the number of folds and the delay between each fold iteration</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns false, the fold ends</param>
+        /// <typeparam name="RT">Runtime</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Eff<RT, S> foldWhile<RT, S, A>(Schedule schedule, Eff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+            ScheduleEff<RT, A>.FoldWhile(ma, schedule, state, fold, pred);
+
+        /// <summary>
+        /// Fold over the effect repeatedly until the schedule expires, the effect fails, or the predicate returns true
+        /// </summary>
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="schedule">Scheduler that controls the number of folds and the delay between each fold iteration</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns true, the fold ends</param>
+        /// <typeparam name="RT">Runtime</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Eff<RT, S> foldUntil<RT, S, A>(Schedule schedule, Eff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+            ScheduleEff<RT, A>.FoldUntil(ma, schedule, state, fold, pred);
         
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the effect fails
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Eff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Eff<bool>> pred) => 
-            EffMaybe<Env, S>(env =>
-        {
-            while (true)
-            {
-                var ioCont = pred(state);
-                var cont = ioCont.ReRun();
-                if (cont.IsFail) return cont.Cast<S>();
-                if (!cont.Value) return state;
-                
-                var a = ma.ReRun(env);
-                if (a.IsFail) return a.Cast<S>();
-                var iostate = f(state, a.Value).ReRun(env);
-                if (iostate.IsFail) return iostate;
-                state = iostate.Value;
-            }
-        });
- 
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <typeparam name="RT">Runtime</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Eff<RT, S> fold<RT, S, A>(Eff<RT, A> ma, S state, Func<S, A, S> fold) =>
+            ScheduleEff<RT, A>.Fold(ma, Schedule.Forever, state, fold);
+
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the effect fails or the predicate returns false
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Eff<Env, S> foldWhile<Env, S, A>(Eff<Env, A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Eff<bool>> pred) => 
-            EffMaybe<Env, S>(env =>
-        {
-            while (true)
-            {
-                var ioCont = pred(state);
-                var cont = ioCont.ReRun();
-                if (cont.IsFail) return cont.Cast<S>();
-                if (!cont.Value) return state;
-                
-                var a = ma.ReRun(env);
-                if (a.IsFail) return a.Cast<S>();
-                var iostate = f(state, a.Value).ReRun();
-                if (iostate.IsFail) return iostate;
-                state = iostate.Value;
-            }
-        });
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns false, the fold ends</param>
+        /// <typeparam name="RT">Runtime</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Eff<RT, S> foldWhile<RT, S, A>(Eff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+            ScheduleEff<RT, A>.FoldWhile(ma, Schedule.Forever, state, fold, pred);
+
+        /// <summary>
+        /// Fold over the effect repeatedly until the effect fails or the predicate returns true 
+        /// </summary>
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns true, the fold ends</param>
+        /// <typeparam name="RT">Runtime</typeparam>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Eff<RT, S> foldUntil<RT, S, A>(Eff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+            ScheduleEff<RT, A>.FoldUntil(ma, Schedule.Forever, state, fold, pred);  
         
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the schedule expires or the effect fails
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Eff<Env, S> foldWhile<Env, S, A>(Eff<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Eff<Env, bool>> pred) => 
-            EffMaybe<Env, S>(env =>
-        {
-            while (true)
-            {
-                var ioCont = pred(state);
-                var cont = ioCont.ReRun(env);
-                if (cont.IsFail) return cont.Cast<S>();
-                if (!cont.Value) return state;
-                
-                var a = ma.ReRun();
-                if (a.IsFail) return a.Cast<S>();
-                var iostate = f(state, a.Value).ReRun(env);
-                if (iostate.IsFail) return iostate;
-                state = iostate.Value;
-            }
-        });
- 
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="schedule">Scheduler that controls the number of folds and the delay between each fold iteration</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Eff<S> fold<S, A>(Schedule schedule, Eff<A> ma, S state, Func<S, A, S> fold) =>
+            ScheduleEff<A>.Fold(ma, schedule, state, fold);
+
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the schedule expires, the effect fails, or the predicate returns false
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Eff<Env, S> foldWhile<Env, S, A>(Eff<A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Eff<Env, bool>> pred) => 
-            EffMaybe<Env, S>(env =>
-        {
-            while (true)
-            {
-                var ioCont = pred(state);
-                var cont = ioCont.ReRun(env);
-                if (cont.IsFail) return cont.Cast<S>();
-                if (!cont.Value) return state;
-                
-                var a = ma.ReRun();
-                if (a.IsFail) return a.Cast<S>();
-                var iostate = f(state, a.Value).ReRun();
-                if (iostate.IsFail) return iostate;
-                state = iostate.Value;
-            }
-        });
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="schedule">Scheduler that controls the number of folds and the delay between each fold iteration</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns false, the fold ends</param>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Eff<S> foldWhile<S, A>(Schedule schedule, Eff<A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+            ScheduleEff<A>.FoldWhile(ma, schedule, state, fold, pred);
+
+        /// <summary>
+        /// Fold over the effect repeatedly until the schedule expires, the effect fails, or the predicate returns true
+        /// </summary>
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="schedule">Scheduler that controls the number of folds and the delay between each fold iteration</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns true, the fold ends</param>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Eff<S> foldUntil<S, A>(Schedule schedule, Eff<A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+            ScheduleEff<A>.FoldUntil(ma, schedule, state, fold, pred);
         
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the effect fails
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Eff<Env, S> foldWhile<Env, S, A>(Eff<A> ma, S state, Func<S, A, Eff<Env, S>> f, Func<S, Eff<bool>> pred) => 
-            EffMaybe<Env, S>(env =>
-        {
-            while (true)
-            {
-                var ioCont = pred(state);
-                var cont = ioCont.ReRun();
-                if (cont.IsFail) return cont.Cast<S>();
-                if (!cont.Value) return state;
-                
-                var a = ma.ReRun();
-                if (a.IsFail) return a.Cast<S>();
-                var iostate = f(state, a.Value).ReRun(env);
-                if (iostate.IsFail) return iostate;
-                state = iostate.Value;
-            }
-        });
- 
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Eff<S> fold<S, A>(Eff<A> ma, S state, Func<S, A, S> fold) =>
+            ScheduleEff<A>.Fold(ma, Schedule.Forever, state, fold);
+
         /// <summary>
-        /// Folds over the provided IO computation `ma` while the `pred` operation returns `true` 
+        /// Fold over the effect repeatedly until the effect fails or the predicate returns false
         /// </summary>
-        /// <remarks>The `ma` operation has its state reset before each evaluation, allowing a different result
-        /// each time its called.</remarks>
-        /// <param name="ma">IO computation to fold over</param>
-        /// <param name="state">Initial state value</param>
-        /// <param name="f">Fold function</param>
-        /// <param name="pred">Predicate</param>
-        /// <typeparam name="S">State value type</typeparam>
-        /// <typeparam name="A">Computation bound value type</typeparam>
-        /// <returns>Aggregated state value</returns>
-        public static Eff<S> foldWhile<Env, S, A>(Eff<A> ma, S state, Func<S, A, Eff<S>> f, Func<S, Eff<bool>> pred) => 
-            EffMaybe<S>(() =>
-        {
-            while (true)
-            {
-                var ioCont = pred(state);
-                var cont = ioCont.ReRun();
-                if (cont.IsFail) return cont.Cast<S>();
-                if (!cont.Value) return state;
-                
-                var a = ma.ReRun();
-                if (a.IsFail) return a.Cast<S>();
-                var iostate = f(state, a.Value).ReRun();
-                if (iostate.IsFail) return iostate;
-                state = iostate.Value;
-            }
-        });
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns false, the fold ends</param>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Eff<S> foldWhile<S, A>(Eff<A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+            ScheduleEff<A>.FoldWhile(ma, Schedule.Forever, state, fold, pred);
+
+        /// <summary>
+        /// Fold over the effect repeatedly until the effect fails or the predicate returns true 
+        /// </summary>
+        /// <param name="ma">Effect to fold over</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="fold">Folder function</param>
+        /// <param name="pred">Predicate function - when this returns true, the fold ends</param>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>The result of the fold operation</returns>
+        public static Eff<S> foldUntil<S, A>(Eff<A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+            ScheduleEff<A>.FoldUntil(ma, Schedule.Forever, state, fold, pred);  
     }
 }
