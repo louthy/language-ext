@@ -31,7 +31,7 @@ using TestBed;
 
 public class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                                                                                    //
@@ -41,8 +41,10 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        AffTests<Runtime>.main.Run(Runtime.New());
 
+        await EffectsTest2<Runtime>.main.Run(Runtime.New());
+
+        // EffectsTest1<Runtime>.main.Run(Runtime.New());
         //await ObsAffTests.Test();
         //await AsyncTests();
     }

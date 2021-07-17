@@ -1,6 +1,7 @@
 ﻿using System;
 using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.Effects.Traits;
 using LanguageExt.Sys;
 using LanguageExt.Sys.Live;
 using LanguageExt.Sys.Traits;
@@ -9,7 +10,7 @@ using static LanguageExt.Prelude;
 
 namespace TestBed
 {
-    public class AffTests<RT>
+    public class EffectsTest1<RT>
         where RT : struct, HasConsole<RT>
     {
         static readonly Error UserExited = Error.New(100, "user exited");
@@ -23,7 +24,7 @@ namespace TestBed
             select unit;
 
         static Eff<RT, Unit> askUser =>
-            repeat(Schedule.Spaced(1000) | Schedule.Recurs(3),
+            repeat(Schedule.Spaced(1*second) | Schedule.Recurs(3),
                    from _0 in Console<RT>.writeLine("Welcome")
                    from ln in Console<RT>.readLine
                    from _1 in guard(notEmpty(ln), UserExited)
@@ -32,5 +33,19 @@ namespace TestBed
                    from _4 in Console<RT>.writeLine(ln)
                    select unit)
           | @catch(UserExited, unit);
+    }
+
+    public class EffectsTest2<RT>
+        where RT : 
+            struct, 
+            HasTime<RT>, 
+            HasCancel<RT>, 
+            HasConsole<RT>
+    {
+        public static Aff<RT, Unit> main =>
+            repeat(from tm in DateTime<RT>.now
+                   from _1 in Console<RT>.writeLine(tm.ToLongTimeString()) 
+                   from _2 in DateTime<RT>.sleepFor(1*second)
+                   select unit);
     }
 }
