@@ -20,7 +20,7 @@ namespace LanguageExt
         public static Aff<R> use<H, R>(Eff<H> Acq, Func<H, Aff<R>> Use) where H : IDisposable =>
             AffMaybe(async () =>
                      {
-                         var h = Acq.Run();
+                         var h = Acq.ReRun();
                          try
                          {
                              if (h.IsFail) return h.Cast<R>();
@@ -42,7 +42,7 @@ namespace LanguageExt
             where H : IDisposable =>
             AffMaybe<Env, R>(async env =>
                              {
-                                 var h = Acq.Run();
+                                 var h = Acq.ReRun();
                                  try
                                  {
                                      if (h.IsFail) return h.Cast<R>();
@@ -62,7 +62,7 @@ namespace LanguageExt
         public static Eff<R> use<H, R>(Eff<H> Acq, Func<H, Eff<R>> Use) where H : IDisposable =>
             EffMaybe(() =>
                      {
-                         var h = Acq.Run();
+                         var h = Acq.ReRun();
                          try
                          {
                              if (h.IsFail) return h.Cast<R>();
@@ -84,7 +84,7 @@ namespace LanguageExt
             where H : IDisposable =>
             EffMaybe<Env, R>(env =>
                              {
-                                 var h = Acq.Run();
+                                 var h = Acq.ReRun();
                                  try
                                  {
                                      if (h.IsFail) return h.Cast<R>();
@@ -107,7 +107,7 @@ namespace LanguageExt
             where H : IDisposable =>
             AffMaybe<Env, R>(async env =>
                              {
-                                 var h = Acq.Run(env);
+                                 var h = Acq.ReRun(env);
                                  try
                                  {
                                      if (h.IsFail) return h.Cast<R>();
@@ -129,7 +129,7 @@ namespace LanguageExt
             where H : IDisposable =>
             AffMaybe<Env, R>(async env =>
                              {
-                                 var h = Acq.Run(env);
+                                 var h = Acq.ReRun(env);
                                  try
                                  {
                                      if (h.IsFail) return h.Cast<R>();
@@ -151,7 +151,7 @@ namespace LanguageExt
             where H : IDisposable =>
             EffMaybe<Env, R>(env =>
                              {
-                                 var h = Acq.Run(env);
+                                 var h = Acq.ReRun(env);
                                  try
                                  {
                                      if (h.IsFail) return h.Cast<R>();
@@ -173,7 +173,7 @@ namespace LanguageExt
             where H : IDisposable =>
             EffMaybe<Env, R>(env =>
                              {
-                                 var h = Acq.Run(env);
+                                 var h = Acq.ReRun(env);
                                  try
                                  {
                                      if (h.IsFail) return h.Cast<R>();

@@ -19,7 +19,7 @@ namespace LanguageExt
         { }
 
         public ValueTask<Fin<A>> Run(Error error) =>
-            fail(error).Run();
+            fail(error).ReRun();
 
         public static AffCatch<A> operator |(CatchValue<A> ma, AffCatch<A> mb) =>
             new AffCatch<A>(e => ma.Match(e) ? SuccessEff(ma.Value(e)) : mb.fail(e));
@@ -61,7 +61,7 @@ namespace LanguageExt
         { }
 
         public ValueTask<Fin<A>> Run(RT env, Error error) =>
-            fail(error).Run(env);
+            fail(error).ReRun(env);
 
         public static AffCatch<RT, A> operator |(CatchValue<A> ma, AffCatch<RT, A> mb) =>
             new AffCatch<RT, A>(e => ma.Match(e) ? SuccessEff(ma.Value(e)) : mb.fail(e));
@@ -106,7 +106,7 @@ namespace LanguageExt
             new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
                            async env =>
                            {
-                               var ra = await ma.Run().ConfigureAwait(false);
+                               var ra = await ma.ReRun().ConfigureAwait(false);
                                return ra.IsSucc
                                           ? ra
                                           : await mb.Run(env, ra.Error).ConfigureAwait(false);
@@ -116,7 +116,7 @@ namespace LanguageExt
             new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
                                async env =>
                                {
-                                   var ra = ma.Run();
+                                   var ra = ma.ReRun();
                                    return ra.IsSucc
                                               ? ra
                                               : await mb.Run(env, ra.Error).ConfigureAwait(false);
@@ -126,7 +126,7 @@ namespace LanguageExt
             new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
                                async env =>
                                {
-                                   var ra = ma.Run(env);
+                                   var ra = ma.ReRun(env);
                                    return ra.IsSucc
                                               ? ra
                                               : await mb.Run(env, ra.Error).ConfigureAwait(false);

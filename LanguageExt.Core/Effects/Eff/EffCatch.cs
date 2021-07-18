@@ -17,7 +17,7 @@ namespace LanguageExt
         { }
 
         public Fin<A> Run(Error error) =>
-            fail(error).Run();
+            fail(error).ReRun();
 
         public static EffCatch<A> operator |(EffCatch<A> ma, EffCatch<A> mb) =>
             new EffCatch<A>(e => ma.fail(e) | mb.fail(e));
@@ -53,7 +53,7 @@ namespace LanguageExt
         { }
 
         public Fin<A> Run(RT env, Error error) =>
-            fail(error).Run(env);
+            fail(error).ReRun(env);
         
         public static EffCatch<RT, A> operator |(CatchValue<A> ma, EffCatch<RT, A> mb) =>
             new EffCatch<RT, A>(e => ma.Match(e) ? SuccessEff(ma.Value(e)) : mb.fail(e));
@@ -86,7 +86,7 @@ namespace LanguageExt
             new Eff<RT, A>(Thunk<RT, A>.Lazy(
                                env =>
                                {
-                                   var ra = ma.Run();
+                                   var ra = ma.ReRun();
                                    return ra.IsSucc
                                               ? ra
                                               : mb.Run(env, ra.Error);

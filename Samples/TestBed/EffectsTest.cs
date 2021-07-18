@@ -42,7 +42,7 @@ namespace TestBed
             HasCancel<RT>, 
             HasConsole<RT>
     {
-        public static Aff<RT, Unit> main =>
+        public static Eff<RT, Unit> main =>
             repeat(Schedule.Spaced(1 * second),
                    from tm in DateTime<RT>.now
                    from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
@@ -58,13 +58,16 @@ namespace TestBed
         HasConsole<RT>
     {
         public static Aff<RT, Unit> main =>
-            longRunning.Timeout(5 * seconds);
+            from _1 in longRunning.Timeout(5 * seconds)
+            from _2 in Console<RT>.readLine
+            select unit;
 
         static Aff<RT, Unit> longRunning =>
-            repeat(from tm in DateTime<RT>.now
-                   from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
-                   from _2 in DateTime<RT>.sleepFor(1 * second)
-                   select unit);
+           (from tm in DateTime<RT>.now
+            from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
+            select unit)
+           .ToAsync()
+           .Repeat(Schedule.Spaced(1 * second));
     }
 
 }

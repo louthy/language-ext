@@ -190,6 +190,15 @@ namespace LanguageExt
             Eff<Env, CancellationTokenSource>(static env => env.CancellationTokenSource);
 
         /// <summary>
+        /// Force the operation to end after a time out delay
+        /// </summary>
+        /// <param name="timeoutDelay">Delay for the time out</param>
+        /// <returns>Either success if the operation completed before the timeout, or Errors.TimedOut</returns>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<RT, A> timeout<RT, A>(TimeSpan timeoutDelay, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
+            ma.Timeout(timeoutDelay);
+
+        /// <summary>
         /// Unit effect
         /// </summary>
         /// <remarks>Always succeeds with a Unit value</remarks>

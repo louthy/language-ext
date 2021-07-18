@@ -123,30 +123,30 @@ namespace LanguageExt
         public static Aff<A> operator |(Aff<A> ma, Aff<A> mb) => new Aff<A>(ThunkAsync<A>.Lazy(
             async () =>
             {
-                var ra = await ma.Run().ConfigureAwait(false);
+                var ra = await ma.ReRun().ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
-                    : await mb.Run().ConfigureAwait(false);
+                    : await mb.ReRun().ConfigureAwait(false);
             }));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<A> operator |(Aff<A> ma, Eff<A> mb) => new Aff<A>(ThunkAsync<A>.Lazy(
             async () =>
             {
-                var ra = await ma.Run().ConfigureAwait(false);
+                var ra = await ma.ReRun().ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
-                    : mb.Run();
+                    : mb.ReRun();
             }));
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<A> operator |(Eff<A> ma, Aff<A> mb) => new Aff<A>(ThunkAsync<A>.Lazy(
             async () =>
             {
-                var ra = ma.Run();
+                var ra = ma.ReRun();
                 return ra.IsSucc
                     ? ra
-                    : await mb.Run().ConfigureAwait(false);
+                    : await mb.ReRun().ConfigureAwait(false);
             }));
 
         [Pure, MethodImpl(AffOpt.mops)]
@@ -154,7 +154,7 @@ namespace LanguageExt
             new Aff<A>(ThunkAsync<A>.Lazy(
                 async () =>
                 {
-                    var ra = await ma.Run().ConfigureAwait(false);
+                    var ra = await ma.ReRun().ConfigureAwait(false);
                     return ra.IsSucc
                         ? ra
                         : mb.Run(ra.Error);
@@ -165,7 +165,7 @@ namespace LanguageExt
             new Aff<A>(ThunkAsync<A>.Lazy(
                 async () =>
                 {
-                    var ra = await ma.Run().ConfigureAwait(false);
+                    var ra = await ma.ReRun().ConfigureAwait(false);
                     return ra.IsSucc
                         ? ra
                         : await mb.Run(ra.Error).ConfigureAwait(false);
@@ -176,7 +176,7 @@ namespace LanguageExt
             new Aff<A>(ThunkAsync<A>.Lazy(
                                 async () =>
                                 {
-                                    var ra = await ma.Run().ConfigureAwait(false);
+                                    var ra = await ma.ReRun().ConfigureAwait(false);
                                     return ra.IsSucc
                                                ? ra
                                                : value.Match(ra.Error)
@@ -189,14 +189,13 @@ namespace LanguageExt
             new Aff<A>(ThunkAsync<A>.Lazy(
                            async () =>
                            {
-                               var ra = await ma.Run().ConfigureAwait(false);
+                               var ra = await ma.ReRun().ConfigureAwait(false);
                                return ra.IsSucc
                                           ? ra
                                           : value.Match(ra.Error)
                                               ? FinFail<A>(value.Value(ra.Error))
                                               : ra;
                            }));
-        
 
         /// <summary>
         /// Force the operation to end after a time out delay
@@ -231,7 +230,7 @@ namespace LanguageExt
         public Aff<Env, A> WithEnv<Env>() where Env : struct, HasCancel<Env>
         {
             var self = this;
-            return Aff<Env, A>.EffectMaybe(e => self.Run());
+            return Aff<Env, A>.EffectMaybe(e => self.ReRun());
         }
 
         [Pure, MethodImpl(AffOpt.mops)]
@@ -261,7 +260,7 @@ namespace LanguageExt
         /// Implicit conversion from pure Eff
         /// </summary>
         public static implicit operator Aff<A>(Eff<A> ma) =>
-            EffectMaybe(() => ma.Run().AsValueTask());
+            EffectMaybe(() => ma.ReRun().AsValueTask());
     }
     
     public static partial class AffExtensions
@@ -276,8 +275,8 @@ namespace LanguageExt
         public static Aff<(A, B)> Sequence<A, B>(this (Aff<A>, Aff< B>) ms) => 
             AffMaybe<(A, B)>(async () =>
             {
-                var t1 = ms.Item1.Run().AsTask();
-                var t2 = ms.Item2.Run().AsTask();
+                var t1 = ms.Item1.ReRun().AsTask();
+                var t2 = ms.Item2.ReRun().AsTask();
                 
                 var tasks = new Task[] {t1, t2};
                 await Task.WhenAll(tasks);
@@ -292,9 +291,9 @@ namespace LanguageExt
         public static Aff<(A, B, C)> Sequence<A, B, C>(this (Aff<A>, Aff<B>, Aff<C>) ms) => 
             AffMaybe<(A, B, C)>(async () =>
             {
-                var t1 = ms.Item1.Run().AsTask();
-                var t2 = ms.Item2.Run().AsTask();
-                var t3 = ms.Item3.Run().AsTask();
+                var t1 = ms.Item1.ReRun().AsTask();
+                var t2 = ms.Item2.ReRun().AsTask();
+                var t3 = ms.Item3.ReRun().AsTask();
                 
                 var tasks = new Task[] {t1, t2, t3};
                 await Task.WhenAll(tasks);
@@ -310,10 +309,10 @@ namespace LanguageExt
         public static Aff<(A, B, C, D)> Sequence<A, B, C, D>(this (Aff<A>, Aff<B>, Aff<C>, Aff< D>) ms) => 
             AffMaybe<(A, B, C, D)>(async () =>
             {
-                var t1 = ms.Item1.Run().AsTask();
-                var t2 = ms.Item2.Run().AsTask();
-                var t3 = ms.Item3.Run().AsTask();
-                var t4 = ms.Item4.Run().AsTask();
+                var t1 = ms.Item1.ReRun().AsTask();
+                var t2 = ms.Item2.ReRun().AsTask();
+                var t3 = ms.Item3.ReRun().AsTask();
+                var t4 = ms.Item4.ReRun().AsTask();
                 
                 var tasks = new Task[] {t1, t2, t3, t4};
                 await Task.WhenAll(tasks);
@@ -330,11 +329,11 @@ namespace LanguageExt
         public static Aff<(A, B, C, D, E)> Sequence<A, B, C, D, E>(this (Aff<A>, Aff<B>, Aff<C>, Aff<D>, Aff<E>) ms) => 
             AffMaybe<(A, B, C, D, E)>(async () =>
             {
-                var t1 = ms.Item1.Run().AsTask();
-                var t2 = ms.Item2.Run().AsTask();
-                var t3 = ms.Item3.Run().AsTask();
-                var t4 = ms.Item4.Run().AsTask();
-                var t5 = ms.Item5.Run().AsTask();
+                var t1 = ms.Item1.ReRun().AsTask();
+                var t2 = ms.Item2.ReRun().AsTask();
+                var t3 = ms.Item3.ReRun().AsTask();
+                var t4 = ms.Item4.ReRun().AsTask();
+                var t5 = ms.Item5.ReRun().AsTask();
                 
                 var tasks = new Task[] {t1, t2, t3, t4, t5};
                 await Task.WhenAll(tasks);
@@ -385,7 +384,7 @@ namespace LanguageExt
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<B> Match<A, B>(this Aff<A> ma, Func<A, B> Succ, Func<Error, B> Fail) =>
             Aff(async () => { 
-                var r = await ma.Run().ConfigureAwait(false);
+                var r = await ma.ReRun().ConfigureAwait(false);
                 return r.IsSucc
                     ? Succ(r.Value)
                     : Fail(r.Error);
@@ -394,16 +393,16 @@ namespace LanguageExt
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> MatchAff<Env, A, B>(this Aff<A> ma, Func<A, B> Succ, Aff<Env, B> Fail) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, B>(async env => {
-                var r = await ma.Run().ConfigureAwait(false);
+                var r = await ma.ReRun().ConfigureAwait(false);
                 return r.IsSucc
                     ? Succ(r.Value)
-                    : await Fail.Run(env).ConfigureAwait(false);
+                    : await Fail.ReRun(env).ConfigureAwait(false);
             });
         
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> MatchAff<Env, A, B>(this Aff<A> ma, Func<A, B> Succ, Func<Error, Aff<Env, B>> Fail) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, B>(async env => {
-                                 var r = await ma.Run().ConfigureAwait(false);
+                                 var r = await ma.ReRun().ConfigureAwait(false);
                                  return r.IsSucc
                                             ? Succ(r.Value)
                                             : await Fail(r.Error).Run(env).ConfigureAwait(false);
@@ -412,16 +411,16 @@ namespace LanguageExt
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> MatchAff<Env, A, B>(this Aff<A> ma, Aff<Env, B> Succ, Func<Error, B> Fail) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, B>(async env => {
-                var r = await ma.Run().ConfigureAwait(false);
+                var r = await ma.ReRun().ConfigureAwait(false);
                 return r.IsSucc
-                    ? await Succ.Run(env).ConfigureAwait(false)
+                    ? await Succ.ReRun(env).ConfigureAwait(false)
                     : Fail(r.Error);
             });
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> MatchAff<Env, A, B>(this Aff<A> ma, Func<A, Aff<Env, B>> Succ, Func<Error, B> Fail) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, B>(async env => {
-                                 var r = await ma.Run().ConfigureAwait(false);
+                                 var r = await ma.ReRun().ConfigureAwait(false);
                                  return r.IsSucc
                                             ? await Succ(r.Value).Run(env).ConfigureAwait(false)
                                             : Fail(r.Error);
@@ -431,9 +430,9 @@ namespace LanguageExt
         public static Aff<B> MatchAff<A, B>(this Aff<A> ma, Aff<B> Succ, Func<Error, B> Fail) =>
             AffMaybe<B>(async () =>
             {
-                var r = await ma.Run().ConfigureAwait(false);
+                var r = await ma.ReRun().ConfigureAwait(false);
                 return r.IsSucc
-                           ? await Succ.Run().ConfigureAwait(false)
+                           ? await Succ.ReRun().ConfigureAwait(false)
                            : Fail(r.Error);
             });
 
@@ -441,7 +440,7 @@ namespace LanguageExt
         public static Aff<B> MatchAff<A, B>(this Aff<A> ma, Func<A, Aff<B>> Succ, Func<Error, B> Fail) =>
             AffMaybe<B>(async () =>
                         {
-                            var r = await ma.Run().ConfigureAwait(false);
+                            var r = await ma.ReRun().ConfigureAwait(false);
                             return r.IsSucc
                                        ? await Succ(r.Value).Run().ConfigureAwait(false)
                                        : Fail(r.Error);
@@ -451,17 +450,17 @@ namespace LanguageExt
         public static Aff<Env, B> MatchAff<Env, A, B>(this Aff<A> ma, Aff<Env, B> Succ, Aff<Env, B> Fail) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, B>(async env =>
             {
-                var r = await ma.Run().ConfigureAwait(false);
+                var r = await ma.ReRun().ConfigureAwait(false);
                 return r.IsSucc
-                    ? await Succ.Run(env).ConfigureAwait(false)
-                    : await Fail.Run(env).ConfigureAwait(false);
+                    ? await Succ.ReRun(env).ConfigureAwait(false)
+                    : await Fail.ReRun(env).ConfigureAwait(false);
             });
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<Env, B> MatchAff<Env, A, B>(this Aff<A> ma, Func<A, Aff<Env, B>> Succ, Func<Error, Aff<Env, B>> Fail) where Env : struct, HasCancel<Env> =>
             AffMaybe<Env, B>(async env =>
                              {
-                                 var r = await ma.Run().ConfigureAwait(false);
+                                 var r = await ma.ReRun().ConfigureAwait(false);
                                  return r.IsSucc
                                             ? await Succ(r.Value).Run(env).ConfigureAwait(false)
                                             : await Fail(r.Error).Run(env).ConfigureAwait(false);
@@ -471,17 +470,17 @@ namespace LanguageExt
         public static Aff<B> MatchAff<A, B>(this Aff<A> ma, Aff<B> Succ, Aff<B> Fail) =>
             AffMaybe<B>(async () =>
             {
-                var r = await ma.Run().ConfigureAwait(false);
+                var r = await ma.ReRun().ConfigureAwait(false);
                 return r.IsSucc
-                    ? await Succ.Run().ConfigureAwait(false)
-                    : await Fail.Run().ConfigureAwait(false);
+                    ? await Succ.ReRun().ConfigureAwait(false)
+                    : await Fail.ReRun().ConfigureAwait(false);
             });
 
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<B> MatchAff<A, B>(this Aff<A> ma, Func<A, Aff<B>> Succ, Func<Error, Aff<B>> Fail) =>
             AffMaybe<B>(async () =>
                         {
-                            var r = await ma.Run().ConfigureAwait(false);
+                            var r = await ma.ReRun().ConfigureAwait(false);
                             return r.IsSucc
                                        ? await Succ(r.Value).Run().ConfigureAwait(false)
                                        : await Fail(r.Error).Run().ConfigureAwait(false);
@@ -491,7 +490,7 @@ namespace LanguageExt
         public static Aff<B> Match<A, B>(this Aff<A> ma, B Succ, Func<Error, B> Fail) =>
             Aff<B>(async () =>
             {
-                var r = await ma.Run().ConfigureAwait(false);
+                var r = await ma.ReRun().ConfigureAwait(false);
                 return r.IsSucc
                     ? Succ
                     : Fail(r.Error);
@@ -501,7 +500,7 @@ namespace LanguageExt
         public static Aff<B> Match<A, B>(this Aff<A> ma, Func<A, B> Succ, B Fail) =>
             Aff<B>(async () =>
             {
-                var r = await ma.Run().ConfigureAwait(false);
+                var r = await ma.ReRun().ConfigureAwait(false);
                 return r.IsSucc
                            ? Succ(r.Value)
                            : Fail;
@@ -511,7 +510,7 @@ namespace LanguageExt
         public static Aff<B> Match<A, B>(this Aff<A> ma, B Succ, B Fail) =>
             Aff<B>(async () =>
             {
-                var r = await ma.Run().ConfigureAwait(false);
+                var r = await ma.ReRun().ConfigureAwait(false);
                 return r.IsSucc
                            ? Succ
                            : Fail;
@@ -526,7 +525,7 @@ namespace LanguageExt
             AffMaybe<A>(
                 async () =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     return res.IsSucc
                                ? res
                                : Fin<A>.Succ(f(res.Error));
@@ -537,7 +536,7 @@ namespace LanguageExt
             AffMaybe<A>(
                 async () =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     return res.IsSucc
                                ? res
                                : Fin<A>.Succ(alternative);
@@ -548,10 +547,10 @@ namespace LanguageExt
             AffMaybe<Env, A>(
                 async env =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     return res.IsSucc
                                ? res
-                               : await alternative.Run(env).ConfigureAwait(false);
+                               : await alternative.ReRun(env).ConfigureAwait(false);
                 });
         
         [Pure, MethodImpl(AffOpt.mops)]
@@ -559,7 +558,7 @@ namespace LanguageExt
             AffMaybe<Env, A>(
                 async env =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     return res.IsSucc
                                ? res
                                : await alternative(res.Error).Run(env).ConfigureAwait(false);
@@ -570,10 +569,10 @@ namespace LanguageExt
             AffMaybe<A>(
                 async () =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     return res.IsSucc
                                ? res
-                               : await alternative.Run().ConfigureAwait(false);
+                               : await alternative.ReRun().ConfigureAwait(false);
                 });
         
         [Pure, MethodImpl(AffOpt.mops)]
@@ -581,7 +580,7 @@ namespace LanguageExt
             AffMaybe<A>(
                 async () =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     return res.IsSucc
                                ? res
                                : await alternative(res.Error).Run().ConfigureAwait(false);
@@ -592,10 +591,10 @@ namespace LanguageExt
             AffMaybe<Env, A>(
                 async env =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     return res.IsSucc
                                ? res
-                               : alternative.Run(env);
+                               : alternative.ReRun(env);
                 });
         
         [Pure, MethodImpl(AffOpt.mops)]
@@ -603,10 +602,10 @@ namespace LanguageExt
             AffMaybe<Env, A>(
                 async env =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     return res.IsSucc
                                ? res
-                               : alternative(res.Error).Run(env);
+                               : alternative(res.Error).ReRun(env);
                 });
         
         [Pure, MethodImpl(AffOpt.mops)]
@@ -614,10 +613,10 @@ namespace LanguageExt
             AffMaybe<A>(
                 async () =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     return res.IsSucc
                                ? res
-                               : alternative.Run();
+                               : alternative.ReRun();
                 });
         
         [Pure, MethodImpl(AffOpt.mops)]
@@ -625,10 +624,10 @@ namespace LanguageExt
             AffMaybe<A>(
                 async () =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     return res.IsSucc
                                ? res
-                               : alternative(res.Error).Run();
+                               : alternative(res.Error).ReRun();
                 });
         
         //
@@ -640,7 +639,7 @@ namespace LanguageExt
             Aff<Unit>(
                 async () =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     if (res.IsSucc)
                     {
                         f(res.Value);
@@ -653,7 +652,7 @@ namespace LanguageExt
             Aff<Env, Unit>(
                 async env =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     if (res.IsSucc)
                     {
                         ignore(await f(res.Value).Run(env).ConfigureAwait(false));
@@ -666,7 +665,7 @@ namespace LanguageExt
             Aff<Unit>(
                 async () =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     if (res.IsSucc)
                     {
                         ignore(await f(res.Value).Run().ConfigureAwait(false));
@@ -679,7 +678,7 @@ namespace LanguageExt
             Aff<Env, Unit>(
                 async env =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     if (res.IsSucc)
                     {
                         ignore(f(res.Value).Run(env));
@@ -692,7 +691,7 @@ namespace LanguageExt
             Aff<Unit>(
                 async () =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     if (res.IsSucc)
                     {
                         ignore(f(res.Value).Run());
@@ -705,7 +704,7 @@ namespace LanguageExt
             AffMaybe<A>(
                 async () =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     if (res.IsSucc)
                     {
                         f(res.Value);
@@ -718,7 +717,7 @@ namespace LanguageExt
             AffMaybe<Env, A>(
                 async env =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     if (res.IsSucc)
                     {
                         var ures = await f(res.Value).Run(env).ConfigureAwait(false);
@@ -734,7 +733,7 @@ namespace LanguageExt
             AffMaybe<Env, A>(
                 async env =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     if (res.IsSucc)
                     {
                         var ures = f(res.Value).Run(env);
@@ -750,7 +749,7 @@ namespace LanguageExt
             AffMaybe<A>(
                 async () =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     if (res.IsSucc)
                     {
                         var ures = await f(res.Value).Run().ConfigureAwait(false);
@@ -766,7 +765,7 @@ namespace LanguageExt
             AffMaybe<A>(
                 async () =>
                 {
-                    var res = await ma.Run().ConfigureAwait(false);
+                    var res = await ma.ReRun().ConfigureAwait(false);
                     if (res.IsSucc)
                     {
                         var ures = f(res.Value).Run();
@@ -909,8 +908,8 @@ namespace LanguageExt
         public static Aff<(A, B)> Zip<A, B>(Aff<A> ma, Aff<B> mb) =>
             new Aff<(A, B)>(ThunkAsync<(A, B)>.Lazy(async () =>
             {
-                var ta = ma.Run().AsTask();
-                var tb = mb.Run().AsTask();
+                var ta = ma.ReRun().AsTask();
+                var tb = mb.ReRun().AsTask();
                 await System.Threading.Tasks.Task.WhenAll(ta, tb).ConfigureAwait(false);
                 if (ta.CompletedSuccessfully() && tb.CompletedSuccessfully())
                 {
@@ -934,14 +933,14 @@ namespace LanguageExt
         public static Aff<(A, B)> Zip<A, B>(Aff<A> ma, Eff<B> mb) =>
             new Aff<(A, B)>(ThunkAsync<(A, B)>.Lazy(async () =>
             {
-                var ta = ma.Run().AsTask();
+                var ta = ma.ReRun().AsTask();
                 var ra = await ta.ConfigureAwait(false);
                 if (!ta.CompletedSuccessfully())
                 {
                     return Fin<(A, B)>.Fail(ra.Error);
                 }
 
-                var rb = mb.Run();
+                var rb = mb.ReRun();
                 if(rb.IsFail) return Fin<(A, B)>.Fail(rb.Error);
 
                 return Fin<(A, B)>.Succ((ra.Value, rb.Value));
@@ -951,10 +950,10 @@ namespace LanguageExt
         public static Aff<(A, B)> Zip<A, B>(Eff<A> ma, Aff<B> mb) =>
             new Aff<(A, B)>(ThunkAsync<(A, B)>.Lazy(async () =>
             {
-                var ra = ma.Run();
+                var ra = ma.ReRun();
                 if(ra.IsFail) return Fin<(A, B)>.Fail(ra.Error);
                 
-                var tb = mb.Run().AsTask();
+                var tb = mb.ReRun().AsTask();
                 var rb = await tb.ConfigureAwait(false);
                 if (!tb.CompletedSuccessfully())
                 {
