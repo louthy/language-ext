@@ -94,17 +94,17 @@ namespace LanguageExt
         /// <summary>
         /// A schedule that recurs continuously, each repetition spaced by the specified duration
         /// </summary>
-        public static Schedule Spaced(TimeSpan spacing) => new Schedule(None, spacing.Milliseconds, (_, _) => spacing.Milliseconds);
+        public static Schedule Spaced(TimeSpan spacing) => new Schedule(None, (int)spacing.TotalMilliseconds, (_, _) => (int)spacing.TotalMilliseconds);
         
         /// <summary>
         /// A schedule that recurs continuously using an exponential backoff
         /// </summary>
-        public static Schedule Exponential(TimeSpan spacing) => new Schedule(None, spacing.Milliseconds, static (_, x) => x * 2);
+        public static Schedule Exponential(TimeSpan spacing) => new Schedule(None, (int)spacing.TotalMilliseconds, static (_, x) => x * 2);
         
         /// <summary>
         /// A schedule that recurs continuously using an fibonacci based backoff
         /// </summary>
-        public static Schedule Fibonacci(TimeSpan spacing) => new Schedule(None, spacing.Milliseconds, static (x, y) => x + y);
+        public static Schedule Fibonacci(TimeSpan spacing) => new Schedule(None, (int)spacing.TotalMilliseconds, static (x, y) => x + y);
        
         /// <summary>
         /// A schedule that recurs continuously, each repetition spaced by the specified duration
