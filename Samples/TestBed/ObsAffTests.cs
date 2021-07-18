@@ -13,7 +13,7 @@ namespace TestBed
         {
             var obs = Observable.Interval(TimeSpan.FromSeconds(1));
 
-            var aff = obs.Fold<Runtime, int, long>(0, (s, x) => from n in DateTime<Runtime>.now
+            var aff = obs.Fold<Runtime, int, long>(0, (s, x) => from n in Time<Runtime>.now
                                                                 from _ in Console<Runtime>.writeLine($"{s}: {n}")
                                                                 select s + 1);
 

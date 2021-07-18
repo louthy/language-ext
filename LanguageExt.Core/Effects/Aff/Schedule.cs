@@ -9,7 +9,12 @@ namespace LanguageExt
 {
     internal static class ScheduleAff<RT, A> where RT : struct, HasCancel<RT>
     {
-        static Aff<RT, S> Run<S>(Aff<RT, A> ma, S state, Schedule schedule, Func<Fin<A>, (bool Continue, Fin<A> Value)> map, Func<S, A, S> fold) =>
+        static Aff<RT, S> Run<S>(
+            Aff<RT, A> ma, 
+            S state, 
+            Schedule schedule, 
+            Func<Fin<A>, (bool Continue, Fin<A> Value)> map, 
+            Func<S, A, S> fold) =>
             AffMaybe<RT, S>(
                 async env =>
                 {

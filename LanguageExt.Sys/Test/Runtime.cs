@@ -126,7 +126,7 @@ namespace LanguageExt.Sys.Test
         /// </summary>
         /// <returns>File environment</returns>
         public Eff<Runtime, Traits.FileIO> FileEff =>
-            from n in DateTime<Runtime>.now
+            from n in Time<Runtime>.now
             from r in Eff<Runtime, Traits.FileIO>(rt => new Test.FileIO(rt.Env.FileSystem, n))
             select r;
 
@@ -135,7 +135,7 @@ namespace LanguageExt.Sys.Test
         /// </summary>
         /// <returns>Directory environment</returns>
         public Eff<Runtime, Traits.DirectoryIO> DirectoryEff =>
-            from n in DateTime<Runtime>.now
+            from n in Time<Runtime>.now
             from r in Eff<Runtime, Traits.DirectoryIO>(rt => new Test.DirectoryIO(rt.Env.FileSystem, n))
             select r;
         

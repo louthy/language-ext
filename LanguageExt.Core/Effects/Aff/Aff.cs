@@ -824,22 +824,49 @@ namespace LanguageExt
         //
         // Bind
         //
-
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> Bind<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            new Aff<RT, B>(ma.Thunk.Map(x => ThunkFromIO(f(x))).Flatten());
-
-        [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> Bind<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<B>> f) where RT : struct, HasCancel<RT> =>
-            new Aff<RT, B>(ma.Thunk.Map(x => ThunkFromIO(f(x))).Flatten());
+        public static Aff<RT, B> Bind<RT, A, B>(this Aff<RT, A> ma, Func<A, Eff<B>> f) where RT : struct, HasCancel<RT> =>
+            new Aff<RT, B>(ThunkAsync<RT, B>.Lazy(
+                               async env =>
+                               {
+                                   var fa = await ma.ReRun(env);
+                                   if (fa.IsFail) return FinFail<B>(fa.Error);
+                                   var mb = f(fa.Value);
+                                   return mb.Run();
+                               }));
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, B> Bind<RT, A, B>(this Aff<RT, A> ma, Func<A, Eff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            new Aff<RT, B>(ma.Thunk.Map(x => ThunkFromIO(f(x))).Flatten());
+            new Aff<RT, B>(ThunkAsync<RT, B>.Lazy(
+                               async env =>
+                               {
+                                   var fa = await ma.ReRun(env);
+                                   if (fa.IsFail) return FinFail<B>(fa.Error);
+                                   var mb = f(fa.Value);
+                                   return mb.Run(env);
+                               }));
+        
+        [Pure, MethodImpl(Opt.Default)]
+        public static Aff<RT, B> Bind<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<B>> f) where RT : struct, HasCancel<RT> =>
+            new Aff<RT, B>(ThunkAsync<RT, B>.Lazy(
+                               async env =>
+                               {
+                                   var fa = await ma.ReRun(env);
+                                   if (fa.IsFail) return FinFail<B>(fa.Error);
+                                   var mb = f(fa.Value);
+                                   return await mb.Run().ConfigureAwait(false);
+                               }));
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> Bind<RT, A, B>(this Aff<RT, A> ma, Func<A, LanguageExt.Eff<B>> f) where RT : struct, HasCancel<RT> =>
-            new Aff<RT, B>(ma.Thunk.Map(x => ThunkFromIO(f(x))).Flatten());
+        public static Aff<RT, B> Bind<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
+            new Aff<RT, B>(ThunkAsync<RT, B>.Lazy(
+                               async env =>
+                               {
+                                   var fa = await ma.ReRun(env);
+                                   if (fa.IsFail) return FinFail<B>(fa.Error);
+                                   var mb = f(fa.Value);
+                                   return await mb.Run(env).ConfigureAwait(false);
+                               }));    
 
         //
         // Bi-Bind

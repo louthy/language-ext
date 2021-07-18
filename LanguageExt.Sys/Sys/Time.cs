@@ -14,7 +14,7 @@ namespace LanguageExt.Sys
     /// <summary>
     /// DateTime IO 
     /// </summary>
-    public static class DateTime<RT>
+    public static class Time<RT>
         where RT : struct, HasTime<RT>
     {
         /// <summary>

@@ -33,28 +33,18 @@ namespace LanguageExt.Thunks
                         var sma = mma.value;
                         sma.SpinIfEvaluating();
 
-                        switch (sma.state)
-                        {
-                            case IsSuccess:
-                                return Fin<A>.Succ(sma.value);
-
-                            case NotEvaluated:
-                                return await sma.Value(env).ConfigureAwait(false);
-
-                            default:
-                                return Fin<A>.Fail(sma.error);
-                        }
+                        return sma.state switch
+                               {
+                                   IsSuccess    => Fin<A>.Succ(sma.value),
+                                   NotEvaluated => await sma.Value(env).ConfigureAwait(false),
+                                   _            => Fin<A>.Fail(sma.error)
+                               };
 
                     case NotEvaluated:
                         var ema = await mma.fun(env).ConfigureAwait(false);
-                        if (ema.IsSucc)
-                        {
-                            return await ema.Value.Value(env).ConfigureAwait(false);
-                        }
-                        else
-                        {
-                            return Fin<A>.Fail(ema.Error);
-                        }
+                        return ema.IsSucc 
+                                   ? await ema.Value.Value(env).ConfigureAwait(false) 
+                                   : Fin<A>.Fail(ema.Error);
 
                     default:
                         return Fin<A>.Fail(mma.error);                    
@@ -74,28 +64,18 @@ namespace LanguageExt.Thunks
                             var sma = mma.value;
                             sma.SpinIfEvaluating();
 
-                            switch (sma.state)
-                            {
-                                case IsSuccess:
-                                    return Fin<A>.Succ(sma.value);
-
-                                case NotEvaluated:
-                                    return await sma.Value(env).ConfigureAwait(false);
-
-                                default:
-                                    return Fin<A>.Fail(sma.error);
-                            }
+                            return sma.state switch
+                                   {
+                                       IsSuccess    => Fin<A>.Succ(sma.value),
+                                       NotEvaluated => await sma.Value(env).ConfigureAwait(false),
+                                       _            => Fin<A>.Fail(sma.error)
+                                   };
 
                         case NotEvaluated:
                             var ema = await mma.fun().ConfigureAwait(false);
-                            if (ema.IsSucc)
-                            {
-                                return await ema.Value.Value(env).ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                return Fin<A>.Fail(ema.Error);
-                            }
+                            return ema.IsSucc 
+                                       ? await ema.Value.Value(env).ConfigureAwait(false) 
+                                       : Fin<A>.Fail(ema.Error);
 
                         default:
                             return Fin<A>.Fail(mma.error);                    
@@ -116,28 +96,18 @@ namespace LanguageExt.Thunks
                             var sma = mma.value;
                             sma.SpinIfEvaluating();
 
-                            switch (sma.state)
-                            {
-                                case IsSuccess:
-                                    return Fin<A>.Succ(sma.value);
-
-                                case NotEvaluated:
-                                    return sma.Value(env);
-
-                                default:
-                                    return Fin<A>.Fail(sma.error);
-                            }
+                            return sma.state switch
+                                   {
+                                       IsSuccess    => Fin<A>.Succ(sma.value),
+                                       NotEvaluated => sma.Value(env),
+                                       _            => Fin<A>.Fail(sma.error)
+                                   };
 
                         case NotEvaluated:
                             var ema = await mma.fun().ConfigureAwait(false);
-                            if (ema.IsSucc)
-                            {
-                                return ema.Value.Value(env);
-                            }
-                            else
-                            {
-                                return Fin<A>.Fail(ema.Error);
-                            }
+                            return ema.IsSucc 
+                                       ? ema.Value.Value(env) 
+                                       : Fin<A>.Fail(ema.Error);
 
                         default:
                             return Fin<A>.Fail(mma.error);                    
@@ -157,28 +127,18 @@ namespace LanguageExt.Thunks
                             var sma = mma.value;
                             sma.SpinIfEvaluating();
 
-                            switch (sma.state)
-                            {
-                                case IsSuccess:
-                                    return Fin<A>.Succ(sma.value);
-
-                                case NotEvaluated:
-                                    return await sma.Value(env).ConfigureAwait(false);
-
-                                default:
-                                    return Fin<A>.Fail(sma.error);
-                            }
+                            return sma.state switch
+                                   {
+                                       IsSuccess    => Fin<A>.Succ(sma.value),
+                                       NotEvaluated => await sma.Value(env).ConfigureAwait(false),
+                                       _            => Fin<A>.Fail(sma.error)
+                                   };
 
                         case NotEvaluated:
                             var ema = mma.fun();
-                            if (ema.IsSucc)
-                            {
-                                return await ema.Value.Value(env).ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                return Fin<A>.Fail(ema.Error);
-                            }
+                            return ema.IsSucc 
+                                       ? await ema.Value.Value(env).ConfigureAwait(false) 
+                                       : Fin<A>.Fail(ema.Error);
 
                         default:
                             return Fin<A>.Fail(mma.error);                    
@@ -198,28 +158,18 @@ namespace LanguageExt.Thunks
                         var sma = mma.value;
                         sma.SpinIfEvaluating();
 
-                        switch (sma.state)
-                        {
-                            case IsSuccess:
-                                return Fin<A>.Succ(sma.value);
-
-                            case NotEvaluated:
-                                return await sma.Value().ConfigureAwait(false);
-
-                            default:
-                                return Fin<A>.Fail(sma.error);
-                        }
+                        return sma.state switch
+                               {
+                                   IsSuccess    => Fin<A>.Succ(sma.value),
+                                   NotEvaluated => await sma.Value().ConfigureAwait(false),
+                                   _            => Fin<A>.Fail(sma.error)
+                               };
 
                     case NotEvaluated:
                         var ema = await mma.fun(env).ConfigureAwait(false);
-                        if (ema.IsSucc)
-                        {
-                            return await ema.Value.Value().ConfigureAwait(false);
-                        }
-                        else
-                        {
-                            return Fin<A>.Fail(ema.Error);
-                        }
+                        return ema.IsSucc 
+                                   ? await ema.Value.Value().ConfigureAwait(false) 
+                                   : Fin<A>.Fail(ema.Error);
 
                     default:
                         return Fin<A>.Fail(mma.error);                    
@@ -239,28 +189,18 @@ namespace LanguageExt.Thunks
                         var sma = mma.value;
                         sma.SpinIfEvaluating();
 
-                        switch (sma.state)
-                        {
-                            case IsSuccess:
-                                return Fin<A>.Succ(sma.value);
-
-                            case NotEvaluated:
-                                return sma.Value(env);
-
-                            default:
-                                return Fin<A>.Fail(sma.error);
-                        }
+                        return sma.state switch
+                               {
+                                   IsSuccess    => Fin<A>.Succ(sma.value),
+                                   NotEvaluated => sma.Value(env),
+                                   _            => Fin<A>.Fail(sma.error)
+                               };
 
                     case NotEvaluated:
                         var ema = await mma.fun(env).ConfigureAwait(false);
-                        if (ema.IsSucc)
-                        {
-                            return ema.Value.Value(env);
-                        }
-                        else
-                        {
-                            return Fin<A>.Fail(ema.Error);
-                        }
+                        return ema.IsSucc 
+                                   ? ema.Value.Value(env) 
+                                   : Fin<A>.Fail(ema.Error);
 
                     default:
                         return Fin<A>.Fail(mma.error);                    
@@ -281,28 +221,18 @@ namespace LanguageExt.Thunks
                             var sma = mma.value;
                             sma.SpinIfEvaluating();
 
-                            switch (sma.state)
-                            {
-                                case IsSuccess:
-                                    return Fin<A>.Succ(sma.value);
-
-                                case NotEvaluated:
-                                    return await sma.Value(env).ConfigureAwait(false);
-
-                                default:
-                                    return Fin<A>.Fail(sma.error);
-                            }
+                            return sma.state switch
+                                   {
+                                       IsSuccess    => Fin<A>.Succ(sma.value),
+                                       NotEvaluated => await sma.Value(env).ConfigureAwait(false),
+                                       _            => Fin<A>.Fail(sma.error)
+                                   };
 
                         case NotEvaluated:
                             var ema = mma.fun(env);
-                            if (ema.IsSucc)
-                            {
-                                return await ema.Value.Value(env).ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                return Fin<A>.Fail(ema.Error);
-                            }
+                            return ema.IsSucc 
+                                       ? await ema.Value.Value(env).ConfigureAwait(false) 
+                                       : Fin<A>.Fail(ema.Error);
 
                         default:
                             return Fin<A>.Fail(mma.error);                    
@@ -322,28 +252,18 @@ namespace LanguageExt.Thunks
                         var sma = mma.value;
                         sma.SpinIfEvaluating();
 
-                        switch (sma.state)
-                        {
-                            case IsSuccess:
-                                return Fin<A>.Succ(sma.value);
-
-                            case NotEvaluated:
-                                return sma.Value();
-
-                            default:
-                                return Fin<A>.Fail(sma.error);
-                        }
+                        return sma.state switch
+                               {
+                                   IsSuccess    => Fin<A>.Succ(sma.value),
+                                   NotEvaluated => sma.Value(),
+                                   _            => Fin<A>.Fail(sma.error)
+                               };
 
                     case NotEvaluated:
                         var ema = await mma.fun(env).ConfigureAwait(false);
-                        if (ema.IsSucc)
-                        {
-                            return ema.Value.Value();
-                        }
-                        else
-                        {
-                            return Fin<A>.Fail(ema.Error);
-                        }
+                        return ema.IsSucc 
+                                   ? ema.Value.Value() 
+                                   : Fin<A>.Fail(ema.Error);
 
                     default:
                         return Fin<A>.Fail(mma.error);
@@ -364,28 +284,18 @@ namespace LanguageExt.Thunks
                             var sma = mma.value;
                             sma.SpinIfEvaluating();
 
-                            switch (sma.state)
-                            {
-                                case IsSuccess:
-                                    return Fin<A>.Succ(sma.value);
-
-                                case NotEvaluated:
-                                    return await sma.Value().ConfigureAwait(false);
-
-                                default:
-                                    return Fin<A>.Fail(sma.error);
-                            }
+                            return sma.state switch
+                                   {
+                                       IsSuccess    => Fin<A>.Succ(sma.value),
+                                       NotEvaluated => await sma.Value().ConfigureAwait(false),
+                                       _            => Fin<A>.Fail(sma.error)
+                                   };
 
                         case NotEvaluated:
                             var ema = mma.fun(env);
-                            if (ema.IsSucc)
-                            {
-                                return await ema.Value.Value().ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                return Fin<A>.Fail(ema.Error);
-                            }
+                            return ema.IsSucc 
+                                       ? await ema.Value.Value().ConfigureAwait(false) 
+                                       : Fin<A>.Fail(ema.Error);
 
                         default:
                             return Fin<A>.Fail(mma.error);
@@ -405,28 +315,18 @@ namespace LanguageExt.Thunks
                         var sma = mma.value;
                         sma.SpinIfEvaluating();
 
-                        switch (sma.state)
-                        {
-                            case IsSuccess:
-                                return Fin<A>.Succ(sma.value);
-
-                            case NotEvaluated:
-                                return await sma.Value().ConfigureAwait(false);
-
-                            default:
-                                return Fin<A>.Fail(sma.error);
-                        }
+                        return sma.state switch
+                               {
+                                   IsSuccess    => Fin<A>.Succ(sma.value),
+                                   NotEvaluated => await sma.Value().ConfigureAwait(false),
+                                   _            => Fin<A>.Fail(sma.error)
+                               };
 
                     case NotEvaluated:
                         var ema = await mma.fun().ConfigureAwait(false);
-                        if (ema.IsSucc)
-                        {
-                            return await ema.Value.Value().ConfigureAwait(false);
-                        }
-                        else
-                        {
-                            return Fin<A>.Fail(ema.Error);
-                        }
+                        return ema.IsSucc 
+                                   ? await ema.Value.Value().ConfigureAwait(false) 
+                                   : Fin<A>.Fail(ema.Error);
 
                     default:
                         return Fin<A>.Fail(mma.error);                    
@@ -446,28 +346,18 @@ namespace LanguageExt.Thunks
                         var sma = mma.value;
                         sma.SpinIfEvaluating();
 
-                        switch (sma.state)
-                        {
-                            case IsSuccess:
-                                return Fin<A>.Succ(sma.value);
-
-                            case NotEvaluated:
-                                return sma.Value();
-
-                            default:
-                                return Fin<A>.Fail(sma.error);
-                        }
+                        return sma.state switch
+                               {
+                                   IsSuccess    => Fin<A>.Succ(sma.value),
+                                   NotEvaluated => sma.Value(),
+                                   _            => Fin<A>.Fail(sma.error)
+                               };
 
                     case NotEvaluated:
                         var ema = await mma.fun().ConfigureAwait(false);
-                        if (ema.IsSucc)
-                        {
-                            return ema.Value.Value();
-                        }
-                        else
-                        {
-                            return Fin<A>.Fail(ema.Error);
-                        }
+                        return ema.IsSucc 
+                                   ? ema.Value.Value() 
+                                   : Fin<A>.Fail(ema.Error);
 
                     default:
                         return Fin<A>.Fail(mma.error);                    
@@ -488,28 +378,18 @@ namespace LanguageExt.Thunks
                             var sma = mma.value;
                             sma.SpinIfEvaluating();
 
-                            switch (sma.state)
-                            {
-                                case IsSuccess:
-                                    return Fin<A>.Succ(sma.value);
-
-                                case NotEvaluated:
-                                    return await sma.Value().ConfigureAwait(false);
-
-                                default:
-                                    return Fin<A>.Fail(sma.error);
-                            }
+                            return sma.state switch
+                                   {
+                                       IsSuccess    => Fin<A>.Succ(sma.value),
+                                       NotEvaluated => await sma.Value().ConfigureAwait(false),
+                                       _            => Fin<A>.Fail(sma.error)
+                                   };
 
                         case NotEvaluated:
                             var ema = mma.fun();
-                            if (ema.IsSucc)
-                            {
-                                return await ema.Value.Value().ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                return Fin<A>.Fail(ema.Error);
-                            }
+                            return ema.IsSucc 
+                                       ? await ema.Value.Value().ConfigureAwait(false) 
+                                       : Fin<A>.Fail(ema.Error);
 
                         default:
                             return Fin<A>.Fail(mma.error);                    
@@ -529,28 +409,18 @@ namespace LanguageExt.Thunks
                         var sma = mma.value;
                         mma.SpinIfEvaluating();
 
-                        switch (sma.state)
-                        {
-                            case IsSuccess:
-                                return Fin<A>.Succ(sma.value);
-
-                            case NotEvaluated:
-                                return sma.Value(env);
-
-                            default:
-                                return Fin<A>.Fail(sma.error);
-                        }
+                        return sma.state switch
+                               {
+                                   IsSuccess    => Fin<A>.Succ(sma.value),
+                                   NotEvaluated => sma.Value(env),
+                                   _            => Fin<A>.Fail(sma.error)
+                               };
 
                     case NotEvaluated:
                         var ema = mma.fun(env);
-                        if (ema.IsSucc)
-                        {
-                            return ema.Value.Value(env);
-                        }
-                        else
-                        {
-                            return Fin<A>.Fail(ema.Error);
-                        }
+                        return ema.IsSucc 
+                                   ? ema.Value.Value(env) 
+                                   : Fin<A>.Fail(ema.Error);
 
                     default:
                         return Fin<A>.Fail(mma.error);                    
@@ -570,28 +440,18 @@ namespace LanguageExt.Thunks
                             var sma = mma.value;
                             mma.SpinIfEvaluating();
 
-                            switch (sma.state)
-                            {
-                                case IsSuccess:
-                                    return Fin<A>.Succ(sma.value);
-
-                                case NotEvaluated:
-                                    return sma.Value(env);
-
-                                default:
-                                    return Fin<A>.Fail(sma.error);
-                            }
+                            return sma.state switch
+                                   {
+                                       IsSuccess    => Fin<A>.Succ(sma.value),
+                                       NotEvaluated => sma.Value(env),
+                                       _            => Fin<A>.Fail(sma.error)
+                                   };
 
                         case NotEvaluated:
                             var ema = mma.fun();
-                            if (ema.IsSucc)
-                            {
-                                return ema.Value.Value(env);
-                            }
-                            else
-                            {
-                                return Fin<A>.Fail(ema.Error);
-                            }
+                            return ema.IsSucc 
+                                       ? ema.Value.Value(env) 
+                                       : Fin<A>.Fail(ema.Error);
 
                         default:
                             return Fin<A>.Fail(mma.error);                    
@@ -611,28 +471,18 @@ namespace LanguageExt.Thunks
                         var sma = mma.value;
                         sma.SpinIfEvaluating();
 
-                        switch (sma.state)
-                        {
-                            case IsSuccess:
-                                return Fin<A>.Succ(sma.value);
-
-                            case NotEvaluated:
-                                return sma.Value();
-
-                            default:
-                                return Fin<A>.Fail(sma.error);
-                        }
+                        return sma.state switch
+                               {
+                                   IsSuccess    => Fin<A>.Succ(sma.value),
+                                   NotEvaluated => sma.Value(),
+                                   _            => Fin<A>.Fail(sma.error)
+                               };
 
                     case NotEvaluated:
                         var ema = mma.fun(env);
-                        if (ema.IsSucc)
-                        {
-                            return ema.Value.Value();
-                        }
-                        else
-                        {
-                            return Fin<A>.Fail(ema.Error);
-                        }
+                        return ema.IsSucc 
+                                   ? ema.Value.Value() 
+                                   : Fin<A>.Fail(ema.Error);
 
                     default:
                         return Fin<A>.Fail(mma.error);
@@ -652,28 +502,18 @@ namespace LanguageExt.Thunks
                         var sma = mma.value;
                         sma.SpinIfEvaluating();
 
-                        switch (sma.state)
-                        {
-                            case IsSuccess:
-                                return Fin<A>.Succ(sma.value);
-
-                            case NotEvaluated:
-                                return sma.Value();
-
-                            default:
-                                return Fin<A>.Fail(sma.error);
-                        }
+                        return sma.state switch
+                               {
+                                   IsSuccess    => Fin<A>.Succ(sma.value),
+                                   NotEvaluated => sma.Value(),
+                                   _            => Fin<A>.Fail(sma.error)
+                               };
 
                     case NotEvaluated:
                         var ema = mma.fun();
-                        if (ema.IsSucc)
-                        {
-                            return ema.Value.Value();
-                        }
-                        else
-                        {
-                            return Fin<A>.Fail(ema.Error);
-                        }
+                        return ema.IsSucc 
+                                   ? ema.Value.Value() 
+                                   : Fin<A>.Fail(ema.Error);
 
                     default:
                         return Fin<A>.Fail(mma.error);

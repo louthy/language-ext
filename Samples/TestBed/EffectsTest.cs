@@ -43,7 +43,7 @@ namespace TestBed
     {
         public static Eff<RT, Unit> main =>
             repeat(Schedule.Spaced(1 * second),
-                   from tm in DateTime<RT>.now
+                   from tm in Time<RT>.now
                    from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
                    select unit);
     }
@@ -54,18 +54,45 @@ namespace TestBed
             HasCancel<RT>, 
             HasConsole<RT>
     {
-        public readonly static Aff<RT, Unit> main =
+        public static Aff<RT, Unit> main =>
             from _0 in Console<RT>.writeLine("fibonacci repeat delays with timeout")
             from _1 in timeout(60 * seconds, longRunning) 
                      | @catch(Errors.TimedOut, unit)
             from _2 in Console<RT>.writeLine("done")
             select unit;
 
-        static readonly Aff<RT, Unit> longRunning =
-           (from tm in DateTime<RT>.now
+        static Aff<RT, Unit> longRunning =>
+           (from tm in Time<RT>.now
             from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
             select unit)
            .ToAff()
            .Repeat(Schedule.Fibonacci(1 * second));
+    }
+
+    public class CancelTest<RT>
+        where RT: struct, 
+            HasCancel<RT>, 
+            HasConsole<RT>, 
+            HasTime<RT>
+    {
+        public static Aff<RT, Unit> main =>
+            from cancel  in fork(inner)
+            from key     in Console<RT>.readKey
+            from _1      in cancel 
+            from _2      in Console<RT>.writeLine($"done")
+            select unit;
+
+        static Aff<RT, Unit> inner =>
+            from x in sum
+            from _ in Console<RT>.writeLine($"total: {x}")
+            select unit;
+        
+        static Aff<RT, int> sum =>
+            digit.Fold(Schedule.Recurs(10) | Schedule.Spaced(1 * second), 0, (s, x) => s + x);
+
+        static Aff<RT, int> digit =>
+            from one in SuccessAff<RT, int>(1)
+            from _   in Console<RT>.writeLine("*")
+            select one;
     }
 }
