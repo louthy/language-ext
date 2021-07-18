@@ -15,6 +15,9 @@ namespace LanguageExt.Tests
         public Account SetBalance(int value) =>
             new Account(value);
 
+        public Account AddBalance(int value) =>
+            new Account(Balance + value);
+
         public Account Deposit(int value) =>
             new Account(Balance + value);
 
@@ -30,11 +33,12 @@ namespace LanguageExt.Tests
 
     public static class Transfer
     {
-        public static Unit Do(Ref<Account> from, Ref<Account> to, int amount) => sync(() =>
-        {
-            swap(from, a => a.SetBalance(a.Balance - amount));
-            swap(to, a => a.SetBalance(a.Balance + amount));
-        });
+        public static Unit Do(Ref<Account> from, Ref<Account> to, int amount) => 
+            sync(() =>
+            {
+                from.Value = from.Value.AddBalance(-amount);
+                to.Value   = to.Value.AddBalance(amount);
+            });
     }
 
 
@@ -58,13 +62,13 @@ namespace LanguageExt.Tests
         {
             const int count = 1000;
 
-            int inc(Ref<int> counter) => 
-                sync(() => commute(counter, x => x + 1));
+            static int inc(Ref<int> counter) => 
+                sync(() => commute(counter, static x => x + 1));
 
             var num = Ref(0);
 
             var res = Range(0, count).AsParallel()
-                                     .Select(i => inc(num))
+                                     .Select(_ => inc(num))
                                      .ToSeq()
                                      .Strict();
 

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.ClassInstances;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
@@ -13,7 +15,7 @@ namespace LanguageExt
     {
         const int maxRetries = 500;
         static long refIdNext;
-        volatile static Atom<HashMap<long, RefState>> state = Atom(HashMap<long, RefState>());
+        static readonly Atom<TrieMap<EqLong, long, RefState>> state = Atom(TrieMap<EqLong, long, RefState>.Empty);
         static readonly AsyncLocal<Transaction> transaction = new AsyncLocal<Transaction>();
 
         /// <summary>
@@ -108,7 +110,7 @@ namespace LanguageExt
                 try
                 {
                     // Try to do the operations of the transaction
-                    return ValidateAndCommit(t, isolation, op(), Int64.MinValue);
+                    return ValidateAndCommit(t, isolation, op(), long.MinValue);
                 }
                 catch (ConflictException)
                 {
@@ -143,12 +145,9 @@ namespace LanguageExt
                     {
                         // Try to do the operations of the transaction
                         var res = await op.ReRun(env).ConfigureAwait(false);
-                        if (res.IsFail)
-                        {
-                            return res;
-                        }
-
-                        return ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
+                        return res.IsFail 
+                                   ? res 
+                                   : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
                     }
                     catch (ConflictException)
                     {
@@ -185,12 +184,9 @@ namespace LanguageExt
                     {
                         // Try to do the operations of the transaction
                         var res = op.ReRun(env);
-                        if (res.IsFail)
-                        {
-                            return res;
-                        }
-
-                        return ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
+                        return res.IsFail 
+                                   ? res 
+                                   : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
                     }
                     catch (ConflictException)
                     {
@@ -227,12 +223,9 @@ namespace LanguageExt
                     {
                         // Try to do the operations of the transaction
                         var res = await op.ReRun().ConfigureAwait(false);
-                        if (res.IsFail)
-                        {
-                            return res;
-                        }
-
-                        return ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
+                        return res.IsFail 
+                                   ? res 
+                                   : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
                     }
                     catch (ConflictException)
                     {
@@ -269,12 +262,9 @@ namespace LanguageExt
                     {
                         // Try to do the operations of the transaction
                         var res = op.ReRun();
-                        if (res.IsFail)
-                        {
-                            return res;
-                        }
-
-                        return ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
+                        return res.IsFail 
+                                   ? res 
+                                   : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
                     }
                     catch (ConflictException)
                     {
@@ -309,7 +299,7 @@ namespace LanguageExt
                 try
                 {
                     // Try to do the operations of the transaction
-                    return ValidateAndCommit(t, isolation, await op().ConfigureAwait(false), Int64.MinValue);
+                    return ValidateAndCommit(t, isolation, await op().ConfigureAwait(false), long.MinValue);
                 }
                 catch (ConflictException)
                 {
@@ -374,7 +364,11 @@ namespace LanguageExt
             // Attempt to apply the changes atomically
             state.Swap(s =>
             {
-                ValidateReads(t, s, isolation);
+                if (isolation == Isolation.Serialisable)
+                {
+                    ValidateReads(t, s, isolation);
+                }
+
                 s = CommitWrites(t, s);
                 (s, result) = CommitCommutes(t, s, returnRefId, result);
                 return s;
@@ -384,22 +378,20 @@ namespace LanguageExt
             return result;
         }
 
-        static void ValidateReads(Transaction t, HashMap<long, RefState> s, Isolation isolation)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void ValidateReads(Transaction t, TrieMap<EqLong, long, RefState> s, Isolation isolation)
         {
-            if (isolation == Isolation.Serialisable)
+            // Check if something else wrote to what we were reading
+            foreach (var read in t.reads)
             {
-                // Check if something else wrote to what we were reading
-                foreach (var read in t.reads)
+                if (s[read].Version != t.state[read].Version)
                 {
-                    if (s[read].Version != t.state[read].Version)
-                    {
-                        throw new ConflictException();
-                    }
+                    throw new ConflictException();
                 }
             }
         }
 
-        static HashMap<long, RefState> CommitWrites(Transaction t, HashMap<long, RefState> s)
+        static TrieMap<EqLong, long, RefState> CommitWrites(Transaction t, TrieMap<EqLong, long, RefState> s)
         {
             // Check if something else wrote to what we were writing
             foreach (var write in t.writes)
@@ -424,7 +416,7 @@ namespace LanguageExt
             return s;
         }
 
-        static (HashMap<long, RefState>, R) CommitCommutes<R>(Transaction t, HashMap<long, RefState> s, long returnRefId, R result)
+        static (TrieMap<EqLong, long, RefState>, R) CommitCommutes<R>(Transaction t, TrieMap<EqLong, long, RefState> s, long returnRefId, R result)
         {
             // Run the commutative operations
             foreach (var commute in t.commutes)
@@ -459,6 +451,7 @@ namespace LanguageExt
         /// If within a transaction then the in-transaction value is returned, otherwise it's
         /// the current latest value
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static object Read(long id) =>
             transaction.Value == null
                 ? state.Value[id].Value
@@ -468,11 +461,12 @@ namespace LanguageExt
         /// Write the value for the reference ID provided
         /// Must be run within a transaction
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Write(long id, object value)
         {
             if (transaction.Value == null)
             {
-                throw new InvalidOperationException("Refs can only be written to from within a transaction");
+                throw new InvalidOperationException("Refs can only be written to from within a `sync` transaction");
             }
             transaction.Value.Write(id, value);
         }
@@ -495,6 +489,7 @@ namespace LanguageExt
         /// 
         /// Commute allows for more concurrency than just setting the items
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static A Commute<A>(long id, Func<A, A> f)
         {
             if (transaction.Value == null)
@@ -522,6 +517,7 @@ namespace LanguageExt
         /// 
         /// Commute allows for more concurrency than just setting the items
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static A Commute<X, A>(long id, X x, Func<X, A, A> f) =>
             Commute<A>(id, (a => f(x, a)));
 
@@ -543,12 +539,14 @@ namespace LanguageExt
         /// 
         /// Commute allows for more concurrency than just setting the items
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static A Commute<X, Y, A>(long id, X x, Y y, Func<X, Y, A, A> f) =>
             Commute<A>(id, (a => f(x, y, a)));
 
         /// <summary>
         /// Make sure Refs are cleaned up
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Finalise(long id) =>
             state.Swap(s => s.Remove(id));
 
@@ -567,22 +565,25 @@ namespace LanguageExt
         /// <summary>
         /// Wraps a (A -> bool) predicate as (object -> bool)
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static Func<object, bool> CastPredicate<A>(Func<A, bool> validator) =>
             obj => validator((A)obj);
 
         /// <summary>
         /// Wraps a (A -> A) predicate as (object -> object)
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static Func<object, object> CastCommute<A>(Func<A, A> f) =>
             obj => (A)f((A)obj);
 
         /// <summary>
         /// Get the currently running TransactionId
         /// </summary>
-        public static long TransactionId =>
-            transaction.Value == null
-                ? throw new InvalidOperationException("Transaction not running")
-                : transaction.Value.transactionId;
+        public static long TransactionId
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => transaction.Value?.transactionId ?? throw new InvalidOperationException("Transaction not running");
+        }
 
         /// <summary>
         /// Transaction snapshot
@@ -591,39 +592,43 @@ namespace LanguageExt
         {
             static long transactionIdNext;
             public readonly long transactionId;
-            public HashMap<long, RefState> state;
-            public HashSet<long> reads;
-            public HashSet<long> writes;
-            public Seq<(long Id, Func<object, object> Fun)> commutes;
+            public TrieMap<EqLong, long, RefState> state;
+            public readonly System.Collections.Generic.HashSet<long> reads = new();
+            public readonly System.Collections.Generic.HashSet<long> writes = new();
+            public readonly System.Collections.Generic.List<(long Id, Func<object, object> Fun)> commutes = new();
 
-            public Transaction(HashMap<long, RefState> state)
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public Transaction(TrieMap<EqLong, long, RefState> state)
             {
                 this.state = state;
                 transactionId = Interlocked.Increment(ref transactionIdNext);
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public object Read(long id)
             {
-                reads = reads.AddOrUpdate(id);
+                reads.Add(id);
                 return state[id].Value;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public object Write(long id, object value)
             {
                 var oldState = state[id];
                 var newState = new RefState(oldState.Version, value, oldState.Validator);
                 state = state.SetItem(id, newState);
-                writes = writes.Add(id);
+                writes.Add(id);
                 return value;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public object Commute(long id, Func<object, object> f)
             {
                 var oldState = state[id];
-                object nvalue = f(oldState.Value);
+                var nvalue = f(oldState.Value);
                 var newState = new RefState(oldState.Version, nvalue, oldState.Validator);
                 state = state.SetItem(id, newState);
-                commutes = commutes.Add((id, f));
+                commutes.Add((id, f));
                 return nvalue;
             }
         }
@@ -638,6 +643,7 @@ namespace LanguageExt
             public readonly object Value;
             public readonly Func<object, bool> Validator;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public RefState(long version, object value, Func<object, bool> validator)
             {
                 Version = version;

@@ -8,7 +8,7 @@ namespace LanguageExt
     /// result is a commutative and therefore give you a result based on the live state rather than
     /// the transaction.  
     /// </summary>
-    public struct CommuteRef<A>
+    public readonly struct CommuteRef<A>
     {
         internal CommuteRef(Ref<A> r) => Ref = r;
         internal readonly Ref<A> Ref;
@@ -18,7 +18,6 @@ namespace LanguageExt
             set => Ref.Value = value;
         }
         public static implicit operator A(CommuteRef<A> r) => r.Value;
-        public static CommuteRef<A> operator ^(CommuteRef<A> left, A right) => new CommuteRef<A>(left.Ref ^ right);
         public override string ToString() => Value?.ToString() ?? "[null]";
         public override int GetHashCode() => Value?.GetHashCode() ?? 0;
         public override bool Equals(object obj) => obj is A val && Equals(val);

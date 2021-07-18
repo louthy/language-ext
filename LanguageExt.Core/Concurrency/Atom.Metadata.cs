@@ -318,7 +318,7 @@ namespace LanguageExt
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
                 var retries = maxRetries;
-                while (retries > 0)
+                while (retries > 0 && !env.CancellationToken.IsCancellationRequested)
                 {
                     retries--;
                     var current = value;
@@ -603,7 +603,7 @@ namespace LanguageExt
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
                 var retries = maxRetries;
-                while (retries > 0)
+                while (retries > 0 && !env.CancellationToken.IsCancellationRequested)
                 {
                     retries--;
                     var current = value;
@@ -895,7 +895,7 @@ namespace LanguageExt
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
                 var retries = maxRetries;
-                while (retries > 0)
+                while (retries > 0 && !env.CancellationToken.IsCancellationRequested)
                 {
                     retries--;
                     var current = value;

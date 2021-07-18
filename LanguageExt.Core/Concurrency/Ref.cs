@@ -36,16 +36,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Assignment operator
-        /// </summary>
-        public static Ref<A> operator ^(Ref<A> left, A right)
-        {
-            left.Value = right;
-            return left;
-        }
-
-        /// <summary>
-        /// Implict conversion operator
+        /// Implicit conversion operator
         /// </summary>
         /// <param name="value"></param>
         public static implicit operator A(Ref<A> value) =>
