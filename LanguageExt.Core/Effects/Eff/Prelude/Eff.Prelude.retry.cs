@@ -18,7 +18,7 @@ namespace LanguageExt
         /// <typeparam name="Env">Environment</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Eff<Env, A> retry<Env, A>(Eff<Env, A> ma) =>
+        public static Eff<Env, A> retry<Env, A>(Eff<Env, A> ma) where Env : struct =>
             ScheduleEff<Env, A>.Retry(ma, Schedule.Forever);
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace LanguageExt
         /// <typeparam name="Env">Environment</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Eff<Env, A> retry<Env, A>(Schedule schedule, Eff<Env, A> ma) =>
+        public static Eff<Env, A> retry<Env, A>(Schedule schedule, Eff<Env, A> ma) where Env : struct =>
             ScheduleEff<Env, A>.Retry(ma, schedule);
         
         /// <summary>
@@ -61,7 +61,7 @@ namespace LanguageExt
         /// <typeparam name="Env">Environment</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Eff<Env, A> retryWhile<Env, A>(Eff<Env, A> ma, Func<A, bool> predicate) =>
+        public static Eff<Env, A> retryWhile<Env, A>(Eff<Env, A> ma, Func<A, bool> predicate) where Env : struct =>
             ScheduleEff<Env, A>.RetryWhile(ma, Schedule.Forever, predicate);
         
         /// <summary>
@@ -82,7 +82,7 @@ namespace LanguageExt
         /// <typeparam name="Env">Environment</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Eff<Env, A> retryWhile<Env, A>(Schedule schedule, Eff<Env, A> ma, Func<A, bool> predicate) =>
+        public static Eff<Env, A> retryWhile<Env, A>(Schedule schedule, Eff<Env, A> ma, Func<A, bool> predicate) where Env : struct =>
             ScheduleEff<Env, A>.RetryWhile(ma, schedule, predicate);
         
         /// <summary>
@@ -105,7 +105,7 @@ namespace LanguageExt
         /// <typeparam name="Env">Environment</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Eff<Env, A> retryUntil<Env, A>(Eff<Env, A> ma, Func<A, bool> predicate) =>
+        public static Eff<Env, A> retryUntil<Env, A>(Eff<Env, A> ma, Func<A, bool> predicate) where Env : struct =>
             ScheduleEff<Env, A>.RetryUntil(ma, Schedule.Forever, predicate);
         
         /// <summary>
@@ -126,7 +126,7 @@ namespace LanguageExt
         /// <typeparam name="Env">Environment</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Eff<Env, A> retryUntil<Env, A>(Schedule schedule, Eff<Env, A> ma, Func<A, bool> predicate) =>
+        public static Eff<Env, A> retryUntil<Env, A>(Schedule schedule, Eff<Env, A> ma, Func<A, bool> predicate) where Env : struct =>
             ScheduleEff<Env, A>.RetryUntil(ma, schedule, predicate);
         
         /// <summary>

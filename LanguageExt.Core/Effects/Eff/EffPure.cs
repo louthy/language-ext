@@ -12,10 +12,10 @@ namespace LanguageExt
     /// <summary>
     /// Synchronous IO monad
     /// </summary>
-    public struct Eff<A>
+    public readonly struct Eff<A>
     {
         internal Thunk<A> Thunk => thunk ?? Thunk<A>.Fail(Errors.Bottom);
-        Thunk<A> thunk;
+        readonly Thunk<A> thunk;
 
         /// <summary>
         /// Constructor
@@ -142,7 +142,7 @@ namespace LanguageExt
                            }));
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public Eff<Env, A> WithEnv<Env>()
+        public Eff<Env, A> WithEnv<Env>() where Env : struct 
         {
             var self = this;
             return Eff<Env, A>.EffectMaybe(e => self.Run());
@@ -235,7 +235,7 @@ namespace LanguageExt
                              });
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Func<A, B> Succ, Eff<Env, B> Fail) =>
+        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Func<A, B> Succ, Eff<Env, B> Fail) where Env : struct =>
             EffMaybe<Env, B>(env =>
             {
                 var r = ma.Run();
@@ -245,7 +245,7 @@ namespace LanguageExt
             });
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Func<A, B> Succ, Func<Error, Eff<Env, B>> Fail) =>
+        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Func<A, B> Succ, Func<Error, Eff<Env, B>> Fail) where Env : struct =>
             EffMaybe<Env, B>(env =>
                              {
                                  var r = ma.Run();
@@ -295,7 +295,7 @@ namespace LanguageExt
                              });
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Eff<Env, B> Succ, Func<Error, B> Fail) =>
+        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Eff<Env, B> Succ, Func<Error, B> Fail) where Env : struct =>
             EffMaybe<Env, B>(env =>
             {
                 var r = ma.Run();
@@ -305,7 +305,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Func<A, Eff<Env, B>> Succ, Func<Error, B> Fail) =>
+        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Func<A, Eff<Env, B>> Succ, Func<Error, B> Fail) where Env : struct =>
             EffMaybe<Env, B>(env =>
                              {
                                  var r = ma.Run();
@@ -355,7 +355,7 @@ namespace LanguageExt
                              });
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Eff<Env, B> Succ, Eff<Env, B> Fail) =>
+        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Eff<Env, B> Succ, Eff<Env, B> Fail) where Env : struct =>
             EffMaybe<Env, B>(env =>
             {
                 var r = ma.Run();
@@ -365,7 +365,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Func<A, Eff<Env, B>> Succ, Func<Error, Eff<Env, B>> Fail) =>
+        public static Eff<Env, B> MatchEff<Env, A, B>(this Eff<A> ma, Func<A, Eff<Env, B>> Succ, Func<Error, Eff<Env, B>> Fail) where Env : struct =>
             EffMaybe<Env, B>(env =>
             {
                 var r = ma.Run();
@@ -415,7 +415,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, B> Match<Env, A, B>(this Eff<A> ma, B Succ, B Fail) =>
+        public static Eff<Env, B> Match<Env, A, B>(this Eff<A> ma, B Succ, B Fail) where Env : struct =>
             Eff<Env, B>(env =>
             {
                 var r = ma.Run();
@@ -505,7 +505,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, A> IfFailEff<Env, A>(this Eff<A> ma, Eff<Env, A> alternative) =>
+        public static Eff<Env, A> IfFailEff<Env, A>(this Eff<A> ma, Eff<Env, A> alternative) where Env : struct =>
             EffMaybe<Env, A>(
                 env =>
                 {
@@ -516,7 +516,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, A> IfFailEff<Env, A>(this Eff<A> ma, Func<Error, Eff<Env, A>> alternative) =>
+        public static Eff<Env, A> IfFailEff<Env, A>(this Eff<A> ma, Func<Error, Eff<Env, A>> alternative) where Env : struct =>
             EffMaybe<Env, A>(
                 env =>
                 {
@@ -592,7 +592,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, Unit> Iter<Env, A>(this Eff<A> ma, Func<A, Eff<Env, Unit>> f) =>
+        public static Eff<Env, Unit> Iter<Env, A>(this Eff<A> ma, Func<A, Eff<Env, Unit>> f) where Env : struct =>
             Eff<Env, Unit>(
                 env =>
                 {
@@ -647,7 +647,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, A> Do<Env, A>(this Eff<A> ma, Func<A, Eff<Env, Unit>> f) =>
+        public static Eff<Env, A> Do<Env, A>(this Eff<A> ma, Func<A, Eff<Env, Unit>> f) where Env : struct =>
             EffMaybe<Env, A>(
                 env =>
                 {
@@ -711,7 +711,7 @@ namespace LanguageExt
             new Eff<B>(ma.Thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, B> Bind<Env, A, B>(this Eff<A> ma, Func<A, Eff<Env, B>> f) =>
+        public static Eff<Env, B> Bind<Env, A, B>(this Eff<A> ma, Func<A, Eff<Env, B>> f) where Env : struct =>
             new Eff<Env, B>(ma.Thunk.Map(x => ThunkFromIO(f(x))).Flatten());
 
         [Pure, MethodImpl(AffOpt.mops)]
@@ -732,7 +732,7 @@ namespace LanguageExt
               .Flatten();
 
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, B> BiBind<Env, A, B>(this Eff<A> ma, Func<A, Eff<Env, B>> Succ, Func<Error, Eff<Env, B>> Fail) =>
+        public static Eff<Env, B> BiBind<Env, A, B>(this Eff<A> ma, Func<A, Eff<Env, B>> Succ, Func<Error, Eff<Env, B>> Fail) where Env : struct =>
             ma.Match(Succ, Fail)
               .Flatten();
 
@@ -755,7 +755,7 @@ namespace LanguageExt
             new Eff<A>(ma.Thunk.Map(ThunkFromIO).Flatten());
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, A> Flatten<Env, A>(this Eff<Eff<Env, A>> ma) =>
+        public static Eff<Env, A> Flatten<Env, A>(this Eff<Eff<Env, A>> ma) where Env : struct =>
             new Eff<Env, A>(ma.Thunk.Map(ThunkFromIO).Flatten());
         
         [Pure, MethodImpl(AffOpt.mops)]
@@ -783,7 +783,7 @@ namespace LanguageExt
             Bind(ma, f);
         
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, B> SelectMany<Env, A, B>(this Eff<A> ma, Func<A, Eff<Env, B>> f)  =>
+        public static Eff<Env, B> SelectMany<Env, A, B>(this Eff<A> ma, Func<A, Eff<Env, B>> f)  where Env : struct =>
             Bind(ma, f);
         
         [Pure, MethodImpl(AffOpt.mops)]

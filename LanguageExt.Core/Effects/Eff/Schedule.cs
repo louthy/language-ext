@@ -8,6 +8,7 @@ using static LanguageExt.Prelude;
 namespace LanguageExt
 {
     internal static class ScheduleEff<RT, A> 
+        where RT : struct
     {
         static Eff<RT, S> Run<S>(Eff<RT, A> ma, S state, Schedule schedule, Func<Fin<A>, (bool Continue, Fin<A> Value)> map, Func<S, A, S> fold) =>
             EffMaybe<RT, S>(

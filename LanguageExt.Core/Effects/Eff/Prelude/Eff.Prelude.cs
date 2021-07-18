@@ -18,7 +18,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Synchronous IO monad that captures the effect</returns>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, A> EffMaybe<Env, A>(Func<Env, Fin<A>> f) =>
+        public static Eff<Env, A> EffMaybe<Env, A>(Func<Env, Fin<A>> f) where Env : struct =>
             LanguageExt.Eff<Env, A>.EffectMaybe(f);
         
         /// <summary>
@@ -28,7 +28,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Synchronous IO monad that captures the effect</returns>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<Env, A> Eff<Env, A>(Func<Env, A> f) =>
+        public static Eff<Env, A> Eff<Env, A>(Func<Env, A> f) where Env : struct =>
             LanguageExt.Eff<Env, A>.Effect(f);
  
         /// <summary>
@@ -68,7 +68,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Synchronous IO monad that captures the pure value</returns>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<RT, A> SuccessEff<RT, A>(A value) =>
+        public static Eff<RT, A> SuccessEff<RT, A>(A value) where RT : struct =>
             LanguageExt.Eff<RT, A>.Success(value);
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Synchronous IO monad that captures the failure</returns>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<RT, A> FailEff<RT, A>(Error error) =>
+        public static Eff<RT, A> FailEff<RT, A>(Error error) where RT : struct =>
             LanguageExt.Eff<RT, A>.Fail(error);
         
         /// <summary>

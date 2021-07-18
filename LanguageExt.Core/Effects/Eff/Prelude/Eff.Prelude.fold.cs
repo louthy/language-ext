@@ -22,7 +22,7 @@ namespace LanguageExt
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the fold operation</returns>
-        public static Eff<RT, S> fold<RT, S, A>(Schedule schedule, Eff<RT, A> ma, S state, Func<S, A, S> fold) =>
+        public static Eff<RT, S> fold<RT, S, A>(Schedule schedule, Eff<RT, A> ma, S state, Func<S, A, S> fold) where RT : struct =>
             ScheduleEff<RT, A>.Fold(ma, schedule, state, fold);
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace LanguageExt
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the fold operation</returns>
-        public static Eff<RT, S> foldWhile<RT, S, A>(Schedule schedule, Eff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+        public static Eff<RT, S> foldWhile<RT, S, A>(Schedule schedule, Eff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) where RT : struct =>
             ScheduleEff<RT, A>.FoldWhile(ma, schedule, state, fold, pred);
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace LanguageExt
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the fold operation</returns>
-        public static Eff<RT, S> foldUntil<RT, S, A>(Schedule schedule, Eff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+        public static Eff<RT, S> foldUntil<RT, S, A>(Schedule schedule, Eff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) where RT : struct =>
             ScheduleEff<RT, A>.FoldUntil(ma, schedule, state, fold, pred);
         
         /// <summary>
@@ -65,7 +65,7 @@ namespace LanguageExt
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the fold operation</returns>
-        public static Eff<RT, S> fold<RT, S, A>(Eff<RT, A> ma, S state, Func<S, A, S> fold) =>
+        public static Eff<RT, S> fold<RT, S, A>(Eff<RT, A> ma, S state, Func<S, A, S> fold) where RT : struct =>
             ScheduleEff<RT, A>.Fold(ma, Schedule.Forever, state, fold);
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace LanguageExt
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the fold operation</returns>
-        public static Eff<RT, S> foldWhile<RT, S, A>(Eff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+        public static Eff<RT, S> foldWhile<RT, S, A>(Eff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) where RT : struct =>
             ScheduleEff<RT, A>.FoldWhile(ma, Schedule.Forever, state, fold, pred);
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace LanguageExt
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the fold operation</returns>
-        public static Eff<RT, S> foldUntil<RT, S, A>(Eff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+        public static Eff<RT, S> foldUntil<RT, S, A>(Eff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred) where RT : struct =>
             ScheduleEff<RT, A>.FoldUntil(ma, Schedule.Forever, state, fold, pred);  
         
         /// <summary>

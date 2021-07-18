@@ -16,11 +16,11 @@ namespace LanguageExt
     /// <summary>
     /// Asynchronous effect monad
     /// </summary>
-    public struct Aff<Env, A> 
+    public readonly struct Aff<Env, A> 
         where Env : struct, HasCancel<Env>
     {
         internal ThunkAsync<Env, A> Thunk => thunk ?? ThunkAsync<Env, A>.Fail(Errors.Bottom);
-        ThunkAsync<Env, A> thunk;
+        readonly ThunkAsync<Env, A> thunk;
 
         /// <summary>
         /// Constructor

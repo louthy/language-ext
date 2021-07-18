@@ -143,7 +143,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) =>
+        public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) where RT : struct =>
             EffMaybe<RT, A>(env =>
             {
                 var fv = f(Value).Run(env);
@@ -229,7 +229,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public Eff<RT, A> SwapEff<X, Y, RT>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
+        public Eff<RT, A> SwapEff<X, Y, RT>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) where RT : struct =>
             EffMaybe<RT, A>(env =>
             {
                 var fv = f(x, y, Value).Run(env);
@@ -315,7 +315,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public Eff<RT, A> SwapEff<X, RT>(X x, Func<X, A, Eff<RT, A>> f) =>
+        public Eff<RT, A> SwapEff<X, RT>(X x, Func<X, A, Eff<RT, A>> f) where RT : struct =>
             EffMaybe<RT, A>(env =>
             {
                 var fv = f(x, Value).Run(env);

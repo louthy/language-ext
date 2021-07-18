@@ -10,7 +10,7 @@ using static LanguageExt.Prelude;
 
 namespace TestBed
 {
-    public class EffectsTest1<RT>
+    public class ErrorAndGuardTest<RT>
         where RT : struct, HasConsole<RT>
     {
         static readonly Error UserExited = Error.New(100, "user exited");
@@ -35,7 +35,7 @@ namespace TestBed
           | @catch(UserExited, unit);
     }
 
-    public class EffectsTest2<RT>
+    public class TimeTest<RT>
         where RT : 
             struct, 
             HasTime<RT>, 
@@ -48,4 +48,23 @@ namespace TestBed
                    from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
                    select unit);
     }
+    
+    
+    public class TimeoutTest<RT>
+        where RT : 
+        struct, 
+        HasTime<RT>, 
+        HasCancel<RT>, 
+        HasConsole<RT>
+    {
+        public static Aff<RT, Unit> main =>
+            longRunning.Timeout(5 * seconds);
+
+        static Aff<RT, Unit> longRunning =>
+            repeat(from tm in DateTime<RT>.now
+                   from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
+                   from _2 in DateTime<RT>.sleepFor(1 * second)
+                   select unit);
+    }
+
 }

@@ -42,10 +42,11 @@ public class Program
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
 
-        await EffectsTest2<Runtime>.main.Run(Runtime.New());
-
-        // EffectsTest1<Runtime>.main.Run(Runtime.New());
-        //await ObsAffTests.Test();
-        //await AsyncTests();
+        await TimeoutTest<Runtime>.main.Run(Runtime.New());
+        
+        // await TimeTest<Runtime>.main.Run(Runtime.New());
+        // ErrorAndGuardTest<Runtime>.main.Run(Runtime.New());
+        // await ObsAffTests.Test();
+        // await AsyncTests();
     }
 }

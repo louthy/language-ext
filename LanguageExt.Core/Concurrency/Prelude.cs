@@ -89,7 +89,7 @@ namespace LanguageExt
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, R> sync<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) =>
+        public static Eff<RT, R> sync<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the `Ref`</param>
         /// <returns>The value returned from `f`</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, A> swapEff<RT, A>(Ref<A> r, Func<A, Eff<RT, A>> f) =>
+        public static Eff<RT, A> swapEff<RT, A>(Ref<A> r, Func<A, Eff<RT, A>> f) where RT : struct =>
             r.SwapEff(f);
 
         /// <summary>
@@ -277,7 +277,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the `Ref`</param>
         /// <returns>The value returned from `f`</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, A> swapEff<RT, X, A>(Ref<A> r, X x, Func<X, A, Eff<RT, A>> f) =>
+        public static Eff<RT, A> swapEff<RT, X, A>(Ref<A> r, X x, Func<X, A, Eff<RT, A>> f) where RT : struct =>
             r.SwapEff(x, f);
 
         /// <summary>
@@ -343,7 +343,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the `Ref`</param>
         /// <returns>The value returned from `f`</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, A> swapEff<RT, X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
+        public static Eff<RT, A> swapEff<RT, X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) where RT : struct =>
             r.SwapEff(x, y, f);        
         
         /// <summary>
@@ -563,7 +563,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Eff<RT, A> swapEff<RT, A>(Atom<A> ma, Func<A, Eff<RT, A>> f) =>
+        public static Eff<RT, A> swapEff<RT, A>(Atom<A> ma, Func<A, Eff<RT, A>> f) where RT : struct =>
             ma.SwapEff<RT>(f);
 
         /// <summary>
@@ -643,7 +643,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Eff<RT, A> swapEff<RT, X, A>(Atom<A> ma, X x, Func<X, A, Eff<RT, A>> f) =>
+        public static Eff<RT, A> swapEff<RT, X, A>(Atom<A> ma, X x, Func<X, A, Eff<RT, A>> f) where RT : struct =>
             ma.SwapEff<RT, X>(x, f);
 
         /// <summary>
@@ -730,7 +730,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Eff<RT, A> swapEff<RT, X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) =>
+        public static Eff<RT, A> swapEff<RT, X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) where RT : struct =>
             ma.SwapEff<RT, X, Y>(x, y, f);
 
         /// <summary>
@@ -816,7 +816,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Eff<RT, A> swapEff<RT, M, A>(Atom<M, A> ma, Func<M, A, Eff<RT, A>> f) =>
+        public static Eff<RT, A> swapEff<RT, M, A>(Atom<M, A> ma, Func<M, A, Eff<RT, A>> f) where RT : struct =>
             ma.SwapEff<RT>(f);
 
         /// <summary>
@@ -896,7 +896,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Eff<RT, A> swapEff<RT, M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, Eff<RT, A>> f) =>
+        public static Eff<RT, A> swapEff<RT, M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, Eff<RT, A>> f) where RT : struct =>
             ma.SwapEff<RT, X>(x, f);
 
         /// <summary>
@@ -983,7 +983,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Eff<RT, A> swapEff<RT, M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, Eff<RT, A>> f) =>
+        public static Eff<RT, A> swapEff<RT, M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, Eff<RT, A>> f) where RT : struct =>
             ma.SwapEff<RT, X, Y>(x, y, f);
 
         /// <summary>

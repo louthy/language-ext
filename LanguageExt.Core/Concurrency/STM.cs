@@ -82,7 +82,7 @@ namespace LanguageExt
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
-        internal static Eff<RT, R> DoTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) =>
+        internal static Eff<RT, R> DoTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) where RT : struct =>
             transaction.Value == null
                 ? RunTransaction(op, isolation)
                 : op;
@@ -171,7 +171,7 @@ namespace LanguageExt
         /// <summary>
         /// Runs the transaction
         /// </summary>
-        static Eff<RT, R> RunTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) =>
+        static Eff<RT, R> RunTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) where RT : struct =>
             EffMaybe<RT, R>(env =>
             {
                 var retries = maxRetries;

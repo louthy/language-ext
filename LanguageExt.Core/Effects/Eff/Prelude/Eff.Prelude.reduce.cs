@@ -22,7 +22,7 @@ namespace LanguageExt
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the reduce operation</returns>
-        public static Eff<RT, S> reduce<RT, S, A>(Schedule schedule, Eff<RT, A> ma, Func<S, A, S> reduce) =>
+        public static Eff<RT, S> reduce<RT, S, A>(Schedule schedule, Eff<RT, A> ma, Func<S, A, S> reduce) where RT : struct =>
             ScheduleEff<RT, A>.Fold(ma, schedule, default, reduce);
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace LanguageExt
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the reduce operation</returns>
-        public static Eff<RT, S> reduceWhile<RT, S, A>(Schedule schedule, Eff<RT, A> ma, Func<S, A, S> reduce, Func<A, bool> pred) =>
+        public static Eff<RT, S> reduceWhile<RT, S, A>(Schedule schedule, Eff<RT, A> ma, Func<S, A, S> reduce, Func<A, bool> pred) where RT : struct =>
             ScheduleEff<RT, A>.FoldWhile(ma, schedule, default, reduce, pred);
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace LanguageExt
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the reduce operation</returns>
-        public static Eff<RT, S> reduceUntil<RT, S, A>(Schedule schedule, Eff<RT, A> ma, Func<S, A, S> reduce, Func<A, bool> pred) =>
+        public static Eff<RT, S> reduceUntil<RT, S, A>(Schedule schedule, Eff<RT, A> ma, Func<S, A, S> reduce, Func<A, bool> pred) where RT : struct =>
             ScheduleEff<RT, A>.FoldUntil(ma, schedule, default, reduce, pred);
         
         /// <summary>
@@ -65,7 +65,7 @@ namespace LanguageExt
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the reduce operation</returns>
-        public static Eff<RT, S> reduce<RT, S, A>(Eff<RT, A> ma, Func<S, A, S> reduce) =>
+        public static Eff<RT, S> reduce<RT, S, A>(Eff<RT, A> ma, Func<S, A, S> reduce) where RT : struct =>
             ScheduleEff<RT, A>.Fold(ma, Schedule.Forever, default, reduce);
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace LanguageExt
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the reduce operation</returns>
-        public static Eff<RT, S> reduceWhile<RT, S, A>(Eff<RT, A> ma, Func<S, A, S> reduce, Func<A, bool> pred) =>
+        public static Eff<RT, S> reduceWhile<RT, S, A>(Eff<RT, A> ma, Func<S, A, S> reduce, Func<A, bool> pred) where RT : struct =>
             ScheduleEff<RT, A>.FoldWhile(ma, Schedule.Forever, default, reduce, pred);
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace LanguageExt
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the reduce operation</returns>
-        public static Eff<RT, S> reduceUntil<RT, S, A>(Eff<RT, A> ma, Func<S, A, S> reduce, Func<A, bool> pred) =>
+        public static Eff<RT, S> reduceUntil<RT, S, A>(Eff<RT, A> ma, Func<S, A, S> reduce, Func<A, bool> pred) where RT : struct =>
             ScheduleEff<RT, A>.FoldUntil(ma, Schedule.Forever, default, reduce, pred);  
         
         /// <summary>

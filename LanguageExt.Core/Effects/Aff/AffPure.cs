@@ -13,12 +13,12 @@ namespace LanguageExt
     /// <summary>
     /// Asynchronous effect monad
     /// </summary>
-    public struct Aff<A>
+    public readonly struct Aff<A>
     {
         internal const MethodImplOptions mops = MethodImplOptions.AggressiveInlining;
 
         internal ThunkAsync<A> Thunk => thunk ?? ThunkAsync<A>.Fail(Errors.Bottom);
-        ThunkAsync<A> thunk;
+        readonly ThunkAsync<A> thunk;
 
         /// <summary>
         /// Constructor

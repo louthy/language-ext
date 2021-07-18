@@ -18,7 +18,7 @@ namespace LanguageExt
         /// <typeparam name="Env">Environment</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Eff<Env, A> Repeat<Env, A>(this Eff<Env, A> ma) =>
+        public static Eff<Env, A> Repeat<Env, A>(this Eff<Env, A> ma) where Env : struct =>
             ScheduleEff<Env, A>.Repeat(ma, Schedule.Forever);
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace LanguageExt
         /// <typeparam name="Env">Environment</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Eff<Env, A> Repeat<Env, A>(this Eff<Env, A> ma, Schedule schedule) =>
+        public static Eff<Env, A> Repeat<Env, A>(this Eff<Env, A> ma, Schedule schedule) where Env : struct =>
             ScheduleEff<Env, A>.Repeat(ma, schedule);
         
         /// <summary>
@@ -61,7 +61,7 @@ namespace LanguageExt
         /// <typeparam name="Env">Environment</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Eff<Env, A> RepeatWhile<Env, A>(this Eff<Env, A> ma, Func<A, bool> predicate) =>
+        public static Eff<Env, A> RepeatWhile<Env, A>(this Eff<Env, A> ma, Func<A, bool> predicate) where Env : struct =>
             ScheduleEff<Env, A>.RepeatWhile(ma, Schedule.Forever, predicate);
         
         /// <summary>
@@ -82,7 +82,7 @@ namespace LanguageExt
         /// <typeparam name="Env">Environment</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Eff<Env, A> RepeatWhile<Env, A>(this Eff<Env, A> ma, Schedule schedule, Func<A, bool> predicate) =>
+        public static Eff<Env, A> RepeatWhile<Env, A>(this Eff<Env, A> ma, Schedule schedule, Func<A, bool> predicate) where Env : struct =>
             ScheduleEff<Env, A>.RepeatWhile(ma, schedule, predicate);
         
         /// <summary>
@@ -104,7 +104,7 @@ namespace LanguageExt
         /// <typeparam name="Env">Environment</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Eff<Env, A> RepeatUntil<Env, A>(this Eff<Env, A> ma, Func<A, bool> predicate) =>
+        public static Eff<Env, A> RepeatUntil<Env, A>(this Eff<Env, A> ma, Func<A, bool> predicate) where Env : struct =>
             ScheduleEff<Env, A>.RepeatUntil(ma, Schedule.Forever, predicate);
         
         /// <summary>
@@ -125,7 +125,7 @@ namespace LanguageExt
         /// <typeparam name="Env">Environment</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Eff<Env, A> RepeatUntil<Env, A>(this Eff<Env, A> ma, Schedule schedule, Func<A, bool> predicate) =>
+        public static Eff<Env, A> RepeatUntil<Env, A>(this Eff<Env, A> ma, Schedule schedule, Func<A, bool> predicate) where Env : struct =>
             ScheduleEff<Env, A>.RepeatUntil(ma, schedule, predicate);
         
         /// <summary>

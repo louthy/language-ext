@@ -41,7 +41,7 @@ namespace LanguageExt
                                                                     : FailEff<A>(e)));
     }
 
-    public readonly struct EffCatch<RT, A>
+    public readonly struct EffCatch<RT, A> where RT : struct 
     {
         internal readonly Func<Error, Eff<RT, A>> fail;
 
