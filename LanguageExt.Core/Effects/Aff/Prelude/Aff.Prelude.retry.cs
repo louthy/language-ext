@@ -15,17 +15,17 @@ namespace LanguageExt
         /// Keeps retrying the computation  
         /// </summary>
         /// <param name="ma">Computation to retry</param>
-        /// <typeparam name="Env">Environment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<Env, A> retry<Env, A>(Aff<Env, A> ma) where Env : struct, HasCancel<Env> =>
-            ScheduleAff<Env, A>.Retry(ma, Schedule.Forever);
+        public static Aff<RT, A> retry<RT, A>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
+            ScheduleAff<RT, A>.Retry(ma, Schedule.Forever);
         
         /// <summary>
         /// Keeps retrying the computation  
         /// </summary>
         /// <param name="ma">Computation to retry</param>
-        /// <typeparam name="Env">Environment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
         public static Aff<A> retry<A>(Aff<A> ma) => 
@@ -36,18 +36,18 @@ namespace LanguageExt
         /// </summary>
         /// <param name="ma">Computation to retry</param>
         /// <param name="schedule">Scheduler strategy for retrying</param>
-        /// <typeparam name="Env">Environment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<Env, A> retry<Env, A>(Schedule schedule, Aff<Env, A> ma) where Env : struct, HasCancel<Env> =>
-            ScheduleAff<Env, A>.Retry(ma, schedule);
+        public static Aff<RT, A> retry<RT, A>(Schedule schedule, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
+            ScheduleAff<RT, A>.Retry(ma, schedule);
         
         /// <summary>
         /// Keeps retrying the computation, until the scheduler expires  
         /// </summary>
         /// <param name="ma">Computation to retry</param>
         /// <param name="schedule">Scheduler strategy for retrying</param>
-        /// <typeparam name="Env">Environment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
         public static Aff<A> retry<A>(Schedule schedule, Aff<A> ma) => 
@@ -58,17 +58,17 @@ namespace LanguageExt
         /// Keeps retrying the computation until the predicate returns false
         /// </summary>
         /// <param name="ma">Computation to retry</param>
-        /// <typeparam name="Env">Environment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<Env, A> retryWhile<Env, A>(Aff<Env, A> ma, Func<A, bool> predicate) where Env : struct, HasCancel<Env> =>
-            ScheduleAff<Env, A>.RetryWhile(ma, Schedule.Forever, predicate);
+        public static Aff<RT, A> retryWhile<RT, A>(Aff<RT, A> ma, Func<A, bool> predicate) where RT : struct, HasCancel<RT> =>
+            ScheduleAff<RT, A>.RetryWhile(ma, Schedule.Forever, predicate);
         
         /// <summary>
         /// Keeps retrying the computation until the predicate returns false
         /// </summary>
         /// <param name="ma">Computation to retry</param>
-        /// <typeparam name="Env">Environment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
         public static Aff<A> retryWhile<A>(Aff<A> ma, Func<A, bool> predicate) => 
@@ -79,18 +79,18 @@ namespace LanguageExt
         /// </summary>
         /// <param name="ma">Computation to retry</param>
         /// <param name="schedule">Scheduler strategy for retrying</param>
-        /// <typeparam name="Env">Environment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<Env, A> retryWhile<Env, A>(Schedule schedule, Aff<Env, A> ma, Func<A, bool> predicate) where Env : struct, HasCancel<Env> =>
-            ScheduleAff<Env, A>.RetryWhile(ma, schedule, predicate);
+        public static Aff<RT, A> retryWhile<RT, A>(Schedule schedule, Aff<RT, A> ma, Func<A, bool> predicate) where RT : struct, HasCancel<RT> =>
+            ScheduleAff<RT, A>.RetryWhile(ma, schedule, predicate);
         
         /// <summary>
         /// Keeps retrying the computation, until the scheduler expires, or the predicate returns false
         /// </summary>
         /// <param name="ma">Computation to retry</param>
         /// <param name="schedule">Scheduler strategy for retrying</param>
-        /// <typeparam name="Env">Environment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
         public static Aff<A> retryWhile<A>(Schedule schedule, Aff<A> ma, Func<A, bool> predicate) => 
@@ -101,17 +101,17 @@ namespace LanguageExt
         /// Keeps retrying the computation until the predicate returns true
         /// </summary>
         /// <param name="ma">Computation to retry</param>
-        /// <typeparam name="Env">Environment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<Env, A> retryUntil<Env, A>(Aff<Env, A> ma, Func<A, bool> predicate) where Env : struct, HasCancel<Env> =>
-            ScheduleAff<Env, A>.RetryUntil(ma, Schedule.Forever, predicate);
+        public static Aff<RT, A> retryUntil<RT, A>(Aff<RT, A> ma, Func<A, bool> predicate) where RT : struct, HasCancel<RT> =>
+            ScheduleAff<RT, A>.RetryUntil(ma, Schedule.Forever, predicate);
         
         /// <summary>
         /// Keeps retrying the computation until the predicate returns true
         /// </summary>
         /// <param name="ma">Computation to retry</param>
-        /// <typeparam name="Env">Environment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
         public static Aff<A> retryUntil<A>(Aff<A> ma, Func<A, bool> predicate) => 
@@ -122,18 +122,18 @@ namespace LanguageExt
         /// </summary>
         /// <param name="ma">Computation to retry</param>
         /// <param name="schedule">Scheduler strategy for retrying</param>
-        /// <typeparam name="Env">Environment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<Env, A> retryUntil<Env, A>(Schedule schedule, Aff<Env, A> ma, Func<A, bool> predicate) where Env : struct, HasCancel<Env> =>
-            ScheduleAff<Env, A>.RetryUntil(ma, schedule, predicate);
+        public static Aff<RT, A> retryUntil<RT, A>(Schedule schedule, Aff<RT, A> ma, Func<A, bool> predicate) where RT : struct, HasCancel<RT> =>
+            ScheduleAff<RT, A>.RetryUntil(ma, schedule, predicate);
         
         /// <summary>
         /// Keeps retrying the computation, until the scheduler expires, or the predicate returns true
         /// </summary>
         /// <param name="ma">Computation to retry</param>
         /// <param name="schedule">Scheduler strategy for retrying</param>
-        /// <typeparam name="Env">Environment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
         public static Aff<A> retryUntil<A>(Schedule schedule, Aff<A> ma, Func<A, bool> predicate) => 

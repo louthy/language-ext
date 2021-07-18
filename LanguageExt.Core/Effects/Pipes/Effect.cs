@@ -10,33 +10,33 @@ namespace LanguageExt.Pipes
     public static class Effect
     {
         [Pure, MethodImpl(Proxy.mops)]
-        public static Aff<Env, R> RunEffect<Env, R>(this Proxy<Env, Void, Unit, Unit, Void, R> ma) where Env : struct, HasCancel<Env> {
+        public static Aff<RT, R> RunEffect<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma) where RT : struct, HasCancel<RT> {
             return Go(ma);
-            Aff<Env, R> Go(Proxy<Env, Void, Unit, Unit, Void, R> p) =>
+            static Aff<RT, R> Go(Proxy<RT, Void, Unit, Unit, Void, R> p) =>
                 p.ToProxy() switch
                 {
-                    Request<Env, Void, Unit, Unit, Void, R> (var v, var _) => Proxy.closed<Aff<Env, R>>(v),
-                    Respond<Env, Void, Unit, Unit, Void, R> (var v, var _) => Proxy.closed<Aff<Env, R>>(v),
-                    M<Env, Void, Unit, Unit, Void, R> (var m)              => m.Clone().Bind(Go),
-                    Pure<Env, Void, Unit, Unit, Void, R> (var r)           => Aff<Env, R>.Success(r),                                                                                
+                    Request<RT, Void, Unit, Unit, Void, R> (var v, var _) => Proxy.closed<Aff<RT, R>>(v),
+                    Respond<RT, Void, Unit, Unit, Void, R> (var v, var _) => Proxy.closed<Aff<RT, R>>(v),
+                    M<RT, Void, Unit, Unit, Void, R> (var m)              => m.Clone().Bind(Go),
+                    Pure<RT, Void, Unit, Unit, Void, R> (var r)           => Aff<RT, R>.Success(r),                                                                                
                     _                                                      => throw new NotSupportedException()
                 };
         }
 
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Env, R> liftIO<Env, R>(Aff<R> ma) where Env : struct, HasCancel<Env> =>
-            liftIO<Env, Void, Unit, Unit, Void, R>(ma).ToEffect();
+        public static Effect<RT, R> liftIO<RT, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
+            liftIO<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Env, R> liftIO<Env, R>(Eff<R> ma) where Env : struct, HasCancel<Env> =>
-            liftIO<Env, Void, Unit, Unit, Void, R>(ma).ToEffect();
+        public static Effect<RT, R> liftIO<RT, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
+            liftIO<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Env, R> liftIO<Env, R>(Aff<Env, R> ma) where Env : struct, HasCancel<Env> =>
-            liftIO<Env, Void, Unit, Unit, Void, R>(ma).ToEffect();
+        public static Effect<RT, R> liftIO<RT, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
+            liftIO<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Env, R> liftIO<Env, R>(Eff<Env, R> ma) where Env : struct, HasCancel<Env> =>
-            liftIO<Env, Void, Unit, Unit, Void, R>(ma).ToEffect();
+        public static Effect<RT, R> liftIO<RT, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
+            liftIO<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
     }
 }

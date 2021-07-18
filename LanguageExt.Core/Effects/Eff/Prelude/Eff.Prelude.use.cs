@@ -37,10 +37,10 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Aff<Env, R> use<Env, H, R>(Eff<H> Acq, Func<H, Aff<Env, R>> Use)
-            where Env : struct, HasCancel<Env>
+        public static Aff<RT, R> use<RT, H, R>(Eff<H> Acq, Func<H, Aff<RT, R>> Use)
+            where RT : struct, HasCancel<RT>
             where H : IDisposable =>
-            AffMaybe<Env, R>(async env =>
+            AffMaybe<RT, R>(async env =>
                              {
                                  var h = Acq.ReRun();
                                  try
@@ -65,8 +65,7 @@ namespace LanguageExt
                          var h = Acq.ReRun();
                          try
                          {
-                             if (h.IsFail) return h.Cast<R>();
-                             return Use(h.Value).Run();
+                             return h.IsFail ? h.Cast<R>() : Use(h.Value).Run();
                          }
                          finally
                          {
@@ -79,16 +78,15 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Eff<Env, R> use<Env, H, R>(Eff<H> Acq, Func<H, Eff<Env, R>> Use)
-            where Env : struct, HasCancel<Env>
+        public static Eff<RT, R> use<RT, H, R>(Eff<H> Acq, Func<H, Eff<RT, R>> Use)
+            where RT : struct, HasCancel<RT>
             where H : IDisposable =>
-            EffMaybe<Env, R>(env =>
+            EffMaybe<RT, R>(env =>
                              {
                                  var h = Acq.ReRun();
                                  try
                                  {
-                                     if (h.IsFail) return h.Cast<R>();
-                                     return Use(h.Value).Run(env);
+                                     return h.IsFail ? h.Cast<R>() : Use(h.Value).Run(env);
                                  }
                                  finally
                                  {
@@ -102,10 +100,10 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Aff<Env, R> use<Env, H, R>(Eff<Env, H> Acq, Func<H, Aff<R>> Use)
-            where Env : struct, HasCancel<Env>
+        public static Aff<RT, R> use<RT, H, R>(Eff<RT, H> Acq, Func<H, Aff<R>> Use)
+            where RT : struct, HasCancel<RT>
             where H : IDisposable =>
-            AffMaybe<Env, R>(async env =>
+            AffMaybe<RT, R>(async env =>
                              {
                                  var h = Acq.ReRun(env);
                                  try
@@ -124,10 +122,10 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Aff<Env, R> use<Env, H, R>(Eff<Env, H> Acq, Func<H, Aff<Env, R>> Use)
-            where Env : struct, HasCancel<Env>
+        public static Aff<RT, R> use<RT, H, R>(Eff<RT, H> Acq, Func<H, Aff<RT, R>> Use)
+            where RT : struct, HasCancel<RT>
             where H : IDisposable =>
-            AffMaybe<Env, R>(async env =>
+            AffMaybe<RT, R>(async env =>
                              {
                                  var h = Acq.ReRun(env);
                                  try
@@ -146,16 +144,15 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Eff<Env, R> use<Env, H, R>(Eff<Env, H> Acq, Func<H, Eff<R>> Use)
-            where Env : struct, HasCancel<Env>
+        public static Eff<RT, R> use<RT, H, R>(Eff<RT, H> Acq, Func<H, Eff<R>> Use)
+            where RT : struct, HasCancel<RT>
             where H : IDisposable =>
-            EffMaybe<Env, R>(env =>
+            EffMaybe<RT, R>(env =>
                              {
                                  var h = Acq.ReRun(env);
                                  try
                                  {
-                                     if (h.IsFail) return h.Cast<R>();
-                                     return Use(h.Value).Run();
+                                     return h.IsFail ? h.Cast<R>() : Use(h.Value).Run();
                                  }
                                  finally
                                  {
@@ -168,16 +165,15 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Eff<Env, R> use<Env, H, R>(Eff<Env, H> Acq, Func<H, Eff<Env, R>> Use)
-            where Env : struct, HasCancel<Env>
+        public static Eff<RT, R> use<RT, H, R>(Eff<RT, H> Acq, Func<H, Eff<RT, R>> Use)
+            where RT : struct, HasCancel<RT>
             where H : IDisposable =>
-            EffMaybe<Env, R>(env =>
+            EffMaybe<RT, R>(env =>
                              {
                                  var h = Acq.ReRun(env);
                                  try
                                  {
-                                     if (h.IsFail) return h.Cast<R>();
-                                     return Use(h.Value).Run(env);
+                                     return h.IsFail ? h.Cast<R>() : Use(h.Value).Run(env);
                                  }
                                  finally
                                  {

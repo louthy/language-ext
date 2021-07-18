@@ -25,8 +25,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Aff<Env, R> Use<Env, H, R>(this Aff<H> Acq, Func<H, Aff<Env, R>> Use)
-            where Env : struct, HasCancel<Env>
+        public static Aff<RT, R> Use<RT, H, R>(this Aff<H> Acq, Func<H, Aff<RT, R>> Use)
+            where RT : struct, HasCancel<RT>
             where H : IDisposable =>
             Prelude.use(Acq, Use);
         
@@ -43,8 +43,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Aff<Env, R> Use<Env, H, R>(this Aff<H> Acq, Func<H, Eff<Env, R>> Use)
-            where Env : struct, HasCancel<Env>
+        public static Aff<RT, R> Use<RT, H, R>(this Aff<H> Acq, Func<H, Eff<RT, R>> Use)
+            where RT : struct, HasCancel<RT>
             where H : IDisposable =>
             Prelude.use(Acq, Use);
         
@@ -53,8 +53,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Aff<Env, R> Use<Env, H, R>(this Aff<Env, H> Acq, Func<H, Aff<R>> Use) 
-            where Env : struct, HasCancel<Env>
+        public static Aff<RT, R> Use<RT, H, R>(this Aff<RT, H> Acq, Func<H, Aff<R>> Use) 
+            where RT : struct, HasCancel<RT>
             where H : IDisposable =>
             Prelude.use(Acq, Use);
 
@@ -63,8 +63,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Aff<Env, R> Use<Env, H, R>(this Aff<Env, H> Acq, Func<H, Aff<Env, R>> Use)
-            where Env : struct, HasCancel<Env>
+        public static Aff<RT, R> Use<RT, H, R>(this Aff<RT, H> Acq, Func<H, Aff<RT, R>> Use)
+            where RT : struct, HasCancel<RT>
             where H : IDisposable =>
             Prelude.use(Acq, Use);
         
@@ -73,8 +73,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Aff<Env, R> Use<Env, H, R>(this Aff<Env, H> Acq, Func<H, Eff<R>> Use) 
-            where Env : struct, HasCancel<Env>
+        public static Aff<RT, R> Use<RT, H, R>(this Aff<RT, H> Acq, Func<H, Eff<R>> Use) 
+            where RT : struct, HasCancel<RT>
             where H : IDisposable =>
             Prelude.use(Acq, Use);
 
@@ -83,8 +83,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
-        public static Aff<Env, R> Use<Env, H, R>(this Aff<Env, H> Acq, Func<H, Eff<Env, R>> Use)
-            where Env : struct, HasCancel<Env>
+        public static Aff<RT, R> Use<RT, H, R>(this Aff<RT, H> Acq, Func<H, Eff<RT, R>> Use)
+            where RT : struct, HasCancel<RT>
             where H : IDisposable =>
             Prelude.use(Acq, Use);
     }

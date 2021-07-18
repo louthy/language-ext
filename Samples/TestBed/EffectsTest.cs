@@ -28,8 +28,8 @@ namespace TestBed
                    from _0 in Console<RT>.writeLine("Welcome")
                    from ln in Console<RT>.readLine
                    from _1 in guard(notEmpty(ln), UserExited)
-                   from _2 in notguard(ln == "sys", () => throw new SystemException())
-                   from _3 in notguard(ln == "err", () => throw new Exception())
+                   from _2 in guardnot(ln == "sys", () => throw new SystemException())
+                   from _3 in guardnot(ln == "err", () => throw new Exception())
                    from _4 in Console<RT>.writeLine(ln)
                    select unit)
           | @catch(UserExited, unit);
@@ -48,25 +48,24 @@ namespace TestBed
                    select unit);
     }
     
-    
     public class TimeoutTest<RT>
         where RT : struct, 
             HasTime<RT>, 
             HasCancel<RT>, 
             HasConsole<RT>
     {
-        public static Aff<RT, Unit> main =>
+        public readonly static Aff<RT, Unit> main =
             from _0 in Console<RT>.writeLine("fibonacci repeat delays with timeout")
             from _1 in timeout(60 * seconds, longRunning) 
                      | @catch(Errors.TimedOut, unit)
             from _2 in Console<RT>.writeLine("done")
             select unit;
 
-        static Aff<RT, Unit> longRunning =>
+        static readonly Aff<RT, Unit> longRunning =
            (from tm in DateTime<RT>.now
             from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
             select unit)
-           .ToAsync()
+           .ToAff()
            .Repeat(Schedule.Fibonacci(1 * second));
     }
 

@@ -162,17 +162,17 @@ namespace LanguageExt.Pipes
     ///                           v
     ///                           () 
     /// </summary>
-    public interface Proxy<in Env, in A1, in A, in B1, in B, out R>  where Env : struct, HasCancel<Env>
+    public interface Proxy<in RT, in A1, in A, in B1, in B, out R>  where RT : struct, HasCancel<RT>
     {
-        Proxy<Env, A1, A, B1, B, R> ToProxy();
+        Proxy<RT, A1, A, B1, B, R> ToProxy();
     }
 
-    public partial class Pure<Env, A1, A, B1, B, R> : Proxy<Env, A1, A, B1, B, R> where Env : struct, HasCancel<Env>
+    public partial class Pure<RT, A1, A, B1, B, R> : Proxy<RT, A1, A, B1, B, R> where RT : struct, HasCancel<RT>
     {
         public readonly R Value;
 
         [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<Env, A1, A, B1, B, R> ToProxy() => this;
+        public Proxy<RT, A1, A, B1, B, R> ToProxy() => this;
 
         public Pure(R value) =>
             Value = value;
@@ -182,53 +182,53 @@ namespace LanguageExt.Pipes
             value = Value;
     }
 
-    public partial class Request<Env, A1, A, B1, B, R> : Proxy<Env, A1, A, B1, B, R> where Env : struct, HasCancel<Env>
+    public partial class Request<RT, A1, A, B1, B, R> : Proxy<RT, A1, A, B1, B, R> where RT : struct, HasCancel<RT>
     {
         public readonly A1 Value;
-        public readonly Func<A, Proxy<Env, A1, A, B1, B, R>> Fun;
+        public readonly Func<A, Proxy<RT, A1, A, B1, B, R>> Fun;
         
         [MethodImpl(Proxy.mops)]
-        public Request(A1 value, Func<A, Proxy<Env, A1, A, B1, B, R>> fun) =>
+        public Request(A1 value, Func<A, Proxy<RT, A1, A, B1, B, R>> fun) =>
             (Value, Fun) = (value, fun);
 
         [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<Env, A1, A, B1, B, R> ToProxy() => this;
+        public Proxy<RT, A1, A, B1, B, R> ToProxy() => this;
 
         [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out A1 value, out Func<A, Proxy<Env, A1, A, B1, B, R>> fun) =>
+        public void Deconstruct(out A1 value, out Func<A, Proxy<RT, A1, A, B1, B, R>> fun) =>
             (value, fun) = (Value, Fun);
     }
 
-    public partial class Respond<Env, A1, A, B1, B, R> : Proxy<Env, A1, A, B1, B, R> where Env : struct, HasCancel<Env>
+    public partial class Respond<RT, A1, A, B1, B, R> : Proxy<RT, A1, A, B1, B, R> where RT : struct, HasCancel<RT>
     {
         public readonly B Value;
-        public readonly Func<B1, Proxy<Env, A1, A, B1, B, R>> Fun;
+        public readonly Func<B1, Proxy<RT, A1, A, B1, B, R>> Fun;
         
         [MethodImpl(Proxy.mops)]
-        public Respond(B value, Func<B1, Proxy<Env, A1, A, B1, B, R>> fun) =>
+        public Respond(B value, Func<B1, Proxy<RT, A1, A, B1, B, R>> fun) =>
             (Value, Fun) = (value, fun);
 
         [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<Env, A1, A, B1, B, R> ToProxy() => this;
+        public Proxy<RT, A1, A, B1, B, R> ToProxy() => this;
 
         [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out B value, out Func<B1, Proxy<Env, A1, A, B1, B, R>> fun) =>
+        public void Deconstruct(out B value, out Func<B1, Proxy<RT, A1, A, B1, B, R>> fun) =>
             (value, fun) = (Value, Fun);
     }
 
-    public partial class M<Env, A1, A, B1, B, R> : Proxy<Env, A1, A, B1, B, R>  where Env : struct, HasCancel<Env>
+    public partial class M<RT, A1, A, B1, B, R> : Proxy<RT, A1, A, B1, B, R>  where RT : struct, HasCancel<RT>
     {
-        public readonly Aff<Env, Proxy<Env, A1, A, B1, B, R>> Value;
+        public readonly Aff<RT, Proxy<RT, A1, A, B1, B, R>> Value;
         
         [MethodImpl(Proxy.mops)]
-        public M(Aff<Env, Proxy<Env, A1, A, B1, B, R>> value) =>
+        public M(Aff<RT, Proxy<RT, A1, A, B1, B, R>> value) =>
             Value = value;
         
         [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<Env, A1, A, B1, B, R> ToProxy() => this;
+        public Proxy<RT, A1, A, B1, B, R> ToProxy() => this;
 
         [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out Aff<Env, Proxy<Env, A1, A, B1, B, R>> value) =>
+        public void Deconstruct(out Aff<RT, Proxy<RT, A1, A, B1, B, R>> value) =>
             value = Value;
     }
     
@@ -238,125 +238,125 @@ namespace LanguageExt.Pipes
     /// This `yield` command lets you send output downstream to an anonymous handler,
     /// decoupling how you generate values from how you consume them.
     /// </summary>
-    public partial class Producer<Env, A, R> : Proxy<Env, Void, Unit, Unit, A, R> where Env : struct, HasCancel<Env>
+    public partial class Producer<RT, A, R> : Proxy<RT, Void, Unit, Unit, A, R> where RT : struct, HasCancel<RT>
     {
-        public readonly Proxy<Env, Void, Unit, Unit, A, R> Value;
+        public readonly Proxy<RT, Void, Unit, Unit, A, R> Value;
         
         [MethodImpl(Proxy.mops)]
-        public Producer(Proxy<Env, Void, Unit, Unit, A, R> value) =>
+        public Producer(Proxy<RT, Void, Unit, Unit, A, R> value) =>
             Value = value;
 
         [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<Env, Void, Unit, Unit, A, R> ToProxy() =>
+        public Proxy<RT, Void, Unit, Unit, A, R> ToProxy() =>
             Value.ToProxy();
         
         // Pipe composition, analogous to the Unix pipe operator
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<Env, R> operator |(Producer<Env, A, R> p1, Consumer<Env, A, R> p2) => 
+        public static Effect<RT, R> operator |(Producer<RT, A, R> p1, Consumer<RT, A, R> p2) => 
             Proxy.compose(p1, p2);
 
         [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out Proxy<Env, Void, Unit, Unit, A, R> value) =>
+        public void Deconstruct(out Proxy<RT, Void, Unit, Unit, A, R> value) =>
             value = Value;
     }
 
     /// <summary>
     /// Consumers only await
     /// </summary>
-    public partial class Consumer<Env, A, R> : Proxy<Env, Unit, A, Unit, Void, R>  where Env : struct, HasCancel<Env>
+    public partial class Consumer<RT, A, R> : Proxy<RT, Unit, A, Unit, Void, R>  where RT : struct, HasCancel<RT>
     {
-        public readonly Proxy<Env, Unit, A, Unit, Void, R> Value;
+        public readonly Proxy<RT, Unit, A, Unit, Void, R> Value;
         
         [MethodImpl(Proxy.mops)]
-        public Consumer(Proxy<Env, Unit, A, Unit, Void, R> value) =>
+        public Consumer(Proxy<RT, Unit, A, Unit, Void, R> value) =>
             Value = value;
 
         [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<Env, Unit, A, Unit, Void, R> ToProxy() =>
+        public Proxy<RT, Unit, A, Unit, Void, R> ToProxy() =>
             Value.ToProxy();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out Proxy<Env, Unit, A, Unit, Void, R> value) =>
+        public void Deconstruct(out Proxy<RT, Unit, A, Unit, Void, R> value) =>
             value = Value;
     }
 
     /// <summary>
     /// Pipes both await and yield
     /// </summary>
-    public partial class Pipe<Env, A, B, R> : Proxy<Env, Unit, A, Unit, B, R> where Env : struct, HasCancel<Env>
+    public partial class Pipe<RT, A, B, R> : Proxy<RT, Unit, A, Unit, B, R> where RT : struct, HasCancel<RT>
     {
-        public readonly Proxy<Env, Unit, A, Unit, B, R> Value;
+        public readonly Proxy<RT, Unit, A, Unit, B, R> Value;
         
         [MethodImpl(Proxy.mops)]
-        public Pipe(Proxy<Env, Unit, A, Unit, B, R> value) =>
+        public Pipe(Proxy<RT, Unit, A, Unit, B, R> value) =>
             Value = value;
         
         [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<Env, Unit, A, Unit, B, R> ToProxy() =>
+        public Proxy<RT, Unit, A, Unit, B, R> ToProxy() =>
             Value.ToProxy();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out Proxy<Env, Unit, A, Unit, B, R> value) =>
+        public void Deconstruct(out Proxy<RT, Unit, A, Unit, B, R> value) =>
             value = Value;
         
         // 'Pipe' composition, analogous to the Unix pipe operator
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<Env, B, R> operator |(Producer<Env, A, R> p1, Pipe<Env, A, B, R> p2) =>
+        public static Producer<RT, B, R> operator |(Producer<RT, A, R> p1, Pipe<RT, A, B, R> p2) =>
             Proxy.compose(p1, p2);
         
         // Pipe composition, analogous to the Unix pipe operator
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<Env, A, R> operator |(Pipe<Env, A, B, R> p1, Consumer<Env, B, R> p2) =>
+        public static Consumer<RT, A, R> operator |(Pipe<RT, A, B, R> p1, Consumer<RT, B, R> p2) =>
             Proxy.compose(p1, p2);
         
         // Pipe composition, analogous to the Unix pipe operator
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<Env, B, R> operator |(Producer<Env, B, A> p1, Pipe<Env, A, B, R> p2) =>
+        public static Producer<RT, B, R> operator |(Producer<RT, B, A> p1, Pipe<RT, A, B, R> p2) =>
             Proxy.compose(p1, p2);
         
         // Pipe composition, analogous to the Unix pipe operator
         [Pure, MethodImpl(Proxy.mops)]
-        public Pipe<Env, A, C, R> Then<C>(Pipe<Env, B, C, R> p2) =>
+        public Pipe<RT, A, C, R> Then<C>(Pipe<RT, B, C, R> p2) =>
             Proxy.compose(this, p2);
     }
 
     /// <summary>
     /// Clients only request and never respond
     /// </summary>
-    public partial class Client<Env, A, B, R> : Proxy<Env, A, B, Unit, Unit, R> where Env : struct, HasCancel<Env>
+    public partial class Client<RT, A, B, R> : Proxy<RT, A, B, Unit, Unit, R> where RT : struct, HasCancel<RT>
     {
-        public readonly Proxy<Env, A, B, Unit, Unit, R> Value;
+        public readonly Proxy<RT, A, B, Unit, Unit, R> Value;
 
         [MethodImpl(Proxy.mops)]
-        public Client(Proxy<Env, A, B, Unit, Unit, R> value) =>
+        public Client(Proxy<RT, A, B, Unit, Unit, R> value) =>
             Value = value;
  
         [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<Env, A, B, Unit, Unit, R> ToProxy() =>
+        public Proxy<RT, A, B, Unit, Unit, R> ToProxy() =>
             Value.ToProxy();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out Proxy<Env, A, B, Unit, Unit, R> value) =>
+        public void Deconstruct(out Proxy<RT, A, B, Unit, Unit, R> value) =>
             value = Value;
     }
 
     /// <summary>
     /// Servers only respond and never request
     /// </summary>
-    public partial class Server<Env, A, B, R> : Proxy<Env, Unit, Unit, A, B, R>  where Env : struct, HasCancel<Env>
+    public partial class Server<RT, A, B, R> : Proxy<RT, Unit, Unit, A, B, R>  where RT : struct, HasCancel<RT>
     {
-        public readonly Proxy<Env, Unit, Unit, A, B, R> Value;
+        public readonly Proxy<RT, Unit, Unit, A, B, R> Value;
     
         [MethodImpl(Proxy.mops)]
-        public Server(Proxy<Env, Unit, Unit, A, B, R> value) =>
+        public Server(Proxy<RT, Unit, Unit, A, B, R> value) =>
             Value = value;
         
         [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<Env, Unit, Unit, A, B, R> ToProxy() =>
+        public Proxy<RT, Unit, Unit, A, B, R> ToProxy() =>
             Value.ToProxy();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out Proxy<Env, Unit, Unit, A, B, R> value) =>
+        public void Deconstruct(out Proxy<RT, Unit, Unit, A, B, R> value) =>
             value = Value;
     }
 
@@ -364,20 +364,20 @@ namespace LanguageExt.Pipes
     /// Effects represent a 'fused' set of producer, pipes, and consumer into one type
     /// It neither yields nor awaits, but represents an entire effect system
     /// </summary>
-    public partial class Effect<Env, R> : Proxy<Env, Void, Unit, Unit, Void, R> where Env : struct, HasCancel<Env>
+    public partial class Effect<RT, R> : Proxy<RT, Void, Unit, Unit, Void, R> where RT : struct, HasCancel<RT>
     {
-        public readonly Proxy<Env, Void, Unit, Unit, Void, R> Value;
+        public readonly Proxy<RT, Void, Unit, Unit, Void, R> Value;
 
         [MethodImpl(Proxy.mops)]
-        public Effect(Proxy<Env, Void, Unit, Unit, Void, R> value) =>
+        public Effect(Proxy<RT, Void, Unit, Unit, Void, R> value) =>
             Value = value;
         
         [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<Env, Void, Unit, Unit, Void, R> ToProxy() =>
+        public Proxy<RT, Void, Unit, Unit, Void, R> ToProxy() =>
             Value.ToProxy();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out Proxy<Env, Void, Unit, Unit, Void, R> value) =>
+        public void Deconstruct(out Proxy<RT, Void, Unit, Unit, Void, R> value) =>
             value = Value;
     }
 }

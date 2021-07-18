@@ -432,7 +432,7 @@ namespace LanguageExt
         /// <returns>Guard</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Guard<E> notguard<E>(bool flag, Func<E> True) =>
+        public static Guard<E> guardnot<E>(bool flag, Func<E> True) =>
             new Guard<E>(!flag, True);
 
         /// <summary>
@@ -443,7 +443,7 @@ namespace LanguageExt
         /// <returns>Guard</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Guard<E> notguard<E>(bool flag, E True) =>
+        public static Guard<E> guardnot<E>(bool flag, E True) =>
             new Guard<E>(!flag, True);
 
         /// <summary>
@@ -454,7 +454,7 @@ namespace LanguageExt
         /// <returns>Guard</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Guard<Error> notguard(bool flag, Func<Error> True) =>
+        public static Guard<Error> guardnot(bool flag, Func<Error> True) =>
             new Guard<Error>(!flag, True);
 
         /// <summary>
@@ -465,7 +465,7 @@ namespace LanguageExt
         /// <returns>Guard</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Guard<Error> notguard(bool flag, Error True) =>
+        public static Guard<Error> guardnot(bool flag, Error True) =>
             new Guard<Error>(!flag, True);
     }
 }

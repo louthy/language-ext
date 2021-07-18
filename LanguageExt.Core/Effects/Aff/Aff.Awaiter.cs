@@ -11,7 +11,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct AffAwaiter<A> : INotifyCompletion
+    public readonly struct AffAwaiter<A> : INotifyCompletion
     {
         readonly ValueTaskAwaiter<Fin<A>> awaiter;
 
