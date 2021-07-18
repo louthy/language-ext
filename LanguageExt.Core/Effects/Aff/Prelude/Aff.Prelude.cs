@@ -198,6 +198,19 @@ namespace LanguageExt
         public static Aff<RT, A> timeout<RT, A>(TimeSpan timeoutDelay, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
             ma.Timeout(timeoutDelay);
 
+
+        /// <summary>
+        /// Force the operation to end after a time out delay
+        /// </summary>
+        /// <remarks>Note, the original operation continues even after this returns.  To cancel the original operation
+        /// at the same time as the timeout triggers, use Aff<RT, A> instead of Aff<A> - as it supports cancellation
+        /// tokens, and so can automatically cancel the long-running operation</remarks>
+        /// <param name="timeoutDelay">Delay for the time out</param>
+        /// <returns>Either success if the operation completed before the timeout, or Errors.TimedOut</returns>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<A> timeout<A>(TimeSpan timeoutDelay, Aff<A> ma) =>
+            ma.Timeout(timeoutDelay);
+
         /// <summary>
         /// Unit effect
         /// </summary>

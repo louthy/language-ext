@@ -36,8 +36,7 @@ namespace TestBed
     }
 
     public class TimeTest<RT>
-        where RT : 
-            struct, 
+        where RT : struct, 
             HasTime<RT>, 
             HasCancel<RT>, 
             HasConsole<RT>
@@ -51,15 +50,16 @@ namespace TestBed
     
     
     public class TimeoutTest<RT>
-        where RT : 
-        struct, 
-        HasTime<RT>, 
-        HasCancel<RT>, 
-        HasConsole<RT>
+        where RT : struct, 
+            HasTime<RT>, 
+            HasCancel<RT>, 
+            HasConsole<RT>
     {
         public static Aff<RT, Unit> main =>
-            from _1 in longRunning.Timeout(5 * seconds)
-            from _2 in Console<RT>.readLine
+            from _0 in Console<RT>.writeLine("fibonacci repeat delays with timeout")
+            from _1 in timeout(60 * seconds, longRunning) 
+                     | @catch(Errors.TimedOut, unit)
+            from _2 in Console<RT>.writeLine("done")
             select unit;
 
         static Aff<RT, Unit> longRunning =>
@@ -67,7 +67,7 @@ namespace TestBed
             from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
             select unit)
            .ToAsync()
-           .Repeat(Schedule.Spaced(1 * second));
+           .Repeat(Schedule.Fibonacci(1 * second));
     }
 
 }
