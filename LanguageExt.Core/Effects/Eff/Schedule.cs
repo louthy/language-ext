@@ -13,7 +13,7 @@ namespace LanguageExt
             EffMaybe<RT, S>(
                 env =>
                 {
-                    var repeats  = schedule.Repeats;
+                    var repeats  = schedule.Repeats.Map(static r => r - 1);
                     var spacing0 = schedule.Spacing;
                     var spacing1 = schedule.Spacing;
                     var wait     = spacing1.IsSome ? new AutoResetEvent(false) : null;

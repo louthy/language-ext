@@ -79,7 +79,7 @@ namespace LanguageExt
         /// <summary>
         /// A schedule that runs once
         /// </summary>
-        public static readonly Schedule Once = new Schedule(0, None, static (_, x) => x);
+        public static readonly Schedule Once = new Schedule(1, None, static (_, x) => x);
         
         /// <summary>
         /// A schedule that recurs forever
@@ -89,7 +89,7 @@ namespace LanguageExt
         /// <summary>
         /// A schedule that only recurs the specified number of times
         /// </summary>
-        public static Schedule Recurs(int repetitions) => new Schedule(repetitions - 1, None, static (_, x) => x);
+        public static Schedule Recurs(int repetitions) => new Schedule(repetitions, None, static (_, x) => x);
         
         /// <summary>
         /// A schedule that recurs continuously, each repetition spaced by the specified duration

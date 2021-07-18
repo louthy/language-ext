@@ -13,7 +13,7 @@ namespace LanguageExt
             AffMaybe<RT, S>(
                 async env =>
                 {
-                    var repeats  = schedule.Repeats;
+                    var repeats  = schedule.Repeats.Map(static r => r - 1);
                     var spacing0 = schedule.Spacing;
                     var spacing1 = schedule.Spacing;
    

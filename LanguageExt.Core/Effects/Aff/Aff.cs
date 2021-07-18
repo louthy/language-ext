@@ -150,7 +150,7 @@ namespace LanguageExt
                 {
                     var delay = Task.Delay(timeoutDelay);
                     var task  = t.Value(env).AsTask();
-                    await Task.WhenAny( new Task[] { delay, task });
+                    await Task.WhenAny( new Task[] { delay, task }).ConfigureAwait(false);
                     if (delay.IsCompleted)
                     {
                         env.CancellationTokenSource.Cancel();
