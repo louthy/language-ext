@@ -232,8 +232,10 @@ namespace LanguageExt
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one
         /// </summary>
-        public static Aff<RT, R> aff<RT, A, R>(Aff<RT, A> ma,
-            Aff<RT, R> mr) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, R> aff<RT, A, R>(
+            Aff<RT, A> ma,
+            Aff<RT, R> mr) 
+            where RT : struct, HasCancel<RT> =>
             from a in ma
             from r in mr
             select r;
@@ -241,9 +243,11 @@ namespace LanguageExt
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one
         /// </summary>
-        public static Aff<RT, R> aff<RT, A, B, R>(Aff<RT, A> ma,
+        public static Aff<RT, R> aff<RT, A, B, R>(
+            Aff<RT, A> ma,
             Aff<RT, B> mb,
-            Aff<RT, R> mr) where RT : struct, HasCancel<RT> =>
+            Aff<RT, R> mr) 
+            where RT : struct, HasCancel<RT> =>
             from a in ma
             from b in mb
             from r in mr
@@ -252,10 +256,12 @@ namespace LanguageExt
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one
         /// </summary>
-        public static Aff<RT, R> aff<RT, A, B, C, R>(Aff<RT, A> ma,
+        public static Aff<RT, R> aff<RT, A, B, C, R>(
+            Aff<RT, A> ma,
             Aff<RT, B> mb,
             Aff<RT, C> mc,
-            Aff<RT, R> mr) where RT : struct, HasCancel<RT> =>
+            Aff<RT, R> mr) 
+            where RT : struct, HasCancel<RT> =>
             from a in ma
             from b in mb
             from c in mc
@@ -265,11 +271,13 @@ namespace LanguageExt
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one
         /// </summary>
-        public static Aff<RT, R> aff<RT, A, B, C, D, R>(Aff<RT, A> ma,
+        public static Aff<RT, R> aff<RT, A, B, C, D, R>(
+            Aff<RT, A> ma,
             Aff<RT, B> mb,
             Aff<RT, C> mc,
             Aff<RT, D> md,
-            Aff<RT, R> mr) where RT : struct, HasCancel<RT> =>
+            Aff<RT, R> mr) 
+            where RT : struct, HasCancel<RT> =>
             from a in ma
             from b in mb
             from c in mc
@@ -280,12 +288,14 @@ namespace LanguageExt
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one
         /// </summary>
-        public static Aff<RT, R> aff<RT, A, B, C, D, E, R>(Aff<RT, A> ma,
+        public static Aff<RT, R> aff<RT, A, B, C, D, E, R>(
+            Aff<RT, A> ma,
             Aff<RT, B> mb,
             Aff<RT, C> mc,
             Aff<RT, D> md,
             Aff<RT, E> me,
-            Aff<RT, R> mr) where RT : struct, HasCancel<RT> =>
+            Aff<RT, R> mr) 
+            where RT : struct, HasCancel<RT> =>
             from a in ma
             from b in mb
             from c in mc
@@ -297,13 +307,15 @@ namespace LanguageExt
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one
         /// </summary>
-        public static Aff<RT, R> aff<RT, A, B, C, D, E, F, R>(Aff<RT, A> ma,
+        public static Aff<RT, R> aff<RT, A, B, C, D, E, F, R>(
+            Aff<RT, A> ma,
             Aff<RT, B> mb,
             Aff<RT, C> mc,
             Aff<RT, D> md,
             Aff<RT, E> me,
             Aff<RT, F> mf,
-            Aff<RT, R> mr) where RT : struct, HasCancel<RT> =>
+            Aff<RT, R> mr) 
+            where RT : struct, HasCancel<RT> =>
             from a in ma
             from b in mb
             from c in mc
@@ -316,14 +328,16 @@ namespace LanguageExt
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one
         /// </summary>
-        public static Aff<RT, R> aff<RT, A, B, C, D, E, F, G, R>(Aff<RT, A> ma,
+        public static Aff<RT, R> aff<RT, A, B, C, D, E, F, G, R>(
+            Aff<RT, A> ma,
             Aff<RT, B> mb,
             Aff<RT, C> mc,
             Aff<RT, D> md,
             Aff<RT, E> me,
             Aff<RT, F> mf,
             Aff<RT, G> mg,
-            Aff<RT, R> mr) where RT : struct, HasCancel<RT> =>
+            Aff<RT, R> mr) 
+            where RT : struct, HasCancel<RT> =>
             from a in ma
             from b in mb
             from c in mc
@@ -339,8 +353,10 @@ namespace LanguageExt
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one
         /// </summary>
-        public static Eff<RT, R> eff<RT, A, R>(Eff<RT, A> ma,
-            Eff<RT, R> mr) where RT : struct =>
+        public static Eff<RT, R> eff<RT, A, R>(
+            Eff<RT, A> ma,
+            Eff<RT, R> mr) 
+            where RT : struct =>
             from a in ma
             from r in mr
             select r;
@@ -348,9 +364,11 @@ namespace LanguageExt
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one
         /// </summary>
-        public static Eff<RT, R> eff<RT, A, B, R>(Eff<RT, A> ma,
+        public static Eff<RT, R> eff<RT, A, B, R>(
+            Eff<RT, A> ma,
             Eff<RT, B> mb,
-            Eff<RT, R> mr) where RT : struct =>
+            Eff<RT, R> mr) 
+            where RT : struct =>
             from a in ma
             from b in mb
             from r in mr
@@ -359,10 +377,12 @@ namespace LanguageExt
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one
         /// </summary>
-        public static Eff<RT, R> eff<RT, A, B, C, R>(Eff<RT, A> ma,
+        public static Eff<RT, R> eff<RT, A, B, C, R>(
+            Eff<RT, A> ma,
             Eff<RT, B> mb,
             Eff<RT, C> mc,
-            Eff<RT, R> mr) where RT : struct =>
+            Eff<RT, R> mr)
+            where RT : struct =>
             from a in ma
             from b in mb
             from c in mc
@@ -372,11 +392,13 @@ namespace LanguageExt
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one
         /// </summary>
-        public static Eff<RT, R> eff<RT, A, B, C, D, R>(Eff<RT, A> ma,
+        public static Eff<RT, R> eff<RT, A, B, C, D, R>(
+            Eff<RT, A> ma,
             Eff<RT, B> mb,
             Eff<RT, C> mc,
             Eff<RT, D> md,
-            Eff<RT, R> mr) where RT : struct =>
+            Eff<RT, R> mr) 
+            where RT : struct =>
             from a in ma
             from b in mb
             from c in mc
@@ -387,7 +409,8 @@ namespace LanguageExt
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one
         /// </summary>
-        public static Eff<RT, R> eff<RT, A, B, C, D, E, R>(Eff<RT, A> ma,
+        public static Eff<RT, R> eff<RT, A, B, C, D, E, R>(
+            Eff<RT, A> ma,
             Eff<RT, B> mb,
             Eff<RT, C> mc,
             Eff<RT, D> md,
@@ -404,13 +427,15 @@ namespace LanguageExt
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one
         /// </summary>
-        public static Eff<RT, R> eff<RT, A, B, C, D, E, F, R>(Eff<RT, A> ma,
+        public static Eff<RT, R> eff<RT, A, B, C, D, E, F, R>(
+            Eff<RT, A> ma,
             Eff<RT, B> mb,
             Eff<RT, C> mc,
             Eff<RT, D> md,
             Eff<RT, E> me,
             Eff<RT, F> mf,
-            Eff<RT, R> mr) where RT : struct =>
+            Eff<RT, R> mr) 
+            where RT : struct =>
             from a in ma
             from b in mb
             from c in mc
@@ -423,14 +448,16 @@ namespace LanguageExt
         /// <summary>
         /// Sequentially run IO operations, returning the result of the last one
         /// </summary>
-        public static Eff<RT, R> eff<RT, A, B, C, D, E, F, G, R>(Eff<RT, A> ma,
+        public static Eff<RT, R> eff<RT, A, B, C, D, E, F, G, R>(
+            Eff<RT, A> ma,
             Eff<RT, B> mb,
             Eff<RT, C> mc,
             Eff<RT, D> md,
             Eff<RT, E> me,
             Eff<RT, F> mf,
             Eff<RT, G> mg,
-            Eff<RT, R> mr) where RT : struct =>
+            Eff<RT, R> mr) 
+            where RT : struct =>
             from a in ma
             from b in mb
             from c in mc

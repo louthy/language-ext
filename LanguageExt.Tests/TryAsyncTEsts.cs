@@ -105,31 +105,6 @@ namespace LanguageExt.Tests
             Assert.True(ab == 0);
         }
 
-        [Fact]
-        public async void BindingFail2()
-        {
-            var ma = TryAsync(async () =>
-            {
-                await Task.Delay(1000);
-                return 100;
-            });
-
-            var mb = TryAsync(async () =>
-            {
-                await Task.Delay(1000);
-                return 100;
-            });
-
-            var res = AsyncHelper.CompletesImmediately(() =>
-                MTryAsync<int>.Inst.Bind<MTryAsync<int>, TryAsync<int>, int>(ma, a =>
-                    MTryAsync<int>.Inst.BindAsync<MTryAsync<int>, TryAsync<int>, int>(mb, async b =>
-                        await ThrowNotImplementedException<TryAsync<int>>())));
-
-            var ab = await AsyncHelper.TakesRoughly(2000, () => res.IfFail(0));
-
-            Assert.True(ab == 0);
-        }
-
         Task<A> ThrowNotImplementedException<A>() =>
             throw new NotImplementedException();
 

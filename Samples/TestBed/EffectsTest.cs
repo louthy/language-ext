@@ -68,5 +68,4 @@ namespace TestBed
            .ToAff()
            .Repeat(Schedule.Fibonacci(1 * second));
     }
-
 }
