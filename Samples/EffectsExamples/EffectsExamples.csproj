@@ -35,6 +35,9 @@
       <Compile Update="Examples\TimeoutExample.cs">
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>
+      <Compile Update="Examples\RetryExample.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
     </ItemGroup>    
     
 </Project>

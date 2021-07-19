@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances.Pred;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
@@ -58,14 +59,14 @@ namespace LanguageExt
         public static Eff<RT, A> RepeatWhile(Eff<RT, A> ma, Schedule schedule, Func<A, bool> pred) =>
             Run(ma, default(A), schedule, x => (x.IsSucc && pred((A)x), x), static (_, x) => x);
 
-        public static Eff<RT, A> RetryWhile(Eff<RT, A> ma, Schedule schedule, Func<A, bool> pred) =>
-            Run(ma, default(A), schedule, x => (x.IsFail && pred((A)x), x), static (_, x) => x);
+        public static Eff<RT, A> RetryWhile(Eff<RT, A> ma, Schedule schedule, Func<Error, bool> pred) =>
+            Run(ma, default(A), schedule, x => (x.IsFail && pred((Error)x), x), static (_, x) => x);
 
         public static Eff<RT, A> RepeatUntil(Eff<RT, A> ma, Schedule schedule, Func<A, bool> pred) =>
             Run(ma, default(A), schedule, x => (x.IsSucc && !pred((A)x), x), static (_, x) => x);
 
-        public static Eff<RT, A> RetryUntil(Eff<RT, A> ma, Schedule schedule, Func<A, bool> pred) =>
-            Run(ma, default(A), schedule, x => (x.IsFail && !pred((A)x), x), static (_, x) => x);    
+        public static Eff<RT, A> RetryUntil(Eff<RT, A> ma, Schedule schedule, Func<Error, bool> pred) =>
+            Run(ma, default(A), schedule, x => (x.IsFail && !pred((Error)x), x), static (_, x) => x);    
 
         public static Eff<RT, S> Fold<S>(Eff<RT, A> ma, Schedule schedule, S state, Func<S, A, S> fold) =>
             Run(ma, state, schedule, static x => (x.IsSucc, x), fold);
@@ -127,14 +128,14 @@ namespace LanguageExt
         public static Eff<A> RepeatWhile(Eff<A> ma, Schedule schedule, Func<A, bool> pred) =>
             Run(ma, default(A), schedule, x => (x.IsSucc && pred((A)x), x), static (_, x) => x);
 
-        public static Eff<A> RetryWhile(Eff<A> ma, Schedule schedule, Func<A, bool> pred) =>
-            Run(ma, default(A), schedule, x => (x.IsFail && pred((A)x), x), static (_, x) => x);
+        public static Eff<A> RetryWhile(Eff<A> ma, Schedule schedule, Func<Error, bool> pred) =>
+            Run(ma, default(A), schedule, x => (x.IsFail && pred((Error)x), x), static (_, x) => x);
 
         public static Eff<A> RepeatUntil(Eff<A> ma, Schedule schedule, Func<A, bool> pred) =>
             Run(ma, default(A), schedule, x => (x.IsSucc && !pred((A)x), x), static (_, x) => x);
 
-        public static Eff<A> RetryUntil(Eff<A> ma, Schedule schedule, Func<A, bool> pred) =>
-            Run(ma, default(A), schedule, x => (x.IsFail && !pred((A)x), x), static (_, x) => x);
+        public static Eff<A> RetryUntil(Eff<A> ma, Schedule schedule, Func<Error, bool> pred) =>
+            Run(ma, default(A), schedule, x => (x.IsFail && !pred((Error)x), x), static (_, x) => x);
 
         public static Eff<S> Fold<S>(Eff<A> ma, Schedule schedule, S state, Func<S, A, S> fold) =>
             Run(ma, state, schedule, static x => (x.IsSucc, x), fold);

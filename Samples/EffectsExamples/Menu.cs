@@ -66,7 +66,8 @@ namespace EffectsExamples
                 (2, ForkCancelExample<RT>.main, "Process forking and cancelling example", "Forks a process that runs 10 times, summing a value each time.\nIf you press enter before the 10 iterations then the forked process will be cancelled"),
                 (3, TimeoutExample<RT>.main, "Process timeout example", "Repeats a backing off process for 1 minutes\nThe back-off follows the fibonacci sequence in terms of the delay"),
                 (4, TimeExample<RT>.main, "Clock example", "Prints the time every second for 15 seconds"),
-                (5, CancelExample<RT>.main, "Cancel example", "Accepts key presses and echos them to the console until Enter is pressed.\nWhen Enter is pressed it calls `cancel<RT>()` to trigger the cancellation token")
+                (5, CancelExample<RT>.main, "Cancel example", "Accepts key presses and echos them to the console until Enter is pressed.\nWhen Enter is pressed it calls `cancel<RT>()` to trigger the cancellation token"),
+                (6, RetryExample<RT>.main, "Retry example", "Asks you to say hello.\nIf you don't type 'hello' then an error will be raised and it will retry.")
             );
     }
 }
