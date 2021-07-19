@@ -1,4 +1,5 @@
-﻿using static LanguageExt.Prelude;
+﻿using System;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Parsec
 {
@@ -18,12 +19,13 @@ namespace LanguageExt.Parsec
 
         public PString(string value, int index, int endIndex, Pos pos, Pos defPos, Sidedness side, Option<object> userState)
         {
-            Value = value;
-            Index = index;
-            EndIndex = endIndex;
-            Pos = pos;
-            DefPos = defPos;
-            Side = side;
+            Value     = value ?? throw new ArgumentNullException(nameof(value));
+            Value     = value;
+            Index     = index;
+            EndIndex  = endIndex;
+            Pos       = pos;
+            DefPos    = defPos;
+            Side      = side;
             UserState = userState;
         }
 

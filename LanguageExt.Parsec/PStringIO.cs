@@ -18,7 +18,7 @@ namespace LanguageExt.Parsec
 
         public PString(T[] value, int index, int endIndex, Option<object> userState,  Func<T, Pos> tokenPos)
         {
-            Value     = value;
+            Value     = value ?? throw new ArgumentNullException(nameof(value));
             Index     = index;
             EndIndex  = endIndex;
             UserState = userState;
@@ -26,7 +26,7 @@ namespace LanguageExt.Parsec
         }
 
         public Pos Pos =>
-            Value?.Length ?? 0 == 0
+            Value.Length == 0
                 ? Pos.Zero
                 : Index < Value.Length
                     ? TokenPos(Value[Index])
