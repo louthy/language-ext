@@ -44,17 +44,24 @@ namespace LanguageExt
 
         public Schedule Union(Schedule schedule) =>
             new Schedule(
-                Repeats.IsNone 
+                Repeats.IsNone
                     ? schedule.Repeats
                     : schedule.Repeats.IsNone
                         ? Repeats
                         : Math.Min((int)Repeats, (int)schedule.Repeats),
-                Spacing.IsNone 
+                Spacing.IsNone
                     ? schedule.Spacing
                     : schedule.Spacing.IsNone
                         ? Spacing
                         : Math.Min((int)Spacing, (int)schedule.Spacing),
-                (x, y) => Math.Min(BackOff(x, y), schedule.BackOff(x, y)));
+                (x, y) =>
+                    Spacing.IsSome && schedule.Spacing.IsSome
+                        ? Math.Min(BackOff(x, y), schedule.BackOff(x, y))
+                        : Spacing.IsSome
+                            ? BackOff(x, y)
+                            : schedule.Spacing.IsSome
+                                ? schedule.BackOff(x, y)
+                                : y);
 
         public Schedule Intersect(Schedule schedule) =>
             new Schedule(
@@ -68,7 +75,14 @@ namespace LanguageExt
                     : schedule.Spacing.IsNone
                         ? Spacing
                         : Math.Max((int)Spacing, (int)schedule.Spacing),
-                (x, y) => Math.Max(BackOff(x, y), schedule.BackOff(x, y)));
+                (x, y) =>
+                    Spacing.IsSome && schedule.Spacing.IsSome
+                        ? Math.Max(BackOff(x, y), schedule.BackOff(x, y))
+                        : Spacing.IsSome
+                            ? BackOff(x, y)
+                            : schedule.Spacing.IsSome
+                                ? schedule.BackOff(x, y)
+                                : y);
 
         public static Schedule operator |(Schedule x, Schedule y) =>
             x.Union(y);
