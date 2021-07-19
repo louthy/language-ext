@@ -1,10 +1,7 @@
-﻿using System;
-using LanguageExt;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
+﻿using LanguageExt;
 using LanguageExt.Sys;
-using LanguageExt.Sys.Live;
 using LanguageExt.Sys.Traits;
+using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
 namespace EffectsExamples

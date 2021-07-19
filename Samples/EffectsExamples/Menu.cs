@@ -1,11 +1,7 @@
 using System;
-using System.Linq;
 using LanguageExt;
 using LanguageExt.Sys;
-using LanguageExt.Common;
-using LanguageExt.Sys.Live;
 using LanguageExt.Sys.Traits;
-using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 using LanguageExt.Effects.Traits;
 
