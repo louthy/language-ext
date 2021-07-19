@@ -60,7 +60,7 @@ namespace LanguageExt.Sys.Live
 
         public Unit Write(string value)
         {
-            System.Console.WriteLine();
+            System.Console.Write(value);
             return unit;
         }
     }

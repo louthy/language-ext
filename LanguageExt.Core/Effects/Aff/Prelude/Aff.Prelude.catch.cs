@@ -118,5 +118,29 @@ namespace LanguageExt
         /// </summary>
         public static AffCatch<RT, A> @catch<RT, A>(Func<Exception, bool> predicate, Aff<RT, A> Fail) where RT : struct, HasCancel<RT> =>
             matchError(e => e.Exception.Map(predicate).IfNone(false), e => Fail);
+
+        /// <summary>
+        /// Catch all errors
+        /// </summary>
+        public static AffCatch<RT, A> @catch<RT, A>(Aff<RT, A> Fail) where RT : struct, HasCancel<RT> =>
+            matchError(static _ => true, e => Fail);
+
+        /// <summary>
+        /// Catch all errors
+        /// </summary>
+        public static AffCatch<A> @catch<RT, A>(Aff<A> Fail) where RT : struct, HasCancel<RT> =>
+            matchError(static _ => true, e => Fail);
+
+        /// <summary>
+        /// Catch all errors
+        /// </summary>
+        public static AffCatch<RT, A> @catch<RT, A>(Func<Error, Aff<RT, A>> Fail) where RT : struct, HasCancel<RT> =>
+            matchError(static _ => true, Fail);
+
+        /// <summary>
+        /// Catch all errors
+        /// </summary>
+        public static AffCatch<A> @catch<RT, A>(Func<Error, Aff<A>> Fail) where RT : struct, HasCancel<RT> =>
+            matchError(static _ => true, Fail);
     }
 }

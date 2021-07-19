@@ -157,17 +157,17 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="RT">Runtime</typeparam>
         /// <returns>Unit</returns>
-        public static Eff<RT, Unit> cancel<RT>() where RT : struct, HasCancel<RT> =>
-            EffMaybe<RT, Unit>(static env =>
+        public static Aff<RT, Unit> cancel<RT>() where RT : struct, HasCancel<RT> =>            
+            AffMaybe<RT, Unit>(static env =>
                                 {
                                     if (env.CancellationTokenSource == null)
                                     {
-                                        return Fin<Unit>.Fail(Error.New($"Runtime: '{typeof(RT).FullName}' hasn't been initialised with a valid CancellationTokenSource"));
+                                        return Fin<Unit>.Fail(Error.New($"Runtime: '{typeof(RT).FullName}' hasn't been initialised with a valid CancellationTokenSource")).AsValueTask();
                                     }
                                     else
                                     {
                                         env.CancellationTokenSource.Cancel();
-                                        return Fin<Unit>.Succ(default);
+                                        return Fin<Unit>.Succ(default).AsValueTask();
                                     }
                                 });
 

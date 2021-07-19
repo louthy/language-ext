@@ -116,5 +116,29 @@ namespace LanguageExt
         /// </summary>
         public static EffCatch<RT, A> @catch<RT, A>(Func<Exception, bool> predicate, Eff<RT, A> Fail) where RT : struct =>
             matchError(e => e.Exception.Map(predicate).IfNone(false), e => Fail);
+
+        /// <summary>
+        /// Catch all errors
+        /// </summary>
+        public static EffCatch<RT, A> @catch<RT, A>(Eff<RT, A> Fail) where RT : struct =>
+            matchError(static _ => true, e => Fail);
+
+        /// <summary>
+        /// Catch all errors
+        /// </summary>
+        public static EffCatch<A> @catch<RT, A>(Eff<A> Fail) where RT : struct =>
+            matchError(static _ => true, e => Fail);
+
+        /// <summary>
+        /// Catch all errors
+        /// </summary>
+        public static EffCatch<RT, A> @catch<RT, A>(Func<Error, Eff<RT, A>> Fail) where RT : struct =>
+            matchError(static _ => true, Fail);
+
+        /// <summary>
+        /// Catch all errors
+        /// </summary>
+        public static EffCatch<A> @catch<RT, A>(Func<Error, Eff<A>> Fail) where RT : struct =>
+            matchError(static _ => true, Fail);    
     }
 }

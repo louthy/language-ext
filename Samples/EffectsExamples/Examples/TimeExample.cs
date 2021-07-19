@@ -13,7 +13,7 @@ namespace EffectsExamples
         HasConsole<RT>
     {
         public static Eff<RT, Unit> main =>
-            repeat(Schedule.Spaced(1 * second) | Schedule.Recurs(15),
+            repeat(Schedule.Spaced(10 * second) | Schedule.Recurs(15) | Schedule.Fibonacci(1*second),
                    from tm in Time<RT>.now
                    from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
                    select unit);

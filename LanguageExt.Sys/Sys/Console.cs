@@ -65,6 +65,18 @@ namespace LanguageExt.Sys
         public static Eff<RT, string> writeLine2(string line) =>
             default(RT).ConsoleEff.Map(e => e.WriteLine(line)).Map(_ => line);
 
+        /// <summary>
+        /// Write a string to the console
+        /// </summary>
+        public static Eff<RT, Unit> write(string line) =>
+            default(RT).ConsoleEff.Map(e => e.Write(line));
+
+        /// <summary>
+        /// Write a string to the console
+        /// </summary>
+        public static Eff<RT, Unit> write(char line) =>
+            default(RT).ConsoleEff.Map(e => e.Write(line.ToString()));
+
         public static Eff<RT, Unit> setBgColor(ConsoleColor color) =>
             default(RT).ConsoleEff.Map(e => e.SetBgColor(color));
 
