@@ -9,7 +9,6 @@ namespace EffectsExamples
 {
     public class RetryExample<RT>
         where RT : struct, 
-        HasTime<RT>, 
         HasCancel<RT>, 
         HasConsole<RT>
     {
