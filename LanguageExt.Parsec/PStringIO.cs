@@ -26,9 +26,11 @@ namespace LanguageExt.Parsec
         }
 
         public Pos Pos =>
-            Index < Value.Length
-                ? TokenPos(Value[Index])
-                : TokenPos(Value[Value.Length - 1]);
+            Value?.Length ?? 0 == 0
+                ? Pos.Zero
+                : Index < Value.Length
+                    ? TokenPos(Value[Index])
+                    : TokenPos(Value[Value.Length - 1]);
 
         public PString<T> SetValue(T[] value) =>
             new PString<T>(value, Index, value.Length, UserState, TokenPos);
