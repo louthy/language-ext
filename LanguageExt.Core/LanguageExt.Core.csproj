@@ -16,7 +16,7 @@
     <DefineConstants>NETSTANDARD21</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageVersion>3.5.42-beta</PackageVersion>
+    <PackageVersion>3.5.43-beta</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
