@@ -118,10 +118,10 @@ namespace LanguageExt
         /// If the parent expression has `cancel` called on it, then it will also cancel the forked child
         /// expression.
         ///
-        /// `Fork` returns an `Eff<Unit>` as its bound result value.  If you run it, it will cancel the
+        /// `Fork` returns an `Eff Unit` as its bound result value.  If you run it, it will cancel the
         /// forked child expression.
         /// </remarks>
-        /// <returns>Returns an `Eff<Unit>` as its bound value.  If it runs, it will cancel the
+        /// <returns>Returns an `Eff Unit` as its bound value.  If it runs, it will cancel the
         /// forked child expression</returns>
         public static Eff<RT, Eff<Unit>> fork<RT, A>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
             ma.Fork();

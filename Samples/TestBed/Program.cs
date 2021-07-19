@@ -42,11 +42,6 @@ public class Program
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
 
-        (await CancelTest<Runtime>.main.Run(Runtime.New())).ThrowIfFail();
-        
-        //(await TimeoutTest<Runtime>.main.Run(Runtime.New())).ThrowIfFail();
-        // TimeTest<Runtime>.main.Run(Runtime.New()).ThrowIfFail();
-        // ErrorAndGuardTest<Runtime>.main.Run(Runtime.New()).ThrowIfFail();
         // await ObsAffTests.Test();
         // await AsyncTests();
     }

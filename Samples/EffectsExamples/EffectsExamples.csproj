@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>default</LangVersion>
+        <RoslynCodeGenVersion>0.6.1</RoslynCodeGenVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <DotNetCliToolReference Include="dotnet-codegen" Version="$(RoslynCodeGenVersion)" />
+
+        <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="$(RoslynCodeGenVersion)" PrivateAssets="all" />
+        <ProjectReference Include="..\..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" PrivateAssets="all" />
+        <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+        <PackageReference Include="System.Reactive" Version="[3.0.0,)" />
+        <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+        <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
+        <ProjectReference Include="..\..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
+        <ProjectReference Include="..\..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />
+        <ProjectReference Include="..\..\LanguageExt.Rx\LanguageExt.Rx.csproj" />
+        <ProjectReference Include="..\..\LanguageExt.Sys\LanguageExt.Sys.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Examples\ErrorAndGuardExample.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Examples\ForkCancelExample.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Examples\TimeExample.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Examples\TimeoutExample.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+    </ItemGroup>    
+    
+</Project>
