@@ -176,7 +176,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Aff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                 .For<RT, A, A, R>(a => liftIO<RT, A>(f(a)));
+                 .@for<RT, A, A, R>(a => liftIO<RT, A>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -184,7 +184,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Aff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
-                 .For<RT, A, A, Unit>(a => liftIO<RT, A>(f(a)));
+                 .@for<RT, A, A, Unit>(a => liftIO<RT, A>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -192,7 +192,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Eff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                 .For<RT, A, A, R>(a => liftIO<RT, A>(f(a)));
+                 .@for<RT, A, A, R>(a => liftIO<RT, A>(f(a)));
         
         /// <summary>
         /// Consume all values using a monadic function
@@ -200,7 +200,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Eff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
-                 .For<RT, A, A, Unit>(a => liftIO<RT, A>(f(a)));
+                 .@for<RT, A, A, Unit>(a => liftIO<RT, A>(f(a)));
         
         
 
@@ -210,7 +210,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Aff<Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                 .For<RT, A, A, R>(a => liftIO<RT, A, Unit>(f(a)));
+                 .@for<RT, A, A, R>(a => liftIO<RT, A, Unit>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -218,7 +218,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Aff<Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
-                 .For<RT, A, A, Unit>(a => liftIO<RT, A, Unit>(f(a)));
+                 .@for<RT, A, A, Unit>(a => liftIO<RT, A, Unit>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -226,7 +226,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Eff<Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                 .For<RT, A, A, R>(a => liftIO<RT, A, Unit>(f(a)));
+                 .@for<RT, A, A, R>(a => liftIO<RT, A, Unit>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -234,6 +234,6 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Eff<Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
-                 .For<RT, A, A, Unit>(a => liftIO<RT, A, Unit>(f(a)));        
+                 .@for<RT, A, A, Unit>(a => liftIO<RT, A, Unit>(f(a)));        
     }
 }

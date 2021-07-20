@@ -63,19 +63,18 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Lift<RT, R> liftIO<RT, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
             Lift.Aff<RT, R>(ma);
-                
+
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, OUT, R> repeat<RT, OUT, R>(Producer<RT, OUT, R> ma) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => repeat(ma)); // TODO: Remove recursion
+            new Repeat<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
 
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, IN, R> repeat<RT, IN, R>(Consumer<RT, IN, R> ma) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => repeat(ma)); // TODO: Remove recursion
+            new Repeat<RT, Unit, IN, Unit, Void, R>(ma).ToConsumer();
         
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, IN, OUT, R> repeat<RT, IN, OUT, R>(Pipe<RT, IN, OUT, R> ma) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => repeat(ma)); // TODO: Remove recursion
-
+            new Repeat<RT, Unit, IN, Unit, OUT, R>(ma).ToPipe();
         
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
@@ -104,47 +103,60 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<RT, A1, A, B1, B, R> liftIO<RT, A1, A, B1, B, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
             new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).ToAff());
+        
         /// <summary>
         /// Converts a `Proxy` with the correct _shape_ into an `Effect`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Effect<RT, R> ToEffect<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma) where RT : struct, HasCancel<RT> =>
-            new Effect<RT, R>(ma);
+            ma is Effect<RT, R> me 
+                ? me
+                : new Effect<RT, R>(ma);
         
         /// <summary>
         /// Converts a `Proxy` with the correct _shape_ into a `Producer`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, R> ToProducer<RT, A, R>(this Proxy<RT, Void, Unit, Unit, A, R> ma) where RT : struct, HasCancel<RT> =>
-            new Producer<RT, A, R>(ma);
+            ma is Producer<RT, A, R> mp 
+                ? mp
+                : new Producer<RT, A, R>(ma);
         
         /// <summary>
         /// Converts a `Proxy` with the correct _shape_ into a `Consumer`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, R> ToConsumer<RT, A, R>(this Proxy<RT, Unit, A, Unit, Void, R> ma) where RT : struct, HasCancel<RT> =>
-            new Consumer<RT, A, R>(ma);
-        
+            ma is Consumer<RT, A, R> mc 
+                ? mc
+                : new Consumer<RT, A, R>(ma);
+
         /// <summary>
         /// Converts a `Proxy` with the correct _shape_ into n `Pipe`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, A, B, R> ToPipe<RT, A, B, R>(this Proxy<RT, Unit, A, Unit, B, R> ma) where RT : struct, HasCancel<RT> =>
-            new Pipe<RT, A, B, R>(ma);
+            ma is Pipe<RT, A, B, R> mp 
+                ? mp 
+                : new Pipe<RT, A, B, R>(ma);
         
         /// <summary>
         /// Converts a `Proxy` with the correct _shape_ into a `Client`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Client<RT, A, B, R> ToClient<RT, A, B, R>(this Proxy<RT, A, B, Unit, Unit, R> ma) where RT : struct, HasCancel<RT> =>
-            new Client<RT, A, B, R>(ma);
+            ma is Client<RT, A, B, R> mc 
+                ? mc
+                : new Client<RT, A, B, R>(ma);
         
         /// <summary>
         /// Converts a `Proxy` with the correct _shape_ into a `Server`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Server<RT, A, B, R> ToServer<RT, A, B, R>(this Proxy<RT, Unit, Unit, A, B, R> ma) where RT : struct, HasCancel<RT> =>
-            new Server<RT, A, B, R>(ma);
+            ma is Server<RT, A, B, R> ms 
+                ? ms
+                : new Server<RT, A, B, R>(ma);
         
         /// <summary>
         /// The identity `Pipe`, simply replicates its upstream value and propagates it downstream 
@@ -219,33 +231,14 @@ namespace LanguageExt.Pipes
         public static Proxy<RT, B, B1, A, A1, R> reflect<RT, A1, A, B1, B, R>(Proxy<RT, A1, A, B1, B, R> p) where RT : struct, HasCancel<RT>
         {
             return Go(p);
-            Proxy<RT, B, B1, A, A1, R> Go(Proxy<RT, A1, A, B1, B, R> p) =>
+            static Proxy<RT, B, B1, A, A1, R> Go(Proxy<RT, A1, A, B1, B, R> p) =>
                 p.ToProxy() switch
                 {
                     Request<RT, A1, A, B1, B, R> (var a1, var fa) => new Respond<RT, B, B1, A, A1, R>(a1, a => Go(fa(a))),
                     Respond<RT, A1, A, B1, B, R> (var b, var fb1) => new Request<RT, B, B1, A, A1, R>(b, b1 => Go(fb1(b1))),
                     M<RT, A1, A, B1, B, R> (var m)                => new M<RT, B, B1, A, A1, R>(m.Map(Go)),
                     Pure<RT, A1, A, B1, B, R> (var r)             => Pure<RT, B, B1, A, A1, R>(r),                                                                                
-                    _                                              => throw new NotSupportedException()
-                };
-        }
-        
-        /// <summary>
-        /// `p.For(body)` loops over `p` replacing each `yield` with `body`
-        /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, X1, X, C1, C, R> For<RT, X1, X, B1, B, C1, C, R>(this
-            Proxy<RT, X1, X, B1, B, R> p0,
-            Func<B, Proxy<RT, X1, X, C1, C, B1>> fb) where RT : struct, HasCancel<RT>
-        {
-            return Go(p0);
-            Proxy<RT, X1, X, C1, C, R> Go(Proxy<RT, X1, X, B1, B, R> p) =>
-                p.ToProxy() switch
-                {
-                    Request<RT, X1, X, B1, B, R> (var x1, var fx) => new Request<RT, X1, X, C1, C, R>(x1, x => Go(fx(x))),
-                    Respond<RT, X1, X, B1, B, R> (var b, var fb1) => fb(b).Bind(b1 => Go(fb1(b1))),
-                    M<RT, X1, X, B1, B, R> (var m)                => new M<RT, X1, X, C1, C, R>(m.Map(Go)),
-                    Pure<RT, X1, X, B1, B, R> (var a)             => Pure<RT, X1, X, C1, C, R>(a),                                                                                
+                    Repeat<RT, A1, A, B1, B, R> (var innr)        => new Repeat<RT, B, B1, A, A1, R>(reflect(innr)),
                     _                                             => throw new NotSupportedException()
                 };
         }
@@ -256,10 +249,10 @@ namespace LanguageExt.Pipes
         /// Producer b r -> (b -> Producer c ()) -> Producer c r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, C, R> For<RT, B, C, R>(this
+        public static Producer<RT, C, R> @for<RT, B, C, R>(this
             Producer<RT, B, R> p0,  
             Func<B, Producer<RT, C, Unit>> fb) where RT : struct, HasCancel<RT> =>
-            For<RT, Void, Unit, Unit, B, Unit, C, R>(p0, fb).ToProducer();
+            p0.For(fb).ToProducer();
 
         /// <summary>
         /// `p.For(body)` loops over `p` replacing each `yield` with `body`
@@ -267,10 +260,10 @@ namespace LanguageExt.Pipes
         /// Producer b r -> (b -> Effect ()) -> Effect r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<RT, R> For<RT, B, R>(this
+        public static Effect<RT, R> @for<RT, B, R>(this
             Producer<RT, B, R> p0,  
             Func<B, Effect<RT, Unit>> fb) where RT : struct, HasCancel<RT> =>
-            For<RT, Void, Unit, Unit, B, Unit, Void, R>(p0, fb).ToEffect();
+            p0.For(fb).ToEffect();
 
         /// <summary>
         /// `p.For(body)` loops over `p` replacing each `yield` with `body`
@@ -278,10 +271,10 @@ namespace LanguageExt.Pipes
         /// Pipe x b r -> (b -> Consumer x ()) -> Consumer x r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, X, R> For<RT, X, B, R>(this
+        public static Consumer<RT, X, R> @for<RT, X, B, R>(this
             Pipe<RT, X, B, R> p0,
             Func<B, Consumer<RT, X, Unit>> fb) where RT : struct, HasCancel<RT> =>
-            For<RT, Unit, X, Unit, B, Unit, Void, R>(p0, fb).ToConsumer();
+            p0.For(fb).ToConsumer();
 
         /// <summary>
         /// `p.For(body)` loops over `p` replacing each `yield` with `body`
@@ -289,10 +282,10 @@ namespace LanguageExt.Pipes
         /// Pipe x b r -> (b -> Pipe x c ()) -> Pipe x c r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<RT, X, C, R> For<RT, X, B, C, R>(this
+        public static Pipe<RT, X, C, R> @for<RT, X, B, C, R>(this
             Pipe<RT, X, B, R> p0,
             Func<B, Pipe<RT, X, C, Unit>> fb) where RT : struct, HasCancel<RT> =>  
-            For<RT, Unit, X, Unit, B, Unit, C, R>(p0, fb).ToPipe(); 
+            p0.For(fb).ToPipe(); 
 
         
         /// <summary>
@@ -371,7 +364,8 @@ namespace LanguageExt.Pipes
                     Respond<RT, B1, B, Y1, Y, C> (var x, var fx1) => new Respond<RT, A1, A, Y1, Y, C>(x, x1 => Go(fx1(x1))),
                     M<RT, B1, B, Y1, Y, C> (var m)                => new M<RT, A1, A, Y1, Y, C>(m.Map(Go)),
                     Pure<RT, B1, B, Y1, Y, C> (var a)             => Pure<RT, A1, A, Y1, Y, C>(a),                                                                                
-                    _                                              => throw new NotSupportedException()
+                    Repeat<RT, B1, B, Y1, Y, C> (var innr)        => new Repeat<RT, A1, A, Y1, Y, C>(compose(fb1, innr)),
+                    _                                             => throw new NotSupportedException()
                 };
         }        
         
@@ -390,7 +384,8 @@ namespace LanguageExt.Pipes
                     Respond<RT, A1, A, B1, B, R> (var b, var fb1) => compose(fb1, fb(b)),
                     M<RT, A1, A, B1, B, R> (var m)                => new M<RT, A1, A, C1, C, R>(m.Map(p1 => compose(p1, fb))),
                     Pure<RT, A1, A, B1, B, R> (var r)             => Pure<RT, A1, A, C1, C, R>(r),                                                                                
-                    _                                              => throw new NotSupportedException()
+                    Repeat<RT, A1, A, B1, B, R> (var innr)        => new Repeat<RT, A1, A, C1, C, R>(compose(innr, fb)),
+                    _                                             => throw new NotSupportedException()
                 };        
         
         /// <summary>
@@ -407,7 +402,8 @@ namespace LanguageExt.Pipes
                     Respond<RT, B1, B, C1, C, R> (var c, var fc1) => new Respond<RT, A1, A, C1, C, R>(c, c1 => compose(fb1, fc1(c1))),
                     M<RT, B1, B, C1, C, R> (var m)                => new M<RT, A1, A, C1, C, R>(m.Map(p1 => compose(fb1, p1))),
                     Pure<RT, B1, B, C1, C, R> (var r)             => Pure<RT, A1, A, C1, C, R>(r),                      
-                    _                                              => throw new NotSupportedException()
+                    Repeat<RT, B1, B, C1, C, R> (var innr)        => new Repeat<RT, A1, A, C1, C, R>(compose(fb1, innr)),
+                    _                                             => throw new NotSupportedException()
                 };
         
         /// <summary>
@@ -512,7 +508,8 @@ namespace LanguageExt.Pipes
                     Respond<RT, X1, X, B1, B, A1> (var b, var fb1) => fb(b).Bind(b1 => Go(fb1(b1))),
                     M<RT, X1, X, B1, B, A1> (var m)                => new M<RT, X1, X, C1, C, A1>(m.Map(Go)),
                     Pure<RT, X1, X, B1, B, A1> (var a)             => Pure<RT, X1, X, C1, C, A1>(a),
-                    _                                               => throw new NotSupportedException()
+                    Repeat<RT, X1, X, B1, B, A1> (var i)           => new Repeat<RT, X1, X, C1, C, A1>(Go(i)),
+                    _                                              => throw new NotSupportedException()
                 };
         }
         
@@ -568,6 +565,7 @@ namespace LanguageExt.Pipes
                     Respond<RT, A1, A, B1, B, R> (var b, var fb1) => Aff<RT, Proxy<RT, A1, A, B1, B, R>>.Success(new Respond<RT, A1, A, B1, B, R>(b, b1 => observe(fb1(b1)))),
                     M<RT, A1, A, B1, B, R> (var m1)               => m1.Bind(Go),
                     Pure<RT, A1, A, B1, B, R> (var r)             => Aff<RT, Proxy<RT, A1, A, B1, B, R>>.Success(new Pure<RT, A1, A, B1, B, R>(r)),                                                                                
+                    Repeat<RT, A1, A, B1, B, R> (var i)           => Aff<RT, Proxy<RT, A1, A, B1, B, R>>.Success(new Repeat<RT, A1, A, B1, B, R>(i)),
                     _                                             => throw new NotSupportedException()
                 };
         }
@@ -594,7 +592,8 @@ namespace LanguageExt.Pipes
                     Request<RT, A1, A, B1, B, Func<R, S>> (var a1, var fa) => new Request<RT, A1, A, B1, B, S>(a1, a => Go(fa(a))),
                     Respond<RT, A1, A, B1, B, Func<R, S>> (var b, var fb1) => new Respond<RT, A1, A, B1, B, S>(b, b1 => Go(fb1(b1))),
                     M<RT, A1, A, B1, B, Func<R, S>> (var m)                => new M<RT, A1, A, B1, B, S>(m.Map(Go)),
-                    Pure<RT, A1, A, B1, B, Func<R, S>> (var f)             => px.Map(f),                                                                                
+                    Pure<RT, A1, A, B1, B, Func<R, S>> (var f)             => px.Map(f),
+                    Repeat<RT, A1, A, B1, B, Func<R, S>> (var innr)        => new Repeat<RT, A1, A, B1, B, S>(innr.Apply(px)),
                     _                                                      => throw new NotSupportedException()
                 };
         }
@@ -606,30 +605,13 @@ namespace LanguageExt.Pipes
         public static Proxy<RT, A1, A, B1, B, S> Apply<RT, A1, A, B1, B, R, S>(this Proxy<RT, A1, A, B1, B, Func<R, S>> pf, Proxy<RT, A1, A, B1, B, R> px) where RT : struct, HasCancel<RT> =>
             apply(pf, px);
 
-        /// <summary>
-        /// Applicative action
-        /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, S> action<RT, A1, A, B1, B, R, S>(Proxy<RT, A1, A, B1, B, R> l, Proxy<RT, A1, A, B1, B, S> r) where RT : struct, HasCancel<RT>
-        {
-            return Go(l);
-            Proxy<RT, A1, A, B1, B, S> Go(Proxy<RT, A1, A, B1, B, R> p) =>
-                p.ToProxy() switch
-                {
-                    Request<RT, A1, A, B1, B, R> (var a1, var fa) => new Request<RT, A1, A, B1, B, S>(a1, a => Go(fa(a))),
-                    Respond<RT, A1, A, B1, B, R> (var b, var fb1) => new Respond<RT, A1, A, B1, B, S>(b, b1 => Go(fb1(b1))),
-                    M<RT, A1, A, B1, B, R> (var m)                => new M<RT, A1, A, B1, B, S>(m.Map(Go)),
-                    Pure<RT, A1, A, B1, B, R> (var _)             => r,                                                                                
-                    _                                             => throw new NotSupportedException()
-                };
-        }
 
         /// <summary>
         /// Applicative action
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<RT, A1, A, B1, B, S> Action<RT, A1, A, B1, B, R, S>(this Proxy<RT, A1, A, B1, B, R> l, Proxy<RT, A1, A, B1, B, S> r) where RT : struct, HasCancel<RT> =>
-            action(l, r);
+            l.Action(r);
 
         /// <summary>
         /// Monad return / pure

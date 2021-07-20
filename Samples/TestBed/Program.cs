@@ -58,24 +58,21 @@ public class Program
                                  .Run(Runtime.New());
     }
     
-    
     static Producer<Runtime, string, Unit> readLine =>
         repeat(from w in liftIO(Console<Runtime>.writeLine("Enter your name"))
-               from l in liftIO(Console<Runtime>.readLine)
-               from _ in yield(l)
+               from l in liftIO(Time<Runtime>.now)
+               from _ in yield(l.ToLongTimeString())
                select unit);
 
     static Pipe<Runtime, string, string, Unit> sayHello =>
         from l in awaiting<string>()         
         from _ in yield($"Hello {l}")
-        from n in sayHello
         select unit;
     
     static Consumer<Runtime, string, Unit> writeLine =>
         repeat(from l in awaiting<string>()
                from a in liftIO(Console<Runtime>.writeLine(l))
                select unit);
-
     
     static Producer<Runtime, string, Unit> readLine2 =>
         from w in Producer.liftIO<Runtime, string, Unit>(Console<Runtime>.writeLine("Enter your name"))

@@ -160,7 +160,7 @@ namespace LanguageExt
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, A, B, R> mapM<RT, A, B, R>(Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                 .For<RT, A, A, B, R>(a => Pipe.liftIO<RT, A, B, B>(f(a))
+                 .@for<RT, A, A, B, R>(a => Pipe.liftIO<RT, A, B, B>(f(a))
                                                 .Bind(Pipe.yield<RT, A, B>)
                  .ToPipe());
 
@@ -170,7 +170,7 @@ namespace LanguageExt
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, A, A, Unit> mapM<RT, A>(Func<A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
-                .For<RT, A, A, A, Unit>(a => Pipe.liftIO<RT, A, A, A>(f(a))
+                .@for<RT, A, A, A, Unit>(a => Pipe.liftIO<RT, A, A, A>(f(a))
                     .Bind(Pipe.yield<RT, A, A>)
                     .ToPipe());
 
@@ -180,7 +180,7 @@ namespace LanguageExt
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, A, B, R> mapM<RT, A, B, R>(Func<A, Aff<B>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                 .For<RT, A, A, B, R>(a => Pipe.liftIO<RT, A, B, B>(f(a))
+                 .@for<RT, A, A, B, R>(a => Pipe.liftIO<RT, A, B, B>(f(a))
                                                 .Bind(Pipe.yield<RT, A, B>)
                  .ToPipe());
         
@@ -190,7 +190,7 @@ namespace LanguageExt
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, A, B, R> mapM<RT, A, B, R>(Func<A, Eff<RT, B>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                .For<RT, A, A, B, R>(a => Pipe.liftIO<RT, A, B, B>(f(a))
+                .@for<RT, A, A, B, R>(a => Pipe.liftIO<RT, A, B, B>(f(a))
                     .Bind(Pipe.yield<RT, A, B>)
                     .ToPipe());
         
@@ -200,7 +200,7 @@ namespace LanguageExt
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, A, A, Unit> mapM<RT, A>(Func<A, Eff<RT, A>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
-                .For<RT, A, A, A, Unit>(a => Pipe.liftIO<RT, A, A, A>(f(a))
+                .@for<RT, A, A, A, Unit>(a => Pipe.liftIO<RT, A, A, A>(f(a))
                     .Bind(Pipe.yield<RT, A, A>)
                     .ToPipe());
 
@@ -210,7 +210,7 @@ namespace LanguageExt
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, A, B, R> mapM<RT, A, B, R>(Func<A, Eff<B>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                .For<RT, A, A, B, R>(a => Pipe.liftIO<RT, A, B, B>(f(a))
+                .@for<RT, A, A, B, R>(a => Pipe.liftIO<RT, A, B, B>(f(a))
                     .Bind(Pipe.yield<RT, A, B>)
                     .ToPipe());
 
