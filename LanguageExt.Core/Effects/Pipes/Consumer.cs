@@ -22,7 +22,7 @@ namespace LanguageExt.Pipes
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Rel">Releases the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Value to consume</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -39,7 +39,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Value to consume</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -57,7 +57,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Value to consume</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -75,7 +75,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Value to consume</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -93,7 +93,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Value to consume</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -117,10 +117,10 @@ namespace LanguageExt.Pipes
         /// </summary>
         /// <remarks>
         /// This is the simpler version (fewer generic arguments required) of `await` that works
-        /// for consumers.  In pipes, use `awaitingP`
+        /// for consumers.  In pipes, use `Pipe.await`
         /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, A> awaiting<RT, A>() where RT : struct, HasCancel<RT> =>
+        public static Consumer<RT, A, A> await<RT, A>() where RT : struct, HasCancel<RT> =>
             request<RT, Unit, A, Unit, Void>(unit).ToConsumer();
 
         

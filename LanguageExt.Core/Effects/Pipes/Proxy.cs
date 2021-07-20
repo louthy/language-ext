@@ -15,7 +15,56 @@ namespace LanguageExt.Pipes
     public static partial class Proxy
     {
         internal const MethodImplOptions mops = MethodImplOptions.AggressiveInlining;
- 
+
+        /// <summary>
+        /// Wait for a value from upstream (whilst in a pipe)
+        /// </summary>
+        /// <remarks>
+        /// This is the version of `await` that works for pipes.  In consumers, use `Consumer.await`
+        /// </remarks>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<A, A> awaiting<A>() =>
+            PureProxy.ConsumerAwait<A>();
+        
+        /// <summary>
+        /// Send a value downstream (whilst in a pipe)
+        /// </summary>
+        /// <remarks>
+        /// This is the version of `yield` that works for pipes.  In producers, use `Producer.yield`
+        /// </remarks>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<A, Unit> yield<A>(A value) =>
+            PureProxy.ProducerYield(value);
+
+        /// <summary>
+        /// Lift the IO monad into the monad transformer 
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Lift<RT, R> liftIO<RT, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT>  =>
+            Lift.Eff<RT, R>(ma);
+
+        /// <summary>
+        /// Lift the IO monad into the monad transformer 
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Lift<RT, R> liftIO<RT, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
+            Lift.Aff<RT, R>(ma);
+
+        /// <summary>
+        /// Lift the IO monad into the monad transformer 
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Lift<RT, R> liftIO<RT, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
+            Lift.Eff<RT, R>(ma);
+
+        /// <summary>
+        /// Lift the IO monad into the monad transformer 
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Lift<RT, R> liftIO<RT, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
+            Lift.Aff<RT, R>(ma);
+        
+        
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
@@ -185,7 +234,7 @@ namespace LanguageExt.Pipes
                     Respond<RT, X1, X, B1, B, R> (var b, var fb1) => fb(b).Bind(b1 => Go(fb1(b1))),
                     M<RT, X1, X, B1, B, R> (var m)                => new M<RT, X1, X, C1, C, R>(m.Map(Go)),
                     Pure<RT, X1, X, B1, B, R> (var a)             => Pure<RT, X1, X, C1, C, R>(a),                                                                                
-                    _                                              => throw new NotSupportedException()
+                    _                                             => throw new NotSupportedException()
                 };
         }
 
@@ -499,14 +548,15 @@ namespace LanguageExt.Pipes
         public static Proxy<RT, A1, A, B1, B, R> observe<RT, A1, A, B1, B, R>(Proxy<RT, A1, A, B1, B, R> p0) where RT : struct, HasCancel<RT>
         {
             return new M<RT, A1, A, B1, B, R>(Go(p0));
-            Aff<RT, Proxy<RT, A1, A, B1, B, R>> Go(Proxy<RT, A1, A, B1, B, R> p) =>
+
+            static Aff<RT, Proxy<RT, A1, A, B1, B, R>> Go(Proxy<RT, A1, A, B1, B, R> p) =>
                 p.ToProxy() switch
                 {
                     Request<RT, A1, A, B1, B, R> (var a1, var fa) => Aff<RT, Proxy<RT, A1, A, B1, B, R>>.Success(new Request<RT, A1, A, B1, B, R>(a1, a => observe(fa(a)))),
                     Respond<RT, A1, A, B1, B, R> (var b, var fb1) => Aff<RT, Proxy<RT, A1, A, B1, B, R>>.Success(new Respond<RT, A1, A, B1, B, R>(b, b1 => observe(fb1(b1)))),
                     M<RT, A1, A, B1, B, R> (var m1)               => m1.Bind(Go),
                     Pure<RT, A1, A, B1, B, R> (var r)             => Aff<RT, Proxy<RT, A1, A, B1, B, R>>.Success(new Pure<RT, A1, A, B1, B, R>(r)),                                                                                
-                    _                                              => throw new NotSupportedException()
+                    _                                             => throw new NotSupportedException()
                 };
         }
 
@@ -533,7 +583,7 @@ namespace LanguageExt.Pipes
                     Respond<RT, A1, A, B1, B, Func<R, S>> (var b, var fb1) => new Respond<RT, A1, A, B1, B, S>(b, b1 => Go(fb1(b1))),
                     M<RT, A1, A, B1, B, Func<R, S>> (var m)                => new M<RT, A1, A, B1, B, S>(m.Map(Go)),
                     Pure<RT, A1, A, B1, B, Func<R, S>> (var f)             => px.Map(f),                                                                                
-                    _                                                       => throw new NotSupportedException()
+                    _                                                      => throw new NotSupportedException()
                 };
         }
 
@@ -558,7 +608,7 @@ namespace LanguageExt.Pipes
                     Respond<RT, A1, A, B1, B, R> (var b, var fb1) => new Respond<RT, A1, A, B1, B, S>(b, b1 => Go(fb1(b1))),
                     M<RT, A1, A, B1, B, R> (var m)                => new M<RT, A1, A, B1, B, S>(m.Map(Go)),
                     Pure<RT, A1, A, B1, B, R> (var _)             => r,                                                                                
-                    _                                              => throw new NotSupportedException()
+                    _                                             => throw new NotSupportedException()
                 };
         }
 

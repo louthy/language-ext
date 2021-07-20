@@ -21,29 +21,33 @@ namespace LanguageExt
         /// Wait for a value from upstream (whilst in a pipe)
         /// </summary>
         /// <remarks>
-        /// This is the version of `await` that works for pipes.  In consumers, use `await`
+        /// This is the version of `await` that works for pipes.  In consumers, use `Consumer.await`
         /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<RT, A, Y, A> awaiting<RT, A, Y>() where RT : struct, HasCancel<RT> =>
+        public static Pipe<RT, A, Y, A> await<RT, A, Y>() where RT : struct, HasCancel<RT> =>
             request<RT, Unit, A, Unit, Y>(unit).ToPipe();
         
         /// <summary>
         /// Send a value downstream (whilst in a pipe)
         /// </summary>
         /// <remarks>
-        /// This is the version of `yield` that works for pipes.  In producers, use `yield`
+        /// This is the version of `yield` that works for pipes.  In producers, use `Producer.yield`
         /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, X, A, Unit> yield<RT, X, A>(A value) where RT : struct, HasCancel<RT> =>
             respond<RT, Unit, X, Unit, A>(value).ToPipe();
         
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Pipe<RT, X, A, R> repeat<RT, X, A, R>(Pipe<RT, X, A, R> ma) where RT : struct, HasCancel<RT> =>
+            ma.Bind(a => repeat(ma)); // TODO: Remove recursion
+
         /// <summary>
         /// Resource management 
         /// </summary>
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Rel">Releases the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="B">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -60,7 +64,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="B">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -78,7 +82,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="B">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -96,7 +100,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="B">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -114,7 +118,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="B">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -145,8 +149,14 @@ namespace LanguageExt
         /// <summary>
         /// Map the output of the pipe (not the bound value as is usual with Map)
         /// </summary>
-        public static Pipe<RT, A, A, R> map<RT, A, R>(Func<A, A> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, R>().For(a => Pipe.yield<RT, A, A>(f(a))).ToPipe();
+        public static Pipe<RT, A, B, Unit> map<RT, A, B>(Func<A, B> f) where RT : struct, HasCancel<RT> =>
+            Proxy.cat<RT, A, Unit>().For(a => Pipe.yield<RT, A, B>(f(a))).ToPipe();
+
+        /// <summary>
+        /// Map the output of the pipe (not the bound value as is usual with Map)
+        /// </summary>
+        public static Pipe<A, B, Unit> map<A, B>(Func<A, B> f) =>
+            new Pipe<A, B, Unit>.Await(x => new Pipe<A, B, Unit>.Yield(f(x), PureProxy.PipePure<A, B, Unit>));
 
         /// <summary>
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)

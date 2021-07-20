@@ -238,86 +238,119 @@ namespace LanguageExt.Pipes
     /// This `yield` command lets you send output downstream to an anonymous handler,
     /// decoupling how you generate values from how you consume them.
     /// </summary>
-    public partial class Producer<RT, A, R> : Proxy<RT, Void, Unit, Unit, A, R> where RT : struct, HasCancel<RT>
+    public partial class Producer<RT, OUT, R> : Proxy<RT, Void, Unit, Unit, OUT, R> where RT : struct, HasCancel<RT>
     {
-        public readonly Proxy<RT, Void, Unit, Unit, A, R> Value;
+        public readonly Proxy<RT, Void, Unit, Unit, OUT, R> Value;
         
         [MethodImpl(Proxy.mops)]
-        public Producer(Proxy<RT, Void, Unit, Unit, A, R> value) =>
+        public Producer(Proxy<RT, Void, Unit, Unit, OUT, R> value) =>
             Value = value;
 
         [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, Void, Unit, Unit, A, R> ToProxy() =>
+        public Proxy<RT, Void, Unit, Unit, OUT, R> ToProxy() =>
             Value.ToProxy();
         
         // Pipe composition, analogous to the Unix pipe operator
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<RT, R> operator |(Producer<RT, A, R> p1, Consumer<RT, A, R> p2) => 
+        public static Effect<RT, R> operator |(Producer<RT, OUT, R> p1, Consumer<RT, OUT, R> p2) => 
             Proxy.compose(p1, p2);
+        
+        // Pipe composition, analogous to the Unix pipe operator
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Effect<RT, R> operator |(Producer<RT, OUT, R> p1, Consumer<OUT, R> p2) => 
+            Proxy.compose(p1, p2);
+        
+        [Pure, MethodImpl(Proxy.mops)]
+        public void Deconstruct(out Proxy<RT, Void, Unit, Unit, OUT, R> value) =>
+            value = Value;
 
         [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out Proxy<RT, Void, Unit, Unit, A, R> value) =>
-            value = Value;
+        public static implicit operator Producer<RT, OUT, R>(Producer<OUT, R> p) =>
+            p.Interpret<RT, OUT, R>();
     }
 
     /// <summary>
     /// Consumers only await
     /// </summary>
-    public partial class Consumer<RT, A, R> : Proxy<RT, Unit, A, Unit, Void, R>  where RT : struct, HasCancel<RT>
+    public partial class Consumer<RT, IN, R> : Proxy<RT, Unit, IN, Unit, Void, R>  where RT : struct, HasCancel<RT>
     {
-        public readonly Proxy<RT, Unit, A, Unit, Void, R> Value;
+        public readonly Proxy<RT, Unit, IN, Unit, Void, R> Value;
         
         [MethodImpl(Proxy.mops)]
-        public Consumer(Proxy<RT, Unit, A, Unit, Void, R> value) =>
+        public Consumer(Proxy<RT, Unit, IN, Unit, Void, R> value) =>
             Value = value;
 
         [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, Unit, A, Unit, Void, R> ToProxy() =>
+        public Proxy<RT, Unit, IN, Unit, Void, R> ToProxy() =>
             Value.ToProxy();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out Proxy<RT, Unit, A, Unit, Void, R> value) =>
+        public void Deconstruct(out Proxy<RT, Unit, IN, Unit, Void, R> value) =>
             value = Value;
+
+        [Pure, MethodImpl(Proxy.mops)]
+        public static implicit operator Consumer<RT, IN, R>(Consumer<IN, R> c) =>
+            c.Interpret<RT, IN, R>();
     }
 
     /// <summary>
     /// Pipes both await and yield
     /// </summary>
-    public partial class Pipe<RT, A, B, R> : Proxy<RT, Unit, A, Unit, B, R> where RT : struct, HasCancel<RT>
+    /// <remarks>
+    ///     Upstream | Downstream
+    ///         +---------+
+    ///         |         |
+    ///     () <==       <== ()
+    ///         |         |
+    ///     A  ==>       ==> B
+    ///         |    |    |
+    ///         +----|----+
+    ///              R
+    /// </remarks>
+    public partial class Pipe<RT, IN, OUT, R> : Proxy<RT, Unit, IN, Unit, OUT, R> where RT : struct, HasCancel<RT>
     {
-        public readonly Proxy<RT, Unit, A, Unit, B, R> Value;
+        public readonly Proxy<RT, Unit, IN, Unit, OUT, R> Value;
         
         [MethodImpl(Proxy.mops)]
-        public Pipe(Proxy<RT, Unit, A, Unit, B, R> value) =>
+        public Pipe(Proxy<RT, Unit, IN, Unit, OUT, R> value) =>
             Value = value;
         
         [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, Unit, A, Unit, B, R> ToProxy() =>
+        public Proxy<RT, Unit, IN, Unit, OUT, R> ToProxy() =>
             Value.ToProxy();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out Proxy<RT, Unit, A, Unit, B, R> value) =>
+        public void Deconstruct(out Proxy<RT, Unit, IN, Unit, OUT, R> value) =>
             value = Value;
         
         // 'Pipe' composition, analogous to the Unix pipe operator
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, B, R> operator |(Producer<RT, A, R> p1, Pipe<RT, A, B, R> p2) =>
+        public static Producer<RT, OUT, R> operator |(Producer<RT, IN, R> p1, Pipe<RT, IN, OUT, R> p2) =>
+            Proxy.compose(p1, p2);
+        
+        // 'Pipe' composition, analogous to the Unix pipe operator
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, R> operator |(Producer<IN, R> p1, Pipe<RT, IN, OUT, R> p2) =>
             Proxy.compose(p1, p2);
         
         // Pipe composition, analogous to the Unix pipe operator
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, R> operator |(Pipe<RT, A, B, R> p1, Consumer<RT, B, R> p2) =>
+        public static Consumer<RT, IN, R> operator |(Pipe<RT, IN, OUT, R> p1, Consumer<OUT, R> p2) =>
             Proxy.compose(p1, p2);
         
         // Pipe composition, analogous to the Unix pipe operator
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, B, R> operator |(Producer<RT, B, A> p1, Pipe<RT, A, B, R> p2) =>
+        public static Producer<RT, OUT, R> operator |(Producer<OUT, IN> p1, Pipe<RT, IN, OUT, R> p2) =>
             Proxy.compose(p1, p2);
         
         // Pipe composition, analogous to the Unix pipe operator
         [Pure, MethodImpl(Proxy.mops)]
-        public Pipe<RT, A, C, R> Then<C>(Pipe<RT, B, C, R> p2) =>
+        public Pipe<RT, IN, C, R> Then<C>(Pipe<RT, OUT, C, R> p2) =>
             Proxy.compose(this, p2);
+
+        [Pure, MethodImpl(Proxy.mops)]
+        public static implicit operator Pipe<RT, IN, OUT, R>(Pipe<IN, OUT, R> p) =>
+            p.Interpret<RT, IN, OUT, R>();
     }
 
     /// <summary>

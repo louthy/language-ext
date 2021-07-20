@@ -33,7 +33,7 @@ namespace LanguageExt.Pipes
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Rel">Releases the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="B">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -50,7 +50,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="B">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -68,7 +68,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="B">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -86,7 +86,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="B">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -104,7 +104,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">RTironment</typeparam>
+        /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="B">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
@@ -128,56 +128,56 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, R> repeatM<RT, A, R>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, A, A>(ma) | Proxy.cat<RT, A, R>();
+            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, R>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, Unit> repeatM<RT, A>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, A, A>(ma) | Proxy.cat<RT, A, Unit>();
+            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, R> repeatM<RT, A, R>(Eff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, A, A>(ma) | Proxy.cat<RT, A, R>();
+            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, R>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, Unit> repeatM<RT, A>(Eff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, A, A>(ma) | Proxy.cat<RT, A, Unit>();
+            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
         
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, R> repeatM<RT, A, R>(Aff<A> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, A, A>(ma) | Proxy.cat<RT, A, R>();
+            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, R>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, Unit> repeatM<RT, A>(Aff<A> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, A, A>(ma) | Proxy.cat<RT, A, Unit>();
+            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, R> repeatM<RT, A, R>(Eff<A> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, A, A>(ma) | Proxy.cat<RT, A, R>();
+            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, R>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, Unit> repeatM<RT, A>(Eff<A> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, A, A>(ma) | Proxy.cat<RT, A, Unit>();
+            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
 
         
         /// <summary>
@@ -207,6 +207,5 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, B, R> liftIO<RT, B, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
             liftIO<RT, Void, Unit, Unit, B, R>(ma).ToProducer();
-
     }
 }
