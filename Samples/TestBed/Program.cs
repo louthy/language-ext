@@ -60,11 +60,10 @@ public class Program
     
     
     static Producer<Runtime, string, Unit> readLine =>
-        from w in liftIO(Console<Runtime>.writeLine("Enter your name"))
-        from l in liftIO(Console<Runtime>.readLine)
-        from _ in yield(l)
-        from n in readLine
-        select unit;
+        repeat(from w in liftIO(Console<Runtime>.writeLine("Enter your name"))
+               from l in liftIO(Console<Runtime>.readLine)
+               from _ in yield(l)
+               select unit);
 
     static Pipe<Runtime, string, string, Unit> sayHello =>
         from l in awaiting<string>()         
@@ -73,10 +72,9 @@ public class Program
         select unit;
     
     static Consumer<Runtime, string, Unit> writeLine =>
-        from l in awaiting<string>()
-        from a in liftIO(Console<Runtime>.writeLine(l))
-        from n in writeLine 
-        select unit;
+        repeat(from l in awaiting<string>()
+               from a in liftIO(Console<Runtime>.writeLine(l))
+               select unit);
 
     
     static Producer<Runtime, string, Unit> readLine2 =>

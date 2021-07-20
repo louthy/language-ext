@@ -36,10 +36,6 @@ namespace LanguageExt
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, X, A, Unit> yield<RT, X, A>(A value) where RT : struct, HasCancel<RT> =>
             respond<RT, Unit, X, Unit, A>(value).ToPipe();
-        
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<RT, X, A, R> repeat<RT, X, A, R>(Pipe<RT, X, A, R> ma) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => repeat(ma)); // TODO: Remove recursion
 
         /// <summary>
         /// Resource management 

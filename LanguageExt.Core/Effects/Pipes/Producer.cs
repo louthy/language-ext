@@ -13,8 +13,8 @@ namespace LanguageExt.Pipes
         /// Monad return / pure
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, B, R> Pure<RT, B, R>(R value) where RT : struct, HasCancel<RT> =>
-            new Pure<RT, Void, Unit, Unit, B, R>(value).ToProducer();
+        public static Producer<RT, OUT, R> Pure<RT, OUT, R>(R value) where RT : struct, HasCancel<RT> =>
+            new Pure<RT, Void, Unit, Unit, OUT, R>(value).ToProducer();
         
         /// <summary>
         /// Send a value downstream (whilst in a producer)
@@ -24,8 +24,8 @@ namespace LanguageExt.Pipes
         /// for producers.  In pipes, use `yieldP`
         /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, A, Unit> yield<RT, A>(A value) where RT : struct, HasCancel<RT> =>
-            respond<RT, Void, Unit, Unit, A>(value).ToProducer();
+        public static Producer<RT, OUT, Unit> yield<RT, OUT>(OUT value) where RT : struct, HasCancel<RT> =>
+            respond<RT, Void, Unit, Unit, OUT>(value).ToProducer();
         
         /// <summary>
         /// Resource management 
@@ -34,15 +34,15 @@ namespace LanguageExt.Pipes
         /// <param name="Rel">Releases the resource</param>
         /// <param name="Use">Uses the resource</param>
         /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="B">Value to produce</typeparam>
+        /// <typeparam name="OUT">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
         /// <returns>Producer</returns>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, B, R> use<RT, B, H, R>(
+        public static Producer<RT, OUT, R> use<RT, OUT, H, R>(
             Aff<H> Acq,
             Func<H, Unit> Rel,
-            Func<H, Producer<RT, B, R>> Use) where RT : struct, HasCancel<RT> =>
+            Func<H, Producer<RT, OUT, R>> Use) where RT : struct, HasCancel<RT> =>
                 PipesInternal.Use(Acq, Use, Rel);
 
         /// <summary>
@@ -51,14 +51,14 @@ namespace LanguageExt.Pipes
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
         /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="B">Value to produce</typeparam>
+        /// <typeparam name="OUT">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
         /// <returns>Producer</returns>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, B, R> use<RT, B, H, R>(
+        public static Producer<RT, OUT, R> use<RT, OUT, H, R>(
             Aff<H> Acq,
-            Func<H, Producer<RT, B, R>> Use) 
+            Func<H, Producer<RT, OUT, R>> Use) 
             where RT : struct, HasCancel<RT>
             where H : IDisposable =>
                 PipesInternal.Use(Acq, Use, PipesInternal.Dispose);
@@ -69,14 +69,14 @@ namespace LanguageExt.Pipes
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
         /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="B">Value to produce</typeparam>
+        /// <typeparam name="OUT">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
         /// <returns>Producer</returns>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, B, R> use<RT, B, H, R>(
+        public static Producer<RT, OUT, R> use<RT, OUT, H, R>(
             Aff<RT, H> Acq,
-            Func<H, Producer<RT, B, R>> Use)
+            Func<H, Producer<RT, OUT, R>> Use)
             where RT : struct, HasCancel<RT>
             where H : IDisposable =>
                 PipesInternal.Use(Acq, Use, PipesInternal.Dispose);
@@ -87,14 +87,14 @@ namespace LanguageExt.Pipes
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
         /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="B">Value to produce</typeparam>
+        /// <typeparam name="OUT">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
         /// <returns>Producer</returns>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, B, R> use<RT, B, H, R>(
+        public static Producer<RT, OUT, R> use<RT, OUT, H, R>(
             Eff<H> Acq,
-            Func<H, Producer<RT, B, R>> Use) 
+            Func<H, Producer<RT, OUT, R>> Use) 
             where RT : struct, HasCancel<RT>
             where H : IDisposable =>
                 PipesInternal.Use(Acq.ToAff(), Use, PipesInternal.Dispose);        
@@ -105,14 +105,14 @@ namespace LanguageExt.Pipes
         /// <param name="Acq">Acquires the resource</param>
         /// <param name="Use">Uses the resource</param>
         /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="B">Value to produce</typeparam>
+        /// <typeparam name="OUT">Value to produce</typeparam>
         /// <typeparam name="H">Type of resource to acquire</typeparam>
         /// <typeparam name="R">Return value of the Use operation</typeparam>
         /// <returns>Producer</returns>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, B, R> use<RT, B, H, R>(
+        public static Producer<RT, OUT, R> use<RT, OUT, H, R>(
             Eff<RT, H> Acq,
-            Func<H, Producer<RT, B, R>> Use) 
+            Func<H, Producer<RT, OUT, R>> Use) 
             where RT : struct, HasCancel<RT>
             where H : IDisposable =>
                 PipesInternal.Use(Acq.ToAff(), Use, PipesInternal.Dispose); 

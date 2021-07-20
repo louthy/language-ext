@@ -167,10 +167,6 @@ namespace LanguageExt.Pipes
         public static Consumer<RT, A, Unit> liftIO<RT, A>(Eff<RT, Unit> ma) where RT : struct, HasCancel<RT> =>
             liftIO<RT, Unit, A, Unit, Void, Unit>(ma).ToConsumer();
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, R> repeat<RT, A, R>(Consumer<RT, A, R> ma) where RT : struct, HasCancel<RT> =>
-            ma.Bind(a => repeat(ma)); // TODO: Remove recursion
-
         
         
         

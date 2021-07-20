@@ -63,7 +63,19 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Lift<RT, R> liftIO<RT, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
             Lift.Aff<RT, R>(ma);
+                
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, R> repeat<RT, OUT, R>(Producer<RT, OUT, R> ma) where RT : struct, HasCancel<RT> =>
+            ma.Bind(a => repeat(ma)); // TODO: Remove recursion
+
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<RT, IN, R> repeat<RT, IN, R>(Consumer<RT, IN, R> ma) where RT : struct, HasCancel<RT> =>
+            ma.Bind(a => repeat(ma)); // TODO: Remove recursion
         
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Pipe<RT, IN, OUT, R> repeat<RT, IN, OUT, R>(Pipe<RT, IN, OUT, R> ma) where RT : struct, HasCancel<RT> =>
+            ma.Bind(a => repeat(ma)); // TODO: Remove recursion
+
         
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
