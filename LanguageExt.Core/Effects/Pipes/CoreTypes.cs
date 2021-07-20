@@ -162,163 +162,169 @@ namespace LanguageExt.Pipes
     ///                           v
     ///                           () 
     /// </summary>
-    public interface Proxy<RT, A1, A, B1, B, out R>  where RT : struct, HasCancel<RT>
+    public interface Proxy<RT, UOut, UIn, DIn, DOut, out A>  where RT : struct, HasCancel<RT>
     {
-        Proxy<RT, A1, A, B1, B, R> ToProxy();
-        Proxy<RT, A1, A, B1, B, S> Bind<S>(Func<R, Proxy<RT, A1, A, B1, B, S>> f);
-        Proxy<RT, A1, A, B1, B, S> Map<S>(Func<R, S> f);
-        Proxy<RT, A1, A, C1, C, R> For<C1, C>(Func<B, Proxy<RT, A1, A, C1, C, B1>> f);
-        Proxy<RT, A1, A, B1, B, S> Action<S>(Proxy<RT, A1, A, B1, B, S> r);
+        Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy();
+        Proxy<RT, UOut, UIn, DIn, DOut, B> Bind<B>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f);
+        Proxy<RT, UOut, UIn, DIn, DOut, B> Map<B>(Func<A, B> f);
+        Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f);
+        Proxy<RT, UOut, UIn, DIn, DOut, B> Action<B>(Proxy<RT, UOut, UIn, DIn, DOut, B> r);
     }
     
-    public partial class Pure<RT, A1, A, B1, B, R> : Proxy<RT, A1, A, B1, B, R> where RT : struct, HasCancel<RT>
+    public partial class Pure<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
     {
-        public readonly R Value;
+        public readonly A Value;
 
-        public Pure(R value) =>
+        public Pure(A value) =>
             Value = value;
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, A1, A, B1, B, R> ToProxy() => this;
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, A1, A, B1, B, S> Bind<S>(Func<R, Proxy<RT, A1, A, B1, B, S>> f) =>
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, B> Bind<B>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f) =>
             f(Value);
 
-        public Proxy<RT, A1, A, B1, B, S> Map<S>(Func<R, S> f) =>
-            new Pure<RT, A1, A, B1, B, S>(f(Value));
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, B> Map<B>(Func<A, B> f) =>
+            new Pure<RT, UOut, UIn, DIn, DOut, B>(f(Value));
 
-        public Proxy<RT, A1, A, C1, C, R> For<C1, C>(Func<B, Proxy<RT, A1, A, C1, C, B1>> f) =>
-            new Pure<RT, A1, A, C1, C, R>(Value);
+        [Pure]
+        public Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
+            new Pure<RT, UOut, UIn, C1, C, A>(Value);
 
-        public Proxy<RT, A1, A, B1, B, S> Action<S>(Proxy<RT, A1, A, B1, B, S> r) =>
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, B> Action<B>(Proxy<RT, UOut, UIn, DIn, DOut, B> r) =>
             r;
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out R value) =>
+        [Pure]
+        public void Deconstruct(out A value) =>
             value = Value;
     }
     
-    public partial class Repeat<RT, A1, A, B1, B, R> : Proxy<RT, A1, A, B1, B, R> where RT : struct, HasCancel<RT>
+    public partial class Repeat<RT, UOut, UIn, DIn, DOut, R> : Proxy<RT, UOut, UIn, DIn, DOut, R> where RT : struct, HasCancel<RT>
     {
-        public readonly Proxy<RT, A1, A, B1, B, R> Inner;
+        public readonly Proxy<RT, UOut, UIn, DIn, DOut, R> Inner;
 
-        public Repeat(Proxy<RT, A1, A, B1, B, R> inner) =>
+        public Repeat(Proxy<RT, UOut, UIn, DIn, DOut, R> inner) =>
             Inner = inner;
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, A1, A, B1, B, R> ToProxy() => this;
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, R> ToProxy() => this;
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, A1, A, B1, B, S> Bind<S>(Func<R, Proxy<RT, A1, A, B1, B, S>> f) =>
-            new Repeat<RT, A1, A, B1, B, S>(Inner.Bind(f));
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
+            new Repeat<RT, UOut, UIn, DIn, DOut, S>(Inner.Bind(f));
 
-        public Proxy<RT, A1, A, B1, B, S> Map<S>(Func<R, S> f) =>
-            new Repeat<RT, A1, A, B1, B, S>(Inner.Map(f));
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<R, S> f) =>
+            new Repeat<RT, UOut, UIn, DIn, DOut, S>(Inner.Map(f));
 
-        public Proxy<RT, A1, A, C1, C, R> For<C1, C>(Func<B, Proxy<RT, A1, A, C1, C, B1>> f) =>
-            new Repeat<RT, A1, A, C1, C, R>(Inner.For(f));
+        [Pure]
+        public Proxy<RT, UOut, UIn, C1, C, R> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
+            new Repeat<RT, UOut, UIn, C1, C, R>(Inner.For(f));
 
-        public Proxy<RT, A1, A, B1, B, S> Action<S>(Proxy<RT, A1, A, B1, B, S> r) =>
-            new Repeat<RT, A1, A, B1, B, S>(Inner.Action(r));
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
+            new Repeat<RT, UOut, UIn, DIn, DOut, S>(Inner.Action(r));
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out Proxy<RT, A1, A, B1, B, R> inner) =>
+        [Pure]
+        public void Deconstruct(out Proxy<RT, UOut, UIn, DIn, DOut, R> inner) =>
             inner = Inner;
     }
 
-    public partial class Request<RT, A1, A, B1, B, R> : Proxy<RT, A1, A, B1, B, R> where RT : struct, HasCancel<RT>
+    public partial class Request<RT, UOut, UIn, DIn, DOut, R> : Proxy<RT, UOut, UIn, DIn, DOut, R> where RT : struct, HasCancel<RT>
     {
-        public readonly A1 Value;
-        public readonly Func<A, Proxy<RT, A1, A, B1, B, R>> Next;
+        public readonly UOut Value;
+        public readonly Func<UIn, Proxy<RT, UOut, UIn, DIn, DOut, R>> Next;
         
-        [MethodImpl(Proxy.mops)]
-        public Request(A1 value, Func<A, Proxy<RT, A1, A, B1, B, R>> fun) =>
+        public Request(UOut value, Func<UIn, Proxy<RT, UOut, UIn, DIn, DOut, R>> fun) =>
             (Value, Next) = (value, fun);
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, A1, A, B1, B, R> ToProxy() => this;
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, R> ToProxy() => this;
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out A1 value, out Func<A, Proxy<RT, A1, A, B1, B, R>> fun) =>
+        [Pure]
+        public void Deconstruct(out UOut value, out Func<UIn, Proxy<RT, UOut, UIn, DIn, DOut, R>> fun) =>
             (value, fun) = (Value, Next);
 
-        public Proxy<RT, A1, A, C1, C, R> For<C1, C>(Func<B, Proxy<RT, A1, A, C1, C, B1>> f) =>
-            new Request<RT, A1, A, C1, C, R>(Value, x => Next(x).For(f));
+        [Pure]
+        public Proxy<RT, UOut, UIn, C1, C, R> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
+            new Request<RT, UOut, UIn, C1, C, R>(Value, x => Next(x).For(f));
 
-        public Proxy<RT, A1, A, B1, B, S> Action<S>(Proxy<RT, A1, A, B1, B, S> r) =>
-            new Request<RT, A1, A, B1, B, S>(Value, a => Next(a).Action(r));
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
+            new Request<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Action(r));
 
-        /// <summary>
-        /// Monad bind
-        /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, A1, A, B1, B, S> Bind<S>(Func<R, Proxy<RT, A1, A, B1, B, S>> f) =>
-            new Request<RT, A1, A, B1, B, S>(Value, a => Next(a).Bind(f));
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
+            new Request<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Bind(f));
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, A1, A, B1, B, S> Map<S>(Func<R, S> f) =>
-            new Request<RT, A1, A, B1, B, S>(Value, a => Next(a).Map(f));
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<R, S> f) =>
+            new Request<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Map(f));
     }
 
-    public partial class Respond<RT, A1, A, B1, B, R> : Proxy<RT, A1, A, B1, B, R> where RT : struct, HasCancel<RT>
+    public partial class Respond<RT, UOut, UIn, DIn, DOut, R> : Proxy<RT, UOut, UIn, DIn, DOut, R> where RT : struct, HasCancel<RT>
     {
-        public readonly B Value;
-        public readonly Func<B1, Proxy<RT, A1, A, B1, B, R>> Next;
+        public readonly DOut Value;
+        public readonly Func<DIn, Proxy<RT, UOut, UIn, DIn, DOut, R>> Next;
         
-        [MethodImpl(Proxy.mops)]
-        public Respond(B value, Func<B1, Proxy<RT, A1, A, B1, B, R>> fun) =>
+        public Respond(DOut value, Func<DIn, Proxy<RT, UOut, UIn, DIn, DOut, R>> fun) =>
             (Value, Next) = (value, fun);
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, A1, A, B1, B, R> ToProxy() => this;
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, R> ToProxy() => this;
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, A1, A, B1, B, S> Bind<S>(Func<R, Proxy<RT, A1, A, B1, B, S>> f) =>
-            new Respond<RT, A1, A, B1, B, S>(Value, b1 => Next(b1).Bind(f));
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
+            new Respond<RT, UOut, UIn, DIn, DOut, S>(Value, b1 => Next(b1).Bind(f));
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, A1, A, B1, B, S> Map<S>(Func<R, S> f) =>
-            new Respond<RT, A1, A, B1, B, S>(Value, a => Next(a).Map(f));
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<R, S> f) =>
+            new Respond<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Map(f));
 
-        public Proxy<RT, A1, A, C1, C, R> For<C1, C>(Func<B, Proxy<RT, A1, A, C1, C, B1>> fb) =>
+        [Pure]
+        public Proxy<RT, UOut, UIn, C1, C, R> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> fb) =>
             fb(Value).Bind(b1 => Next(b1).For(fb));
             
-        public Proxy<RT, A1, A, B1, B, S> Action<S>(Proxy<RT, A1, A, B1, B, S> r) =>
-            new Respond<RT, A1, A, B1, B, S>(Value, b1 => Next(b1).Action(r));
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
+            new Respond<RT, UOut, UIn, DIn, DOut, S>(Value, b1 => Next(b1).Action(r));
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out B value, out Func<B1, Proxy<RT, A1, A, B1, B, R>> fun) =>
+        [Pure]
+        public void Deconstruct(out DOut value, out Func<DIn, Proxy<RT, UOut, UIn, DIn, DOut, R>> fun) =>
             (value, fun) = (Value, Next);
     }
 
-    public partial class M<RT, A1, A, B1, B, R> : Proxy<RT, A1, A, B1, B, R>  where RT : struct, HasCancel<RT>
+    public partial class M<RT, UOut, UIn, DIn, DOut, R> : Proxy<RT, UOut, UIn, DIn, DOut, R>  where RT : struct, HasCancel<RT>
     {
-        public readonly Aff<RT, Proxy<RT, A1, A, B1, B, R>> Value;
+        public readonly Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, R>> Value;
         
-        [MethodImpl(Proxy.mops)]
-        public M(Aff<RT, Proxy<RT, A1, A, B1, B, R>> value) =>
+        public M(Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, R>> value) =>
             Value = value;
         
-        [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, A1, A, B1, B, R> ToProxy() => this;
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, R> ToProxy() => this;
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, A1, A, B1, B, S> Bind<S>(Func<R, Proxy<RT, A1, A, B1, B, S>> f) =>
-            new M<RT, A1, A, B1, B, S>(Value.Map(mx => mx.Bind(f)));
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
+            new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Bind(f)));
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public Proxy<RT, A1, A, B1, B, S> Map<S>(Func<R, S> f) =>
-            new M<RT, A1, A, B1, B, S>(Value.Map(mx => mx.Map(f)));
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<R, S> f) =>
+            new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Map(f)));
 
-        public Proxy<RT, A1, A, C1, C, R> For<C1, C>(Func<B, Proxy<RT, A1, A, C1, C, B1>> f) =>
-            new M<RT, A1, A, C1, C, R>(Value.Map(mx => mx.For(f)));
+        [Pure]
+        public Proxy<RT, UOut, UIn, C1, C, R> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
+            new M<RT, UOut, UIn, C1, C, R>(Value.Map(mx => mx.For(f)));
 
-        public Proxy<RT, A1, A, B1, B, S> Action<S>(Proxy<RT, A1, A, B1, B, S> r) =>
-            new M<RT, A1, A, B1, B, S>(Value.Map(mx => mx.Action(r)));
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
+            new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Action(r)));
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public void Deconstruct(out Aff<RT, Proxy<RT, A1, A, B1, B, R>> value) =>
+        [Pure]
+        public void Deconstruct(out Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, R>> value) =>
             value = Value;
     }
     
@@ -332,43 +338,42 @@ namespace LanguageExt.Pipes
     {
         public readonly Proxy<RT, Void, Unit, Unit, OUT, R> Value;
         
-        [MethodImpl(Proxy.mops)]
         public Producer(Proxy<RT, Void, Unit, Unit, OUT, R> value) =>
             Value = value;
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public Proxy<RT, Void, Unit, Unit, OUT, R> ToProxy() =>
             Value.ToProxy();
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public Proxy<RT, Void, Unit, Unit, OUT, S> Bind<S>(Func<R, Proxy<RT, Void, Unit, Unit, OUT, S>> f) =>
             Value.Bind(f);
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public Proxy<RT, Void, Unit, Unit, OUT, S> Map<S>(Func<R, S> f) =>
             Value.Map(f);
 
+        [Pure]
         public Proxy<RT, Void, Unit, C1, C, R> For<C1, C>(Func<OUT, Proxy<RT, Void, Unit, C1, C, Unit>> f) =>
             Value.For(f);
 
+        [Pure]
         public Proxy<RT, Void, Unit, Unit, OUT, S> Action<S>(Proxy<RT, Void, Unit, Unit, OUT, S> r) =>
             Value.Action(r);
 
-        // Pipe composition, analogous to the Unix pipe operator
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public static Effect<RT, R> operator |(Producer<RT, OUT, R> p1, Consumer<RT, OUT, R> p2) => 
             Proxy.compose(p1, p2);
         
-        // Pipe composition, analogous to the Unix pipe operator
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public static Effect<RT, R> operator |(Producer<RT, OUT, R> p1, Consumer<OUT, R> p2) => 
             Proxy.compose(p1, p2);
         
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public void Deconstruct(out Proxy<RT, Void, Unit, Unit, OUT, R> value) =>
             value = Value;
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public static implicit operator Producer<RT, OUT, R>(Producer<OUT, R> p) =>
             p.Interpret<RT, OUT, R>();
     }
@@ -380,32 +385,34 @@ namespace LanguageExt.Pipes
     {
         public readonly Proxy<RT, Unit, IN, Unit, Void, R> Value;
         
-        [MethodImpl(Proxy.mops)]
         public Consumer(Proxy<RT, Unit, IN, Unit, Void, R> value) =>
             Value = value;
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public Proxy<RT, Unit, IN, Unit, Void, R> ToProxy() =>
             Value.ToProxy();
 
+        [Pure]
         public Proxy<RT, Unit, IN, Unit, Void, S> Bind<S>(Func<R, Proxy<RT, Unit, IN, Unit, Void, S>> f) =>
             Value.Bind(f);
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public Proxy<RT, Unit, IN, Unit, Void, S> Map<S>(Func<R, S> f) =>
             Value.Map(f);
 
+        [Pure]
         public Proxy<RT, Unit, IN, C1, C, R> For<C1, C>(Func<Void, Proxy<RT, Unit, IN, C1, C, Unit>> f) =>
             Value.For(f);
 
+        [Pure]
         public Proxy<RT, Unit, IN, Unit, Void, S> Action<S>(Proxy<RT, Unit, IN, Unit, Void, S> r) =>
             Value.Action(r);
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public void Deconstruct(out Proxy<RT, Unit, IN, Unit, Void, R> value) =>
             value = Value;
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public static implicit operator Consumer<RT, IN, R>(Consumer<IN, R> c) =>
             c.Interpret<RT, IN, R>();
     }
@@ -428,57 +435,54 @@ namespace LanguageExt.Pipes
     {
         public readonly Proxy<RT, Unit, IN, Unit, OUT, R> Value;
         
-        [MethodImpl(Proxy.mops)]
         public Pipe(Proxy<RT, Unit, IN, Unit, OUT, R> value) =>
             Value = value;
         
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public Proxy<RT, Unit, IN, Unit, OUT, R> ToProxy() =>
             Value.ToProxy();
 
+        [Pure]
         public Proxy<RT, Unit, IN, Unit, OUT, S> Bind<S>(Func<R, Proxy<RT, Unit, IN, Unit, OUT, S>> f) =>
             Value.Bind(f);
             
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public Proxy<RT, Unit, IN, Unit, OUT, S> Map<S>(Func<R, S> f) =>
             Value.Map(f);
 
+        [Pure]
         public Proxy<RT, Unit, IN, C1, C, R> For<C1, C>(Func<OUT, Proxy<RT, Unit, IN, C1, C, Unit>> f) =>
             Value.For(f);
 
+        [Pure]
         public Proxy<RT, Unit, IN, Unit, OUT, S> Action<S>(Proxy<RT, Unit, IN, Unit, OUT, S> r) =>
             Value.Action(r);
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public void Deconstruct(out Proxy<RT, Unit, IN, Unit, OUT, R> value) =>
             value = Value;
         
-        // 'Pipe' composition, analogous to the Unix pipe operator
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public static Producer<RT, OUT, R> operator |(Producer<RT, IN, R> p1, Pipe<RT, IN, OUT, R> p2) =>
             Proxy.compose(p1, p2);
         
-        // 'Pipe' composition, analogous to the Unix pipe operator
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public static Producer<RT, OUT, R> operator |(Producer<IN, R> p1, Pipe<RT, IN, OUT, R> p2) =>
             Proxy.compose(p1, p2);
         
-        // Pipe composition, analogous to the Unix pipe operator
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public static Consumer<RT, IN, R> operator |(Pipe<RT, IN, OUT, R> p1, Consumer<OUT, R> p2) =>
             Proxy.compose(p1, p2);
         
-        // Pipe composition, analogous to the Unix pipe operator
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public static Producer<RT, OUT, R> operator |(Producer<OUT, IN> p1, Pipe<RT, IN, OUT, R> p2) =>
             Proxy.compose(p1, p2);
         
-        // Pipe composition, analogous to the Unix pipe operator
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public Pipe<RT, IN, C, R> Then<C>(Pipe<RT, OUT, C, R> p2) =>
             Proxy.compose(this, p2);
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public static implicit operator Pipe<RT, IN, OUT, R>(Pipe<IN, OUT, R> p) =>
             p.Interpret<RT, IN, OUT, R>();
     }
@@ -490,28 +494,30 @@ namespace LanguageExt.Pipes
     {
         public readonly Proxy<RT, A, B, Unit, Unit, R> Value;
 
-        [MethodImpl(Proxy.mops)]
         public Client(Proxy<RT, A, B, Unit, Unit, R> value) =>
             Value = value;
  
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public Proxy<RT, A, B, Unit, Unit, R> ToProxy() =>
             Value.ToProxy();
 
+        [Pure]
         public Proxy<RT, A, B, Unit, Unit, S> Bind<S>(Func<R, Proxy<RT, A, B, Unit, Unit, S>> f) =>
             Value.Bind(f);
             
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public Proxy<RT, A, B, Unit, Unit, S> Map<S>(Func<R, S> f) =>
             Value.Map(f);
 
+        [Pure]
         public Proxy<RT, A, B, C1, C, R> For<C1, C>(Func<Unit, Proxy<RT, A, B, C1, C, Unit>> f) =>
             Value.For(f);
 
+        [Pure]
         public Proxy<RT, A, B, Unit, Unit, S> Action<S>(Proxy<RT, A, B, Unit, Unit, S> r) =>
             Value.Action(r);
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public void Deconstruct(out Proxy<RT, A, B, Unit, Unit, R> value) =>
             value = Value;
     }
@@ -523,28 +529,30 @@ namespace LanguageExt.Pipes
     {
         public readonly Proxy<RT, Unit, Unit, A, B, R> Value;
     
-        [MethodImpl(Proxy.mops)]
         public Server(Proxy<RT, Unit, Unit, A, B, R> value) =>
             Value = value;
         
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public Proxy<RT, Unit, Unit, A, B, R> ToProxy() =>
             Value.ToProxy();
 
+        [Pure]
         public Proxy<RT, Unit, Unit, A, B, S> Bind<S>(Func<R, Proxy<RT, Unit, Unit, A, B, S>> f) =>
             Value.Bind(f);
             
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public Proxy<RT, Unit, Unit, A, B, S> Map<S>(Func<R, S> f) =>
             Value.Map(f);
 
+        [Pure]
         public Proxy<RT, Unit, Unit, C1, C, R> For<C1, C>(Func<B, Proxy<RT, Unit, Unit, C1, C, A>> f) =>
             Value.For(f);
 
+        [Pure]
         public Proxy<RT, Unit, Unit, A, B, S> Action<S>(Proxy<RT, Unit, Unit, A, B, S> r) =>
             Value.Action(r);
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public void Deconstruct(out Proxy<RT, Unit, Unit, A, B, R> value) =>
             value = Value;
     }
@@ -557,28 +565,30 @@ namespace LanguageExt.Pipes
     {
         public readonly Proxy<RT, Void, Unit, Unit, Void, R> Value;
 
-        [MethodImpl(Proxy.mops)]
         public Effect(Proxy<RT, Void, Unit, Unit, Void, R> value) =>
             Value = value;
         
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public Proxy<RT, Void, Unit, Unit, Void, R> ToProxy() =>
             Value.ToProxy();
+        [Pure]
 
         public Proxy<RT, Void, Unit, Unit, Void, S> Bind<S>(Func<R, Proxy<RT, Void, Unit, Unit, Void, S>> f) =>
             Value.Bind(f);
             
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public Proxy<RT, Void, Unit, Unit, Void, S> Map<S>(Func<R, S> f) =>
             Value.Map(f);
 
+        [Pure]
         public Proxy<RT, Void, Unit, C1, C, R> For<C1, C>(Func<Void, Proxy<RT, Void, Unit, C1, C, Unit>> f) =>
             Value.For(f);
 
+        [Pure]
         public Proxy<RT, Void, Unit, Unit, Void, S> Action<S>(Proxy<RT, Void, Unit, Unit, Void, S> r) =>
             Value.Action(r);
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public void Deconstruct(out Proxy<RT, Void, Unit, Unit, Void, R> value) =>
             value = Value;
     }
