@@ -52,27 +52,45 @@ public class Program
 
     public static async Task PipesTest()
     {
-        var effect = readLine | sayHello | writeLine;
+        //var effect = readLine | sayHello | writeLine;
+
+        var items = from x in enumerate(Seq("Paul", "James", "Gavin"))
+                    from _ in liftIO(Console<Runtime>.writeLine($"Enter your name ------------- {x}"))
+                    from n in yield(x)
+                    select unit;
+
+        var pr = items | sayHello;
+        
+        var effect = enumerate(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
 
         var result = await effect.RunEffect<Runtime, Unit>()
                                  .Run(Runtime.New());
     }
-    
+
+    /*
+    static Producer<Runtime, A, Unit> enumerate<A>(Seq<A> ma) =>
+        ma.IsEmpty
+            ? Pure(unit)
+            : from x in yield(ma.Head)
+              from _ in enumerate(ma.Tail)
+              select unit;
+              */
+
     static Producer<Runtime, string, Unit> readLine =>
-        repeat(from w in liftIO(Console<Runtime>.writeLine("Enter your name"))
-               from l in liftIO(Time<Runtime>.now)
-               from _ in yield(l.ToLongTimeString())
+        repeat(from _1 in liftIO(Console<Runtime>.writeLine("Enter your name"))
+               from nw in liftIO(Time<Runtime>.now)
+               from _2 in yield(nw.ToLongTimeString())
                select unit);
 
     static Pipe<Runtime, string, string, Unit> sayHello =>
         from l in awaiting<string>()         
         from _ in yield($"Hello {l}")
         select unit;
-    
+
     static Consumer<Runtime, string, Unit> writeLine =>
-        repeat(from l in awaiting<string>()
-               from a in liftIO(Console<Runtime>.writeLine(l))
-               select unit);
+        from l in awaiting<string>()
+        from a in liftIO(Console<Runtime>.writeLine(l))
+        select unit;
     
     static Producer<Runtime, string, Unit> readLine2 =>
         from w in Producer.liftIO<Runtime, string, Unit>(Console<Runtime>.writeLine("Enter your name"))

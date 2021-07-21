@@ -20,6 +20,10 @@ namespace LanguageExt.Common
         public const string TimedOutText = "timed out";
         public const int TimedOutCode = -2000000002;
         public static readonly Error TimedOut = (TimedOutCode, TimedOutText);    
+
+        public const string SequenceEmptyText = "sequence empty";
+        public const int SequenceEmptyCode = -2000000003;
+        public static readonly Error SequenceEmpty = (SequenceEmptyCode, SequenceEmptyText);    
     }
 
     [Serializable]

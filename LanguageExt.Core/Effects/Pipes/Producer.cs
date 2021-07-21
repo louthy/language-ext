@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.Effects;
@@ -27,6 +28,16 @@ namespace LanguageExt.Pipes
         public static Producer<RT, OUT, Unit> yield<RT, OUT>(OUT value) where RT : struct, HasCancel<RT> =>
             respond<RT, Void, Unit, Unit, OUT>(value).ToProducer();
         
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, X, X> enumerate<RT, X>(IEnumerable<X> xs)
+            where RT : struct, HasCancel<RT> =>
+            new Enumerate<RT, Void, Unit, Unit, X, X, X>(xs, Producer.Pure<RT, X, X>).ToProducer();
+
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, X> enumerate<RT, OUT, X>(IEnumerable<X> xs)
+            where RT : struct, HasCancel<RT> =>
+            new Enumerate<RT, Void, Unit, Unit, OUT, X, X>(xs, Producer.Pure<RT, OUT, X>).ToProducer();
+
         /// <summary>
         /// Resource management 
         /// </summary>

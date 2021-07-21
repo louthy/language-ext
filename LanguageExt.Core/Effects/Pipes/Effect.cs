@@ -3,6 +3,7 @@ using LanguageExt.Effects.Traits;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Pipes.Proxy;
 using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes
@@ -37,22 +38,32 @@ namespace LanguageExt.Pipes
 
                                         case Respond<RT, Void, Unit, Unit, Void, R> (var v, var _):
                                             return await Proxy.closed<Aff<RT, R>>(v).Run(env);
-                                        
-                                        case Repeat<RT, Void, Unit, Unit, Void, R> (var inner):
-                                            while (true)
-                                            {
-                                                var fi = await inner.RunEffect<RT, R>().Run(env);
-                                                if (fi.IsFail) return fi.Error;
-                                            }
 
                                         case Pure<RT, Void, Unit, Unit, Void, R> (var r):
                                             return FinSucc<R>(r);
                                         
                                         case M<RT, Void, Unit, Unit, Void, R> (var m):
-                                            var fp = await m.Clone().Run(env);
+                                            var fp = await m.ReRun(env);
                                             if (fp.IsFail) return fp.Error;
                                             p = fp.Value.ToProxy();
                                             break;
+                                        
+                                        case Repeat<RT, Void, Unit, Unit, Void, R> (var inner):
+                                            var effect = inner.RunEffect<RT, R>();
+                                            while (true)
+                                            {
+                                                var fi = await effect.ReRun(env);
+                                                if (fi.IsFail) return fi.Error;
+                                            }
+                                            
+                                        case Enumerate<RT, Void, Unit, Unit, Void, R> me:
+                                            Fin<R> lastResult = Errors.SequenceEmpty; 
+                                            foreach (var f in me.MakeEffects())
+                                            {
+                                                lastResult = await f.RunEffect<RT, R>().Run(env);
+                                                if (lastResult.IsFail) return lastResult.Error;
+                                            }
+                                            return lastResult;
                                     }
                                 }
                             });

@@ -168,6 +168,67 @@ namespace LanguageExt.Pipes
         public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<IN, OUT, A> ma, Func<A, Lift<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
             from a in ma
             from b in f(a).ToPipe<IN, OUT>()
+            select project(a, b);
+        
+
+        public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Lift<RT, A> ma, Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasCancel<RT> =>
+            from a in ma.ToConsumer<IN>()
+            from b in f(a)
+            select b;
+
+        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Lift<RT, A> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+            from a in ma.ToConsumer<IN>()
+            from b in f(a)
+            select project(a, b);
+
+        public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Lift<RT, A> ma, Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT> =>
+            from a in ma.ToProducer<OUT>()
+            from b in f(a)
+            select b;
+
+        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Lift<RT, A> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+            from a in ma.ToProducer<OUT>()
+            from b in f(a)
+            select project(a, b);
+
+        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Lift<RT, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasCancel<RT> =>
+            from a in ma.ToPipe<IN, OUT>()
+            from b in f(a)
+            select b;
+
+        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Lift<RT, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+            from a in ma.ToPipe<IN, OUT>()
+            from b in f(a)
             select project(a, b);        
+
+        public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Consumer<RT, IN, A> ma, Func<A, Lift<RT, B>> f) where RT : struct, HasCancel<RT> =>
+            from a in ma
+            from b in f(a).ToConsumer<IN>()
+            select b;
+
+        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<RT, IN, A> ma, Func<A, Lift<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+            from a in ma
+            from b in f(a).ToConsumer<IN>()
+            select project(a, b);
+
+        public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Producer<RT, OUT, A> ma, Func<A, Lift<RT, B>> f) where RT : struct, HasCancel<RT> =>
+            from a in ma
+            from b in f(a).ToProducer<OUT>()
+            select b;
+
+        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<RT, OUT, A> ma, Func<A, Lift<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+            from a in ma
+            from b in f(a).ToProducer<OUT>()
+            select project(a, b);
+
+        public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Pipe<RT, IN, OUT, A> ma, Func<A, Lift<RT, B>> f) where RT : struct, HasCancel<RT> =>
+            from a in ma
+            from b in f(a).ToPipe<IN, OUT>()
+            select b;
+
+        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<RT, IN, OUT, A> ma, Func<A, Lift<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+            from a in ma
+            from b in f(a).ToPipe<IN, OUT>()
+            select project(a, b);          
     }
 }

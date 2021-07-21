@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.Effects.Traits;
@@ -162,13 +163,17 @@ namespace LanguageExt.Pipes
     ///                           v
     ///                           () 
     /// </summary>
-    public interface Proxy<RT, UOut, UIn, DIn, DOut, out A>  where RT : struct, HasCancel<RT>
+    public abstract class Proxy<RT, UOut, UIn, DIn, DOut, A>  where RT : struct, HasCancel<RT>
     {
-        Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy();
-        Proxy<RT, UOut, UIn, DIn, DOut, B> Bind<B>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f);
-        Proxy<RT, UOut, UIn, DIn, DOut, B> Map<B>(Func<A, B> f);
-        Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f);
-        Proxy<RT, UOut, UIn, DIn, DOut, B> Action<B>(Proxy<RT, UOut, UIn, DIn, DOut, B> r);
+        public abstract Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy();
+        public abstract Proxy<RT, UOut, UIn, DIn, DOut, B> Bind<B>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f);
+        public abstract Proxy<RT, UOut, UIn, DIn, DOut, B> Map<B>(Func<A, B> f);
+        public abstract Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f);
+        public abstract Proxy<RT, UOut, UIn, DIn, DOut, B> Action<B>(Proxy<RT, UOut, UIn, DIn, DOut, B> r);
+        public abstract Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> lhs);
+        public abstract Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs);
+        public abstract Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs);
+        public abstract Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT,  UOut, UIn, DInC, DOutC, DIn>> rhs);
     }
     
     public partial class Pure<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
@@ -179,29 +184,45 @@ namespace LanguageExt.Pipes
             Value = value;
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
+        public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, B> Bind<B>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f) =>
+        public override Proxy<RT, UOut, UIn, DIn, DOut, B> Bind<B>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f) =>
             f(Value);
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, B> Map<B>(Func<A, B> f) =>
+        public override Proxy<RT, UOut, UIn, DIn, DOut, B> Map<B>(Func<A, B> f) =>
             new Pure<RT, UOut, UIn, DIn, DOut, B>(f(Value));
 
         [Pure]
-        public Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
+        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
             new Pure<RT, UOut, UIn, C1, C, A>(Value);
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, B> Action<B>(Proxy<RT, UOut, UIn, DIn, DOut, B> r) =>
+        public override Proxy<RT, UOut, UIn, DIn, DOut, B> Action<B>(Proxy<RT, UOut, UIn, DIn, DOut, B> r) =>
             r;
 
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
+            new Pure<RT, UOutA, AUInA, DIn, DOut, A>(Value);
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+            new Pure<RT, UOutA, AUInA, DIn, DOut, A>(Value);
+                
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
+            new Pure<RT, UOut, UIn, DInC, DOutC, A>(Value);
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+            new Pure<RT, UOut, UIn, DInC, DOutC, A>(Value);
+        
         [Pure]
         public void Deconstruct(out A value) =>
             value = Value;
     }
-    
+
     public partial class Repeat<RT, UOut, UIn, DIn, DOut, R> : Proxy<RT, UOut, UIn, DIn, DOut, R> where RT : struct, HasCancel<RT>
     {
         public readonly Proxy<RT, UOut, UIn, DIn, DOut, R> Inner;
@@ -210,27 +231,105 @@ namespace LanguageExt.Pipes
             Inner = inner;
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, R> ToProxy() => this;
+        public override Proxy<RT, UOut, UIn, DIn, DOut, R> ToProxy() => this;
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
             new Repeat<RT, UOut, UIn, DIn, DOut, S>(Inner.Bind(f));
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<R, S> f) =>
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<R, S> f) =>
             new Repeat<RT, UOut, UIn, DIn, DOut, S>(Inner.Map(f));
 
         [Pure]
-        public Proxy<RT, UOut, UIn, C1, C, R> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
+        public override Proxy<RT, UOut, UIn, C1, C, R> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
             new Repeat<RT, UOut, UIn, C1, C, R>(Inner.For(f));
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
             new Repeat<RT, UOut, UIn, DIn, DOut, S>(Inner.Action(r));
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, R> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, R>> fb1) =>
+            new Repeat<RT, UOutA, AUInA, DIn, DOut, R>(Inner.ComposeRight(fb1));
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, R> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+            new Repeat<RT, UOutA, AUInA, DIn, DOut, R>(Inner.ComposeRight(lhs));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, R>> rhs) =>
+            new Repeat<RT, UOut, UIn, DInC, DOutC, R>(Inner.ComposeLeft(rhs));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+            new Repeat<RT, UOut, UIn, DInC, DOutC, R>(Inner.ComposeLeft(rhs));
 
         [Pure]
         public void Deconstruct(out Proxy<RT, UOut, UIn, DIn, DOut, R> inner) =>
             inner = Inner;
+    }
+
+    public abstract class Enumerate<RT, UOut, UIn, DIn, DOut, R> : Proxy<RT, UOut, UIn, DIn, DOut, R> where RT : struct, HasCancel<RT>
+    {
+        public abstract IEnumerable<Proxy<RT, UOut, UIn, DIn, DOut, R>> MakeEffects();
+    }
+
+    public partial class Enumerate<RT, UOut, UIn, DIn, DOut, X, R> : Enumerate<RT, UOut, UIn, DIn, DOut, R> where RT : struct, HasCancel<RT>
+    {
+        public readonly IEnumerable<X> Items;
+        public readonly Func<X, Proxy<RT, UOut, UIn, DIn, DOut, R>> Next;
+
+        public Enumerate(IEnumerable<X> items, Func<X, Proxy<RT, UOut, UIn, DIn, DOut, R>> next) =>
+            (Items, Next) = (items, next);
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, R> ToProxy() => this;
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
+            new Enumerate<RT, UOut, UIn, DIn, DOut, X, S>(Items, x => Next(x).Bind(f));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<R, S> f) =>
+            new Enumerate<RT, UOut, UIn, DIn, DOut, X, S>(Items, x => Next(x).Map(f));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, C1, C, R> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
+            new Enumerate<RT, UOut, UIn, C1, C, X, R>(Items, x => Next(x).For(f));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
+            new Enumerate<RT, UOut, UIn, DIn, DOut, X, S>(Items, x => Next(x).Action(r));
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, R> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, R>> fb1) =>
+            new Enumerate<RT, UOutA, AUInA, DIn, DOut, X, R>(Items, c1 => Next(c1).ComposeRight(fb1));
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, R> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+            new Enumerate<RT, UOutA, AUInA, DIn, DOut, X, R>(Items, c1 => Next(c1).ComposeRight(lhs));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, R>> rhs) =>
+            new Enumerate<RT, UOut, UIn, DInC, DOutC, X, R>(Items, c1 => Next(c1).ComposeLeft(rhs));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+            new Enumerate<RT, UOut, UIn, DInC, DOutC, X, R>(Items, c1 => Next(c1).ComposeLeft(rhs));
+
+        [Pure]
+        public void Deconstruct(out IEnumerable<X> items, out Func<X, Proxy<RT, UOut, UIn, DIn, DOut, R>> next) =>
+            (items, next) = (Items, Next);
+
+        [Pure]
+        public override IEnumerable<Proxy<RT, UOut, UIn, DIn, DOut, R>> MakeEffects()
+        {
+            foreach (var item in Items)
+            {
+                yield return Next(item);
+            }
+        }
     }
 
     public partial class Request<RT, UOut, UIn, DIn, DOut, R> : Proxy<RT, UOut, UIn, DIn, DOut, R> where RT : struct, HasCancel<RT>
@@ -242,26 +341,42 @@ namespace LanguageExt.Pipes
             (Value, Next) = (value, fun);
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, R> ToProxy() => this;
+        public override Proxy<RT, UOut, UIn, DIn, DOut, R> ToProxy() => this;
 
         [Pure]
         public void Deconstruct(out UOut value, out Func<UIn, Proxy<RT, UOut, UIn, DIn, DOut, R>> fun) =>
             (value, fun) = (Value, Next);
 
         [Pure]
-        public Proxy<RT, UOut, UIn, C1, C, R> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
+        public override Proxy<RT, UOut, UIn, C1, C, R> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
             new Request<RT, UOut, UIn, C1, C, R>(Value, x => Next(x).For(f));
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
             new Request<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Action(r));
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, R> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, R>> fb1) =>
+            fb1(Value).ComposeLeft(Next);
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, R> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+            lhs(Value).Bind(b => Next(b).ComposeRight(lhs));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, R>> rhs) =>
+            new Request<RT, UOut, UIn, DInC, DOutC, R>(Value, a => Next(a).ComposeLeft(rhs));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+            new Request<RT, UOut, UIn, DInC, DOutC, R>(Value, x => Next(x).ComposeLeft(rhs));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
             new Request<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Bind(f));
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<R, S> f) =>
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<R, S> f) =>
             new Request<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Map(f));
     }
 
@@ -274,23 +389,39 @@ namespace LanguageExt.Pipes
             (Value, Next) = (value, fun);
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, R> ToProxy() => this;
+        public override Proxy<RT, UOut, UIn, DIn, DOut, R> ToProxy() => this;
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
             new Respond<RT, UOut, UIn, DIn, DOut, S>(Value, b1 => Next(b1).Bind(f));
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<R, S> f) =>
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<R, S> f) =>
             new Respond<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Map(f));
 
         [Pure]
-        public Proxy<RT, UOut, UIn, C1, C, R> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> fb) =>
+        public override Proxy<RT, UOut, UIn, C1, C, R> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> fb) =>
             fb(Value).Bind(b1 => Next(b1).For(fb));
             
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
             new Respond<RT, UOut, UIn, DIn, DOut, S>(Value, b1 => Next(b1).Action(r));
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, R> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, R>> fb1) =>
+            new Respond<RT, UOutA, AUInA, DIn, DOut, R>(Value, c1 => Next(c1).ComposeRight(fb1));
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, R> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+            new Respond<RT, UOutA, AUInA, DIn, DOut, R>(Value, x1 => Next(x1).ComposeRight(lhs));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, R>> rhs) =>
+            rhs(Value).ComposeRight(Next);
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+            rhs(Value).Bind(b1 => Next(b1).ComposeLeft(rhs));
 
         [Pure]
         public void Deconstruct(out DOut value, out Func<DIn, Proxy<RT, UOut, UIn, DIn, DOut, R>> fun) =>
@@ -305,23 +436,39 @@ namespace LanguageExt.Pipes
             Value = value;
         
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, R> ToProxy() => this;
+        public override Proxy<RT, UOut, UIn, DIn, DOut, R> ToProxy() => this;
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
             new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Bind(f)));
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<R, S> f) =>
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<R, S> f) =>
             new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Map(f)));
 
         [Pure]
-        public Proxy<RT, UOut, UIn, C1, C, R> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
+        public override Proxy<RT, UOut, UIn, C1, C, R> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
             new M<RT, UOut, UIn, C1, C, R>(Value.Map(mx => mx.For(f)));
 
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
             new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Action(r)));
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, R> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, R>> fb1) =>
+            new M<RT, UOutA, AUInA, DIn, DOut, R>(Value.Map(p1 => p1.ComposeRight(fb1)));
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, R> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+            new M<RT, UOutA, AUInA, DIn, DOut, R>(Value.Map(x => x.ComposeRight(lhs)));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, R>> rhs) =>
+            new M<RT, UOut, UIn, DInC, DOutC, R>(Value.Map(p1 => p1.ComposeLeft(rhs)));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+            new M<RT, UOut, UIn, DInC, DOutC, R>(Value.Map(x => x.ComposeLeft(rhs)));
 
         [Pure]
         public void Deconstruct(out Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, R>> value) =>
@@ -342,24 +489,40 @@ namespace LanguageExt.Pipes
             Value = value;
 
         [Pure]
-        public Proxy<RT, Void, Unit, Unit, OUT, R> ToProxy() =>
+        public override Proxy<RT, Void, Unit, Unit, OUT, R> ToProxy() =>
             Value.ToProxy();
 
         [Pure]
-        public Proxy<RT, Void, Unit, Unit, OUT, S> Bind<S>(Func<R, Proxy<RT, Void, Unit, Unit, OUT, S>> f) =>
+        public override Proxy<RT, Void, Unit, Unit, OUT, S> Bind<S>(Func<R, Proxy<RT, Void, Unit, Unit, OUT, S>> f) =>
             Value.Bind(f);
 
         [Pure]
-        public Proxy<RT, Void, Unit, Unit, OUT, S> Map<S>(Func<R, S> f) =>
+        public override Proxy<RT, Void, Unit, Unit, OUT, S> Map<S>(Func<R, S> f) =>
             Value.Map(f);
 
         [Pure]
-        public Proxy<RT, Void, Unit, C1, C, R> For<C1, C>(Func<OUT, Proxy<RT, Void, Unit, C1, C, Unit>> f) =>
+        public override Proxy<RT, Void, Unit, C1, C, R> For<C1, C>(Func<OUT, Proxy<RT, Void, Unit, C1, C, Unit>> f) =>
             Value.For(f);
 
         [Pure]
-        public Proxy<RT, Void, Unit, Unit, OUT, S> Action<S>(Proxy<RT, Void, Unit, Unit, OUT, S> r) =>
+        public override Proxy<RT, Void, Unit, Unit, OUT, S> Action<S>(Proxy<RT, Void, Unit, Unit, OUT, S> r) =>
             Value.Action(r);
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, Unit, OUT, R> ComposeRight<UOutA, AUInA>(Func<Void, Proxy<RT, UOutA, AUInA, Void, Unit, R>> lhs) =>
+            Value.ComposeRight(lhs);
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, Unit, OUT, R> ComposeRight<UOutA, AUInA>(Func<Void, Proxy<RT, UOutA, AUInA, Unit, OUT, Unit>> lhs) =>
+            Value.ComposeRight(lhs);
+
+        [Pure]
+        public override Proxy<RT, Void, Unit, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<OUT, Proxy<RT, Unit, OUT, DInC, DOutC, R>> rhs) =>
+            Value.ComposeLeft(rhs);
+
+        [Pure]
+        public override Proxy<RT, Void, Unit, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<OUT, Proxy<RT, Void, Unit, DInC, DOutC, Unit>> rhs) =>
+            Value.ComposeLeft(rhs);
 
         [Pure]
         public static Effect<RT, R> operator |(Producer<RT, OUT, R> p1, Consumer<RT, OUT, R> p2) => 
@@ -375,7 +538,11 @@ namespace LanguageExt.Pipes
 
         [Pure]
         public static implicit operator Producer<RT, OUT, R>(Producer<OUT, R> p) =>
-            p.Interpret<RT, OUT, R>();
+            p.Interpret<RT>();
+
+        [Pure]
+        public static implicit operator Producer<RT, OUT, R>(Pure<R> p) =>
+            Producer.Pure<RT, OUT, R>(p.Value);
     }
 
     /// <summary>
@@ -389,24 +556,40 @@ namespace LanguageExt.Pipes
             Value = value;
 
         [Pure]
-        public Proxy<RT, Unit, IN, Unit, Void, R> ToProxy() =>
+        public override Proxy<RT, Unit, IN, Unit, Void, R> ToProxy() =>
             Value.ToProxy();
 
         [Pure]
-        public Proxy<RT, Unit, IN, Unit, Void, S> Bind<S>(Func<R, Proxy<RT, Unit, IN, Unit, Void, S>> f) =>
+        public override Proxy<RT, Unit, IN, Unit, Void, S> Bind<S>(Func<R, Proxy<RT, Unit, IN, Unit, Void, S>> f) =>
             Value.Bind(f);
 
         [Pure]
-        public Proxy<RT, Unit, IN, Unit, Void, S> Map<S>(Func<R, S> f) =>
+        public override Proxy<RT, Unit, IN, Unit, Void, S> Map<S>(Func<R, S> f) =>
             Value.Map(f);
 
         [Pure]
-        public Proxy<RT, Unit, IN, C1, C, R> For<C1, C>(Func<Void, Proxy<RT, Unit, IN, C1, C, Unit>> f) =>
+        public override Proxy<RT, Unit, IN, C1, C, R> For<C1, C>(Func<Void, Proxy<RT, Unit, IN, C1, C, Unit>> f) =>
             Value.For(f);
 
         [Pure]
-        public Proxy<RT, Unit, IN, Unit, Void, S> Action<S>(Proxy<RT, Unit, IN, Unit, Void, S> r) =>
+        public override Proxy<RT, Unit, IN, Unit, Void, S> Action<S>(Proxy<RT, Unit, IN, Unit, Void, S> r) =>
             Value.Action(r);
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, Unit, Void, R> ComposeRight<UOutA, AUInA>(Func<Unit, Proxy<RT, UOutA, AUInA, Unit, IN, R>> lhs) =>
+            Value.ComposeRight(lhs);
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, Unit, Void, R> ComposeRight<UOutA, AUInA>(Func<Unit, Proxy<RT, UOutA, AUInA, Unit, Void, IN>> lhs) =>
+            Value.ComposeRight(lhs);
+
+        [Pure]
+        public override Proxy<RT, Unit, IN, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<Void, Proxy<RT, Unit, Void, DInC, DOutC, R>> rhs) =>
+            Value.ComposeLeft(rhs);
+
+        [Pure]
+        public override Proxy<RT, Unit, IN, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<Void, Proxy<RT, Unit, IN, DInC, DOutC, Unit>> rhs) =>
+            Value.ComposeLeft(rhs);
 
         [Pure]
         public void Deconstruct(out Proxy<RT, Unit, IN, Unit, Void, R> value) =>
@@ -415,6 +598,10 @@ namespace LanguageExt.Pipes
         [Pure]
         public static implicit operator Consumer<RT, IN, R>(Consumer<IN, R> c) =>
             c.Interpret<RT, IN, R>();
+
+        [Pure]
+        public static implicit operator Consumer<RT, IN, R>(Pure<R> p) =>
+            Consumer.Pure<RT, IN, R>(p.Value);
     }
 
     /// <summary>
@@ -439,24 +626,40 @@ namespace LanguageExt.Pipes
             Value = value;
         
         [Pure]
-        public Proxy<RT, Unit, IN, Unit, OUT, R> ToProxy() =>
+        public override Proxy<RT, Unit, IN, Unit, OUT, R> ToProxy() =>
             Value.ToProxy();
 
         [Pure]
-        public Proxy<RT, Unit, IN, Unit, OUT, S> Bind<S>(Func<R, Proxy<RT, Unit, IN, Unit, OUT, S>> f) =>
+        public override Proxy<RT, Unit, IN, Unit, OUT, S> Bind<S>(Func<R, Proxy<RT, Unit, IN, Unit, OUT, S>> f) =>
             Value.Bind(f);
             
         [Pure]
-        public Proxy<RT, Unit, IN, Unit, OUT, S> Map<S>(Func<R, S> f) =>
+        public override Proxy<RT, Unit, IN, Unit, OUT, S> Map<S>(Func<R, S> f) =>
             Value.Map(f);
 
         [Pure]
-        public Proxy<RT, Unit, IN, C1, C, R> For<C1, C>(Func<OUT, Proxy<RT, Unit, IN, C1, C, Unit>> f) =>
+        public override Proxy<RT, Unit, IN, C1, C, R> For<C1, C>(Func<OUT, Proxy<RT, Unit, IN, C1, C, Unit>> f) =>
             Value.For(f);
 
         [Pure]
-        public Proxy<RT, Unit, IN, Unit, OUT, S> Action<S>(Proxy<RT, Unit, IN, Unit, OUT, S> r) =>
+        public override Proxy<RT, Unit, IN, Unit, OUT, S> Action<S>(Proxy<RT, Unit, IN, Unit, OUT, S> r) =>
             Value.Action(r);
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, Unit, OUT, R> ComposeRight<UOutA, AUInA>(Func<Unit, Proxy<RT, UOutA, AUInA, Unit, IN, R>> lhs) =>
+            Value.ComposeRight(lhs);
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, Unit, OUT, R> ComposeRight<UOutA, AUInA>(Func<Unit, Proxy<RT, UOutA, AUInA, Unit, OUT, IN>> lhs) =>
+            Value.ComposeRight(lhs);
+
+        [Pure]
+        public override Proxy<RT, Unit, IN, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<OUT, Proxy<RT, Unit, OUT, DInC, DOutC, R>> rhs) =>
+            Value.ComposeLeft(rhs);
+
+        [Pure]
+        public override Proxy<RT, Unit, IN, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<OUT, Proxy<RT, Unit, IN, DInC, DOutC, Unit>> rhs) =>
+            Value.ComposeLeft(rhs);
 
         [Pure]
         public void Deconstruct(out Proxy<RT, Unit, IN, Unit, OUT, R> value) =>
@@ -475,6 +678,10 @@ namespace LanguageExt.Pipes
             Proxy.compose(p1, p2);
         
         [Pure]
+        public static Consumer<RT, IN, R> operator |(Pipe<RT, IN, OUT, R> p1, Consumer<RT, OUT, R> p2) =>
+            Proxy.compose(p1, p2);
+        
+        [Pure]
         public static Producer<RT, OUT, R> operator |(Producer<OUT, IN> p1, Pipe<RT, IN, OUT, R> p2) =>
             Proxy.compose(p1, p2);
         
@@ -485,6 +692,10 @@ namespace LanguageExt.Pipes
         [Pure]
         public static implicit operator Pipe<RT, IN, OUT, R>(Pipe<IN, OUT, R> p) =>
             p.Interpret<RT, IN, OUT, R>();
+
+        [Pure]
+        public static implicit operator Pipe<RT, IN, OUT, R>(Pure<R> p) =>
+            Pipe.Pure<RT, IN, OUT, R>(p.Value);
     }
 
     /// <summary>
@@ -498,24 +709,40 @@ namespace LanguageExt.Pipes
             Value = value;
  
         [Pure]
-        public Proxy<RT, A, B, Unit, Unit, R> ToProxy() =>
+        public override Proxy<RT, A, B, Unit, Unit, R> ToProxy() =>
             Value.ToProxy();
 
         [Pure]
-        public Proxy<RT, A, B, Unit, Unit, S> Bind<S>(Func<R, Proxy<RT, A, B, Unit, Unit, S>> f) =>
+        public override Proxy<RT, A, B, Unit, Unit, S> Bind<S>(Func<R, Proxy<RT, A, B, Unit, Unit, S>> f) =>
             Value.Bind(f);
             
         [Pure]
-        public Proxy<RT, A, B, Unit, Unit, S> Map<S>(Func<R, S> f) =>
+        public override Proxy<RT, A, B, Unit, Unit, S> Map<S>(Func<R, S> f) =>
             Value.Map(f);
 
         [Pure]
-        public Proxy<RT, A, B, C1, C, R> For<C1, C>(Func<Unit, Proxy<RT, A, B, C1, C, Unit>> f) =>
+        public override Proxy<RT, A, B, C1, C, R> For<C1, C>(Func<Unit, Proxy<RT, A, B, C1, C, Unit>> f) =>
             Value.For(f);
 
         [Pure]
-        public Proxy<RT, A, B, Unit, Unit, S> Action<S>(Proxy<RT, A, B, Unit, Unit, S> r) =>
+        public override Proxy<RT, A, B, Unit, Unit, S> Action<S>(Proxy<RT, A, B, Unit, Unit, S> r) =>
             Value.Action(r);
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, Unit, Unit, R> ComposeRight<UOutA, AUInA>(Func<A, Proxy<RT, UOutA, AUInA, A, B, R>> lhs) =>
+            Value.ComposeRight(lhs);
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, Unit, Unit, R> ComposeRight<UOutA, AUInA>(Func<A, Proxy<RT, UOutA, AUInA, Unit, Unit, B>> lhs) =>
+            Value.ComposeRight(lhs);
+
+        [Pure]
+        public override Proxy<RT, A, B, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<Unit, Proxy<RT, Unit, Unit, DInC, DOutC, R>> rhs) =>
+            Value.ComposeLeft(rhs);
+
+        [Pure]
+        public override Proxy<RT, A, B, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<Unit, Proxy<RT, A, B, DInC, DOutC, Unit>> rhs) =>
+            Value.ComposeLeft(rhs);
 
         [Pure]
         public void Deconstruct(out Proxy<RT, A, B, Unit, Unit, R> value) =>
@@ -533,24 +760,40 @@ namespace LanguageExt.Pipes
             Value = value;
         
         [Pure]
-        public Proxy<RT, Unit, Unit, A, B, R> ToProxy() =>
+        public override Proxy<RT, Unit, Unit, A, B, R> ToProxy() =>
             Value.ToProxy();
 
         [Pure]
-        public Proxy<RT, Unit, Unit, A, B, S> Bind<S>(Func<R, Proxy<RT, Unit, Unit, A, B, S>> f) =>
+        public override Proxy<RT, Unit, Unit, A, B, S> Bind<S>(Func<R, Proxy<RT, Unit, Unit, A, B, S>> f) =>
             Value.Bind(f);
             
         [Pure]
-        public Proxy<RT, Unit, Unit, A, B, S> Map<S>(Func<R, S> f) =>
+        public override Proxy<RT, Unit, Unit, A, B, S> Map<S>(Func<R, S> f) =>
             Value.Map(f);
 
         [Pure]
-        public Proxy<RT, Unit, Unit, C1, C, R> For<C1, C>(Func<B, Proxy<RT, Unit, Unit, C1, C, A>> f) =>
+        public override Proxy<RT, Unit, Unit, C1, C, R> For<C1, C>(Func<B, Proxy<RT, Unit, Unit, C1, C, A>> f) =>
             Value.For(f);
 
         [Pure]
-        public Proxy<RT, Unit, Unit, A, B, S> Action<S>(Proxy<RT, Unit, Unit, A, B, S> r) =>
+        public override Proxy<RT, Unit, Unit, A, B, S> Action<S>(Proxy<RT, Unit, Unit, A, B, S> r) =>
             Value.Action(r);
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, A, B, R> ComposeRight<UOutA, AUInA>(Func<Unit, Proxy<RT, UOutA, AUInA, Unit, Unit, R>> lhs) =>
+            Value.ComposeRight(lhs);
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, A, B, R> ComposeRight<UOutA, AUInA>(Func<Unit, Proxy<RT, UOutA, AUInA, A, B, Unit>> lhs) =>
+            Value.ComposeRight(lhs);
+
+        [Pure]
+        public override Proxy<RT, Unit, Unit, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<B, Proxy<RT, A, B, DInC, DOutC, R>> rhs) =>
+            Value.ComposeLeft(rhs);
+
+        [Pure]
+        public override Proxy<RT, Unit, Unit, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<B, Proxy<RT, Unit, Unit, DInC, DOutC, A>> rhs) =>
+            Value.ComposeLeft(rhs);
 
         [Pure]
         public void Deconstruct(out Proxy<RT, Unit, Unit, A, B, R> value) =>
@@ -569,24 +812,40 @@ namespace LanguageExt.Pipes
             Value = value;
         
         [Pure]
-        public Proxy<RT, Void, Unit, Unit, Void, R> ToProxy() =>
+        public override Proxy<RT, Void, Unit, Unit, Void, R> ToProxy() =>
             Value.ToProxy();
         [Pure]
 
-        public Proxy<RT, Void, Unit, Unit, Void, S> Bind<S>(Func<R, Proxy<RT, Void, Unit, Unit, Void, S>> f) =>
+        public override Proxy<RT, Void, Unit, Unit, Void, S> Bind<S>(Func<R, Proxy<RT, Void, Unit, Unit, Void, S>> f) =>
             Value.Bind(f);
             
         [Pure]
-        public Proxy<RT, Void, Unit, Unit, Void, S> Map<S>(Func<R, S> f) =>
+        public override Proxy<RT, Void, Unit, Unit, Void, S> Map<S>(Func<R, S> f) =>
             Value.Map(f);
 
         [Pure]
-        public Proxy<RT, Void, Unit, C1, C, R> For<C1, C>(Func<Void, Proxy<RT, Void, Unit, C1, C, Unit>> f) =>
+        public override Proxy<RT, Void, Unit, C1, C, R> For<C1, C>(Func<Void, Proxy<RT, Void, Unit, C1, C, Unit>> f) =>
             Value.For(f);
 
         [Pure]
-        public Proxy<RT, Void, Unit, Unit, Void, S> Action<S>(Proxy<RT, Void, Unit, Unit, Void, S> r) =>
+        public override Proxy<RT, Void, Unit, Unit, Void, S> Action<S>(Proxy<RT, Void, Unit, Unit, Void, S> r) =>
             Value.Action(r);
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, Unit, Void, R> ComposeRight<UOutA, AUInA>(Func<Void, Proxy<RT, UOutA, AUInA, Void, Unit, R>> lhs) =>
+            Value.ComposeRight(lhs);
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, Unit, Void, R> ComposeRight<UOutA, AUInA>(Func<Void, Proxy<RT, UOutA, AUInA, Unit, Void, Unit>> lhs) =>
+            Value.ComposeRight(lhs);
+
+        [Pure]
+        public override Proxy<RT, Void, Unit, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<Void, Proxy<RT, Unit, Void, DInC, DOutC, R>> rhs) =>
+            Value.ComposeLeft(rhs);
+
+        [Pure]
+        public override Proxy<RT, Void, Unit, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<Void, Proxy<RT, Void, Unit, DInC, DOutC, Unit>> rhs) =>
+            Value.ComposeLeft(rhs);
 
         [Pure]
         public void Deconstruct(out Proxy<RT, Void, Unit, Unit, Void, R> value) =>

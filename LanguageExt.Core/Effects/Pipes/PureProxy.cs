@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
@@ -13,15 +14,101 @@ namespace LanguageExt.Pipes
             Value = value;
     }
 
+    public abstract class Enumerate<A>
+    {
+        public abstract Enumerate<B> Select<B>(Func<A, B> f);
+        public abstract Producer<OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f);
+        public abstract Producer<RT, OUT, B> SelectMany<RT, OUT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT>;
+        public abstract Producer<RT, OUT, A> Interpret<RT, OUT>() where RT : struct, HasCancel<RT>;
+
+        public class Pure : Enumerate<A> 
+        {
+            public readonly A Value;
+            public Pure(A value) =>
+                Value = value;
+            
+            public override Enumerate<B> Select<B>(Func<A, B> f) =>
+                new Enumerate<B>.Pure(f(Value));
+
+            public override Producer<OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f) =>
+                f(Value);
+
+            public override Producer<RT, OUT, B> SelectMany<RT, OUT, B>(Func<A, Producer<RT, OUT, B>> f) =>
+                f(Value);
+
+            public override Producer<RT, OUT, A> Interpret<RT, OUT>() =>
+                Producer.Pure<RT, OUT, A>(Value);
+        }
+
+        public class Do<X> : Enumerate<A>
+        {
+            public readonly IEnumerable<X> Values;
+            public readonly Func<X, Enumerate<A>> Next;
+            
+            public Do(IEnumerable<X> values, Func<X, Enumerate<A>> next) =>
+                (Values, Next) = (values, next);
+
+            public override Enumerate<B> Select<B>(Func<A, B> f) =>
+                new Enumerate<B>.Do<X>(Values, n => Next(n).Select(f));
+
+            public override Producer<OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f) =>
+                new Producer<OUT, B>.Enumerate<X>(Values, x => Next(x).SelectMany(f));
+
+            public override Producer<RT, OUT, B> SelectMany<RT, OUT, B>(Func<A, Producer<RT, OUT, B>> f) =>
+                Interpret<RT, OUT>().Bind(f).ToProducer();
+
+            public override Producer<RT, OUT, A> Interpret<RT, OUT>() =>
+                Producer.enumerate<RT, OUT, X>(Values).Bind(x => Next(x).Interpret<RT, OUT>()).ToProducer();
+        }
+    }
+
     public abstract class Producer<OUT, A>
     {
+        public abstract Producer<OUT, B> Select<B>(Func<A, B> f);
+        public abstract Producer<OUT, B> SelectMany<B>(Func<A, Producer<OUT, B>> f);
+        public abstract Producer<RT, OUT, B> SelectMany<RT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT>;
+        public abstract Producer<RT, OUT, A> Interpret<RT>() where RT : struct, HasCancel<RT>;
+       
         public class Pure : Producer<OUT, A> 
         {
             public readonly A Value;
             public Pure(A value) =>
                 Value = value;
+
+            public override Producer<OUT, B> Select<B>(Func<A, B> f) =>
+                new Producer<OUT, B>.Pure(f(Value));
+
+            public override Producer<OUT, B> SelectMany<B>(Func<A, Producer<OUT, B>> f) =>
+                f(Value);
+
+            public override Producer<RT, OUT, B> SelectMany<RT, B>(Func<A, Producer<RT, OUT, B>> f) =>
+                f(Value);
+
+            public override Producer<RT, OUT, A> Interpret<RT>() =>
+                Producer.Pure<RT, OUT, A>(Value);
         }
 
+        public class Enumerate<X> : Producer<OUT, A> 
+        {
+            public readonly IEnumerable<X> Values;
+            public readonly Func<X, Producer<OUT, A> > Next;
+            
+            public Enumerate(IEnumerable<X> values, Func<X, Producer<OUT, A> > next) =>
+                (Values, Next) = (values, next);
+
+            public override Producer<OUT, B> Select<B>(Func<A, B> f) =>
+                new Producer<OUT, B>.Enumerate<X>(Values, n => Next(n).Select(f));
+
+            public override Producer<OUT, B> SelectMany<B>(Func<A, Producer<OUT, B>> f) =>
+                new Producer<OUT, B>.Enumerate<X>(Values, n => Next(n).SelectMany(f));
+
+            public override Producer<RT, OUT, B> SelectMany<RT, B>(Func<A, Producer<RT, OUT, B>> f) =>
+                Interpret<RT>().Bind(f).ToProducer();
+
+            public override Producer<RT, OUT, A> Interpret<RT>() =>
+                Producer.enumerate<RT, OUT, X>(Values).Bind(x => Next(x).Interpret<RT>()).ToProducer();
+        }
+        
         public class Yield : Producer<OUT, A>
         {
             public readonly OUT Value;
@@ -29,6 +116,18 @@ namespace LanguageExt.Pipes
             
             public Yield(OUT value, Func<Unit, Producer<OUT, A>> next) =>
                 (Value, Next) = (value, next);
+
+            public override Producer<OUT, B> Select<B>(Func<A, B> f) =>
+                new Producer<OUT, B>.Yield(Value, n => Next(n).Select(f));
+
+            public override Producer<OUT, B> SelectMany<B>(Func<A, Producer<OUT, B>> f) =>
+                new Producer<OUT, B>.Yield(Value, n => Next(n).SelectMany(f));
+
+            public override Producer<RT, OUT, B> SelectMany<RT, B>(Func<A, Producer<RT, OUT, B>> f) =>
+                Interpret<RT>().Bind(f).ToProducer();
+
+            public override Producer<RT, OUT, A> Interpret<RT>() =>
+                Producer.yield<RT, OUT>(Value).Bind(x => Next(x).Interpret<RT>()).ToProducer();
         }
     }
     
@@ -89,6 +188,9 @@ namespace LanguageExt.Pipes
         public static Consumer<IN, A> ConsumerPure<IN, A>(A value) =>
             new Consumer<IN, A>.Pure(value);
 
+        public static Enumerate<A> EnumeratePure<A>(A value) =>
+            new Enumerate<A>.Pure(value);
+
         public static Consumer<IN, IN> ConsumerAwait<IN>() =>
             new Consumer<IN, IN>.Await(ConsumerPure<IN, IN>);
 
@@ -97,6 +199,12 @@ namespace LanguageExt.Pipes
 
         public static Producer<OUT, Unit> ProducerYield<OUT>(OUT value) =>
             new Producer<OUT, Unit>.Yield(value, ProducerPure<OUT, Unit>);
+
+        public static Producer<OUT, X> ProducerEnumerate<OUT, X>(IEnumerable<X> xs) =>
+            new Producer<OUT, X>.Enumerate<X>(xs, ProducerPure<OUT, X>);
+
+        public static Producer<X, X> ProducerEnumerate<X>(IEnumerable<X> xs) =>
+            new Producer<X, X>.Enumerate<X>(xs, ProducerPure<X, X>);
 
         public static Pipe<IN, OUT, Unit> PipeYield<IN, OUT>(OUT value) =>
             new Pipe<IN, OUT, Unit>.Yield(value, PipePure<IN, OUT, Unit>);
@@ -107,14 +215,6 @@ namespace LanguageExt.Pipes
                 Pipe<IN, OUT, A>.Pure v  => PipePure<IN, OUT, B>(f(v.Value)),
                 Pipe<IN, OUT, A>.Await v => new Pipe<IN, OUT, B>.Await(n => v.Next(n).Select(f)),
                 Pipe<IN, OUT, A>.Yield v => new Pipe<IN, OUT, B>.Yield(v.Value, n => v.Next(n).Select(f)),
-                _                           => throw new System.InvalidOperationException()
-            };
-
-        public static Producer<OUT, B> Select<OUT, A, B>(this Producer<OUT, A> ma, Func<A, B> f) =>
-            ma switch
-            {
-                Producer<OUT, A>.Pure v  => ProducerPure<OUT, B>(f(v.Value)),
-                Producer<OUT, A>.Yield v => new Producer<OUT, B>.Yield(v.Value, n => v.Next(n).Select(f)),
                 _                           => throw new System.InvalidOperationException()
             };
 
@@ -137,14 +237,6 @@ namespace LanguageExt.Pipes
 
         public static Pipe<IN, OUT, C> SelectMany<IN, OUT, A, B, C>(this Pipe<IN, OUT, A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) =>
             ma.SelectMany(a => f(a).Select(b => project(a, b)));
-
-        public static Producer<OUT, B> SelectMany<OUT, A, B>(this Producer<OUT, A> ma, Func<A, Producer<OUT, B>> f) =>
-            ma switch
-            {
-                Producer<OUT, A>.Pure v  => f(v.Value),
-                Producer<OUT, A>.Yield v => new Producer<OUT, B>.Yield(v.Value, n => v.Next(n).SelectMany(f)),
-                _                           => throw new System.InvalidOperationException()
-            };
                 
         public static Producer<OUT, C> SelectMany<OUT, A, B, C>(this Producer<OUT, A> ma, Func<A, Producer<OUT, B>> f, Func<A, B, C> project) =>
             ma.SelectMany(a => f(a).Select(b => project(a, b)));
@@ -159,17 +251,9 @@ namespace LanguageExt.Pipes
                 
         public static Consumer<IN, C> SelectMany<IN, A, B, C>(this Consumer<IN, A> ma, Func<A, Consumer<IN, B>> f, Func<A, B, C> project) =>
             ma.SelectMany(a => f(a).Select(b => project(a, b)));
-
-        public static Pipe<IN, OUT, B> SelectMany<IN, OUT, A, B>(this Producer<OUT, A> ma, Func<A, Pipe<IN, OUT, B>> f) =>
-            ma switch
-            {
-                Producer<OUT, A>.Pure v  => f(v.Value),
-                Producer<OUT, A>.Yield v => new Pipe<IN, OUT, B>.Yield(v.Value, n => v.Next(n).SelectMany(f)),
-                _                           => throw new System.InvalidOperationException()
-            };
                 
-        public static Pipe<IN, OUT, C> SelectMany<IN, OUT, A, B, C>(this Producer<OUT, A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) =>
-            ma.SelectMany(a => f(a).Select(b => project(a, b)));
+        //public static Pipe<IN, OUT, C> SelectMany<IN, OUT, A, B, C>(this Producer<OUT, A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) =>
+        //    ma.SelectMany(a => f(a).Select(b => project(a, b)));
 
         public static Pipe<IN, OUT, B> SelectMany<IN, OUT, A, B>(this Producer<OUT, A> ma, Func<A, Consumer<IN, B>> f)
         {
@@ -257,16 +341,6 @@ namespace LanguageExt.Pipes
                 _                       => throw new System.InvalidOperationException()
             };
 
-        public static Producer<RT, OUT, A> Interpret<RT, OUT, A>(this Producer<OUT, A> ma) where RT : struct, HasCancel<RT> =>
-            ma switch
-            {
-                Producer<OUT, A>.Pure v  => Producer.Pure<RT, OUT, A>(v.Value),
-                Producer<OUT, A>.Yield v => from x in Producer.yield<RT, OUT>(v.Value)
-                                            from n in Interpret<RT, OUT, A>(v.Next(x))
-                                            select n,
-                _                        => throw new System.InvalidOperationException()
-            };
-
         public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Pipe<RT, IN, OUT, A> ma, Func<A, Pipe<IN, OUT, B>> bind) where RT : struct, HasCancel<RT> =>
             from a in ma
             from r in bind(a).Interpret<RT, IN, OUT, B>()
@@ -277,14 +351,16 @@ namespace LanguageExt.Pipes
             from r in bind(a).Interpret<RT, IN, OUT, B>()
             select project(a, r);
 
+        /*
         public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Producer<RT, OUT, A> ma, Func<A, Producer<OUT, B>> bind) where RT : struct, HasCancel<RT> =>
             from a in ma
             from r in bind(a).Interpret<RT, OUT, B>()
             select r;
+            */
 
         public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<RT, OUT, A> ma, Func<A, Producer<OUT, B>> bind, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
             from a in ma
-            from r in bind(a).Interpret<RT, OUT, B>()
+            from r in bind(a).Interpret<RT>()
             select project(a, r);
 
         public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Consumer<RT, IN, A> ma, Func<A, Consumer<IN, B>> bind) where RT : struct, HasCancel<RT> =>
@@ -308,12 +384,12 @@ namespace LanguageExt.Pipes
             select project(a, r);
 
         public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Producer<OUT, A> ma, Func<A, Producer<RT, OUT, B>> bind) where RT : struct, HasCancel<RT> =>
-            from a in ma.Interpret<RT, OUT, A>()
+            from a in ma.Interpret<RT>()
             from r in bind(a)
             select r;
 
         public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<OUT, A> ma, Func<A, Producer<RT, OUT, B>> bind, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma.Interpret<RT, OUT, A>()
+            from a in ma.Interpret<RT>()
             from r in bind(a)
             select project(a, r);
 
