@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Pipes
@@ -174,6 +177,8 @@ namespace LanguageExt.Pipes
         public abstract Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs);
         public abstract Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs);
         public abstract Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT,  UOut, UIn, DInC, DOutC, DIn>> rhs);
+        public abstract Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect();
+        public abstract Proxy<RT, UOut, UIn, DIn, DOut, A> Observe();
     }
     
     public partial class Pure<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
@@ -217,7 +222,15 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
             new Pure<RT, UOut, UIn, DInC, DOutC, A>(Value);
-        
+
+        [Pure]
+        public override Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect() =>
+            new Pure<RT, DOut, DIn, UIn, UOut, A>(Value);
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
+            new M<RT, UOut, UIn, DIn, DOut, A>(Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>>.Success(this));
+
         [Pure]
         public void Deconstruct(out A value) =>
             value = Value;
@@ -264,6 +277,14 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
             new Repeat<RT, UOut, UIn, DInC, DOutC, R>(Inner.ComposeLeft(rhs));
+
+        [Pure]
+        public override Proxy<RT, DOut, DIn, UIn, UOut, R> Reflect() =>
+            new Repeat<RT, DOut, DIn, UIn, UOut, R>(Inner.Reflect());
+        
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, R> Observe() =>
+            new M<RT, UOut, UIn, DIn, DOut, R>(Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, R>>.Success(this));
 
         [Pure]
         public void Deconstruct(out Proxy<RT, UOut, UIn, DIn, DOut, R> inner) =>
@@ -319,6 +340,14 @@ namespace LanguageExt.Pipes
             new Enumerate<RT, UOut, UIn, DInC, DOutC, X, R>(Items, c1 => Next(c1).ComposeLeft(rhs));
 
         [Pure]
+        public override Proxy<RT, DOut, DIn, UIn, UOut, R> Reflect() =>
+            new Enumerate<RT, DOut, DIn, UIn, UOut, X, R>(Items, x => Next(x).Reflect());
+        
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, R> Observe() =>
+            new M<RT, UOut, UIn, DIn, DOut, R>(Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, R>>.Success(this));
+
+        [Pure]
         public void Deconstruct(out IEnumerable<X> items, out Func<X, Proxy<RT, UOut, UIn, DIn, DOut, R>> next) =>
             (items, next) = (Items, Next);
 
@@ -330,6 +359,102 @@ namespace LanguageExt.Pipes
                 yield return Next(item);
             }
         }
+    }
+    
+    
+    public abstract class Observer<RT, UOut, UIn, DIn, DOut, R> : Proxy<RT, UOut, UIn, DIn, DOut, R> where RT : struct, HasCancel<RT>
+    {
+        public abstract IDisposable Subscribe(
+            Action<Proxy<RT, UOut, UIn, DIn, DOut, R>> onNext, 
+            Action<Error> onError = null, 
+            Action onCompleted = null);
+    }
+
+    public partial class Observer<RT, UOut, UIn, DIn, DOut, X, R> : Observer<RT, UOut, UIn, DIn, DOut, R> where RT : struct, HasCancel<RT>
+    {
+        public readonly IObservable<X> Items;
+        public readonly Func<X, Proxy<RT, UOut, UIn, DIn, DOut, R>> Next;
+
+        public Observer(IObservable<X> items, Func<X, Proxy<RT, UOut, UIn, DIn, DOut, R>> next) =>
+            (Items, Next) = (items, next);
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, R> ToProxy() => this;
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
+            new Observer<RT, UOut, UIn, DIn, DOut, X, S>(Items, x => Next(x).Bind(f));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<R, S> f) =>
+            new Observer<RT, UOut, UIn, DIn, DOut, X, S>(Items, x => Next(x).Map(f));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, C1, C, R> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
+            new Observer<RT, UOut, UIn, C1, C, X, R>(Items, x => Next(x).For(f));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
+            new Observer<RT, UOut, UIn, DIn, DOut, X, S>(Items, x => Next(x).Action(r));
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, R> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, R>> fb1) =>
+            new Observer<RT, UOutA, AUInA, DIn, DOut, X, R>(Items, c1 => Next(c1).ComposeRight(fb1));
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, R> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+            new Observer<RT, UOutA, AUInA, DIn, DOut, X, R>(Items, c1 => Next(c1).ComposeRight(lhs));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, R>> rhs) =>
+            new Observer<RT, UOut, UIn, DInC, DOutC, X, R>(Items, c1 => Next(c1).ComposeLeft(rhs));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+            new Observer<RT, UOut, UIn, DInC, DOutC, X, R>(Items, c1 => Next(c1).ComposeLeft(rhs));
+
+        [Pure]
+        public override Proxy<RT, DOut, DIn, UIn, UOut, R> Reflect() =>
+            new Observer<RT, DOut, DIn, UIn, UOut, X, R>(Items, n => Next(n).Reflect()); 
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, R> Observe() =>
+            new M<RT, UOut, UIn, DIn, DOut, R>(Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, R>>.Success(this));
+
+        [Pure]
+        public void Deconstruct(out IObservable<X> items, out Func<X, Proxy<RT, UOut, UIn, DIn, DOut, R>> next) =>
+            (items, next) = (Items, Next);
+
+        [Pure]
+        public override IDisposable Subscribe(
+            Action<Proxy<RT, UOut, UIn, DIn, DOut, R>> onNext, 
+            Action<Error> onError = null, 
+            Action onCompleted = null) =>
+            Items.Subscribe(new Observerable(onCompleted, onError, x => onNext(Next(x))));
+
+        class Observerable : IObserver<X>
+        {
+            readonly Action onCompleted;
+            readonly Action<Error> onError;
+            readonly Action<X> onNext;
+            
+            public Observerable(Action onCompleted, Action<Error> onError, Action<X> onNext)
+            {
+                this.onCompleted = onCompleted;
+                this.onError     = onError;
+                this.onNext      = onNext;
+            }
+
+            public void OnCompleted() =>
+                onCompleted?.Invoke();
+
+            public void OnError(Exception error) =>
+                onError?.Invoke(error);
+
+            public void OnNext(X value) =>
+                onNext?.Invoke(value);
+        }
+
     }
 
     public partial class Request<RT, UOut, UIn, DIn, DOut, R> : Proxy<RT, UOut, UIn, DIn, DOut, R> where RT : struct, HasCancel<RT>
@@ -371,6 +496,18 @@ namespace LanguageExt.Pipes
         public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
             new Request<RT, UOut, UIn, DInC, DOutC, R>(Value, x => Next(x).ComposeLeft(rhs));
 
+        [Pure]
+        public override Proxy<RT, DOut, DIn, UIn, UOut, R> Reflect() =>
+            new Respond<RT, DOut, DIn, UIn, UOut, R>(Value, x => Next(x).Reflect());
+ 
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, R> Observe() =>
+            new M<RT, UOut, UIn, DIn, DOut, R>(
+                Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, R>>.Success(new Request<RT, UOut, UIn, DIn, DOut, R>(
+                                                                        Value,
+                                                                        x => Next(x).Observe()))
+                );
+ 
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<R, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
             new Request<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Bind(f));
@@ -424,6 +561,18 @@ namespace LanguageExt.Pipes
             rhs(Value).Bind(b1 => Next(b1).ComposeLeft(rhs));
 
         [Pure]
+        public override Proxy<RT, DOut, DIn, UIn, UOut, R> Reflect() =>
+            new Request<RT, DOut, DIn, UIn, UOut, R>(Value, x => Next(x).Reflect());
+ 
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, R> Observe() =>
+            new M<RT, UOut, UIn, DIn, DOut, R>(
+                Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, R>>.Success(new Respond<RT, UOut, UIn, DIn, DOut, R>(
+                                                                        Value,
+                                                                        x => Next(x).Observe()))
+            );
+
+        [Pure]
         public void Deconstruct(out DOut value, out Func<DIn, Proxy<RT, UOut, UIn, DIn, DOut, R>> fun) =>
             (value, fun) = (Value, Next);
     }
@@ -470,6 +619,15 @@ namespace LanguageExt.Pipes
         public override Proxy<RT, UOut, UIn, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
             new M<RT, UOut, UIn, DInC, DOutC, R>(Value.Map(x => x.ComposeLeft(rhs)));
 
+        [Pure]
+        public override Proxy<RT, DOut, DIn, UIn, UOut, R> Reflect() =>
+            new M<RT, DOut, DIn, UIn, UOut, R>(Value.Map(x => x.Reflect()));
+         
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, R> Observe() =>
+            new M<RT, UOut, UIn, DIn, DOut, R>(
+                Value.Bind(x => ((M<RT, UOut, UIn, DIn, DOut, R>)x.Observe()).Value));
+        
         [Pure]
         public void Deconstruct(out Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, R>> value) =>
             value = Value;
@@ -523,6 +681,14 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, Void, Unit, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<OUT, Proxy<RT, Void, Unit, DInC, DOutC, Unit>> rhs) =>
             Value.ComposeLeft(rhs);
+
+        [Pure]
+        public override Proxy<RT, OUT, Unit, Unit, Void, R> Reflect() =>
+            Value.Reflect();
+
+        [Pure]
+        public override Proxy<RT, Void, Unit, Unit, OUT, R> Observe() =>
+            Value.Observe();
 
         [Pure]
         public static Effect<RT, R> operator |(Producer<RT, OUT, R> p1, Consumer<RT, OUT, R> p2) => 
@@ -590,6 +756,14 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, Unit, IN, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<Void, Proxy<RT, Unit, IN, DInC, DOutC, Unit>> rhs) =>
             Value.ComposeLeft(rhs);
+        
+        [Pure]
+        public override Proxy<RT, Void, Unit, IN, Unit, R> Reflect() =>
+            Value.Reflect();
+
+        [Pure]
+        public override Proxy<RT, Unit, IN, Unit, Void, R> Observe() =>
+            Value.Observe();
 
         [Pure]
         public void Deconstruct(out Proxy<RT, Unit, IN, Unit, Void, R> value) =>
@@ -597,7 +771,11 @@ namespace LanguageExt.Pipes
 
         [Pure]
         public static implicit operator Consumer<RT, IN, R>(Consumer<IN, R> c) =>
-            c.Interpret<RT, IN, R>();
+            c.Interpret<RT>();
+
+        [Pure]
+        public static implicit operator Consumer<RT, IN, R>(ConsumerLift<RT, IN, R> c) =>
+            c.Interpret();
 
         [Pure]
         public static implicit operator Consumer<RT, IN, R>(Pure<R> p) =>
@@ -662,6 +840,14 @@ namespace LanguageExt.Pipes
             Value.ComposeLeft(rhs);
 
         [Pure]
+        public override Proxy<RT, OUT, Unit, IN, Unit, R> Reflect() =>
+            Value.Reflect();
+
+        [Pure]
+        public override Proxy<RT, Unit, IN, Unit, OUT, R> Observe() =>
+            Value.Observe();
+
+        [Pure]
         public void Deconstruct(out Proxy<RT, Unit, IN, Unit, OUT, R> value) =>
             value = Value;
         
@@ -691,7 +877,7 @@ namespace LanguageExt.Pipes
 
         [Pure]
         public static implicit operator Pipe<RT, IN, OUT, R>(Pipe<IN, OUT, R> p) =>
-            p.Interpret<RT, IN, OUT, R>();
+            p.Interpret<RT>();
 
         [Pure]
         public static implicit operator Pipe<RT, IN, OUT, R>(Pure<R> p) =>
@@ -745,6 +931,14 @@ namespace LanguageExt.Pipes
             Value.ComposeLeft(rhs);
 
         [Pure]
+        public override Proxy<RT, Unit, Unit, B, A, R> Reflect() =>
+            Value.Reflect();
+
+        [Pure]
+        public override Proxy<RT, A, B, Unit, Unit, R> Observe() =>
+            Value.Observe();
+
+        [Pure]
         public void Deconstruct(out Proxy<RT, A, B, Unit, Unit, R> value) =>
             value = Value;
     }
@@ -794,6 +988,14 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, Unit, Unit, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<B, Proxy<RT, Unit, Unit, DInC, DOutC, A>> rhs) =>
             Value.ComposeLeft(rhs);
+
+        [Pure]
+        public override Proxy<RT, B, A, Unit, Unit, R> Reflect() =>
+            Value.Reflect();
+
+        [Pure]
+        public override Proxy<RT, Unit, Unit, A, B, R> Observe() =>
+            Value.Observe();
 
         [Pure]
         public void Deconstruct(out Proxy<RT, Unit, Unit, A, B, R> value) =>
@@ -846,6 +1048,14 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, Void, Unit, DInC, DOutC, R> ComposeLeft<DInC, DOutC>(Func<Void, Proxy<RT, Void, Unit, DInC, DOutC, Unit>> rhs) =>
             Value.ComposeLeft(rhs);
+
+        [Pure]
+        public override Proxy<RT, Void, Unit, Unit, Void, R> Reflect() =>
+            Value.Reflect();
+
+        [Pure]
+        public override Proxy<RT, Void, Unit, Unit, Void, R> Observe() =>
+            Value.Observe();
 
         [Pure]
         public void Deconstruct(out Proxy<RT, Void, Unit, Unit, Void, R> value) =>

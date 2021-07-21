@@ -3,6 +3,7 @@ using LanguageExt.Effects.Traits;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Pipes.Proxy;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
@@ -10,8 +11,8 @@ namespace LanguageExt.Pipes
 {
     public static class Effect
     {
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Aff<RT, R> RunEffect_Original<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma) where RT : struct, HasCancel<RT> {
+        [Pure]
+        internal static Aff<RT, R> RunEffect_Original<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma) where RT : struct, HasCancel<RT> {
             return Go(ma);
             static Aff<RT, R> Go(Proxy<RT, Void, Unit, Unit, Void, R> p) =>
                 p.ToProxy() switch
@@ -24,7 +25,7 @@ namespace LanguageExt.Pipes
                 };
         }
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure]
         public static Aff<RT, R> RunEffect<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, R>(async env =>
                             {
@@ -64,6 +65,25 @@ namespace LanguageExt.Pipes
                                                 if (lastResult.IsFail) return lastResult.Error;
                                             }
                                             return lastResult;
+                                            
+                                        case Observer<RT, Void, Unit, Unit, Void, R> obs:
+                                            var    wait     = new AutoResetEvent(false);
+                                            var    lastTask = unit.AsValueTask();
+                                            Fin<R> last     = Errors.Cancelled;
+
+                                            // Not sure if launching the effects without an await makes sense here
+                                            using (var sub = obs.Subscribe(onNext: fx => lastTask = fx.RunEffect<RT, R>().Run(env).Iter(r => last = r),
+                                                                           onError: err =>
+                                                                                    {
+                                                                                        last = err;
+                                                                                        wait.Set();
+                                                                                    },
+                                                                           onCompleted: () => wait.Set()))
+                                            {
+                                                await wait.WaitOneAsync(env.CancellationToken);
+                                                await lastTask;
+                                                return last;
+                                            }
                                     }
                                 }
                             });

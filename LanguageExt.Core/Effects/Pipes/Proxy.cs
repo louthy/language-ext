@@ -52,6 +52,14 @@ namespace LanguageExt.Pipes
         public static Producer<X, X> enumerate<X>(IEnumerable<X> xs) =>
             PureProxy.ProducerEnumerate<X, X>(xs);
 
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<OUT, X> observe<OUT, X>(IObservable<X> xs) =>
+            PureProxy.ProducerObserve<OUT, X>(xs);
+
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<X, X> observe<X>(IObservable<X> xs) =>
+            PureProxy.ProducerObserve<X, X>(xs);
+
         /// <summary>
         /// Lift the IO monad into the monad transformer 
         /// </summary>
@@ -170,8 +178,8 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<RT, UOut, UIn, Y1, Y, UIn> request<RT, UOut, UIn, Y1, Y>(UOut value) where RT : struct, HasCancel<RT> =>
             new Request<RT, UOut, UIn, Y1, Y, UIn>(value, r => new Pure<RT, UOut, UIn, Y1, Y, UIn>(r));
-        
-       
+
+
         /// <summary>
         /// `reflect` transforms each streaming category into its dual:
         ///
@@ -191,20 +199,9 @@ namespace LanguageExt.Pipes
         ///
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, DOut, DIn, UIn, UOut, R> reflect<RT, UOut, UIn, DIn, DOut, R>(Proxy<RT, UOut, UIn, DIn, DOut, R> p) where RT : struct, HasCancel<RT>
-        {
-            return Go(p);
-            static Proxy<RT, DOut, DIn, UIn, UOut, R> Go(Proxy<RT, UOut, UIn, DIn, DOut, R> p) =>
-                p.ToProxy() switch
-                {
-                    Request<RT, UOut, UIn, DIn, DOut, R> (var a1, var fa) => new Respond<RT, DOut, DIn, UIn, UOut, R>(a1, a => Go(fa(a))),
-                    Respond<RT, UOut, UIn, DIn, DOut, R> (var b, var fb1) => new Request<RT, DOut, DIn, UIn, UOut, R>(b, b1 => Go(fb1(b1))),
-                    M<RT, UOut, UIn, DIn, DOut, R> (var m)                => new M<RT, DOut, DIn, UIn, UOut, R>(m.Map(Go)),
-                    Pure<RT, UOut, UIn, DIn, DOut, R> (var r)             => Pure<RT, DOut, DIn, UIn, UOut, R>(r),                                                                                
-                    Repeat<RT, UOut, UIn, DIn, DOut, R> (var innr)        => new Repeat<RT, DOut, DIn, UIn, UOut, R>(reflect(innr)),
-                    _                                                     => throw new NotSupportedException()
-                };
-        }
+        public static Proxy<RT, DOut, DIn, UIn, UOut, R> reflect<RT, UOut, UIn, DIn, DOut, R>(Proxy<RT, UOut, UIn, DIn, DOut, R> p)
+            where RT : struct, HasCancel<RT> =>
+            p.Reflect();
 
         /// <summary>
         /// `p.@for(body)` loops over `p` replacing each `yield` with `body`
@@ -455,7 +452,7 @@ namespace LanguageExt.Pipes
             Func<B1, Proxy<RT, A1, A, Y1, Y, B>> fb1, 
             Func<C1, Proxy<RT, B1, B, Y1, Y, C>> fc1) where RT : struct, HasCancel<RT> =>
             c1 => compose(fb1, fc1(c1));
-        
+
         /// <summary>
         /// observe (lift (return r)) = observe (return r)
         /// observe (lift (m >>= f)) = observe (lift m >>= lift . f)
@@ -465,22 +462,9 @@ namespace LanguageExt.Pipes
         /// use observe if you stick to the safe API.        
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, R> observe<RT, A1, A, B1, B, R>(Proxy<RT, A1, A, B1, B, R> p0) where RT : struct, HasCancel<RT>
-        {
-            return new M<RT, A1, A, B1, B, R>(Go(p0));
-
-            static Aff<RT, Proxy<RT, A1, A, B1, B, R>> Go(Proxy<RT, A1, A, B1, B, R> p) =>
-                p.ToProxy() switch
-                {
-                    Request<RT, A1, A, B1, B, R> (var a1, var fa) => Aff<RT, Proxy<RT, A1, A, B1, B, R>>.Success(new Request<RT, A1, A, B1, B, R>(a1, a => observe(fa(a)))),
-                    Respond<RT, A1, A, B1, B, R> (var b, var fb1) => Aff<RT, Proxy<RT, A1, A, B1, B, R>>.Success(new Respond<RT, A1, A, B1, B, R>(b, b1 => observe(fb1(b1)))),
-                    M<RT, A1, A, B1, B, R> (var m1)               => m1.Bind(Go),
-                    Pure<RT, A1, A, B1, B, R> (var r)             => Aff<RT, Proxy<RT, A1, A, B1, B, R>>.Success(p),                                                                                
-                    Repeat<RT, A1, A, B1, B, R> (var i)           => Aff<RT, Proxy<RT, A1, A, B1, B, R>>.Success(p),
-                    _                                             => throw new NotSupportedException()
-                    // TODO: Enumerate case
-                };
-        }
+        public static Proxy<RT, A1, A, B1, B, R> observe<RT, A1, A, B1, B, R>(Proxy<RT, A1, A, B1, B, R> p0)
+            where RT : struct, HasCancel<RT> =>
+                p0.Observe();
 
         /// <summary>
         /// 'Absurd' function
@@ -509,6 +493,7 @@ namespace LanguageExt.Pipes
                     Pure<RT, A1, A, B1, B, Func<R, S>> (var f)             => px.Map(f),
                     Repeat<RT, A1, A, B1, B, Func<R, S>> (var innr)        => new Repeat<RT, A1, A, B1, B, S>(innr.Apply(px)),
                     Enumerate<RT, A1, A, B1, B, Func<R, S>> enumer         => enumer.Bind(px.Map),
+                    Observer<RT, A1, A, B1, B, Func<R, S>> obs              => obs.Bind(px.Map),
                     _                                                      => throw new NotSupportedException()
                 };
         }
@@ -519,7 +504,6 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<RT, A1, A, B1, B, S> Apply<RT, A1, A, B1, B, R, S>(this Proxy<RT, A1, A, B1, B, Func<R, S>> pf, Proxy<RT, A1, A, B1, B, R> px) where RT : struct, HasCancel<RT> =>
             apply(pf, px);
-
 
         /// <summary>
         /// Applicative action

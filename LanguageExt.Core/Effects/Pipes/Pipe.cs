@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.Effects.Traits;
@@ -36,6 +37,26 @@ namespace LanguageExt
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, X, A, Unit> yield<RT, X, A>(A value) where RT : struct, HasCancel<RT> =>
             respond<RT, Unit, X, Unit, A>(value).ToPipe();
+        
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Pipe<RT, IN, X, X> enumerate<RT, IN, X>(IEnumerable<X> xs)
+            where RT : struct, HasCancel<RT> =>
+            new Enumerate<RT, Unit, IN, Unit, X, X, X>(xs, Pipe.Pure<RT, IN, X, X>).ToPipe();
+
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Pipe<RT, IN, OUT, X> enumerate<RT, IN, OUT, X>(IEnumerable<X> xs)
+            where RT : struct, HasCancel<RT> =>
+            new Enumerate<RT, Unit, IN, Unit, OUT, X, X>(xs, Pipe.Pure<RT, IN, OUT, X>).ToPipe();
+
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Pipe<RT, IN, X, X> observe<RT, IN, X>(IObservable<X> xs)
+            where RT : struct, HasCancel<RT> =>
+            new Observer<RT, Unit, IN, Unit, X, X, X>(xs, Pipe.Pure<RT, IN, X, X>).ToPipe();
+
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Pipe<RT, IN, OUT, X> observe<RT, IN, OUT, X>(IObservable<X> xs)
+            where RT : struct, HasCancel<RT> =>
+            new Observer<RT, Unit, IN, Unit, OUT, X, X>(xs, Pipe.Pure<RT, IN, OUT, X>).ToPipe();
 
         /// <summary>
         /// Resource management 

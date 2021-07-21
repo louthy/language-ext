@@ -9,6 +9,7 @@ namespace LanguageExt.Pipes
         public abstract Lift<RT, B> Bind<B>(Func<A, Lift<RT, B>> f);
         public abstract Producer<RT, OUT, A> ToProducer<OUT>();
         public abstract Consumer<RT, IN, A> ToConsumer<IN>();
+        public abstract ConsumerLift<RT, IN, A> ToConsumerLift<IN>();
         public abstract Pipe<RT, IN, OUT, A> ToPipe<IN, OUT>();
         
         public class Pure : Lift<RT, A>
@@ -29,9 +30,13 @@ namespace LanguageExt.Pipes
             public override Consumer<RT, IN, A> ToConsumer<IN>() =>
                 Consumer.Pure<RT, IN, A>(Value);
 
+            public override ConsumerLift<RT, IN, A> ToConsumerLift<IN>() =>
+                new ConsumerLift<RT, IN, A>.Pure(Value);
+
             public override Pipe<RT, IN, OUT, A> ToPipe<IN, OUT>() =>
                 Pipe.Pure<RT, IN, OUT, A>(Value);
         }
+        
         public class LiftAff<X> : Lift<RT, A>
         {
             public readonly Aff<RT, X> Effect;
@@ -44,6 +49,9 @@ namespace LanguageExt.Pipes
 
             public override Lift<RT, B> Bind<B>(Func<A, Lift<RT, B>> f) =>
                 new Lift<RT, B>.LiftAff<X>(Effect, n => Next(n).Bind(f));
+
+            public override ConsumerLift<RT, IN, A> ToConsumerLift<IN>() =>
+                new ConsumerLift<RT, IN, A>.Lift<X>(Effect, x => Next(x).ToConsumerLift<IN>());
 
             public override Producer<RT, OUT, A> ToProducer<OUT>() =>
                 from x in Producer.liftIO<RT, OUT, X>(Effect)
@@ -72,6 +80,9 @@ namespace LanguageExt.Pipes
 
             public override Lift<RT, B> Bind<B>(Func<A, Lift<RT, B>> f) =>
                 new Lift<RT, B>.LiftEff<X>(Effect, n => Next(n).Bind(f));
+
+            public override ConsumerLift<RT, IN, A> ToConsumerLift<IN>() =>
+                new ConsumerLift<RT, IN, A>.Lift<X>(Effect, x => Next(x).ToConsumerLift<IN>());
 
             public override Producer<RT, OUT, A> ToProducer<OUT>() =>
                 from x in Producer.liftIO<RT, OUT, X>(Effect)
@@ -140,14 +151,14 @@ namespace LanguageExt.Pipes
             from b in f(a)
             select project(a, b);        
 
-        public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Consumer<IN, A> ma, Func<A, Lift<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in f(a).ToConsumer<IN>()
+        public static ConsumerLift<RT, IN, B> SelectMany<RT, IN, A, B>(this Consumer<IN, A> ma, Func<A, Lift<RT, B>> f) where RT : struct, HasCancel<RT> =>
+            from a in ma.ToConsumerLift<RT>()
+            from b in f(a).ToConsumerLift<IN>()
             select b;
 
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<IN, A> ma, Func<A, Lift<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            from a in ma
-            from b in f(a).ToConsumer<IN>()
+        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<IN, A> ma, Func<A, Lift<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+            from a in ma.ToConsumerLift<RT>()
+            from b in f(a).ToConsumerLift<IN>()
             select project(a, b);
 
         public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Producer<OUT, A> ma, Func<A, Lift<RT, B>> f) where RT : struct, HasCancel<RT> =>
@@ -203,7 +214,7 @@ namespace LanguageExt.Pipes
 
         public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Consumer<RT, IN, A> ma, Func<A, Lift<RT, B>> f) where RT : struct, HasCancel<RT> =>
             from a in ma
-            from b in f(a).ToConsumer<IN>()
+            from b in f(a)
             select b;
 
         public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<RT, IN, A> ma, Func<A, Lift<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>

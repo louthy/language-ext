@@ -38,6 +38,16 @@ namespace LanguageExt.Pipes
             where RT : struct, HasCancel<RT> =>
             new Enumerate<RT, Void, Unit, Unit, OUT, X, X>(xs, Producer.Pure<RT, OUT, X>).ToProducer();
 
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, X, X> observe<RT, X>(IObservable<X> xs)
+            where RT : struct, HasCancel<RT> =>
+            new Observer<RT, Void, Unit, Unit, X, X, X>(xs, Producer.Pure<RT, X, X>).ToProducer();
+
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, X> observe<RT, OUT, X>(IObservable<X> xs)
+            where RT : struct, HasCancel<RT> =>
+            new Observer<RT, Void, Unit, Unit, OUT, X, X>(xs, Producer.Pure<RT, OUT, X>).ToProducer();
+
         /// <summary>
         /// Resource management 
         /// </summary>

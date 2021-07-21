@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
+using System.Reactive.Linq;
 using System.Threading;
 using LanguageExt.Effects;
 using LanguageExt.Effects.Traits;
@@ -54,27 +55,24 @@ public class Program
     {
         //var effect = readLine | sayHello | writeLine;
 
-        var items = from x in enumerate(Seq("Paul", "James", "Gavin"))
-                    from _ in liftIO(Console<Runtime>.writeLine($"Enter your name ------------- {x}"))
-                    from n in yield(x)
-                    select unit;
+        var items1 = from x in enumerate<int, string>(Seq("Paul", "James", "Gavin"))
+                     from _ in liftIO(Console<Runtime>.writeLine($"Enter your name ------------- {x}"))
+                     from n in yield(x.Length)
+                     select unit;
 
-        var pr = items | sayHello;
+        var effect = items1 | times10 | writeLine;
         
-        var effect = enumerate(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
+        var effect1 = enumerate(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
 
-        var result = await effect.RunEffect<Runtime, Unit>()
-                                 .Run(Runtime.New());
+        var watching = from x in observe(Observable.Interval(TimeSpan.FromSeconds(1)))
+                       from _ in yield(x)
+                       select unit;
+
+        var effect2 = watching | now | toLongTimeString | writeLine;
+
+        var result = await effect2.RunEffect<Runtime, Unit>()
+                                  .Run(Runtime.New());
     }
-
-    /*
-    static Producer<Runtime, A, Unit> enumerate<A>(Seq<A> ma) =>
-        ma.IsEmpty
-            ? Pure(unit)
-            : from x in yield(ma.Head)
-              from _ in enumerate(ma.Tail)
-              select unit;
-              */
 
     static Producer<Runtime, string, Unit> readLine =>
         repeat(from _1 in liftIO(Console<Runtime>.writeLine("Enter your name"))
@@ -91,6 +89,23 @@ public class Program
         from l in awaiting<string>()
         from a in liftIO(Console<Runtime>.writeLine(l))
         select unit;
+
+    static Pipe<Runtime, int, string, Unit> times10 =>
+        from n in awaiting<int>()         
+        from _ in yield($"{n * 10}")
+        select unit;
+
+    static Pipe<Runtime, long, DateTime, Unit> now =>
+        from t in awaiting<long>()         
+        from n in liftIO(Time<Runtime>.now)
+        from _ in yield(n)
+        select unit;
+
+    static Pipe<Runtime, DateTime, string, Unit> toLongTimeString =>
+        from n in awaiting<DateTime>()         
+        from _ in yield(n.ToLongTimeString())
+        select unit;
+    
     
     static Producer<Runtime, string, Unit> readLine2 =>
         from w in Producer.liftIO<Runtime, string, Unit>(Console<Runtime>.writeLine("Enter your name"))
