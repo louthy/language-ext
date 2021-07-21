@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -52,5 +53,23 @@ namespace LanguageExt.UnsafeValueAccess
             either.IsRight
                 ? either.RightValue
                 : default(R);
+
+        /// <summary>
+        /// This creates a Seq from an Array without any copying of data, so it's super fast
+        /// However because the input array is mutable it weakens the guarantees of the immutable Seq, so this is not
+        /// advised unless you know what you're doing.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Seq<A> ToSeqUnsafe<A>(this A[] value) =>
+            Seq.FromArray(value);
+
+        /// <summary>
+        /// This creates a Seq from an Array without any copying of data, so it's super fast
+        /// However because the input array is mutable it weakens the guarantees of the immutable Seq, so this is not
+        /// advised unless you know what you're doing.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Seq<A> ToSeqUnsafe<A>(this A[] value, int length) =>
+            Seq.FromArray(value, length);
     }
 }

@@ -53,6 +53,14 @@ namespace LanguageExt.Pipes
             PureProxy.ProducerEnumerate<X, X>(xs);
 
         [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<OUT, X> enumerate<OUT, X>(IAsyncEnumerable<X> xs) =>
+            PureProxy.ProducerEnumerate<OUT, X>(xs);
+
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<X, X> enumerate<X>(IAsyncEnumerable<X> xs) =>
+            PureProxy.ProducerEnumerate<X, X>(xs);
+
+        [Pure, MethodImpl(Proxy.mops)]
         public static Producer<OUT, X> observe<OUT, X>(IObservable<X> xs) =>
             PureProxy.ProducerObserve<OUT, X>(xs);
 
@@ -131,7 +139,6 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<RT, A1, A, B1, B, R> liftIO<RT, A1, A, B1, B, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
             new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).ToAff());
-
         
         /// <summary>
         /// The identity `Pipe`, simply replicates its upstream value and propagates it downstream 

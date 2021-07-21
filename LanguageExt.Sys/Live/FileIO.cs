@@ -145,5 +145,35 @@ namespace LanguageExt.Sys.Live
         /// </summary>
         public TextWriter AppendText(string path) =>
             File.AppendText(path);
+
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        public FileStream OpenRead(string path) =>
+            File.OpenRead(path);
+        
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        public FileStream Open(string path, FileMode mode) =>
+            File.Open(path, mode);
+        
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        public FileStream Open(string path, FileMode mode, FileAccess access) =>
+            File.Open(path, mode, access);
+        
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        public FileStream Open(string path, FileMode mode, FileAccess access, FileShare share) =>
+            File.Open(path, mode, access);
+        
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        public FileStream OpenWrite(string path) =>
+            File.OpenWrite(path);
     }
 }

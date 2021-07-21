@@ -1,13 +1,17 @@
 ﻿using System;
 using System.IO;
+using System.Buffers;
+using LanguageExt.Pipes;
 using LanguageExt.Common;
+using LanguageExt.Sys.Traits;
 using LanguageExt.TypeClasses;
+using LanguageExt.Effects.Traits;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using Void = LanguageExt.Pipes.Void;
+using LanguageExt.UnsafeValueAccess;
 using System.Runtime.CompilerServices;
-using LanguageExt.Effects.Traits;
-using LanguageExt.Sys.Traits;
 
 namespace LanguageExt.Sys.IO
 {
@@ -113,5 +117,70 @@ namespace LanguageExt.Sys.IO
         [Pure, MethodImpl(AffOpt.mops)]
         public static Eff<RT, TextWriter> appendText(string path) =>
             default(RT).FileEff.Map(e => e.AppendText(path));
+
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        static Eff<RT, FileStream> openFileStream(string path) =>
+            default(RT).FileEff.Map(e => e.OpenRead(path));
+
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        public static Producer<RT, FileStream, Unit> openRead(string path) =>
+            Producer.use(openFileStream(path), Producer.yield<RT, FileStream>);
+
+        /// <summary>
+        /// Get a pipe of bytes from a file-stream
+        /// </summary>
+        public static Pipe<RT, FileStream, Seq<byte>, Unit> read(int chunkSize)
+        {
+            return from fs in Pipe.await<RT, FileStream, Seq<byte>>()
+                   from bt in Pipe.enumerate<RT, FileStream, Seq<byte>, Seq<byte>>(Yield(fs, chunkSize))
+                   from un in Pipe.yield<RT, FileStream, Seq<byte>>(bt)
+                   select unit;
+
+            static async IAsyncEnumerable<Seq<byte>> Yield(Stream fs, int chunkSize)
+            {
+                while (true)
+                {
+                    var buffer = new byte[chunkSize];
+                    var count  = await fs.ReadAsync(buffer, 0, chunkSize);
+                    if (count < 1)
+                    {
+                        yield break;
+                    }
+                    yield return buffer.ToSeqUnsafe(count); 
+                }
+            }
+        }
+
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<RT, FileStream> open(string path, FileMode mode) =>
+            default(RT).FileEff.Map(e => e.Open(path, mode));
+        
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<RT, FileStream> open(string path, FileMode mode, FileAccess access) =>
+            default(RT).FileEff.Map(e => e.Open(path, mode, access));
+        
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<RT, FileStream> open(string path, FileMode mode, FileAccess access, FileShare share) =>
+            default(RT).FileEff.Map(e => e.Open(path, mode, access));
+        
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<RT, FileStream> openWrite(string path) =>
+            default(RT).FileEff.Map(e => e.OpenWrite(path));    
     }
 }

@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using System.Reactive.Linq;
+using System.Text;
 using System.Threading;
 using LanguageExt.Effects;
 using LanguageExt.Effects.Traits;
@@ -53,6 +54,11 @@ public class Program
 
     public static async Task PipesTest()
     {
+        var file1 = File<Runtime>.openRead("i:\\defaults.xml") 
+                  | File<Runtime>.read(160) 
+                  | decodeUtf8 
+                  | write;
+        
         var items1 = from x in enumerate<int, string>(Seq("Paul", "James", "Gavin"))
                      from _ in liftIO(Console<Runtime>.writeLine($"Enter your name ------------- {x}"))
                      from n in yield(x.Length)
@@ -66,8 +72,10 @@ public class Program
 
         var effect2 = observe2(time) | now | toLongTimeString | writeLine;
 
-        var result = await effect2.RunEffect<Runtime, Unit>()
-                                  .Run(Runtime.New());
+        var result = (await file1.RunEffect<Runtime, Unit>()
+                                .Run(Runtime.New()))
+                                .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
+                                       Fail: e => Console.WriteLine(e));
     }
 
     static Pipe<Runtime, long, DateTime, Unit> now =>
@@ -86,6 +94,11 @@ public class Program
         from a in liftIO(Console<Runtime>.writeLine(l))
         select unit;
     
+    static Consumer<Runtime, string, Unit> write =>
+        from l in awaiting<string>()
+        from a in liftIO(Console<Runtime>.write(l))
+        select unit;
+    
     static Producer<Runtime, string, Unit> readLine =>
         repeat(from _1 in liftIO(Console<Runtime>.writeLine("Enter your name"))
                from nw in liftIO(Time<Runtime>.now)
@@ -97,11 +110,22 @@ public class Program
         from _ in yield($"Hello {l}")
         select unit;
 
+    static Pipe<Runtime, Seq<byte>, string, Unit> decodeUtf8 =>
+        from c in awaiting<Seq<byte>>()         
+        from _ in yield(Encoding.UTF8.GetString(c.ToArray()))
+        select unit;
+
+    static Pipe<Runtime, A, string, Unit> toString<A>() =>
+        from l in awaiting<A>()         
+        from _ in yield($"{l} ")
+        select unit;
 
     static Pipe<Runtime, int, string, Unit> times10 =>
         from n in awaiting<int>()         
         from _ in yield($"{n * 10}")
         select unit;
+    
+    
     
     
     static Producer<Runtime, string, Unit> readLine2 =>

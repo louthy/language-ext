@@ -64,7 +64,32 @@ namespace LanguageExt.Sys.Traits
         /// <summary>
         /// Return a stream to append text to
         /// </summary>
-        TextWriter AppendText(string path);    
+        TextWriter AppendText(string path);
+
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        FileStream OpenRead(string path);
+
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        FileStream Open(string path, FileMode mode);
+
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        FileStream Open(string path, FileMode mode, FileAccess access);
+
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        FileStream Open(string path, FileMode mode, FileAccess access, FileShare share);
+
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        FileStream OpenWrite(string path);
     }
     
     /// <summary>

@@ -24,6 +24,10 @@ namespace LanguageExt.Common
         public const string SequenceEmptyText = "sequence empty";
         public const int SequenceEmptyCode = -2000000003;
         public static readonly Error SequenceEmpty = (SequenceEmptyCode, SequenceEmptyText);    
+
+        public const string ClosedText = "closed";
+        public const int ClosedCode = -2000000004;
+        public static readonly Error Closed = (ClosedCode, ClosedText);    
     }
 
     [Serializable]

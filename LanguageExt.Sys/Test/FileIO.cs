@@ -92,6 +92,36 @@ namespace LanguageExt.Sys.Test
             w.Write(fs.GetText(path));
             return w;
         }
+
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        public FileStream OpenRead(string path) =>
+            throw new NotImplementedException();
+        
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        public FileStream Open(string path, FileMode mode) =>
+            throw new NotImplementedException();
+        
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        public FileStream Open(string path, FileMode mode, FileAccess access) =>
+            throw new NotImplementedException();
+        
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        public FileStream Open(string path, FileMode mode, FileAccess access, FileShare share) =>
+            throw new NotImplementedException();
+        
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        public FileStream OpenWrite(string path) =>
+            throw new NotImplementedException();
     }
     
     internal class SimpleTextWriter : StringWriter

@@ -27,7 +27,7 @@
     <PackageIcon>lang-ext-small.png</PackageIcon>
     <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <OutputType>library</OutputType>
@@ -54,19 +54,18 @@
     <None Remove="obj\**" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[5.0.0,)" />
     <PackageReference Include="System.Reflection.Emit" Version="[4.3.0,)" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.2" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="[4.5.4,)" />
     <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
-    <PackageReference Include="Microsoft.CSharp" Version="[4.5.0,)" />
-      <PackageReference Include="System.Memory" Version="[4.5.3,)" />
+    <PackageReference Include="Microsoft.CSharp" Version="[4.7.0,)" />
+      <PackageReference Include="System.Memory" Version="[4.5.4,)" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netstandard2.'">
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="[4.3.0,)" />
     <PackageReference Include="System.Diagnostics.Contracts" Version="[4.3.0,)" />
-    <PackageReference Include="System.Globalization.Extensions" Version="[4.3.0,)" />
     <PackageReference Include="System.Linq" Version="[4.3.0,)" />
     <PackageReference Include="System.Linq.Queryable" Version="[4.3.0,)" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="[4.3.0,)" />
-    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="[4.3.0,)" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

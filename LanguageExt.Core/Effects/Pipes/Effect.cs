@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 using static LanguageExt.Pipes.Proxy;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
@@ -30,21 +31,15 @@ namespace LanguageExt.Pipes
             AffMaybe<RT, R>(async env =>
                             {
                                 var p = ma;
-                                while (true)
+                                while (!env.CancellationToken.IsCancellationRequested)
                                 {
                                     switch (p.ToProxy())
                                     {
-                                        case Request<RT, Void, Unit, Unit, Void, R> (var v, var _):
-                                            return await Proxy.closed<Aff<RT, R>>(v).Run(env);
-
-                                        case Respond<RT, Void, Unit, Unit, Void, R> (var v, var _):
-                                            return await Proxy.closed<Aff<RT, R>>(v).Run(env);
-
                                         case Pure<RT, Void, Unit, Unit, Void, R> (var r):
                                             return FinSucc<R>(r);
                                         
                                         case M<RT, Void, Unit, Unit, Void, R> (var m):
-                                            var fp = await m.ReRun(env);
+                                            var fp = await m.ReRun(env).ConfigureAwait(false);
                                             if (fp.IsFail) return fp.Error;
                                             p = fp.Value.ToProxy();
                                             break;
@@ -53,17 +48,34 @@ namespace LanguageExt.Pipes
                                             var effect = inner.RunEffect<RT, R>();
                                             while (true)
                                             {
-                                                var fi = await effect.ReRun(env);
+                                                var fi = await effect.ReRun(env).ConfigureAwait(false);
                                                 if (fi.IsFail) return fi.Error;
+                                                if (fi.Value is IDisposable d)
+                                                {
+                                                    d.Dispose();
+                                                }
                                             }
                                             
                                         case Enumerate<RT, Void, Unit, Unit, Void, R> me:
-                                            Fin<R> lastResult = Errors.SequenceEmpty; 
-                                            foreach (var f in me.MakeEffects())
+                                            Fin<R> lastResult = Errors.SequenceEmpty;
+
+                                            if (me.IsAsync)
                                             {
-                                                lastResult = await f.RunEffect<RT, R>().Run(env);
-                                                if (lastResult.IsFail) return lastResult.Error;
+                                                await foreach (var f in me.MakeEffectsAsync().ConfigureAwait(false))
+                                                {
+                                                    lastResult = await f.RunEffect<RT, R>().Run(env).ConfigureAwait(false);
+                                                    if (lastResult.IsFail) return lastResult.Error;
+                                                }
                                             }
+                                            else
+                                            {
+                                                foreach (var f in me.MakeEffects())
+                                                {
+                                                    lastResult = await f.RunEffect<RT, R>().Run(env).ConfigureAwait(false);
+                                                    if (lastResult.IsFail) return lastResult.Error;
+                                                }
+                                            }
+
                                             return lastResult;
                                             
                                         case Observer<RT, Void, Unit, Unit, Void, R> obs:
@@ -80,12 +92,20 @@ namespace LanguageExt.Pipes
                                                                                     },
                                                                            onCompleted: () => wait.Set()))
                                             {
-                                                await wait.WaitOneAsync(env.CancellationToken);
-                                                await lastTask;
+                                                await wait.WaitOneAsync(env.CancellationToken).ConfigureAwait(false);
+                                                await lastTask.ConfigureAwait(false);
                                                 return last;
                                             }
+                                            
+                                        case Request<RT, Void, Unit, Unit, Void, R> (var v, var _):
+                                            return Errors.Closed;
+
+                                        case Respond<RT, Void, Unit, Unit, Void, R> (var v, var _):
+                                            return Errors.Closed;
                                     }
                                 }
+
+                                return Errors.Cancelled;
                             });
 
         [Pure, MethodImpl(Proxy.mops)]
