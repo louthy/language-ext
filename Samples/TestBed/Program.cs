@@ -53,8 +53,6 @@ public class Program
 
     public static async Task PipesTest()
     {
-        //var effect = readLine | sayHello | writeLine;
-
         var items1 = from x in enumerate<int, string>(Seq("Paul", "James", "Gavin"))
                      from _ in liftIO(Console<Runtime>.writeLine($"Enter your name ------------- {x}"))
                      from n in yield(x.Length)
