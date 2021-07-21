@@ -59,19 +59,33 @@ public class Program
                      select unit;
 
         var effect = items1 | times10 | writeLine;
-        
+
         var effect1 = enumerate(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
 
-        var watching = from x in observe(Observable.Interval(TimeSpan.FromSeconds(1)))
-                       from _ in yield(x)
-                       select unit;
+        var time = Observable.Interval(TimeSpan.FromSeconds(1));
 
-        var effect2 = watching | now | toLongTimeString | writeLine;
+        var effect2 = observe2(time) | now | toLongTimeString | writeLine;
 
         var result = await effect2.RunEffect<Runtime, Unit>()
                                   .Run(Runtime.New());
     }
 
+    static Pipe<Runtime, long, DateTime, Unit> now =>
+        from t in awaiting<long>()         
+        from n in liftIO(Time<Runtime>.now)
+        from _ in yield(n)
+        select unit;
+
+    static Pipe<Runtime, DateTime, string, Unit> toLongTimeString =>
+        from n in awaiting<DateTime>()         
+        from _ in yield(n.ToLongTimeString())
+        select unit;
+
+    static Consumer<Runtime, string, Unit> writeLine =>
+        from l in awaiting<string>()
+        from a in liftIO(Console<Runtime>.writeLine(l))
+        select unit;
+    
     static Producer<Runtime, string, Unit> readLine =>
         repeat(from _1 in liftIO(Console<Runtime>.writeLine("Enter your name"))
                from nw in liftIO(Time<Runtime>.now)
@@ -83,25 +97,10 @@ public class Program
         from _ in yield($"Hello {l}")
         select unit;
 
-    static Consumer<Runtime, string, Unit> writeLine =>
-        from l in awaiting<string>()
-        from a in liftIO(Console<Runtime>.writeLine(l))
-        select unit;
 
     static Pipe<Runtime, int, string, Unit> times10 =>
         from n in awaiting<int>()         
         from _ in yield($"{n * 10}")
-        select unit;
-
-    static Pipe<Runtime, long, DateTime, Unit> now =>
-        from t in awaiting<long>()         
-        from n in liftIO(Time<Runtime>.now)
-        from _ in yield(n)
-        select unit;
-
-    static Pipe<Runtime, DateTime, string, Unit> toLongTimeString =>
-        from n in awaiting<DateTime>()         
-        from _ in yield(n.ToLongTimeString())
         select unit;
     
     

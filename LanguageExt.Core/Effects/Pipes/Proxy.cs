@@ -60,6 +60,10 @@ namespace LanguageExt.Pipes
         public static Producer<X, X> observe<X>(IObservable<X> xs) =>
             PureProxy.ProducerObserve<X, X>(xs);
 
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<X, Unit> observe2<X>(IObservable<X> xs) =>
+            observe<X>(xs).Bind(yield);
+
         /// <summary>
         /// Lift the IO monad into the monad transformer 
         /// </summary>

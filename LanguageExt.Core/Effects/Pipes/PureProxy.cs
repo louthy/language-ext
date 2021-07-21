@@ -425,7 +425,6 @@ namespace LanguageExt.Pipes
         public Pipe<IN, OUT, B> Map<B>(Func<A, B> f) => Select(f);
         public Pipe<IN, OUT, B> Bind<B>(Func<A, Pipe<IN, OUT, B>> f) => SelectMany(f);
         public Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasCancel<RT> => SelectMany(f);
-        public Pipe<RT, IN, OUT, A> Bind<RT>() where RT : struct, HasCancel<RT> => SelectMany(f);
         public Pipe<IN, OUT, B> Bind<B>(Func<A, Consumer<IN, B>> f) => SelectMany(f);
         
         public class Pure : Pipe<IN, OUT, A> 
