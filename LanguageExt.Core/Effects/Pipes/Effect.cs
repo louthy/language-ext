@@ -46,7 +46,7 @@ namespace LanguageExt.Pipes
                                 }
                             });
 
-                                [Pure]
+        [Pure]
         static Aff<RT, R> RunEffect<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma, ConcurrentDictionary<object, IDisposable> disps) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, R>(async env =>
                             {
