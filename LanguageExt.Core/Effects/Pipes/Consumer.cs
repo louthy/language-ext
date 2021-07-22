@@ -15,103 +15,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, R> Pure<RT, A, R>(R value) where RT : struct, HasCancel<RT> =>
             new Pure<RT, Unit, A, Unit, Void, R>(value).ToConsumer();
-
-        /// <summary>
-        /// Resource management 
-        /// </summary>
-        /// <param name="Acq">Acquires the resource</param>
-        /// <param name="Rel">Releases the resource</param>
-        /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="A">Value to consume</typeparam>
-        /// <typeparam name="H">Type of resource to acquire</typeparam>
-        /// <typeparam name="R">Return value of the Use operation</typeparam>
-        /// <returns>Consumer</returns>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, R> use<RT, A, H, R>(
-            Aff<H> Acq,
-            Func<H, Unit> Rel,
-            Func<H, Consumer<RT, A, R>> Use) where RT : struct, HasCancel<RT> =>
-                PipesInternal.Use(Acq, Use, Rel);
-
-        /// <summary>
-        /// Resource management 
-        /// </summary>
-        /// <param name="Acq">Acquires the resource</param>
-        /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="A">Value to consume</typeparam>
-        /// <typeparam name="H">Type of resource to acquire</typeparam>
-        /// <typeparam name="R">Return value of the Use operation</typeparam>
-        /// <returns>Consumer</returns>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, R> use<RT, A, H, R>(
-            Aff<H> Acq,
-            Func<H, Consumer<RT, A, R>> Use) 
-            where RT : struct, HasCancel<RT>
-            where H : IDisposable =>
-                PipesInternal.Use(Acq, Use, PipesInternal.Dispose);
-
-        /// <summary>
-        /// Resource management 
-        /// </summary>
-        /// <param name="Acq">Acquires the resource</param>
-        /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="A">Value to consume</typeparam>
-        /// <typeparam name="H">Type of resource to acquire</typeparam>
-        /// <typeparam name="R">Return value of the Use operation</typeparam>
-        /// <returns>Consumer</returns>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, R> use<RT, A, H, R>(
-            Eff<H> Acq,
-            Func<H, Consumer<RT, A, R>> Use) 
-            where RT : struct, HasCancel<RT>
-            where H : IDisposable =>
-                PipesInternal.Use(Acq.ToAff(), Use, PipesInternal.Dispose);
         
-        /// <summary>
-        /// Resource management 
-        /// </summary>
-        /// <param name="Acq">Acquires the resource</param>
-        /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="A">Value to consume</typeparam>
-        /// <typeparam name="H">Type of resource to acquire</typeparam>
-        /// <typeparam name="R">Return value of the Use operation</typeparam>
-        /// <returns>Consumer</returns>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, R> use<RT, A, H, R>(
-            Aff<RT, H> Acq,
-            Func<H, Consumer<RT, A, R>> Use) 
-            where RT : struct, HasCancel<RT>
-            where H : IDisposable =>
-                PipesInternal.Use(Acq, Use, PipesInternal.Dispose);
-
-        /// <summary>
-        /// Resource management 
-        /// </summary>
-        /// <param name="Acq">Acquires the resource</param>
-        /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="A">Value to consume</typeparam>
-        /// <typeparam name="H">Type of resource to acquire</typeparam>
-        /// <typeparam name="R">Return value of the Use operation</typeparam>
-        /// <returns>Consumer</returns>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, R> use<RT, A, H, R>(
-            Eff<RT, H> Acq,
-            Func<H, Consumer<RT, A, R>> Use) 
-            where RT : struct, HasCancel<RT>
-            where H : IDisposable =>
-                PipesInternal.Use(Acq.ToAff(), Use, PipesInternal.Dispose);
-        
-        static Unit Dispose(IDisposable d)
-        {
-            d?.Dispose();
-            return default;
-        }
-
         /// <summary>
         /// Wait for a value from upstream (whilst in a consumer)
         /// </summary>
@@ -128,47 +32,115 @@ namespace LanguageExt.Pipes
         /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, R> liftIO<RT, A, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, Unit, A, Unit, Void, R>(ma).ToConsumer();
+        public static Consumer<RT, A, R> lift<RT, A, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
+            lift<RT, Unit, A, Unit, Void, R>(ma).ToConsumer();
 
         /// <summary>
         /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, R> liftIO<RT, A, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, Unit, A, Unit, Void, R>(ma).ToConsumer();
+        public static Consumer<RT, A, R> lift<RT, A, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
+            lift<RT, Unit, A, Unit, Void, R>(ma).ToConsumer();
 
         /// <summary>
         /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, R> liftIO<RT, A, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, Unit, A, Unit, Void, R>(ma).ToConsumer();
+        public static Consumer<RT, A, R> lift<RT, A, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
+            lift<RT, Unit, A, Unit, Void, R>(ma).ToConsumer();
 
         /// <summary>
         /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, R> liftIO<RT, A, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, Unit, A, Unit, Void, R>(ma).ToConsumer();
+        public static Consumer<RT, A, R> lift<RT, A, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
+            lift<RT, Unit, A, Unit, Void, R>(ma).ToConsumer();
 
 
         /// <summary>
         /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, Unit> liftIO<RT, A>(Aff<RT, Unit> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, Unit, A, Unit, Void, Unit>(ma).ToConsumer();
+        public static Consumer<RT, A, Unit> lift<RT, A>(Aff<RT, Unit> ma) where RT : struct, HasCancel<RT> =>
+            lift<RT, Unit, A, Unit, Void, Unit>(ma).ToConsumer();
 
         /// <summary>
         /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, Unit> liftIO<RT, A>(Eff<RT, Unit> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, Unit, A, Unit, Void, Unit>(ma).ToConsumer();
+        public static Consumer<RT, A, Unit> lift<RT, A>(Eff<RT, Unit> ma) where RT : struct, HasCancel<RT> =>
+            lift<RT, Unit, A, Unit, Void, Unit>(ma).ToConsumer();
 
         
         
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<RT, IN, R> use<RT, IN, R>(Aff<R> ma) 
+            where RT : struct, HasCancel<RT>
+            where R : IDisposable =>
+            use<RT, Unit, IN, Unit, Void, R>(ma).ToConsumer();         
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<RT, IN, R> use<RT, IN, R>(Eff<R> ma) 
+            where RT : struct, HasCancel<RT>
+            where R : IDisposable =>
+            use<RT, Unit, IN, Unit, Void, R>(ma).ToConsumer();         
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<RT, IN, R> use<RT, IN, R>(Aff<RT, R> ma) 
+            where RT : struct, HasCancel<RT> 
+            where R : IDisposable =>
+            use<RT, Unit, IN, Unit, Void, R>(ma).ToConsumer();         
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<RT, IN, R> use<RT, IN, R>(Eff<RT, R> ma) 
+            where RT : struct, HasCancel<RT> 
+            where R : IDisposable =>
+            use<RT, Unit, IN, Unit, Void, R>(ma).ToConsumer();         
+        
+        
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<RT, IN, R> use<RT, IN, R>(Aff<R> ma, Func<R, Unit> dispose) 
+            where RT : struct, HasCancel<RT> =>
+            use<RT, Unit, IN, Unit, Void, R>(ma, dispose).ToConsumer();         
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<RT, IN, R> use<RT, IN, R>(Eff<R> ma, Func<R, Unit> dispose) 
+            where RT : struct, HasCancel<RT> =>
+            use<RT, Unit, IN, Unit, Void, R>(ma, dispose).ToConsumer();         
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<RT, IN, R> use<RT, IN, R>(Aff<RT, R> ma, Func<R, Unit> dispose) 
+            where RT : struct, HasCancel<RT>  =>
+            use<RT, Unit, IN, Unit, Void, R>(ma, dispose).ToConsumer();         
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<RT, IN, R> use<RT, IN, R>(Eff<RT, R> ma, Func<R, Unit> dispose) 
+            where RT : struct, HasCancel<RT>  =>
+            use<RT, Unit, IN, Unit, Void, R>(ma, dispose).ToConsumer();         
         
         /// <summary>
         /// Consume all values using a monadic function
@@ -176,7 +148,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Aff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                 .@for<RT, A, A, R>(a => liftIO<RT, A>(f(a)));
+                 .@for<RT, A, A, R>(a => lift<RT, A>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -184,7 +156,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Aff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
-                 .@for<RT, A, A, Unit>(a => liftIO<RT, A>(f(a)));
+                 .@for<RT, A, A, Unit>(a => lift<RT, A>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -192,7 +164,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Eff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                 .@for<RT, A, A, R>(a => liftIO<RT, A>(f(a)));
+                 .@for<RT, A, A, R>(a => lift<RT, A>(f(a)));
         
         /// <summary>
         /// Consume all values using a monadic function
@@ -200,7 +172,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Eff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
-                 .@for<RT, A, A, Unit>(a => liftIO<RT, A>(f(a)));
+                 .@for<RT, A, A, Unit>(a => lift<RT, A>(f(a)));
         
         
 
@@ -210,7 +182,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Aff<Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                 .@for<RT, A, A, R>(a => liftIO<RT, A, Unit>(f(a)));
+                 .@for<RT, A, A, R>(a => lift<RT, A, Unit>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -218,7 +190,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Aff<Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
-                 .@for<RT, A, A, Unit>(a => liftIO<RT, A, Unit>(f(a)));
+                 .@for<RT, A, A, Unit>(a => lift<RT, A, Unit>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -226,7 +198,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Eff<Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                 .@for<RT, A, A, R>(a => liftIO<RT, A, Unit>(f(a)));
+                 .@for<RT, A, A, R>(a => lift<RT, A, Unit>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -234,6 +206,6 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Eff<Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
-                 .@for<RT, A, A, Unit>(a => liftIO<RT, A, Unit>(f(a)));        
+                 .@for<RT, A, A, Unit>(a => lift<RT, A, Unit>(f(a)));        
     }
 }

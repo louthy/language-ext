@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
@@ -61,14 +62,18 @@ public class Program
                   | decodeUtf8 
                   | writeLine;
         
+        var file2 = File<Runtime>.openText("i:\\defaults.xml") 
+                  | TextRead<Runtime>.readLine 
+                  | writeLine;
+        
         var effect1 = enumerate(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
 
         var time = Observable.Interval(TimeSpan.FromSeconds(1));
 
         var effect2 = observe2(time) | now | toLongTimeString | writeLine;
 
-        var result = (await clientServer.RunEffect<Runtime, Unit>()
-                                        .Run(Runtime.New()))
+        var result = (await file2.RunEffect<Runtime, Unit>()
+                                 .Run(Runtime.New()))
                                  .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
                                         Fail: e => Console.WriteLine(e));
     }
@@ -124,8 +129,8 @@ public class Program
     
     
     static Producer<Runtime, string, Unit> readLine2 =>
-        from w in Producer.liftIO<Runtime, string, Unit>(Console<Runtime>.writeLine("Enter your name"))
-        from l in Producer.liftIO<Runtime, string, string>(Console<Runtime>.readLine)
+        from w in Producer.lift<Runtime, string, Unit>(Console<Runtime>.writeLine("Enter your name"))
+        from l in Producer.lift<Runtime, string, string>(Console<Runtime>.readLine)
         from _ in Producer.yield<Runtime, string>(l)
         from n in readLine2
         select unit;
@@ -138,22 +143,22 @@ public class Program
     
     static Consumer<Runtime, string, Unit> writeLine2 =>
         from l in Consumer.await<Runtime, string>()
-        from a in Consumer.liftIO<Runtime, string>(Console<Runtime>.writeLine(l))
+        from a in Consumer.lift<Runtime, string>(Console<Runtime>.writeLine(l))
         from n in writeLine2
         select unit;
 
 
     static Server<Runtime, int, int, Unit> incrementer(int question) =>
-        from _1 in Server.liftIO<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Server received: {question}"))
-        from _2 in Server.liftIO<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Server responded: {question + 1}"))
+        from _1 in Server.lift<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Server received: {question}"))
+        from _2 in Server.lift<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Server responded: {question + 1}"))
         from nq in Server.respond<Runtime, int, int>(question + 1)
         select unit;
 
     static Client<Runtime, int, int, Unit> oneTwoThree =>
         from qn in Client.enumerate<Runtime, int, int, int>(Seq(1, 2, 3))
-        from _1 in Client.liftIO<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Client requested: {qn}"))
+        from _1 in Client.lift<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Client requested: {qn}"))
         from an in Client.request<Runtime, int, int>(qn)
-        from _2 in Client.liftIO<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Client received: {an}"))
+        from _2 in Client.lift<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Client received: {an}"))
         select unit;
 
     

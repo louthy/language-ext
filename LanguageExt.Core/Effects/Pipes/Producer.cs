@@ -57,186 +57,160 @@ namespace LanguageExt.Pipes
         public static Producer<RT, OUT, X> observe<RT, OUT, X>(IObservable<X> xs)
             where RT : struct, HasCancel<RT> =>
             new Observer<RT, Void, Unit, Unit, OUT, X, X>(xs, Producer.Pure<RT, OUT, X>).ToProducer();
-
-        /// <summary>
-        /// Resource management 
-        /// </summary>
-        /// <param name="Acq">Acquires the resource</param>
-        /// <param name="Rel">Releases the resource</param>
-        /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="OUT">Value to produce</typeparam>
-        /// <typeparam name="H">Type of resource to acquire</typeparam>
-        /// <typeparam name="R">Return value of the Use operation</typeparam>
-        /// <returns>Producer</returns>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, OUT, R> use<RT, OUT, H, R>(
-            Aff<H> Acq,
-            Func<H, Unit> Rel,
-            Func<H, Producer<RT, OUT, R>> Use) where RT : struct, HasCancel<RT> =>
-                PipesInternal.Use(Acq, Use, Rel);
-
-        /// <summary>
-        /// Resource management 
-        /// </summary>
-        /// <param name="Acq">Acquires the resource</param>
-        /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="OUT">Value to produce</typeparam>
-        /// <typeparam name="H">Type of resource to acquire</typeparam>
-        /// <typeparam name="R">Return value of the Use operation</typeparam>
-        /// <returns>Producer</returns>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, OUT, R> use<RT, OUT, H, R>(
-            Aff<H> Acq,
-            Func<H, Producer<RT, OUT, R>> Use) 
-            where RT : struct, HasCancel<RT>
-            where H : IDisposable =>
-                PipesInternal.Use(Acq, Use, PipesInternal.Dispose);
-
-        /// <summary>
-        /// Resource management 
-        /// </summary>
-        /// <param name="Acq">Acquires the resource</param>
-        /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="OUT">Value to produce</typeparam>
-        /// <typeparam name="H">Type of resource to acquire</typeparam>
-        /// <typeparam name="R">Return value of the Use operation</typeparam>
-        /// <returns>Producer</returns>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, OUT, R> use<RT, OUT, H, R>(
-            Aff<RT, H> Acq,
-            Func<H, Producer<RT, OUT, R>> Use)
-            where RT : struct, HasCancel<RT>
-            where H : IDisposable =>
-                PipesInternal.Use(Acq, Use, PipesInternal.Dispose);
-
-        /// <summary>
-        /// Resource management 
-        /// </summary>
-        /// <param name="Acq">Acquires the resource</param>
-        /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="OUT">Value to produce</typeparam>
-        /// <typeparam name="H">Type of resource to acquire</typeparam>
-        /// <typeparam name="R">Return value of the Use operation</typeparam>
-        /// <returns>Producer</returns>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, OUT, R> use<RT, OUT, H, R>(
-            Eff<H> Acq,
-            Func<H, Producer<RT, OUT, R>> Use) 
-            where RT : struct, HasCancel<RT>
-            where H : IDisposable =>
-                PipesInternal.Use(Acq.ToAff(), Use, PipesInternal.Dispose);        
-
-        /// <summary>
-        /// Resource management 
-        /// </summary>
-        /// <param name="Acq">Acquires the resource</param>
-        /// <param name="Use">Uses the resource</param>
-        /// <typeparam name="RT">Runtime</typeparam>
-        /// <typeparam name="OUT">Value to produce</typeparam>
-        /// <typeparam name="H">Type of resource to acquire</typeparam>
-        /// <typeparam name="R">Return value of the Use operation</typeparam>
-        /// <returns>Producer</returns>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, OUT, R> use<RT, OUT, H, R>(
-            Eff<RT, H> Acq,
-            Func<H, Producer<RT, OUT, R>> Use) 
-            where RT : struct, HasCancel<RT>
-            where H : IDisposable =>
-                PipesInternal.Use(Acq.ToAff(), Use, PipesInternal.Dispose); 
-        
-        static Unit Dispose(IDisposable d)
-        {
-            d?.Dispose();
-            return default;
-        }        
+     
  
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, R> repeatM<RT, A, R>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, R>());
+            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, R>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, Unit> repeatM<RT, A>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
+            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, R> repeatM<RT, A, R>(Eff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, R>());
+            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, R>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, Unit> repeatM<RT, A>(Eff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
+            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
         
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, R> repeatM<RT, A, R>(Aff<A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, R>());
+            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, R>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, Unit> repeatM<RT, A>(Aff<A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
+            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, R> repeatM<RT, A, R>(Eff<A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, R>());
+            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, R>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, A, Unit> repeatM<RT, A>(Eff<A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(liftIO<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
+            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
 
         
         /// <summary>
         /// Lift the IO monad into the Producer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, B, R> liftIO<RT, B, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, Void, Unit, Unit, B, R>(ma).ToProducer();
+        public static Producer<RT, OUT, R> lift<RT, OUT, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
+            lift<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
 
         /// <summary>
         /// Lift the IO monad into the Producer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, B, R> liftIO<RT, B, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, Void, Unit, Unit, B, R>(ma).ToProducer();
+        public static Producer<RT, OUT, R> lift<RT, OUT, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
+            lift<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
 
         /// <summary>
         /// Lift the IO monad into the Producer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, B, R> liftIO<RT, B, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, Void, Unit, Unit, B, R>(ma).ToProducer();
+        public static Producer<RT, OUT, R> lift<RT, OUT, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
+            lift<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
 
         /// <summary>
         /// Lift the IO monad into the Producer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, B, R> liftIO<RT, B, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
-            liftIO<RT, Void, Unit, Unit, B, R>(ma).ToProducer();
+        public static Producer<RT, OUT, R> lift<RT, OUT, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
+            lift<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
+        
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, R> use<RT, OUT, R>(Aff<R> ma) 
+            where RT : struct, HasCancel<RT>
+            where R : IDisposable =>
+            use<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, R> use<RT, OUT, R>(Eff<R> ma) 
+            where RT : struct, HasCancel<RT>
+            where R : IDisposable =>
+            use<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, R> use<RT, OUT, R>(Aff<RT, R> ma) 
+            where RT : struct, HasCancel<RT> 
+            where R : IDisposable =>
+            use<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, R> use<RT, OUT, R>(Eff<RT, R> ma) 
+            where RT : struct, HasCancel<RT> 
+            where R : IDisposable =>
+            use<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
+        
+        
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, R> use<RT, OUT, R>(Aff<R> ma, Func<R, Unit> dispose) 
+            where RT : struct, HasCancel<RT> =>
+            use<RT, Void, Unit, Unit, OUT, R>(ma, dispose).ToProducer();
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, R> use<RT, OUT, R>(Eff<R> ma, Func<R, Unit> dispose) 
+            where RT : struct, HasCancel<RT> =>
+            use<RT, Void, Unit, Unit, OUT, R>(ma, dispose).ToProducer();
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, R> use<RT, OUT, R>(Aff<RT, R> ma, Func<R, Unit> dispose) 
+            where RT : struct, HasCancel<RT> =>
+            use<RT, Void, Unit, Unit, OUT, R>(ma, dispose).ToProducer();
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, R> use<RT, OUT, R>(Eff<RT, R> ma, Func<R, Unit> dispose) 
+            where RT : struct, HasCancel<RT> =>
+            use<RT, Void, Unit, Unit, OUT, R>(ma, dispose).ToProducer();        
     }
 }

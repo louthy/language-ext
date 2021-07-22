@@ -54,17 +54,17 @@ namespace LanguageExt.Pipes
                 new ConsumerLift<RT, IN, A>.Lift<X>(Effect, x => Next(x).ToConsumerLift<IN>());
 
             public override Producer<RT, OUT, A> ToProducer<OUT>() =>
-                from x in Producer.liftIO<RT, OUT, X>(Effect)
+                from x in Producer.lift<RT, OUT, X>(Effect)
                 from r in Next(x).ToProducer<OUT>()
                 select r;
 
             public override Consumer<RT, IN, A> ToConsumer<IN>() =>
-                from x in Consumer.liftIO<RT, IN, X>(Effect)
+                from x in Consumer.lift<RT, IN, X>(Effect)
                 from r in Next(x).ToConsumer<IN>()
                 select r;
 
             public override Pipe<RT, IN, OUT, A> ToPipe<IN, OUT>() =>
-                from x in Pipe.liftIO<RT, IN, OUT, X>(Effect)
+                from x in Pipe.lift<RT, IN, OUT, X>(Effect)
                 from r in Next(x).ToPipe<IN, OUT>()
                 select r;
         }
@@ -85,17 +85,17 @@ namespace LanguageExt.Pipes
                 new ConsumerLift<RT, IN, A>.Lift<X>(Effect, x => Next(x).ToConsumerLift<IN>());
 
             public override Producer<RT, OUT, A> ToProducer<OUT>() =>
-                from x in Producer.liftIO<RT, OUT, X>(Effect)
+                from x in Producer.lift<RT, OUT, X>(Effect)
                 from r in Next(x).ToProducer<OUT>()
                 select r;
 
             public override Consumer<RT, IN, A> ToConsumer<IN>() =>
-                from x in Consumer.liftIO<RT, IN, X>(Effect)
+                from x in Consumer.lift<RT, IN, X>(Effect)
                 from r in Next(x).ToConsumer<IN>()
                 select r;
 
             public override Pipe<RT, IN, OUT, A> ToPipe<IN, OUT>() =>
-                from x in Pipe.liftIO<RT, IN, OUT, X>(Effect)
+                from x in Pipe.lift<RT, IN, OUT, X>(Effect)
                 from r in Next(x).ToPipe<IN, OUT>()
                 select r;
         }

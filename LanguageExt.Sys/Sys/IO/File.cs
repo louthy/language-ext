@@ -101,8 +101,12 @@ namespace LanguageExt.Sys.IO
         /// Open a text file
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<RT, TextReader> openText(string path) =>
-            default(RT).FileEff.Map(e => e.OpenText(path));
+        public static Producer<RT, TextReader, Unit> openText(string path) =>
+            from t in Producer.use<RT, TextReader, TextReader>(openTextInternal(path))
+            from _ in Producer.yield<RT, TextReader>(t)
+            select unit;
+            
+            //Producer.use(openTextInternal(path), Producer.yield<RT, TextReader>);
 
         /// <summary>
         /// Create a new text file to stream to
@@ -122,38 +126,47 @@ namespace LanguageExt.Sys.IO
         /// Open a file-stream
         /// </summary>
         public static Producer<RT, Stream, Unit> openRead(string path) =>
-            Producer.use(openReadInternal(path), Producer.yield<RT, Stream>);
+            from s in Proxy.use(openReadInternal(path))
+            from _ in Proxy.yield(s as Stream)
+            select unit;
 
         /// <summary>
         /// Open a file-stream
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
         public static Producer<RT, Stream, Unit> open(string path, FileMode mode) =>
-            Producer.use(openInternal(path, mode), Producer.yield<RT, Stream>);
+            from s in Proxy.use(openInternal(path, mode))
+            from _ in Proxy.yield(s as Stream)
+            select unit;
         
         /// <summary>
         /// Open a file-stream
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
         public static Producer<RT, Stream, Unit> open(string path, FileMode mode, FileAccess access) =>
-            Producer.use(openInternal(path, mode, access), Producer.yield<RT, Stream>);
+            from s in Proxy.use(openInternal(path, mode, access))
+            from _ in Proxy.yield(s as Stream)
+            select unit;
         
         /// <summary>
         /// Open a file-stream
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
         public static Producer<RT, Stream, Unit> open(string path, FileMode mode, FileAccess access, FileShare share) =>
-            Producer.use(openInternal(path, mode, access, share), Producer.yield<RT, Stream>);
+            from s in Proxy.use(openInternal(path, mode, access, share))
+            from _ in Proxy.yield(s as Stream)
+            select unit;
         
         /// <summary>
         /// Open a file-stream
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static  Producer<RT, Stream, Unit> openWrite(string path) =>
-            Producer.use(openWriteInternal(path), Producer.yield<RT, Stream>);
+        public static Producer<RT, Stream, Unit> openWrite(string path) =>
+            from s in Proxy.use(openWriteInternal(path))
+            from _ in Proxy.yield(s as Stream)
+            select unit;
 
-        // Internal access to the raw FileStream
-        // These are converted to Producers instead
+        // Internal 
 
         /// <summary>
         /// Open a file-stream
@@ -188,5 +201,12 @@ namespace LanguageExt.Sys.IO
         [Pure, MethodImpl(AffOpt.mops)]
         static Eff<RT, FileStream> openWriteInternal(string path) =>
             default(RT).FileEff.Map(e => e.OpenWrite(path));    
+
+        /// <summary>
+        /// Open a text file
+        /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
+        static Eff<RT, TextReader> openTextInternal(string path) =>
+            default(RT).FileEff.Map(e => e.OpenText(path));
     }
 }

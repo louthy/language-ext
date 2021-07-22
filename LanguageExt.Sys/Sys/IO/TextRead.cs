@@ -1,9 +1,13 @@
 using System;
-using System.Diagnostics.Contracts;
 using System.IO;
-using System.Runtime.CompilerServices;
-using LanguageExt.Effects.Traits;
+using LanguageExt.Pipes;
 using LanguageExt.Sys.Traits;
+using static LanguageExt.Prelude;
+using LanguageExt.Effects.Traits;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using LanguageExt.UnsafeValueAccess;
 
 namespace LanguageExt.Sys.IO
 {
@@ -11,26 +15,85 @@ namespace LanguageExt.Sys.IO
         where RT : struct, HasTextRead<RT>
     {
         /// <summary>
-        /// Read a line of text from the stream
+        /// Open a text file and streams the lines through the pipe
         /// </summary>
-        [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<RT, Option<string>> readLine(TextReader reader) => 
-            default(RT).TextReadEff.MapAsync(e => e.ReadLine(reader));
+        [Pure]
+        public static Pipe<RT, TextReader, string, Unit> readLine
+        {
+            get
+            {
+                return from tr in Proxy.awaiting<TextReader>()
+                       from ln in Proxy.enumerate(readLine(tr))
+                       from __ in Proxy.yield(ln)
+                       select unit;
 
+                static async IAsyncEnumerable<string> readLine(TextReader reader)
+                {
+                    while (true)
+                    {
+                        var line = await reader.ReadLineAsync();
+                        if(line == null) yield break;
+                        yield return line;
+                    }
+                }
+            }
+        } 
+        
         /// <summary>
         /// Read the rest of the text in the stream
         /// </summary>
-        [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<RT, string> readToEnd(TextReader reader) =>
-            default(RT).TextReadEff.MapAsync(e => e.ReadToEnd(reader));
+        [Pure]
+        public static Pipe<RT, TextReader, string, Unit> readToEnd =>
+            from tr in Proxy.awaiting<TextReader>()
+            from tx in Aff<RT, string>(async _ => await tr.ReadToEndAsync())
+            from __ in Proxy.yield(tx)
+            select unit;
 
         /// <summary>
-        /// Read chars from the stream into the buffer
-        /// Returns the number of chars read
+        /// Repeatedly read a number of chars from the stream
         /// </summary>
-        [Pure, MethodImpl(AffOpt.mops)]
-        public static Aff<RT, int> read(TextReader reader, Memory<char> buffer) =>
-            default(RT).TextReadEff.MapAsync(e => e.Read(reader, buffer));
+        [Pure]
+        public static Pipe<RT, TextReader, Seq<char>, Unit> readChars(int charCount)
+        {
+            return from tr in Proxy.awaiting<TextReader>()
+                   from cs in Proxy.enumerate(go(tr, charCount))
+                   from __ in Proxy.yield(cs)
+                   select unit;
+
+            static async IAsyncEnumerable<Seq<char>> go(TextReader reader, int count)
+            {
+                while (true)
+                {
+                    var buffer = new char[count];
+                    var nread  = await reader.ReadAsync(buffer, 0, count);
+                    if(nread < 0) yield break;
+                    yield return buffer.ToSeqUnsafe();
+                }
+            }
+        }         
+
+        /// <summary>
+        /// Read a number of chars from the stream
+        /// </summary>
+        [Pure]
+        public static Pipe<RT, TextReader, string, Unit> read(int charCount)
+        {
+            return from tr in Proxy.awaiting<TextReader>()
+                   from cs in Proxy.enumerate(go(tr, charCount))
+                   from __ in Proxy.yield(cs)
+                   select unit;
+
+            static async IAsyncEnumerable<string> go(TextReader reader, int count)
+            {
+                while (true)
+                {
+                    var buffer = new char[count];
+                    var nread  = await reader.ReadAsync(buffer, 0, count);
+                    if(nread < 0) yield break;
+                    yield return new string(buffer);
+                }
+            }
+        }         
 
         /// <summary>
         /// Close the reader

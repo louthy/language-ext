@@ -30,7 +30,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.Dynamic.Runtime" Version="[4.3.0,)" />
-    <PackageReference Include="Microsoft.CSharp" Version="[4.5.0,)" />
+    <PackageReference Include="Microsoft.CSharp" Version="[4.7.0,)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" PrivateAssets="all" />

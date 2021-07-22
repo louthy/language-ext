@@ -84,29 +84,65 @@ namespace LanguageExt.Pipes
         /// Lift the IO monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Lift<RT, R> liftIO<RT, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT>  =>
+        public static Lift<RT, R> lift<RT, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT>  =>
             Lift.Eff<RT, R>(ma);
 
         /// <summary>
         /// Lift the IO monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Lift<RT, R> liftIO<RT, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
+        public static Lift<RT, R> lift<RT, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
             Lift.Aff<RT, R>(ma);
 
         /// <summary>
         /// Lift the IO monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Lift<RT, R> liftIO<RT, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
+        public static Lift<RT, R> lift<RT, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
             Lift.Eff<RT, R>(ma);
 
         /// <summary>
         /// Lift the IO monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Lift<RT, R> liftIO<RT, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
+        public static Lift<RT, R> lift<RT, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
             Lift.Aff<RT, R>(ma);
+
+        /// <summary>
+        /// Lift the IO monad into the monad transformer 
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Lift<RT, R> use<RT, R>(Eff<RT, R> ma) 
+            where RT : struct, HasCancel<RT> 
+            where R : IDisposable  =>
+            Lift.Eff<RT, R>(ma);
+
+        /// <summary>
+        /// Lift the IO monad into the monad transformer 
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Lift<RT, R> use<RT, R>(Aff<RT, R> ma) 
+            where RT : struct, HasCancel<RT> 
+            where R : IDisposable  =>
+            Lift.Aff<RT, R>(ma);
+
+        /// <summary>
+        /// Lift the IO monad into the monad transformer 
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Lift<RT, R> use<RT, R>(Eff<R> ma) 
+            where RT : struct, HasCancel<RT> 
+            where R : IDisposable  =>
+            Lift.Eff<RT, R>(ma);
+
+        /// <summary>
+        /// Lift the IO monad into the monad transformer 
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Lift<RT, R> use<RT, R>(Aff<R> ma) 
+            where RT : struct, HasCancel<RT> 
+            where R : IDisposable =>
+            Lift.Aff<RT, R>(ma);        
 
         /// <summary>
         /// Repeat the Producer indefinitely
@@ -133,30 +169,121 @@ namespace LanguageExt.Pipes
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, R> liftIO<RT, A1, A, B1, B, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
-            new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).WithRuntime<RT>());
+        public static Proxy<RT, A1, A, B1, B, R> lift<RT, A1, A, B1, B, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
+            Disposable<R>.IsDisposable
+                ? use<RT, A1, A, B1, B, R>(ma, anyDispose)
+                : new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).WithRuntime<RT>());
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, R> liftIO<RT, A1, A, B1, B, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
-            new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).ToAffWithRuntime<RT>());
+        public static Proxy<RT, A1, A, B1, B, R> lift<RT, A1, A, B1, B, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
+            Disposable<R>.IsDisposable
+                ? use<RT, A1, A, B1, B, R>(ma, anyDispose)
+                : new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).ToAffWithRuntime<RT>());
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, R> liftIO<RT, A1, A, B1, B, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
-            new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>));
+        public static Proxy<RT, A1, A, B1, B, R> lift<RT, A1, A, B1, B, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
+            Disposable<R>.IsDisposable
+                ? use<RT, A1, A, B1, B, R>(ma, anyDispose)
+                : new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>));
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, R> liftIO<RT, A1, A, B1, B, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
-            new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).ToAff());
+        public static Proxy<RT, A1, A, B1, B, R> lift<RT, A1, A, B1, B, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
+            Disposable<R>.IsDisposable
+                ? use<RT, A1, A, B1, B, R>(ma, anyDispose)
+                : new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).ToAff());
         
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<R> ma) 
+            where RT : struct, HasCancel<RT>
+            where R : IDisposable =>
+            new Use<RT, A1, A, B1, B, R, R>(ma.WithRuntime<RT>, dispose, Pure<RT, A1, A, B1, B, R>);
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<R> ma) 
+            where RT : struct, HasCancel<RT>
+            where R : IDisposable =>
+            new Use<RT, A1, A, B1, B, R, R>(ma.ToAffWithRuntime<RT>, dispose, Pure<RT, A1, A, B1, B, R>);
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<RT, R> ma) 
+            where RT : struct, HasCancel<RT> 
+            where R : IDisposable =>
+            new Use<RT, A1, A, B1, B, R, R>(() => ma, dispose, Pure<RT, A1, A, B1, B, R>);
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<RT, R> ma) 
+            where RT : struct, HasCancel<RT> 
+            where R : IDisposable =>
+            new Use<RT, A1, A, B1, B, R, R>(() => ma, dispose, Pure<RT, A1, A, B1, B, R>);
+        
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<R> ma, Func<R, Unit> dispose) 
+            where RT : struct, HasCancel<RT> =>
+            new Use<RT, A1, A, B1, B, R, R>(ma.WithRuntime<RT>, dispose, Pure<RT, A1, A, B1, B, R>);
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<R> ma, Func<R, Unit> dispose) 
+            where RT : struct, HasCancel<RT> =>
+            new Use<RT, A1, A, B1, B, R, R>(ma.ToAffWithRuntime<RT>, dispose, Pure<RT, A1, A, B1, B, R>);
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<RT, R> ma, Func<R, Unit> dispose) 
+            where RT : struct, HasCancel<RT> =>
+            new Use<RT, A1, A, B1, B, R, R>(() => ma, dispose, Pure<RT, A1, A, B1, B, R>);
+
+        /// <summary>
+        /// Lift am IO monad into the `Proxy` monad transformer
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<RT, R> ma, Func<R, Unit> dispose) 
+            where RT : struct, HasCancel<RT> =>
+            new Use<RT, A1, A, B1, B, R, R>(() => ma, dispose, Pure<RT, A1, A, B1, B, R>);
+        
+        internal static Unit dispose<A>(A d) where A : IDisposable
+        {
+            d?.Dispose();
+            return default;
+        }
+        
+        internal static Unit anyDispose<A>(A x)
+        {
+            if (x is IDisposable d)
+            {
+                d?.Dispose();
+            }
+            return default;
+        }
+
         /// <summary>
         /// The identity `Pipe`, simply replicates its upstream value and propagates it downstream 
         /// </summary>
