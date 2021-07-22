@@ -55,16 +55,12 @@ public class Program
     public static async Task PipesTest()
     {
         var file1 = File<Runtime>.openRead("i:\\defaults.xml") 
-                  | File<Runtime>.read(160) 
+                  | File<Runtime>.read(240) 
                   | decodeUtf8 
-                  | write;
+                  | writeLine;
         
-        var items1 = from x in enumerate<int, string>(Seq("Paul", "James", "Gavin"))
-                     from _ in liftIO(Console<Runtime>.writeLine($"Enter your name ------------- {x}"))
-                     from n in yield(x.Length)
-                     select unit;
-
-        var effect = items1 | times10 | writeLine;
+        //var items1 = enumerate2(Seq("Paul", "James", "Gavin")) | Pipe.map((string x) => x.Length))  --- TODO build the | operators into PureProxy
+        //var effect = items1 | times10 | writeLine;
 
         var effect1 = enumerate(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
 
@@ -73,35 +69,35 @@ public class Program
         var effect2 = observe2(time) | now | toLongTimeString | writeLine;
 
         var result = (await file1.RunEffect<Runtime, Unit>()
-                                .Run(Runtime.New()))
-                                .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
-                                       Fail: e => Console.WriteLine(e));
+                                 .Run(Runtime.New()))
+                                 .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
+                                        Fail: e => Console.WriteLine(e));
     }
+
+    static Pipe<Runtime, DateTime, string, Unit> toLongTimeString =>
+        from n in awaiting<DateTime>()       
+        from _ in yield(n.ToLongTimeString())
+        select unit;
 
     static Pipe<Runtime, long, DateTime, Unit> now =>
         from t in awaiting<long>()         
-        from n in liftIO(Time<Runtime>.now)
+        from n in Time<Runtime>.now
         from _ in yield(n)
-        select unit;
-
-    static Pipe<Runtime, DateTime, string, Unit> toLongTimeString =>
-        from n in awaiting<DateTime>()         
-        from _ in yield(n.ToLongTimeString())
         select unit;
 
     static Consumer<Runtime, string, Unit> writeLine =>
         from l in awaiting<string>()
-        from a in liftIO(Console<Runtime>.writeLine(l))
+        from _ in Console<Runtime>.writeLine(l)
         select unit;
     
     static Consumer<Runtime, string, Unit> write =>
         from l in awaiting<string>()
-        from a in liftIO(Console<Runtime>.write(l))
+        from a in Console<Runtime>.write(l)
         select unit;
     
     static Producer<Runtime, string, Unit> readLine =>
-        repeat(from _1 in liftIO(Console<Runtime>.writeLine("Enter your name"))
-               from nw in liftIO(Time<Runtime>.now)
+        repeat(from _1 in Console<Runtime>.writeLine("Enter your name")
+               from nw in Time<Runtime>.now
                from _2 in yield(nw.ToLongTimeString())
                select unit);
 

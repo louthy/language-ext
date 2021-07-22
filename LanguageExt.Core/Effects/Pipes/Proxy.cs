@@ -53,12 +53,20 @@ namespace LanguageExt.Pipes
             PureProxy.ProducerEnumerate<X, X>(xs);
 
         [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<X, Unit> enumerate2<X>(IEnumerable<X> xs) =>
+            enumerate<X>(xs).Bind(yield);
+
+        [Pure, MethodImpl(Proxy.mops)]
         public static Producer<OUT, X> enumerate<OUT, X>(IAsyncEnumerable<X> xs) =>
             PureProxy.ProducerEnumerate<OUT, X>(xs);
 
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<X, X> enumerate<X>(IAsyncEnumerable<X> xs) =>
             PureProxy.ProducerEnumerate<X, X>(xs);
+
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<X, Unit> enumerate2<X>(IAsyncEnumerable<X> xs) =>
+            enumerate<X>(xs).Bind(yield);
 
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<OUT, X> observe<OUT, X>(IObservable<X> xs) =>
@@ -100,14 +108,23 @@ namespace LanguageExt.Pipes
         public static Lift<RT, R> liftIO<RT, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
             Lift.Aff<RT, R>(ma);
 
+        /// <summary>
+        /// Repeat the Producer indefinitely
+        /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, OUT, R> repeat<RT, OUT, R>(Producer<RT, OUT, R> ma) where RT : struct, HasCancel<RT> =>
             new Repeat<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
 
+        /// <summary>
+        /// Repeat the Consumer indefinitely
+        /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, IN, R> repeat<RT, IN, R>(Consumer<RT, IN, R> ma) where RT : struct, HasCancel<RT> =>
             new Repeat<RT, Unit, IN, Unit, Void, R>(ma).ToConsumer();
         
+        /// <summary>
+        /// Repeat the Pipe indefinitely
+        /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, IN, OUT, R> repeat<RT, IN, OUT, R>(Pipe<RT, IN, OUT, R> ma) where RT : struct, HasCancel<RT> =>
             new Repeat<RT, Unit, IN, Unit, OUT, R>(ma).ToPipe();

@@ -127,20 +127,20 @@ namespace LanguageExt.Sys.IO
         /// <summary>
         /// Open a file-stream
         /// </summary>
-        public static Producer<RT, FileStream, Unit> openRead(string path) =>
-            Producer.use(openFileStream(path), Producer.yield<RT, FileStream>);
+        public static Producer<RT, Stream, Unit> openRead(string path) =>
+            Producer.use(openFileStream(path), Producer.yield<RT, Stream>);
 
         /// <summary>
-        /// Get a pipe of bytes from a file-stream
+        /// Get a pipe of chunks from a file-stream
         /// </summary>
-        public static Pipe<RT, FileStream, Seq<byte>, Unit> read(int chunkSize)
+        public static Pipe<RT, Stream, Seq<byte>, Unit> read(int chunkSize)
         {
-            return from fs in Pipe.await<RT, FileStream, Seq<byte>>()
-                   from bt in Pipe.enumerate<RT, FileStream, Seq<byte>, Seq<byte>>(Yield(fs, chunkSize))
-                   from un in Pipe.yield<RT, FileStream, Seq<byte>>(bt)
+            return from fs in Proxy.awaiting<Stream>()
+                   from bt in Proxy.enumerate(chunks(fs, chunkSize))
+                   from un in Proxy.yield(bt)
                    select unit;
 
-            static async IAsyncEnumerable<Seq<byte>> Yield(Stream fs, int chunkSize)
+            static async IAsyncEnumerable<Seq<byte>> chunks(Stream fs, int chunkSize)
             {
                 while (true)
                 {
