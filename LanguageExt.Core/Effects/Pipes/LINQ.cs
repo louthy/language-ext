@@ -102,5 +102,52 @@ namespace LanguageExt
         public static Producer<RT, A, S> Bind<RT, A, R, S>(this Producer<RT, A, R> ma, Func<R, Producer<RT, A, S>> f) 
             where RT : struct, HasCancel<RT> =>
                 ma.Bind(f).ToProducer();        
-    }
+        
+        /// <summary>
+        /// Monad bind (specialised)
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Server<RT, REQ, RES, B> Bind<RT, REQ, RES, A, B>(this Server<RT, REQ, RES, A> ma, Func<A, Server<RT, REQ, RES, B>> f) 
+            where RT : struct, HasCancel<RT> =>
+            ma.Bind(f).ToServer();        
+        
+        /// <summary>
+        /// Monad bind (specialised)
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Server<RT, REQ, RES, B> SelectMany<RT, REQ, RES, A, B>(this Server<RT, REQ, RES, A> ma, Func<A, Server<RT, REQ, RES, B>> f) 
+            where RT : struct, HasCancel<RT> =>
+            ma.Bind(f).ToServer();        
+        
+        /// <summary>
+        /// Monad bind (specialised)
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Server<RT, REQ, RES, C> SelectMany<RT, REQ, RES, A, B, C>(this Server<RT, REQ, RES, A> ma, Func<A, Server<RT, REQ, RES, B>> f, Func<A, B, C> project) 
+            where RT : struct, HasCancel<RT> =>
+            ma.Bind(a => f(a).Select(b => project(a,b))).ToServer();      
+        
+        /// <summary>
+        /// Monad bind (specialised)
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Client<RT, REQ, RES, B> Bind<RT, REQ, RES, A, B>(this Client<RT, REQ, RES, A> ma, Func<A, Client<RT, REQ, RES, B>> f) 
+            where RT : struct, HasCancel<RT> =>
+            ma.Bind(f).ToClient();        
+        
+        /// <summary>
+        /// Monad bind (specialised)
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Client<RT, REQ, RES, B> SelectMany<RT, REQ, RES, A, B>(this Client<RT, REQ, RES, A> ma, Func<A, Client<RT, REQ, RES, B>> f) 
+            where RT : struct, HasCancel<RT> =>
+            ma.Bind(f).ToClient();        
+        
+        /// <summary>
+        /// Monad bind (specialised)
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Client<RT, REQ, RES, C> SelectMany<RT, REQ, RES, A, B, C>(this Client<RT, REQ, RES, A> ma, Func<A, Client<RT, REQ, RES, B>> f, Func<A, B, C> project) 
+            where RT : struct, HasCancel<RT> =>
+            ma.Bind(a => f(a).Select(b => project(a,b))).ToClient();        }
 }

@@ -54,22 +54,21 @@ public class Program
 
     public static async Task PipesTest()
     {
+        var clientServer = incrementer | oneTwoThree;
+        
         var file1 = File<Runtime>.openRead("i:\\defaults.xml") 
-                  | File<Runtime>.read(240) 
+                  | Stream<Runtime>.read(240) 
                   | decodeUtf8 
                   | writeLine;
         
-        //var items1 = enumerate2(Seq("Paul", "James", "Gavin")) | Pipe.map((string x) => x.Length))  --- TODO build the | operators into PureProxy
-        //var effect = items1 | times10 | writeLine;
-
         var effect1 = enumerate(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
 
         var time = Observable.Interval(TimeSpan.FromSeconds(1));
 
         var effect2 = observe2(time) | now | toLongTimeString | writeLine;
 
-        var result = (await file1.RunEffect<Runtime, Unit>()
-                                 .Run(Runtime.New()))
+        var result = (await clientServer.RunEffect<Runtime, Unit>()
+                                        .Run(Runtime.New()))
                                  .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
                                         Fail: e => Console.WriteLine(e));
     }
@@ -142,7 +141,21 @@ public class Program
         from a in Consumer.liftIO<Runtime, string>(Console<Runtime>.writeLine(l))
         from n in writeLine2
         select unit;
-    
+
+
+    static Server<Runtime, int, int, Unit> incrementer(int question) =>
+        from _1 in Server.liftIO<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Server received: {question}"))
+        from _2 in Server.liftIO<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Server responded: {question + 1}"))
+        from nq in Server.respond<Runtime, int, int>(question + 1)
+        select unit;
+
+    static Client<Runtime, int, int, Unit> oneTwoThree =>
+        from qn in Client.enumerate<Runtime, int, int, int>(Seq(1, 2, 3))
+        from _1 in Client.liftIO<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Client requested: {qn}"))
+        from an in Client.request<Runtime, int, int>(qn)
+        from _2 in Client.liftIO<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Client received: {an}"))
+        select unit;
+
     
     static Pipe<Runtime, string, string, Unit> pipeMap =>
         Pipe.map((string x) => $"Hello {x}");

@@ -46,7 +46,7 @@ namespace LanguageExt.Pipes
         /// Converts a `Proxy` with the correct _shape_ into a `Client`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Client<RT, A, B, R> ToClient<RT, A, B, R>(this Proxy<RT, A, B, Unit, Unit, R> ma) where RT : struct, HasCancel<RT> =>
+        public static Client<RT, A, B, R> ToClient<RT, A, B, R>(this Proxy<RT, A, B, Unit, Void, R> ma) where RT : struct, HasCancel<RT> =>
             ma is Client<RT, A, B, R> mc 
                 ? mc
                 : new Client<RT, A, B, R>(ma);
@@ -55,7 +55,7 @@ namespace LanguageExt.Pipes
         /// Converts a `Proxy` with the correct _shape_ into a `Server`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Server<RT, A, B, R> ToServer<RT, A, B, R>(this Proxy<RT, Unit, Unit, A, B, R> ma) where RT : struct, HasCancel<RT> =>
+        public static Server<RT, A, B, R> ToServer<RT, A, B, R>(this Proxy<RT, Void, Unit, A, B, R> ma) where RT : struct, HasCancel<RT> =>
             ma is Server<RT, A, B, R> ms 
                 ? ms
                 : new Server<RT, A, B, R>(ma);

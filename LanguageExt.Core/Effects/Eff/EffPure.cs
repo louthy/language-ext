@@ -156,7 +156,7 @@ namespace LanguageExt
         }
         
         [Pure, MethodImpl(Opt.Default)]
-        public Aff<RT, A> ToAsyncWithRT<RT>() where RT : struct, HasCancel<RT>
+        public Aff<RT, A> ToAffWithRuntime<RT>() where RT : struct, HasCancel<RT>
         {
             var self = this;
             return Aff<RT, A>.EffectMaybe(e => new ValueTask<Fin<A>>(self.ReRun()));

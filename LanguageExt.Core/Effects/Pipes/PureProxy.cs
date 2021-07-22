@@ -1,3 +1,10 @@
+//
+// This file contains a number of micro-free-monads that allow for creation of pure producers, consumers, and pipes.  
+// They're used to facilitate the building of Proxy derived types without the need for typing the generic arguments endlessly
+// The Haskell original could auto-infer the generic parameter types, the system here tries to replicate manually what
+// Haskell can do automatically.  Hence why there are so many implementations of SelectMany!
+//
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -26,7 +33,7 @@ namespace LanguageExt.Pipes
         public Enumerate<B> Bind<B>(Func<A, Enumerate<B>> f) => SelectMany(f);
         public Producer<OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f) => SelectMany(f);
         public Producer<RT, OUT, B> Bind<RT, OUT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT> => SelectMany(f);
-
+        
         public class Pure : Enumerate<A> 
         {
             public readonly A Value;

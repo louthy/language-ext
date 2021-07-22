@@ -141,7 +141,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<RT, A1, A, B1, B, R> liftIO<RT, A1, A, B1, B, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
-            new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).ToAsyncWithRT<RT>());
+            new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).ToAffWithRuntime<RT>());
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
