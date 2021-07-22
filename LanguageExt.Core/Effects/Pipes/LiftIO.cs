@@ -121,6 +121,30 @@ namespace LanguageExt.Pipes
         public static Lift<RT, C> SelectMany<RT, A, B, C>(this Lift<RT, A> ma, Func<A, Lift<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
             ma.SelectMany(a => f(a).Select(b => project(a, b)));
 
+        public static Lift<RT, B> SelectMany<RT, A, B>(this Lift<RT, A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
+            ma.Bind(x => new Lift<RT, B>.LiftAff<B>(f(x), Pure<RT, B>));
+
+        public static Lift<RT, C> SelectMany<RT, A, B, C>(this Lift<RT, A> ma, Func<A, Aff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+            ma.Bind(x => new Lift<RT, B>.LiftAff<B>(f(x), Pure<RT, B>).Map(y => project(x, y)));
+
+        public static Lift<RT, B> SelectMany<RT, A, B>(this Lift<RT, A> ma, Func<A, Eff<RT, B>> f) where RT : struct, HasCancel<RT> =>
+            ma.Bind(x => new Lift<RT, B>.LiftEff<B>(f(x), Pure<RT, B>));
+
+        public static Lift<RT, C> SelectMany<RT, A, B, C>(this Lift<RT, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+            ma.Bind(x => new Lift<RT, B>.LiftEff<B>(f(x), Pure<RT, B>).Map(y => project(x, y)));
+
+        public static Lift<RT, B> SelectMany<RT, A, B>(this Lift<RT, A> ma, Func<A, Aff<B>> f) where RT : struct, HasCancel<RT> =>
+            ma.Bind(x => new Lift<RT, B>.LiftAff<B>(f(x), Pure<RT, B>));
+
+        public static Lift<RT, C> SelectMany<RT, A, B, C>(this Lift<RT, A> ma, Func<A, Aff<B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+            ma.Bind(x => new Lift<RT, B>.LiftAff<B>(f(x), Pure<RT, B>).Map(y => project(x, y)));
+
+        public static Lift<RT, B> SelectMany<RT, A, B>(this Lift<RT, A> ma, Func<A, Eff<B>> f) where RT : struct, HasCancel<RT> =>
+            ma.Bind(x => new Lift<RT, B>.LiftEff<B>(f(x), Pure<RT, B>));
+
+        public static Lift<RT, C> SelectMany<RT, A, B, C>(this Lift<RT, A> ma, Func<A, Eff<B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+            ma.Bind(x => new Lift<RT, B>.LiftEff<B>(f(x), Pure<RT, B>).Map(y => project(x, y)));
+
         public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Lift<RT, A> ma, Func<A, Consumer<IN, B>> f) where RT : struct, HasCancel<RT> =>
             from a in ma.ToConsumer<IN>()
             from b in f(a)
