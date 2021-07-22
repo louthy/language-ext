@@ -1,13 +1,13 @@
 using System;
+using LanguageExt.Pipes;
+using static LanguageExt.Prelude;
+using LanguageExt.Effects.Traits;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
-using LanguageExt.Effects.Traits;
-using LanguageExt.Pipes;
 using static LanguageExt.Pipes.Proxy;
-using static LanguageExt.Prelude;
+using System.Runtime.CompilerServices;
 
-namespace LanguageExt
+namespace LanguageExt.Pipes
 {
     public static class Pipe
     {

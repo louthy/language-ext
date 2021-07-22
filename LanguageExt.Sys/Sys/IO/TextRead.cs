@@ -6,8 +6,9 @@ using static LanguageExt.Prelude;
 using LanguageExt.Effects.Traits;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
 using LanguageExt.UnsafeValueAccess;
+using System.Runtime.CompilerServices;
+using static LanguageExt.Pipes.Proxy;
 
 namespace LanguageExt.Sys.IO
 {
@@ -22,9 +23,9 @@ namespace LanguageExt.Sys.IO
         {
             get
             {
-                return from tr in Proxy.awaiting<TextReader>()
-                       from ln in Proxy.enumerate(readLine(tr))
-                       from __ in Proxy.yield(ln)
+                return from tr in awaiting<TextReader>()
+                       from ln in enumerate(readLine(tr))
+                       from __ in yield(ln)
                        select unit;
 
                 static async IAsyncEnumerable<string> readLine(TextReader reader)
@@ -44,9 +45,9 @@ namespace LanguageExt.Sys.IO
         /// </summary>
         [Pure]
         public static Pipe<RT, TextReader, string, Unit> readToEnd =>
-            from tr in Proxy.awaiting<TextReader>()
+            from tr in awaiting<TextReader>()
             from tx in Aff<RT, string>(async _ => await tr.ReadToEndAsync())
-            from __ in Proxy.yield(tx)
+            from __ in yield(tx)
             select unit;
 
         /// <summary>
@@ -55,9 +56,9 @@ namespace LanguageExt.Sys.IO
         [Pure]
         public static Pipe<RT, TextReader, Seq<char>, Unit> readChars(int charCount)
         {
-            return from tr in Proxy.awaiting<TextReader>()
-                   from cs in Proxy.enumerate(go(tr, charCount))
-                   from __ in Proxy.yield(cs)
+            return from tr in awaiting<TextReader>()
+                   from cs in enumerate(go(tr, charCount))
+                   from __ in yield(cs)
                    select unit;
 
             static async IAsyncEnumerable<Seq<char>> go(TextReader reader, int count)
@@ -78,9 +79,9 @@ namespace LanguageExt.Sys.IO
         [Pure]
         public static Pipe<RT, TextReader, string, Unit> read(int charCount)
         {
-            return from tr in Proxy.awaiting<TextReader>()
-                   from cs in Proxy.enumerate(go(tr, charCount))
-                   from __ in Proxy.yield(cs)
+            return from tr in awaiting<TextReader>()
+                   from cs in enumerate(go(tr, charCount))
+                   from __ in yield(cs)
                    select unit;
 
             static async IAsyncEnumerable<string> go(TextReader reader, int count)

@@ -7,33 +7,16 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Linq;
-using System.Reflection;
 using LanguageExt;
-using LanguageExt.Common;
-using Newtonsoft.Json;
-using System.Runtime.Serialization;
+using System.Text;
+using LanguageExt.Sys;
+using LanguageExt.Pipes;
+using LanguageExt.Sys.IO;
+using System.Reactive.Linq;
+using LanguageExt.Sys.Live;
+using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 using static LanguageExt.Pipes.Proxy;
-using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
-using Newtonsoft.Json.Linq;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.IO;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Text;
-using System.Threading;
-using LanguageExt.Effects;
-using LanguageExt.Effects.Traits;
-using LanguageExt.Pipes;
-using LanguageExt.Sys;
-using LanguageExt.Sys.Live;
-using LanguageExt.Sys.Traits;
-using LanguageExt.Sys.IO;
-using TestBed;
 
 public class Program
 {
@@ -69,13 +52,14 @@ public class Program
         var effect1 = enumerate(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
 
         var time = Observable.Interval(TimeSpan.FromSeconds(1));
-
         var effect2 = observe2(time) | now | toLongTimeString | writeLine;
 
-        var result = (await file2.RunEffect<Runtime, Unit>()
-                                 .Run(Runtime.New()))
-                                 .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
-                                        Fail: e => Console.WriteLine(e));
+        var echo = readLine | writeLine;
+
+        var result = (await echo.RunEffect<Runtime, Unit>()
+                                .Run(Runtime.New()))
+                                .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
+                                       Fail: e => Console.WriteLine(e));
     }
 
     static Pipe<Runtime, DateTime, string, Unit> toLongTimeString =>
@@ -88,23 +72,22 @@ public class Program
         from n in Time<Runtime>.now
         from _ in yield(n)
         select unit;
+    
+    static Producer<Runtime, string, Unit> readLine =>
+        from nm in Console<Runtime>.readLine
+        from _2 in yield(nm)
+        select unit;
 
     static Consumer<Runtime, string, Unit> writeLine =>
         from l in awaiting<string>()
         from _ in Console<Runtime>.writeLine(l)
         select unit;
-    
+
     static Consumer<Runtime, string, Unit> write =>
         from l in awaiting<string>()
         from a in Console<Runtime>.write(l)
         select unit;
     
-    static Producer<Runtime, string, Unit> readLine =>
-        repeat(from _1 in Console<Runtime>.writeLine("Enter your name")
-               from nw in Time<Runtime>.now
-               from _2 in yield(nw.ToLongTimeString())
-               select unit);
-
     static Pipe<Runtime, string, string, Unit> sayHello =>
         from l in awaiting<string>()         
         from _ in yield($"Hello {l}")

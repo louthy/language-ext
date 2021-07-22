@@ -1,8 +1,9 @@
+using LanguageExt.Pipes;
+using LanguageExt.Effects.Traits;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Effects.Traits;
 
-namespace LanguageExt.Pipes
+namespace LanguageExt
 {
     public static class Extensions
     {
