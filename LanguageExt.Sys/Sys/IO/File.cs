@@ -121,66 +121,72 @@ namespace LanguageExt.Sys.IO
         /// <summary>
         /// Open a file-stream
         /// </summary>
-        static Eff<RT, FileStream> openFileStream(string path) =>
-            default(RT).FileEff.Map(e => e.OpenRead(path));
-
-        /// <summary>
-        /// Open a file-stream
-        /// </summary>
         public static Producer<RT, Stream, Unit> openRead(string path) =>
-            Producer.use(openFileStream(path), Producer.yield<RT, Stream>);
-
-        /// <summary>
-        /// Get a pipe of chunks from a file-stream
-        /// </summary>
-        public static Pipe<RT, Stream, Seq<byte>, Unit> read(int chunkSize)
-        {
-            return from fs in Proxy.awaiting<Stream>()
-                   from bt in Proxy.enumerate(chunks(fs, chunkSize))
-                   from un in Proxy.yield(bt)
-                   select unit;
-
-            static async IAsyncEnumerable<Seq<byte>> chunks(Stream fs, int chunkSize)
-            {
-                while (true)
-                {
-                    var buffer = new byte[chunkSize];
-                    var count  = await fs.ReadAsync(buffer, 0, chunkSize);
-                    if (count < 1)
-                    {
-                        yield break;
-                    }
-                    yield return buffer.ToSeqUnsafe(count); 
-                }
-            }
-        }
+            Producer.use(openReadInternal(path), Producer.yield<RT, Stream>);
 
         /// <summary>
         /// Open a file-stream
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<RT, FileStream> open(string path, FileMode mode) =>
+        public static Producer<RT, Stream, Unit> open(string path, FileMode mode) =>
+            Producer.use(openInternal(path, mode), Producer.yield<RT, Stream>);
+        
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Producer<RT, Stream, Unit> open(string path, FileMode mode, FileAccess access) =>
+            Producer.use(openInternal(path, mode, access), Producer.yield<RT, Stream>);
+        
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Producer<RT, Stream, Unit> open(string path, FileMode mode, FileAccess access, FileShare share) =>
+            Producer.use(openInternal(path, mode, access, share), Producer.yield<RT, Stream>);
+        
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static  Producer<RT, Stream, Unit> openWrite(string path) =>
+            Producer.use(openWriteInternal(path), Producer.yield<RT, Stream>);
+
+        // Internal access to the raw FileStream
+        // These are converted to Producers instead
+
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        static Eff<RT, FileStream> openReadInternal(string path) =>
+            default(RT).FileEff.Map(e => e.OpenRead(path));
+
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
+        static Eff<RT, FileStream> openInternal(string path, FileMode mode) =>
             default(RT).FileEff.Map(e => e.Open(path, mode));
         
         /// <summary>
         /// Open a file-stream
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<RT, FileStream> open(string path, FileMode mode, FileAccess access) =>
+        static Eff<RT, FileStream> openInternal(string path, FileMode mode, FileAccess access) =>
+            default(RT).FileEff.Map(e => e.Open(path, mode, access));
+
+        /// <summary>
+        /// Open a file-stream
+        /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
+        static Eff<RT, FileStream> openInternal(string path, FileMode mode, FileAccess access, FileShare share) =>
             default(RT).FileEff.Map(e => e.Open(path, mode, access));
         
         /// <summary>
         /// Open a file-stream
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<RT, FileStream> open(string path, FileMode mode, FileAccess access, FileShare share) =>
-            default(RT).FileEff.Map(e => e.Open(path, mode, access));
-        
-        /// <summary>
-        /// Open a file-stream
-        /// </summary>
-        [Pure, MethodImpl(AffOpt.mops)]
-        public static Eff<RT, FileStream> openWrite(string path) =>
+        static Eff<RT, FileStream> openWriteInternal(string path) =>
             default(RT).FileEff.Map(e => e.OpenWrite(path));    
     }
 }
