@@ -212,5 +212,13 @@ namespace LanguageExt.Pipes
         public static Producer<RT, OUT, R> use<RT, OUT, R>(Eff<RT, R> ma, Func<R, Unit> dispose) 
             where RT : struct, HasCancel<RT> =>
             use<RT, Void, Unit, Unit, OUT, R>(ma, dispose).ToProducer();        
+
+        /// <summary>
+        /// Release a previously used resource
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, Unit> release<RT, OUT, R>(R dispose) 
+            where RT : struct, HasCancel<RT> =>
+            Proxy.release<RT, Void, Unit, Unit, OUT, R>(dispose).ToProducer();
     }
 }

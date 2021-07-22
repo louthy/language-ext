@@ -135,5 +135,14 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Client<RT, REQ, RES, R> use<RT, REQ, RES, R>(Eff<RT, R> ma, Func<R, Unit> dispose) 
             where RT : struct, HasCancel<RT> =>
-            Proxy.use<RT, REQ, RES, Unit, Void, R>(ma, dispose).ToClient();      }
+            Proxy.use<RT, REQ, RES, Unit, Void, R>(ma, dispose).ToClient();      
+        
+        /// <summary>
+        /// Release a previously used resource
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Client<RT, REQ, RES, Unit> release<RT, REQ, RES, R>(R dispose) 
+            where RT : struct, HasCancel<RT> =>
+            Proxy.release<RT, REQ, RES, Unit, Void, R>(dispose).ToClient();
+    }
 }

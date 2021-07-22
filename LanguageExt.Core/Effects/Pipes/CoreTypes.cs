@@ -380,6 +380,80 @@ namespace LanguageExt.Pipes
             }
         }
     }
+    
+    public abstract class Release<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+    {
+        internal abstract Proxy<RT, UOut, UIn, DIn, DOut, A> Run(ConcurrentDictionary<object, IDisposable> disps);
+    }
+
+    public partial class Release<RT, UOut, UIn, DIn, DOut, X, A> : Release<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+    {
+        public readonly X Value;
+        public readonly Func<Unit, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next;
+
+        public Release(X value, Func<Unit, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
+            (Value, Next) = (value, next);
+        
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, B> Bind<B>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f) =>
+            new Release<RT, UOut, UIn, DIn, DOut, X, B>(Value, x => Next(x).Bind(f));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, B> Map<B>(Func<A, B> f) =>
+            new Release<RT, UOut, UIn, DIn, DOut, X, B>(Value, x => Next(x).Map(f));
+        
+        [Pure]
+        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
+            new Release<RT, UOut, UIn, C1, C, X, A>(Value, x => Next(x).For(f));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, B> Action<B>(Proxy<RT, UOut, UIn, DIn, DOut, B> rhs) =>
+            new Release<RT, UOut, UIn, DIn, DOut, X, B>(Value, x => Next(x).Action(rhs));
+
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> lhs) =>
+            new Release<RT, UOutA, AUInA, DIn, DOut, X, A>(Value, x => Next(x).ComposeRight(lhs));
+        
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+            new Release<RT, UOutA, AUInA, DIn, DOut, X, A>(Value, x => Next(x).ComposeRight(lhs));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
+            new Release<RT, UOut, UIn, DInC, DOutC, X, A>(Value, x => Next(x).ComposeLeft(rhs));
+
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+            new Release<RT, UOut, UIn, DInC, DOutC, X, A>(Value, x => Next(x).ComposeLeft(rhs));
+
+        [Pure]
+        public override Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect() =>
+            new Release<RT, DOut, DIn, UIn, UOut, X, A>(Value, x => Next(x).Reflect());
+             
+        
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
+            new Release<RT, UOut, UIn, DIn, DOut, X, A>(Value, x => Next(x).Observe());
+
+        [Pure]
+        public void Deconstruct(out X value, out Func<Unit, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
+            (value, next) = (Value, Next);
+
+        [Pure]
+        internal override Proxy<RT, UOut, UIn, DIn, DOut, A> Run(ConcurrentDictionary<object, IDisposable> disps) =>
+            new M<RT, UOut, UIn, DIn, DOut, A>(
+                Prelude.Eff<RT, Unit>(_ =>
+                                      {
+                                          if (disps.TryRemove(Value, out var d))
+                                          {
+                                              d.Dispose();
+                                          }
+                                          return Prelude.unit;
+                                      }).Map(Next));
+    }    
 
     public abstract class Enumerate<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
     {

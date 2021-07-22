@@ -102,8 +102,8 @@ namespace LanguageExt.Sys.IO
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
         public static Producer<RT, TextReader, Unit> openText(string path) =>
-            from t in Producer.use<RT, TextReader, TextReader>(openTextInternal(path))
-            from _ in Producer.yield<RT, TextReader>(t)
+            from t in Proxy.use(openTextInternal(path))
+            from _ in Proxy.yield(t)
             select unit;
             
             //Producer.use(openTextInternal(path), Producer.yield<RT, TextReader>);

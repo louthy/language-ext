@@ -251,5 +251,13 @@ namespace LanguageExt
         public static Pipe<RT, IN, OUT, R> use<RT, IN, OUT, R>(Eff<RT, R> ma, Func<R, Unit> dispose) 
             where RT : struct, HasCancel<RT> =>
             use<RT, Unit, IN, Unit, OUT, R>(ma, dispose).ToPipe();      
+        
+        /// <summary>
+        /// Release a previously used resource
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Pipe<RT, IN, OUT, Unit> release<RT, IN, OUT, R>(R dispose) 
+            where RT : struct, HasCancel<RT> =>
+            Proxy.release<RT, Unit, IN, Unit, OUT, R>(dispose).ToPipe();
     }
 }

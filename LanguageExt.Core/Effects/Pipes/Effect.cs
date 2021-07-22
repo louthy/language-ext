@@ -32,94 +32,10 @@ namespace LanguageExt.Pipes
         public static Aff<RT, R> RunEffect<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, R>(async env =>
                             {
-                                var p     = ma;
-                                var disps = new ConcurrentDictionary<object, IDisposable>();
-
+                                var disps = new ConcurrentDictionary<object, IDisposable>(new ReferenceEqualityComparer<object>());
                                 try
                                 {
-                                    while (!env.CancellationToken.IsCancellationRequested)
-                                    {
-                                        switch (p.ToProxy())
-                                        {
-                                            case Pure<RT, Void, Unit, Unit, Void, R> (var r):
-                                                return FinSucc<R>(r);
-
-                                            case M<RT, Void, Unit, Unit, Void, R> (var m):
-                                                var fp = await m.ReRun(env).ConfigureAwait(false);
-                                                if (fp.IsFail) return fp.Error;
-                                                p = fp.Value.ToProxy();
-                                                break;
-
-                                            case Repeat<RT, Void, Unit, Unit, Void, R> (var inner):
-                                                var effect = inner.RunEffect<RT, R>();
-                                                while (!env.CancellationToken.IsCancellationRequested)
-                                                {
-                                                    var fi = await effect.ReRun(env).ConfigureAwait(false);
-                                                    if (fi.IsFail) return fi.Error;
-                                                    if (fi.Value is IDisposable d)
-                                                    {
-                                                        d.Dispose();
-                                                    }
-                                                }
-
-                                                return Errors.Cancelled;
-
-                                            case Enumerate<RT, Void, Unit, Unit, Void, R> me:
-                                                Fin<R> lastResult = Errors.SequenceEmpty;
-
-                                                if (me.IsAsync)
-                                                {
-                                                    await foreach (var f in me.MakeEffectsAsync().ConfigureAwait(false))
-                                                    {
-                                                        if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
-                                                        lastResult = await f.RunEffect<RT, R>().Run(env).ConfigureAwait(false);
-                                                        if (lastResult.IsFail) return lastResult.Error;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    foreach (var f in me.MakeEffects())
-                                                    {
-                                                        if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
-                                                        lastResult = await f.RunEffect<RT, R>().Run(env).ConfigureAwait(false);
-                                                        if (lastResult.IsFail) return lastResult.Error;
-                                                    }
-                                                }
-
-                                                return lastResult;
-
-                                            case Observer<RT, Void, Unit, Unit, Void, R> obs:
-                                                var    wait     = new AutoResetEvent(false);
-                                                var    lastTask = unit.AsValueTask();
-                                                Fin<R> last     = Errors.Cancelled;
-
-                                                // Not sure if launching the effects without an await makes sense here
-                                                using (var sub = obs.Subscribe(onNext: fx => lastTask = fx.RunEffect<RT, R>().Run(env).Iter(r => last = r),
-                                                                               onError: err =>
-                                                                                        {
-                                                                                            last = err;
-                                                                                            wait.Set();
-                                                                                        },
-                                                                               onCompleted: () => wait.Set()))
-                                                {
-                                                    await wait.WaitOneAsync(env.CancellationToken).ConfigureAwait(false);
-                                                    await lastTask.ConfigureAwait(false);
-                                                    return last;
-                                                }
-
-                                            case Use<RT, Void, Unit, Unit, Void, R> mu:
-                                                p = mu.Run(disps);
-                                                break;
-
-                                            case Request<RT, Void, Unit, Unit, Void, R> (var v, var _):
-                                                return Errors.Closed;
-
-                                            case Respond<RT, Void, Unit, Unit, Void, R> (var v, var _):
-                                                return Errors.Closed;
-                                        }
-                                    }
-
-                                    return Errors.Cancelled;
+                                    return await RunEffect(ma, disps).Run(env);
                                 }
                                 finally
                                 {
@@ -128,6 +44,101 @@ namespace LanguageExt.Pipes
                                         disp.Value?.Dispose();
                                     }
                                 }
+                            });
+
+                                [Pure]
+        static Aff<RT, R> RunEffect<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma, ConcurrentDictionary<object, IDisposable> disps) where RT : struct, HasCancel<RT> =>
+            AffMaybe<RT, R>(async env =>
+                            {
+                                var p = ma;
+
+                                while (!env.CancellationToken.IsCancellationRequested)
+                                {
+                                    switch (p.ToProxy())
+                                    {
+                                        case Pure<RT, Void, Unit, Unit, Void, R> (var r):
+                                            return FinSucc<R>(r);
+
+                                        case M<RT, Void, Unit, Unit, Void, R> (var m):
+                                            var fp = await m.ReRun(env).ConfigureAwait(false);
+                                            if (fp.IsFail) return fp.Error;
+                                            p = fp.Value.ToProxy();
+                                            break;
+
+                                        case Repeat<RT, Void, Unit, Unit, Void, R> (var inner):
+                                            var effect = inner.RunEffect<RT, R>(disps);
+                                            while (!env.CancellationToken.IsCancellationRequested)
+                                            {
+                                                var fi = await effect.ReRun(env).ConfigureAwait(false);
+                                                if (fi.IsFail) return fi.Error;
+                                                if (fi.Value is IDisposable d)
+                                                {
+                                                    d.Dispose();
+                                                }
+                                            }
+
+                                            return Errors.Cancelled;
+
+                                        case Enumerate<RT, Void, Unit, Unit, Void, R> me:
+                                            Fin<R> lastResult = Errors.SequenceEmpty;
+
+                                            if (me.IsAsync)
+                                            {
+                                                await foreach (var f in me.MakeEffectsAsync().ConfigureAwait(false))
+                                                {
+                                                    if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
+                                                    lastResult = await f.RunEffect<RT, R>(disps).Run(env).ConfigureAwait(false);
+                                                    if (lastResult.IsFail) return lastResult.Error;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                foreach (var f in me.MakeEffects())
+                                                {
+                                                    if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
+                                                    lastResult = await f.RunEffect<RT, R>(disps).Run(env).ConfigureAwait(false);
+                                                    if (lastResult.IsFail) return lastResult.Error;
+                                                }
+                                            }
+
+                                            return lastResult;
+
+                                        case Observer<RT, Void, Unit, Unit, Void, R> obs:
+                                            var    wait     = new AutoResetEvent(false);
+                                            var    lastTask = unit.AsValueTask();
+                                            Fin<R> last     = Errors.Cancelled;
+
+                                            // Not sure if launching the effects without an await makes sense here
+                                            using (var sub = obs.Subscribe(onNext: fx => lastTask = fx.RunEffect<RT, R>(disps).Run(env).Iter(r => last = r),
+                                                                           onError: err =>
+                                                                                    {
+                                                                                        last = err;
+                                                                                        wait.Set();
+                                                                                    },
+                                                                           onCompleted: () => wait.Set()))
+                                            {
+                                                await wait.WaitOneAsync(env.CancellationToken).ConfigureAwait(false);
+                                                await lastTask.ConfigureAwait(false);
+                                                return last;
+                                            }
+
+                                        case Use<RT, Void, Unit, Unit, Void, R> mu:
+                                            p = mu.Run(disps);
+                                            break;
+
+                                        case Release<RT, Void, Unit, Unit, Void, R> mu:
+                                            p = mu.Run(disps);
+                                            break;
+
+                                        case Request<RT, Void, Unit, Unit, Void, R> (var v, var _):
+                                            return Errors.Closed;
+
+                                        case Respond<RT, Void, Unit, Unit, Void, R> (var v, var _):
+                                            return Errors.Closed;
+                                    }
+                                }
+
+                                return Errors.Cancelled;
                             });
 
         [Pure, MethodImpl(Proxy.mops)]

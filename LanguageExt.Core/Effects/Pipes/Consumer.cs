@@ -141,6 +141,14 @@ namespace LanguageExt.Pipes
         public static Consumer<RT, IN, R> use<RT, IN, R>(Eff<RT, R> ma, Func<R, Unit> dispose) 
             where RT : struct, HasCancel<RT>  =>
             use<RT, Unit, IN, Unit, Void, R>(ma, dispose).ToConsumer();         
+
+        /// <summary>
+        /// Release a previously used resource
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<RT, IN, Unit> release<RT, IN, R>(R dispose) 
+            where RT : struct, HasCancel<RT> =>
+            Proxy.release<RT, Unit, IN, Unit, Void, R>(dispose).ToConsumer();
         
         /// <summary>
         /// Consume all values using a monadic function
