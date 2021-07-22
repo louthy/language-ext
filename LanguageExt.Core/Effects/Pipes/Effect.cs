@@ -46,7 +46,7 @@ namespace LanguageExt.Pipes
                                         
                                         case Repeat<RT, Void, Unit, Unit, Void, R> (var inner):
                                             var effect = inner.RunEffect<RT, R>();
-                                            while (true)
+                                            while (!env.CancellationToken.IsCancellationRequested)
                                             {
                                                 var fi = await effect.ReRun(env).ConfigureAwait(false);
                                                 if (fi.IsFail) return fi.Error;
@@ -55,6 +55,7 @@ namespace LanguageExt.Pipes
                                                     d.Dispose();
                                                 }
                                             }
+                                            return Errors.Cancelled;
                                             
                                         case Enumerate<RT, Void, Unit, Unit, Void, R> me:
                                             Fin<R> lastResult = Errors.SequenceEmpty;
@@ -63,6 +64,7 @@ namespace LanguageExt.Pipes
                                             {
                                                 await foreach (var f in me.MakeEffectsAsync().ConfigureAwait(false))
                                                 {
+                                                    if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
                                                     lastResult = await f.RunEffect<RT, R>().Run(env).ConfigureAwait(false);
                                                     if (lastResult.IsFail) return lastResult.Error;
                                                 }
@@ -71,6 +73,7 @@ namespace LanguageExt.Pipes
                                             {
                                                 foreach (var f in me.MakeEffects())
                                                 {
+                                                    if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
                                                     lastResult = await f.RunEffect<RT, R>().Run(env).ConfigureAwait(false);
                                                     if (lastResult.IsFail) return lastResult.Error;
                                                 }
