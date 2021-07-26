@@ -31,7 +31,10 @@ namespace LanguageExt.Pipes
         
         public Producer<RT, OUT, C> SelectMany<RT, B, C>(Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
             SelectMany(a => f(a).Select(b => project(a, b)));
-        
+                        
+        public static implicit operator Producer<OUT, A>(Pipes.Pure<A> ma) =>
+            new Producer<OUT, A>.Pure(ma.Value);
+
         public class Pure : Producer<OUT, A> 
         {
             public readonly A Value;

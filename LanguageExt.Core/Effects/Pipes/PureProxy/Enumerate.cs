@@ -61,7 +61,10 @@ namespace LanguageExt.Pipes
         
         public Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, B, C>(Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> => 
             SelectMany(a => f(a).Select(b => project(a, b)));
-        
+                
+        public static implicit operator Enumerate<A>(Pipes.Pure<A> ma) =>
+            new Enumerate<A>.Pure(ma.Value);
+
         public class Pure : Enumerate<A> 
         {
             public readonly A Value;

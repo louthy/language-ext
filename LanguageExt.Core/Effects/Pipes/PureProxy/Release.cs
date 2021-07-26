@@ -39,7 +39,9 @@ namespace LanguageExt.Pipes
         public abstract Client<RT, REQ, RES, A> InterpretClient<RT, REQ, RES>() where RT : struct, HasCancel<RT>;
         public abstract Server<RT, REQ, RES, A> InterpretServer<RT, REQ, RES>() where RT : struct, HasCancel<RT>;
             
-        
+        public static implicit operator Release<A>(Pipes.Pure<A> ma) =>
+            new Release<A>.Pure(ma.Value);
+
         public Release<B> Map<B>(Func<A, B> f) =>
             Select(f);
         

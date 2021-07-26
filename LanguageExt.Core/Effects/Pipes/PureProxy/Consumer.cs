@@ -43,6 +43,9 @@ namespace LanguageExt.Pipes
         public Pipe<IN, OUT, C> SelectMany<OUT, B, C>(Func<A, Producer<OUT, B>> f, Func<A, B, C> project) =>
             SelectMany(a => f(a).Select(b => project(a, b)));
        
+        public static implicit operator Consumer<IN, A>(Pipes.Pure<A> ma) =>
+            new Consumer<IN, A>.Pure(ma.Value);
+
         public class Pure : Consumer<IN, A> 
         {
             public readonly A Value;
