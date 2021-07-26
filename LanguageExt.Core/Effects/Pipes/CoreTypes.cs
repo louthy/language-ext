@@ -297,7 +297,8 @@ namespace LanguageExt.Pipes
         internal abstract Proxy<RT, UOut, UIn, DIn, DOut, A> Run(ConcurrentDictionary<object, IDisposable> disps);
     }
 
-    public partial class Use<RT, UOut, UIn, DIn, DOut, X, A> : Use<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+    public partial class Use<RT, UOut, UIn, DIn, DOut, X, A> : Use<RT, UOut, UIn, DIn, DOut, A> 
+        where RT : struct, HasCancel<RT>
     {
         public readonly Func<Aff<RT, X>> Acquire;
         public readonly Func<X, Unit> Release; 

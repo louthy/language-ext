@@ -164,7 +164,7 @@ namespace LanguageExt.Sys.IO
             from _ in Proxy.yield(s as Stream)
             select unit;
 
-        // Internal 
+        // -- Internal ------------------------------------------------------------------------------------------------- 
 
         /// <summary>
         /// Open a file-stream

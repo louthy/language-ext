@@ -56,7 +56,7 @@ public class Program
 
         var echo = readLine | writeLine;
 
-        var result = (await file2.RunEffect<Runtime, Unit>()
+        var result = (await file1.RunEffect<Runtime, Unit>()
                                  .Run(Runtime.New()))
                                  .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
                                         Fail: e => Console.WriteLine(e));
@@ -93,9 +93,9 @@ public class Program
         from _ in yield($"Hello {l}")
         select unit;
 
-    static Pipe<Runtime, Seq<byte>, string, Unit> decodeUtf8 =>
-        from c in awaiting<Seq<byte>>()         
-        from _ in yield(Encoding.UTF8.GetString(c.ToArray()))
+    static Pipe<Runtime, SeqLoan<byte>, string, Unit> decodeUtf8 =>
+        from c in awaiting<SeqLoan<byte>>()         
+        from _ in yield(Encoding.UTF8.GetString(c.ToReadOnlySpan()))
         select unit;
 
     static Pipe<Runtime, A, string, Unit> toString<A>() =>

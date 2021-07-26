@@ -25,11 +25,11 @@ namespace LanguageExt.Sys.IO
             get
             {
                 return from tr in awaiting<TextReader>()
-                       from ln in enumerate(readLine(tr))
+                       from ln in enumerate(go(tr))
                        from __ in yield(ln)
                        select unit;
 
-                static async IAsyncEnumerable<string> readLine(TextReader reader)
+                static async IAsyncEnumerable<string> go(TextReader reader)
                 {
                     while (true)
                     {
@@ -55,14 +55,14 @@ namespace LanguageExt.Sys.IO
         /// Repeatedly read a number of chars from the stream
         /// </summary>
         [Pure]
-        public static Pipe<RT, TextReader, Seq<char>, Unit> readChars(int charCount)
+        public static Pipe<RT, TextReader, SeqLoan<char>, Unit> readChars(int charCount)
         {
             return from tr in awaiting<TextReader>()
                    from cs in enumerate(go(tr, charCount))
                    from __ in yield(cs)
                    select unit;
 
-            static async IAsyncEnumerable<Seq<char>> go(TextReader reader, int count)
+            static async IAsyncEnumerable<SeqLoan<char>> go(TextReader reader, int count)
             {
                 var pool = ArrayPool<char>.Shared;
                 while (true)
@@ -70,10 +70,10 @@ namespace LanguageExt.Sys.IO
                     var buffer = pool.Rent(count);
                     var nread  = await reader.ReadAsync(buffer, 0, count);
                     if(nread < 0) yield break;
-                    yield return buffer.ToSeqUnsafe(pool);
+                    yield return buffer.ToSeqLoanUnsafe(nread, pool);
                 }
             }
-        }         
+        }
 
         /// <summary>
         /// Read a number of chars from the stream
@@ -88,16 +88,23 @@ namespace LanguageExt.Sys.IO
 
             static async IAsyncEnumerable<string> go(TextReader reader, int count)
             {
-                var pool = ArrayPool<char>.Shared;
-                while (true)
+                var pool   = ArrayPool<char>.Shared;
+                var buffer = pool.Rent(count);
+                try
                 {
-                    var buffer = pool.Rent(count);
-                    var nread  = await reader.ReadAsync(buffer, 0, count);
-                    if(nread < 0) yield break;
-                    yield return new string(buffer);
+                    while (true)
+                    {
+                        var nread = await reader.ReadAsync(buffer, 0, count);
+                        if (nread < 0) yield break;
+                        yield return new string(buffer);
+                    }
+                }
+                finally
+                {
+                    pool.Return(buffer);
                 }
             }
-        }         
+        }
 
         /// <summary>
         /// Close the reader

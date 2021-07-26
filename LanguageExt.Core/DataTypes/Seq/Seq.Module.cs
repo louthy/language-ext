@@ -1062,13 +1062,5 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static Seq<A> FromArray<A>(A[] value, int length) =>
             new Seq<A>(new SeqStrict<A>(value, 0, length, 0, 0));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static Seq<A> FromArray<A>(A[] value, ArrayPool<A> pool) =>
-            new Seq<A>(new SeqStrictShared<A>(value, pool, 0, value.Length, 0, 0));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static Seq<A> FromArray<A>(A[] value, int length, ArrayPool<A> pool) =>
-            new Seq<A>(new SeqStrictShared<A>(value, pool, 0, length, 0, 0));
     }
 }

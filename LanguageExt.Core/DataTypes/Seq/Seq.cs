@@ -1200,17 +1200,14 @@ namespace LanguageExt
             if (cmp != 0) return cmp;
 
             // Iterate through both sides
-            using (var iterA = GetEnumerator())
+            using var iterA = GetEnumerator();
+            using var iterB = rhs.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
             {
-                using (var iterB = rhs.GetEnumerator())
-                {
-                    while (iterA.MoveNext() && iterB.MoveNext())
-                    {
-                        cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
-                        if (cmp != 0) return cmp;
-                    }
-                }
+                cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
+                if (cmp != 0) return cmp;
             }
+
             return 0;
         }
 

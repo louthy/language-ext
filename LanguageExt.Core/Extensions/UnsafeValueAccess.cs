@@ -79,8 +79,8 @@ namespace LanguageExt.UnsafeValueAccess
         /// advised unless you know what you're doing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Seq<A> ToSeqUnsafe<A>(this A[] value, ArrayPool<A> pool) =>
-            Seq.FromArray(value, pool);
+        public static SeqLoan<A> ToSeqLoanUnsafe<A>(this A[] value, ArrayPool<A> pool) =>
+            new SeqLoan<A>(value, pool, 0, value.Length);
 
         /// <summary>
         /// This creates a Seq from an Array without any copying of data, so it's super fast
@@ -88,7 +88,7 @@ namespace LanguageExt.UnsafeValueAccess
         /// advised unless you know what you're doing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Seq<A> ToSeqUnsafe<A>(this A[] value, int length, ArrayPool<A> pool) =>
-            Seq.FromArray(value, length, pool);
+        public static SeqLoan<A> ToSeqLoanUnsafe<A>(this A[] value, int length, ArrayPool<A> pool) =>
+            new SeqLoan<A>(value, pool, 0, length);
     }
 }

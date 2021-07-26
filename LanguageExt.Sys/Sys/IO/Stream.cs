@@ -13,14 +13,14 @@ namespace LanguageExt.Sys.IO
         /// <summary>
         /// Get a pipe of chunks from a Stream
         /// </summary>
-        public static Pipe<RT, Stream, Seq<byte>, Unit> read(int chunkSize)
+        public static Pipe<RT, Stream, SeqLoan<byte>, Unit> read(int chunkSize)
         {
             return from fs in Proxy.awaiting<Stream>()
                    from bt in Proxy.enumerate(chunks(fs, chunkSize))
                    from un in Proxy.yield(bt)
                    select unit;
 
-            static async IAsyncEnumerable<Seq<byte>> chunks(Stream fs, int chunkSize)
+            static async IAsyncEnumerable<SeqLoan<byte>> chunks(Stream fs, int chunkSize)
             {
                 var pool = ArrayPool<byte>.Shared;
                 while (true)
@@ -31,7 +31,7 @@ namespace LanguageExt.Sys.IO
                     {
                         yield break;
                     }
-                    yield return buffer.ToSeqUnsafe(count, pool); 
+                    yield return buffer.ToSeqLoanUnsafe(count, pool); 
                 }
             }
         }
