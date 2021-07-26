@@ -842,6 +842,22 @@ namespace LanguageExt.Pipes
         [Pure]
         public static implicit operator Producer<RT, OUT, A>(Pure<A> p) =>
             Producer.Pure<RT, OUT, A>(p.Value);
+
+        [Pure]
+        public Producer<RT, OUT, B> SelectMany<B>(Func<A, Release<B>> bind) =>
+            Value.Bind(a => bind(a).InterpretProducer<RT, OUT>()).ToProducer();
+
+        [Pure]
+        public Producer<RT, OUT, C> SelectMany<B, C>(Func<A, Release<B>> bind, Func<A, B, C> project) =>
+            SelectMany(a => bind(a).Select(b => project(a, b)));
+
+        [Pure]
+        public Producer<RT, OUT, B> SelectMany<B>(Func<A, Producer<OUT, B>> bind) =>
+            Value.Bind(a => bind(a).Interpret<RT>()).ToProducer();
+
+        [Pure]
+        public Producer<RT, OUT, C> SelectMany<B, C>(Func<A, Producer<OUT, B>> bind, Func<A, B, C> project) =>
+            SelectMany(a => bind(a).Select(b => project(a, b)));
     }
 
     /// <summary>
@@ -913,6 +929,30 @@ namespace LanguageExt.Pipes
         [Pure]
         public static implicit operator Consumer<RT, IN, A>(Pure<A> p) =>
             Consumer.Pure<RT, IN, A>(p.Value);
+
+        [Pure]
+        public Consumer<RT, IN, B> SelectMany<B>(Func<A, Release<B>> bind) =>
+            Value.Bind(a => bind(a).InterpretConsumer<RT, IN>()).ToConsumer();
+
+        [Pure]
+        public Consumer<RT, IN, C> SelectMany<B, C>(Func<A, Release<B>> bind, Func<A, B, C> project) =>
+            SelectMany(a => bind(a).Select(b => project(a, b)));
+        
+        [Pure]
+        public Consumer<RT, IN, B> SelectMany<B>(Func<A, Consumer<IN, B>> bind) =>
+            Value.Bind(a =>  bind(a).Interpret<RT>()).ToConsumer();
+
+        [Pure]
+        public Consumer<RT, IN, C> SelectMany<B, C>(Func<A, Consumer<IN, B>> bind, Func<A, B, C> project) =>
+            SelectMany(a => bind(a).Select(b => project(a, b)));
+
+        [Pure]
+        public Consumer<RT, IN, B> SelectMany<B>(Func<A, ConsumerLift<RT, IN, B>> bind) =>
+            Value.Bind(a =>  bind(a).Interpret()).ToConsumer();
+
+        [Pure]
+        public Consumer<RT, IN, C> SelectMany<B, C>(Func<A, ConsumerLift<RT, IN, B>> bind, Func<A, B, C> project) =>
+            SelectMany(a => bind(a).Select(b => project(a, b)));
     }
 
     /// <summary>
@@ -1015,6 +1055,22 @@ namespace LanguageExt.Pipes
         [Pure]
         public static implicit operator Pipe<RT, IN, OUT, A>(Pure<A> p) =>
             Pipe.Pure<RT, IN, OUT, A>(p.Value);
+
+        [Pure]
+        public Pipe<RT, IN, OUT, B> SelectMany<B>(Func<A, Release<B>> bind) =>
+            Value.Bind(a => bind(a).InterpretPipe<RT, IN, OUT>()).ToPipe();
+
+        [Pure]
+        public Pipe<RT, IN, OUT, C> SelectMany<B, C>(Func<A, Release<B>> bind, Func<A, B, C> project) =>
+            SelectMany(a => bind(a).Select(b => project(a, b)));
+
+        [Pure]
+        public Pipe<RT, IN, OUT, B> SelectMany<B>(Func<A, Pipe<IN, OUT, B>> bind) =>
+            Value.Bind(a => bind(a).Interpret<RT>()).ToPipe();
+
+        [Pure]
+        public Pipe<RT, IN, OUT, C> SelectMany<B, C>(Func<A, Pipe<IN, OUT, B>> bind, Func<A, B, C> project) =>
+            SelectMany(a => bind(a).Select(b => project(a, b)));
     }
 
     /// <summary>
@@ -1078,6 +1134,14 @@ namespace LanguageExt.Pipes
         [Pure]
         public static Effect<RT, A> operator |(Func<REQ, Server<RT, REQ, RES, A>> x, Client<RT, REQ, RES, A> y) =>
             y.ComposeRight(x).ToEffect();
+        
+        [Pure]
+        public Client<RT, REQ, RES, B> SelectMany<B>(Func<A, Release<B>> bind) =>
+            Value.Bind(a => bind(a).InterpretClient<RT, REQ, RES>()).ToClient();
+
+        [Pure]
+        public Client<RT, REQ, RES, C> SelectMany<B, C>(Func<A, Release<B>> bind, Func<A, B, C> project) =>
+            SelectMany(a => bind(a).Select(b => project(a, b)));
     }
 
     /// <summary>
@@ -1137,6 +1201,12 @@ namespace LanguageExt.Pipes
         [Pure]
         public void Deconstruct(out Proxy<RT, Void, Unit, REQ, RES, A> value) =>
             value = Value;
+        
+        public Server<RT, REQ, RES, B> SelectMany<B>(Func<A, Release<B>> bind) =>
+            Value.Bind(a => bind(a).InterpretServer<RT, REQ, RES>()).ToServer();
+
+        public Server<RT, REQ, RES, C> SelectMany<B, C>(Func<A, Release<B>> bind, Func<A, B, C> project) =>
+            SelectMany(a => bind(a).Select(b => project(a, b)));
     }
 
     /// <summary>
