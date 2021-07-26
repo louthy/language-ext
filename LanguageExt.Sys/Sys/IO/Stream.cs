@@ -1,4 +1,5 @@
 using System.IO;
+using System.Buffers;
 using LanguageExt.Pipes;
 using System.Collections.Generic;
 using LanguageExt.Effects.Traits;
@@ -21,15 +22,16 @@ namespace LanguageExt.Sys.IO
 
             static async IAsyncEnumerable<Seq<byte>> chunks(Stream fs, int chunkSize)
             {
+                var pool = ArrayPool<byte>.Shared;
                 while (true)
                 {
-                    var buffer = new byte[chunkSize];
+                    var buffer = pool.Rent(chunkSize);
                     var count  = await fs.ReadAsync(buffer, 0, chunkSize);
                     if (count < 1)
                     {
                         yield break;
                     }
-                    yield return buffer.ToSeqUnsafe(count); 
+                    yield return buffer.ToSeqUnsafe(count, pool); 
                 }
             }
         }

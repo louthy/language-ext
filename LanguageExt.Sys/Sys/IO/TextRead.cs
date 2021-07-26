@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.IO;
 using LanguageExt.Pipes;
 using LanguageExt.Sys.Traits;
@@ -63,12 +64,13 @@ namespace LanguageExt.Sys.IO
 
             static async IAsyncEnumerable<Seq<char>> go(TextReader reader, int count)
             {
+                var pool = ArrayPool<char>.Shared;
                 while (true)
                 {
-                    var buffer = new char[count];
+                    var buffer = pool.Rent(count);
                     var nread  = await reader.ReadAsync(buffer, 0, count);
                     if(nread < 0) yield break;
-                    yield return buffer.ToSeqUnsafe();
+                    yield return buffer.ToSeqUnsafe(pool);
                 }
             }
         }         
@@ -86,9 +88,10 @@ namespace LanguageExt.Sys.IO
 
             static async IAsyncEnumerable<string> go(TextReader reader, int count)
             {
+                var pool = ArrayPool<char>.Shared;
                 while (true)
                 {
-                    var buffer = new char[count];
+                    var buffer = pool.Rent(count);
                     var nread  = await reader.ReadAsync(buffer, 0, count);
                     if(nread < 0) yield break;
                     yield return new string(buffer);
