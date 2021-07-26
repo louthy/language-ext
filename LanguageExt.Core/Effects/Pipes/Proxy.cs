@@ -142,7 +142,14 @@ namespace LanguageExt.Pipes
         public static Lift<RT, R> use<RT, R>(Aff<R> ma) 
             where RT : struct, HasCancel<RT> 
             where R : IDisposable =>
-            Lift.Aff<RT, R>(ma);        
+            Lift.Aff<RT, R>(ma);
+
+        /// <summary>
+        /// Release a previously used resource
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Release<Unit> release<A>(A value) =>
+            new Release<Unit>.Do<A>(value, PureProxy.ReleasePure<Unit>);
 
         /// <summary>
         /// Repeat the Producer indefinitely
@@ -656,7 +663,8 @@ namespace LanguageExt.Pipes
                     Pure<RT, A1, A, B1, B, Func<R, S>> (var f)             => px.Map(f),
                     Repeat<RT, A1, A, B1, B, Func<R, S>> (var innr)        => new Repeat<RT, A1, A, B1, B, S>(innr.Apply(px)),
                     Enumerate<RT, A1, A, B1, B, Func<R, S>> enumer         => enumer.Bind(px.Map),
-                    Observer<RT, A1, A, B1, B, Func<R, S>> obs              => obs.Bind(px.Map),
+                    Use<RT, A1, A, B1, B, Func<R, S>> use                  => use.Bind(px.Map),
+                    Release<RT, A1, A, B1, B, Func<R, S>> rel              => rel.Bind(px.Map),
                     _                                                      => throw new NotSupportedException()
                 };
         }

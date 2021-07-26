@@ -56,10 +56,10 @@ public class Program
 
         var echo = readLine | writeLine;
 
-        var result = (await echo.RunEffect<Runtime, Unit>()
-                                .Run(Runtime.New()))
-                                .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
-                                       Fail: e => Console.WriteLine(e));
+        var result = (await file2.RunEffect<Runtime, Unit>()
+                                 .Run(Runtime.New()))
+                                 .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
+                                        Fail: e => Console.WriteLine(e));
     }
 
     static Pipe<Runtime, DateTime, string, Unit> toLongTimeString =>

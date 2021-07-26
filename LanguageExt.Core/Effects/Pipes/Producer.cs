@@ -34,6 +34,11 @@ namespace LanguageExt.Pipes
             new Enumerate<RT, Void, Unit, Unit, X, X, X>(xs, Producer.Pure<RT, X, X>).ToProducer();
 
         [Pure, MethodImpl(Proxy.mops)]
+        internal static Producer<RT, OUT, X> enumerate<RT, OUT, X>(EnumerateData<X> xs)
+            where RT : struct, HasCancel<RT> =>
+            new Enumerate<RT, Void, Unit, Unit, OUT, X, X>(xs, Producer.Pure<RT, OUT, X>).ToProducer();
+
+        [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, OUT, X> enumerate<RT, OUT, X>(IEnumerable<X> xs)
             where RT : struct, HasCancel<RT> =>
             new Enumerate<RT, Void, Unit, Unit, OUT, X, X>(xs, Producer.Pure<RT, OUT, X>).ToProducer();
@@ -51,12 +56,12 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, X, X> observe<RT, X>(IObservable<X> xs)
             where RT : struct, HasCancel<RT> =>
-            new Observer<RT, Void, Unit, Unit, X, X, X>(xs, Producer.Pure<RT, X, X>).ToProducer();
+            new Enumerate<RT, Void, Unit, Unit, X, X, X>(xs, Producer.Pure<RT, X, X>).ToProducer();
 
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, OUT, X> observe<RT, OUT, X>(IObservable<X> xs)
             where RT : struct, HasCancel<RT> =>
-            new Observer<RT, Void, Unit, Unit, OUT, X, X>(xs, Producer.Pure<RT, OUT, X>).ToProducer();
+            new Enumerate<RT, Void, Unit, Unit, OUT, X, X>(xs, Producer.Pure<RT, OUT, X>).ToProducer();
      
  
         /// <summary>

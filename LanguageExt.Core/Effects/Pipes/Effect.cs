@@ -82,44 +82,48 @@ namespace LanguageExt.Pipes
                                         case Enumerate<RT, Void, Unit, Unit, Void, R> me:
                                             Fin<R> lastResult = Errors.SequenceEmpty;
 
-                                            if (me.IsAsync)
+                                            switch (me.Type)
                                             {
-                                                await foreach (var f in me.MakeEffectsAsync().ConfigureAwait(false))
-                                                {
-                                                    if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
-                                                    lastResult = await f.RunEffect<RT, R>(disps).Run(env).ConfigureAwait(false);
-                                                    if (lastResult.IsFail) return lastResult.Error;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                foreach (var f in me.MakeEffects())
-                                                {
-                                                    if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
-                                                    lastResult = await f.RunEffect<RT, R>(disps).Run(env).ConfigureAwait(false);
-                                                    if (lastResult.IsFail) return lastResult.Error;
-                                                }
-                                            }
+                                                case EnumerateDataType.AsyncEnumerable:
+                                                    await foreach (var f in me.MakeEffectsAsync().ConfigureAwait(false))
+                                                    {
+                                                        if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
+                                                        lastResult = await f.RunEffect<RT, R>(disps).Run(env).ConfigureAwait(false);
+                                                        if (lastResult.IsFail) return lastResult.Error;
+                                                    }
 
-                                            return lastResult;
+                                                    return lastResult;
 
-                                        case Observer<RT, Void, Unit, Unit, Void, R> obs:
-                                            var    wait     = new AutoResetEvent(false);
-                                            var    lastTask = unit.AsValueTask();
-                                            Fin<R> last     = Errors.Cancelled;
+                                                case EnumerateDataType.Enumerable:
+                                                    foreach (var f in me.MakeEffects())
+                                                    {
+                                                        if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
+                                                        lastResult = await f.RunEffect<RT, R>(disps).Run(env).ConfigureAwait(false);
+                                                        if (lastResult.IsFail) return lastResult.Error;
+                                                    }
 
-                                            // Not sure if launching the effects without an await makes sense here
-                                            using (var sub = obs.Subscribe(onNext: fx => lastTask = fx.RunEffect<RT, R>(disps).Run(env).Iter(r => last = r),
-                                                                           onError: err =>
-                                                                                    {
-                                                                                        last = err;
-                                                                                        wait.Set();
-                                                                                    },
-                                                                           onCompleted: () => wait.Set()))
-                                            {
-                                                await wait.WaitOneAsync(env.CancellationToken).ConfigureAwait(false);
-                                                await lastTask.ConfigureAwait(false);
-                                                return last;
+                                                    return lastResult;
+
+                                                case EnumerateDataType.Observable:
+                                                    var    wait     = new AutoResetEvent(false);
+                                                    var    lastTask = unit.AsValueTask();
+                                                    Fin<R> last     = Errors.Cancelled;
+
+                                                    using (var sub = me.Subscribe(onNext: fx => lastTask = fx.RunEffect<RT, R>(disps).Run(env).Iter(r => last = r),
+                                                                                  onError: err =>
+                                                                                           {
+                                                                                               last = err;
+                                                                                               wait.Set();
+                                                                                           },
+                                                                                  onCompleted: () => wait.Set()))
+                                                    {
+                                                        await wait.WaitOneAsync(env.CancellationToken).ConfigureAwait(false);
+                                                        await lastTask.ConfigureAwait(false);
+                                                        return last;
+                                                    }
+                                                    
+                                                default:
+                                                    throw new NotSupportedException();
                                             }
 
                                         case Use<RT, Void, Unit, Unit, Void, R> mu:

@@ -64,9 +64,9 @@ namespace LanguageExt.Pipes
             new Enumerate<RT, Void, Unit, REQ, RES, X, X>(xs, Pure<RT, REQ, RES, X>).ToServer();
 
         [Pure, MethodImpl(Proxy.mops)]
-        public static Server<RT, REQ, RES, X> enumerate<RT, REQ, RES, X>(IObservable<X> xs)
+        public static Server<RT, REQ, RES, X> observe<RT, REQ, RES, X>(IObservable<X> xs)
             where RT : struct, HasCancel<RT> =>
-            new Observer<RT, Void, Unit, REQ, RES, X, X>(xs, Pure<RT, REQ, RES, X>).ToServer();
+            new Enumerate<RT, Void, Unit, REQ, RES, X, X>(xs, Pure<RT, REQ, RES, X>).ToServer();
         
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer

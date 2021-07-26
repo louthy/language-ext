@@ -37,49 +37,18 @@ namespace LanguageExt.Pipes
                 Pipe.Pure<RT, IN, OUT, A>(Value);
         }
         
-        public class LiftAff<X> : Lift<RT, A>
+        public class Do<X> : Lift<RT, A>
         {
             public readonly Aff<RT, X> Effect;
             public readonly Func<X, Lift<RT, A>> Next;
-            public LiftAff(Aff<RT, X> value, Func<X, Lift<RT, A>> next) =>
+            public Do(Aff<RT, X> value, Func<X, Lift<RT, A>> next) =>
                 (Effect, Next) = (value, next);
 
             public override Lift<RT, B> Map<B>(Func<A, B> f) =>
-                new Lift<RT, B>.LiftAff<X>(Effect, n => Next(n).Select(f));
+                new Lift<RT, B>.Do<X>(Effect, n => Next(n).Select(f));
 
             public override Lift<RT, B> Bind<B>(Func<A, Lift<RT, B>> f) =>
-                new Lift<RT, B>.LiftAff<X>(Effect, n => Next(n).Bind(f));
-
-            public override ConsumerLift<RT, IN, A> ToConsumerLift<IN>() =>
-                new ConsumerLift<RT, IN, A>.Lift<X>(Effect, x => Next(x).ToConsumerLift<IN>());
-
-            public override Producer<RT, OUT, A> ToProducer<OUT>() =>
-                from x in Producer.lift<RT, OUT, X>(Effect)
-                from r in Next(x).ToProducer<OUT>()
-                select r;
-
-            public override Consumer<RT, IN, A> ToConsumer<IN>() =>
-                from x in Consumer.lift<RT, IN, X>(Effect)
-                from r in Next(x).ToConsumer<IN>()
-                select r;
-
-            public override Pipe<RT, IN, OUT, A> ToPipe<IN, OUT>() =>
-                from x in Pipe.lift<RT, IN, OUT, X>(Effect)
-                from r in Next(x).ToPipe<IN, OUT>()
-                select r;
-        }
-        public class LiftEff<X> : Lift<RT, A>
-        {
-            public readonly Eff<RT, X> Effect;
-            public readonly Func<X, Lift<RT, A>> Next;
-            public LiftEff(Eff<RT, X> value, Func<X, Lift<RT, A>> next) =>
-                (Effect, Next) = (value, next);
-
-            public override Lift<RT, B> Map<B>(Func<A, B> f) =>
-                new Lift<RT, B>.LiftEff<X>(Effect, n => Next(n).Select(f));
-
-            public override Lift<RT, B> Bind<B>(Func<A, Lift<RT, B>> f) =>
-                new Lift<RT, B>.LiftEff<X>(Effect, n => Next(n).Bind(f));
+                new Lift<RT, B>.Do<X>(Effect, n => Next(n).Bind(f));
 
             public override ConsumerLift<RT, IN, A> ToConsumerLift<IN>() =>
                 new ConsumerLift<RT, IN, A>.Lift<X>(Effect, x => Next(x).ToConsumerLift<IN>());
@@ -107,10 +76,10 @@ namespace LanguageExt.Pipes
             new Lift<RT, A>.Pure(value);
 
         public static Lift<RT, A> Aff<RT, A>(Aff<RT, A> value) where RT : struct, HasCancel<RT> =>
-            new Lift<RT, A>.LiftAff<A>(value, Pure<RT, A>);
+            new Lift<RT, A>.Do<A>(value, Pure<RT, A>);
 
         public static Lift<RT, A> Eff<RT, A>(Eff<RT, A> value) where RT : struct, HasCancel<RT> =>
-            new Lift<RT, A>.LiftEff<A>(value, Pure<RT, A>);
+            new Lift<RT, A>.Do<A>(value, Pure<RT, A>);
 
         public static Lift<RT, B> Select<RT, A, B>(this Lift<RT, A> ma, Func<A, B> f) where RT : struct, HasCancel<RT> =>
             ma.Map(f);
@@ -122,28 +91,28 @@ namespace LanguageExt.Pipes
             ma.SelectMany(a => f(a).Select(b => project(a, b)));
 
         public static Lift<RT, B> SelectMany<RT, A, B>(this Lift<RT, A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            ma.Bind(x => new Lift<RT, B>.LiftAff<B>(f(x), Pure<RT, B>));
+            ma.Bind(x => new Lift<RT, B>.Do<B>(f(x), Pure<RT, B>));
 
         public static Lift<RT, C> SelectMany<RT, A, B, C>(this Lift<RT, A> ma, Func<A, Aff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            ma.Bind(x => new Lift<RT, B>.LiftAff<B>(f(x), Pure<RT, B>).Map(y => project(x, y)));
+            ma.Bind(x => new Lift<RT, B>.Do<B>(f(x), Pure<RT, B>).Map(y => project(x, y)));
 
         public static Lift<RT, B> SelectMany<RT, A, B>(this Lift<RT, A> ma, Func<A, Eff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            ma.Bind(x => new Lift<RT, B>.LiftEff<B>(f(x), Pure<RT, B>));
+            ma.Bind(x => new Lift<RT, B>.Do<B>(f(x), Pure<RT, B>));
 
         public static Lift<RT, C> SelectMany<RT, A, B, C>(this Lift<RT, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            ma.Bind(x => new Lift<RT, B>.LiftEff<B>(f(x), Pure<RT, B>).Map(y => project(x, y)));
+            ma.Bind(x => new Lift<RT, B>.Do<B>(f(x), Pure<RT, B>).Map(y => project(x, y)));
 
         public static Lift<RT, B> SelectMany<RT, A, B>(this Lift<RT, A> ma, Func<A, Aff<B>> f) where RT : struct, HasCancel<RT> =>
-            ma.Bind(x => new Lift<RT, B>.LiftAff<B>(f(x), Pure<RT, B>));
+            ma.Bind(x => new Lift<RT, B>.Do<B>(f(x), Pure<RT, B>));
 
         public static Lift<RT, C> SelectMany<RT, A, B, C>(this Lift<RT, A> ma, Func<A, Aff<B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            ma.Bind(x => new Lift<RT, B>.LiftAff<B>(f(x), Pure<RT, B>).Map(y => project(x, y)));
+            ma.Bind(x => new Lift<RT, B>.Do<B>(f(x), Pure<RT, B>).Map(y => project(x, y)));
 
         public static Lift<RT, B> SelectMany<RT, A, B>(this Lift<RT, A> ma, Func<A, Eff<B>> f) where RT : struct, HasCancel<RT> =>
-            ma.Bind(x => new Lift<RT, B>.LiftEff<B>(f(x), Pure<RT, B>));
+            ma.Bind(x => new Lift<RT, B>.Do<B>(f(x), Pure<RT, B>));
 
         public static Lift<RT, C> SelectMany<RT, A, B, C>(this Lift<RT, A> ma, Func<A, Eff<B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
-            ma.Bind(x => new Lift<RT, B>.LiftEff<B>(f(x), Pure<RT, B>).Map(y => project(x, y)));
+            ma.Bind(x => new Lift<RT, B>.Do<B>(f(x), Pure<RT, B>).Map(y => project(x, y)));
 
         public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Lift<RT, A> ma, Func<A, Consumer<IN, B>> f) where RT : struct, HasCancel<RT> =>
             from a in ma.ToConsumer<IN>()

@@ -457,166 +457,114 @@ namespace LanguageExt.Pipes
 
     public abstract class Enumerate<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
     {
-        public abstract IEnumerable<Proxy<RT, UOut, UIn, DIn, DOut, A>> MakeEffects();
-        public abstract IAsyncEnumerable<Proxy<RT, UOut, UIn, DIn, DOut, A>> MakeEffectsAsync();
-        public abstract bool IsAsync { get; }
+        internal abstract EnumerateDataType Type { get; }
+        internal abstract IEnumerable<Proxy<RT, UOut, UIn, DIn, DOut, A>> MakeEffects();
+        internal abstract IAsyncEnumerable<Proxy<RT, UOut, UIn, DIn, DOut, A>> MakeEffectsAsync();
+        internal abstract IDisposable Subscribe(
+            Action<Proxy<RT, UOut, UIn, DIn, DOut, A>> onNext, 
+            Action<Error> onError = null, 
+            Action onCompleted = null);
     }
 
     public partial class Enumerate<RT, UOut, UIn, DIn, DOut, X, A> : Enumerate<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
     {
-        public readonly IEnumerable<X> Items;
-        public readonly IAsyncEnumerable<X> ItemsA;
+        internal readonly EnumerateData<X> Items;
         public readonly Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next;
 
-        public Enumerate(IEnumerable<X> items, Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
+        internal Enumerate(EnumerateData<X> items, Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
             (Items, Next) = (items, next);
 
-        public Enumerate(IAsyncEnumerable<X> items, Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
-            (ItemsA, Next) = (items, next);
+        public Enumerate(IEnumerable<X> items, Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
+            (Items, Next) = (new EnumerateEnumerable<X>(items), next);
 
-        internal Enumerate(IEnumerable<X> items, IAsyncEnumerable<X> itemsA, Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
-            (Items, ItemsA, Next) = (items, itemsA, next);
+        public Enumerate(IAsyncEnumerable<X> items, Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
+            (Items, Next) = (new EnumerateAsyncEnumerable<X>(items), next);
+
+        public Enumerate(IObservable<X> items, Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
+            (Items, Next) = (new EnumerateObservable<X>(items), next);
 
         [Pure]
-        public override bool IsAsync =>
-            Items == null;
- 
+        internal override EnumerateDataType Type =>
+            Items.Type;
+        
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
-            new Enumerate<RT, UOut, UIn, DIn, DOut, X, S>(Items, ItemsA, x => Next(x).Bind(f));
+            new Enumerate<RT, UOut, UIn, DIn, DOut, X, S>(Items, x => Next(x).Bind(f));
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<A, S> f) =>
-            new Enumerate<RT, UOut, UIn, DIn, DOut, X, S>(Items, ItemsA, x => Next(x).Map(f));
+            new Enumerate<RT, UOut, UIn, DIn, DOut, X, S>(Items, x => Next(x).Map(f));
 
         [Pure]
         public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
-            new Enumerate<RT, UOut, UIn, C1, C, X, A>(Items, ItemsA, x => Next(x).For(f));
+            new Enumerate<RT, UOut, UIn, C1, C, X, A>(Items, x => Next(x).For(f));
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
-            new Enumerate<RT, UOut, UIn, DIn, DOut, X, S>(Items, ItemsA, x => Next(x).Action(r));
+            new Enumerate<RT, UOut, UIn, DIn, DOut, X, S>(Items, x => Next(x).Action(r));
 
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
-            new Enumerate<RT, UOutA, AUInA, DIn, DOut, X, A>(Items, ItemsA, c1 => Next(c1).ComposeRight(fb1));
+            new Enumerate<RT, UOutA, AUInA, DIn, DOut, X, A>(Items, c1 => Next(c1).ComposeRight(fb1));
 
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
-            new Enumerate<RT, UOutA, AUInA, DIn, DOut, X, A>(Items, ItemsA, c1 => Next(c1).ComposeRight(lhs));
+            new Enumerate<RT, UOutA, AUInA, DIn, DOut, X, A>(Items, c1 => Next(c1).ComposeRight(lhs));
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
-            new Enumerate<RT, UOut, UIn, DInC, DOutC, X, A>(Items, ItemsA, c1 => Next(c1).ComposeLeft(rhs));
+            new Enumerate<RT, UOut, UIn, DInC, DOutC, X, A>(Items, c1 => Next(c1).ComposeLeft(rhs));
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
-            new Enumerate<RT, UOut, UIn, DInC, DOutC, X, A>(Items, ItemsA, c1 => Next(c1).ComposeLeft(rhs));
+            new Enumerate<RT, UOut, UIn, DInC, DOutC, X, A>(Items, c1 => Next(c1).ComposeLeft(rhs));
 
         [Pure]
         public override Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect() =>
-            new Enumerate<RT, DOut, DIn, UIn, UOut, X, A>(Items, ItemsA, x => Next(x).Reflect());
+            new Enumerate<RT, DOut, DIn, UIn, UOut, X, A>(Items, x => Next(x).Reflect());
         
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
             new M<RT, UOut, UIn, DIn, DOut, A>(Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>>.Success(this));
 
         [Pure]
-        public void Deconstruct(out IEnumerable<X> items, out IAsyncEnumerable<X> itemsA, out Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
-            (items, itemsA, next) = (Items, ItemsA, Next);
-
-        [Pure]
-        public override IEnumerable<Proxy<RT, UOut, UIn, DIn, DOut, A>> MakeEffects()
-        {
-            foreach (var item in Items)
-            {
-                yield return Next(item);
-            }
-        }
-
-        [Pure]
-        public override async IAsyncEnumerable<Proxy<RT, UOut, UIn, DIn, DOut, A>> MakeEffectsAsync()
-        {
-            await foreach (var item in ItemsA)
-            {
-                yield return Next(item);
-            }
-        }
-    }
-    
-    
-    public abstract class Observer<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
-    {
-        public abstract IDisposable Subscribe(
-            Action<Proxy<RT, UOut, UIn, DIn, DOut, A>> onNext, 
-            Action<Error> onError = null, 
-            Action onCompleted = null);
-    }
-
-    public partial class Observer<RT, UOut, UIn, DIn, DOut, X, A> : Observer<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
-    {
-        public readonly IObservable<X> Items;
-        public readonly Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next;
-
-        public Observer(IObservable<X> items, Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
-            (Items, Next) = (items, next);
-
-        [Pure]
-        public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
-
-        [Pure]
-        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
-            new Observer<RT, UOut, UIn, DIn, DOut, X, S>(Items, x => Next(x).Bind(f));
-
-        [Pure]
-        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<A, S> f) =>
-            new Observer<RT, UOut, UIn, DIn, DOut, X, S>(Items, x => Next(x).Map(f));
-
-        [Pure]
-        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
-            new Observer<RT, UOut, UIn, C1, C, X, A>(Items, x => Next(x).For(f));
-
-        [Pure]
-        public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
-            new Observer<RT, UOut, UIn, DIn, DOut, X, S>(Items, x => Next(x).Action(r));
-
-        [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
-            new Observer<RT, UOutA, AUInA, DIn, DOut, X, A>(Items, c1 => Next(c1).ComposeRight(fb1));
-
-        [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
-            new Observer<RT, UOutA, AUInA, DIn, DOut, X, A>(Items, c1 => Next(c1).ComposeRight(lhs));
-
-        [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
-            new Observer<RT, UOut, UIn, DInC, DOutC, X, A>(Items, c1 => Next(c1).ComposeLeft(rhs));
-
-        [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
-            new Observer<RT, UOut, UIn, DInC, DOutC, X, A>(Items, c1 => Next(c1).ComposeLeft(rhs));
-
-        [Pure]
-        public override Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect() =>
-            new Observer<RT, DOut, DIn, UIn, UOut, X, A>(Items, n => Next(n).Reflect()); 
-
-        [Pure]
-        public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
-            new M<RT, UOut, UIn, DIn, DOut, A>(Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>>.Success(this));
-
-        [Pure]
-        public void Deconstruct(out IObservable<X> items, out Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
+        internal void Deconstruct(out EnumerateData<X> items, out Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
             (items, next) = (Items, Next);
 
         [Pure]
-        public override IDisposable Subscribe(
-            Action<Proxy<RT, UOut, UIn, DIn, DOut, A>> onNext, 
-            Action<Error> onError = null, 
+        internal override IEnumerable<Proxy<RT, UOut, UIn, DIn, DOut, A>> MakeEffects()
+        {
+            if (Type == EnumerateDataType.Enumerable)
+            {
+                foreach (var item in ((EnumerateEnumerable<X>)Items).Values)
+                {
+                    yield return Next(item);
+                }
+            }
+        }
+
+        [Pure]
+        internal override async IAsyncEnumerable<Proxy<RT, UOut, UIn, DIn, DOut, A>> MakeEffectsAsync()
+        {
+            if (Type == EnumerateDataType.AsyncEnumerable)
+            {
+                await foreach (var item in ((EnumerateAsyncEnumerable<X>)Items).Values)
+                {
+                    yield return Next(item);
+                }
+            }
+        }
+
+        internal override IDisposable Subscribe(
+            Action<Proxy<RT, UOut, UIn, DIn, DOut, A>> onNext,
+            Action<Error> onError = null,
             Action onCompleted = null) =>
-            Items.Subscribe(new Observerable(onCompleted, onError, x => onNext(Next(x))));
+            Type == EnumerateDataType.Observable
+                ? ((EnumerateObservable<X>)Items).Values.Subscribe(new Observerable(onCompleted, onError, x => onNext(Next(x))))
+                : null;
 
         class Observerable : IObserver<X>
         {
@@ -640,7 +588,6 @@ namespace LanguageExt.Pipes
             public void OnNext(X value) =>
                 onNext?.Invoke(value);
         }
-
     }
 
     public partial class Request<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>

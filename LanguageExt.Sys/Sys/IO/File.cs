@@ -105,8 +105,6 @@ namespace LanguageExt.Sys.IO
             from t in Proxy.use(openTextInternal(path))
             from _ in Proxy.yield(t)
             select unit;
-            
-            //Producer.use(openTextInternal(path), Producer.yield<RT, TextReader>);
 
         /// <summary>
         /// Create a new text file to stream to
