@@ -133,7 +133,7 @@ namespace LanguageExt.Pipes
                                         case Release<RT, Void, Unit, Unit, Void, R> mu:
                                             p = mu.Run(disps);
                                             break;
-
+          
                                         case Request<RT, Void, Unit, Unit, Void, R> (var v, var _):
                                             return Errors.Closed;
 

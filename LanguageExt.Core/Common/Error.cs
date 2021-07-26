@@ -28,6 +28,9 @@ namespace LanguageExt.Common
         public const string ClosedText = "closed";
         public const int ClosedCode = -2000000004;
         public static readonly Error Closed = (ClosedCode, ClosedText);    
+
+        public const int ParseErrorCode = -2000000005;
+        public static Error ParseError(string msg) => (ParseErrorCode, msg);    
     }
 
     [Serializable]

@@ -182,7 +182,7 @@ namespace LanguageExt.Pipes
         public abstract Proxy<RT, UOut, UIn, DIn, DOut, A> Observe();
     }
     
-    public partial class Pure<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+    public class Pure<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
     {
         public readonly A Value;
 
@@ -236,8 +236,8 @@ namespace LanguageExt.Pipes
         public void Deconstruct(out A value) =>
             value = Value;
     }
-
-    public partial class Repeat<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+  
+    public class Repeat<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
     {
         public readonly Proxy<RT, UOut, UIn, DIn, DOut, A> Inner;
 
@@ -297,7 +297,7 @@ namespace LanguageExt.Pipes
         internal abstract Proxy<RT, UOut, UIn, DIn, DOut, A> Run(ConcurrentDictionary<object, IDisposable> disps);
     }
 
-    public partial class Use<RT, UOut, UIn, DIn, DOut, X, A> : Use<RT, UOut, UIn, DIn, DOut, A> 
+    public class Use<RT, UOut, UIn, DIn, DOut, X, A> : Use<RT, UOut, UIn, DIn, DOut, A> 
         where RT : struct, HasCancel<RT>
     {
         public readonly Func<Aff<RT, X>> Acquire;
@@ -387,7 +387,7 @@ namespace LanguageExt.Pipes
         internal abstract Proxy<RT, UOut, UIn, DIn, DOut, A> Run(ConcurrentDictionary<object, IDisposable> disps);
     }
 
-    public partial class Release<RT, UOut, UIn, DIn, DOut, X, A> : Release<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+    public class Release<RT, UOut, UIn, DIn, DOut, X, A> : Release<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
     {
         public readonly X Value;
         public readonly Func<Unit, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next;
@@ -467,7 +467,7 @@ namespace LanguageExt.Pipes
             Action onCompleted = null);
     }
 
-    public partial class Enumerate<RT, UOut, UIn, DIn, DOut, X, A> : Enumerate<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+    public class Enumerate<RT, UOut, UIn, DIn, DOut, X, A> : Enumerate<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
     {
         internal readonly EnumerateData<X> Items;
         public readonly Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next;
@@ -591,13 +591,13 @@ namespace LanguageExt.Pipes
         }
     }
 
-    public partial class Request<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+    public class Request<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
     {
         public readonly UOut Value;
         public readonly Func<UIn, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next;
         
-        public Request(UOut value, Func<UIn, Proxy<RT, UOut, UIn, DIn, DOut, A>> fun) =>
-            (Value, Next) = (value, fun);
+        public Request(UOut value, Func<UIn, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
+            (Value, Next) = (value, next);
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
@@ -651,13 +651,13 @@ namespace LanguageExt.Pipes
             new Request<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Map(f));
     }
 
-    public partial class Respond<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+    public class Respond<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
     {
         public readonly DOut Value;
         public readonly Func<DIn, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next;
         
-        public Respond(DOut value, Func<DIn, Proxy<RT, UOut, UIn, DIn, DOut, A>> fun) =>
-            (Value, Next) = (value, fun);
+        public Respond(DOut value, Func<DIn, Proxy<RT, UOut, UIn, DIn, DOut, A>> next) =>
+            (Value, Next) = (value, next);
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
@@ -711,7 +711,7 @@ namespace LanguageExt.Pipes
             (value, fun) = (Value, Next);
     }
 
-    public partial class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>  where RT : struct, HasCancel<RT>
+    public class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>  where RT : struct, HasCancel<RT>
     {
         public readonly Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>> Value;
         
@@ -766,14 +766,14 @@ namespace LanguageExt.Pipes
         public void Deconstruct(out Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>> value) =>
             value = Value;
     }
-    
+
     /// <summary>
     /// Producers are effectful streams of input.  Specifically, a `Producer` is a
     /// monad transformer that extends the base IO monad with a new `yield` command.
     /// This `yield` command lets you send output downstream to an anonymous handler,
     /// decoupling how you generate values from how you consume them.
     /// </summary>
-    public partial class Producer<RT, OUT, A> : Proxy<RT, Void, Unit, Unit, OUT, A> where RT : struct, HasCancel<RT>
+    public class Producer<RT, OUT, A> : Proxy<RT, Void, Unit, Unit, OUT, A> where RT : struct, HasCancel<RT>
     {
         public readonly Proxy<RT, Void, Unit, Unit, OUT, A> Value;
         
@@ -864,7 +864,7 @@ namespace LanguageExt.Pipes
     /// <summary>
     /// Consumers only await
     /// </summary>
-    public partial class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT : struct, HasCancel<RT>
+    public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT : struct, HasCancel<RT>
     {
         public readonly Proxy<RT, Unit, IN, Unit, Void, A> Value;
         
@@ -970,7 +970,7 @@ namespace LanguageExt.Pipes
     ///         +----|----+
     ///              R
     /// </remarks>
-    public partial class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT : struct, HasCancel<RT>
+    public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT : struct, HasCancel<RT>
     {
         public readonly Proxy<RT, Unit, IN, Unit, OUT, A> Value;
         
@@ -1077,7 +1077,7 @@ namespace LanguageExt.Pipes
     /// <summary>
     /// Clients only request and never respond
     /// </summary>
-    public partial class Client<RT, REQ, RES, A> : Proxy<RT, REQ, RES, Unit, Void, A> where RT : struct, HasCancel<RT>
+    public class Client<RT, REQ, RES, A> : Proxy<RT, REQ, RES, Unit, Void, A> where RT : struct, HasCancel<RT>
     {
         public readonly Proxy<RT, REQ, RES, Unit, Void, A> Value;
 
@@ -1148,7 +1148,7 @@ namespace LanguageExt.Pipes
     /// <summary>
     /// Servers only respond and never request
     /// </summary>
-    public partial class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where RT : struct, HasCancel<RT>
+    public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where RT : struct, HasCancel<RT>
     {
         public readonly Proxy<RT, Void, Unit, REQ, RES, A> Value;
     
@@ -1214,7 +1214,7 @@ namespace LanguageExt.Pipes
     /// Effects represent a 'fused' set of producer, pipes, and consumer into one type
     /// It neither yields nor awaits, but represents an entire effect system
     /// </summary>
-    public partial class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : struct, HasCancel<RT>
+    public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : struct, HasCancel<RT>
     {
         public readonly Proxy<RT, Void, Unit, Unit, Void, A> Value;
 

@@ -49,6 +49,11 @@ public class Program
                   | TextRead<Runtime>.readLine 
                   | writeLine;
         
+        var foldTest1 = repeat(Console<Runtime>.readKeys)
+                      | Pipe.map<Runtime, ConsoleKeyInfo, char, Unit>(k => k.KeyChar)
+                      | Proxy.foldUntil<Runtime, char, string>("", (s, c) => s + c, c => c == ' ')
+                      | writeLine;
+        
         var effect1 = enumerate(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
 
         var time = Observable.Interval(TimeSpan.FromSeconds(1));
@@ -56,10 +61,10 @@ public class Program
 
         var echo = readLine | writeLine;
 
-        var result = (await file1.RunEffect<Runtime, Unit>()
-                                 .Run(Runtime.New()))
-                                 .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
-                                        Fail: e => Console.WriteLine(e));
+        var result = (await foldTest1.RunEffect<Runtime, Unit>()
+                                     .Run(Runtime.New()))
+                                     .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
+                                            Fail: e => Console.WriteLine(e));
     }
 
     static Pipe<Runtime, DateTime, string, Unit> toLongTimeString =>

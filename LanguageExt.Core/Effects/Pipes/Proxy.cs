@@ -33,7 +33,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<A, A> awaiting<A>() =>
             PureProxy.ConsumerAwait<A>();
-        
+
         /// <summary>
         /// Send a value downstream (whilst in a pipe)
         /// </summary>
@@ -84,7 +84,7 @@ namespace LanguageExt.Pipes
         /// Lift the IO monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Lift<RT, R> lift<RT, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT>  =>
+        public static Lift<RT, R> lift<RT, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
             Lift.Eff<RT, R>(ma);
 
         /// <summary>
@@ -112,35 +112,35 @@ namespace LanguageExt.Pipes
         /// Lift the IO monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Lift<RT, R> use<RT, R>(Eff<RT, R> ma) 
-            where RT : struct, HasCancel<RT> 
-            where R : IDisposable  =>
+        public static Lift<RT, R> use<RT, R>(Eff<RT, R> ma)
+            where RT : struct, HasCancel<RT>
+            where R : IDisposable =>
             Lift.Eff<RT, R>(ma);
 
         /// <summary>
         /// Lift the IO monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Lift<RT, R> use<RT, R>(Aff<RT, R> ma) 
-            where RT : struct, HasCancel<RT> 
-            where R : IDisposable  =>
+        public static Lift<RT, R> use<RT, R>(Aff<RT, R> ma)
+            where RT : struct, HasCancel<RT>
+            where R : IDisposable =>
             Lift.Aff<RT, R>(ma);
 
         /// <summary>
         /// Lift the IO monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Lift<RT, R> use<RT, R>(Eff<R> ma) 
-            where RT : struct, HasCancel<RT> 
-            where R : IDisposable  =>
+        public static Lift<RT, R> use<RT, R>(Eff<R> ma)
+            where RT : struct, HasCancel<RT>
+            where R : IDisposable =>
             Lift.Eff<RT, R>(ma);
 
         /// <summary>
         /// Lift the IO monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Lift<RT, R> use<RT, R>(Aff<R> ma) 
-            where RT : struct, HasCancel<RT> 
+        public static Lift<RT, R> use<RT, R>(Aff<R> ma)
+            where RT : struct, HasCancel<RT>
             where R : IDisposable =>
             Lift.Aff<RT, R>(ma);
 
@@ -164,14 +164,14 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, IN, R> repeat<RT, IN, R>(Consumer<RT, IN, R> ma) where RT : struct, HasCancel<RT> =>
             new Repeat<RT, Unit, IN, Unit, Void, R>(ma).ToConsumer();
-        
+
         /// <summary>
         /// Repeat the Pipe indefinitely
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, IN, OUT, R> repeat<RT, IN, OUT, R>(Pipe<RT, IN, OUT, R> ma) where RT : struct, HasCancel<RT> =>
             new Repeat<RT, Unit, IN, Unit, OUT, R>(ma).ToPipe();
-        
+
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
@@ -207,12 +207,12 @@ namespace LanguageExt.Pipes
             Disposable<R>.IsDisposable
                 ? use<RT, A1, A, B1, B, R>(ma, anyDispose)
                 : new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).ToAff());
-        
+
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<R> ma) 
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<R> ma)
             where RT : struct, HasCancel<RT>
             where R : IDisposable =>
             new Use<RT, A1, A, B1, B, R, R>(ma.WithRuntime<RT>, dispose, Pure<RT, A1, A, B1, B, R>);
@@ -221,7 +221,7 @@ namespace LanguageExt.Pipes
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<R> ma) 
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<R> ma)
             where RT : struct, HasCancel<RT>
             where R : IDisposable =>
             new Use<RT, A1, A, B1, B, R, R>(ma.ToAffWithRuntime<RT>, dispose, Pure<RT, A1, A, B1, B, R>);
@@ -230,8 +230,8 @@ namespace LanguageExt.Pipes
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<RT, R> ma) 
-            where RT : struct, HasCancel<RT> 
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<RT, R> ma)
+            where RT : struct, HasCancel<RT>
             where R : IDisposable =>
             new Use<RT, A1, A, B1, B, R, R>(() => ma, dispose, Pure<RT, A1, A, B1, B, R>);
 
@@ -239,16 +239,16 @@ namespace LanguageExt.Pipes
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<RT, R> ma) 
-            where RT : struct, HasCancel<RT> 
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<RT, R> ma)
+            where RT : struct, HasCancel<RT>
             where R : IDisposable =>
             new Use<RT, A1, A, B1, B, R, R>(() => ma, dispose, Pure<RT, A1, A, B1, B, R>);
-        
+
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<R> ma, Func<R, Unit> dispose) 
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<R> ma, Func<R, Unit> dispose)
             where RT : struct, HasCancel<RT> =>
             new Use<RT, A1, A, B1, B, R, R>(ma.WithRuntime<RT>, dispose, Pure<RT, A1, A, B1, B, R>);
 
@@ -256,7 +256,7 @@ namespace LanguageExt.Pipes
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<R> ma, Func<R, Unit> dispose) 
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<R> ma, Func<R, Unit> dispose)
             where RT : struct, HasCancel<RT> =>
             new Use<RT, A1, A, B1, B, R, R>(ma.ToAffWithRuntime<RT>, dispose, Pure<RT, A1, A, B1, B, R>);
 
@@ -264,7 +264,7 @@ namespace LanguageExt.Pipes
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<RT, R> ma, Func<R, Unit> dispose) 
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Aff<RT, R> ma, Func<R, Unit> dispose)
             where RT : struct, HasCancel<RT> =>
             new Use<RT, A1, A, B1, B, R, R>(() => ma, dispose, Pure<RT, A1, A, B1, B, R>);
 
@@ -272,7 +272,7 @@ namespace LanguageExt.Pipes
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<RT, R> ma, Func<R, Unit> dispose) 
+        public static Proxy<RT, A1, A, B1, B, R> use<RT, A1, A, B1, B, R>(Eff<RT, R> ma, Func<R, Unit> dispose)
             where RT : struct, HasCancel<RT> =>
             new Use<RT, A1, A, B1, B, R, R>(() => ma, dispose, Pure<RT, A1, A, B1, B, R>);
 
@@ -280,22 +280,23 @@ namespace LanguageExt.Pipes
         /// Release a previously used resource
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, Unit> release<RT, A1, A, B1, B, R>(R dispose) 
+        public static Proxy<RT, A1, A, B1, B, Unit> release<RT, A1, A, B1, B, R>(R dispose)
             where RT : struct, HasCancel<RT> =>
             new Release<RT, A1, A, B1, B, R, Unit>(dispose, Pure<RT, A1, A, B1, B, Unit>);
-        
+
         internal static Unit dispose<A>(A d) where A : IDisposable
         {
             d?.Dispose();
             return default;
         }
-        
+
         internal static Unit anyDispose<A>(A x)
         {
             if (x is IDisposable d)
             {
                 d?.Dispose();
             }
+
             return default;
         }
 
@@ -305,7 +306,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, A, A, R> cat<RT, A, R>() where RT : struct, HasCancel<RT> =>
             pull<RT, Unit, A, R>(default).ToPipe();
-        
+
         /// <summary>
         /// Forward requests followed by responses
         ///
@@ -328,7 +329,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<RT, UOut, UIn, UOut, UIn, A> push<RT, UOut, UIn, A>(UIn a) where RT : struct, HasCancel<RT> =>
             new Respond<RT, UOut, UIn, UOut, UIn, A>(a, a1 => new Request<RT, UOut, UIn, UOut, UIn, A>(a1, push<RT, UOut, UIn, A>));
-        
+
         /// <summary>
         /// Send a value of type `DOut` downstream and block waiting for a reply of type `DIn`
         /// </summary>
@@ -379,9 +380,9 @@ namespace LanguageExt.Pipes
         /// Producer b r -> (b -> Producer c ()) -> Producer c r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, OUT_B, A> @for<RT, OUT_A, OUT_B, A>(this Producer<RT, OUT_A, A> p, Func<OUT_A, Producer<RT, OUT_B, Unit>> body) 
+        public static Producer<RT, OUT_B, A> @for<RT, OUT_A, OUT_B, A>(this Producer<RT, OUT_A, A> p, Func<OUT_A, Producer<RT, OUT_B, Unit>> body)
             where RT : struct, HasCancel<RT> =>
-                p.For(body).ToProducer();
+            p.For(body).ToProducer();
 
         /// <summary>
         /// `p.@for(body)` loops over `p` replacing each `yield` with `body`
@@ -389,9 +390,9 @@ namespace LanguageExt.Pipes
         /// Producer b r -> (b -> Effect ()) -> Effect r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<RT, A> @for<RT, OUT, A>(this Producer<RT, OUT, A> p, Func<OUT, Effect<RT, Unit>> fb) 
+        public static Effect<RT, A> @for<RT, OUT, A>(this Producer<RT, OUT, A> p, Func<OUT, Effect<RT, Unit>> fb)
             where RT : struct, HasCancel<RT> =>
-                p.For(fb).ToEffect();
+            p.For(fb).ToEffect();
 
         /// <summary>
         /// `p.@for(body)` loops over `p` replacing each `yield` with `body`
@@ -399,9 +400,9 @@ namespace LanguageExt.Pipes
         /// Pipe x b r -> (b -> Consumer x ()) -> Consumer x r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, IN, A> @for<RT, IN, OUT, A>(this Pipe<RT, IN, OUT, A> p0, Func<OUT, Consumer<RT, IN, Unit>> fb) 
+        public static Consumer<RT, IN, A> @for<RT, IN, OUT, A>(this Pipe<RT, IN, OUT, A> p0, Func<OUT, Consumer<RT, IN, Unit>> fb)
             where RT : struct, HasCancel<RT> =>
-                p0.For(fb).ToConsumer();
+            p0.For(fb).ToConsumer();
 
         /// <summary>
         /// `p.@for(body)` loops over `p` replacing each `yield` with `body`
@@ -409,28 +410,28 @@ namespace LanguageExt.Pipes
         /// Pipe x b r -> (b -> Pipe x c ()) -> Pipe x c r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<RT, IN, OUT, R> @for<RT, IN, B, OUT, R>(this Pipe<RT, IN, B, R> p0, Func<B, Pipe<RT, IN, OUT, Unit>> fb) 
-            where RT : struct, HasCancel<RT> =>  
-                p0.For(fb).ToPipe(); 
-        
+        public static Pipe<RT, IN, OUT, R> @for<RT, IN, B, OUT, R>(this Pipe<RT, IN, B, R> p0, Func<B, Pipe<RT, IN, OUT, Unit>> fb)
+            where RT : struct, HasCancel<RT> =>
+            p0.For(fb).ToPipe();
+
         /// <summary>
         /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, UOut, UIn, DIn, DOut, B> compose<RT, UOut, UIn, DIn, DOut, A, B>(Proxy<RT, UOut, UIn, DIn, DOut, A> p1, Proxy<RT, Unit, A, DIn, DOut, B> p2) 
+        public static Proxy<RT, UOut, UIn, DIn, DOut, B> compose<RT, UOut, UIn, DIn, DOut, A, B>(Proxy<RT, UOut, UIn, DIn, DOut, A> p1, Proxy<RT, Unit, A, DIn, DOut, B> p2)
             where RT : struct, HasCancel<RT> =>
-                compose((Unit _) => p1, p2);
-        
+            compose((Unit _) => p1, p2);
+
         /// <summary>
         /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
         /// 
         /// Effect b -> Consumer b c -> Effect c
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<RT, A> compose<RT, OUT, A>(Effect<RT, OUT> p1, Consumer<RT, OUT, A> p2) 
+        public static Effect<RT, A> compose<RT, OUT, A>(Effect<RT, OUT> p1, Consumer<RT, OUT, A> p2)
             where RT : struct, HasCancel<RT> =>
-                compose((Unit _) => p1, p2).ToEffect();        
-        
+            compose((Unit _) => p1, p2).ToEffect();
+
         /// <summary>
         /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
         /// 
@@ -439,7 +440,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, C> compose<RT, A, B, C>(Consumer<RT, A, B> p1, Consumer<RT, B, C> p2) where RT : struct, HasCancel<RT> =>
             compose((Unit _) => p1, p2).ToConsumer();
-        
+
         /// <summary>
         /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
         /// 
@@ -447,23 +448,21 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, OUT, C> compose<RT, OUT, IN, C>(Producer<RT, OUT, IN> p1, Pipe<RT, IN, OUT, C> p2) where RT : struct, HasCancel<RT> =>
-            compose((Unit _) => p1, p2).ToProducer();         
-        
+            compose((Unit _) => p1, p2).ToProducer();
+
         /// <summary>
         /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
         /// 
         /// Pipe a y b -> Pipe b y c -> Pipe a y c
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<RT, A, Y, C> compose<RT, Y, A, B, C>(
-            Pipe<RT, A, Y, B> p1,
+        public static Pipe<RT, A, Y, C> compose<RT, Y, A, B, C>(Pipe<RT, A, Y, B> p1,
             Pipe<RT, B, Y, C> p2) where RT : struct, HasCancel<RT> =>
-            compose((Unit _) => p1, p2).ToPipe();         
-        
+            compose((Unit _) => p1, p2).ToPipe();
+
         // fixAwaitDual
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, Y1, Y, C> compose<RT, A1, A, Y1, Y, B, C>(
-            Proxy<RT, Unit, B, Y1, Y, C> p2,
+        public static Proxy<RT, A1, A, Y1, Y, C> compose<RT, A1, A, Y1, Y, B, C>(Proxy<RT, Unit, B, Y1, Y, C> p2,
             Proxy<RT, A1, A, Y1, Y, B> p1) where RT : struct, HasCancel<RT> =>
             compose(p1, p2);
 
@@ -471,40 +470,36 @@ namespace LanguageExt.Pipes
         /// Replaces each `request` or `respond` in `p0` with `fb1`.
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, Y1, Y, C> compose<RT, A1, A, B1, B, Y1, Y, C>(
-            Func<B1, Proxy<RT, A1, A, Y1, Y, B>> fb1,
+        public static Proxy<RT, A1, A, Y1, Y, C> compose<RT, A1, A, B1, B, Y1, Y, C>(Func<B1, Proxy<RT, A1, A, Y1, Y, B>> fb1,
             Proxy<RT, B1, B, Y1, Y, C> p0) where RT : struct, HasCancel<RT> =>
             p0.ComposeRight(fb1);
-        
+
         /// <summary>
         /// `compose(p, f)` pairs each `respond` in `p` with a `request` in `f`.
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, C1, C, R> compose<RT, A1, A, B1, B, C1, C, R>(
-            Proxy<RT, A1, A, B1, B, R> p,
+        public static Proxy<RT, A1, A, C1, C, R> compose<RT, A1, A, B1, B, C1, C, R>(Proxy<RT, A1, A, B1, B, R> p,
             Func<B, Proxy<RT, B1, B, C1, C, R>> fb)
-            where RT : struct, HasCancel<RT> => 
-                p.ComposeLeft(fb);        
-        
+            where RT : struct, HasCancel<RT> =>
+            p.ComposeLeft(fb);
+
         /// <summary>
         /// `compose(f, p)` pairs each `request` in `p` with a `respond` in `f`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, C1, C, R> compose<RT, A1, A, B1, B, C1, C, R>(
-            Func<B1, Proxy<RT, A1, A, B1, B, R>> fb1,
-            Proxy<RT, B1, B, C1, C, R> p) 
+        public static Proxy<RT, A1, A, C1, C, R> compose<RT, A1, A, B1, B, C1, C, R>(Func<B1, Proxy<RT, A1, A, B1, B, R>> fb1,
+            Proxy<RT, B1, B, C1, C, R> p)
             where RT : struct, HasCancel<RT> =>
-                p.ComposeRight(fb1);
-        
+            p.ComposeRight(fb1);
+
         /// <summary>
         /// Pipe composition
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, C1, C, R> compose<RT, A1, A, B, C1, C, R>(
-            Proxy<RT, A1, A, Unit, B, R> p1,
-            Proxy<RT, Unit, B, C1, C, R> p2) 
+        public static Proxy<RT, A1, A, C1, C, R> compose<RT, A1, A, B, C1, C, R>(Proxy<RT, A1, A, Unit, B, R> p1,
+            Proxy<RT, Unit, B, C1, C, R> p2)
             where RT : struct, HasCancel<RT> =>
-                compose((Unit _) => p1, p2);
+            compose((Unit _) => p1, p2);
 
         /// <summary>
         /// Pipe composition
@@ -513,11 +508,10 @@ namespace LanguageExt.Pipes
         /// 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<RT, R> compose<RT, B, R>(
-            Producer<RT, B, R> p1,
-            Consumer<RT, B, R> p2) 
+        public static Effect<RT, R> compose<RT, B, R>(Producer<RT, B, R> p1,
+            Consumer<RT, B, R> p2)
             where RT : struct, HasCancel<RT> =>
-                compose((Unit _) => p1.ToProxy(), p2).ToEffect();
+            compose((Unit _) => p1.ToProxy(), p2).ToEffect();
 
         /// <summary>
         /// Pipe composition
@@ -526,9 +520,8 @@ namespace LanguageExt.Pipes
         /// 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, C, R> compose<RT, B, C, R>(
-            Producer<RT, B, R> p1,
-            Pipe<RT, B, C, R> p2) 
+        public static Producer<RT, C, R> compose<RT, B, C, R>(Producer<RT, B, R> p1,
+            Pipe<RT, B, C, R> p2)
             where RT : struct, HasCancel<RT> =>
             compose((Unit _) => p1.ToProxy(), p2).ToProducer();
 
@@ -539,9 +532,8 @@ namespace LanguageExt.Pipes
         /// 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, R> compose<RT, A, B, R>(
-            Pipe<RT, A, B, R> p1,
-            Consumer<RT, B, R> p2) 
+        public static Consumer<RT, A, R> compose<RT, A, B, R>(Pipe<RT, A, B, R> p1,
+            Consumer<RT, B, R> p2)
             where RT : struct, HasCancel<RT> =>
             compose((Unit _) => p1.ToProxy(), p2).ToConsumer();
 
@@ -552,9 +544,8 @@ namespace LanguageExt.Pipes
         /// 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<RT, A, C, R> compose<RT, A, B, C, R>(
-            Pipe<RT, A, B, R> p1,
-            Pipe<RT, B, C, R> p2) 
+        public static Pipe<RT, A, C, R> compose<RT, A, B, C, R>(Pipe<RT, A, B, R> p1,
+            Pipe<RT, B, C, R> p2)
             where RT : struct, HasCancel<RT> =>
             compose((Unit _) => p1.ToProxy(), p2).ToPipe();
 
@@ -565,11 +556,10 @@ namespace LanguageExt.Pipes
         /// This is the composition operator of the respond category.
         /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Func<A, Proxy<RT, X1, X, C1, C, A1>> compose<RT, X1, X, A1, A, B1, B, C1, C>(
-            Func<A, Proxy<RT, X1, X, B1, B, A1>> fa,
+        public static Func<A, Proxy<RT, X1, X, C1, C, A1>> compose<RT, X1, X, A1, A, B1, B, C1, C>(Func<A, Proxy<RT, X1, X, B1, B, A1>> fa,
             Func<B, Proxy<RT, X1, X, C1, C, B1>> fb) where RT : struct, HasCancel<RT> =>
-                a => compose(fa(a), fb);
-        
+            a => compose(fa(a), fb);
+
         /// <summary>
         /// Compose two unfolds, creating a new unfold
         /// </summary>
@@ -577,30 +567,27 @@ namespace LanguageExt.Pipes
         /// This is the composition operator of the respond category.
         /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Func<A, Proxy<RT, X1, X, C1, C, A1>> Then<RT, X1, X, A1, A, B1, B, C1, C>(
-            this Func<A, Proxy<RT, X1, X, B1, B, A1>> fa,
+        public static Func<A, Proxy<RT, X1, X, C1, C, A1>> Then<RT, X1, X, A1, A, B1, B, C1, C>(this Func<A, Proxy<RT, X1, X, B1, B, A1>> fa,
             Func<B, Proxy<RT, X1, X, C1, C, B1>> fb) where RT : struct, HasCancel<RT> =>
             a => compose(fa(a), fb);
-        
+
         /// <summary>
         /// `compose(p, f)` replaces each `respond` in `p` with `f`.
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, X1, X, C1, C, A1> compose<RT, X1, X, A1, B1, C1, C, B>(
-            Proxy<RT, X1, X, B1, B, A1> p0, 
+        public static Proxy<RT, X1, X, C1, C, A1> compose<RT, X1, X, A1, B1, C1, C, B>(Proxy<RT, X1, X, B1, B, A1> p0,
             Func<B, Proxy<RT, X1, X, C1, C, B1>> fb) where RT : struct, HasCancel<RT> =>
             p0.ComposeLeft(fb);
-        
+
         /// <summary>
         /// `compose(p, f)` replaces each `respond` in `p` with `f`.
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, X1, X, C1, C, A1> Then<RT, X1, X, A1, B1, C1, C, B>(
-            this Proxy<RT, X1, X, B1, B, A1> p0, 
+        public static Proxy<RT, X1, X, C1, C, A1> Then<RT, X1, X, A1, B1, C1, C, B>(this Proxy<RT, X1, X, B1, B, A1> p0,
             Func<B, Proxy<RT, X1, X, C1, C, B1>> fb) where RT : struct, HasCancel<RT> =>
-                compose(p0, fb);
-        
-        
+            compose(p0, fb);
+
+
         /// {-| Compose two folds, creating a new fold
         ///         @
         ///     (f '\>\' g) x = f '>\\' g x
@@ -618,8 +605,7 @@ namespace LanguageExt.Pipes
         /// -- ^
         /// (fb' \>\ fc') c' = fb' >\\ fc' c'
         [Pure, MethodImpl(Proxy.mops)]
-        public static Func<C1, Proxy<RT, A1, A, Y1, Y, C>> compose<RT, A1, A, B1, B, Y1, Y, C1, C>(
-            Func<B1, Proxy<RT, A1, A, Y1, Y, B>> fb1, 
+        public static Func<C1, Proxy<RT, A1, A, Y1, Y, C>> compose<RT, A1, A, B1, B, Y1, Y, C1, C>(Func<B1, Proxy<RT, A1, A, Y1, Y, B>> fb1,
             Func<C1, Proxy<RT, B1, B, Y1, Y, C>> fc1) where RT : struct, HasCancel<RT> =>
             c1 => compose(fb1, fc1(c1));
 
@@ -634,7 +620,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<RT, A1, A, B1, B, R> observe<RT, A1, A, B1, B, R>(Proxy<RT, A1, A, B1, B, R> p0)
             where RT : struct, HasCancel<RT> =>
-                p0.Observe();
+            p0.Observe();
 
         /// <summary>
         /// 'Absurd' function
@@ -644,16 +630,16 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static A closed<A>(Void _) =>
             throw new ApplicationException("closed");
-        
+
         /// <summary>
         /// Applicative apply
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Proxy<RT, A1, A, B1, B, S> apply<RT, A1, A, B1, B, R, S>(
-            Proxy<RT, A1, A, B1, B, Func<R, S>> pf, 
+        public static Proxy<RT, A1, A, B1, B, S> apply<RT, A1, A, B1, B, R, S>(Proxy<RT, A1, A, B1, B, Func<R, S>> pf,
             Proxy<RT, A1, A, B1, B, R> px) where RT : struct, HasCancel<RT>
         {
             return Go(pf);
+
             Proxy<RT, A1, A, B1, B, S> Go(Proxy<RT, A1, A, B1, B, Func<R, S>> p) =>
                 p.ToProxy() switch
                 {
@@ -689,5 +675,103 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Proxy<RT, A1, A, B1, B, R> Pure<RT, A1, A, B1, B, R>(R value) where RT : struct, HasCancel<RT> =>
             new Pure<RT, A1, A, B1, B, R>(value);
+
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns false the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="WhileState">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Pipe<RT, IN, OUT, Unit> foldWhile<RT, IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<OUT, bool> WhileState) 
+            where RT : struct, HasCancel<RT> =>
+            foldUntil<RT, IN, OUT>(Initial, Fold, x => !WhileState(x));
+ 
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns true the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="UntilState">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        public static Pipe<RT, IN, OUT, Unit> foldUntil<RT, IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<OUT, bool> UntilState)
+            where RT : struct, HasCancel<RT>
+        {
+            var state = Initial;
+            return Pipe.await<RT, IN, OUT>()
+                       .Bind(x =>
+                             {
+                                 state = Fold(state, x);
+                                 if (UntilState(state))
+                                 {
+                                     var nstate = state;
+                                     state = Initial;
+                                     return Pipe.yield<RT, IN, OUT>(nstate);
+                                 }
+                                 else
+                                 {
+                                     return Pipe.Pure<RT, IN, OUT, Unit>(unit);
+                                 }
+                             })
+                       .ToPipe();
+        }
+
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns false the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="WhileValue">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Pipe<RT, IN, OUT, Unit> foldWhile<RT, IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<IN, bool> WhileValue) 
+            where RT : struct, HasCancel<RT> =>
+            foldUntil<RT, IN, OUT>(Initial, Fold, x => !WhileValue(x));
+ 
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns true the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="UntilValue">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        public static Pipe<RT, IN, OUT, Unit> foldUntil<RT, IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<IN, bool> UntilValue)
+            where RT : struct, HasCancel<RT>
+        {
+            var state = Initial;
+            return Pipe.await<RT, IN, OUT>()
+                       .Bind(x =>
+                             {
+                                 state = Fold(state, x);
+                                 if (UntilValue(x))
+                                 {
+                                     var nstate = state;
+                                     state = Initial;
+                                     return Pipe.yield<RT, IN, OUT>(nstate);
+                                 }
+                                 else
+                                 {
+                                     return Pipe.Pure<RT, IN, OUT, Unit>(unit);
+                                 }
+                             })
+                       .ToPipe();
+        }
+
+        /// <summary>
+        /// Strict left scan
+        /// </summary>
+        public static Pipe<RT, IN, OUT, Unit> scan<RT, IN, OUT, S>(Func<S, IN, S> Step, S Begin, Func<S, OUT> Done)
+            where RT : struct, HasCancel<RT>
+        {
+            return go(Begin);
+
+            Pipe<RT, IN, OUT, Unit> go(S x) =>
+                from _ in Pipe.yield<RT, IN, OUT>(Done(x))
+                from a in Pipe.await<RT, IN, OUT>()
+                let x1 = Step(x, a)
+                from r in go(x1)
+                select r;
+        }
     }
 }

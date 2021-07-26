@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using LanguageExt.Pipes;
 using LanguageExt.Sys.Traits;
 
 namespace LanguageExt.Sys
@@ -26,6 +27,14 @@ namespace LanguageExt.Sys
                                                             None: () => FailEff<ConsoleKeyInfo>(Error.New("end of stream"))));
 
         /// <summary>
+        /// Read keys from the console and push them downstream 
+        /// </summary>
+        public static Producer<RT, ConsoleKeyInfo, Unit> readKeys =>
+            from ln in Console<RT>.readKey
+            from __ in Proxy.yield(ln)
+            select unit;
+
+        /// <summary>
         /// Clear the console
         /// </summary>
         public static Eff<RT, Unit> clear =>
@@ -40,6 +49,14 @@ namespace LanguageExt.Sys
                                                             None: () => FailEff<int>(Error.New("end of stream"))));
 
         /// <summary>
+        /// Read chars from the console and push them downstream 
+        /// </summary>
+        public static Producer<RT, int, Unit> reads =>
+            from ln in Console<RT>.read
+            from __ in Proxy.yield(ln)
+            select unit;
+
+        /// <summary>
         /// Read from the console
         /// </summary>
         public static Eff<RT, string> readLine =>
@@ -48,19 +65,27 @@ namespace LanguageExt.Sys
                                                             None: () => FailEff<string>(Error.New("end of stream"))));
 
         /// <summary>
+        /// Read lines from the console and push them downstream 
+        /// </summary>
+        public static Producer<RT, string, Unit> readLines =>
+            from ln in Console<RT>.readLine
+            from _  in Proxy.yield(ln)
+            select unit;
+
+        /// <summary>
         /// Write an empty line to the console
         /// </summary>
         public static Eff<RT, Unit> writeEmptyLine =>
             default(RT).ConsoleEff.Map(static e => e.WriteLine());
 
         /// <summary>
-        /// Write a line to the console
+        /// Write a line to the console (returning unit)
         /// </summary>
         public static Eff<RT, Unit> writeLine(string line) =>
             default(RT).ConsoleEff.Map(e => e.WriteLine(line));
 
         /// <summary>
-        /// Write a line to the console
+        /// Write a line to the console (returning the original line)
         /// </summary>
         public static Eff<RT, string> writeLine2(string line) =>
             default(RT).ConsoleEff.Map(e => e.WriteLine(line)).Map(_ => line);

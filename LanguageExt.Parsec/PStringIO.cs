@@ -16,7 +16,7 @@ namespace LanguageExt.Parsec
         public readonly Option<object> UserState;
         public readonly Func<T, Pos> TokenPos;
 
-        public PString(T[] value, int index, int endIndex, Option<object> userState,  Func<T, Pos> tokenPos)
+        public PString(T[] value, int index, int endIndex, Option<object> userState, Func<T, Pos> tokenPos)
         {
             Value     = value ?? throw new ArgumentNullException(nameof(value));
             Index     = index;
