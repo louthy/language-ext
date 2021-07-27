@@ -99,7 +99,7 @@ namespace LanguageExt.Pipes
                 new Pipe<IN, OUT, B>.Await(x => Next(x).SelectMany(f));
 
             public override Consumer<RT, IN, A> Interpret<RT>() =>
-                Consumer.await<RT, IN>().Bind(x => Next(x).Interpret<RT>()).ToConsumer();
+                Consumer.awaiting<RT, IN>().Bind(x => Next(x).Interpret<RT>()).ToConsumer();
 
             public override ConsumerLift<RT, IN, A> ToConsumerLift<RT>() =>
                 new ConsumerLift<RT, IN, A>.Await(x => Next(x).ToConsumerLift<RT>());

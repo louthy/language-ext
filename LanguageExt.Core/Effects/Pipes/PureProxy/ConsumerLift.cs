@@ -108,13 +108,13 @@ namespace LanguageExt.Pipes
                 Interpret().Bind(f).ToConsumer();
 
             public override Pipe<RT, IN, OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f) =>
-                Pipe.await<RT, IN, OUT>().SelectMany(x => Next(x).SelectMany(f));
+                Pipe.awaiting<RT, IN, OUT>().SelectMany(x => Next(x).SelectMany(f));
 
             public override Consumer<RT, IN, A> Interpret() =>
-                Consumer.await<RT, IN>().Bind(x => Next(x).Interpret()).ToConsumer();
+                Consumer.awaiting<RT, IN>().Bind(x => Next(x).Interpret()).ToConsumer();
 
             public override Pipe<RT, IN, OUT, A> ToPipe<OUT>() =>
-                Pipe.await<RT, IN, OUT>().Bind(x => Next(x).ToPipe<OUT>()).ToPipe();
+                Pipe.awaiting<RT, IN, OUT>().Bind(x => Next(x).ToPipe<OUT>()).ToPipe();
         }
 
         public class Release<X> : ConsumerLift<RT, IN, A>

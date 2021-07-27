@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt.Effects;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Pipes.Proxy;
@@ -48,6 +51,11 @@ namespace LanguageExt.Pipes
         public static Producer<RT, X, X> enumerate<RT, X>(IAsyncEnumerable<X> xs)
             where RT : struct, HasCancel<RT> =>
             new Enumerate<RT, Void, Unit, Unit, X, X, X>(xs, Producer.Pure<RT, X, X>).ToProducer();
+        
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, X, Unit> enumerate2<RT, X>(IAsyncEnumerable<X> xs)
+            where RT : struct, HasCancel<RT> =>
+            enumerate<RT, X, X>(xs).Bind(Producer.yield<RT, X>);
 
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, OUT, X> enumerate<RT, OUT, X>(IAsyncEnumerable<X> xs)
@@ -58,6 +66,11 @@ namespace LanguageExt.Pipes
         public static Producer<RT, X, X> observe<RT, X>(IObservable<X> xs)
             where RT : struct, HasCancel<RT> =>
             new Enumerate<RT, Void, Unit, Unit, X, X, X>(xs, Producer.Pure<RT, X, X>).ToProducer();
+
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, X, Unit> observe2<RT, X>(IObservable<X> xs)
+            where RT : struct, HasCancel<RT> =>
+            observe<RT, X, X>(xs).Bind(Producer.yield<RT, X>);
 
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, OUT, X> observe<RT, OUT, X>(IObservable<X> xs)
@@ -404,6 +417,58 @@ namespace LanguageExt.Pipes
         public static Producer<RT, (A, B, C, D), Unit> sequence<RT, A, B, C, D>((Effect<RT, A>, Effect<RT, B>, Effect<RT, C>, Effect<RT, D>) ms) where RT : struct, HasCancel<RT> =>
             from r in sequence<RT, (A, B, C, D), A, B, C, D>(ms)
             from _ in Producer.yield<RT, (A, B, C, D)>(r)
-            select unit;      
+            select unit;
+
+        public static Producer<RT, OUT, A> merge<RT, OUT, A>(Producer<RT, OUT, A> ma, Producer<RT, OUT, A> mb) where RT : struct, HasCancel<RT>
+        {
+            return from e in Producer.lift<RT, OUT, RT>(runtime<RT>())
+                   from x in Producer.enumerate<RT, OUT>(go(e))
+                   from _ in Producer.yield<RT, OUT>(x)
+                   select default(A);
+            
+            async IAsyncEnumerable<OUT> go(RT env)
+            {
+                var queue   = new ConcurrentQueue<OUT>();
+                var wait    = new AutoResetEvent(false);
+                var running = true;
+
+                var mma = ma | Consumer.awaiting<RT, OUT>()
+                                       .Map(x =>
+                                             {
+                                                 queue.Enqueue(x);
+                                                 wait.Set();
+                                                 return default(A);
+                                             })
+                                        .ToConsumer();
+
+                var mmb = mb | Consumer.awaiting<RT, OUT>()
+                                       .Map(x =>
+                                            {
+                                                queue.Enqueue(x);
+                                                wait.Set();
+                                                return default(A);
+                                            })
+                                       .ToConsumer();
+
+                // Run the two producing effects
+                var taskA = mma.RunEffect().Run(env).AsTask();
+                var taskB = mmb.RunEffect().Run(env).AsTask();
+
+                // When both tasks are done, we're done
+                // We should NOT be awaiting this 
+                Task.WhenAll(taskA, taskB).Iter(_ => running = false);
+
+                while (running)
+                {
+                    await wait.WaitOneAsync(env.CancellationToken);
+                    while (queue.TryDequeue(out var item))
+                    {
+                        yield return item;
+                    }
+                }
+            }
+        }
+
+        //from pair 
     }
 }

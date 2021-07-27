@@ -26,7 +26,7 @@ namespace LanguageExt
         /// If the parser fails then the pipe fails
         /// </summary>
         public static Pipe<RT, PString, OUT, Unit> ToPipe<RT, OUT>(this Parser<OUT> ma) where RT : struct, HasCancel<RT> =>
-            from t in Pipe.await<RT, PString, OUT>()
+            from t in Pipe.awaiting<RT, PString, OUT>()
             from r in EffMaybe<RT, OUT>(_ => ma.Parse(t).ToEither().Case switch
                                              {
                                                  OUT x    => FinSucc(x),
@@ -69,7 +69,7 @@ namespace LanguageExt
         /// If the parser fails then the pipe fails
         /// </summary>
         public static Pipe<RT, PString<IN>, OUT, Unit> ToPipe<RT, IN, OUT>(this Parser<IN, OUT> ma) where RT : struct, HasCancel<RT> =>
-            from t in Pipe.await<RT, PString<IN>, OUT>()
+            from t in Pipe.awaiting<RT, PString<IN>, OUT>()
             from r in EffMaybe<RT, OUT>(_ => ma.Parse(t).ToEither().Case switch
                                              {
                                                  OUT x    => FinSucc(x),

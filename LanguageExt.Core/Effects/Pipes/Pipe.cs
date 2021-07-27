@@ -25,7 +25,7 @@ namespace LanguageExt.Pipes
         /// This is the version of `await` that works for pipes.  In consumers, use `Consumer.await`
         /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<RT, A, Y, A> await<RT, A, Y>() where RT : struct, HasCancel<RT> =>
+        public static Pipe<RT, A, Y, A> awaiting<RT, A, Y>() where RT : struct, HasCancel<RT> =>
             request<RT, Unit, A, Unit, Y>(unit).ToPipe();
         
         /// <summary>
@@ -288,7 +288,7 @@ namespace LanguageExt.Pipes
             where RT : struct, HasCancel<RT>
         {
             var state = Initial;
-            return Pipe.await<RT, IN, OUT>()
+            return Pipe.awaiting<RT, IN, OUT>()
                        .Bind(x =>
                              {
                                  state = Fold(state, x);
@@ -329,7 +329,7 @@ namespace LanguageExt.Pipes
             where RT : struct, HasCancel<RT>
         {
             var state = Initial;
-            return Pipe.await<RT, IN, OUT>()
+            return Pipe.awaiting<RT, IN, OUT>()
                        .Bind(x =>
                              {
                                  if (UntilValue(x))
@@ -358,7 +358,7 @@ namespace LanguageExt.Pipes
 
             Pipe<RT, IN, OUT, Unit> go(S x) =>
                 from _ in Pipe.yield<RT, IN, OUT>(Done(x))
-                from a in Pipe.await<RT, IN, OUT>()
+                from a in Pipe.awaiting<RT, IN, OUT>()
                 let x1 = Step(x, a)
                 from r in go(x1)
                 select r;

@@ -87,7 +87,7 @@ namespace LanguageExt.Pipes
                 select r;
 
             public override Pipe<RT, IN, OUT, A> Interpret<RT>() =>
-                from x in Pipe.await<RT, IN, OUT>()
+                from x in Pipe.awaiting<RT, IN, OUT>()
                 from r in Next(x) 
                 select r;
 

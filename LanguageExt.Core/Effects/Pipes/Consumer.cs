@@ -24,7 +24,7 @@ namespace LanguageExt.Pipes
         /// for consumers.  In pipes, use `Pipe.await`
         /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, A, A> await<RT, A>() where RT : struct, HasCancel<RT> =>
+        public static Consumer<RT, A, A> awaiting<RT, A>() where RT : struct, HasCancel<RT> =>
             request<RT, Unit, A, Unit, Void>(unit).ToConsumer();
 
         

@@ -73,9 +73,17 @@ public class Program
         var effect2 = observe2(time) | now | toLongTimeString | writeLine;
 
         var echo = readLine | writeLine;
+        
+        var timeOneStep = Observable.Interval(TimeSpan.FromSeconds(1)).Select(_ => "whole");
+        var timeHalfStep = Observable.Interval(TimeSpan.FromSeconds(.5)).Select(_ => "half");
 
-        var result = (await file3.RunEffect<Runtime, Unit>()
-                                 .Run(Runtime.New()))
+        var channel1 = Producer.observe2<Runtime, string>(timeOneStep);
+        var channel2 = Producer.observe2<Runtime, string>(timeHalfStep);
+
+        var channel = (channel1 + channel2) | writeLine;
+
+        var result = (await channel.RunEffect<Runtime, Unit>()
+                                   .Run(Runtime.New()))
                                      .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
                                             Fail: e => Console.WriteLine(e));
     }
@@ -144,13 +152,13 @@ public class Program
         select unit;
 
     static Pipe<Runtime, string, string, Unit> sayHello2 =>
-        from l in Pipe.await<Runtime, string, string>()         
+        from l in Pipe.awaiting<Runtime, string, string>()         
         from _ in Pipe.yield<Runtime, string, string>($"Hello {l}")
         from n in sayHello2
         select unit;
     
     static Consumer<Runtime, string, Unit> writeLine2 =>
-        from l in Consumer.await<Runtime, string>()
+        from l in Consumer.awaiting<Runtime, string>()
         from a in Consumer.lift<Runtime, string>(Console<Runtime>.writeLine(l))
         from n in writeLine2
         select unit;

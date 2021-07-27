@@ -886,6 +886,10 @@ namespace LanguageExt.Pipes
         [Pure]
         public Producer<RT, OUT, C> SelectMany<B, C>(Func<A, Producer<OUT, B>> bind, Func<A, B, C> project) =>
             SelectMany(a => bind(a).Select(b => project(a, b)));
+
+        [Pure]
+        public static Producer<RT, OUT, A> operator +(Producer<RT, OUT, A> ma, Producer<RT, OUT, A> mb) =>
+            Producer.merge<RT, OUT, A>(ma, mb);
     }
 
     /// <summary>
