@@ -54,6 +54,8 @@ public class Program
                   | words
                   | filterEmpty
                   | writeLine;
+
+        var x = Proxy.compose(words, filterEmpty | writeLine); 
         
         var foldTest1 = repeat(Console<Runtime>.readKeys)
                       | keyChar
@@ -132,8 +134,6 @@ public class Program
         from n in awaiting<int>()         
         from _ in yield($"{n * 10}")
         select unit;
-    
-    
     
     
     static Producer<Runtime, string, Unit> readLine2 =>
