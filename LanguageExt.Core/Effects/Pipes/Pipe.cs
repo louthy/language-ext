@@ -347,6 +347,7 @@ namespace LanguageExt.Pipes
                        .ToPipe();
         }
 
+
         /// <summary>
         /// Strict left scan
         /// </summary>

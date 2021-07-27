@@ -741,6 +741,90 @@ namespace LanguageExt.Pipes
         public static Producer<RT, (A, B, C, D), Unit> Sequence<RT, A, B, C, D>(this (Effect<RT, A>, Effect<RT, B>, Effect<RT, C>, Effect<RT, D>) ms) where RT : struct, HasCancel<RT> =>
             from r in ms.Sequence<RT, (A, B, C, D), A, B, C, D>()
             from _ in Producer.yield<RT, (A, B, C, D)>(r)
-            select unit;        
+            select unit;
+
+        /// <summary>
+        /// Only forwards values that satisfy the predicate.
+        /// </summary>
+        public static Pipe<A, A, Unit> filter<A>(Func<A, bool> f) =>
+            from x in Proxy.awaiting<A>()
+            from r in f(x) ? Proxy.yield(x) : Proxy.Pure(unit)
+            select r;
+
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns false the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="WhileState">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Pipe<IN, OUT, Unit> foldWhile<IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<OUT, bool> State) => 
+            foldUntil<IN, OUT>(Initial, Fold, x => !State(x));
+ 
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns true the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="UntilState">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        public static Pipe<IN, OUT, Unit> foldUntil<IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<OUT, bool> State)
+        {
+            var state = Initial;
+            return Proxy.awaiting<IN>()
+                       .Bind(x =>
+                             {
+                                 state = Fold(state, x);
+                                 if (State(state))
+                                 {
+                                     var nstate = state;
+                                     state = Initial;
+                                     return Proxy.yield(nstate);
+                                 }
+                                 else
+                                 {
+                                     return Proxy.Pure(unit);
+                                 }
+                             });
+        }        
+        
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns false the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="WhileValue">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Pipe<IN, OUT, Unit> foldWhile<IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<IN, bool> Value) => 
+            foldUntil<IN, OUT>(Initial, Fold, x => !Value(x));
+ 
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns true the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="UntilValue">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        public static Pipe<IN, OUT, Unit> foldUntil<IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<IN, bool> Value)
+        {
+            var state = Initial;
+            return Proxy.awaiting<IN>()
+                       .Bind(x =>
+                             {
+                                 if (Value(x))
+                                 {
+                                     var nstate = state;
+                                     state = Initial;
+                                     return Proxy.yield(nstate);
+                                 }
+                                 else
+                                 {
+                                     state = Fold(state, x);
+                                     return Proxy.Pure(unit);
+                                 }
+                             });
+        }
     }
 }

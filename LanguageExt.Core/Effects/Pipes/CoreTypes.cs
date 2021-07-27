@@ -180,6 +180,17 @@ namespace LanguageExt.Pipes
         public abstract Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT,  UOut, UIn, DInC, DOutC, DIn>> rhs);
         public abstract Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect();
         public abstract Proxy<RT, UOut, UIn, DIn, DOut, A> Observe();
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, B> SelectMany<B>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f) =>
+            Bind(f);
+
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, C> SelectMany<B, C>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f, Func<A, B, C> project) =>
+            Bind(a => f(a).Map(b => project(a, b)));
+
+        [Pure]
+        public Proxy<RT, UOut, UIn, DIn, DOut, B> Select<B>(Func<A, B> f) =>
+            Map(f);
     }
     
     public class Pure<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
@@ -789,15 +800,31 @@ namespace LanguageExt.Pipes
             Value.Bind(f);
 
         [Pure]
-        public override Proxy<RT, Void, Unit, Unit, OUT, S> Map<S>(Func<A, S> f) =>
+        public override Proxy<RT, Void, Unit, Unit, OUT, B> Map<B>(Func<A, B> f) =>
             Value.Map(f);
+        
+        [Pure]
+        public Producer<RT, OUT, B> Bind<B>(Func<A, Producer<RT, OUT, B>> f) => 
+            Value.Bind(f).ToProducer();
+        
+        [Pure]
+        public Producer<RT, OUT, B> SelectMany<B>(Func<A, Producer<RT, OUT, B>> f) => 
+            Value.Bind(f).ToProducer();
+        
+        [Pure]
+        public Producer<RT, OUT, C> SelectMany<B, C>(Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) => 
+            Value.Bind(a => f(a).Map(b => project(a, b))).ToProducer();
+        
+        [Pure]
+        public new Producer<RT, OUT, B> Select<B>(Func<A, B> f) => 
+            Value.Map(f).ToProducer();
 
         [Pure]
         public override Proxy<RT, Void, Unit, C1, C, A> For<C1, C>(Func<OUT, Proxy<RT, Void, Unit, C1, C, Unit>> f) =>
             Value.For(f);
 
         [Pure]
-        public override Proxy<RT, Void, Unit, Unit, OUT, S> Action<S>(Proxy<RT, Void, Unit, Unit, OUT, S> r) =>
+        public override Proxy<RT, Void, Unit, Unit, OUT, B> Action<B>(Proxy<RT, Void, Unit, Unit, OUT, B> r) =>
             Value.Action(r);
 
         [Pure]
@@ -882,6 +909,22 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, Unit, IN, Unit, Void, S> Map<S>(Func<A, S> f) =>
             Value.Map(f);
+        
+        [Pure]
+        public Consumer<RT, IN, B> Bind<B>(Func<A, Consumer<RT, IN, B>> f) => 
+            Value.Bind(f).ToConsumer();
+        
+        [Pure]
+        public Consumer<RT, IN, B> SelectMany<B>(Func<A, Consumer<RT, IN, B>> f) => 
+            Value.Bind(f).ToConsumer();
+        
+        [Pure]
+        public Consumer<RT, IN, C> SelectMany<B, C>(Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) => 
+            Value.Bind(a => f(a).Map(b => project(a, b))).ToConsumer();
+        
+        [Pure]
+        public new Consumer<RT, IN, B> Select<B>(Func<A, B> f) => 
+            Value.Map(f).ToConsumer();        
 
         [Pure]
         public override Proxy<RT, Unit, IN, C1, C, A> For<C1, C>(Func<Void, Proxy<RT, Unit, IN, C1, C, Unit>> f) =>
@@ -988,6 +1031,22 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, Unit, IN, Unit, OUT, S> Map<S>(Func<A, S> f) =>
             Value.Map(f);
+        
+        [Pure]
+        public Pipe<RT, IN, OUT, B> Bind<B>(Func<A, Pipe<RT, IN, OUT, B>> f) => 
+            Value.Bind(f).ToPipe();
+        
+        [Pure]
+        public Pipe<RT, IN, OUT, B> SelectMany<B>(Func<A, Pipe<RT, IN, OUT, B>> f) => 
+            Value.Bind(f).ToPipe();
+        
+        [Pure]
+        public Pipe<RT, IN, OUT, C> SelectMany<B, C>(Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) => 
+            Value.Bind(a => f(a).Map(b => project(a, b))).ToPipe();
+        
+        [Pure]
+        public new Pipe<RT, IN, OUT, B> Select<B>(Func<A, B> f) => 
+            Value.Map(f).ToPipe();        
 
         [Pure]
         public override Proxy<RT, Unit, IN, C1, C, A> For<C1, C>(Func<OUT, Proxy<RT, Unit, IN, C1, C, Unit>> f) =>
@@ -1095,7 +1154,23 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, REQ, RES, Unit, Void, S> Map<S>(Func<A, S> f) =>
             Value.Map(f);
-
+        
+        [Pure]
+        public Client<RT, REQ, RES, B> Bind<B>(Func<A, Client<RT, REQ, RES, B>> f) => 
+            Value.Bind(f).ToClient();
+        
+        [Pure]
+        public Client<RT, REQ, RES, B> SelectMany<B>(Func<A, Client<RT, REQ, RES, B>> f) => 
+            Value.Bind(f).ToClient();
+        
+        [Pure]
+        public Client<RT, REQ, RES, C> SelectMany<B, C>(Func<A, Client<RT, REQ, RES, B>> f, Func<A, B, C> project) => 
+            Value.Bind(a => f(a).Map(b => project(a, b))).ToClient();
+        
+        [Pure]
+        public new Client<RT, REQ, RES, B> Select<B>(Func<A, B> f) => 
+            Value.Map(f).ToClient();        
+        
         [Pure]
         public override Proxy<RT, REQ, RES, C1, C, A> For<C1, C>(Func<Void, Proxy<RT, REQ, RES, C1, C, Unit>> f) =>
             Value.For(f);
@@ -1166,7 +1241,23 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, Void, Unit, REQ, RES, S> Map<S>(Func<A, S> f) =>
             Value.Map(f);
-
+        
+        [Pure]
+        public Server<RT, REQ, RES, B> Bind<B>(Func<A, Server<RT, REQ, RES, B>> f) => 
+            Value.Bind(f).ToServer();
+        
+        [Pure]
+        public Server<RT, REQ, RES, B> SelectMany<B>(Func<A, Server<RT, REQ, RES, B>> f) => 
+            Value.Bind(f).ToServer();
+        
+        [Pure]
+        public Server<RT, REQ, RES, C> SelectMany<B, C>(Func<A, Server<RT, REQ, RES, B>> f, Func<A, B, C> project) => 
+            Value.Bind(a => f(a).Map(b => project(a, b))).ToServer();
+        
+        [Pure]
+        public new Server<RT, REQ, RES, B> Select<B>(Func<A, B> f) => 
+            Value.Map(f).ToServer();
+        
         [Pure]
         public override Proxy<RT, Void, Unit, C1, C, A> For<C1, C>(Func<RES, Proxy<RT, Void, Unit, C1, C, REQ>> f) =>
             Value.For(f);

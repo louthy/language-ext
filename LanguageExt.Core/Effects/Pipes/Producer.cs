@@ -226,7 +226,119 @@ namespace LanguageExt.Pipes
         public static Producer<RT, OUT, Unit> release<RT, OUT, R>(R dispose) 
             where RT : struct, HasCancel<RT> =>
             Proxy.release<RT, Void, Unit, Unit, OUT, R>(dispose).ToProducer();
-
+ 
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns true the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="UntilValue">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        public static Producer<RT, S, Unit> FoldUntil<RT, S, A>(this Producer<RT, S, A> ma, S Initial, Func<S, A, S> Fold, Func<A, bool> UntilValue)
+            where RT : struct, HasCancel<RT>
+        {
+            var state = Initial;
+            return ma.Bind(
+                x =>
+                {
+                    if (UntilValue(x))
+                    {
+                        var nstate = state;
+                        state = Initial;
+                        return Producer.yield<RT, S>(nstate);
+                    }
+                    else
+                    {
+                        state = Fold(state, x);
+                        return Producer.Pure<RT, S, Unit>(unit);
+                    }
+                });
+        }
+ 
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns true the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="UntilValue">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        public static Producer<RT, S, Unit> FoldWhile<RT, S, A>(this Producer<RT, S, A> ma, S Initial, Func<S, A, S> Fold, Func<A, bool> WhileValue)
+            where RT : struct, HasCancel<RT>
+        {
+            var state = Initial;
+            return ma.Bind(
+                x =>
+                {
+                    if (WhileValue(x))
+                    {
+                        state = Fold(state, x);
+                        return Producer.Pure<RT, S, Unit>(unit);
+                    }
+                    else
+                    {
+                        var nstate = state;
+                        state = Initial;
+                        return Producer.yield<RT, S>(nstate);
+                    }
+                });
+        }
+         
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns true the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="UntilValue">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        public static Producer<RT, S, Unit> FoldUntil<RT, S, A>(this Producer<RT, S, A> ma, S Initial, Func<S, A, S> Fold, Func<S, bool> UntilState)
+            where RT : struct, HasCancel<RT>
+        {
+            var state = Initial;
+            return ma.Bind(
+                x =>
+                {
+                    state = Fold(state, x);
+                    if (UntilState(state))
+                    {
+                        var nstate = state;
+                        state = Initial;
+                        return Producer.yield<RT, S>(nstate);
+                    }
+                    else
+                    {
+                        return Producer.Pure<RT, S, Unit>(unit);
+                    }
+                });
+        }
+ 
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns true the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="UntilValue">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        public static Producer<RT, S, Unit> FoldWhile<RT, S, A>(this Producer<RT, S, A> ma, S Initial, Func<S, A, S> Fold, Func<S, bool> WhileState)
+            where RT : struct, HasCancel<RT>
+        {
+            var state = Initial;
+            return ma.Bind(
+                x =>
+                {
+                    state = Fold(state, x);
+                    if (WhileState(state))
+                    {
+                        return Producer.Pure<RT, S, Unit>(unit);
+                    }
+                    else
+                    {
+                        var nstate = state;
+                        state = Initial;
+                        return Producer.yield<RT, S>(nstate);
+                    }
+                });
+        }
+        
         /// <summary>
         /// Creates a non-yielding producer that returns the result of running either the left or right effect
         /// </summary>

@@ -42,6 +42,32 @@ namespace LanguageExt.Sys.IO
         } 
         
         /// <summary>
+        /// Open a text file and streams the chars through the pipe
+        /// </summary>
+        [Pure]
+        public static Pipe<RT, TextReader, char, Unit> readChar
+        {
+            get
+            {
+                return from tr in awaiting<TextReader>()
+                       from ln in enumerate(go(tr))
+                       from __ in yield(ln)
+                       select unit;
+
+                static async IAsyncEnumerable<char> go(TextReader reader)
+                {
+                    var buffer = new char[1];
+                    while (true)
+                    {
+                        var nread = await reader.ReadAsync(buffer, 0, 1);
+                        if(nread < 1) yield break;
+                        yield return buffer[0];
+                    }
+                }
+            }
+        }         
+        
+        /// <summary>
         /// Read the rest of the text in the stream
         /// </summary>
         [Pure]

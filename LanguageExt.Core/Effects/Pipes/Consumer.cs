@@ -215,7 +215,7 @@ namespace LanguageExt.Pipes
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Eff<Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
                  .@for<RT, A, A, Unit>(a => lift<RT, A, Unit>(f(a)));        
-
+        
         /// <summary>
         /// Creates a consumer that returns the result of running either the left or right effect
         /// </summary>

@@ -48,11 +48,22 @@ public class Program
         var file2 = File<Runtime>.openText("i:\\defaults.xml") 
                   | TextRead<Runtime>.readLine 
                   | writeLine;
+
+        var file3 = File<Runtime>.openText("i:\\defaults.xml") 
+                  | TextRead<Runtime>.readChar
+                  | words
+                  | filterEmpty
+                  | writeLine;
         
         var foldTest1 = repeat(Console<Runtime>.readKeys)
                       | keyChar
                       | words
+                      | filterEmpty
                       | writeLine;
+
+        var foldTest2 = Producer.lift<Runtime, string, char>(Console<Runtime>.readKey.Map(k => k.KeyChar))
+                                .FoldUntil("", (word, ch) => word + ch, char.IsWhiteSpace)
+                      | repeat(writeLine);
         
         var effect1 = enumerate(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
 
@@ -61,18 +72,21 @@ public class Program
 
         var echo = readLine | writeLine;
 
-        var result = (await foldTest1.RunEffect<Runtime, Unit>()
-                                     .Run(Runtime.New()))
+        var result = (await file3.RunEffect<Runtime, Unit>()
+                                 .Run(Runtime.New()))
                                      .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
                                             Fail: e => Console.WriteLine(e));
     }
-
+    
     static Pipe<Runtime, ConsoleKeyInfo, char, Unit> keyChar =>
-        Pipe.map<Runtime, ConsoleKeyInfo, char, Unit>(k => k.KeyChar);
+        Pipe.map<Runtime, ConsoleKeyInfo, char>(k => k.KeyChar);
     
     static Pipe<Runtime, char, string, Unit> words =>
-        Pipe.foldUntil<Runtime, char, string>("", (word, ch) => word + ch, char.IsWhiteSpace);
+        Proxy.foldUntil("", (word, ch) => word + ch, (char x) => char.IsWhiteSpace(x));
 
+    static Pipe<Runtime, string, string, Unit> filterEmpty =>
+        Proxy.filter<string>(notEmpty);
+    
     static Pipe<Runtime, DateTime, string, Unit> toLongTimeString =>
         from n in awaiting<DateTime>()       
         from _ in yield(n.ToLongTimeString())
