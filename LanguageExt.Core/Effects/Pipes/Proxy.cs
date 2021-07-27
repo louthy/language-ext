@@ -380,7 +380,7 @@ namespace LanguageExt.Pipes
         /// Producer b r -> (b -> Producer c ()) -> Producer c r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Producer<RT, OUT_B, A> @for<RT, OUT_A, OUT_B, A>(this Producer<RT, OUT_A, A> p, Func<OUT_A, Producer<RT, OUT_B, Unit>> body)
+        public static Producer<RT, OUT_B, A> For<RT, OUT_A, OUT_B, A>(this Producer<RT, OUT_A, A> p, Func<OUT_A, Producer<RT, OUT_B, Unit>> body)
             where RT : struct, HasCancel<RT> =>
             p.For(body).ToProducer();
 
@@ -390,7 +390,7 @@ namespace LanguageExt.Pipes
         /// Producer b r -> (b -> Effect ()) -> Effect r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<RT, A> @for<RT, OUT, A>(this Producer<RT, OUT, A> p, Func<OUT, Effect<RT, Unit>> fb)
+        public static Effect<RT, A> For<RT, OUT, A>(this Producer<RT, OUT, A> p, Func<OUT, Effect<RT, Unit>> fb)
             where RT : struct, HasCancel<RT> =>
             p.For(fb).ToEffect();
 
@@ -400,7 +400,7 @@ namespace LanguageExt.Pipes
         /// Pipe x b r -> (b -> Consumer x ()) -> Consumer x r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, IN, A> @for<RT, IN, OUT, A>(this Pipe<RT, IN, OUT, A> p0, Func<OUT, Consumer<RT, IN, Unit>> fb)
+        public static Consumer<RT, IN, A> For<RT, IN, OUT, A>(this Pipe<RT, IN, OUT, A> p0, Func<OUT, Consumer<RT, IN, Unit>> fb)
             where RT : struct, HasCancel<RT> =>
             p0.For(fb).ToConsumer();
 
@@ -410,7 +410,7 @@ namespace LanguageExt.Pipes
         /// Pipe x b r -> (b -> Pipe x c ()) -> Pipe x c r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<RT, IN, OUT, R> @for<RT, IN, B, OUT, R>(this Pipe<RT, IN, B, R> p0, Func<B, Pipe<RT, IN, OUT, Unit>> fb)
+        public static Pipe<RT, IN, OUT, R> For<RT, IN, B, OUT, R>(this Pipe<RT, IN, B, R> p0, Func<B, Pipe<RT, IN, OUT, Unit>> fb)
             where RT : struct, HasCancel<RT> =>
             p0.For(fb).ToPipe();
 

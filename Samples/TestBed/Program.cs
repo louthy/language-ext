@@ -172,5 +172,4 @@ public class Program
     
     static Pipe<Runtime, string, string, Unit> pipeMap =>
         Pipe.map((string x) => $"Hello {x}");
-    
 }

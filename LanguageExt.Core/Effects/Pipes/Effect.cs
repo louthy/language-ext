@@ -17,6 +17,7 @@ namespace LanguageExt.Pipes
         [Pure]
         internal static Aff<RT, R> RunEffect_Original<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma) where RT : struct, HasCancel<RT> {
             return Go(ma);
+            
             static Aff<RT, R> Go(Proxy<RT, Void, Unit, Unit, Void, R> p) =>
                 p.ToProxy() switch
                 {
