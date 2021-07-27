@@ -752,6 +752,14 @@ namespace LanguageExt.Pipes
             select r;
 
         /// <summary>
+        /// Map the output of the pipe (not the bound value as is usual with Map)
+        /// </summary>
+        public static Pipe<A, B, Unit> map<A, B>(Func<A, B> f) =>
+            from x in Proxy.awaiting<A>()
+            from r in Proxy.yield(f(x))
+            select r;
+
+        /// <summary>
         /// Folds values coming down-stream, when the predicate returns false the folded value is yielded 
         /// </summary>
         /// <param name="Initial">Initial state</param>

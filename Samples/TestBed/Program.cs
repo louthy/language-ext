@@ -79,7 +79,7 @@ public class Program
     }
     
     static Pipe<Runtime, ConsoleKeyInfo, char, Unit> keyChar =>
-        Pipe.map<Runtime, ConsoleKeyInfo, char>(k => k.KeyChar);
+        Proxy.map<ConsoleKeyInfo, char>(k => k.KeyChar);
     
     static Pipe<Runtime, char, string, Unit> words =>
         Proxy.foldUntil("", (word, ch) => word + ch, (char x) => char.IsWhiteSpace(x));
