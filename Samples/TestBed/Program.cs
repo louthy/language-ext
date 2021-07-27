@@ -50,8 +50,8 @@ public class Program
                   | writeLine;
         
         var foldTest1 = repeat(Console<Runtime>.readKeys)
-                      | Pipe.map<Runtime, ConsoleKeyInfo, char, Unit>(k => k.KeyChar)
-                      | Proxy.foldUntil<Runtime, char, string>("", (s, c) => s + c, c => c == ' ')
+                      | keyChar
+                      | words
                       | writeLine;
         
         var effect1 = enumerate(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
@@ -66,6 +66,12 @@ public class Program
                                      .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
                                             Fail: e => Console.WriteLine(e));
     }
+
+    static Pipe<Runtime, ConsoleKeyInfo, char, Unit> keyChar =>
+        Pipe.map<Runtime, ConsoleKeyInfo, char, Unit>(k => k.KeyChar);
+    
+    static Pipe<Runtime, char, string, Unit> words =>
+        Pipe.foldUntil<Runtime, char, string>("", (word, ch) => word + ch, char.IsWhiteSpace);
 
     static Pipe<Runtime, DateTime, string, Unit> toLongTimeString =>
         from n in awaiting<DateTime>()       

@@ -264,5 +264,103 @@ namespace LanguageExt.Pipes
         public static Pipe<RT, IN, OUT, Unit> release<RT, IN, OUT, R>(R dispose) 
             where RT : struct, HasCancel<RT> =>
             Proxy.release<RT, Unit, IN, Unit, OUT, R>(dispose).ToPipe();
+
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns false the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="WhileState">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Pipe<RT, IN, OUT, Unit> foldWhile<RT, IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<OUT, bool> WhileState) 
+            where RT : struct, HasCancel<RT> =>
+            foldUntil<RT, IN, OUT>(Initial, Fold, x => !WhileState(x));
+ 
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns true the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="UntilState">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        public static Pipe<RT, IN, OUT, Unit> foldUntil<RT, IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<OUT, bool> UntilState)
+            where RT : struct, HasCancel<RT>
+        {
+            var state = Initial;
+            return Pipe.await<RT, IN, OUT>()
+                       .Bind(x =>
+                             {
+                                 state = Fold(state, x);
+                                 if (UntilState(state))
+                                 {
+                                     var nstate = state;
+                                     state = Initial;
+                                     return Pipe.yield<RT, IN, OUT>(nstate);
+                                 }
+                                 else
+                                 {
+                                     return Pipe.Pure<RT, IN, OUT, Unit>(unit);
+                                 }
+                             })
+                       .ToPipe();
+        }
+
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns false the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="WhileValue">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Pipe<RT, IN, OUT, Unit> foldWhile<RT, IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<IN, bool> WhileValue) 
+            where RT : struct, HasCancel<RT> =>
+            foldUntil<RT, IN, OUT>(Initial, Fold, x => !WhileValue(x));
+ 
+        /// <summary>
+        /// Folds values coming down-stream, when the predicate returns true the folded value is yielded 
+        /// </summary>
+        /// <param name="Initial">Initial state</param>
+        /// <param name="Fold">Fold operation</param>
+        /// <param name="UntilValue">Predicate</param>
+        /// <returns>A pipe that folds</returns>
+        public static Pipe<RT, IN, OUT, Unit> foldUntil<RT, IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<IN, bool> UntilValue)
+            where RT : struct, HasCancel<RT>
+        {
+            var state = Initial;
+            return Pipe.await<RT, IN, OUT>()
+                       .Bind(x =>
+                             {
+                                 if (UntilValue(x))
+                                 {
+                                     var nstate = state;
+                                     state = Initial;
+                                     return Pipe.yield<RT, IN, OUT>(nstate);
+                                 }
+                                 else
+                                 {
+                                     state = Fold(state, x);
+                                     return Pipe.Pure<RT, IN, OUT, Unit>(unit);
+                                 }
+                             })
+                       .ToPipe();
+        }
+
+        /// <summary>
+        /// Strict left scan
+        /// </summary>
+        public static Pipe<RT, IN, OUT, Unit> scan<RT, IN, OUT, S>(Func<S, IN, S> Step, S Begin, Func<S, OUT> Done)
+            where RT : struct, HasCancel<RT>
+        {
+            return go(Begin);
+
+            Pipe<RT, IN, OUT, Unit> go(S x) =>
+                from _ in Pipe.yield<RT, IN, OUT>(Done(x))
+                from a in Pipe.await<RT, IN, OUT>()
+                let x1 = Step(x, a)
+                from r in go(x1)
+                select r;
+        }
     }
 }
