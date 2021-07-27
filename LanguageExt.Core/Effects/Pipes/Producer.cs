@@ -451,16 +451,22 @@ namespace LanguageExt.Pipes
                                        .ToConsumer();
 
                 // Run the two producing effects
+                // We should NOT be awaiting these 
                 var taskA = mma.RunEffect().Run(env).AsTask();
                 var taskB = mmb.RunEffect().Run(env).AsTask();
 
                 // When both tasks are done, we're done
                 // We should NOT be awaiting this 
-                Task.WhenAll(taskA, taskB).Iter(_ => running = false);
+                Task.WhenAll(taskA, taskB)
+                    .Iter(_ =>
+                          {
+                              running = false;
+                              wait.Set();
+                          });
 
                 while (running)
                 {
-                    await wait.WaitOneAsync(env.CancellationToken);
+                    await wait.WaitOneAsync(env.CancellationToken).ConfigureAwait(false);
                     while (queue.TryDequeue(out var item))
                     {
                         yield return item;
