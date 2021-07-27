@@ -676,5 +676,71 @@ namespace LanguageExt.Pipes
         public static Proxy<RT, A1, A, B1, B, R> Pure<RT, A1, A, B1, B, R>(R value) where RT : struct, HasCancel<RT> =>
             new Pure<RT, A1, A, B1, B, R>(value);
 
+        /// <summary>
+        /// Creates a non-yielding producer that returns the result of running either the left or right effect
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, Either<A, B>> Sequence<RT, OUT, A, B>(this Either<Effect<RT, A>, Effect<RT, B>> ms) where RT : struct, HasCancel<RT> =>
+            Producer.lift<RT, OUT, Either<A, B>>(
+                ms.Match(
+                    Left: l => l.RunEffect().Map(Left<A, B>),
+                    Right: r => r.RunEffect().Map(Right<A, B>)));
+
+        /// <summary>
+        /// Creates a that yields the result of running either the left or right effect
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, Either<A, B>, Unit> Sequence<RT, A, B>(this Either<Effect<RT, A>, Effect<RT, B>> ms) where RT : struct, HasCancel<RT> =>
+            from r in ms.Sequence<RT, Either<A, B>, A, B>()
+            from _ in Producer.yield<RT, Either<A, B>>(r)
+            select unit;
+
+        /// <summary>
+        /// Creates a non-yielding producer that returns the result of the effects
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, (A, B)> Sequence<RT, OUT, A, B>(this (Effect<RT, A>, Effect<RT, B>) ms) where RT : struct, HasCancel<RT> =>
+            Producer.lift<RT, OUT, (A, B)>((ms.Item1.RunEffect(), ms.Item2.RunEffect()).Sequence());
+
+        /// <summary>
+        /// Creates a that yields the result of the effects
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, (A, B), Unit> Sequence<RT, A, B>(this (Effect<RT, A>, Effect<RT, B>) ms) where RT : struct, HasCancel<RT> =>
+            from r in ms.Sequence<RT, (A, B), A, B>()
+            from _ in Producer.yield<RT, (A, B)>(r)
+            select unit;
+
+        /// <summary>
+        /// Creates a non-yielding producer that returns the result of the effects
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, (A, B, C)> Sequence<RT, OUT, A, B, C>(this (Effect<RT, A>, Effect<RT, B>, Effect<RT, C>) ms) where RT : struct, HasCancel<RT> =>
+            Producer.lift<RT, OUT, (A, B, C)>((ms.Item1.RunEffect(), ms.Item2.RunEffect(), ms.Item3.RunEffect()).Sequence());
+
+        /// <summary>
+        /// Creates a that yields the result of the effects
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, (A, B, C), Unit> Sequence<RT, A, B, C>(this (Effect<RT, A>, Effect<RT, B>, Effect<RT, C>) ms) where RT : struct, HasCancel<RT> =>
+            from r in ms.Sequence<RT, (A, B, C), A, B, C>()
+            from _ in Producer.yield<RT, (A, B, C)>(r)
+            select unit;
+
+        /// <summary>
+        /// Creates a non-yielding producer that returns the result of the effects
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, OUT, (A, B, C, D)> Sequence<RT, OUT, A, B, C, D>(this (Effect<RT, A>, Effect<RT, B>, Effect<RT, C>, Effect<RT, D>) ms) where RT : struct, HasCancel<RT> =>
+            Producer.lift<RT, OUT, (A, B, C, D)>((ms.Item1.RunEffect(), ms.Item2.RunEffect(), ms.Item3.RunEffect(), ms.Item4.RunEffect()).Sequence());
+
+        /// <summary>
+        /// Creates a that yields the result of the effects
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Producer<RT, (A, B, C, D), Unit> Sequence<RT, A, B, C, D>(this (Effect<RT, A>, Effect<RT, B>, Effect<RT, C>, Effect<RT, D>) ms) where RT : struct, HasCancel<RT> =>
+            from r in ms.Sequence<RT, (A, B, C, D), A, B, C, D>()
+            from _ in Producer.yield<RT, (A, B, C, D)>(r)
+            select unit;        
     }
 }

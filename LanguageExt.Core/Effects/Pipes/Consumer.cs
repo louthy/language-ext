@@ -215,5 +215,36 @@ namespace LanguageExt.Pipes
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Eff<Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
                  .@for<RT, A, A, Unit>(a => lift<RT, A, Unit>(f(a)));        
+
+        /// <summary>
+        /// Creates a consumer that returns the result of running either the left or right effect
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<RT, IN, Either<A, B>> sequence<RT, IN, A, B>(Either<Effect<RT, A>, Effect<RT, B>> ms) where RT : struct, HasCancel<RT> =>
+            Consumer.lift<RT, IN, Either<A, B>>(
+                ms.Match(
+                    Left: l => l.RunEffect().Map(Left<A, B>),
+                    Right: r => r.RunEffect().Map(Right<A, B>)));
+
+        /// <summary>
+        /// Creates a consumer that returns the result of the effects
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<RT, IN, (A, B)> sequence<RT, IN, A, B>((Effect<RT, A>, Effect<RT, B>) ms) where RT : struct, HasCancel<RT> =>
+            Consumer.lift<RT, IN, (A, B)>((ms.Item1.RunEffect(), ms.Item2.RunEffect()).Sequence());
+        
+        /// <summary>
+        /// Creates a consumer that returns the result of the effects
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<RT, IN, (A, B, C)> sequence<RT, IN, A, B, C>((Effect<RT, A>, Effect<RT, B>, Effect<RT, C>) ms) where RT : struct, HasCancel<RT> =>
+            Consumer.lift<RT, IN, (A, B, C)>((ms.Item1.RunEffect(), ms.Item2.RunEffect(), ms.Item3.RunEffect()).Sequence());
+
+        /// <summary>
+        /// Creates a consumer that returns the result of the effects
+        /// </summary>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Consumer<RT, IN, (A, B, C, D)> sequence<RT, IN, A, B, C, D>((Effect<RT, A>, Effect<RT, B>, Effect<RT, C>, Effect<RT, D>) ms) where RT : struct, HasCancel<RT> =>
+            Consumer.lift<RT, IN, (A, B, C, D)>((ms.Item1.RunEffect(), ms.Item2.RunEffect(), ms.Item3.RunEffect(), ms.Item4.RunEffect()).Sequence());
     }
 }
