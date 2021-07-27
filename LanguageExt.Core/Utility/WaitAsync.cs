@@ -8,21 +8,23 @@ namespace LanguageExt
     {
         public static async Task<bool> WaitOneAsync(this WaitHandle handle, int millisecondsTimeout, CancellationToken cancellationToken)
         {
-            RegisteredWaitHandle  registeredHandle  = null;
+            RegisteredWaitHandle registeredHandle  = null;
             var tokenRegistration = default(CancellationTokenRegistration);
             try
             {
                 var tcs = new TaskCompletionSource<bool>();
+                
                 registeredHandle = ThreadPool.RegisterWaitForSingleObject(
                     handle,
-                    (state, timedOut) => ((TaskCompletionSource<bool>)state).TrySetResult(!timedOut),
+                    static (state, timedOut) => ((TaskCompletionSource<bool>)state).TrySetResult(!timedOut),
                     tcs,
                     millisecondsTimeout,
                     true);
+                
                 tokenRegistration = cancellationToken.Register(
-                    state => ((TaskCompletionSource<bool>)state).TrySetCanceled(),
+                    static state => ((TaskCompletionSource<bool>)state).TrySetCanceled(),
                     tcs);
-                return await tcs.Task;
+                return await tcs.Task.ConfigureAwait(false);
             }
             finally
             {

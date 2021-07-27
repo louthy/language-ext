@@ -432,23 +432,17 @@ namespace LanguageExt.Pipes
                 var wait    = new AutoResetEvent(false);
                 var running = true;
 
-                var mma = ma | Consumer.awaiting<RT, OUT>()
-                                       .Map(x =>
-                                             {
-                                                 queue.Enqueue(x);
-                                                 wait.Set();
-                                                 return default(A);
-                                             })
-                                        .ToConsumer();
+                var enqueue = Consumer.awaiting<RT, OUT>()
+                                      .Map(x =>
+                                           {
+                                               queue.Enqueue(x);
+                                               wait.Set();
+                                               return default(A);
+                                           })
+                                      .ToConsumer();
 
-                var mmb = mb | Consumer.awaiting<RT, OUT>()
-                                       .Map(x =>
-                                            {
-                                                queue.Enqueue(x);
-                                                wait.Set();
-                                                return default(A);
-                                            })
-                                       .ToConsumer();
+                var mma = ma | enqueue;
+                var mmb = mb | enqueue;
 
                 // Run the two producing effects
                 // We should NOT be awaiting these 
