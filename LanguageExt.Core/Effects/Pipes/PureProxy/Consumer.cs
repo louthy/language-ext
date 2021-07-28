@@ -21,6 +21,7 @@ namespace LanguageExt.Pipes
         public abstract ConsumerLift<RT, IN, B> SelectMany<RT, B>(Func<A, ConsumerLift<RT, IN, B>> f) where RT : struct, HasCancel<RT>;
         public abstract Consumer<RT, IN, B> SelectMany<RT, B>(Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasCancel<RT>;
         public abstract Pipe<IN, OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f);
+        public abstract Pipe<RT, IN, OUT, B> SelectMany<RT, OUT, B>(Func<A, ProducerLift<RT, OUT, B>> f) where RT : struct, HasCancel<RT>;
         public abstract Consumer<RT, IN, A> Interpret<RT>() where RT : struct, HasCancel<RT>;
         public abstract ConsumerLift<RT, IN, A> ToConsumerLift<RT>() where RT : struct, HasCancel<RT>;
         public abstract Pipe<IN, OUT, A> ToPipe<OUT>();
@@ -30,7 +31,7 @@ namespace LanguageExt.Pipes
         public ConsumerLift<RT, IN, B> Bind<RT, B>(Func<A, ConsumerLift<RT, IN, B>> f) where RT : struct, HasCancel<RT> => SelectMany(f);
         public Consumer<RT, IN, B> Bind<RT, B>(Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasCancel<RT> => SelectMany(f);
         public Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f) => SelectMany(f);
-        
+ 
         public Consumer<IN, C> SelectMany<B, C>(Func<A, Consumer<IN, B>> f, Func<A, B, C> project) =>
             SelectMany(a => f(a).Select(b => project(a, b)));
         
@@ -65,7 +66,10 @@ namespace LanguageExt.Pipes
                 f(Value);
 
             public override Pipe<IN, OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f) =>
-                f(Value).MakePipe<IN>();
+                f(Value).ToPipe<IN>();
+
+            public override Pipe<RT, IN, OUT, B> SelectMany<RT, OUT, B>(Func<A, ProducerLift<RT, OUT, B>> f) =>
+                f(Value).ToPipe<IN>();
 
             public override Consumer<RT, IN, A> Interpret<RT>() =>
                 Consumer.Pure<RT, IN, A>(Value);
@@ -97,6 +101,9 @@ namespace LanguageExt.Pipes
 
             public override Pipe<IN, OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f) =>
                 new Pipe<IN, OUT, B>.Await(x => Next(x).SelectMany(f));
+
+            public override Pipe<RT, IN, OUT, B> SelectMany<RT, OUT, B>(Func<A, ProducerLift<RT, OUT, B>> f) =>
+                Pipe.awaiting<RT, IN, OUT>().Bind(a => Next(a).SelectMany(f));
 
             public override Consumer<RT, IN, A> Interpret<RT>() =>
                 Consumer.awaiting<RT, IN>().Bind(x => Next(x).Interpret<RT>()).ToConsumer();
@@ -133,6 +140,9 @@ namespace LanguageExt.Pipes
 
             public override Pipe<IN, OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f) =>
                 new Pipe<IN, OUT, B>.Release<X>(Value, x => Next(x).SelectMany(f));
+
+            public override Pipe<RT, IN, OUT, B> SelectMany<RT, OUT, B>(Func<A, ProducerLift<RT, OUT, B>> f) =>
+                Pipe.release<RT, IN, OUT, X>(Value).Bind(a => Next(a).SelectMany(f));
 
             public override Consumer<RT, IN, A> Interpret<RT>() =>
                 Consumer.release<RT, IN, X>(Value).Bind(x => Next(x).Interpret<RT>()).ToConsumer();

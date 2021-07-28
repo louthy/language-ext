@@ -70,32 +70,62 @@ public class Program
         var effect1 = enumerate(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
 
         var time = Observable.Interval(TimeSpan.FromSeconds(1));
-        var effect2 = observe2(time) | now | toLongTimeString | writeLine;
+        var effect2 = observe(time) | now | toLongTimeString | writeLine;
 
         var echo = readLine | writeLine;
-        
+
         var timeOneStep = Observable.Interval(TimeSpan.FromSeconds(1)).Select(_ => "whole");
         var timeHalfStep = Observable.Interval(TimeSpan.FromSeconds(.5)).Select(_ => "half");
-
-        var channel1 = Producer.observe2<Runtime, string>(timeOneStep);
-        var channel2 = Producer.observe2<Runtime, string>(timeHalfStep);
-
+        var channel1 = Producer.observe<Runtime, string>(timeOneStep);
+        var channel2 = Producer.observe<Runtime, string>(timeHalfStep);
         var channel = (channel1 + channel2) | writeLine;
 
-        var result = (await channel.RunEffect<Runtime, Unit>()
-                                   .Run(Runtime.New()))
+        var result = (await fizzBuzz.RunEffect<Runtime, Unit>()
+                                    .Run(Runtime.New()))
                                      .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
                                             Fail: e => Console.WriteLine(e));
     }
+
+    static Effect<Runtime, Unit> fizzBuzz =>
+        enumerate(Range(1, 20)) | process | writeLine;
+    
+    static Pipe<Runtime, int, string, Unit> process =>
+        from n in awaiting<int>()
+        from t in collect(yieldNum(n) | fizz, 
+                          yieldNum(n) | buzz, 
+                          yieldNum(n) | number)
+        from _ in yield($"{t.Item1}{t.Item2}{t.Item3}")
+        select unit;
+
+    static Producer<Runtime, int, string> yieldNum(int n) =>
+        yield(n).Map(_ => "");
+    
+    static Consumer<Runtime, int, string> fizz =>
+        from n in awaiting<int>()
+        select n % 3 == 0 
+                   ? "Fizz" 
+                   : "";
+    
+    static Consumer<Runtime, int, string> buzz =>
+        from n in awaiting<int>()
+        select n % 5 == 0 
+                   ? "Buzz" 
+                   : "";
+    
+    static Consumer<Runtime, int, string> number =>
+        from n in awaiting<int>()
+        select n % 3 != 0 && n % 5 != 0 
+                   ? $"{n}" 
+                   : "";
     
     static Pipe<Runtime, ConsoleKeyInfo, char, Unit> keyChar =>
-        Proxy.map<ConsoleKeyInfo, char>(k => k.KeyChar);
+        map<ConsoleKeyInfo, char>(k => k.KeyChar);
     
     static Pipe<Runtime, char, string, Unit> words =>
-        Proxy.foldUntil("", (word, ch) => word + ch, (char x) => char.IsWhiteSpace(x));
+        foldUntil("", (word, ch) => word + ch, (char x) => char.IsWhiteSpace(x));
 
     static Pipe<Runtime, string, string, Unit> filterEmpty =>
-        Proxy.filter<string>(notEmpty);
+        filter<string>(notEmpty);
     
     static Pipe<Runtime, DateTime, string, Unit> toLongTimeString =>
         from n in awaiting<DateTime>()       

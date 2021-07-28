@@ -20,7 +20,8 @@ namespace LanguageExt.Pipes
         public abstract Producer<OUT, B> SelectMany<B>(Func<A, Producer<OUT, B>> f);
         public abstract Producer<RT, OUT, B> SelectMany<RT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT>;
         public abstract Producer<RT, OUT, A> Interpret<RT>() where RT : struct, HasCancel<RT>;
-        public abstract Pipe<IN, OUT, A> MakePipe<IN>();
+        public abstract Pipe<IN, OUT, A> ToPipe<IN>();
+        public abstract ProducerLift<RT, OUT, A> ToProducerLift<RT>() where RT : struct, HasCancel<RT>;
 
         public Producer<OUT, B> Map<B>(Func<A, B> f) => Select(f);
         public Producer<OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) => SelectMany(f);
@@ -29,11 +30,18 @@ namespace LanguageExt.Pipes
         public Producer<OUT, C> SelectMany<B, C>(Func<A, Producer<OUT, B>> f, Func<A, B, C> project) =>
             SelectMany(a => f(a).Select(b => project(a, b)));
         
+        public ProducerLift<RT, OUT, B> SelectMany<RT, B>(Func<A, ProducerLift<RT, OUT, B>> f) where RT : struct, HasCancel<RT> =>
+            ToProducerLift<RT>().SelectMany(f);
+
+        public ProducerLift<RT, OUT, C> SelectMany<RT, B, C>(Func<A, ProducerLift<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+            SelectMany(a => f(a).Select(b => project(a, b)));
+        
         public Producer<RT, OUT, C> SelectMany<RT, B, C>(Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
             SelectMany(a => f(a).Select(b => project(a, b)));
                         
         public static implicit operator Producer<OUT, A>(Pipes.Pure<A> ma) =>
             new Producer<OUT, A>.Pure(ma.Value);
+
 
         public class Pure : Producer<OUT, A> 
         {
@@ -53,8 +61,11 @@ namespace LanguageExt.Pipes
             public override Producer<RT, OUT, A> Interpret<RT>() =>
                 Producer.Pure<RT, OUT, A>(Value);
 
-            public override Pipe<IN, OUT, A> MakePipe<IN>() =>
+            public override Pipe<IN, OUT, A> ToPipe<IN>() =>
                 new Pipe<IN, OUT, A>.Pure(Value);
+
+            public override ProducerLift<RT, OUT, A> ToProducerLift<RT>() =>
+                new ProducerLift<RT, OUT, A>.Pure(Value);
         }
 
         public class Enumerate<X> : Producer<OUT, A> 
@@ -87,8 +98,11 @@ namespace LanguageExt.Pipes
                 Producer.enumerate<RT, OUT, X>(Values)
                         .Bind(x => Next(x).Interpret<RT>()).ToProducer();
 
-            public override Pipe<IN, OUT, A> MakePipe<IN>() =>
-                new Pipe<IN, OUT, A>.Enumerate<X>(Values, x => Next(x).MakePipe<IN>());
+            public override Pipe<IN, OUT, A> ToPipe<IN>() =>
+                new Pipe<IN, OUT, A>.Enumerate<X>(Values, x => Next(x).ToPipe<IN>());
+
+            public override ProducerLift<RT, OUT, A> ToProducerLift<RT>() =>
+                new ProducerLift<RT, OUT, A>.Enumerate<X>(Values, x => Next(x).ToProducerLift<RT>());
         }
         
         public class Yield : Producer<OUT, A>
@@ -111,8 +125,11 @@ namespace LanguageExt.Pipes
             public override Producer<RT, OUT, A> Interpret<RT>() =>
                 Producer.yield<RT, OUT>(Value).Bind(x => Next(x).Interpret<RT>()).ToProducer();
 
-            public override Pipe<IN, OUT, A> MakePipe<IN>() =>
-                new Pipe<IN, OUT, A>.Yield(Value, x => Next(x).MakePipe<IN>());
+            public override Pipe<IN, OUT, A> ToPipe<IN>() =>
+                new Pipe<IN, OUT, A>.Yield(Value, x => Next(x).ToPipe<IN>());
+
+            public override ProducerLift<RT, OUT, A> ToProducerLift<RT>() =>
+                new ProducerLift<RT, OUT, A>.Yield(Value, x => Next(x).ToProducerLift<RT>());
         }
 
         public class Release<X> : Producer<OUT, A>
@@ -138,8 +155,11 @@ namespace LanguageExt.Pipes
             public override Producer<RT, OUT, A> Interpret<RT>() =>
                 Producer.release<RT, OUT, X>(Value).Bind(x => Next(x).Interpret<RT>()).ToProducer();
 
-            public override Pipe<IN, OUT, A> MakePipe<IN>() =>
-                new Pipe<IN, OUT, A>.Release<X>(Value, x => Next(x).MakePipe<IN>());
+            public override Pipe<IN, OUT, A> ToPipe<IN>() =>
+                new Pipe<IN, OUT, A>.Release<X>(Value, x => Next(x).ToPipe<IN>());
+
+            public override ProducerLift<RT, OUT, A> ToProducerLift<RT>() =>
+                new ProducerLift<RT, OUT, A>.Release<X>(Value, x => Next(x).ToProducerLift<RT>());
         }    
     }
 }

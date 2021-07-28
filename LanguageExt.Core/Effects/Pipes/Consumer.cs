@@ -156,7 +156,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Aff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                 .For<RT, A, A, R>(a => lift<RT, A>(f(a)));
+                 .ForEach<RT, A, A, R>(a => lift<RT, A>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -164,7 +164,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Aff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
-                 .For<RT, A, A, Unit>(a => lift<RT, A>(f(a)));
+                 .ForEach<RT, A, A, Unit>(a => lift<RT, A>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -172,7 +172,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Eff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                 .For<RT, A, A, R>(a => lift<RT, A>(f(a)));
+                 .ForEach<RT, A, A, R>(a => lift<RT, A>(f(a)));
         
         /// <summary>
         /// Consume all values using a monadic function
@@ -180,7 +180,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Eff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
-                 .For<RT, A, A, Unit>(a => lift<RT, A>(f(a)));
+                 .ForEach<RT, A, A, Unit>(a => lift<RT, A>(f(a)));
         
         
 
@@ -190,7 +190,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Aff<Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                 .For<RT, A, A, R>(a => lift<RT, A, Unit>(f(a)));
+                 .ForEach<RT, A, A, R>(a => lift<RT, A, Unit>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -198,7 +198,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Aff<Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
-                 .For<RT, A, A, Unit>(a => lift<RT, A, Unit>(f(a)));
+                 .ForEach<RT, A, A, Unit>(a => lift<RT, A, Unit>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -206,7 +206,7 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Eff<Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
-                 .For<RT, A, A, R>(a => lift<RT, A, Unit>(f(a)));
+                 .ForEach<RT, A, A, R>(a => lift<RT, A, Unit>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
@@ -214,37 +214,6 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Eff<Unit>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
-                 .For<RT, A, A, Unit>(a => lift<RT, A, Unit>(f(a)));        
-        
-        /// <summary>
-        /// Creates a consumer that returns the result of running either the left or right effect
-        /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, IN, Either<A, B>> sequence<RT, IN, A, B>(Either<Effect<RT, A>, Effect<RT, B>> ms) where RT : struct, HasCancel<RT> =>
-            Consumer.lift<RT, IN, Either<A, B>>(
-                ms.Match(
-                    Left: l => l.RunEffect().Map(Left<A, B>),
-                    Right: r => r.RunEffect().Map(Right<A, B>)));
-
-        /// <summary>
-        /// Creates a consumer that returns the result of the effects
-        /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, IN, (A, B)> sequence<RT, IN, A, B>((Effect<RT, A>, Effect<RT, B>) ms) where RT : struct, HasCancel<RT> =>
-            Consumer.lift<RT, IN, (A, B)>((ms.Item1.RunEffect(), ms.Item2.RunEffect()).Sequence());
-        
-        /// <summary>
-        /// Creates a consumer that returns the result of the effects
-        /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, IN, (A, B, C)> sequence<RT, IN, A, B, C>((Effect<RT, A>, Effect<RT, B>, Effect<RT, C>) ms) where RT : struct, HasCancel<RT> =>
-            Consumer.lift<RT, IN, (A, B, C)>((ms.Item1.RunEffect(), ms.Item2.RunEffect(), ms.Item3.RunEffect()).Sequence());
-
-        /// <summary>
-        /// Creates a consumer that returns the result of the effects
-        /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Consumer<RT, IN, (A, B, C, D)> sequence<RT, IN, A, B, C, D>((Effect<RT, A>, Effect<RT, B>, Effect<RT, C>, Effect<RT, D>) ms) where RT : struct, HasCancel<RT> =>
-            Consumer.lift<RT, IN, (A, B, C, D)>((ms.Item1.RunEffect(), ms.Item2.RunEffect(), ms.Item3.RunEffect(), ms.Item4.RunEffect()).Sequence());
+                 .ForEach<RT, A, A, Unit>(a => lift<RT, A, Unit>(f(a)));        
     }
 }

@@ -56,7 +56,7 @@ namespace LanguageExt.Pipes
                 f(Value);
 
             public override Pipe<RT, IN, OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f) =>
-                f(Value).MakePipe<IN>();
+                f(Value).ToPipe<IN>();
 
             public override Consumer<RT, IN, A> Interpret() =>
                 Consumer.Pure<RT, IN, A>(Value);

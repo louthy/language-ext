@@ -65,7 +65,7 @@ namespace LanguageExt.Pipes
                 f(Value).ToPipe<OUT>();
 
             public override Pipe<IN, OUT, B> SelectMany<B>(Func<A, Producer<OUT, B>> f) =>
-                f(Value).MakePipe<IN>();
+                f(Value).ToPipe<IN>();
         }
 
         public class Await : Pipe<IN, OUT, A>

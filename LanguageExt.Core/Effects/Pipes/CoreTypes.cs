@@ -868,6 +868,10 @@ namespace LanguageExt.Pipes
             p.Interpret<RT>();
 
         [Pure]
+        public static implicit operator Producer<RT, OUT, A>(ProducerLift<RT, OUT, A> p) =>
+            p.Interpret();
+
+        [Pure]
         public static implicit operator Producer<RT, OUT, A>(Pure<A> p) =>
             Producer.Pure<RT, OUT, A>(p.Value);
 

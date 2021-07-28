@@ -25,7 +25,7 @@ namespace LanguageExt.Sys.IO
             get
             {
                 return from tr in awaiting<TextReader>()
-                       from ln in enumerate(go(tr))
+                       from ln in enumerate2(go(tr))
                        from __ in yield(ln)
                        select unit;
 
@@ -50,7 +50,7 @@ namespace LanguageExt.Sys.IO
             get
             {
                 return from tr in awaiting<TextReader>()
-                       from ln in enumerate(go(tr))
+                       from ln in enumerate2(go(tr))
                        from __ in yield(ln)
                        select unit;
 
@@ -84,7 +84,7 @@ namespace LanguageExt.Sys.IO
         public static Pipe<RT, TextReader, SeqLoan<char>, Unit> readChars(int charCount)
         {
             return from tr in awaiting<TextReader>()
-                   from cs in enumerate(go(tr, charCount))
+                   from cs in enumerate2(go(tr, charCount))
                    from __ in yield(cs)
                    select unit;
 
@@ -108,7 +108,7 @@ namespace LanguageExt.Sys.IO
         public static Pipe<RT, TextReader, string, Unit> read(int charCount)
         {
             return from tr in awaiting<TextReader>()
-                   from cs in enumerate(go(tr, charCount))
+                   from cs in enumerate2(go(tr, charCount))
                    from __ in yield(cs)
                    select unit;
 
