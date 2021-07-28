@@ -983,6 +983,10 @@ namespace LanguageExt.Pipes
             Consumer.Pure<RT, IN, A>(p.Value);
 
         [Pure]
+        public static Effect<RT, A> operator |(IN p1, Consumer<RT, IN, A> p2) => 
+            Proxy.compose(Producer.yield<RT, IN>(p1).Map(_ => default(A)), p2).ToEffect();
+
+        [Pure]
         public Consumer<RT, IN, B> SelectMany<B>(Func<A, Release<B>> bind) =>
             Value.Bind(a => bind(a).InterpretConsumer<RT, IN>()).ToConsumer();
 

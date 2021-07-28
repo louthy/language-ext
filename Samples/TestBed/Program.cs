@@ -91,15 +91,10 @@ public class Program
     
     static Pipe<Runtime, int, string, Unit> process =>
         from n in awaiting<int>()
-        from t in collect(yieldNum(n) | fizz, 
-                          yieldNum(n) | buzz, 
-                          yieldNum(n) | number)
+        from t in collect(n | fizz, n | buzz, n | number)
         from _ in yield($"{t.Item1}{t.Item2}{t.Item3}")
         select unit;
 
-    static Producer<Runtime, int, string> yieldNum(int n) =>
-        yield(n).Map(_ => "");
-    
     static Consumer<Runtime, int, string> fizz =>
         from n in awaiting<int>()
         select n % 3 == 0 
