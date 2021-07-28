@@ -28,7 +28,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, Arr<A>> SequenceParallel<RT, A>(this Arr<Aff<RT, A>> ma)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Arr<A>> SequenceParallel<RT, A>(this Arr<Aff<RT, A>> ma, int windowSize)
@@ -88,7 +88,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, IEnumerable<A>> SequenceParallel<RT, A>(this IEnumerable<Aff<RT, A>> ma)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, IEnumerable<A>> SequenceParallel<RT, A>(this IEnumerable<Aff<RT, A>> ma, int windowSize)
@@ -118,7 +118,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, Lst<A>> SequenceParallel<RT, A>(this Lst<Aff<RT, A>> ma)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Lst<A>> SequenceParallel<RT, A>(this Lst<Aff<RT, A>> ma, int windowSize)
@@ -183,7 +183,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, Seq<A>> SequenceParallel<RT, A>(this Seq<Aff<RT, A>> ma)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Seq<A>> SequenceParallel<RT, A>(this Seq<Aff<RT, A>> ma, int windowSize)
@@ -218,7 +218,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, Set<A>> SequenceParallel<RT, A>(this Set<Aff<RT, A>> ma)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Set<A>> SequenceParallel<RT, A>(this Set<Aff<RT, A>> ma, int windowSize)
@@ -248,7 +248,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, HashSet<A>> SequenceParallel<RT, A>(this HashSet<Aff<RT, A>> ma)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, HashSet<A>> SequenceParallel<RT, A>(this HashSet<Aff<RT, A>> ma, int windowSize)
@@ -278,7 +278,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, Que<A>> SequenceParallel<RT, A>(this Que<Aff<RT, A>> ma)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Que<A>> SequenceParallel<RT, A>(this Que<Aff<RT, A>> ma, int windowSize)
@@ -313,7 +313,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, Stck<A>> SequenceParallel<RT, A>(this Stck<Aff<RT, A>> ma)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, A>(ma, identity, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Stck<A>> SequenceParallel<RT, A>(this Stck<Aff<RT, A>> ma, int windowSize)

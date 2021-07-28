@@ -22,7 +22,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, Arr<B>> TraverseParallel<RT, A, B>(this Arr<Aff<RT, A>> ma, Func<A, B> f)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Arr<B>> TraverseParallel<RT, A, B>(this Arr<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
@@ -57,7 +57,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, HashSet<B>> TraverseParallel<RT, A, B>(this HashSet<Aff<RT, A>> ma, Func<A, B> f)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, HashSet<B>> TraverseParallel<RT, A, B>(this HashSet<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
@@ -93,7 +93,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, IEnumerable<B>> TraverseParallel<RT, A, B>(this IEnumerable<Aff<RT, A>> ma, Func<A, B> f)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, IEnumerable<B>> TraverseParallel<RT, A, B>(this IEnumerable<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
@@ -127,7 +127,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, Lst<B>> TraverseParallel<RT, A, B>(this Lst<Aff<RT, A>> ma, Func<A, B> f)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Lst<B>> TraverseParallel<RT, A, B>(this Lst<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
@@ -162,7 +162,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, Que<B>> TraverseParallel<RT, A, B>(this Que<Aff<RT, A>> ma, Func<A, B> f)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Que<B>> TraverseParallel<RT, A, B>(this Que<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
@@ -197,7 +197,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, Seq<B>> TraverseParallel<RT, A, B>(this Seq<Aff<RT, A>> ma, Func<A, B> f)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Seq<B>> TraverseParallel<RT, A, B>(this Seq<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
@@ -231,7 +231,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, Set<B>> TraverseParallel<RT, A, B>(this Set<Aff<RT, A>> ma, Func<A, B> f)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Set<B>> TraverseParallel<RT, A, B>(this Set<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
@@ -267,7 +267,7 @@ namespace LanguageExt
         [Pure]
         public static Aff<RT, Stck<B>> TraverseParallel<RT, A, B>(this Stck<Aff<RT, A>> ma, Func<A, B> f)
             where RT : struct, HasCancel<RT> =>
-            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceConcurrency);
+            TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Stck<B>> TraverseParallel<RT, A, B>(this Stck<Aff<RT, A>> ma, Func<A, B> f, int windowSize)

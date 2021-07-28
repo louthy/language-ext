@@ -9,7 +9,7 @@ namespace LanguageExt
     public static class SysInfo
     {
         static int processorCount;
-        static int defaultAsyncSequenceConcurrency;
+        static int defaultAsyncSequenceParallelism;
 
         /// <summary>
         /// Cached number of processors in the machine
@@ -31,15 +31,15 @@ namespace LanguageExt
         ///
         /// The default value is max(1, Environment.ProcessorCount / 2)
         /// </summary>
-        public static int DefaultAsyncSequenceConcurrency
+        public static int DefaultAsyncSequenceParallelism
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => defaultAsyncSequenceConcurrency == 0
-                ? (defaultAsyncSequenceConcurrency = Math.Max(1, ProcessorCount / 2))
-                : defaultAsyncSequenceConcurrency;
+            get => defaultAsyncSequenceParallelism == 0
+                ? (defaultAsyncSequenceParallelism = Math.Max(1, ProcessorCount / 2))
+                : defaultAsyncSequenceParallelism;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set => defaultAsyncSequenceConcurrency = Math.Max(1, value);
+            set => defaultAsyncSequenceParallelism = Math.Max(1, value);
         }
     }
 }

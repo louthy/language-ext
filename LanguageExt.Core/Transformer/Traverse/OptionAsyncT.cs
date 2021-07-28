@@ -61,7 +61,7 @@ namespace LanguageExt
         }
 
         public static OptionAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<OptionAsync<A>> ma, Func<A, B> f) =>
-            TraverseParallel(ma, SysInfo.DefaultAsyncSequenceConcurrency, f);
+            TraverseParallel(ma, SysInfo.DefaultAsyncSequenceParallelism, f);
  
         public static OptionAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<OptionAsync<A>> ma, int windowSize, Func<A, B> f)
         {
@@ -136,7 +136,7 @@ namespace LanguageExt
         }
 
         public static OptionAsync<Seq<B>> TraverseParallel<A, B>(this Seq<OptionAsync<A>> ma, Func<A, B> f) =>
-            TraverseParallel(ma, SysInfo.DefaultAsyncSequenceConcurrency, f);
+            TraverseParallel(ma, SysInfo.DefaultAsyncSequenceParallelism, f);
  
         public static OptionAsync<Seq<B>> TraverseParallel<A, B>(this Seq<OptionAsync<A>> ma, int windowSize, Func<A, B> f)
         {

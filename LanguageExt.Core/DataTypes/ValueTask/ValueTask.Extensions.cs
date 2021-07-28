@@ -308,7 +308,7 @@ namespace LanguageExt
         /// awaits that too.  This continues until the end of the lazy sequence, or forever for infinite streams.
         /// </summary>
         public static ValueTask<Unit> WindowIter<A>(this IEnumerable<ValueTask<A>> ma, Action<A> f) =>
-            WindowIter(ma, SysInfo.DefaultAsyncSequenceConcurrency, f);
+            WindowIter(ma, SysInfo.DefaultAsyncSequenceParallelism, f);
 
         /// <summary>
         /// Tasks a lazy sequence of tasks and iterates them in a 'measured way'.  A default window size of
@@ -364,7 +364,7 @@ namespace LanguageExt
         /// end of the lazy sequence, or forever for infinite streams.
         /// </summary>
         internal static ValueTask<IList<B>> WindowMap<A, B>(this IEnumerable<ValueTask<A>> ma, Func<A, B> f) =>
-            WindowMap(ma, SysInfo.DefaultAsyncSequenceConcurrency, f);
+            WindowMap(ma, SysInfo.DefaultAsyncSequenceParallelism, f);
 
         /// <summary>
         /// Tasks a lazy sequence of tasks and maps them in a 'measured way'.  A default window size of
