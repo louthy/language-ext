@@ -68,6 +68,7 @@ public class Program
                       | repeat(writeLine);
         
         var effect1 = enumerate(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
+        var effect1a = enumerate(Some("Paul")) | sayHello | writeLine;
 
         var time = Observable.Interval(TimeSpan.FromSeconds(1));
         var effect2 = observe(time) | now | toLongTimeString | writeLine;
@@ -80,7 +81,7 @@ public class Program
         var channel2 = Producer.observe<Runtime, string>(timeHalfStep);
         var channel = (channel1 + channel2) | writeLine;
 
-        var result = (await fizzBuzz.RunEffect<Runtime, Unit>()
+        var result = (await effect1a.RunEffect<Runtime, Unit>()
                                     .Run(Runtime.New()))
                                      .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
                                             Fail: e => Console.WriteLine(e));
