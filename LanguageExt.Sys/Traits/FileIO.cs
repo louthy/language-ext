@@ -25,21 +25,31 @@ namespace LanguageExt.Sys.Traits
         /// Read all lines from a file
         /// </summary>
         ValueTask<Seq<string>> ReadAllLines(string path, Encoding encoding, CancellationToken token);
-
-        /// <summary>
-        /// Write all lines to a file
-        /// </summary>
-        ValueTask<Unit> WriteAllLines(string path, IEnumerable<string> lines, Encoding encoding, CancellationToken token);
         
         /// <summary>
         /// Read text from a file
         /// </summary>
         ValueTask<string> ReadAllText(string path, Encoding encoding, CancellationToken token);
+        
+        /// <summary>
+        /// Read text from a file
+        /// </summary>
+        ValueTask<byte[]> ReadAllBytes(string path, CancellationToken token);
 
         /// <summary>
         /// Write text to a file
         /// </summary>
         ValueTask<Unit> WriteAllText(string path, string lines, Encoding encoding, CancellationToken token);
+
+        /// <summary>
+        /// Write all lines to a file
+        /// </summary>
+        ValueTask<Unit> WriteAllLines(string path, IEnumerable<string> lines, Encoding encoding, CancellationToken token);
+
+        /// <summary>
+        /// Write text to a file
+        /// </summary>
+        ValueTask<Unit> WriteAllBytes(string path, byte[] data, CancellationToken token);
         
         /// <summary>
         /// Delete a file

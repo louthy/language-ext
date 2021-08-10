@@ -95,6 +95,20 @@ namespace LanguageExt.Sys.Live
 
 #if NETSTANDARD21
         /// <summary>
+        /// Read data from a file
+        /// </summary>
+        public async ValueTask<byte[]> ReadAllBytes(string path, CancellationToken token) =>
+            await File.ReadAllBytesAsync(path, token).ConfigureAwait(false);
+#else
+        /// <summary>
+        /// Read data from a file
+        /// </summary>
+        public ValueTask<byte[]> ReadAllBytes(string path, CancellationToken token) =>
+            File.ReadAllBytes(path).AsValueTask();
+#endif
+        
+#if NETSTANDARD21
+        /// <summary>
         /// Write text to a file
         /// </summary>
         public async ValueTask<Unit> WriteAllText(string path, string text, Encoding encoding, CancellationToken token)
@@ -109,6 +123,26 @@ namespace LanguageExt.Sys.Live
         public ValueTask<Unit> WriteAllText(string path, string text, Encoding encoding, CancellationToken token)
         {
             File.WriteAllText(path, text, encoding);
+            return default;
+        }
+#endif
+        
+#if NETSTANDARD21
+        /// <summary>
+        /// Write data to a file
+        /// </summary>
+        public async ValueTask<Unit> WriteAllBytes(string path, byte[] data, CancellationToken token)
+        {
+            await File.WriteAllBytesAsync(path, data, token).ConfigureAwait(false);
+            return default;
+        }
+#else
+        /// <summary>
+        /// Write data to a file
+        /// </summary>
+        public ValueTask<Unit> WriteAllBytes(string path, byte[] data, CancellationToken token)
+        {
+            File.WriteAllBytes(path, data);
             return default;
         }
 #endif

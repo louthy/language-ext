@@ -40,12 +40,24 @@ namespace LanguageExt.Sys.Test
         /// </summary>
         public ValueTask<Seq<string>> ReadAllLines(string path, Encoding encoding, CancellationToken token) => 
             fs.GetLines(path).ToSeq().AsValueTask();
+        
+        /// <summary>
+        /// Read all lines from a file
+        /// </summary>
+        public ValueTask<byte[]> ReadAllBytes(string path, CancellationToken token) => 
+            fs.GetFile(path).AsValueTask();
 
         /// <summary>
         /// Write all lines to a file
         /// </summary>
         public ValueTask<Unit> WriteAllLines(string path, IEnumerable<string> lines, Encoding encoding, CancellationToken token) =>
             fs.PutLines(path, lines, true, now).AsValueTask();
+
+        /// <summary>
+        /// Write all lines to a file
+        /// </summary>
+        public ValueTask<Unit> WriteAllBytes(string path, byte[] data, CancellationToken token) =>
+            fs.PutFile(path, data, true, now).AsValueTask();
 
         /// <summary>
         /// Read text from a file

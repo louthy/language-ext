@@ -64,7 +64,7 @@ namespace LanguageExt.Sys.IO
             select rs;
 
         /// <summary>
-        /// Read all of the lines from the path provided
+        /// Read all of the text from the path provided
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<RT, string> readAllText(string path) =>
@@ -74,13 +74,31 @@ namespace LanguageExt.Sys.IO
             select rs;
 
         /// <summary>
-        /// Write all of the lines to the path provided
+        /// Read all of the data from the path provided
+        /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<RT, byte[]> readAllBytes(string path) =>
+            from ct in cancelToken<RT>()
+            from rs in default(RT).FileEff.MapAsync(e => e.ReadAllBytes(path, ct))
+            select rs;
+
+        /// <summary>
+        /// Write all of the text to the path provided
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<RT, Unit> writeAllText(string path, string text) =>
             from ct in cancelToken<RT>()
             from en in Enc<RT>.encoding
             from rs in default(RT).FileEff.MapAsync(e => e.WriteAllText(path, text, en, ct))
+            select rs;
+
+        /// <summary>
+        /// Write all of the data to the path provided
+        /// </summary>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Aff<RT, Unit> writeAllBytes(string path, byte[] data) =>
+            from ct in cancelToken<RT>()
+            from rs in default(RT).FileEff.MapAsync(e => e.WriteAllBytes(path, data, ct))
             select rs;
 
         /// <summary>
