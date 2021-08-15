@@ -17,8 +17,36 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using LanguageExt.Sys.Live;
 using System.Threading.Tasks;
+using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 using static LanguageExt.Pipes.Proxy;
+
+public interface IAsyncQueue<A>
+{
+    Task<A> DequeueAsync();
+}
+
+public static class Ext
+{
+    static Producer<RT, A, Unit> ToProducer<RT, A>(this IAsyncQueue<A> q) 
+        where RT : struct, HasCancel<RT>
+    {
+        return Proxy.enumerate(go());
+
+        async IAsyncEnumerable<A> go()
+        {
+            while (true)
+            {
+                yield return await q.DequeueAsync();
+            }
+        }
+    }
+
+    public static Producer<RT, A, Unit> ToProducer<RT, A>(this IAsyncQueue<A>[] qs)
+        where RT : struct, HasCancel<RT> =>
+        Producer.merge(qs.Map(q => q.ToProducer<RT, A>()).ToSeq());
+
+}
 
 public class Program
 {
@@ -37,6 +65,13 @@ public class Program
         // await ObsAffTests.Test();
         // await AsyncTests();
     }
+
+    static Task Example<A>(IAsyncQueue<A>[] queues)
+    {
+        var producer = queues.ToProducer<Runtime, A>();
+        var effect   = producer | toString<A>() | writeLine;
+    }
+
 
     public static async Task PipesTest()
     {
