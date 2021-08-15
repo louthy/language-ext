@@ -96,8 +96,6 @@ public class Program
                   | filterEmpty
                   | writeLine;
 
-        var x = Proxy.compose(words, filterEmpty | writeLine); 
-        
         var foldTest1 = repeat(Console<Runtime>.readKeys)
                       | keyChar
                       | words
