@@ -411,6 +411,7 @@ namespace LanguageExt.Pipes
                           });
                 #pragma warning restore CS4013                
 
+                // Keep processing until we're cancelled or all of the Producers have stopped producing 
                 while (running && !env.CancellationToken.IsCancellationRequested)
                 {
                     await wait.WaitOneAsync(env.CancellationToken).ConfigureAwait(false);
