@@ -17,6 +17,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using LanguageExt.Sys.Live;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 using static LanguageExt.Pipes.Proxy;
@@ -76,8 +77,24 @@ public class Program
     {
         var queue1 = Proxy.Queue<Runtime, string>();
         var queue2 = Proxy.Queue<Runtime, string>();
-        var queues = Seq(queue1, queue2);
-        var effect = Producer.merge(queues) | writeLine;
+        var queues = Seq(queue1 | prepend("Queue 1: "), queue2 | prepend("Queue 2: "));
+        
+        Consumer<Runtime, string, Unit> writeToQueue() =>
+            from x in awaiting<string>()
+            from _ in x.HeadOrNone().Case switch
+                      {
+                          '1' => queue1.EnqueueEff(x.Substring(1)),    
+                          '2' => queue2.EnqueueEff(x.Substring(1)),
+                          _   => FailEff<Unit>(Errors.CancelledText)
+                      }
+            select unit;
+                          
+        // Run the queues in a forked task
+        // Repeatedly read from the console and write to one of the two queues depending on
+        // whether the first char is 1 or 2
+        var queueing = from _ in fork(Producer.merge(queues) | writeLine)
+                       from x in repeat(Console<Runtime>.readLines) | writeToQueue()
+                       select unit;
         
         var clientServer = incrementer | oneTwoThree;
         
@@ -120,7 +137,7 @@ public class Program
         var channel2 = Producer.observe<Runtime, string>(timeHalfStep);
         var channel = (channel1 + channel2) | writeLine;
 
-        var result = (await effect1a.RunEffect()
+        var result = (await queueing//.RunEffect()
                                     .Run(Runtime.New()))
                                     .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
                                            Fail: e => Console.WriteLine(e));
@@ -206,6 +223,16 @@ public class Program
     static Pipe<Runtime, int, string, Unit> times10 =>
         from n in awaiting<int>()         
         from _ in yield($"{n * 10}")
+        select unit;
+    
+    static Pipe<Runtime, string, string, Unit> prepend(string x) =>
+        from l in awaiting<string>()         
+        from _ in yield($"{x}{l}")
+        select unit;
+    
+    static Pipe<Runtime, string, string, Unit> append(string x) =>
+        from l in awaiting<string>()         
+        from _ in yield($"{l}{x}")
         select unit;
     
     

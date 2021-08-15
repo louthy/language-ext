@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.Pipes;
 using LanguageExt.Thunks;
 
 namespace LanguageExt
@@ -125,6 +126,21 @@ namespace LanguageExt
         /// forked child expression</returns>
         public static Eff<RT, Eff<Unit>> fork<RT, A>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
             ma.Fork();
+
+        /// <summary>
+        /// Launch the async computation without awaiting the result
+        /// </summary>
+        /// <remarks>
+        /// If the parent expression has `cancel` called on it, then it will also cancel the forked child
+        /// expression.
+        ///
+        /// `Fork` returns an `Eff Unit` as its bound result value.  If you run it, it will cancel the
+        /// forked child expression.
+        /// </remarks>
+        /// <returns>Returns an `Eff Unit` as its bound value.  If it runs, it will cancel the
+        /// forked child expression</returns>
+        public static Eff<RT, Eff<Unit>> fork<RT, A>(Effect<RT, A> ma) where RT : struct, HasCancel<RT> =>
+            ma.RunEffect().Fork();
 
         /// <summary>
         /// Launch the async computation without awaiting the result

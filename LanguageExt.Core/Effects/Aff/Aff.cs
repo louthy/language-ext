@@ -9,6 +9,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using LanguageExt.Effects.Traits;
+using LanguageExt.Pipes;
 using LanguageExt.Thunks;
 
 namespace LanguageExt
@@ -955,6 +956,10 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<RT, A> ma, Func<A, LanguageExt.Eff<B>> bind, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
+
+        [Pure, MethodImpl(Opt.Default)]
+        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<RT, A> ma, Func<A, Effect<RT, B>> bind, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+            Bind(ma, x => Map(bind(x).RunEffect(), y => project(x, y)));
 
         //
         // Zip

@@ -1371,6 +1371,22 @@ namespace LanguageExt.Pipes
         [Pure]
         public void Deconstruct(out Proxy<RT, Void, Unit, Unit, Void, A> value) =>
             value = Value;
+
+        [Pure]
+        public Aff<RT, C> SelectMany<B, C>(Func<A, Aff<RT, B>> bind, Func<A, B, C> project) =>
+            this.RunEffect().Bind(a => bind(a).Map(b => project(a, b)));
+
+        [Pure]
+        public Aff<RT, C> SelectMany<B, C>(Func<A, Aff<B>> bind, Func<A, B, C> project) =>
+            this.RunEffect().Bind(a => bind(a).Map(b => project(a, b)));
+
+        [Pure]
+        public Aff<RT, C> SelectMany<B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project) =>
+            this.RunEffect().Bind(a => bind(a).Map(b => project(a, b)));
+
+        [Pure]
+        public Aff<RT, C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
+            this.RunEffect().Bind(a => bind(a).Map(b => project(a, b)));
     }
     
     public class Queue<RT, OUT, A> : Producer<RT, OUT, A> where RT : struct, HasCancel<RT>
@@ -1379,17 +1395,36 @@ namespace LanguageExt.Pipes
         /// Enqueue an item 
         /// </summary>
         public readonly Func<OUT, Unit> Enqueue;
+
+        /// <summary>
+        /// Enqueue an item 
+        /// </summary>
+        public Eff<RT, Unit> EnqueueEff(OUT value) =>
+            Prelude.SuccessEff(Enqueue(value));
         
         /// <summary>
         /// Enqueue an error
         /// </summary>
         /// <remarks>This will mark the Queue as done and will cancel any Effect that it is in</remarks>
         public readonly Func<Error, Unit> EnqueueError;
+
+        /// <summary>
+        /// Enqueue an error
+        /// </summary>
+        /// <remarks>This will mark the Queue as done and will cancel any Effect that it is in</remarks>
+        public Eff<RT, Unit> EnqueueErrorEff(Error value) =>
+            Prelude.SuccessEff(EnqueueError(value));
         
         /// <summary>
         /// Mark the Queue as done and cancel any Effect that it is in
         /// </summary>
         public readonly Func<Unit> Done;
+
+        /// <summary>
+        /// Mark the Queue as done and cancel any Effect that it is in
+        /// </summary>
+        public Eff<RT, Unit> DoneEff =>
+            Prelude.SuccessEff(Done());
         
         internal Queue(Proxy<RT, Void, Unit, Unit, OUT, A> value, Func<OUT, Unit> enqueue, Func<Error, Unit> enqueueError, Func<Unit> done) : base(value) =>
             (Enqueue, EnqueueError, Done) = (enqueue, enqueueError, done);
