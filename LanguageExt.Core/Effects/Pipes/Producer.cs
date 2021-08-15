@@ -410,7 +410,7 @@ namespace LanguageExt.Pipes
                           });
                 #pragma warning restore CS4013                
 
-                while (running)
+                while (running && !env.CancellationToken.IsCancellationRequested)
                 {
                     await wait.WaitOneAsync(env.CancellationToken).ConfigureAwait(false);
                     while (queue.TryDequeue(out var item))
