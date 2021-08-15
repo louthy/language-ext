@@ -211,6 +211,8 @@ public class Program
         select unit;
     
     
+    // Old way, using lots of generics
+    
     static Producer<Runtime, string, Unit> readLine2 =>
         from w in Producer.lift<Runtime, string, Unit>(Console<Runtime>.writeLine("Enter your name"))
         from l in Producer.lift<Runtime, string, string>(Console<Runtime>.readLine)
