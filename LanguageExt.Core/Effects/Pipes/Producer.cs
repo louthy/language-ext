@@ -393,6 +393,7 @@ namespace LanguageExt.Pipes
                                            })
                                       .ToConsumer();
 
+                // Compose the enqueue Consumer with the Producer to create an Effect that can be run 
                 var mme = ms.Map(m => m | enqueue).Strict();
 
                 // Run the producing effects
