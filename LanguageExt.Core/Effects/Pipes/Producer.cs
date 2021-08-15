@@ -384,6 +384,8 @@ namespace LanguageExt.Pipes
                 var wait    = new AutoResetEvent(false);
                 var running = true;
 
+                // Create a consumer that simply awaits a value and then puts it in our concurrent queue 
+                // to be re-yielded
                 var enqueue = Consumer.awaiting<RT, OUT>()
                                       .Map(x =>
                                            {
