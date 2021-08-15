@@ -49,7 +49,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         /// <remarks>A `Queue` is a Producer with an `Enqueue`, `EnqueueError`, and a `Done` to cancel the operation</remarks>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Queue<RT, A, Unit> queue<RT, A>() where RT : struct, HasCancel<RT>
+        public static Queue<RT, A, Unit> Queue<RT, A>() where RT : struct, HasCancel<RT>
         {
             var s = new Subj<A>();
             var p = Producer.observe<RT, A>(s);

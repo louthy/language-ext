@@ -74,8 +74,8 @@ public class Program
 
     public static async Task PipesTest()
     {
-        var queue1 = Proxy.queue<Runtime, string>();
-        var queue2 = Proxy.queue<Runtime, string>();
+        var queue1 = Proxy.Queue<Runtime, string>();
+        var queue2 = Proxy.Queue<Runtime, string>();
         var queues = Seq(queue1, queue2);
         var effect = Producer.merge(queues) | writeLine;
         
