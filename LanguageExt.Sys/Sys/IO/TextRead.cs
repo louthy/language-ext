@@ -33,7 +33,7 @@ namespace LanguageExt.Sys.IO
                 {
                     while (true)
                     {
-                        var line = await reader.ReadLineAsync();
+                        var line = await reader.ReadLineAsync().ConfigureAwait(false);
                         if(line == null) yield break;
                         yield return line;
                     }
@@ -59,7 +59,7 @@ namespace LanguageExt.Sys.IO
                     var buffer = new char[1];
                     while (true)
                     {
-                        var nread = await reader.ReadAsync(buffer, 0, 1);
+                        var nread = await reader.ReadAsync(buffer, 0, 1).ConfigureAwait(false);
                         if(nread < 1) yield break;
                         yield return buffer[0];
                     }
@@ -94,7 +94,7 @@ namespace LanguageExt.Sys.IO
                 while (true)
                 {
                     var buffer = pool.Rent(count);
-                    var nread  = await reader.ReadAsync(buffer, 0, count);
+                    var nread  = await reader.ReadAsync(buffer, 0, count).ConfigureAwait(false);
                     if(nread < 0) yield break;
                     yield return buffer.ToSeqLoanUnsafe(nread, pool);
                 }
@@ -120,7 +120,7 @@ namespace LanguageExt.Sys.IO
                 {
                     while (true)
                     {
-                        var nread = await reader.ReadAsync(buffer, 0, count);
+                        var nread = await reader.ReadAsync(buffer, 0, count).ConfigureAwait(false);
                         if (nread < 0) yield break;
                         yield return new string(buffer);
                     }

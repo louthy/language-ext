@@ -26,7 +26,7 @@ namespace LanguageExt.Sys.IO
                 while (true)
                 {
                     var buffer = pool.Rent(chunkSize);
-                    var count  = await fs.ReadAsync(buffer, 0, chunkSize);
+                    var count  = await fs.ReadAsync(buffer, 0, chunkSize).ConfigureAwait(false);
                     if (count < 1)
                     {
                         yield break;
