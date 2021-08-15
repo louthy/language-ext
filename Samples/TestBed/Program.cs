@@ -45,7 +45,6 @@ public static class Ext
     public static Producer<RT, A, Unit> ToProducer<RT, A>(this IAsyncQueue<A>[] qs)
         where RT : struct, HasCancel<RT> =>
         Producer.merge(qs.Map(q => q.ToProducer<RT, A>()).ToSeq());
-
 }
 
 public class Program
@@ -66,12 +65,12 @@ public class Program
         // await AsyncTests();
     }
 
-    static Task Example<A>(IAsyncQueue<A>[] queues)
+
+    static Effect<Runtime, Unit> Example<A>(IAsyncQueue<A>[] queues)
     {
         var producer = queues.ToProducer<Runtime, A>();
-        var effect   = producer | toString<A>() | writeLine;
+        return producer | toString<A>() | writeLine;
     }
-
 
     public static async Task PipesTest()
     {

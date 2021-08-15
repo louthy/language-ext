@@ -399,7 +399,7 @@ namespace LanguageExt.Pipes
                 // We should NOT be awaiting these 
                 var mmt = mme.Map(m => m.RunEffect().Run(env).AsTask());
 
-                // When both tasks are done, we're done
+                // When all tasks are done, we're done
                 // We should NOT be awaiting this 
                 #pragma warning disable CS4014             
                 Task.WhenAll(mmt.ToArray())
