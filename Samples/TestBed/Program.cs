@@ -75,10 +75,22 @@ public class Program
 
     public static async Task PipesTest()
     {
+        // Create two queues.  Queues are Producers that have an Enqueue function
         var queue1 = Proxy.Queue<Runtime, string>();
         var queue2 = Proxy.Queue<Runtime, string>();
-        var queues = Seq(queue1 | prepend("Queue 1: "), queue2 | prepend("Queue 2: "));
         
+        // Compose the queues with a pipe that prepends some text to what they produce
+        var queues = Seq(queue1 | prepend("Queue 1: "), queue2 | prepend("Queue 2: "));
+                          
+        // Run the queues in a forked task
+        // Repeatedly read from the console and write to one of the two queues depending on
+        // whether the first char is 1 or 2
+        var queueing = from _ in fork(Producer.merge(queues) | writeLine)
+                       from x in repeat(Console<Runtime>.readLines) | writeToQueue()
+                       select unit;
+
+        // Consumer of the console.  It enqueues the item to queue1 or queue2 depending
+        // on the first char of the string it awaits
         Consumer<Runtime, string, Unit> writeToQueue() =>
             from x in awaiting<string>()
             from _ in x.HeadOrNone().Case switch
@@ -88,13 +100,6 @@ public class Program
                           _   => FailEff<Unit>(Errors.CancelledText)
                       }
             select unit;
-                          
-        // Run the queues in a forked task
-        // Repeatedly read from the console and write to one of the two queues depending on
-        // whether the first char is 1 or 2
-        var queueing = from _ in fork(Producer.merge(queues) | writeLine)
-                       from x in repeat(Console<Runtime>.readLines) | writeToQueue()
-                       select unit;
         
         var clientServer = incrementer | oneTwoThree;
         
