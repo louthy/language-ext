@@ -381,7 +381,7 @@ namespace LanguageExt.Pipes
             async IAsyncEnumerable<OUT> go(RT env)
             {
                 var queue   = new ConcurrentQueue<OUT>();
-                var wait    = new AutoResetEvent(false);
+                var wait    = new AutoResetEvent(true);
                 var running = true;
 
                 // Create a consumer that simply awaits a value and then puts it in our concurrent queue 
