@@ -29,6 +29,7 @@ namespace LanguageExt.Sys.IO
                     var count  = await fs.ReadAsync(buffer, 0, chunkSize).ConfigureAwait(false);
                     if (count < 1)
                     {
+                        pool.Return(buffer);
                         yield break;
                     }
                     yield return buffer.ToSeqLoanUnsafe(count, pool); 
