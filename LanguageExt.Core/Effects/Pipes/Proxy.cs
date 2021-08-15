@@ -44,6 +44,34 @@ namespace LanguageExt.Pipes
         public static Producer<A, Unit> yield<A>(A value) =>
             PureProxy.ProducerYield(value);
 
+        /// <summary>
+        /// Create a queue
+        /// </summary>
+        /// <remarks>A `Queue` is a Producer with an `Enqueue`, `EnqueueError`, and a `Done` to cancel the operation</remarks>
+        [Pure, MethodImpl(Proxy.mops)]
+        public static Queue<RT, A, Unit> queue<RT, A>() where RT : struct, HasCancel<RT>
+        {
+            var s = new Subj<A>();
+            var p = Producer.observe<RT, A>(s);
+
+            return new Queue<RT, A, Unit>(
+                p,
+                x =>
+                {
+                    s.OnNext(x);
+                    return unit;
+                },
+                e =>
+                {
+                    s.OnError(e);
+                    return unit;
+                },
+                () =>
+                {
+                    s.OnCompleted();
+                    return unit;
+                });
+        }
 
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<X, Unit> enumerate<X>(IEnumerable<X> xs) =>

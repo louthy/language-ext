@@ -461,12 +461,12 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<RT, A> ma, Func<A, B> Succ, Aff<RT, B> Fail) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, B>(async env =>
-                             {
-                                 var r = await ma.ReRun(env).ConfigureAwait(false);
-                                 return r.IsSucc
-                                            ? Succ(r.Value)
-                                            : await Fail.ReRun(env).ConfigureAwait(false);
-                             });
+                            {
+                                var r = await ma.ReRun(env).ConfigureAwait(false);
+                                return r.IsSucc
+                                           ? Succ(r.Value)
+                                           : await Fail.ReRun(env).ConfigureAwait(false);
+                            });
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<RT, A> ma, Func<A, B> Succ, Func<Error, Aff<RT, B>> Fail) where RT : struct, HasCancel<RT> =>

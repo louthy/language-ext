@@ -7,12 +7,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
+using System.Collections.Generic;
 using LanguageExt;
 using System.Text;
 using LanguageExt.Sys;
 using LanguageExt.Pipes;
 using LanguageExt.Sys.IO;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using LanguageExt.Sys.Live;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
@@ -38,6 +40,11 @@ public class Program
 
     public static async Task PipesTest()
     {
+        var queue1 = Proxy.queue<Runtime, string>();
+        var queue2 = Proxy.queue<Runtime, string>();
+        var queues = Seq(queue1, queue2);
+        var effect = Producer.merge(queues) | writeLine;
+        
         var clientServer = incrementer | oneTwoThree;
         
         var file1 = File<Runtime>.openRead("i:\\defaults.xml") 
@@ -83,8 +90,8 @@ public class Program
 
         var result = (await effect1a.RunEffect<Runtime, Unit>()
                                     .Run(Runtime.New()))
-                                     .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
-                                            Fail: e => Console.WriteLine(e));
+                                    .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
+                                           Fail: e => Console.WriteLine(e));
     }
 
     static Effect<Runtime, Unit> fizzBuzz =>

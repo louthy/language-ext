@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -361,7 +362,16 @@ namespace LanguageExt.Pipes
                 });
         }
 
-        public static Producer<RT, OUT, A> merge<RT, OUT, A>(Producer<RT, OUT, A> ma, Producer<RT, OUT, A> mb) where RT : struct, HasCancel<RT>
+        public static Producer<RT, OUT, A> merge<RT, OUT, A>(params Queue<RT, OUT, A>[] ms) where RT : struct, HasCancel<RT> =>
+            merge(Seq(ms.Map(m => (Producer<RT, OUT, A>)m)));
+ 
+        public static Producer<RT, OUT, A> merge<RT, OUT, A>(params Producer<RT, OUT, A>[] ms) where RT : struct, HasCancel<RT> =>
+            merge(Seq(ms));
+ 
+        public static Producer<RT, OUT, A> merge<RT, OUT, A>(Seq<Queue<RT, OUT, A>> ms) where RT : struct, HasCancel<RT> =>
+            merge(ms.Map(m => (Producer<RT, OUT, A>)m));
+ 
+        public static Producer<RT, OUT, A> merge<RT, OUT, A>(Seq<Producer<RT, OUT, A>> ms) where RT : struct, HasCancel<RT>
         {
             return from e in Producer.lift<RT, OUT, RT>(runtime<RT>())
                    from x in Producer.enumerate2<RT, OUT>(go(e))
@@ -383,18 +393,16 @@ namespace LanguageExt.Pipes
                                            })
                                       .ToConsumer();
 
-                var mma = ma | enqueue;
-                var mmb = mb | enqueue;
+                var mme = ms.Map(m => m | enqueue).Strict();
 
-                // Run the two producing effects
+                // Run the producing effects
                 // We should NOT be awaiting these 
-                var taskA = mma.RunEffect().Run(env).AsTask();
-                var taskB = mmb.RunEffect().Run(env).AsTask();
+                var mmt = mme.Map(m => m.RunEffect().Run(env).AsTask());
 
                 // When both tasks are done, we're done
                 // We should NOT be awaiting this 
                 #pragma warning disable CS4014             
-                Task.WhenAll(taskA, taskB)
+                Task.WhenAll(mmt.ToArray())
                     .Iter(_ =>
                           {
                               running = false;

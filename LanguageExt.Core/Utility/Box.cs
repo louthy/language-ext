@@ -83,7 +83,7 @@ namespace LanguageExt
             }
             else
             {
-                return (A x) => (object)x;
+                return static (A x) => (object)x;
             }
         }
 
@@ -92,7 +92,7 @@ namespace LanguageExt
             if (ILCapability.Available)
             {
                 var ctor    = typeof(Box<A>).GetConstructor(new[] {typeof(A)});
-                var dynamic = new DynamicMethod("New_Struct", typeof(object), new[] {typeof(A)}, typeof(Box<A>), true);
+                var dynamic = new DynamicMethod("New_Struct", typeof(object), new[] {typeof(A)}, typeof(A).Module, true);
                 var il      = dynamic.GetILGenerator();
 
                 il.Emit(OpCodes.Ldarg_0);
@@ -103,7 +103,7 @@ namespace LanguageExt
             }
             else
             {
-                return (A x) => new Box<A>(x);
+                return static (A x) => new Box<A>(x);
             }
         }
     }
