@@ -122,7 +122,7 @@ public class Program
         var channel2 = Producer.observe<Runtime, string>(timeHalfStep);
         var channel = (channel1 + channel2) | writeLine;
 
-        var result = (await effect1a.RunEffect<Runtime, Unit>()
+        var result = (await effect1a.RunEffect()
                                     .Run(Runtime.New()))
                                     .Match(Succ: x => Console.WriteLine($"Success: {x}"), 
                                            Fail: e => Console.WriteLine(e));
