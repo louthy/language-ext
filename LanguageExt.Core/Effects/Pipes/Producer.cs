@@ -411,7 +411,7 @@ namespace LanguageExt.Pipes
                               running = false;
                               wait.Set();
                           });
-                #pragma warning restore CS4013                
+                #pragma warning restore CS4014                
 
                 // Keep processing until we're cancelled or all of the Producers have stopped producing 
                 while (running && !env.CancellationToken.IsCancellationRequested)
