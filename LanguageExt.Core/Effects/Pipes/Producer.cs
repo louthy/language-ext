@@ -362,15 +362,15 @@ namespace LanguageExt.Pipes
                 });
         }
 
-        public static Producer<RT, OUT, A> merge<RT, OUT, A>(params Queue<RT, OUT, A>[] ms) where RT : struct, HasCancel<RT> =>
-            merge(Seq(ms.Map(m => (Producer<RT, OUT, A>)m)));
  
-        public static Producer<RT, OUT, A> merge<RT, OUT, A>(params Producer<RT, OUT, A>[] ms) where RT : struct, HasCancel<RT> =>
-            merge(Seq(ms));
- 
-        public static Producer<RT, OUT, A> merge<RT, OUT, A>(Seq<Queue<RT, OUT, A>> ms) where RT : struct, HasCancel<RT> =>
-            merge(ms.Map(m => (Producer<RT, OUT, A>)m));
- 
+        
+        
+        /// <summary>
+        /// Merge a sequence of producers into a single producer
+        /// </summary>
+        /// <remarks>The merged producer completes when all component producers have completed</remarks>
+        /// <param name="ms">Sequence of producers to merge</param>
+        /// <returns>Merged producers</returns>
         public static Producer<RT, OUT, A> merge<RT, OUT, A>(Seq<Producer<RT, OUT, A>> ms) where RT : struct, HasCancel<RT>
         {
             return from e in Producer.lift<RT, OUT, RT>(runtime<RT>())
@@ -424,5 +424,50 @@ namespace LanguageExt.Pipes
                 }
             }
         }
+        
+        /// <summary>
+        /// Merge an array of queues into a single producer
+        /// </summary>
+        /// <remarks>The merged producer completes when all component queues have completed</remarks>
+        /// <param name="ms">Sequence of queues to merge</param>
+        /// <returns>Queues merged into a single producer</returns>
+        public static Producer<RT, OUT, A> merge<RT, OUT, A>(params Queue<RT, OUT, A>[] ms) where RT : struct, HasCancel<RT> =>
+            merge(Seq(ms.Map(m => (Producer<RT, OUT, A>)m)));
+ 
+        /// <summary>
+        /// Merge an array of producers into a single producer
+        /// </summary>
+        /// <remarks>The merged producer completes when all component producers have completed</remarks>
+        /// <param name="ms">Sequence of producers to merge</param>
+        /// <returns>Merged producers</returns>
+        public static Producer<RT, OUT, A> merge<RT, OUT, A>(params Producer<RT, OUT, A>[] ms) where RT : struct, HasCancel<RT> =>
+            merge(Seq(ms));
+ 
+        /// <summary>
+        /// Merge an array of producers into a single producer
+        /// </summary>
+        /// <remarks>The merged producer completes when all component producers have completed</remarks>
+        /// <param name="ms">Sequence of producers to merge</param>
+        /// <returns>Merged producers</returns>
+        public static Producer<RT, OUT, A> merge<RT, OUT, A>(params Proxy<RT, Void, Unit, Unit, OUT, A>[] ms) where RT : struct, HasCancel<RT> =>
+            merge(Seq(ms).Map(m => m.ToProducer()));
+ 
+        /// <summary>
+        /// Merge a sequence of queues into a single producer
+        /// </summary>
+        /// <remarks>The merged producer completes when all component queues have completed</remarks>
+        /// <param name="ms">Sequence of queues to merge</param>
+        /// <returns>Queues merged into a single producer</returns>
+        public static Producer<RT, OUT, A> merge<RT, OUT, A>(Seq<Queue<RT, OUT, A>> ms) where RT : struct, HasCancel<RT> =>
+            merge(ms.Map(m => (Producer<RT, OUT, A>)m));
+ 
+        /// <summary>
+        /// Merge a sequence of producers into a single producer
+        /// </summary>
+        /// <remarks>The merged producer completes when all component producers have completed</remarks>
+        /// <param name="ms">Sequence of producers to merge</param>
+        /// <returns>Merged producers</returns>
+        public static Producer<RT, OUT, A> merge<RT, OUT, A>(Seq<Proxy<RT, Void, Unit, Unit, OUT, A>> ms) where RT : struct, HasCancel<RT> =>
+            merge(ms.Map(m => m.ToProducer()));
     }
 }
