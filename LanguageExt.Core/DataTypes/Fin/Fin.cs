@@ -439,7 +439,7 @@ namespace LanguageExt
                 ? Succ(Value)
                 : Fail(Error);
 
-        [Pure, MethodImpl(Opt.Default)]
+        [MethodImpl(Opt.Default)]
         public Unit Match(Action<A> Succ, Action<Error> Fail)
         {
             if (IsSucc)
@@ -466,7 +466,7 @@ namespace LanguageExt
                 ? Value
                 : alternative;
 
-        [Pure, MethodImpl(Opt.Default)]
+        [MethodImpl(Opt.Default)]
         public Unit IfFail(Action<Error> Fail)
         {
             if (IsFail)
@@ -476,7 +476,7 @@ namespace LanguageExt
             return default;
         }
 
-        [Pure, MethodImpl(Opt.Default)]
+        [MethodImpl(Opt.Default)]
         public Unit IfSucc(Action<A> Succ)
         {
             if (IsSucc)
@@ -486,7 +486,7 @@ namespace LanguageExt
             return default;
         }
 
-        [Pure, MethodImpl(Opt.Default)]
+        [MethodImpl(Opt.Default)]
         public Unit Iter(Action<A> Succ)
         {
             if (IsSucc)

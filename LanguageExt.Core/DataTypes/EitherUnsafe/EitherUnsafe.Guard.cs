@@ -11,12 +11,12 @@ namespace LanguageExt
                 ? Right(unit)
                 : Left(ma.OnFalse());
         
-        public static EitherUnsafe<L, B> SelectMany<L, A, B>(this Guard<L> ma, Func<Unit, EitherUnsafe<L, B>> f) =>
+        public static EitherUnsafe<L, B> SelectMany<L, B>(this Guard<L> ma, Func<Unit, EitherUnsafe<L, B>> f) =>
             ma.Flag
                 ? f(default)
                 : Left(ma.OnFalse());
 
-        public static EitherUnsafe<L, C> SelectMany<L, A, B, C>(this Guard<L> ma, Func<Unit, EitherUnsafe<L, B>> bind, Func<Unit, B, C> project) =>
+        public static EitherUnsafe<L, C> SelectMany<L, B, C>(this Guard<L> ma, Func<Unit, EitherUnsafe<L, B>> bind, Func<Unit, B, C> project) =>
             ma.Flag
                 ? bind(default).Map(b => project(default, b))
                 : Left(ma.OnFalse());

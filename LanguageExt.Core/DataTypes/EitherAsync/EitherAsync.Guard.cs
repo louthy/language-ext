@@ -11,12 +11,12 @@ namespace LanguageExt
                 ? RightAsync<L, Unit>(unit)
                 : LeftAsync<L, Unit>(ma.OnFalse());
         
-        public static EitherAsync<L, B> SelectMany<L, A, B>(this Guard<L> ma, Func<Unit, EitherAsync<L, B>> f) =>
+        public static EitherAsync<L, B> SelectMany<L, B>(this Guard<L> ma, Func<Unit, EitherAsync<L, B>> f) =>
             ma.Flag
                 ? f(default)
                 : LeftAsync<L, B>(ma.OnFalse());
 
-        public static EitherAsync<L, C> SelectMany<L, A, B, C>(this Guard<L> ma, Func<Unit, EitherAsync<L, B>> bind, Func<Unit, B, C> project) =>
+        public static EitherAsync<L, C> SelectMany<L, B, C>(this Guard<L> ma, Func<Unit, EitherAsync<L, B>> bind, Func<Unit, B, C> project) =>
             ma.Flag
                 ? bind(default).Map(b => project(default, b))
                 : LeftAsync<L, C>(ma.OnFalse());

@@ -11,12 +11,12 @@ namespace LanguageExt
                 ? FinSucc(unit)
                 : FinFail<Unit>(ma.OnFalse());
         
-        public static Fin<B> SelectMany<A, B>(this Guard<Error> ma, Func<Unit, Fin<B>> f) =>
+        public static Fin<B> SelectMany<B>(this Guard<Error> ma, Func<Unit, Fin<B>> f) =>
             ma.Flag
                 ? f(default)
                 : FinFail<B>(ma.OnFalse());
 
-        public static Fin<C> SelectMany<A, B, C>(this Guard<Error> ma, Func<Unit, Fin<B>> bind, Func<Unit, B, C> project) =>
+        public static Fin<C> SelectMany<B, C>(this Guard<Error> ma, Func<Unit, Fin<B>> bind, Func<Unit, B, C> project) =>
             ma.Flag
                 ? bind(default).Map(b => project(default, b))
                 : FinFail<C>(ma.OnFalse());

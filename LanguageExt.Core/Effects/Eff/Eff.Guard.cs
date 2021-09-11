@@ -7,22 +7,22 @@ namespace LanguageExt
 {
     public static class EffGuards
     {
-        public static Eff<B> SelectMany<A, B>(this Guard<Error> ma, Func<Unit, Eff<B>> f) =>
+        public static Eff<B> SelectMany<B>(this Guard<Error> ma, Func<Unit, Eff<B>> f) =>
             ma.Flag
                 ? f(default)
                 : FailEff<B>(ma.OnFalse());
 
-        public static Eff<RT, B> SelectMany<RT, A, B>(this Guard<Error> ma, Func<Unit, Eff<RT, B>> f) where RT : struct =>
+        public static Eff<RT, B> SelectMany<RT, B>(this Guard<Error> ma, Func<Unit, Eff<RT, B>> f) where RT : struct =>
             ma.Flag
                 ? f(default)
                 : FailEff<B>(ma.OnFalse());
 
-        public static Eff<C> SelectMany<A, B, C>(this Guard<Error> ma, Func<Unit, Eff<B>> bind, Func<Unit, B, C> project) =>
+        public static Eff<C> SelectMany<B, C>(this Guard<Error> ma, Func<Unit, Eff<B>> bind, Func<Unit, B, C> project) =>
             ma.Flag
                 ? bind(default).Map(b => project(default, b))
                 : FailEff<C>(ma.OnFalse());
 
-        public static Eff<RT, C> SelectMany<RT, A, B, C>(this Guard<Error> ma, Func<Unit, Eff<RT, B>> bind, Func<Unit, B, C> project) where RT : struct  =>
+        public static Eff<RT, C> SelectMany<RT, B, C>(this Guard<Error> ma, Func<Unit, Eff<RT, B>> bind, Func<Unit, B, C> project) where RT : struct  =>
             ma.Flag
                 ? bind(default).Map(b => project(default, b))
                 : FailEff<C>(ma.OnFalse());

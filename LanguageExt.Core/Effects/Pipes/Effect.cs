@@ -30,6 +30,10 @@ namespace LanguageExt.Pipes
         }
 
         [Pure]
+        public static Aff<RT, Unit> RunEffectUnit<RT>(this Proxy<RT, Void, Unit, Unit, Void, Unit> ma) where RT : struct, HasCancel<RT> =>
+            ma.RunEffect<RT, Unit>() | @catch(Errors.SequenceEmpty, unitEff);
+
+        [Pure]
         public static Aff<RT, R> RunEffect<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, R>(async env =>
                             {

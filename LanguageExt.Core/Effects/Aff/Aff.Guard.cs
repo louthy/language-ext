@@ -7,22 +7,22 @@ namespace LanguageExt
 {
     public static class AffGuards
     {
-        public static Aff<B> SelectMany<A, B>(this Guard<Error> ma, Func<Unit, Aff<B>> f) =>
+        public static Aff<B> SelectMany<B>(this Guard<Error> ma, Func<Unit, Aff<B>> f) =>
             ma.Flag
                 ? f(default)
                 : FailAff<B>(ma.OnFalse());
 
-        public static Aff<RT, B> SelectMany<RT, A, B>(this Guard<Error> ma, Func<Unit, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, B> SelectMany<RT, B>(this Guard<Error> ma, Func<Unit, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
             ma.Flag
                 ? f(default)
                 : FailAff<B>(ma.OnFalse());
 
-        public static Aff<C> SelectMany<A, B, C>(this Guard<Error> ma, Func<Unit, Aff<B>> bind, Func<Unit, B, C> project) =>
+        public static Aff<C> SelectMany<B, C>(this Guard<Error> ma, Func<Unit, Aff<B>> bind, Func<Unit, B, C> project) =>
             ma.Flag
                 ? bind(default).Map(b => project(default, b))
                 : FailAff<C>(ma.OnFalse());
 
-        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Guard<Error> ma, Func<Unit, Aff<RT, B>> bind, Func<Unit, B, C> project) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, C> SelectMany<RT, B, C>(this Guard<Error> ma, Func<Unit, Aff<RT, B>> bind, Func<Unit, B, C> project) where RT : struct, HasCancel<RT> =>
             ma.Flag
                 ? bind(default).Map(b => project(default, b))
                 : FailAff<C>(ma.OnFalse());
