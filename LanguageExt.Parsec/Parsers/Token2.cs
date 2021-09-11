@@ -48,7 +48,6 @@ namespace LanguageExt.Parsec
             Parser<Unit> multiLineComment = null;
             Parser<Unit> inCommentMulti = null;
             Parser<Unit> inCommentSingle = null;
-            Func<double, double> power = null;
             Func<string, bool> isReservedName = null;
 
             var startEnd = List.append(def.CommentEnd.ToArray(), def.CommentStart.ToArray()).Distinct().ToArray();
