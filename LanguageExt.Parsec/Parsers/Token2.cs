@@ -10,7 +10,7 @@ namespace LanguageExt.Parsec
     /// <summary>
     /// A helper module to parse lexical elements (tokens)
     /// </summary>
-    public static class Token
+    public static class Token2
     {
         /// <summary>
         ///  Given a LanguageDef, create a token parser.
@@ -41,7 +41,7 @@ namespace LanguageExt.Parsec
         ///    var reserved    = lexer.Reserved;
         ///    ...        
         /// </summary>
-        public static GenTokenParser makeTokenParser(GenLanguageDef def)
+        public static GenTokenParser2 makeTokenParser(GenLanguageDef def)
         {
             var simpleSpace = skipMany1(satisfy(System.Char.IsWhiteSpace));
 
@@ -106,8 +106,8 @@ namespace LanguageExt.Parsec
             var lexemeInt      = lexemeDef<int>(whiteSpace);
             var lexemeDbl      = lexemeDef<double>(whiteSpace);
             var lexemeUnit     = lexemeDef<Unit>(whiteSpace);
-            var lexemeFnIntInt = lexemeDef<Func<int,int>>(whiteSpace);
-            var lexemeEiIntDbl = lexemeDef<Either<int,double>>(whiteSpace);
+            var lexemeFnIntInt = lexemeDef<Func<int, int>>(whiteSpace);
+            var lexemeEiIntDbl = lexemeDef<Either<int, double>>(whiteSpace);
 
             var symbol = fun((string name) => lexemeStr(str(name)));
 
@@ -148,21 +148,9 @@ namespace LanguageExt.Parsec
 
             var nat = either(zeroNumber, dec);
 
-            var sign = choice(from _ in ch('-')
-                              select fun((double d) => -d),
-                              from _ in ch('+')
-                              select fun((double d) => d),
-                              result(fun((double d) => d)));
-
-            var signi = choice(from _ in ch('-')
-                               select fun((int d) => -d),
-                               from _ in ch('+')
-                               select fun((int d) => d),
-                               result(fun((int d) => d)));
-
-            var int_ = from f in lexemeFnIntInt(signi)
+            var int_ = from f in optional(oneOf("+-"))
                        from n in nat
-                       select f(n);
+                       select f == '-' ? -n : n;
 
             var charEsc = choice(escMap.Map(pair => parseEsc(pair.Item1, pair.Item2)));
 
@@ -246,7 +234,7 @@ namespace LanguageExt.Parsec
                            let opt = parseDouble(all)
                            from res in opt.Match(
                                result,
-                               () => failure<double>("Invalid floating point value")
+                               static () => failure<double>("Invalid floating point value")
                            )
                            select res;
 
@@ -266,15 +254,16 @@ namespace LanguageExt.Parsec
                             let opt = parseDouble(all)
                             from res in opt.Match(
                                 result,
-                                () => failure<double>("Invalid floating point value")
+                                static () => failure<double>("Invalid floating point value")
                             )
                             select res;
             
             var natural        = lexemeInt(nat).label("natural");
             var integer        = lexemeInt(int_).label("integer");
             var float_         = lexemeDbl(floating).label("float");
-            var naturalOrFloat = either(attempt(lexemeDbl(fracfloat)).Map(Right<int, double>), 
-                                        integer.Map(Left<int, double>)).label("number");
+            var naturalOrFloat = either(
+                                    attempt(lexemeDbl(fracfloat)).Map(static x => (Right<int, double>(x.Value), x.BeginPos, x.EndPos, x.BeginIndex, x.EndIndex)),
+                                    integer.Map(static x => (Left<int, double>(x.Value), x.BeginPos, x.EndPos, x.BeginIndex, x.EndIndex))).label("number");
 
             var reservedOp = fun((string name) =>
                 lexemeUnit(
@@ -336,7 +325,7 @@ namespace LanguageExt.Parsec
                         from _ in notFollowedBy(def.IdentLetter).label("end of " + name)
                         select x)));
 
-            return new GenTokenParser(
+            return new GenTokenParser2(
                 identifier,
                 reserved,
                 operator_,
@@ -359,18 +348,52 @@ namespace LanguageExt.Parsec
                 );
         }
 
-        static Func<Parser<T>, Parser<T>> lexemeDef<T>(Parser<Unit> whiteSpace)
+        static Func<Parser<A>, Parser<A>> lexemeDef_OLD<A>(Parser<Unit> whiteSpace)
         {
             var ws = whiteSpace;
-            return (Parser<T> p) =>
+            return (Parser<A> p) =>
                 from x in p
                 from _ in ws
                 select x;
         }
+        
+        internal static Func<Parser<A>, Parser<(A Value, Pos BeginPos, Pos EndPos, int BeginIndex, int EndIndex)>> lexemeDef<A>(Parser<Unit> whiteSpace) =>
+            p =>
+                new Parser<(A T, Pos BeginPos, Pos EndPos, int BeginIndex, int EndIndex)>(
+                    inp =>
+                    {
+                        var bi = inp.Index;
+                        var bp = inp.Pos;
+                        var xr = p(inp);
+                        if (xr.Reply.Tag == ReplyTag.OK)
+                        {
+                            var ei = xr.Reply.State.Index;
+                            var ep = xr.Reply.State.Pos;
 
-        static Parser<T> parseEsc<T>(char c, T code) =>
-            from _ in ch(c)
-            select code;
+                            var wr = whiteSpace(xr.Reply.State);
+
+                            return (wr.Reply.Tag, wr.Tag) switch
+                                   {
+                                       (ReplyTag.OK, ResultTag.Consumed)    => ParserResult.ConsumedOK((xr.Reply.Result, bp, ep, bi, ei), wr.Reply.State, xr.Reply.Error),
+                                       (ReplyTag.OK, ResultTag.Empty)       => ParserResult.ConsumedOK((xr.Reply.Result, bp, ep, bi, ei), wr.Reply.State, xr.Reply.Error),
+                                       (ReplyTag.Error, ResultTag.Consumed) => ParserResult.ConsumedError<(A T, Pos BeginPos, Pos EndPos, int BeginIndex, int EndIndex)>(wr.Reply.Error),
+                                       (ReplyTag.Error, ResultTag.Empty)    => ParserResult.EmptyError<(A T, Pos BeginPos, Pos EndPos, int BeginIndex, int EndIndex)>(wr.Reply.Error),
+                                       _                                    => throw new NotSupportedException()
+                                   };
+                        }
+                        else
+                        {
+                            return xr.Tag switch
+                                   {
+                                       ResultTag.Consumed => ParserResult.ConsumedError<(A T, Pos BeginPos, Pos EndPos, int BeginIndex, int EndIndex)>(xr.Reply.Error),
+                                       ResultTag.Empty    => ParserResult.EmptyError<(A T, Pos BeginPos, Pos EndPos, int BeginIndex, int EndIndex)>(xr.Reply.Error),
+                                       _                  => throw new NotSupportedException()
+                                   };
+                        }
+                    });
+
+        static Parser<A> parseEsc<A>(char c, A code) =>
+            ch(c).Map(_ => code);
 
         static readonly Seq<(char, char)> escMap =
             Seq(List.zip("abfnrtv\\\"\'", "\a\b\f\n\r\t\v\\\"\'").ToArray());

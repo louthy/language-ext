@@ -12,14 +12,14 @@ namespace LanguageExt
                     ? Success<FAIL, Unit>(unit)
                     : Fail<FAIL, Unit>(ma.OnFalse());
         
-        public static Validation<FAIL, B> SelectMany<FAIL, A, B>(
+        public static Validation<FAIL, B> SelectMany<FAIL, B>(
             this Guard<FAIL> ma, 
             Func<Unit, Validation<FAIL, B>> f) =>
                 ma.Flag
                     ? f(default)
                     : Fail<FAIL, B>(ma.OnFalse());
 
-        public static Validation<FAIL, C> SelectMany<FAIL, A, B, C>(
+        public static Validation<FAIL, C> SelectMany<FAIL, B, C>(
             this Guard<FAIL> ma, 
             Func<Unit, Validation<FAIL, B>> bind, 
             Func<Unit, B, C> project) =>

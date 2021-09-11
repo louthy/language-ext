@@ -13,7 +13,7 @@ namespace LanguageExt
                     ? Success<MonoidFail, FAIL, Unit>(unit)
                     : Fail<MonoidFail, FAIL, Unit>(ma.OnFalse());
         
-        public static Validation<MonoidFail, FAIL, B> SelectMany<MonoidFail, FAIL, A, B>(
+        public static Validation<MonoidFail, FAIL, B> SelectMany<MonoidFail, FAIL, B>(
             this Guard<FAIL> ma, 
             Func<Unit, Validation<MonoidFail, FAIL, B>> f) 
             where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
@@ -21,7 +21,7 @@ namespace LanguageExt
                     ? f(default)
                     : Fail<MonoidFail, FAIL, B>(ma.OnFalse());
 
-        public static Validation<MonoidFail, FAIL, C> SelectMany<MonoidFail, FAIL, A, B, C>(
+        public static Validation<MonoidFail, FAIL, C> SelectMany<MonoidFail, FAIL, B, C>(
             this Guard<FAIL> ma, 
             Func<Unit, Validation<MonoidFail, FAIL, B>> bind, 
             Func<Unit, B, C> project)

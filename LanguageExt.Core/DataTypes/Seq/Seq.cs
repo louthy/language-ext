@@ -716,7 +716,7 @@ namespace LanguageExt
         [Pure]
         public Seq<B> Bind<B>(Func<A, Seq<B>> f)
         {
-            IEnumerable<B> Yield(Seq<A> ma, Func<A, Seq<B>> bnd)
+            static IEnumerable<B> Yield(Seq<A> ma, Func<A, Seq<B>> bnd)
             {
                 foreach (var a in ma)
                 {
@@ -738,7 +738,7 @@ namespace LanguageExt
         [Pure]
         public Seq<C> SelectMany<B, C>(Func<A, Seq<B>> bind, Func<A, B, C> project)
         {
-            IEnumerable<C> Yield(Seq<A> ma, Func<A, Seq<B>> bnd, Func<A, B, C> prj)
+            static IEnumerable<C> Yield(Seq<A> ma, Func<A, Seq<B>> bnd, Func<A, B, C> prj)
             {
                 foreach (var a in ma)
                 {
@@ -760,7 +760,7 @@ namespace LanguageExt
         public Seq<A> Filter(Func<A, bool> f)
         {
             return new Seq<A>(new SeqLazy<A>(Yield(this, f)));
-            IEnumerable<A> Yield(Seq<A> items, Func<A, bool> f)
+            static IEnumerable<A> Yield(Seq<A> items, Func<A, bool> f)
             {
                 foreach (var item in items)
                 {
