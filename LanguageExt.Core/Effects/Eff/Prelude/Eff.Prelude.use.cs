@@ -24,7 +24,7 @@ namespace LanguageExt
                          if (h.IsFail) return h.Cast<R>();
                          try
                          {
-                             return await Use(h.Value).Run();
+                             return await Use(h.Value).Run().ConfigureAwait(false);
                          }
                          finally
                          {
@@ -46,7 +46,7 @@ namespace LanguageExt
                                  if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     return await Use(h.Value).Run(env);
+                                     return await Use(h.Value).Run(env).ConfigureAwait(false);
                                  }
                                  finally
                                  {
@@ -111,7 +111,7 @@ namespace LanguageExt
                                  if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     return await Use(h.Value).Run();
+                                     return await Use(h.Value).Run().ConfigureAwait(false);
                                  }
                                  finally
                                  {
@@ -133,7 +133,7 @@ namespace LanguageExt
                                  if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     return await Use(h.Value).Run(env);
+                                     return await Use(h.Value).Run(env).ConfigureAwait(false);
                                  }
                                  finally
                                  {
