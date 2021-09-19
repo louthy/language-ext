@@ -300,7 +300,7 @@ namespace LanguageExt.Parsec
                 isReserved(theReservedNames, name));
 
             var ident = (from c in def.IdentStart
-                         from cs in many1(def.IdentLetter)
+                         from cs in many(def.IdentLetter)
                          select new string(c.Cons(cs).ToArray()))
                         .label("identifier");
 
