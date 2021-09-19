@@ -128,7 +128,7 @@ namespace LanguageExt
         /// <summary>
         /// Catch all errors
         /// </summary>
-        public static AffCatch<A> @catch<A>(Aff<A> Fail) where RT : struct, HasCancel<RT> =>
+        public static AffCatch<A> @catch<A>(Aff<A> Fail) =>
             matchError(static _ => true, e => Fail);
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace LanguageExt
         /// <summary>
         /// Catch all errors
         /// </summary>
-        public static AffCatch<A> @catch<A>(Func<Error, Aff<A>> Fail) where RT : struct, HasCancel<RT> =>
+        public static AffCatch<A> @catch<A>(Func<Error, Aff<A>> Fail) =>
             matchError(static _ => true, Fail);
     }
 }
