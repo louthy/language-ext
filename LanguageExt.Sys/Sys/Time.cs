@@ -49,13 +49,15 @@ namespace LanguageExt.Sys
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<RT, Unit> sleepUntil(DateTime dt) =>
-            default(RT).TimeEff.MapAsync(e => e.SleepUntil(dt));
+            cancelToken<RT>().Bind(t =>
+                default(RT).TimeEff.MapAsync(e => e.SleepUntil(dt, t)));
 
         /// <summary>
         /// Pause a task until for a specified length of time
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<RT, Unit> sleepFor(TimeSpan ts) =>
-            default(RT).TimeEff.MapAsync(e => e.SleepFor(ts));
+            cancelToken<RT>().Bind(t =>
+                default(RT).TimeEff.MapAsync(e => e.SleepFor(ts, t)));
     }
 }

@@ -213,15 +213,17 @@ namespace LanguageExt
             return AffMaybe<A>(
                 async () =>
                 {
-                    var delay = Task.Delay(timeoutDelay);
-                    var task  = t.Value().AsTask();
-                    await Task.WhenAny( new Task[] { delay, task }).ConfigureAwait(false);
-                    if (delay.IsCompleted)
+                    var toksrc    = new CancellationTokenSource();
+                    var delay     = Task.Delay(timeoutDelay, toksrc.Token);
+                    var task      = t.Value().AsTask();
+                    var completed = await Task.WhenAny( new Task[] { delay, task }).ConfigureAwait(false);
+                    if (completed == delay)
                     {
                         return FinFail<A>(Errors.TimedOut);
                     }
                     else
                     {
+                        toksrc.Cancel();
                         return await task;
                     }
                 });

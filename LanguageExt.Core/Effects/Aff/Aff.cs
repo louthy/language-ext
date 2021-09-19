@@ -149,17 +149,20 @@ namespace LanguageExt
             return AffMaybe<RT, A>(
                 async env =>
                 {
-                    var lenv  = env.LocalCancel;
-                    var delay = Task.Delay(timeoutDelay);
-                    var task  = t.Value(lenv).AsTask();
-                    await Task.WhenAny( new Task[] { delay, task }).ConfigureAwait(false);
-                    if (delay.IsCompleted)
+                    var delayTokSrc = new CancellationTokenSource();
+                    var lenv        = env.LocalCancel;
+                    var delay       = Task.Delay(timeoutDelay, delayTokSrc.Token);
+                    var task        = t.Value(lenv).AsTask();
+                    var completed   = await Task.WhenAny(new Task[] {delay, task}).ConfigureAwait(false);
+                    
+                    if (completed == delay)
                     {
                         lenv.CancellationTokenSource.Cancel();
                         return FinFail<A>(Errors.TimedOut);
                     }
                     else
                     {
+                        delayTokSrc.Cancel();
                         return await task;
                     }
                 });

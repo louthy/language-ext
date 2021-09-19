@@ -33,7 +33,7 @@ namespace LanguageExt
                         {
                             if (spacing1.IsSome)
                             {
-                                await Task.Delay((int)spacing1).ConfigureAwait(false);
+                                await Task.Delay((int)spacing1, env.CancellationToken).ConfigureAwait(false);
                                 var spacingX = spacing1;
                                 spacing1 = schedule.BackOff((int)spacing0, (int)spacing1);
                                 spacing0 = spacingX;

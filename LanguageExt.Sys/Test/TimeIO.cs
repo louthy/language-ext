@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
@@ -35,13 +36,13 @@ namespace LanguageExt.Sys.Test
         /// <summary>
         /// Pause a task until a specified time
         /// </summary>
-        public ValueTask<Unit> SleepUntil(DateTime dt) =>
-            Live.TimeIO.Default.SleepUntil(dt);
+        public ValueTask<Unit> SleepUntil(DateTime dt, CancellationToken token) =>
+            Live.TimeIO.Default.SleepUntil(dt, token);
 
         /// <summary>
         /// Pause a task until for a specified length of time
         /// </summary>
-        public ValueTask<Unit> SleepFor(TimeSpan ts) =>
-            Live.TimeIO.Default.SleepFor(ts);
+        public ValueTask<Unit> SleepFor(TimeSpan ts, CancellationToken token) =>
+            Live.TimeIO.Default.SleepFor(ts, token);
     }
 }
