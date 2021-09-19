@@ -21,9 +21,9 @@ namespace LanguageExt
             AffMaybe<R>(async () =>
                         {
                             var h = await Acq.ReRun().ConfigureAwait(false);
+                            if (h.IsFail) return h.Cast<R>();
                             try
                             {
-                                if (h.IsFail) return h.Cast<R>();
                                 return await Use(h.Value).Run().ConfigureAwait(false);
                             }
                             finally
@@ -43,9 +43,9 @@ namespace LanguageExt
             AffMaybe<RT, R>(async env =>
                              {
                                  var h = await Acq.ReRun().ConfigureAwait(false);
+                                 if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     if (h.IsFail) return h.Cast<R>();
                                      return await Use(h.Value).Run(env).ConfigureAwait(false);
                                  }
                                  finally
@@ -63,9 +63,10 @@ namespace LanguageExt
             AffMaybe(async () =>
                      {
                          var h = await Acq.ReRun().ConfigureAwait(false);
+                         if (h.IsFail) return h.Cast<R>();
                          try
                          {
-                             return h.IsFail ? h.Cast<R>() : Use(h.Value).Run();
+                             return Use(h.Value).Run();
                          }
                          finally
                          {
@@ -84,9 +85,10 @@ namespace LanguageExt
             AffMaybe<RT, R>(async env =>
                              {
                                  var h = await Acq.ReRun().ConfigureAwait(false);
+                                 if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     return h.IsFail ? h.Cast<R>() : Use(h.Value).Run(env);
+                                     return Use(h.Value).Run(env);
                                  }
                                  finally
                                  {
@@ -106,9 +108,9 @@ namespace LanguageExt
             AffMaybe<RT, R>(async env =>
                              {
                                  var h = await Acq.ReRun(env).ConfigureAwait(false);
+                                 if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     if (h.IsFail) return h.Cast<R>();
                                      return await Use(h.Value).Run().ConfigureAwait(false);
                                  }
                                  finally
@@ -128,9 +130,9 @@ namespace LanguageExt
             AffMaybe<RT, R>(async env =>
                              {
                                  var h = await Acq.ReRun(env).ConfigureAwait(false);
+                                 if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     if (h.IsFail) return h.Cast<R>();
                                      return await Use(h.Value).Run(env).ConfigureAwait(false);
                                  }
                                  finally
@@ -150,9 +152,10 @@ namespace LanguageExt
             AffMaybe<RT, R>(async env =>
                              {
                                  var h = await Acq.ReRun(env).ConfigureAwait(false);
+                                 if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     return h.IsFail ? h.Cast<R>() : Use(h.Value).Run();
+                                     return Use(h.Value).Run();
                                  }
                                  finally
                                  {
@@ -171,9 +174,10 @@ namespace LanguageExt
             AffMaybe<RT, R>(async env =>
                              {
                                  var h = await Acq.ReRun(env).ConfigureAwait(false);
+                                 if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     return h.IsFail ? h.Cast<R>() : Use(h.Value).Run(env);
+                                     return Use(h.Value).Run(env);
                                  }
                                  finally
                                  {

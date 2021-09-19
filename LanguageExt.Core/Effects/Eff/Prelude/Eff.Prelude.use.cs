@@ -21,9 +21,9 @@ namespace LanguageExt
             AffMaybe(async () =>
                      {
                          var h = Acq.ReRun();
+                         if (h.IsFail) return h.Cast<R>();
                          try
                          {
-                             if (h.IsFail) return h.Cast<R>();
                              return await Use(h.Value).Run();
                          }
                          finally
@@ -43,9 +43,9 @@ namespace LanguageExt
             AffMaybe<RT, R>(async env =>
                              {
                                  var h = Acq.ReRun();
+                                 if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     if (h.IsFail) return h.Cast<R>();
                                      return await Use(h.Value).Run(env);
                                  }
                                  finally
@@ -63,9 +63,10 @@ namespace LanguageExt
             EffMaybe(() =>
                      {
                          var h = Acq.ReRun();
+                         if (h.IsFail) return h.Cast<R>();
                          try
                          {
-                             return h.IsFail ? h.Cast<R>() : Use(h.Value).Run();
+                             return Use(h.Value).Run();
                          }
                          finally
                          {
@@ -84,9 +85,10 @@ namespace LanguageExt
             EffMaybe<RT, R>(env =>
                              {
                                  var h = Acq.ReRun();
+                                 if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     return h.IsFail ? h.Cast<R>() : Use(h.Value).Run(env);
+                                     return Use(h.Value).Run(env);
                                  }
                                  finally
                                  {
@@ -106,9 +108,9 @@ namespace LanguageExt
             AffMaybe<RT, R>(async env =>
                              {
                                  var h = Acq.ReRun(env);
+                                 if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     if (h.IsFail) return h.Cast<R>();
                                      return await Use(h.Value).Run();
                                  }
                                  finally
@@ -128,9 +130,9 @@ namespace LanguageExt
             AffMaybe<RT, R>(async env =>
                              {
                                  var h = Acq.ReRun(env);
+                                 if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     if (h.IsFail) return h.Cast<R>();
                                      return await Use(h.Value).Run(env);
                                  }
                                  finally
@@ -150,9 +152,10 @@ namespace LanguageExt
             EffMaybe<RT, R>(env =>
                              {
                                  var h = Acq.ReRun(env);
+                                 if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     return h.IsFail ? h.Cast<R>() : Use(h.Value).Run();
+                                     return Use(h.Value).Run();
                                  }
                                  finally
                                  {
@@ -171,9 +174,10 @@ namespace LanguageExt
             EffMaybe<RT, R>(env =>
                              {
                                  var h = Acq.ReRun(env);
+                                 if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     return h.IsFail ? h.Cast<R>() : Use(h.Value).Run(env);
+                                     return Use(h.Value).Run(env);
                                  }
                                  finally
                                  {
