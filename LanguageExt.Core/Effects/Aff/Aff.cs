@@ -57,9 +57,17 @@ namespace LanguageExt
         /// <summary>
         /// Invoke the effect
         /// </summary>
+        /// <remarks>
+        /// Throws on error
+        /// </remarks>
         [MethodImpl(Opt.Default)]
         public async ValueTask<Unit> RunUnit(RT env) =>
-            ignore(await Thunk.Value(env).ConfigureAwait(false));
+            (await Thunk.Value(env).ConfigureAwait(false)).Case switch
+            {
+                A _     => unit,
+                Error e => e.Throw(),
+                _       => throw new NotSupportedException()
+            };
 
         /// <summary>
         /// Launch the async computation without awaiting the result

@@ -2,6 +2,7 @@
 using System.Diagnostics.Contracts;
 using System.Net;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
 using static LanguageExt.Prelude;
 
@@ -179,7 +180,16 @@ namespace LanguageExt.Common
             string e        when typeof(FAIL) == typeof(Exception)      => (FAIL)(object)new Exception(e),
             string e        when typeof(FAIL) == typeof(Common.Error)   => (FAIL)(object)Common.Error.New(e),
             _ => None
-        }; 
+        };
+
+        /// <summary>
+        /// Throw the error as an exception
+        /// </summary>
+        public Unit Throw()
+        {
+            ExceptionDispatchInfo.Capture(ToException()).Throw();;
+            return unit;
+        }
     }
 
     [Serializable]

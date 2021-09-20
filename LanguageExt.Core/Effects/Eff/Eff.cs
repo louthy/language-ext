@@ -53,9 +53,17 @@ namespace LanguageExt
         /// <summary>
         /// Invoke the effect
         /// </summary>
+        /// <remarks>
+        /// Throws on error
+        /// </remarks>
         [MethodImpl(Opt.Default)]
         public Unit RunUnit(RT env) =>
-            ignore(Thunk.Value(env));
+            Thunk.Value(env).Case switch
+            {
+                A _     => unit,
+                Error e => e.Throw(),
+                _       => throw new NotSupportedException()
+            };
 
         /// <summary>
         /// Lift a synchronous effect into the IO monad
