@@ -20,7 +20,7 @@ namespace LanguageExt
         {
             V value;
             return self.TryGetValue(Key, out value)
-                ? Some(value)
+                ? Optional(value)
                 : None;
         }
 
@@ -37,7 +37,7 @@ namespace LanguageExt
         {
             V value;
             return self.TryGetValue(ReadOnlyKey, out value)
-                ? Some(value)
+                ? Optional(value)
                 : None;
         }
     }
