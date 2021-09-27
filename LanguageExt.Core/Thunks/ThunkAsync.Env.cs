@@ -89,11 +89,11 @@ namespace LanguageExt.Thunks
         [Pure, MethodImpl(Thunk.mops)]
         public ValueTask<Fin<A>> ReValue(Env env)
         {
-            if (this.fun != null && state >= Thunk.IsSuccess)
+            if (this.fun != null && (state & Thunk.HasEvaluated) != 0)
             {
                 state = Thunk.NotEvaluated;
             }
-            return Value(env);
+            return Eval(env);
         }
         
         /// <summary>
@@ -321,44 +321,32 @@ namespace LanguageExt.Thunks
                 {
                     try
                     {
-                        var vt = fun(env);
-
-                        var ex = await vt.ConfigureAwait(false);
-                        
                         if (env.CancellationToken.IsCancellationRequested)
                         {
                             error = Errors.Cancelled;
                             state = Thunk.IsCancelled; // state update must be last thing before return
                             return Fin<A>.Fail(error);
                         }
-                        else if (vt.CompletedSuccessfully())
+ 
+                        var vt = fun(env);
+                        var fa = await vt.ConfigureAwait(false);
+                        if (fa.IsFail)
                         {
-                            if (ex.IsFail)
-                            {
-                                error = ex.Error;
-                                state = Thunk.IsFailed; // state update must be last thing before return
-                                return ex;
-                            }
-                            else
-                            {
-                                value = ex.Value;
-                                state = Thunk.IsSuccess; // state update must be last thing before return
-                                return ex;
-                            }
-                        }
-                        else if (vt.IsCanceled)
-                        {
-                            error = Errors.Cancelled;
-                            state = Thunk.IsCancelled; // state update must be last thing before return
-                            return Fin<A>.Fail(error);
+                            error = fa.Error;
+                            state = Thunk.IsFailed; // state update must be last thing before return
+                            return fa;
                         }
                         else
                         {
-                            var e = vt.AsTask().Exception;
-                            error = e;
-                            state = Thunk.IsFailed; // state update must be last thing before return
-                            return Fin<A>.Fail(error);
+                            value = fa.Value;
+                            state = Thunk.IsSuccess; // state update must be last thing before return
+                            return fa;
                         }
+                    }
+                    catch (OperationCanceledException e)
+                    {
+                        state = Thunk.IsCancelled; // state update must be last thing before return
+                        return Fin<A>.Fail(Error.New(e));
                     }
                     catch (Exception e)
                     {
@@ -385,7 +373,7 @@ namespace LanguageExt.Thunks
                         case Thunk.IsCancelled: 
                             return Fin<A>.Fail(Errors.Cancelled);
                         case Thunk.IsFailed:
-                            return Fin<A>.Fail(Error.New(error));
+                            return Fin<A>.Fail(error);
                         default:
                             throw new InvalidOperationException("should never happen");
                     }

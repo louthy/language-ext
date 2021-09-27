@@ -82,11 +82,11 @@ namespace LanguageExt.Thunks
         [Pure, MethodImpl(Thunk.mops)]
         public Fin<A> ReValue(Env env)
         {
-            if (this.fun != null && state >= Thunk.IsSuccess)
+            if (this.fun != null && (state & Thunk.HasEvaluated) != 0)
             {
                 state = Thunk.NotEvaluated;
             }
-            return Value(env);
+            return Eval(env);
         }        
         
         /// <summary>
@@ -203,18 +203,18 @@ namespace LanguageExt.Thunks
                 {
                     try
                     {
-                        var v = fun(env);
-                        if (v.IsFail)
+                        var fa = fun(env);
+                        if (fa.IsFail)
                         {
-                            error = v.Error;
+                            error = fa.Error;
                             state = Thunk.IsFailed; // state update must be last thing before return
-                            return v;
+                            return fa;
                         }
                         else
                         {
-                            value = v.Value;
+                            value = fa.Value;
                             state = Thunk.IsSuccess; // state update must be last thing before return
-                            return v;
+                            return fa;
                         }
                     }
                     catch (Exception e)
