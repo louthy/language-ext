@@ -78,9 +78,14 @@ namespace LanguageExt.Common
             get => message ?? Errors.BottomText;
         }
 
+        [Pure]
         public Option<Exception> Exception =>
             exception;
 
+        [Pure]
+        public bool Is<E>() where E : Exception =>
+            exception.IsSome && exception.Value is E; 
+        
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Error New(int code, string message, Option<Exception> exception) => 
             new Error(code, message, exception);

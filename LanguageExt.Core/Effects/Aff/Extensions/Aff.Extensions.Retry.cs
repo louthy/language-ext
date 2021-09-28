@@ -93,7 +93,6 @@ namespace LanguageExt
             ScheduleAff<A>.RetryWhile(ma, schedule, predicate);
         
         
-        
         /// <summary>
         /// Keeps retrying the computation until the predicate returns true
         /// </summary>

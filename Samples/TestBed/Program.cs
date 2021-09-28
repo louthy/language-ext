@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using LanguageExt;
 using System.Text;
 using LanguageExt.Sys;
@@ -60,6 +61,10 @@ public class Program
         //                                                                                                    //
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
+
+        var text = await ReadAll("")
+                            .RetryWhile(Schedule.Recurs(5), error => error.Is<IOException>())
+                            .Run();
         
         await PipesTest();
 
@@ -67,6 +72,8 @@ public class Program
         // await AsyncTests();
     }
 
+    static Aff<string> ReadAll(string path) =>
+        Aff(async () => await System.IO.File.ReadAllTextAsync(path)); 
 
     static Effect<Runtime, Unit> Example<A>(IAsyncQueue<A>[] queues)
     {
