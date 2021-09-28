@@ -190,11 +190,8 @@ namespace LanguageExt.Common
         /// <summary>
         /// Throw the error as an exception
         /// </summary>
-        public Unit Throw()
-        {
-            ExceptionDispatchInfo.Capture(ToException()).Throw();;
-            return unit;
-        }
+        public Unit Throw() =>
+            ToException().Rethrow();
     }
 
     [Serializable]

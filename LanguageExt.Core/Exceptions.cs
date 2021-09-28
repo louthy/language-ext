@@ -258,15 +258,6 @@ namespace LanguageExt
     }
 
     [Serializable]
-    public class InnerException : Exception
-    {
-        public InnerException(Exception e) :
-            base(e.Message, e)
-        {
-        }
-    }
-
-    [Serializable]
     public class RefValidationFailedException : Exception
     {
         public RefValidationFailedException() :

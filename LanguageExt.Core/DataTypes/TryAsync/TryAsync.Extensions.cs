@@ -501,8 +501,7 @@ public static class TryAsyncExtensions
         try
         {
             var res = await self.Try().ConfigureAwait(false);
-            if (res.IsBottom) throw new BottomException();
-            if (res.IsFaulted) throw new InnerException(res.Exception);
+            if (res.IsFaulted) res.Exception.Rethrow();
             return res.Value;
         }
         catch (Exception e)

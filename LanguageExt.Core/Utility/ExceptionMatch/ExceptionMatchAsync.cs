@@ -68,7 +68,7 @@ namespace LanguageExt
             from tup in Expr
             select tup.IsSet
                 ? tup.Result
-                : throw new InnerException(tup.Exception);
+                : tup.Exception.Rethrow<R>();
 
         /// <summary>
         /// Invokes the match expression and provides a default value if nothing matches

@@ -1267,8 +1267,7 @@ public static class TryOptionAsyncExtensions
         try
         {
             var res = await self.Try().ConfigureAwait(false);
-            if (res.IsBottom) throw new BottomException();
-            if (res.IsFaulted) throw new InnerException(res.Exception);
+            if (res.IsFaulted) res.Exception.Rethrow();
             if (res.Value.IsNone) throw new ValueIsNoneException();
             return res.Value.Value;
         }

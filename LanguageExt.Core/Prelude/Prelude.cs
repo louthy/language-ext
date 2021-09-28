@@ -223,11 +223,8 @@ namespace LanguageExt
         /// example</typeparam>
         /// <param name="ex">Exception to throw</param>
         /// <returns>Throws an exception</returns>
-        public static R raise<R>(Exception ex)
-        {
-            ExceptionDispatchInfo.Capture(ex).Throw();
-            return default;
-        }
+        public static R raise<R>(Exception ex) =>
+            ex.Rethrow<R>();
 
         /// <summary>
         /// Identifies an exception as being of type E

@@ -666,7 +666,7 @@ namespace LanguageExt
         {
             if (IsFail)
             {
-                ExceptionDispatchInfo.Capture(Error).Throw();
+                Error.Throw();
             }
 
             return Value;

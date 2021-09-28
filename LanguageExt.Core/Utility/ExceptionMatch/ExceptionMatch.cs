@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
+using System.Runtime.ExceptionServices;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -119,5 +120,27 @@ namespace LanguageExt
         [Pure]
         public static LanguageExt.ExceptionMatch<R> Match<R>(this Exception self) =>
             new LanguageExt.ExceptionMatch<R>(self);
+
+        /// <summary>
+        /// Rethrows the exception whilst maintaining its original context
+        /// </summary>
+        /// <remarks>Unwraps any inner exceptions</remarks>
+        /// <param name="exception">Exception to rethrow</param>
+        public static Unit Rethrow(this Exception exception)
+        {
+            ExceptionDispatchInfo.Capture(exception).Throw();
+            return default;
+        }
+
+        /// <summary>
+        /// Rethrows the exception whilst maintaining its original context
+        /// </summary>
+        /// <remarks>Unwraps any inner exceptions</remarks>
+        /// <param name="exception">Exception to rethrow</param>
+        public static A Rethrow<A>(this Exception exception)
+        {
+            ExceptionDispatchInfo.Capture(exception).Throw();
+            return default;
+        }
     }
 }

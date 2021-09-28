@@ -323,8 +323,7 @@ public static class TryExtensions
         try
         {
             var res = self();
-            if (res.IsBottom) throw new BottomException();
-            if (res.IsFaulted) throw new InnerException(res.Exception);
+            if (res.IsFaulted) res.Exception.Rethrow();
             return res.Value;
         }
         catch (Exception e)
