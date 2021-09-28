@@ -3,11 +3,11 @@
 C# Functional Programming Language Extensions
 =============================================
 
-[![Join the chat at https://gitter.im/louthy/language-ext](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/louthy/language-ext?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
-
 This library uses and abuses the features of C# to provide a functional-programming 'base class library' that, if you squint, can look like 
 extensions to the language itself. The desire here is to make programming in C# much more reliable and to make the engineer's inertia flow 
 in the direction of declarative and functional code rather than imperative.
+
+[![GitHub Discussions](https://raw.githubusercontent.com/louthy/language-ext/main/Images/discussions.svg)](https://github.com/louthy/language-ext/discussions)
 
 __Author on twitter:__ 
 https://twitter.com/paullouth
