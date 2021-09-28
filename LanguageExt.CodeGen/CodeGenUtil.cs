@@ -685,7 +685,14 @@ namespace LanguageExt.CodeGen
                                 .Any())
                     .ToList();
 
-        public static MemberDeclarationSyntax[] MakeDataTypeMembers(string typeName, TypeSyntax thisType, TypeSyntax baseType, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members, BaseSpec baseSpec, bool typeIsClass)
+        public static MemberDeclarationSyntax[] MakeDataTypeMembers(
+            string typeName, 
+            TypeSyntax thisType, 
+            TypeSyntax baseType, 
+            List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members, 
+            BaseSpec baseSpec, 
+            bool typeIsClass, 
+            List<MethodDeclarationSyntax> methods)
         {
             var eqs = MembersWithoutAttr(members, "NonEq", "NonRecord", "NonStructural", "LanguageExt.NonEq", "LanguageExt.NonRecord", "LanguageExt.NonStructural");
             var ords = MembersWithoutAttr(members, "NonOrd", "NonRecord", "NonStructural", "LanguageExt.NonOrd", "LanguageExt.NonRecord", "LanguageExt.NonStructural");
@@ -699,10 +706,16 @@ namespace LanguageExt.CodeGen
             nmembers.AddRange(typeIsClass ? MakeClassOperatorMembers(thisType) : MakeStructOperatorMembers(thisType));
             nmembers.AddRange(MakeEqualityMembers(thisType, baseType, eqs, baseSpec));
             nmembers.AddRange(MakeOrderingMembers(thisType, baseType, ords, baseSpec));
-            nmembers.Add(MakeGetHashCode(hashes));
-            nmembers.Add(MakeToString(typeName, shows));
+            if(!HasGetHashCode(methods)) nmembers.Add(MakeGetHashCode(hashes));
+            if(!HasToString(methods)) nmembers.Add(MakeToString(typeName, shows));
             return nmembers.ToArray();
         }
+
+        static bool HasToString(List<MethodDeclarationSyntax> ms) =>
+            ms.Any(m => m.Identifier.Text == "ToString" && m.ParameterList.Parameters.Count == 0);
+
+        static bool HasGetHashCode(List<MethodDeclarationSyntax> ms) =>
+            ms.Any(m => m.Identifier.Text == "GetHashCode" && m.ParameterList.Parameters.Count == 0);
 
         static MemberDeclarationSyntax MakeToString(string typeName, List<(SyntaxToken Identifier, TypeSyntax Type, SyntaxTokenList Modifiers, SyntaxList<AttributeListSyntax> Attrs)> members)
         {
@@ -2354,7 +2367,7 @@ namespace LanguageExt.CodeGen
                         .Select(m => MakeExplicitInterfaceImpl(interfaceType, includeWithAndLenses ? interfaceType : m.ReturnType, m.Identifier, m.ParameterList, m.TypeParameterList)));
             }
 
-            var dtype = MakeDataTypeMembers(caseIdentifier.Text, thisType, interfaceType, caseParams, baseSpec, caseIsClass);
+            var dtype = MakeDataTypeMembers(caseIdentifier.Text, thisType, interfaceType, caseParams, baseSpec, caseIsClass, methods);
             
             // Match method only provided for abstract bases where none of the cases have generic arguments 
             if (includeMatch && 
