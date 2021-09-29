@@ -7,6 +7,15 @@ using static LanguageExt.Prelude;
 
 namespace EffectsExamples
 {
+    /// <summary>
+    /// Error handling and guards example
+    /// </summary>
+    /// <remarks>
+    /// Repeats the text you type in until you press Enter on an empty line, which will write a UserExited error - this
+    /// will be caught for a safe exit
+    /// Or, 'sys' that will throw a SystemException - this will be caught and 'sys error' will be printed
+    /// Or, 'err' that will throw an Exception - this will be caught to become 'there was a problem'
+    /// </remarks>
     public class ErrorAndGuardExample<RT>
         where RT : struct, HasConsole<RT>
     {

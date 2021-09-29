@@ -7,6 +7,14 @@ using static LanguageExt.Prelude;
 
 namespace EffectsExamples
 {
+    /// <summary>
+    /// Retry example
+    /// </summary>
+    /// <remarks>
+    /// Asks you to say hello.
+    /// If you don't type 'hello' then an error will be raised and it will retry.
+    /// </remarks>
+    /// <typeparam name="RT"></typeparam>
     public class RetryExample<RT>
         where RT : struct, 
         HasCancel<RT>, 

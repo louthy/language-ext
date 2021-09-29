@@ -7,6 +7,13 @@ using static LanguageExt.Prelude;
 
 namespace EffectsExamples
 {
+    /// <summary>
+    /// Cancel example 
+    /// </summary>
+    /// <remarks>
+    /// Accepts key presses and echos them to the console until Enter is pressed.
+    /// When Enter is pressed it calls `cancel<RT>()` to trigger the cancellation token
+    /// </remarks>
     public class CancelExample<RT>
         where RT: struct, 
         HasCancel<RT>, 

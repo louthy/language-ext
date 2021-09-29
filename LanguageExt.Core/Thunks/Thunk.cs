@@ -19,7 +19,7 @@ namespace LanguageExt.Thunks
         public const int IsSuccess = 2; 
         public const int IsFailed = 4; 
         public const int IsCancelled = 8;
-        public const int HasEvaluated = IsSuccess & IsFailed & IsCancelled;
+        public const int HasEvaluated = IsSuccess | IsFailed | IsCancelled;
         
         [Pure, MethodImpl(mops)]
         public static ThunkAsync<Env, A> Flatten<Env, A>(this ThunkAsync<Env, ThunkAsync<Env, A>> mma) where Env : struct, HasCancel<Env> =>

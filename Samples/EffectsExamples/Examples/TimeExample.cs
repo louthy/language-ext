@@ -6,6 +6,12 @@ using static LanguageExt.Prelude;
 
 namespace EffectsExamples
 {
+    /// <summary>
+    /// Clock example
+    /// </summary>
+    /// <remarks>
+    /// Prints the time every second for 15 seconds
+    /// </remarks>
     public class TimeExample<RT>
         where RT : struct, 
         HasTime<RT>, 

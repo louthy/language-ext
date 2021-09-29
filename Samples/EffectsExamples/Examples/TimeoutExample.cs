@@ -7,6 +7,14 @@ using static LanguageExt.Prelude;
 
 namespace EffectsExamples
 {
+    /// <summary>
+    /// Process timeout example
+    /// </summary>
+    /// <remarks>
+    /// Repeats a backing off process for 1 minutes
+    /// The back-off follows the fibonacci sequence in terms of the delay
+    /// </remarks>
+    /// <typeparam name="RT"></typeparam>
     public class TimeoutExample<RT>
         where RT : struct,
         HasTime<RT>,

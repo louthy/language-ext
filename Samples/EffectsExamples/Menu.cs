@@ -67,7 +67,8 @@ namespace EffectsExamples
                 (3, TimeoutExample<RT>.main, "Process timeout example", "Repeats a backing off process for 1 minutes\nThe back-off follows the fibonacci sequence in terms of the delay"),
                 (4, TimeExample<RT>.main, "Clock example", "Prints the time every second for 15 seconds"),
                 (5, CancelExample<RT>.main, "Cancel example", "Accepts key presses and echos them to the console until Enter is pressed.\nWhen Enter is pressed it calls `cancel<RT>()` to trigger the cancellation token"),
-                (6, RetryExample<RT>.main, "Retry example", "Asks you to say hello.\nIf you don't type 'hello' then an error will be raised and it will retry.")
+                (6, RetryExample<RT>.main, "Retry example", "Asks you to say hello.\nIf you don't type 'hello' then an error will be raised and it will retry."),
+                (7, QueueExample<RT>.main(), "Queue example", "Creates two queues.  Queues are Producers that have an Enqueue function.\nThe two producers are merged into a single producer and piped to a writeLine consumer to create an Effect\nThe effect is forked to run without awaiting the result\nAnother effect is created that listens to input from the user and pipes it to queue 1 or 2 depending on if the text starts with a '1' or a '2'.\nIf the text starts with anything else, the effect is cancelled.\nThen the fork is cancelled.")
             );
     }
 }
