@@ -53,7 +53,7 @@ namespace EffectsExamples
                       {
                           '1' => queue1.EnqueueEff(x.Substring(1)),
                           '2' => queue2.EnqueueEff(x.Substring(1)),
-                          _   => FailEff<Unit>(Errors.CancelledText)
+                          _   => FailEff<Unit>(Errors.Cancelled)
                       }
             select unit;
         
