@@ -156,8 +156,15 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>An asynchronous effect that captures the operation running in context</returns>
         public static Aff<RT, A> localCancel<RT, A>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            localAff<RT, RT, A>(static env => env.LocalCancel, ma);
-
+            AffMaybe<RT, A>(async rt =>
+                            {
+                                var rt1 = rt.LocalCancel;
+                                using (rt1.CancellationTokenSource)
+                                {
+                                    return await ma.ReRun(rt1).ConfigureAwait(false);
+                                }
+                            });
+        
         /// <summary>
         /// Create a new cancellation context and run the provided Aff in that context
         /// </summary>
@@ -166,8 +173,15 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>An asynchronous effect that captures the operation running in context</returns>
         public static Eff<RT, A> localCancel<RT, A>(Eff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            localEff<RT, RT, A>(static env => env.LocalCancel, ma);
-
+            EffMaybe<RT, A>(rt =>
+                            {
+                                var rt1 = rt.LocalCancel;
+                                using (rt1.CancellationTokenSource)
+                                {
+                                    return ma.ReRun(rt1);
+                                }
+                            });
+                                                               
         /// <summary>
         /// Cancel the asynchronous operation
         /// </summary>

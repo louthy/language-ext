@@ -92,17 +92,29 @@ namespace LanguageExt
                     var lenv = env.LocalCancel;
                     
                     // If the parent cancels, we should too
-                    env.CancellationToken.Register(() => lenv.CancellationTokenSource.Cancel());
+                    var reg = env.CancellationToken.Register(() => lenv.CancellationTokenSource.Cancel());
                     
                     // Run
-                    ignore(t.Value(lenv));
+                    ignore(t.Value(lenv).Iter(_ => Dispose()));
                     
                     // Return an effect that cancels the fire-and-forget expression
                     return Eff<Unit>(() =>
                                      {
                                          lenv.CancellationTokenSource.Cancel();
+                                         Dispose();
                                          return unit;
                                      });
+
+                    void Dispose()
+                    {
+                        try
+                        {
+                            reg.Dispose();
+                        }
+                        catch
+                        {
+                        }
+                    }
                 });
         }
 
@@ -157,12 +169,12 @@ namespace LanguageExt
             return AffMaybe<RT, A>(
                 async env =>
                 {
-                    var delayTokSrc = new CancellationTokenSource();
-                    var lenv        = env.LocalCancel;
-                    var delay       = Task.Delay(timeoutDelay, delayTokSrc.Token);
-                    var task        = t.Value(lenv).AsTask();
-                    var completed   = await Task.WhenAny(new Task[] {delay, task}).ConfigureAwait(false);
-                    
+                    using var delayTokSrc = new CancellationTokenSource();
+                    var lenv       = env.LocalCancel;
+                    var delay      = Task.Delay(timeoutDelay, delayTokSrc.Token);
+                    var task       = t.Value(lenv).AsTask();
+                    var completed  = await Task.WhenAny(new Task[] {delay, task}).ConfigureAwait(false);
+
                     if (completed == delay)
                     {
                         lenv.CancellationTokenSource.Cancel();

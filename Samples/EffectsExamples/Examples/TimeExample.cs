@@ -10,7 +10,8 @@ namespace EffectsExamples
     /// Clock example
     /// </summary>
     /// <remarks>
-    /// Prints the time every second for 15 seconds
+    /// Prints the time for 15 repetitions, the space between the prints follows the Fibonacci sequence up to 10 seconds
+    /// and then it's clamped
     /// </remarks>
     public class TimeExample<RT>
         where RT : struct, 
