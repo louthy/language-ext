@@ -28,10 +28,8 @@ namespace LanguageExt
         internal TrieMap<EqK, K, V> Value => 
             value ?? TrieMap<EqK, K, V>.Empty;
 
-        internal HashMap(TrieMap<EqK, K, V> value)
-        {
+        internal HashMap(TrieMap<EqK, K, V> value) =>
             this.value = value;
-        }
 
         public HashMap(IEnumerable<(K Key, V Value)> items) : this(items, true)
         { }

@@ -13,7 +13,6 @@ namespace LanguageExt
     /// </summary>
     public static class STM
     {
-        const int maxRetries = 500;
         static long refIdNext;
         static readonly Atom<TrieMap<EqLong, long, RefState>> state = Atom(TrieMap<EqLong, long, RefState>.Empty);
         static readonly AsyncLocal<Transaction> transaction = new AsyncLocal<Transaction>();
@@ -101,8 +100,8 @@ namespace LanguageExt
         /// </summary>
         static R RunTransaction<R>(Func<R> op, Isolation isolation)
         {
-            var retries = maxRetries;
-            while (retries > 0)
+            SpinWait sw = default;
+            while (true)
             {
                 // Create a new transaction with a snapshot of the current state
                 var t = new Transaction(state.Value);
@@ -115,7 +114,6 @@ namespace LanguageExt
                 catch (ConflictException)
                 {
                     // Conflict found, so retry
-                    retries--;
                 }
                 finally
                 {
@@ -123,7 +121,6 @@ namespace LanguageExt
                     transaction.Value = null;
                 }
                 // Wait one tick before trying again
-                SpinWait sw = default;
                 sw.SpinOnce();
             }
             throw new DeadlockException();
@@ -135,8 +132,8 @@ namespace LanguageExt
         static Aff<RT, R> RunTransaction<RT, R>(Aff<RT, R> op, Isolation isolation) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, R>(async env =>
             {
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
                     // Create a new transaction with a snapshot of the current state
                     var t = new Transaction(state.Value);
@@ -152,7 +149,6 @@ namespace LanguageExt
                     catch (ConflictException)
                     {
                         // Conflict found, so retry
-                        retries--;
                     }
                     finally
                     {
@@ -161,11 +157,8 @@ namespace LanguageExt
                     }
 
                     // Wait one tick before trying again
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
-
-                throw new DeadlockException();
             });
                 
         /// <summary>
@@ -174,8 +167,8 @@ namespace LanguageExt
         static Eff<RT, R> RunTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) where RT : struct =>
             EffMaybe<RT, R>(env =>
             {
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
                     // Create a new transaction with a snapshot of the current state
                     var t = new Transaction(state.Value);
@@ -191,7 +184,6 @@ namespace LanguageExt
                     catch (ConflictException)
                     {
                         // Conflict found, so retry
-                        retries--;
                     }
                     finally
                     {
@@ -200,7 +192,6 @@ namespace LanguageExt
                     }
 
                     // Wait one tick before trying again
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
 
@@ -213,8 +204,8 @@ namespace LanguageExt
         static Aff<R> RunTransaction<R>(Aff<R> op, Isolation isolation) =>
             AffMaybe(async () =>
             {
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
                     // Create a new transaction with a snapshot of the current state
                     var t = new Transaction(state.Value);
@@ -230,7 +221,6 @@ namespace LanguageExt
                     catch (ConflictException)
                     {
                         // Conflict found, so retry
-                        retries--;
                     }
                     finally
                     {
@@ -239,11 +229,8 @@ namespace LanguageExt
                     }
 
                     // Wait one tick before trying again
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
-
-                throw new DeadlockException();
             });
 
         /// <summary>
@@ -252,8 +239,8 @@ namespace LanguageExt
         static Eff<R> RunTransaction<R>(Eff<R> op, Isolation isolation) =>
             EffMaybe(() =>
             {
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
                     // Create a new transaction with a snapshot of the current state
                     var t = new Transaction(state.Value);
@@ -269,7 +256,6 @@ namespace LanguageExt
                     catch (ConflictException)
                     {
                         // Conflict found, so retry
-                        retries--;
                     }
                     finally
                     {
@@ -278,7 +264,6 @@ namespace LanguageExt
                     }
 
                     // Wait one tick before trying again
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
 
@@ -290,8 +275,8 @@ namespace LanguageExt
         /// </summary>
         static async ValueTask<R> RunTransaction<R>(Func<ValueTask<R>> op, Isolation isolation)
         {
-            var retries = maxRetries;
-            while (retries > 0)
+            SpinWait sw = default;
+            while (true)
             {
                 // Create a new transaction with a snapshot of the current state
                 var t = new Transaction(state.Value);
@@ -304,7 +289,6 @@ namespace LanguageExt
                 catch (ConflictException)
                 {
                     // Conflict found, so retry
-                    retries--;
                 }
                 finally
                 {
@@ -312,7 +296,6 @@ namespace LanguageExt
                     transaction.Value = null;
                 }
                 // Wait one tick before trying again
-                SpinWait sw = default;
                 sw.SpinOnce();
             }
             throw new DeadlockException();
@@ -323,8 +306,8 @@ namespace LanguageExt
         /// </summary>
         static R RunTransaction<R>(Func<CommuteRef<R>> op, Isolation isolation)
         {
-            var retries = maxRetries;
-            while (retries > 0)
+            SpinWait sw = default;
+            while (true)
             {
                 // Create a new transaction with a snapshot of the current state
                 var t = new Transaction(state.Value);
@@ -339,7 +322,6 @@ namespace LanguageExt
                 catch (ConflictException)
                 {
                     // Conflict found, so retry
-                    retries--;
                 }
                 finally
                 {
@@ -347,7 +329,6 @@ namespace LanguageExt
                     transaction.Value = null;
                 }
                 // Wait one tick before trying again
-                SpinWait sw = default;
                 sw.SpinOnce();
             }
             throw new DeadlockException();
@@ -356,7 +337,13 @@ namespace LanguageExt
         static R ValidateAndCommit<R>(Transaction t, Isolation isolation, R result, long returnRefId)
         {
             // No writing, so no validation or commit needed
-            if (t.writes.Count == 0 && t.commutes.Count == 0)
+            var writes = t.writes.Count;
+            var commutes = t.commutes.Count;
+
+            var anyWrites = writes > 0;
+            var anyCommutes = commutes > 0;
+            
+            if (!anyWrites && !anyCommutes)
             {
                 return result;
             }
@@ -369,8 +356,8 @@ namespace LanguageExt
                     ValidateReads(t, s, isolation);
                 }
 
-                s = CommitWrites(t, s);
-                (s, result) = CommitCommutes(t, s, returnRefId, result);
+                s = anyWrites ? CommitWrites(t, s) : s;
+                (s, result) = anyCommutes ? CommitCommutes(t, s, returnRefId, result) : (s, result);
                 return s;
             });
 
@@ -381,10 +368,13 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void ValidateReads(Transaction t, TrieMap<EqLong, long, RefState> s, Isolation isolation)
         {
+            var tlocal = t;
+            var slocal = tlocal.state;
+ 
             // Check if something else wrote to what we were reading
-            foreach (var read in t.reads)
+            foreach (var read in tlocal.reads)
             {
-                if (s[read].Version != t.state[read].Version)
+                if (s[read].Version != slocal[read].Version)
                 {
                     throw new ConflictException();
                 }
@@ -394,9 +384,12 @@ namespace LanguageExt
         static TrieMap<EqLong, long, RefState> CommitWrites(Transaction t, TrieMap<EqLong, long, RefState> s)
         {
             // Check if something else wrote to what we were writing
-            foreach (var write in t.writes)
+            var tlocal = t;
+            var slocal = tlocal.state;
+            
+            foreach (var write in tlocal.writes)
             {
-                var newState = t.state[write];
+                var newState = slocal[write];
 
                 if (!newState.Validator(newState.Value))
                 {

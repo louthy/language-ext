@@ -30,7 +30,6 @@ namespace LanguageExt
     /// </remarks>
     public sealed class Atom<A>
     {
-        const int maxRetries = 500;
         volatile object value;
         readonly Func<A, bool> validator;
 
@@ -80,10 +79,9 @@ namespace LanguageExt
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
-            var retries = maxRetries;
-            while (retries > 0)
+            SpinWait sw = default;
+            while (true)
             {
-                retries--;
                 var current = value;
                 var newValueA = f(Box<A>.GetValue(value));
                 var newValue = Box<A>.New(newValueA);
@@ -96,10 +94,8 @@ namespace LanguageExt
                     Change?.Invoke(newValueA);
                     return Optional(newValueA);
                 }
-                SpinWait sw = default;
                 sw.SpinOnce();
             }
-            throw new DeadlockException();
         }
         
         /// <summary>
@@ -116,10 +112,9 @@ namespace LanguageExt
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
-                    retries--;
                     var current = value;
                     var newValueFinA = f(Box<A>.GetValue(value)).Run();
                     if (newValueFinA.IsFail)
@@ -138,10 +133,8 @@ namespace LanguageExt
                         Change?.Invoke(newValueA);
                         return newValueFinA;
                     }
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
-                throw new DeadlockException();
             }); 
         
         /// <summary>
@@ -157,10 +150,9 @@ namespace LanguageExt
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
-            var retries = maxRetries;
-            while (retries > 0)
+            SpinWait sw = default;
+            while (true)
             {
-                retries--;
                 var current = value;
                 var newValueFinA = f(Box<A>.GetValue(value)).Run(env);
                 if (newValueFinA.IsFail)
@@ -179,10 +171,8 @@ namespace LanguageExt
                     Change?.Invoke(newValueA);
                     return newValueFinA;
                 }
-                SpinWait sw = default;
                 sw.SpinOnce();
             }
-            throw new DeadlockException();
         });
 
         /// <summary>
@@ -197,10 +187,9 @@ namespace LanguageExt
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
-            var retries = maxRetries;
-            while (retries > 0)
+            SpinWait sw = default;
+            while (true)
             {
-                retries--;
                 var current = value;
                 var newValueA = await f(Box<A>.GetValue(value)).ConfigureAwait(false);
                 var newValue = Box<A>.New(newValueA);
@@ -213,10 +202,8 @@ namespace LanguageExt
                     Change?.Invoke(newValueA);
                     return Optional(newValueA);
                 }
-                SpinWait sw = default;
                 sw.SpinOnce();
             }
-            throw new DeadlockException();
         }
         
         
@@ -233,10 +220,9 @@ namespace LanguageExt
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
-                    retries--;
                     var current = value;
                     var newValueFinA = await f(Box<A>.GetValue(value)).Run().ConfigureAwait(false);
                     if (newValueFinA.IsFail)
@@ -256,12 +242,8 @@ namespace LanguageExt
                         Change?.Invoke(newValueA);
                         return newValueFinA;
                     }
-
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
-
-                throw new DeadlockException();
             });         
                 
         /// <summary>
@@ -277,10 +259,9 @@ namespace LanguageExt
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
-                    retries--;
                     var current = value;
                     var newValueA = await f(Box<A>.GetValue(value)).ConfigureAwait(false);
 
@@ -295,12 +276,8 @@ namespace LanguageExt
                         Change?.Invoke(newValueA);
                         return FinSucc<A>(newValueA);
                     }
-
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
-
-                throw new DeadlockException();
             });            
 
         /// <summary>
@@ -316,10 +293,9 @@ namespace LanguageExt
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var retries = maxRetries;
-                while (retries > 0 && !env.CancellationToken.IsCancellationRequested)
+                SpinWait sw = default;
+                while (!env.CancellationToken.IsCancellationRequested)
                 {
-                    retries--;
                     var current = value;
                     var newFinValueA = await f(Box<A>.GetValue(value)).Run(env).ConfigureAwait(false);
                     if (newFinValueA.IsFail)
@@ -340,12 +316,10 @@ namespace LanguageExt
                         Change?.Invoke(newValueA);
                         return newFinValueA;
                     }
-
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
 
-                throw new DeadlockException();
+                return Errors.Cancelled;
             });
 
         /// <summary>
@@ -361,10 +335,9 @@ namespace LanguageExt
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
-            var retries = maxRetries;
-            while (retries > 0)
+            SpinWait sw = default;
+            while (true)
             {
-                retries--;
                 var current = value;
                 var newValueA = f(x, Box<A>.GetValue(value));
                 var newValue = Box<A>.New(newValueA);
@@ -377,10 +350,8 @@ namespace LanguageExt
                     Change?.Invoke(newValueA);
                     return Optional(newValueA);
                 }
-                SpinWait sw = default;
                 sw.SpinOnce();
             }
-            throw new DeadlockException();
         }
         
         /// <summary>
@@ -397,10 +368,9 @@ namespace LanguageExt
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
-                    retries--;
                     var current = value;
                     var newValueFinA = f(x, Box<A>.GetValue(value)).Run();
                     if (newValueFinA.IsFail)
@@ -419,10 +389,8 @@ namespace LanguageExt
                         Change?.Invoke(newValueA);
                         return newValueFinA;
                     }
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
-                throw new DeadlockException();
             }); 
         
         /// <summary>
@@ -439,10 +407,9 @@ namespace LanguageExt
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
-                    retries--;
                     var current = value;
                     var newValueFinA = f(x, Box<A>.GetValue(value)).Run(env);
                     if (newValueFinA.IsFail)
@@ -461,10 +428,8 @@ namespace LanguageExt
                         Change?.Invoke(newValueA);
                         return newValueFinA;
                     }
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
-                throw new DeadlockException();
             });
 
         /// <summary>
@@ -480,10 +445,9 @@ namespace LanguageExt
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
-            var retries = maxRetries;
-            while (retries > 0)
+            SpinWait sw = default;
+            while (true)
             {
-                retries--;
                 var current = value;
                 var newValueA = await f(x, Box<A>.GetValue(value)).ConfigureAwait(false);
                 var newValue = Box<A>.New(newValueA);
@@ -496,10 +460,8 @@ namespace LanguageExt
                     Change?.Invoke(newValueA);
                     return Optional(newValueA);
                 }
-                SpinWait sw = default;
                 sw.SpinOnce();
             }
-            throw new DeadlockException();
         }
         
         /// <summary>
@@ -516,10 +478,9 @@ namespace LanguageExt
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
-                    retries--;
                     var current = value;
                     var newValueFinA = await f(x, Box<A>.GetValue(value)).Run().ConfigureAwait(false);
                     if (newValueFinA.IsFail)
@@ -539,12 +500,8 @@ namespace LanguageExt
                         Change?.Invoke(newValueA);
                         return newValueFinA;
                     }
-
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
-
-                throw new DeadlockException();
             });         
                 
         /// <summary>
@@ -561,10 +518,9 @@ namespace LanguageExt
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
-                    retries--;
                     var current = value;
                     var newValueA = await f(x, Box<A>.GetValue(value)).ConfigureAwait(false);
 
@@ -579,12 +535,8 @@ namespace LanguageExt
                         Change?.Invoke(newValueA);
                         return FinSucc<A>(newValueA);
                     }
-
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
-
-                throw new DeadlockException();
             });            
         
         /// <summary>
@@ -601,10 +553,9 @@ namespace LanguageExt
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var retries = maxRetries;
-                while (retries > 0 && !env.CancellationToken.IsCancellationRequested)
+                SpinWait sw = default;
+                while (!env.CancellationToken.IsCancellationRequested)
                 {
-                    retries--;
                     var current = value;
                     var newFinValueA = await f(x, Box<A>.GetValue(value)).Run(env).ConfigureAwait(false);
                     if (newFinValueA.IsFail)
@@ -625,12 +576,9 @@ namespace LanguageExt
                         Change?.Invoke(newValueA);
                         return newFinValueA;
                     }
-
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
-
-                throw new DeadlockException();
+                return Errors.Cancelled;
             });
 
         /// <summary>
@@ -647,10 +595,9 @@ namespace LanguageExt
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
-            var retries = maxRetries;
-            while (retries > 0)
+            SpinWait sw = default;
+            while (true)
             {
-                retries--;
                 var current = value;
                 var newValueA = f(x, y, Box<A>.GetValue(value));
                 var newValue = Box<A>.New(newValueA);
@@ -663,10 +610,8 @@ namespace LanguageExt
                     Change?.Invoke(newValueA);
                     return Optional(newValueA);
                 }
-                SpinWait sw = default;
                 sw.SpinOnce();
             }
-            throw new DeadlockException();
         }
                 
         /// <summary>
@@ -684,10 +629,9 @@ namespace LanguageExt
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
-                    retries--;
                     var current = value;
                     var newValueFinA = f(x, y, Box<A>.GetValue(value)).Run();
                     if (newValueFinA.IsFail)
@@ -706,10 +650,8 @@ namespace LanguageExt
                         Change?.Invoke(newValueA);
                         return newValueFinA;
                     }
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
-                throw new DeadlockException();
             }); 
         
         /// <summary>
@@ -727,10 +669,9 @@ namespace LanguageExt
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
-                    retries--;
                     var current = value;
                     var newValueFinA = f(x, y, Box<A>.GetValue(value)).Run(env);
                     if (newValueFinA.IsFail)
@@ -749,10 +690,8 @@ namespace LanguageExt
                         Change?.Invoke(newValueA);
                         return newValueFinA;
                     }
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
-                throw new DeadlockException();
             });
 
         /// <summary>
@@ -769,10 +708,9 @@ namespace LanguageExt
         {
             f = f ?? throw new ArgumentNullException(nameof(f));
 
-            var retries = maxRetries;
-            while (retries > 0)
+            SpinWait sw = default;
+            while (true)
             {
-                retries--;
                 var current = value;
                 var newValueA = await f(x, y, Box<A>.GetValue(value)).ConfigureAwait(false);
                 var newValue = Box<A>.New(newValueA);
@@ -785,10 +723,8 @@ namespace LanguageExt
                     Change?.Invoke(newValueA);
                     return Optional(newValueA);
                 }
-                SpinWait sw = default;
                 sw.SpinOnce();
             }
-            throw new DeadlockException();
         }
         
         /// <summary>
@@ -806,10 +742,9 @@ namespace LanguageExt
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
-                    retries--;
                     var current = value;
                     var newValueFinA = await f(x, y, Box<A>.GetValue(value)).Run().ConfigureAwait(false);
                     if (newValueFinA.IsFail)
@@ -830,11 +765,8 @@ namespace LanguageExt
                         return newValueFinA;
                     }
 
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
-
-                throw new DeadlockException();
             });         
                 
         /// <summary>
@@ -852,10 +784,9 @@ namespace LanguageExt
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var retries = maxRetries;
-                while (retries > 0)
+                SpinWait sw = default;
+                while (true)
                 {
-                    retries--;
                     var current = value;
                     var newValueA = await f(x, y, Box<A>.GetValue(value)).ConfigureAwait(false);
 
@@ -870,12 +801,8 @@ namespace LanguageExt
                         Change?.Invoke(newValueA);
                         return FinSucc<A>(newValueA);
                     }
-
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
-
-                throw new DeadlockException();
             });         
 
         /// <summary>
@@ -893,10 +820,9 @@ namespace LanguageExt
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var retries = maxRetries;
-                while (retries > 0 && !env.CancellationToken.IsCancellationRequested)
+                SpinWait sw = default;
+                while (!env.CancellationToken.IsCancellationRequested)
                 {
-                    retries--;
                     var current = value;
                     var newFinValueA = await f(x, y, Box<A>.GetValue(value)).Run(env).ConfigureAwait(false);
                     if (newFinValueA.IsFail)
@@ -917,12 +843,10 @@ namespace LanguageExt
                         Change?.Invoke(newValueA);
                         return newFinValueA;
                     }
-
-                    SpinWait sw = default;
                     sw.SpinOnce();
                 }
 
-                throw new DeadlockException();
+                return Errors.Cancelled;
             });
         
         /// <summary>

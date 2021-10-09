@@ -484,7 +484,7 @@ namespace LanguageExt
         /// <returns>True if an item with the value supplied is in the map</returns>
         [Pure]
         public bool Contains<EqV>(V value) where EqV : struct, Eq<V> =>
-            Value.Contains(value);
+            Value.Contains<EqV>(value);
 
         /// <summary>
         /// Checks for existence of a key in the map

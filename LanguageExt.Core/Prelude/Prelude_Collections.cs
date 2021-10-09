@@ -392,6 +392,80 @@ namespace LanguageExt
 
 
         /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static AtomHashMap<K, V> AtomHashMap<K, V>() =>
+            LanguageExt.AtomHashMap<K, V>.Empty;
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static AtomHashMap<K, V> AtomHashMap<K, V>((K, V) head, params (K, V)[] tail) =>
+            LanguageExt.HashMap.create(head, tail).ToAtom();
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static AtomHashMap<K, V> AtomHashMap<K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) =>
+            LanguageExt.HashMap.create(head, tail).ToAtom();
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static AtomHashMap<K, V> toAtomHashMap<K, V>(IEnumerable<(K, V)> items) =>
+            LanguageExt.HashMap.createRange(items).ToAtom();
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static AtomHashMap<K, V> toAtomHashMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
+            LanguageExt.HashMap.createRange(items).ToAtom();
+
+
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static AtomHashMap<EqK, K, V> AtomHashMap<EqK, K, V>() where EqK : struct, Eq<K> =>
+            LanguageExt.AtomHashMap<EqK, K, V>.Empty;
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static AtomHashMap<EqK, K, V> AtomHashMap<EqK, K, V>((K, V) head, params (K, V)[] tail) where EqK : struct, Eq<K> =>
+            LanguageExt.HashMap.create<EqK, K, V>(head, tail).ToAtom();
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static AtomHashMap<EqK, K, V> AtomHashMap<EqK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where EqK : struct, Eq<K> =>
+            LanguageExt.HashMap.create<EqK, K, V>(head, tail).ToAtom();
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static AtomHashMap<EqK, K, V> toAtomHashMap<EqK, K, V>(IEnumerable<(K, V)> items) where EqK : struct, Eq<K> =>
+            LanguageExt.HashMap.createRange<EqK, K, V>(items).ToAtom();
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static AtomHashMap<EqK, K, V> toAtomHashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : struct, Eq<K> =>
+            LanguageExt.HashMap.createRange<EqK, K, V>(items).ToAtom();
+
+        
+        
+        /// <summary>
         /// Create an immutable list
         /// </summary>
         [Pure]
