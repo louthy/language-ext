@@ -101,6 +101,11 @@ namespace LanguageExt
             {
                 var oitems = items;
                 var nitems = swap(new HashMap<K, V>(oitems)).Value;
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    // no change
+                    return default;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
                     return default;
@@ -253,6 +258,10 @@ namespace LanguageExt
             {
                 var oitems = items;
                 var nitems = oitems.TryAdd(key, value);
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    return default;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
                     return default;
@@ -357,6 +366,7 @@ namespace LanguageExt
         {
             SpinWait sw = default;
             var srange = Seq(range);
+            if (srange.IsEmpty) return default;
             while (true)
             {
                 var oitems = items;
@@ -383,10 +393,15 @@ namespace LanguageExt
         {
             SpinWait sw = default;
             var srange = Seq(range);
+            if (srange.IsEmpty) return default;
             while (true)
             {
                 var oitems = items;
                 var nitems = oitems.TryAddRange(srange);
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    return default;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
                     return default;
@@ -409,10 +424,15 @@ namespace LanguageExt
         {
             SpinWait sw = default;
             var srange = Seq(range);
+            if (srange.IsEmpty) return default;
             while (true)
             {
                 var oitems = items;
                 var nitems = items.TryAddRange(srange);
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    return default;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
                     return default;
@@ -436,6 +456,7 @@ namespace LanguageExt
         {
             SpinWait sw = default;
             var srange = Seq(range);
+            if (srange.IsEmpty) return default;
             while (true)
             {
                 var oitems = items;
@@ -462,6 +483,7 @@ namespace LanguageExt
         {
             SpinWait sw = default;
             var srange = Seq(range);
+            if (srange.IsEmpty) return default;
             while (true)
             {
                 var oitems = items;
@@ -489,6 +511,10 @@ namespace LanguageExt
             {
                 var oitems = items;
                 var nitems = items.Remove(key);
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    return default;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
                     return default;
@@ -545,6 +571,10 @@ namespace LanguageExt
             {
                 var oitems = items;
                 var (nitems, value) = items.FindOrAdd(key, None);
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    return value;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
                     return value;
@@ -570,6 +600,10 @@ namespace LanguageExt
             {
                 var oitems = items;
                 var (nitems, nvalue) = items.FindOrAdd(key, value);
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    return nvalue;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
                     return nvalue;
@@ -598,6 +632,10 @@ namespace LanguageExt
             {
                 var oitems = items;
                 var (nitems, nvalue) = items.FindOrMaybeAdd(key, None);
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    return nvalue;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
                     return nvalue;
@@ -623,6 +661,10 @@ namespace LanguageExt
             {
                 var oitems = items;
                 var (nitems, nvalue) = items.FindOrMaybeAdd(key, None);
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    return nvalue;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
                     return nvalue;
@@ -702,6 +744,10 @@ namespace LanguageExt
             {
                 var oitems = items;
                 var nitems = items.TrySetItem(key, value);
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    return default;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
                     return default;
@@ -731,6 +777,10 @@ namespace LanguageExt
             {
                 var oitems = items;
                 var nitems = items.TrySetItem(key, Some);
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    return default;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
                     return default;
@@ -817,6 +867,7 @@ namespace LanguageExt
         {
             SpinWait sw = default;
             var spairs = Seq(pairs);
+            if (spairs.IsEmpty) return default;
             while (true)
             {
                 var oitems = items;
@@ -841,6 +892,7 @@ namespace LanguageExt
         {
             SpinWait sw = default;
             var sitems = Seq(items);
+            if (sitems.IsEmpty) return default;
             while (true)
             {
                 var oitems = this.items;
@@ -865,6 +917,7 @@ namespace LanguageExt
         {
             SpinWait sw = default;
             var sitems = Seq(items);
+            if (sitems.IsEmpty) return default;
             while (true)
             {
                 var oitems = this.items;
@@ -889,10 +942,15 @@ namespace LanguageExt
         {
             SpinWait sw = default;
             var sitems = Seq(items);
+            if (sitems.IsEmpty) return default;
             while (true)
             {
                 var oitems = this.items;
                 var nitems = this.items.TrySetItems(sitems);
+                if (ReferenceEquals(oitems, nitems))
+                {
+                    return default;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
                 {
                     return default;
@@ -913,10 +971,15 @@ namespace LanguageExt
         {
             SpinWait sw = default;
             var sitems = Seq(items);
+            if (sitems.IsEmpty) return default;
             while (true)
             {
                 var oitems = this.items;
                 var nitems = this.items.TrySetItems(sitems);
+                if (ReferenceEquals(oitems, nitems))
+                {
+                    return default;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
                 {
                     return default;
@@ -942,10 +1005,15 @@ namespace LanguageExt
         {
             SpinWait sw = default;
             var skeys = Seq(keys);
+            if (skeys.IsEmpty) return default;
             while (true)
             {
                 var oitems = this.items;
                 var nitems = this.items.TrySetItems(skeys, Some);
+                if (ReferenceEquals(oitems, nitems))
+                {
+                    return default;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
                 {
                     return default;
@@ -965,10 +1033,15 @@ namespace LanguageExt
         {
             SpinWait sw = default;
             var skeys = Seq(keys);
+            if (skeys.IsEmpty) return default;
             while (true)
             {
                 var oitems = this.items;
                 var nitems = this.items.RemoveRange(skeys);
+                if (ReferenceEquals(oitems, nitems))
+                {
+                    return default;
+                }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
                 {
                     return default;
@@ -1122,6 +1195,7 @@ namespace LanguageExt
 
         public Unit Append(AtomHashMap<K, V> rhs)
         {
+            if (rhs.IsEmpty) return default;
             SpinWait sw = default;
             while (true)
             {
@@ -1140,6 +1214,7 @@ namespace LanguageExt
 
         public Unit Append(HashMap<K, V> rhs)
         {
+            if (rhs.IsEmpty) return default;
             SpinWait sw = default;
             while (true)
             {
@@ -1158,6 +1233,7 @@ namespace LanguageExt
 
         public Unit Subtract(AtomHashMap<K, V> rhs) 
         {
+            if (rhs.IsEmpty) return default;
             SpinWait sw = default;
             while (true)
             {
@@ -1176,6 +1252,7 @@ namespace LanguageExt
 
         public Unit Subtract(HashMap<K, V> rhs) 
         {
+            if (rhs.IsEmpty) return default;
             SpinWait sw = default;
             while (true)
             {
