@@ -1273,7 +1273,6 @@ namespace LanguageExt
         /// Invoke an action for the bound value (if in a Some state)
         /// </summary>
         /// <param name="Some">Action to invoke</param>
-        [Pure]
         public Task<Unit> Iter(Action<A> Some) =>
             iterAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, Some);
 
@@ -1281,7 +1280,6 @@ namespace LanguageExt
         /// Invoke an action for the bound value (if in a Some state)
         /// </summary>
         /// <param name="Some">Action to invoke</param>
-        [Pure]
         public Task<Unit> Iter(Func<A, Task<Unit>> Some) =>
             iterAsync<MOptionAsync<A>, OptionAsync<A>, A>(this, Some);
 
@@ -1290,7 +1288,6 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Some">Action to invoke if in a Some state</param>
         /// <param name="None">Action to invoke if in a None state</param>
-        [Pure]
         public Task<Unit> BiIter(Action<A> Some, Action<Unit> None) =>
             biIterAsync<MOptionAsync<A>, OptionAsync<A>, A, Unit>(this, Some, None);
 
@@ -1299,7 +1296,6 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Some">Action to invoke if in a Some state</param>
         /// <param name="None">Action to invoke if in a None state</param>
-        [Pure]
         public Task<Unit> BiIter(Action<A> Some, Action None) =>
             biIterAsync<MOptionAsync<A>, OptionAsync<A>, A, Unit>(this, Some, _ => None());
 

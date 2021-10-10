@@ -977,7 +977,6 @@ namespace LanguageExt
         /// Invoke an action for the bound value (if in a Some state)
         /// </summary>
         /// <param name="Some">Action to invoke</param>
-        [Pure]
         public Unit Iter(Action<A> Some)
         {
             if (isSome)
@@ -992,7 +991,6 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Some">Action to invoke if in a Some state</param>
         /// <param name="None">Action to invoke if in a None state</param>
-        [Pure]
         public Unit BiIter(Action<A> Some, Action<Unit> None)
         {
             if (isSome)
@@ -1011,7 +1009,6 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Some">Action to invoke if in a Some state</param>
         /// <param name="None">Action to invoke if in a None state</param>
-        [Pure]
         public Unit BiIter(Action<A> Some, Action None)
         {
             if (isSome)
