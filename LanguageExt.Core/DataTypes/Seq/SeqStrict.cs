@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -56,6 +57,12 @@ namespace LanguageExt
             this.count = count;
             this.consDisallowed = consDisallowed;
             this.addDisallowed = addDisallowed;
+        }
+
+        public static SeqStrict<A> Empty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get =>new SeqStrict<A>(new A[8], 4, 0, 0, 0);
         }
 
         /// <summary>
@@ -482,5 +489,12 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetHashCode(int offsetBasis) =>
             FNV32.Hash<HashableDefault<A>, A>(data, start, count, offsetBasis);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SeqStrict<A> FromEnumerable(IEnumerable<A> ma)
+        {
+            var arr = ma.ToArray();
+            return new SeqStrict<A>(arr, 0, arr.Length, 0, 0);
+        }
     }
 }

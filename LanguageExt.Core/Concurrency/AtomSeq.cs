@@ -1,30 +1,29 @@
-﻿using System;
+#nullable enable
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using LanguageExt;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
 
 namespace LanguageExt
 {
     /// <summary>
-    /// Cons sequence
-    /// Represents a sequence of values in a similar way to IEnumerable, but without the
-    /// issues of multiple evaluation for key LINQ operators like Skip, Count, etc.
+    /// Atoms provide a way to manage shared, synchronous, independent state without 
+    /// locks.  AtomSeq wraps the language-ext Seq, and makes sure all operations are atomic and thread-safe
+    /// without resorting to locking
     /// </summary>
-    /// <typeparam name="A">Type of the values in the sequence</typeparam>
-
-    public readonly struct Seq<A> :
-#pragma warning disable CS0618 // Remove ISeq complaint
-        ISeq<A>,
-#pragma warning restore CS0618
-        IComparable<Seq<A>>, IEquatable<Seq<A>>, IComparable
+    public class AtomSeq<A> : 
+        IComparable<AtomSeq<A>>, 
+        IEquatable<AtomSeq<A>>, 
+        IComparable<Seq<A>>, 
+        IEquatable<Seq<A>>, 
+        IEnumerable,
+        IComparable
     {
         /// <summary>
         /// Empty sequence
@@ -34,39 +33,38 @@ namespace LanguageExt
         /// <summary>
         /// Internal representation of the sequence (SeqStrict|SeqLazy|SeqEmptyInternal)
         /// </summary>
-        readonly ISeqInternal<A> value;
-
-        /// <summary>
-        /// Internal value accessor - protects against `default`
-        /// </summary>
-        internal ISeqInternal<A> Value
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => value ?? SeqEmptyInternal<A>.Default;
-        }
+        volatile ISeqInternal<A> items;
 
         /// <summary>
         /// Constructor from lazy sequence
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq(IEnumerable<A> ma) : this(new SeqLazy<A>(ma)) { }
+        public AtomSeq(IEnumerable<A> ma) : this(new SeqLazy<A>(ma ?? new A [0])) { }
 
         /// <summary>
         /// Constructor
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Seq(ISeqInternal<A> value) =>
-            this.value = value;
+        internal AtomSeq(ISeqInternal<A> items) =>
+            this.items = items ?? SeqEmptyInternal<A>.Default;
+
+        /// <summary>
+        /// Convert to an immutable sequence
+        /// </summary>
+        /// <remarks>This is effectively a zero cost operation, not even a single allocation</remarks>
+        [Pure]
+        public Seq<A> ToSeq() =>
+            new Seq<A>(items);
 
         /// <summary>
         /// Reference version for use in pattern-matching
         /// </summary>
         [Pure]
-        public object Case =>
+        public object? Case =>
             IsEmpty 
                 ? null
                 : Tail.IsEmpty 
-                    ? (object)Head
+                    ? (object?)Head
                     : (Head, Tail);
 
         public void Deconstruct(out A head, out Seq<A> tail)
@@ -74,63 +72,45 @@ namespace LanguageExt
             head = Head;
             tail = Tail;
         }
-
-        /// <summary>
-        /// Head lens
-        /// </summary>
-        public static Lens<Seq<A>, A> head => Lens<Seq<A>, A>.New(
-            Get: la => la.IsEmpty ? throw new IndexOutOfRangeException() : la[0],
-            Set: a => la => la.IsEmpty ? throw new IndexOutOfRangeException() : a.Cons(la.Tail)
-            );
-
-        /// <summary>
-        /// Head or none lens
-        /// </summary>
-        public static Lens<Seq<A>, Option<A>> headOrNone => Lens<Seq<A>, Option<A>>.New(
-            Get: la => la.HeadOrNone(),
-            Set: a => la => la.IsEmpty || a.IsNone ? la : a.Value.Cons(la.Tail)
-            );
-
-        /// <summary>
-        /// Tail lens
-        /// </summary>
-        public static Lens<Seq<A>, Seq<A>> tail => Lens<Seq<A>, Seq<A>>.New(
-            Get: la => la.IsEmpty ? Seq<A>.Empty : la.Tail,
-            Set: a => la => la.IsEmpty ? a : la.Head.Cons(a)
-            );
-
-        /// <summary>
-        /// Last lens
-        /// </summary>
-        public static Lens<Seq<A>, A> last => Lens<Seq<A>, A>.New(
-            Get: la => la.IsEmpty ? throw new IndexOutOfRangeException() : la.Last,
-            Set: a => la => la.IsEmpty ? throw new IndexOutOfRangeException() : la.Take(la.Count - 1).Add(a)
-            );
-
-        /// <summary>
-        /// Last or none lens
-        /// </summary>
-        public static Lens<Seq<A>, Option<A>> lastOrNone => Lens<Seq<A>, Option<A>>.New(
-            Get: la => la.IsEmpty ? None : Some(la.Last),
-            Set: a => la => la.IsEmpty || a.IsNone ? la : la.Take(la.Count - 1).Add(a.Value)
-            );
-
-        /// <summary>
-        /// Lens map
-        /// </summary>
-        [Pure]
-        public static Lens<Seq<A>, Seq<B>> map<B>(Lens<A, B> lens) => Lens<Seq<A>, Seq<B>>.New(
-            Get: la => la.Map(lens.Get),
-            Set: lb => la => la.Zip(lb).Map(ab => lens.Set(ab.Item2, ab.Item1))
-            );
-
+        
         /// <summary>
         /// Indexer
         /// </summary>
         public A this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Value[index];
+            get => items[index];
+        }
+        
+        /// <summary>
+        /// Atomically swap the underlying Seq.  Allows for multiple operations on the Seq in an entirely
+        /// transactional and atomic way.
+        /// </summary>
+        /// <param name="swap">Swap function, maps the current state of the AtomSeq to a new state</param>
+        /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
+        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
+        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        public Unit Swap(Func<Seq<A>, Seq<A>> swap)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = items;
+                var nitems = swap(new Seq<A>(oitems)).Value;
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    // no change
+                    return default;
+                }
+                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
         }
 
         /// <summary>
@@ -140,10 +120,24 @@ namespace LanguageExt
         /// Forces evaluation of the entire lazy sequence so the item 
         /// can be appended
         /// </remarks>
-        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Add(A value) =>
-            new Seq<A>(Value.Add(value));
+        public Unit Add(A value)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = items;
+                var nitems = oitems.Add(value);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        }
 
         /// <summary>
         /// Add a range of items to the end of the sequence
@@ -154,7 +148,7 @@ namespace LanguageExt
         /// </remarks>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Concat(IEnumerable<A> items) => items switch
+        public Unit Concat(IEnumerable<A> items) => items switch
         {
             Lst<A> lst              => Concat(lst),
             Set<A> set              => Concat(set),
@@ -162,7 +156,7 @@ namespace LanguageExt
             Arr<A> arr              => Concat(arr),
             Stck<A> stck            => Concat(stck),
             IReadOnlyList<A> rolist => Concat(rolist),
-            _                       => new Seq<A>(EnumerableOptimal.ConcatFast(this, items))
+            _                       => Concat(Seq(items))
         };
                            
         /// <summary>
@@ -174,11 +168,11 @@ namespace LanguageExt
         /// </remarks>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Concat(Lst<A> items)
+        public Unit Concat(Lst<A> items)
         {
             if (items.Count == 0)
             {
-                return this;
+                return default;
             }
             var arr = items.Value.ToArray();
             return Concat(Seq.FromArray(arr));
@@ -193,11 +187,11 @@ namespace LanguageExt
         /// </remarks>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Concat(Set<A> items)
+        public Unit Concat(Set<A> items)
         {
             if (items.Count == 0)
             {
-                return this;
+                return default;
             }
             var arr = items.Value.ToArray();
             return Concat(Seq.FromArray(arr));
@@ -212,11 +206,11 @@ namespace LanguageExt
         /// </remarks>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Concat(HashSet<A> items)
+        public Unit Concat(HashSet<A> items)
         {
             if (items.Count == 0)
             {
-                return this;
+                return default;
             }
             var arr = items.ToArray();
             return Concat(Seq.FromArray(arr));
@@ -230,11 +224,11 @@ namespace LanguageExt
         /// can be appended.  
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Concat(Arr<A> items)
+        public Unit Concat(Arr<A> items)
         {
             if (items.Count == 0)
             {
-                return this;
+                return default;
             }
             return Concat(Seq.FromArray(items.Value));
         }
@@ -247,11 +241,11 @@ namespace LanguageExt
         /// can be appended.  
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Concat(Stck<A> items)
+        public Unit Concat(Stck<A> items)
         {
             if (items.Count == 0)
             {
-                return this;
+                return default;
             }
             var arr = items.ToArray();
             return Concat(Seq.FromArray(arr));
@@ -265,11 +259,11 @@ namespace LanguageExt
         /// can be appended.  
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Concat(IReadOnlyCollection<A> items)
+        public Unit Concat(IReadOnlyCollection<A> items)
         {
-            if ((items?.Count ?? 0) == 0)
+            if (items.Count == 0)
             {
-                return this;
+                return default;
             }
 
             var arr = items.ToArray();
@@ -283,100 +277,133 @@ namespace LanguageExt
         /// Forces evaluation of the entire lazy sequence so the items
         /// can be appended.  
         /// </remarks>
-        [Pure]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Concat(Seq<A> rhs)
+        public Unit Concat(Seq<A> rhs)
         {
-            switch(Value.Type)
+            SpinWait sw = default;
+            while (true)
             {
-                case SeqType.Empty:
-                    // lhs is empty, so just return rhs
-                    return rhs;
+                var oitems = items;
 
-                case SeqType.Lazy:
+                var nitems = oitems.Type switch
+                             {
+                                 SeqType.Empty =>
 
-                    switch (rhs.Value.Type)
-                    {
-                        // lhs lazy, rhs empty
-                        // return lhs
-                        case SeqType.Empty:
-                            return this;
+                                     // lhs is empty, so just return rhs
+                                     rhs.Value,
 
-                        // lhs lazy, rhs lazy
-                        // return SeqConcat
-                        case SeqType.Lazy:
-                            return new Seq<A>(new SeqConcat<A>(Seq(value, rhs.value)));
+                                 SeqType.Lazy =>
+                                     rhs.Value.Type switch
+                                     {
+                                         // lhs lazy, rhs empty
+                                         // return lhs
+                                         SeqType.Empty => oitems,
 
-                        // lhs lazy, rhs strict
-                        // force lhs to be strict and concat the two 
-                        case SeqType.Strict:
-                            return new Seq<A>(((SeqStrict<A>)value.Strict()).Append((SeqStrict<A>)rhs.value));
+                                         // lhs lazy, rhs lazy
+                                         // return SeqConcat
+                                         SeqType.Lazy => new SeqConcat<A>(Seq(oitems, rhs.Value)),
 
-                        // lhs lazy, rhs concat
-                        // prepend rhs with lhs
-                        case SeqType.Concat:
-                            return new Seq<A>(((SeqConcat<A>)rhs.value).ConsSeq(value));
-                    }
-                    break;
+                                         // lhs lazy, rhs strict
+                                         // force lhs to be strict and concat the two 
+                                         SeqType.Strict =>
+                                             ((SeqStrict<A>)oitems.Strict()).Append((SeqStrict<A>)rhs.Value),
 
-                case SeqType.Strict:
+                                         // lhs lazy, rhs concat
+                                         // prepend rhs with lhs
+                                         SeqType.Concat =>
+                                             ((SeqConcat<A>)rhs.Value).ConsSeq(oitems),
 
-                    switch (rhs.Value.Type)
-                    {
-                        // lhs strict, rhs empty
-                        // return lhs
-                        case SeqType.Empty:
-                            return this;
+                                         _ => throw new NotSupportedException()
+                                     },
 
-                        // lhs strict, rhs lazy
-                        // return SeqConcat
-                        case SeqType.Lazy:
-                            return new Seq<A>(new SeqConcat<A>(Seq(value, rhs.value)));
+                                 SeqType.Strict =>
+                                     rhs.Value.Type switch
+                                     {
+                                         // lhs strict, rhs empty
+                                         // return lhs
+                                         SeqType.Empty => oitems,
 
-                        // lhs strict, rhs strict
-                        // append the two
-                        case SeqType.Strict:
-                            return new Seq<A>(((SeqStrict<A>)value).Append((SeqStrict<A>)rhs.value));
+                                         // lhs strict, rhs lazy
+                                         // return SeqConcat
+                                         SeqType.Lazy =>
+                                             new SeqConcat<A>(Seq(oitems, rhs.Value)),
 
-                        // lhs strict, rhs concat
-                        // prepend rhs with lhs
-                        case SeqType.Concat:
-                            return new Seq<A>(((SeqConcat<A>)rhs.value).ConsSeq(value));
-                    }
-                    break;
+                                         // lhs strict, rhs strict
+                                         // append the two
+                                         SeqType.Strict =>
+                                             ((SeqStrict<A>)oitems).Append((SeqStrict<A>)rhs.Value),
 
-                case SeqType.Concat:
+                                         // lhs strict, rhs concat
+                                         // prepend rhs with lhs
+                                         SeqType.Concat =>
+                                             ((SeqConcat<A>)rhs.Value).ConsSeq(oitems),
 
-                    switch (rhs.Value.Type)
-                    {
-                        // lhs concat, rhs empty
-                        // return lhs
-                        case SeqType.Empty:
-                            return this;
+                                         _ => throw new NotSupportedException()
+                                     },
 
-                        // lhs concat, rhs lazy || lhs concat, rhs strict
-                        // add rhs to concat
-                        case SeqType.Lazy:
-                        case SeqType.Strict:
-                            return new Seq<A>(((SeqConcat<A>)value).AddSeq(rhs.value));
+                                 SeqType.Concat =>
+                                     rhs.Value.Type switch
+                                     {
+                                         // lhs concat, rhs empty
+                                         // return lhs
+                                         SeqType.Empty =>
+                                             oitems,
 
-                        // lhs concat, rhs concat
-                        // add rhs to concat
-                        case SeqType.Concat:
-                            return new Seq<A>(((SeqConcat<A>)value).AddSeqRange(((SeqConcat<A>)rhs.value).ms));
-                    }
-                    break;
+                                         // lhs concat, rhs lazy || lhs concat, rhs strict
+                                         // add rhs to concat
+                                         SeqType.Lazy =>
+                                             ((SeqConcat<A>)oitems).AddSeq(rhs.Value),
+
+                                         SeqType.Strict =>
+                                             ((SeqConcat<A>)oitems).AddSeq(rhs.Value),
+
+                                         // lhs concat, rhs concat
+                                         // add rhs to concat
+                                         SeqType.Concat =>
+                                             ((SeqConcat<A>)oitems).AddSeqRange(((SeqConcat<A>)rhs.Value).ms),
+
+                                         _ => throw new NotSupportedException()
+                                     },
+
+                                 _ => throw new NotSupportedException()
+                             };
+
+                if (ReferenceEquals(oitems, nitems))
+                {
+                    // no change
+                    return default;
+                }
+
+                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
             }
-            throw new NotSupportedException();
         }
 
         /// <summary>
         /// Prepend an item to the sequence
         /// </summary>
-        [Pure]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Seq<A> Cons(A value) =>
-            new Seq<A>(Value.Cons(value));
+        internal Unit Cons(A value)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = items;
+                var nitems = oitems.Cons(value);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        }
 
         /// <summary>
         /// Head item in the sequence.  NOTE:  If `IsEmpty` is true then Head 
@@ -385,7 +412,7 @@ namespace LanguageExt
         public A Head
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Value.Head;
+            get => items.Head;
         }
 
         /// <summary>
@@ -394,7 +421,7 @@ namespace LanguageExt
         public Seq<A> Tail
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new Seq<A>(Value.Tail);
+            get => new Seq<A>(items.Tail);
         }
 
         /// <summary>
@@ -403,7 +430,7 @@ namespace LanguageExt
         public Seq<A> Init
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new Seq<A>(Value.Init);
+            get => new Seq<A>(items.Init);
         }
 
         /// <summary>
@@ -422,7 +449,7 @@ namespace LanguageExt
         public A Last
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Value.Last;
+            get => items.Last;
         }
 
         /// <summary>
@@ -550,7 +577,7 @@ namespace LanguageExt
         public bool IsEmpty
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => value?.IsEmpty ?? true;
+            get => items.IsEmpty;
         }
 
         /// <summary>
@@ -560,7 +587,7 @@ namespace LanguageExt
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => value?.Count ?? 0;
+            get => items.Count;
         }
         
         /// <summary>
@@ -570,7 +597,7 @@ namespace LanguageExt
         public int Length
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => value?.Count ?? 0;
+            get => items.Count;
         }
 
         /// <summary>
@@ -579,7 +606,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<A> AsEnumerable() => 
-            Value;
+            items;
 
         /// <summary>
         /// Match empty sequence, or multi-item sequence
@@ -630,7 +657,7 @@ namespace LanguageExt
             Func<Seq<A>, B> Seq) =>
             IsEmpty
                 ? Empty()
-                : Seq(this);
+                : Seq(new Seq<A>(items));
 
         /// <summary>
         /// Match empty sequence, or one item sequence, or multi-item sequence
@@ -657,23 +684,9 @@ namespace LanguageExt
         /// <returns>
         /// Returns the original unmodified structure
         /// </returns>
-        [Pure]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Do(Action<A> f)
-        {
-            this.Iter(f);
-            return this;
-        }
-
-        /// <summary>
-        /// Impure iteration of the bound values in the structure
-        /// </summary>
-        /// <returns>
-        /// Returns the original unmodified structure
-        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit Iter(Action<A> f) =>
-            Value.Iter(f);
+            items.Iter(f);
 
         /// <summary>
         /// Map the sequence using the function provided
@@ -684,8 +697,8 @@ namespace LanguageExt
         [Pure]
         public Seq<B> Map<B>(Func<A, B> f)
         {
-            return new Seq<B>(new SeqLazy<B>(Yield(this)));
-            IEnumerable<B> Yield(Seq<A> items)
+            return new Seq<B>(new SeqLazy<B>(Yield(items)));
+            IEnumerable<B> Yield(ISeqInternal<A> items)
             {
                 foreach (var item in items)
                 {
@@ -693,6 +706,34 @@ namespace LanguageExt
                 }
             }
         }
+
+        /// <summary>
+        /// Map the sequence using the function provided
+        /// </summary>
+        /// <typeparam name="B"></typeparam>
+        /// <param name="f">Mapping function</param>
+        /// <returns>Mapped sequence</returns>
+        /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
+        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
+        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        [Pure]
+        public Unit MapInPlace(Func<A, A> f)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = items;
+                var nitems = new SeqLazy<A>(oitems.Map(f));
+                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        }        
         
         /// <summary>
         /// Map the sequence using the function provided
@@ -714,7 +755,7 @@ namespace LanguageExt
         [Pure]
         public Seq<B> Bind<B>(Func<A, Seq<B>> f)
         {
-            static IEnumerable<B> Yield(Seq<A> ma, Func<A, Seq<B>> bnd)
+            static IEnumerable<B> Yield(ISeqInternal<A> ma, Func<A, Seq<B>> bnd)
             {
                 foreach (var a in ma)
                 {
@@ -724,8 +765,35 @@ namespace LanguageExt
                     }
                 }
             }
-            return new Seq<B>(Yield(this, f));
+            return new Seq<B>(Yield(items, f));
         }
+        
+        /// <summary>
+        /// Monadic bind (flatmap) of the sequence
+        /// </summary>
+        /// <typeparam name="B">Bound return value type</typeparam>
+        /// <param name="f">Bind function</param>
+        /// <returns>Flat-mapped sequence</returns>
+        /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
+        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
+        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        public Unit BindInPlace<B>(Func<A, Seq<A>> f)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = items;
+                var nitems = new Seq<A>(oitems).Bind(f);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems.Value, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        } 
 
         /// <summary>
         /// Monadic bind (flatmap) of the sequence
@@ -736,7 +804,7 @@ namespace LanguageExt
         [Pure]
         public Seq<C> SelectMany<B, C>(Func<A, Seq<B>> bind, Func<A, B, C> project)
         {
-            static IEnumerable<C> Yield(Seq<A> ma, Func<A, Seq<B>> bnd, Func<A, B, C> prj)
+            static IEnumerable<C> Yield(ISeqInternal<A> ma, Func<A, Seq<B>> bnd, Func<A, B, C> prj)
             {
                 foreach (var a in ma)
                 {
@@ -746,7 +814,7 @@ namespace LanguageExt
                     }
                 }
             }
-            return new Seq<C>(Yield(this, bind, project));
+            return new Seq<C>(Yield(items, bind, project));
         }
 
         /// <summary>
@@ -757,8 +825,8 @@ namespace LanguageExt
         [Pure]
         public Seq<A> Filter(Func<A, bool> f)
         {
-            return new Seq<A>(new SeqLazy<A>(Yield(this, f)));
-            static IEnumerable<A> Yield(Seq<A> items, Func<A, bool> f)
+            return new Seq<A>(new SeqLazy<A>(Yield(items, f)));
+            static IEnumerable<A> Yield(ISeqInternal<A> items, Func<A, bool> f)
             {
                 foreach (var item in items)
                 {
@@ -766,6 +834,37 @@ namespace LanguageExt
                     {
                         yield return item;
                     }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Filter the items in the sequence
+        /// </summary>
+        /// <param name="f">Predicate to apply to the items</param>
+        /// <returns>Filtered sequence</returns>
+        /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
+        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
+        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        public Unit FilterInPlace(Func<A, bool> f)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = items;
+                var nitems = new SeqLazy<A>(oitems.Filter(f));
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    // no change
+                    return default;
+                }
+                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
                 }
             }
         }
@@ -790,7 +889,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S Fold<S>(S state, Func<S, A, S> f) =>
-            Value.Fold(state, f);
+            items.Fold(state, f);
 
         /// <summary>
         /// Fold the sequence from the last item to the first.  For 
@@ -804,7 +903,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S FoldBack<S>(S state, Func<S, A, S> f) =>
-            Value.FoldBack(state, f);
+            items.FoldBack(state, f);
 
         /// <summary>
         /// Returns true if the supplied predicate returns true for any
@@ -816,7 +915,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Exists(Func<A, bool> f) =>
-            Value.Exists(f);
+            items.Exists(f);
 
         /// <summary>
         /// Returns true if the supplied predicate returns true for all
@@ -830,7 +929,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ForAll(Func<A, bool> f) =>
-            Value.ForAll(f);
+            items.ForAll(f);
 
         /// <summary>
         /// Returns true if the sequence has items in it
@@ -850,8 +949,28 @@ namespace LanguageExt
         /// <returns>A sequence with the values injected</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Intersperse(A value) =>
-            Seq(Value.Intersperse(value));
+        public Unit Intersperse(A value)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = items;
+                var nitems = new SeqLazy<A>(oitems.Intersperse(value));
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    // no change
+                    return default;
+                }
+                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        }
 
         /// <summary>
         /// Get the hash code for all of the items in the sequence, or 0 if empty
@@ -860,12 +979,13 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() =>
-            Value.GetHashCode();
+            items.GetHashCode();
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(object obj) => obj switch 
         {
+            AtomSeq<A>     s => CompareTo(s),
             Seq<A>         s => CompareTo(s),
             IEnumerable<A> e => CompareTo(Seq(e)),
             _                => 1
@@ -879,71 +999,64 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public override string ToString() =>
-            Value is SeqLazy<A>
-                ? CollectionFormat.ToShortArrayString(this)
-                : CollectionFormat.ToShortArrayString(this, Count);
+            items is SeqLazy<A>
+                ? CollectionFormat.ToShortArrayString(items)
+                : CollectionFormat.ToShortArrayString(items, Count);
 
         /// <summary>
         /// Format the collection as `a, b, c, ...`
         /// </summary>
         [Pure]
         public string ToFullString(string separator = ", ") =>
-            CollectionFormat.ToFullString(this, separator);
+            CollectionFormat.ToFullString(items, separator);
 
         /// <summary>
         /// Format the collection as `[a, b, c, ...]`
         /// </summary>
         [Pure]
         public string ToFullArrayString(string separator = ", ") =>
-            CollectionFormat.ToFullArrayString(this, separator);
-
-        /// <summary>
-        /// Append operator
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Seq<A> operator +(Seq<A> x, Seq<A> y) =>
-            x.Concat(y);
+            CollectionFormat.ToFullArrayString(items, separator);
 
         /// <summary>
         /// Ordering operator
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator >(Seq<A> x, Seq<A> y) =>
+        public static bool operator >(AtomSeq<A> x, AtomSeq<A> y) =>
             x.CompareTo(y) > 0;
 
         /// <summary>
         /// Ordering operator
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator >=(Seq<A> x, Seq<A> y) =>
+        public static bool operator >=(AtomSeq<A> x, AtomSeq<A> y) =>
             x.CompareTo(y) >= 0;
 
         /// <summary>
         /// Ordering  operator
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator <(Seq<A> x, Seq<A> y) =>
+        public static bool operator <(AtomSeq<A> x, AtomSeq<A> y) =>
             x.CompareTo(y) < 0;
 
         /// <summary>
         /// Ordering  operator
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator <=(Seq<A> x, Seq<A> y) =>
+        public static bool operator <=(AtomSeq<A> x, AtomSeq<A> y) =>
             x.CompareTo(y) <= 0;
 
         /// <summary>
         /// Equality operator
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(Seq<A> x, Seq<A> y) =>
+        public static bool operator ==(AtomSeq<A> x, AtomSeq<A> y) =>
             x.Equals(y);
 
         /// <summary>
         /// Non-equality operator
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(Seq<A> x, Seq<A> y) =>
+        public static bool operator !=(AtomSeq<A> x, AtomSeq<A> y) =>
             !(x == y);
 
         /// <summary>
@@ -952,6 +1065,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object obj) => obj switch 
         {
+            AtomSeq<A>     s => Equals(s),
             Seq<A>         s => Equals(s),
             IEnumerable<A> e => Equals(Seq(e)),
             _                => false
@@ -962,16 +1076,15 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Obsolete(ISeqObsolete.Message)]
-        public bool Equals(ISeq<A> rhs) =>
-            Enumerable.SequenceEqual(this, rhs);
+        public bool Equals(Seq<A> rhs) =>
+            Equals<EqDefault<A>>(rhs);
 
         /// <summary>
         /// Equality test
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(Seq<A> rhs) =>
+        public bool Equals(AtomSeq<A> rhs) =>
             Equals<EqDefault<A>>(rhs);
 
         /// <summary>
@@ -1006,26 +1119,93 @@ namespace LanguageExt
             }
             return true;
         }
+        
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        [Pure]
+        public bool Equals<EqA>(AtomSeq<A> rhs) where EqA : struct, Eq<A>
+        {
+            // Differing lengths?
+            if(Count != rhs.Count) return false;
+
+            // If the hash code has been calculated on both sides then 
+            // check for differences
+            if (GetHashCode() != rhs.GetHashCode())
+            {
+                return false;
+            }
+
+            // Iterate through both sides
+            using (var iterA = GetEnumerator())
+            {
+                using (var iterB = rhs.GetEnumerator())
+                {
+                    while (iterA.MoveNext() && iterB.MoveNext())
+                    {
+                        if (!default(EqA).Equals(iterA.Current, iterB.Current))
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
 
         /// <summary>
         /// Skip count items
         /// </summary>
-        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Skip(int amount) =>
-            amount < 1
-                ? this
-                : new Seq<A>(Value.Skip(amount));
-
+        public Unit Skip(int amount)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = items;
+                var nitems = new SeqLazy<A>(oitems.Skip(amount));
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    // no change
+                    return default;
+                }
+                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        }
+        
         /// <summary>
         /// Take count items
         /// </summary>
-        [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Take(int amount) =>
-            amount < 1
-                ? Empty
-                : new Seq<A>(Value.Take(amount));
+        public Unit Take(int amount)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = items;
+                var nitems = new SeqLazy<A>(oitems.Take(amount));
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    // no change
+                    return default;
+                }
+                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        }
 
         /// <summary>
         /// Iterate the sequence, yielding items if they match the predicate 
@@ -1033,20 +1213,32 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
-        [Pure]
-        public Seq<A> TakeWhile(Func<A, bool> pred)
+        /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
+        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
+        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        public Unit TakeWhile(Func<A, bool> pred)
         {
-            return new Seq<A>(new SeqLazy<A>(Yield(Value, pred)));
-            IEnumerable<A> Yield(IEnumerable<A> xs, Func<A, bool> f)
+            SpinWait sw = default;
+            while (true)
             {
-                foreach (var x in xs)
+                var oitems = items;
+                var nitems = new SeqLazy<A>(oitems.TakeWhile(pred));
+                if(ReferenceEquals(oitems, nitems))
                 {
-                    if (!f(x)) break;
-                    yield return x;
+                    // no change
+                    return default;
+                }
+                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
                 }
             }
         }
-
+        
         /// <summary>
         /// Iterate the sequence, yielding items if they match the predicate 
         /// provided, and stopping as soon as one doesn't.  An index value is 
@@ -1054,18 +1246,28 @@ namespace LanguageExt
         /// </summary>
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
-        [Pure]
-        public Seq<A> TakeWhile(Func<A, int, bool> pred)
+        /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
+        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
+        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        public Unit TakeWhile(Func<A, int, bool> pred)
         {
-            return new Seq<A>(new SeqLazy<A>(Yield(Value, pred)));
-            IEnumerable<A> Yield(IEnumerable<A> xs, Func<A, int, bool> f)
+            SpinWait sw = default;
+            while (true)
             {
-                var i = 0;
-                foreach (var x in xs)
+                var oitems = items;
+                var nitems = new SeqLazy<A>(oitems.TakeWhile(pred));
+                if(ReferenceEquals(oitems, nitems))
                 {
-                    if (!f(x, i)) break;
-                    yield return x;
-                    i++;
+                    // no change
+                    return default;
+                }
+                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
                 }
             }
         }
@@ -1101,19 +1303,9 @@ namespace LanguageExt
         ///     
         /// </example>
         /// <returns>Initial segments of the sequence</returns>
-        public Seq<Seq<A>> NonEmptyInits
-        {
-            get
-            {
-                var mma = Seq<Seq<A>>();
-                for (var i = 1; i <= Count; i++)
-                {
-                    mma = mma.Add(Take(i));
-                }
-                return mma;
-            }
-        }
-        
+        public Seq<Seq<A>> NonEmptyInits =>
+            ToSeq().NonEmptyInits;
+
         /// <summary>
         /// Returns all final segments of the argument, longest first.
         /// </summary>
@@ -1128,24 +1320,9 @@ namespace LanguageExt
         ///     
         /// </example>
         /// <returns>Initial segments of the sequence</returns>
-        public Seq<Seq<A>> Tails
-        {
-            get
-            {
-                return new Seq<Seq<A>>(go(this)); 
-                static IEnumerable<Seq<A>> go(Seq<A> ma)
-                {
-                    while (!ma.IsEmpty)
-                    {
-                        yield return ma;
-                        ma = ma.Tail;
-                    }
-                    yield return Seq<A>.Empty;
-                }
-            }
-        }
+        public Seq<Seq<A>> Tails =>
+            ToSeq().Tails;
 
-        
         /// <summary>
         /// Returns all final segments of the argument, longest first.
         /// </summary>
@@ -1160,60 +1337,21 @@ namespace LanguageExt
         ///     
         /// </example>
         /// <returns>Initial segments of the sequence</returns>
-        public Seq<Seq<A>> NonEmptyTails
-        {
-            get
-            {
-                return new Seq<Seq<A>>(go(this)); 
-                static IEnumerable<Seq<A>> go(Seq<A> ma)
-                {
-                    while (!ma.IsEmpty)
-                    {
-                        yield return ma;
-                        ma = ma.Tail;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Compare to another sequence
-        /// </summary>
-        [Pure]
-        [Obsolete(ISeqObsolete.Message)]
-        public int CompareTo(ISeq<A> rhs) =>
-            CompareTo<OrdDefault<A>>(rhs);
-
-        /// <summary>
-        /// Compare to another sequence
-        /// </summary>
-        [Pure]
-        [Obsolete(ISeqObsolete.Message)]
-        public int CompareTo<OrdA>(ISeq<A> rhs) where OrdA : struct, Ord<A>
-        {
-            if (rhs == null) return 1;
-
-            // Differing lengths?
-            var cmp = Count.CompareTo(rhs.Count);
-            if (cmp != 0) return cmp;
-
-            // Iterate through both sides
-            using var iterA = GetEnumerator();
-            using var iterB = rhs.GetEnumerator();
-            while (iterA.MoveNext() && iterB.MoveNext())
-            {
-                cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
-                if (cmp != 0) return cmp;
-            }
-
-            return 0;
-        }
+        public Seq<Seq<A>> NonEmptyTails =>
+            ToSeq().NonEmptyTails;
 
         /// <summary>
         /// Compare to another sequence
         /// </summary>
         [Pure]
         public int CompareTo(Seq<A> rhs) =>
+            CompareTo<OrdDefault<A>>(rhs);
+
+        /// <summary>
+        /// Compare to another sequence
+        /// </summary>
+        [Pure]
+        public int CompareTo(AtomSeq<A> rhs) =>
             CompareTo<OrdDefault<A>>(rhs);
 
         /// <summary>
@@ -1241,46 +1379,54 @@ namespace LanguageExt
 
             return 0;
         }
+        
+        
+        /// <summary>
+        /// Compare to another sequence
+        /// </summary>
+        [Pure]
+        public int CompareTo<OrdA>(AtomSeq<A> rhs) where OrdA : struct, Ord<A>
+        {
+            // Differing lengths?
+            var cmp = Count.CompareTo(rhs.Count);
+            if (cmp != 0) return cmp;
+
+            // Iterate through both sides
+            using (var iterA = GetEnumerator())
+            {
+                using (var iterB = rhs.GetEnumerator())
+                {
+                    while (iterA.MoveNext() && iterB.MoveNext())
+                    {
+                        cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
+                        if (cmp != 0) return cmp;
+                    }
+                }
+            }
+
+            return 0;
+        }
 
         /// <summary>
         /// Force all items lazy to stream
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Seq<A> Strict() => 
-            new Seq<A>(Value.Strict());
+        public Unit Strict() => 
+            ignore(items.Strict());
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerator<A> GetEnumerator() =>
-            Value.GetEnumerator();
+            items.GetEnumerator();
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator() =>
-            Value.GetEnumerator();
-
-        /// <summary>
-        /// Implicit conversion from an untyped empty list
-        /// </summary>
-        [Pure]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Seq<A>(SeqEmpty _) =>
-            Empty;
+            items.GetEnumerator();
 
         [Pure]
-        public Seq<B> Cast<B>()
-        {
-            IEnumerable<B> Yield(Seq<A> ma)
-            {
-                foreach (object item in ma)
-                {
-                    yield return (B)item;
-                }
-            }
-
-            return Value is IEnumerable<B> mb
-                ? new Seq<B>(mb)
-                : new Seq<B>(Yield(this));
-        }
+        public Seq<B> Cast<B>() =>
+            ToSeq().Cast<B>();
     }
 }
+#nullable disable

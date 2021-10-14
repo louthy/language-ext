@@ -905,6 +905,34 @@ namespace LanguageExt
             Empty;
 
         /// <summary>
+        /// Construct an empty AtomSeq
+        /// </summary>
+        [Pure]
+        public static AtomSeq<A> AtomSeq<A>() =>
+            new AtomSeq<A>(SeqStrict<A>.Empty);
+
+        /// <summary>
+        /// Construct an AtomSeq
+        /// </summary>
+        [Pure]
+        public static AtomSeq<A> AtomSeq<A>(params A[] items) =>
+            new AtomSeq<A>(LSeq.FromArray(items).Value);
+
+        /// <summary>
+        /// Construct an AtomSeq
+        /// </summary>
+        [Pure]
+        public static AtomSeq<A> AtomSeq<A>(Seq<A> items) =>
+            new AtomSeq<A>(items.Value);
+
+        /// <summary>
+        /// Construct an AtomSeq
+        /// </summary>
+        [Pure]
+        public static AtomSeq<A> AtomSeq<A>(IEnumerable<A> items) =>
+            new AtomSeq<A>(items);
+
+        /// <summary>
         /// Construct a sequence from a nullable
         ///     HasValue == true  : [x]
         ///     HasValue == false : []
@@ -922,13 +950,16 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>(IEnumerable<A> value) =>
-            value == null                ? Empty
-          : value is Seq<A> seq          ? seq
-          : value is Arr<A> arr          ? LSeq.FromArray(arr.Value)
-          : value is A[] array           ? Seq(array)
-          : value is IList<A> list       ? Seq(list)
-          : value is ICollection<A> coll ? Seq(coll)
-          : new Seq<A>(value);
+            value switch
+            {
+                null                => Empty,
+                Seq<A> seq          => seq,
+                Arr<A> arr          => LSeq.FromArray(arr.Value),
+                A[] array           => Seq(array),
+                IList<A> list       => Seq(list),
+                ICollection<A> coll => Seq(coll),
+                _                   => new Seq<A>(value)
+            };
 
         /// <summary>
         /// Construct a sequence from an array
