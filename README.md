@@ -17,8 +17,8 @@ https://twitter.com/paullouth
 * [Nu-get package](#nu-get)
 * [Code-gen setup](#code-gen-setup)
 * [Unity](#unity)
-* [Prologue](#prologue)
 * [Getting started](#getting-started)
+* [Prologue](#prologue)
 * [**Features**](#features)
   * [Functional effects and IO](#functional-effects-and-io)
   * [Atomic concurrency, shared state, and collections](#atomic-concurrency-and-collections)
@@ -97,6 +97,16 @@ This library seems compatible on the latest (at the time of writing) Unity 2018.
 In the meanwhile, you can install incremental compiler instead. 
 If you are concerned about writing functionally and the possible performance overheads then please take a look at [this wiki page](https://github.com/louthy/language-ext/wiki/Performance).
 
+## Getting started
+
+To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet, and add this to the top of each `.cs` file that needs it:
+```C#
+using LanguageExt;
+using static LanguageExt.Prelude;
+```
+
+The namespace `LanguageExt` contains the core types, and `LanguageExt.Prelude` contains the functions that you bring into scope `using static LanguageExt.Prelude`.
+
 ## Prologue
 One of the great features of C#6+ is that it allows us to treat static classes like namespaces. This means that we can use static 
 methods without qualifying them first. That instantly gives us access to single term method names that look exactly like functions 
@@ -146,16 +156,6 @@ Even if you disagree with this non-idiomatic approach, all of the `camelCase` st
 
 _If you're not using C# 6 yet, then you can still use this library. Anywhere in the docs below where you see a camelCase function 
 it can be accessed by prefixing with `Prelude.`_
-
-## Getting started
-
-To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet, and add this to the top of each `.cs` file that needs it:
-```C#
-using LanguageExt;
-using static LanguageExt.Prelude;
-```
-
-The namespace `LanguageExt` contains the core types, and `LanguageExt.Prelude` contains the functions that you bring into scope `using static LanguageExt.Prelude`. 
 
 ## Features
 
