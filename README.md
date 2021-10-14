@@ -12,53 +12,49 @@ in the direction of declarative and functional code rather than imperative.
 __Author on twitter:__ 
 https://twitter.com/paullouth
 
-## Index
+## Contents
 
-* [Contributing & Code of Conduct](#contributing--code-of-conduct)
 * [Nu-get package](#nu-get)
 * [Code-gen setup](#code-gen-setup)
 * [Unity](#unity)
-* [Introduction](#introduction)
+* [Prologue](#prologue)
 * [Getting started](#getting-started)
-* [Features](#features)
-* [API Reference](https://louthy.github.io/language-ext)
-
-This library started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
-
-* [Poor tuple support](#poor-tuple-support)
-* [Null reference problem](#null-reference-problem)
-    * [Option](#option)
-* [Lack of lambda and expression inference](#lack-of-lambda-and-expression-inference)
-* [Void isn't a real type](#void-isnt-a-real-type)
-* [Mutable lists and dictionaries](#mutable-lists-and-dictionaries)
-   * [Lists](#lists)
-   * [List pattern matching](#list-pattern-matching)
-   * [Maps](#maps)
-* [Difficulty in creating immutable record types](#difficulty-in-creating-immutable-record-types)
-   * [Transformation of immutable types](#transformation-of-immutable-types)
-      * [`[With]`](#with)
-   * [Transformation of nested immutable types with Lenses](#transformation-of-nested-immutable-types-with-lenses)
-      * [`[WithLens]`](#withlens)
-* [The awful 'out' parameter](#the-awful-out-parameter)
-* [The lack of ad-hoc polymorphism](#ad-hoc-polymorphism)
-   * [`Num<A>`](#num<A>)
-   * [`Eq<A>`](#eq<A>)
-   * [`Ord<A>`](#ord<A>)
-   * [`Semigroup<A>`](#semigroup<A>)
-   * [`Monoid<A>`](#monoid<A>)
-   * [`Monad`](#monad)
-   * [Transformer types](#transformer-types)
-
-
-## Reference
-
-#### [API Reference](https://louthy.github.io/language-ext)
-
-#### [Issues that contain documentation and examples](https://github.com/louthy/language-ext/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3A%22examples%20%2F%20documentation%22%20)
-
-## Contributing & Code of Conduct
-
-If you would like to get involved with this project, please first read the [Contribution Guidelines](https://github.com/louthy/language-ext/blob/master/CONTRIBUTING.md) and the [Code of Conduct](https://github.com/louthy/language-ext/blob/master/CODE_OF_CONDUCT.md).
+* [**Features**](#features)
+  * [Functional effects and IO](#functional-effects-and-io)
+  * [Atomic concurrency, shared state, and collections](#atomic-concurrency-and-collections)
+  * [Immutable collections](#immutable-collections)
+  * [Optional and Alternative value monads](#optional-and-alternative-value-monads)
+  * [State managing monads](#state-managing-monads)
+  * [Parser combinators](#parser-combinators)
+  * [Type aliasing](#new-types---type-aliasing)
+  * [Records, Unions, Free Monads, Lenses - Code Generation](#code-generation)
+  * [Pretty: Produce nicely formatted text with smart layouts](#pretty)
+  * [Make C# better: memoisation, currying, partial application, `Nullable`, `Task`, and `IQueryable` extensions](#make-c-better)
+    * [Poor tuple support](#poor-tuple-support)
+    * [Null reference problem](#null-reference-problem)
+      * [Option](#option)
+    * [Lack of lambda and expression inference](#lack-of-lambda-and-expression-inference)
+    * [Void isn't a real type](#void-isnt-a-real-type)
+    * [Mutable lists and dictionaries](#mutable-lists-and-dictionaries)
+      * [Lists](#lists)
+      * [List pattern matching](#list-pattern-matching)
+      * [Maps](#maps)
+    * [Difficulty in creating immutable record types](#difficulty-in-creating-immutable-record-types)
+      * [Transformation of immutable types](#transformation-of-immutable-types)
+        * [`[With]`](#with)
+      * [Transformation of nested immutable types with Lenses](#transformation-of-nested-immutable-types-with-lenses)
+        * [`[WithLens]`](#withlens)
+    * [The awful 'out' parameter](#the-awful-out-parameter)
+    * [The lack of ad-hoc polymorphism](#ad-hoc-polymorphism)
+      * [`Num<A>`](#num<A>)
+      * [`Eq<A>`](#eq<A>)
+      * [`Ord<A>`](#ord<A>)
+      * [`Semigroup<A>`](#semigroup<A>)
+      * [`Monoid<A>`](#monoid<A>)
+      * [`Monad`](#monad)
+      * [Transformer types](#transformer-types)
+* [Reference](#reference)
+* [Contributing & Code of Conduct](#contributing--code-of-conduct)
 
 ## Nu-get
 
@@ -101,7 +97,7 @@ This library seems compatible on the latest (at the time of writing) Unity 2018.
 In the meanwhile, you can install incremental compiler instead. 
 If you are concerned about writing functionally and the possible performance overheads then please take a look at [this wiki page](https://github.com/louthy/language-ext/wiki/Performance).
 
-## Introduction
+## Prologue
 One of the great features of C#6+ is that it allows us to treat static classes like namespaces. This means that we can use static 
 methods without qualifying them first. That instantly gives us access to single term method names that look exactly like functions 
 in functional languages. i.e.
@@ -151,7 +147,7 @@ Even if you disagree with this non-idiomatic approach, all of the `camelCase` st
 _If you're not using C# 6 yet, then you can still use this library. Anywhere in the docs below where you see a camelCase function 
 it can be accessed by prefixing with `Prelude.`_
 
-### Getting started
+## Getting started
 
 To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet, and add this to the top of each `.cs` file that needs it:
 ```C#
@@ -278,6 +274,10 @@ Location | Feature | Description
 `Core` | [`IQueryable<T>` extensions](https://louthy.github.io/language-ext/LanguageExt.Core/QueryExtensions_.htm)  |
 `Core` | [`IObservable<T>` extensions](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/ObservableExt_.htm)  |
 `Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#memo&lt;T,%20R&gt;)
+
+
+
+This library started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
 
 ## Poor tuple support
 I've been crying out for proper tuple support for ages. When this library was created we were no closer (C# 6). 
@@ -2012,8 +2012,12 @@ As well as the extensions, there are also static classes for the transformer typ
     var total = OptionT.sumT<TInt, int>(ma); // 15
     var mb    = OptionT.filterT(ma, x > 3); // List(Some(3), Some(4))
 ```
+## Reference
 
+* [API Reference](https://louthy.github.io/language-ext) -- NOTE: This is somewhat out of date now, it's on my list to resolve.
+* [Issues that contain documentation and examples](https://github.com/louthy/language-ext/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3A%22examples%20%2F%20documentation%22%20)
 
-### The rest
+## Contributing & Code of Conduct
 
-This README.md is a basic introduction to the library. It is however full of many, many useful types, so do check the [API Reference](https://louthy.github.io/language-ext/index.htm) for more info.
+If you would like to get involved with this project, please first read the [Contribution Guidelines](https://github.com/louthy/language-ext/blob/master/CONTRIBUTING.md) and the [Code of Conduct](https://github.com/louthy/language-ext/blob/master/CODE_OF_CONDUCT.md).
+
