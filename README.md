@@ -133,7 +133,9 @@ be `PascalCase`:
 ```C#
     Option<int> x = Some(123);
     Option<int> y = None;
+    Seq<int> items = Seq(1,2,3,4,5);
     List<int> items = List(1,2,3,4,5);
+    HashMap<int, string> dict = HashMap((1, "Hello"), (2, "World"));
     Map<int, string> dict = Map((1, "Hello"), (2, "World"));
 ```
 * Any (non-type constructor) static function that can be used on its own by `using static LanguageExt.Prelude` are `camelCase`.
@@ -159,12 +161,34 @@ using static LanguageExt.Prelude;
 
 The namespace `LanguageExt` contains the core types, and `LanguageExt.Prelude` contains the functions that you bring into scope `using static LanguageExt.Prelude`. 
 
-### Features
+## Features
+
+### Functional effects and IO
+
+Location | Feature | Description
+---------|---------|------------
+`Core` | `Aff<A>` | [An asynchronous effect: an IO monad basically](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
+`Core` | `Eff<A>` | [A synchronous effect: an IO monad basically](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
+`Core` | `Aff<RT, A>` | [An asynchronous effect with injectable runtime: a unit testable IO monad basically](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
+`Core` | `Eff<RT, A>` | [A synchronous effect with injectable runtime: a unit testable IO monad basically](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
+`Core` | Pipes | [A clean and powerful stream processing system that lets you build and connect reusable streaming components](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
+
+### Atomic concurrency and collections 
+
+Location | Feature | Description
+---------|---------|------------
+`Core` | `Atom<A>` | [A lock-free atomically mutable reference for working with shared state](https://github.com/louthy/language-ext/wiki/Concurrency)
+`Core` | `Ref<A>` | [An atomic reference to be used in the transactional memory system](https://github.com/louthy/language-ext/wiki/Concurrency)
+`Core` | `AtomHashMap<K, V>` | [An immutable `HashMap` with a lock-free atomically mutable reference](https://github.com/louthy/language-ext/wiki/Concurrency)
+`Core` | `AtomSeq<A>` | [An immutable `Seq` with a lock-free atomically mutable reference](https://github.com/louthy/language-ext/wiki/Concurrency)
+
+### Immutable collections
 
 Location | Feature | Description
 ---------|---------|------------
 `Core` | `Arr<A>` | [Immutable array](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Arr_A.htm)
-`Core` | `Lst<A>` | [Immutable list](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Lst_A.htm)
+`Core` | `Seq<A>` | [Immutable list with lazy behavior - a better `IEnumerable`.  Very, very fast!]()
+`Core` | `Lst<A>` | [Immutable list - use `Seq` over `Lst` unless you need `InsertAt`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Lst_A.htm)
 `Core` | `Map<K, V>` | [Immutable map](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Map_K_V.htm)
 `Core` | `Map<OrdK, K, V>` | [Immutable map with Ord constraint on `K`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Map_OrdK_K_V.htm)
 `Core` | `HashMap<K, V>` | [Immutable hash-map](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashMap_K_V.htm)
@@ -175,6 +199,11 @@ Location | Feature | Description
 `Core` | `HashSet<EqA, A>` | [Immutable hash-set with Eq constraint on `A`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/HashSet_EqA_A.htm)
 `Core` | `Que<A>` | [Immutable queue](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Que_T.htm)
 `Core` | `Stck<A>` | [Immutable stack](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Stck_T.htm)
+
+### Optional and alternative value monads
+
+Location | Feature | Description
+---------|---------|------------
 `Core` | `Option<A>` | [Option monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Option_A.htm) that can't be used with `null` values
 `Core` | `OptionAsync<A>` | [OptionAsync monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/OptionAsync_A.htm) that can't be used with `null` values with all value realisation does asynchronously
 `Core` | `OptionUnsafe<T>` | [Option monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/OptionUnsafe_A.htm) that can be used with `null` values
@@ -185,28 +214,70 @@ Location | Feature | Description
 `Core` | `TryAsync<A>` | [Asynchronous exception handling lazy monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TryAsync_A.htm)
 `Core` | `TryOption<A>` | [Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TryOption_A.htm) 'Fail' that catches exceptions
 `Core` | `TryOptionAsync<A>` | [Asynchronous Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/TryOptionAsync_A.htm) 'Fail' that catches exceptions
-`Core` | `Record<A>` | [Base type for creating record types](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Record_RECORDTYPE.htm)  with automatic structural equality, ordering, and hash code calculation.
-`Core` | `Lens<A, B>` | [Well behaved bidirectional transformations](#transformation-of-nested-immutable-types-with-lenses) - i.e. the ability to easily generate new immutable values from existing ones, even when heavily nested.
+`Core` | `Validation<FAIL,SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Validation_FAIL_SUCCESS.htm) for collecting multiple errors before aborting an operation
+`Core` | `Validation<MonoidFail, FAIL, SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Validation_FAIL_SUCCESS.htm) for collecting multiple errors before aborting an operation, uses the supplied monoid in the first generic argument to collect the failure values.
+
+### State managing monads
+
+Location | Feature | Description
+---------|---------|------------
 `Core` | `Reader<E, A>` | [Reader monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Reader_Env_A.htm)
 `Core` | `Writer<MonoidW, W, T>` | [Writer monad that logs to a `W` constrained to be a Monoid](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Writer_MonoidW_W_A.htm)
 `Core` | `State<S, A>` | [State monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/State_S_A.htm)
-`Core` | `Patch<EqA, A>` | Uses patch-theory to efficiently calculate the difference (`Patch.diff(list1, list2)`) between two collections of `A` and build a patch which can be applied (`Patch.apply(patch, list)`) to one to make the other (think git diff).
+
+### Parser combinators
+
+Location | Feature | Description
+---------|---------|------------
 `Parsec` | `Parser<A>` | [String parser monad and full parser combinators library](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/index.htm#Parser_T)
 `Parsec` | `Parser<I, O>` | [Parser monad that can work with any input stream type](https://louthy.github.io/language-ext/LanguageExt.Parsec/LanguageExt.Parsec/index.htm#Parser_I_O)
+
+### New types - Type aliasing
+
+Location | Feature | Description
+---------|---------|------------
 `Core` | `NewType<SELF, A, PRED>` | [Haskell `newtype` equivalent](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/NewType_NEWTYPE_A_PRED.htm) i.e: `class Hours : NewType<Hours, double> { public Hours(double value) : base(value) { } }`. The resulting type is: equatable, comparable, foldable, a functor, monadic, and iterable
 `Core` | `NumType<SELF, NUM, A, PRED>` | [Haskell `newtype` equivalent but for numeric types](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/NumType_NUMTYPE_NUM_A_PRED.htm) i.e: `class Hours : NumType<Hours, TDouble, double> { public Hours(double value) : base(value) { } }`. The resulting type is: equatable, comparable, foldable, a functor, a monoid, a semigroup, monadic, iterable, and can have basic artithmetic operations performed upon it.
 `Core` | `FloatType<SELF, FLOATING, A, PRED>` | [Haskell `newtype` equivalent but for real numeric types](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/FloatType_SELF_FLOATING_A_PRED.htm) i.e: `class Hours : FloatType<Hours, TDouble, double> { public Hours(double value) : base(value) { } }`. The resulting type is: equatable, comparable, foldable, a functor, a monoid, a semigroup, monadic, iterable, and can have complex artithmetic operations performed upon it.
+
+### Code generation
+
+Location | Feature | Description
+---------|---------|------------
+`CodeGen` | Records | [Generate record types automatically](https://github.com/louthy/language-ext/wiki/Code-generation)
+`CodeGen` | Unions | [Generate discriminated unions automatically](https://github.com/louthy/language-ext/wiki/Code-generation)
+`CodeGen` | Free monads | [Generate discriminated free-monads](https://github.com/louthy/language-ext/wiki/Code-generation)
+`CodeGen` | Reader | [Generate reader-monads](https://github.com/louthy/language-ext/wiki/Code-generation)
+`CodeGen` | RWS | [Generate RWS-monads](https://github.com/louthy/language-ext/wiki/Code-generation)
+`CodeGen` | With | [Add a tranformational `With` method to your records](https://github.com/louthy/language-ext/wiki/Code-generation)
+`CodeGen` | WithLens | [Add a tranformational `With` and generated Lenses method to your data types](https://github.com/louthy/language-ext/wiki/Code-generation)
+`Core` | `Lens<A, B>` | [Well behaved bidirectional transformations](#transformation-of-nested-immutable-types-with-lenses) - i.e. the ability to easily generate new immutable values from existing ones, even when heavily nested.
+`Core` | `Record<A>` | [Base type for creating record types](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Record_RECORDTYPE.htm)  with automatic structural equality, ordering, and hash code calculation.
+
+### Pretty
+
+Location | Feature | Description
+---------|---------|------------
+`Core` | `Doc<A>` | Produce nicely formatted text with smart layouts 
+
+### Differencing
+
+Location | Feature | Description
+---------|---------|------------
+`Core` | `Patch<EqA, A>` | Uses patch-theory to efficiently calculate the difference (`Patch.diff(list1, list2)`) between two collections of `A` and build a patch which can be applied (`Patch.apply(patch, list)`) to one to make the other (think git diff).
+
+### Make C# better
+
+Location | Feature | Description
+---------|---------|------------
 `Core` | `Nullable<T>` extensions | [Extension methods for `Nullable<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/NullableExtensions_.htm) that make it into a functor, applicative, foldable, iterable and a monad
 `Core` | `Task<T>` extensions | [Extension methods for `Task<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/TaskExtensions_.htm) that make it into a functor, applicative, foldable, iterable and a monad
-`Core` | `Validation<FAIL,SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Validation_FAIL_SUCCESS.htm) for collecting multiple errors before aborting an operation
-`Core` | `Validation<MonoidFail, FAIL, SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Validation_FAIL_SUCCESS.htm) for collecting multiple errors before aborting an operation, uses the supplied monoid in the first generic argument to collect the failure values.
-`Core` | Monad transformers | A higher kinded type (ish)
+`Core` | [Improved lambda type inference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#fun<R>) | `var add = fun( (int x, int y) => x + y)`
 `Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#curry&lt;T1,%20T2,%20R&gt;)
 `Core` | Partial application | [the process of fixing a number of arguments to a function, producing another function of smaller arity](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#par&lt;T1,%20T2,%20R&gt;)
-`Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#memo&lt;T,%20R&gt;)
-`Core` | [Improved lambda type inference](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#fun<R>) | `var add = fun( (int x, int y) => x + y)`
 `Core` | [`IQueryable<T>` extensions](https://louthy.github.io/language-ext/LanguageExt.Core/QueryExtensions_.htm)  |
 `Core` | [`IObservable<T>` extensions](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/ObservableExt_.htm)  |
+`Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/language-ext/LanguageExt.Core/LanguageExt/Prelude_.htm#memo&lt;T,%20R&gt;)
 
 ## Poor tuple support
 I've been crying out for proper tuple support for ages. When this library was created we were no closer (C# 6). 
