@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -115,8 +114,8 @@ namespace LanguageExt
         /// <returns>If the value is `null` it will be `None` else `Some(value)`</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Option<A> Optional<A>(A? value) =>
-            value == null
+        public static Option<A> Optional<A>(A value) =>
+            isnull(value)
                 ? default
                 : new Option<A>(value, true);
 
@@ -650,4 +649,3 @@ namespace LanguageExt
             option.ToArray();
     }
 }
-#nullable disable

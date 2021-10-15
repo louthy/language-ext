@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using static LanguageExt.OptionalAsync;
 using static LanguageExt.TypeClass;
@@ -995,4 +994,3 @@ public static partial class OptionAsyncExtensions
     public static OptionAsync<B> ActionAsync<A, B>(this Option<A> fa, Option<B> fb) =>
         ApplOptionAsync<A, B>.Inst.Action(fa.ToAsync(), fb.ToAsync());
 }
-#nullable disable
