@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using static LanguageExt.Prelude;
 
@@ -173,3 +174,4 @@ namespace LanguageExt.Pretty
         }
     }
 }
+#nullable disable

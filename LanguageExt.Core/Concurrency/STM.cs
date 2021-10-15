@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace LanguageExt
     public static class STM
     {
         static long refIdNext;
-        static readonly Atom<TrieMap<EqLong, long, RefState>> state = Atom(TrieMap<EqLong, long, RefState>.Empty);
+        static readonly AtomHashMap<EqLong, long, RefState> state = AtomHashMap<EqLong, long, RefState>();
         static readonly AsyncLocal<Transaction> transaction = new AsyncLocal<Transaction>();
 
         /// <summary>
@@ -28,10 +29,10 @@ namespace LanguageExt
 
             var id = Interlocked.Increment(ref refIdNext);
             var v = new RefState(0, value, valid);
-            state.Swap(s => s.Add(id, v));
+            state.Add(id, v);
             return new Ref<A>(id);
         }
-
+        
         /// <summary>
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
@@ -104,7 +105,7 @@ namespace LanguageExt
             while (true)
             {
                 // Create a new transaction with a snapshot of the current state
-                var t = new Transaction(state.Value);
+                var t = new Transaction(state.Items);
                 transaction.Value = t;
                 try
                 {
@@ -136,7 +137,7 @@ namespace LanguageExt
                 while (true)
                 {
                     // Create a new transaction with a snapshot of the current state
-                    var t = new Transaction(state.Value);
+                    var t = new Transaction(state.Items);
                     transaction.Value = t;
                     try
                     {
@@ -171,7 +172,7 @@ namespace LanguageExt
                 while (true)
                 {
                     // Create a new transaction with a snapshot of the current state
-                    var t = new Transaction(state.Value);
+                    var t = new Transaction(state.Items);
                     transaction.Value = t;
                     try
                     {
@@ -208,7 +209,7 @@ namespace LanguageExt
                 while (true)
                 {
                     // Create a new transaction with a snapshot of the current state
-                    var t = new Transaction(state.Value);
+                    var t = new Transaction(state.Items);
                     transaction.Value = t;
                     try
                     {
@@ -243,7 +244,7 @@ namespace LanguageExt
                 while (true)
                 {
                     // Create a new transaction with a snapshot of the current state
-                    var t = new Transaction(state.Value);
+                    var t = new Transaction(state.Items);
                     transaction.Value = t;
                     try
                     {
@@ -279,7 +280,7 @@ namespace LanguageExt
             while (true)
             {
                 // Create a new transaction with a snapshot of the current state
-                var t = new Transaction(state.Value);
+                var t = new Transaction(state.Items);
                 transaction.Value = t;
                 try
                 {
@@ -310,7 +311,7 @@ namespace LanguageExt
             while (true)
             {
                 // Create a new transaction with a snapshot of the current state
-                var t = new Transaction(state.Value);
+                var t = new Transaction(state.Items);
                 transaction.Value = t;
                 try
                 {
@@ -328,7 +329,7 @@ namespace LanguageExt
                     // Clear the current transaction on the way out
                     transaction.Value = null;
                 }
-                // Wait one tick before trying again
+                // Spin, backing off, then yield the thread to avoid deadlock 
                 sw.SpinOnce();
             }
             throw new DeadlockException();
@@ -349,17 +350,19 @@ namespace LanguageExt
             }
 
             // Attempt to apply the changes atomically
-            state.Swap(s =>
-            {
-                if (isolation == Isolation.Serialisable)
-                {
-                    ValidateReads(t, s, isolation);
-                }
+            state.SwapInternal(s =>
+                               {
+                                   if (isolation == Isolation.Serialisable)
+                                   {
+                                       ValidateReads(t, s, isolation);
+                                   }
 
-                s = anyWrites ? CommitWrites(t, s) : s;
-                (s, result) = anyCommutes ? CommitCommutes(t, s, returnRefId, result) : (s, result);
-                return s;
-            });
+                                   s = anyWrites
+                                           ? CommitWrites(t, s)
+                                           : s;
+                                   (s, result) = anyCommutes ? CommitCommutes(t, s, returnRefId, result) : (s, result);
+                                   return s;
+                               });
 
             // Changes applied successfully
             return result;
@@ -447,7 +450,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static object Read(long id) =>
             transaction.Value == null
-                ? state.Value[id].Value
+                ? state.Items[id].Value
                 : transaction.Value.Read(id);
 
         /// <summary>
@@ -541,7 +544,7 @@ namespace LanguageExt
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Finalise(long id) =>
-            state.Swap(s => s.Remove(id));
+            state.Remove(id);
 
         /// <summary>
         /// Conflict exception for internal use

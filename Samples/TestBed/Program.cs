@@ -61,10 +61,22 @@ public class Program
         //                                                                                                    //
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
-        await PipesTest();
+        //await PipesTest();
 
         // await ObsAffTests.Test();
         // await AsyncTests();
+
+        var data = AtomHashMap<string, int>();
+        data.Swap(data => data.Find("foo").Case switch
+                          {
+                              int x => data.SetItem("foo", x + 1),
+                              _     => data.Add("foo", 1)
+                          });    
+        data.Swap(data => data.Find("foo").Case switch
+                          {
+                              int x => data.SetItem("foo", x + 1),
+                              _     => data.Add("foo", 1)
+                          });    
     }
 
     static Aff<string> ReadAll(string path) =>

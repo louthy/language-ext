@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using LanguageExt.Effects.Traits;
 using LSeq = LanguageExt.Seq;
 
 namespace LanguageExt
@@ -440,5 +442,94 @@ namespace LanguageExt
                 ? Empty
                 : LSeq.FromSingleValue(value);
         
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [Obsolete("use `atomic` instead of `sync`")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static R sync<R>(Func<R> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [Obsolete("use `atomic` instead of `sync`")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Eff<R> sync<R>(Eff<R> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [Obsolete("use `atomic` instead of `sync`")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Eff<RT, R> sync<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [Obsolete("use `atomic` instead of `sync`")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<R> sync<R>(Aff<R> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [Obsolete("use `atomic` instead of `sync`")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<RT, R> sync<RT, R>(Aff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct, HasCancel<RT> =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [Obsolete("use `atomic` instead of `sync`")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValueTask<R> sync<R>(Func<ValueTask<R>> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(op, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete("use `atomic` instead of `sync`")]
+        public static ValueTask<Unit> sync(Func<ValueTask> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, isolation);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete("use `atomic` instead of `sync`")]
+        public static Task<R> sync<R>(Func<Task<R>> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(async () => await op().ConfigureAwait(false), isolation).AsTask();
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete("use `atomic` instead of `sync`")]
+        public static Task<Unit> sync(Func<Task> op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, isolation).AsTask();
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete("use `atomic` instead of `sync`")]
+        public static Unit sync(Action op, Isolation isolation = Isolation.Snapshot) =>
+            STM.DoTransaction(() => { op(); return unit; }, isolation);        
     }
 }

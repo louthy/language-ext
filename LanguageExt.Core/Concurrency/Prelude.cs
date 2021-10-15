@@ -67,87 +67,811 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Ref<A> Ref<A>(A value, Func<A, bool> validator = null) =>
             STM.NewRef(value, validator);
-
+        
         /// <summary>
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static R sync<R>(Func<R> op, Isolation isolation = Isolation.Snapshot) =>
+        public static R atomic<R>(Func<R> op, Isolation isolation = Isolation.Snapshot) =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<R> sync<R>(Eff<R> op, Isolation isolation = Isolation.Snapshot) =>
+        public static Eff<R> atomic<R>(Eff<R> op, Isolation isolation = Isolation.Snapshot) =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, R> sync<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct =>
+        public static Eff<RT, R> atomic<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Aff<R> sync<R>(Aff<R> op, Isolation isolation = Isolation.Snapshot) =>
+        public static Aff<R> atomic<R>(Aff<R> op, Isolation isolation = Isolation.Snapshot) =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Aff<RT, R> sync<RT, R>(Aff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, R> atomic<RT, R>(Aff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct, HasCancel<RT> =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ValueTask<R> sync<R>(Func<ValueTask<R>> op, Isolation isolation = Isolation.Snapshot) =>
+        public static ValueTask<R> atomic<R>(Func<ValueTask<R>> op, Isolation isolation = Isolation.Snapshot) =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ValueTask<Unit> sync(Func<ValueTask> op, Isolation isolation = Isolation.Snapshot) =>
+        public static ValueTask<Unit> atomic(Func<ValueTask> op, Isolation isolation = Isolation.Snapshot) =>
             STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, isolation);
 
         /// <summary>
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<R> sync<R>(Func<Task<R>> op, Isolation isolation = Isolation.Snapshot) =>
+        public static Task<R> atomic<R>(Func<Task<R>> op, Isolation isolation = Isolation.Snapshot) =>
             STM.DoTransaction(async () => await op().ConfigureAwait(false), isolation).AsTask();
 
         /// <summary>
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<Unit> sync(Func<Task> op, Isolation isolation = Isolation.Snapshot) =>
+        public static Task<Unit> atomic(Func<Task> op, Isolation isolation = Isolation.Snapshot) =>
             STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, isolation).AsTask();
 
         /// <summary>
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Unit sync(Action op, Isolation isolation = Isolation.Snapshot) =>
+        public static Unit atomic(Action op, Isolation isolation = Isolation.Snapshot) =>
             STM.DoTransaction(() => { op(); return unit; }, isolation);
 
+        
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static R snapshot<R>(Func<R> op) =>
+            STM.DoTransaction(op, Isolation.Snapshot);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Eff<R> snapshot<R>(Eff<R> op) =>
+            STM.DoTransaction(op, Isolation.Snapshot);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Eff<RT, R> snapshot<RT, R>(Eff<RT, R> op) where RT : struct =>
+            STM.DoTransaction(op, Isolation.Snapshot);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<R> snapshot<R>(Aff<R> op) =>
+            STM.DoTransaction(op, Isolation.Snapshot);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<RT, R> snapshot<RT, R>(Aff<RT, R> op) where RT : struct, HasCancel<RT> =>
+            STM.DoTransaction(op, Isolation.Snapshot);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValueTask<R> snapshot<R>(Func<ValueTask<R>> op) =>
+            STM.DoTransaction(op, Isolation.Snapshot);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValueTask<Unit> snapshot(Func<ValueTask> op) =>
+            STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, Isolation.Snapshot);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<R> snapshot<R>(Func<Task<R>> op) =>
+            STM.DoTransaction(async () => await op().ConfigureAwait(false), Isolation.Snapshot).AsTask();
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<Unit> snapshot(Func<Task> op) =>
+            STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, Isolation.Snapshot).AsTask();
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Unit snapshot(Action op) =>
+            STM.DoTransaction(() => { op(); return unit; }, Isolation.Snapshot);        
+        
+        
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static R serial<R>(Func<R> op) =>
+            STM.DoTransaction(op, Isolation.Snapshot);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Eff<R> serial<R>(Eff<R> op) =>
+            STM.DoTransaction(op, Isolation.Snapshot);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Eff<RT, R> serial<RT, R>(Eff<RT, R> op) where RT : struct =>
+            STM.DoTransaction(op, Isolation.Snapshot);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<R> serial<R>(Aff<R> op) =>
+            STM.DoTransaction(op, Isolation.Snapshot);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Aff<RT, R> serial<RT, R>(Aff<RT, R> op) where RT : struct, HasCancel<RT> =>
+            STM.DoTransaction(op, Isolation.Snapshot);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValueTask<R> serial<R>(Func<ValueTask<R>> op) =>
+            STM.DoTransaction(op, Isolation.Snapshot);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValueTask<Unit> serial(Func<ValueTask> op) =>
+            STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, Isolation.Snapshot);
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<R> serial<R>(Func<Task<R>> op) =>
+            STM.DoTransaction(async () => await op().ConfigureAwait(false), Isolation.Snapshot).AsTask();
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<Unit> serial(Func<Task> op) =>
+            STM.DoTransaction(async () => { await op().ConfigureAwait(false); return unit; }, Isolation.Snapshot).AsTask();
+
+        /// <summary>
+        /// Run the op within a new transaction
+        /// If a transaction is already running, then this becomes part of the parent transaction
+        /// </summary>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Unit serial(Action op) =>
+            STM.DoTransaction(() => { op(); return unit; }, Isolation.Snapshot);        
+        
+    
         /// <summary>
         /// Swap the old value for the new returned by `f`
         /// Must be run within a `sync` transaction

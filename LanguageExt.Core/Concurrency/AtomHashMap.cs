@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace LanguageExt
         IEquatable<HashMap<K, V>>,
         IEquatable<AtomHashMap<K, V>>
     {
-        volatile TrieMap<EqDefault<K>, K, V> items;
+        internal volatile TrieMap<EqDefault<K>, K, V> Items;
 
         public static readonly AtomHashMap<K, V> Empty = new AtomHashMap<K, V>(TrieMap<EqDefault<K>, K, V>.Empty);
         
@@ -31,14 +32,14 @@ namespace LanguageExt
         /// </summary>
         /// <param name="items">Trie map</param>
         AtomHashMap(TrieMap<EqDefault<K>, K, V> items) =>
-            this.items = items;
+            this.Items = items;
         
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="items">Hash map</param>
         internal AtomHashMap(HashMap<K, V> items) =>
-            this.items = items.Value;
+            this.Items = items.Value;
         
         /// <summary>
         /// 'this' accessor
@@ -47,7 +48,7 @@ namespace LanguageExt
         /// <returns>Optional value</returns>
         [Pure]
         public V this[K key] =>
-            items[key];
+            Items[key];
 
         /// <summary>
         /// Is the map empty
@@ -56,7 +57,7 @@ namespace LanguageExt
         public bool IsEmpty
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => items.IsEmpty;
+            get => Items.IsEmpty;
         }
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace LanguageExt
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => items.Count;
+            get => Items.Count;
         }
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace LanguageExt
         public int Length
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => items.Count;
+            get => Items.Count;
         }
 
         /// <summary>
@@ -84,7 +85,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
-            items;
+            Items;
 
         /// <summary>
         /// Atomically swap the underlying hash-map.  Allows for multiple operations on the hash-map in an entirely
@@ -99,14 +100,14 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
+                var oitems = Items;
                 var nitems = swap(new HashMap<K, V>(oitems)).Value;
                 if(ReferenceEquals(oitems, nitems))
                 {
                     // no change
                     return default;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -124,7 +125,7 @@ namespace LanguageExt
         /// <returns>New map with items filtered</returns>
         [Pure]
         public AtomHashMap<K, V> Filter(Func<V, bool> pred) =>
-            new(items.Filter(pred));
+            new(Items.Filter(pred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -139,9 +140,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
+                var oitems = Items;
                 var nitems = oitems.Filter(pred);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -158,7 +159,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         [Pure]
         public AtomHashMap<K, V> Filter(Func<K, V, bool> pred) =>
-            new(items.Filter(pred));
+            new(Items.Filter(pred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -172,9 +173,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
+                var oitems = Items;
                 var nitems = oitems.Filter(pred);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -197,9 +198,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
+                var oitems = Items;
                 var nitems = oitems.Map(f);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -215,7 +216,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Mapped items in a new map</returns>
         public AtomHashMap<K, U> Map<U>(Func<K, V, U> f) =>
-            new AtomHashMap<K, U>(items.Map(f));
+            new AtomHashMap<K, U>(Items.Map(f));
         
         /// <summary>
         /// Atomically adds a new item to the map
@@ -230,9 +231,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
+                var oitems = Items;
                 var nitems = oitems.Add(key, value);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -256,13 +257,13 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
+                var oitems = Items;
                 var nitems = oitems.TryAdd(key, value);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -286,9 +287,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
+                var oitems = Items;
                 var nitems = oitems.AddOrUpdate(key, value);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -314,9 +315,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
+                var oitems = Items;
                 var nitems = oitems.AddOrUpdate(key, Some, None);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -342,9 +343,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
+                var oitems = Items;
                 var nitems = oitems.AddOrUpdate(key, Some, None);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -369,9 +370,9 @@ namespace LanguageExt
             if (srange.IsEmpty) return default;
             while (true)
             {
-                var oitems = items;
+                var oitems = Items;
                 var nitems = oitems.AddRange(srange);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -396,13 +397,13 @@ namespace LanguageExt
             if (srange.IsEmpty) return default;
             while (true)
             {
-                var oitems = items;
+                var oitems = Items;
                 var nitems = oitems.TryAddRange(srange);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -427,13 +428,13 @@ namespace LanguageExt
             if (srange.IsEmpty) return default;
             while (true)
             {
-                var oitems = items;
-                var nitems = items.TryAddRange(srange);
+                var oitems = Items;
+                var nitems = Items.TryAddRange(srange);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -459,9 +460,9 @@ namespace LanguageExt
             if (srange.IsEmpty) return default;
             while (true)
             {
-                var oitems = items;
-                var nitems = items.AddOrUpdateRange(srange);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                var oitems = Items;
+                var nitems = Items.AddOrUpdateRange(srange);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -486,9 +487,9 @@ namespace LanguageExt
             if (srange.IsEmpty) return default;
             while (true)
             {
-                var oitems = items;
-                var nitems = items.AddOrUpdateRange(srange);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                var oitems = Items;
+                var nitems = Items.AddOrUpdateRange(srange);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -509,13 +510,13 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
-                var nitems = items.Remove(key);
+                var oitems = Items;
+                var nitems = Items.Remove(key);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -533,7 +534,7 @@ namespace LanguageExt
         /// <returns>Found value</returns>
         [Pure]
         public Option<V> Find(K value) =>
-            items.Find(value);
+            Items.Find(value);
 
         /// <summary>
         /// Retrieve a value from the map by key as an enumerable
@@ -542,7 +543,7 @@ namespace LanguageExt
         /// <returns>Found value</returns>
         [Pure]
         public IEnumerable<V> FindSeq(K key) =>
-            items.FindSeq(key);
+            Items.FindSeq(key);
 
         /// <summary>
         /// Retrieve a value from the map by key and pattern match the
@@ -552,7 +553,7 @@ namespace LanguageExt
         /// <returns>Found value</returns>
         [Pure]
         public R Find<R>(K key, Func<V, R> Some, Func<R> None) =>
-            items.Find(key, Some, None);
+            Items.Find(key, Some, None);
 
         /// <summary>
         /// Try to find the key in the map, if it doesn't exist, add a new 
@@ -569,13 +570,13 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
-                var (nitems, value) = items.FindOrAdd(key, None);
+                var oitems = Items;
+                var (nitems, value) = Items.FindOrAdd(key, None);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return value;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return value;
                 }
@@ -598,13 +599,13 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
-                var (nitems, nvalue) = items.FindOrAdd(key, value);
+                var oitems = Items;
+                var (nitems, nvalue) = Items.FindOrAdd(key, value);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return nvalue;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return nvalue;
                 }
@@ -630,13 +631,13 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
-                var (nitems, nvalue) = items.FindOrMaybeAdd(key, None);
+                var oitems = Items;
+                var (nitems, nvalue) = Items.FindOrMaybeAdd(key, None);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return nvalue;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return nvalue;
                 }
@@ -659,13 +660,13 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
-                var (nitems, nvalue) = items.FindOrMaybeAdd(key, None);
+                var oitems = Items;
+                var (nitems, nvalue) = Items.FindOrMaybeAdd(key, None);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return nvalue;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return nvalue;
                 }
@@ -688,9 +689,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
-                var nitems = items.SetItem(key, value);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                var oitems = Items;
+                var nitems = Items.SetItem(key, value);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -716,9 +717,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
-                var nitems = items.SetItem(key, Some);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                var oitems = Items;
+                var nitems = Items.SetItem(key, Some);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -742,13 +743,13 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
-                var nitems = items.TrySetItem(key, value);
+                var oitems = Items;
+                var nitems = Items.TrySetItem(key, value);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -775,13 +776,13 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
-                var nitems = items.TrySetItem(key, Some);
+                var oitems = Items;
+                var nitems = Items.TrySetItem(key, Some);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -799,7 +800,7 @@ namespace LanguageExt
         /// <returns>True if an item with the key supplied is in the map</returns>
         [Pure]
         public bool ContainsKey(K key) =>
-            items.ContainsKey(key);
+            Items.ContainsKey(key);
 
         /// <summary>
         /// Checks for existence of a key in the map
@@ -808,7 +809,7 @@ namespace LanguageExt
         /// <returns>True if an item with the key supplied is in the map</returns>
         [Pure]
         public bool Contains(K key, V value) =>
-            items.Contains(key, value);
+            Items.Contains(key, value);
 
         /// <summary>
         /// Checks for existence of a value in the map
@@ -817,7 +818,7 @@ namespace LanguageExt
         /// <returns>True if an item with the value supplied is in the map</returns>
         [Pure]
         public bool Contains(V value) =>
-            items.Contains(value);
+            Items.Contains(value);
 
         /// <summary>
         /// Checks for existence of a value in the map
@@ -826,7 +827,7 @@ namespace LanguageExt
         /// <returns>True if an item with the value supplied is in the map</returns>
         [Pure]
         public bool Contains<EqV>(V value) where EqV : struct, Eq<V> =>
-            items.Contains<EqV>(value);
+            Items.Contains<EqV>(value);
 
         /// <summary>
         /// Checks for existence of a key in the map
@@ -835,7 +836,7 @@ namespace LanguageExt
         /// <returns>True if an item with the key supplied is in the map</returns>
         [Pure]
         public bool Contains<EqV>(K key, V value) where EqV : struct, Eq<V> =>
-            items.Contains<EqV>(key, value);
+            Items.Contains<EqV>(key, value);
 
         /// <summary>
         /// Clears all items from the map 
@@ -845,9 +846,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = items;
-                var nitems = items.Clear();
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                var oitems = Items;
+                var nitems = Items.Clear();
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -870,9 +871,9 @@ namespace LanguageExt
             if (spairs.IsEmpty) return default;
             while (true)
             {
-                var oitems = items;
-                var nitems = items.AddRange(spairs);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                var oitems = Items;
+                var nitems = Items.AddRange(spairs);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -895,9 +896,9 @@ namespace LanguageExt
             if (sitems.IsEmpty) return default;
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.SetItems(sitems);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                var oitems = this.Items;
+                var nitems = this.Items.SetItems(sitems);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -920,9 +921,9 @@ namespace LanguageExt
             if (sitems.IsEmpty) return default;
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.SetItems(sitems);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                var oitems = this.Items;
+                var nitems = this.Items.SetItems(sitems);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -945,13 +946,13 @@ namespace LanguageExt
             if (sitems.IsEmpty) return default;
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.TrySetItems(sitems);
+                var oitems = this.Items;
+                var nitems = this.Items.TrySetItems(sitems);
                 if (ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -974,13 +975,13 @@ namespace LanguageExt
             if (sitems.IsEmpty) return default;
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.TrySetItems(sitems);
+                var oitems = this.Items;
+                var nitems = this.Items.TrySetItems(sitems);
                 if (ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -1008,13 +1009,13 @@ namespace LanguageExt
             if (skeys.IsEmpty) return default;
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.TrySetItems(skeys, Some);
+                var oitems = this.Items;
+                var nitems = this.Items.TrySetItems(skeys, Some);
                 if (ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -1036,13 +1037,13 @@ namespace LanguageExt
             if (skeys.IsEmpty) return default;
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.RemoveRange(skeys);
+                var oitems = this.Items;
+                var nitems = this.Items.RemoveRange(skeys);
                 if (ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -1060,21 +1061,21 @@ namespace LanguageExt
         /// <returns>True if exists, false otherwise</returns>
         [Pure]
         public bool Contains(KeyValuePair<K, V> pair) =>
-            items.Contains(pair.Key, pair.Value);
+            Items.Contains(pair.Key, pair.Value);
 
         /// <summary>
         /// Enumerable of map keys
         /// </summary>
         [Pure]
         public IEnumerable<K> Keys =>
-            items.Keys;
+            Items.Keys;
 
         /// <summary>
         /// Enumerable of map values
         /// </summary>
         [Pure]
         public IEnumerable<V> Values =>
-            items.Values;
+            Items.Values;
 
         /// <summary>
         /// Convert the map to an IDictionary
@@ -1082,7 +1083,7 @@ namespace LanguageExt
         /// <remarks>This is effectively a zero cost operation, not even a single allocation</remarks>
         [Pure]
         public IReadOnlyDictionary<K, V> ToDictionary() =>
-            items;
+            Items;
 
         /// <summary>
         /// Convert to a HashMap
@@ -1090,7 +1091,7 @@ namespace LanguageExt
         /// <remarks>This is effectively a zero cost operation, not even a single allocation</remarks>
         [Pure]
         public HashMap<K, V> ToHashMap() =>
-            new HashMap<K, V>(items);
+            new HashMap<K, V>(Items);
 
         /// <summary>
         /// Map the map the a dictionary
@@ -1103,13 +1104,13 @@ namespace LanguageExt
         /// GetEnumerator - IEnumerable interface
         /// </summary>
         public IEnumerator<(K Key, V Value)> GetEnumerator() =>
-            items.GetEnumerator();
+            Items.GetEnumerator();
 
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
         IEnumerator IEnumerable.GetEnumerator() =>
-            items.GetEnumerator();
+            Items.GetEnumerator();
 
         [Pure]
         public Seq<(K Key, V Value)> ToSeq() =>
@@ -1141,7 +1142,7 @@ namespace LanguageExt
 
         [Pure]
         public IEnumerable<(K Key, V Value)> AsEnumerable() =>
-            items;
+            Items;
 
         /// <summary>
         /// Implicit conversion from an untyped empty list
@@ -1156,21 +1157,21 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static bool operator ==(AtomHashMap<K, V> lhs, AtomHashMap<K, V> rhs) =>
-            lhs?.Equals(rhs) ?? rhs is null;
+            lhs.Equals(rhs);
 
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values
         /// </summary>
         [Pure]
         public static bool operator ==(AtomHashMap<K, V> lhs, HashMap<K, V> rhs) =>
-            lhs?.items.Equals(rhs.Value) ?? false;
+            lhs?.Items.Equals(rhs.Value) ?? false;
 
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values
         /// </summary>
         [Pure]
         public static bool operator ==(HashMap<K, V> lhs, AtomHashMap<K, V> rhs) =>
-            rhs is not null && lhs.Value.Equals(rhs.items);
+            lhs.Value.Equals(rhs.Items);
 
         /// <summary>
         /// In-equality of keys and values with `EqDefault<V>` used for values
@@ -1199,9 +1200,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.Append(rhs.items);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                var oitems = this.Items;
+                var nitems = this.Items.Append(rhs.Items);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -1218,9 +1219,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.Append(rhs.Value);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                var oitems = this.Items;
+                var nitems = this.Items.Append(rhs.Value);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -1237,9 +1238,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.Subtract(rhs.items);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                var oitems = this.Items;
+                var nitems = this.Items.Subtract(rhs.Items);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -1256,9 +1257,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.Subtract(rhs.Value);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                var oitems = this.Items;
+                var nitems = this.Items.Subtract(rhs.Value);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -1275,7 +1276,7 @@ namespace LanguageExt
         /// <returns>True if 'other' is a proper subset of this set</returns>
         [Pure]
         public bool IsProperSubsetOf(IEnumerable<(K Key, V Value)> other) =>
-            items.IsProperSubsetOf(other);
+            Items.IsProperSubsetOf(other);
 
         /// <summary>
         /// Returns True if 'other' is a proper subset of this set
@@ -1283,7 +1284,7 @@ namespace LanguageExt
         /// <returns>True if 'other' is a proper subset of this set</returns>
         [Pure]
         public bool IsProperSubsetOf(IEnumerable<K> other) =>
-            items.IsProperSubsetOf(other);
+            Items.IsProperSubsetOf(other);
 
         /// <summary>
         /// Returns True if 'other' is a proper superset of this set
@@ -1291,7 +1292,7 @@ namespace LanguageExt
         /// <returns>True if 'other' is a proper superset of this set</returns>
         [Pure]
         public bool IsProperSupersetOf(IEnumerable<(K Key, V Value)> other) =>
-            items.IsProperSupersetOf(other);
+            Items.IsProperSupersetOf(other);
 
         /// <summary>
         /// Returns True if 'other' is a proper superset of this set
@@ -1299,7 +1300,7 @@ namespace LanguageExt
         /// <returns>True if 'other' is a proper superset of this set</returns>
         [Pure]
         public bool IsProperSupersetOf(IEnumerable<K> other) =>
-            items.IsProperSupersetOf(other);
+            Items.IsProperSupersetOf(other);
 
         /// <summary>
         /// Returns True if 'other' is a superset of this set
@@ -1307,7 +1308,7 @@ namespace LanguageExt
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
         public bool IsSubsetOf(IEnumerable<(K Key, V Value)> other) =>
-            items.IsSubsetOf(other);
+            Items.IsSubsetOf(other);
 
         /// <summary>
         /// Returns True if 'other' is a superset of this set
@@ -1315,7 +1316,7 @@ namespace LanguageExt
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
         public bool IsSubsetOf(IEnumerable<K> other) =>
-            items.IsSubsetOf(other);
+            Items.IsSubsetOf(other);
 
         /// <summary>
         /// Returns True if 'other' is a superset of this set
@@ -1323,7 +1324,7 @@ namespace LanguageExt
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
         public bool IsSubsetOf(HashMap<K, V> other) =>
-            items.IsSubsetOf(other.Value);
+            Items.IsSubsetOf(other.Value);
 
         /// <summary>
         /// Returns True if 'other' is a superset of this set
@@ -1331,7 +1332,7 @@ namespace LanguageExt
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
         public bool IsSupersetOf(IEnumerable<(K Key, V Value)> other) =>
-            items.IsSupersetOf(other);
+            Items.IsSupersetOf(other);
 
         /// <summary>
         /// Returns True if 'other' is a superset of this set
@@ -1339,7 +1340,7 @@ namespace LanguageExt
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
         public bool IsSupersetOf(IEnumerable<K> rhs) =>
-            items.IsSupersetOf(rhs);
+            Items.IsSupersetOf(rhs);
 
         /// <summary>
         /// Returns the elements that are in both this and other
@@ -1350,9 +1351,9 @@ namespace LanguageExt
             var srhs = Seq(rhs);            
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.Intersect(srhs);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                var oitems = this.Items;
+                var nitems = this.Items.Intersect(srhs);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -1372,9 +1373,9 @@ namespace LanguageExt
             var srhs = Seq(rhs);            
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.Intersect(srhs);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                var oitems = this.Items;
+                var nitems = this.Items.Intersect(srhs);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -1390,14 +1391,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool Overlaps(IEnumerable<(K Key, V Value)> other) =>
-            items.Overlaps(other);
+            Items.Overlaps(other);
 
         /// <summary>
         /// Returns True if other overlaps this set
         /// </summary>
         [Pure]
         public bool Overlaps(IEnumerable<K> other) =>
-            items.Overlaps(other);
+            Items.Overlaps(other);
 
         /// <summary>
         /// Returns this - rhs.  Only the items in this that are not in 
@@ -1409,9 +1410,9 @@ namespace LanguageExt
             var srhs = Seq(rhs);            
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.Except(srhs);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                var oitems = this.Items;
+                var nitems = this.Items.Except(srhs);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -1432,9 +1433,9 @@ namespace LanguageExt
             var srhs = Seq(rhs);            
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.Except(srhs);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                var oitems = this.Items;
+                var nitems = this.Items.Except(srhs);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -1454,9 +1455,9 @@ namespace LanguageExt
             SpinWait sw = default;
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.Except(rhs);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                var oitems = this.Items;
+                var nitems = this.Items.Except(rhs);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -1477,9 +1478,9 @@ namespace LanguageExt
             var srhs = Seq(rhs);
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.Except(srhs);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                var oitems = this.Items;
+                var nitems = this.Items.Except(srhs);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -1502,9 +1503,9 @@ namespace LanguageExt
             var srhs = Seq(rhs);
             while (true)
             {
-                var oitems = this.items;
-                var nitems = this.items.Union(srhs);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.items, nitems, oitems), oitems))
+                var oitems = this.Items;
+                var nitems = this.Items.Union(srhs);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
                 }
@@ -1527,32 +1528,32 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool Equals(AtomHashMap<K, V> other) =>
-            other is not null && items.Equals(other.items);
+            Items.Equals(other.Items);
 
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values
         /// </summary>
         [Pure]
         public bool Equals(HashMap<K, V> other) =>
-            items.Equals(other.Value);
+            Items.Equals(other.Value);
 
         /// <summary>
         /// Equality of keys only
         /// </summary>
         [Pure]
         public bool EqualsKeys(AtomHashMap<K, V> other) =>
-            items.Equals<EqTrue<V>>(other.items);
+            Items.Equals<EqTrue<V>>(other.Items);
 
         /// <summary>
         /// Equality of keys only
         /// </summary>
         [Pure]
         public bool EqualsKeys(HashMap<K, V> other) =>
-            items.Equals<EqTrue<V>>(other.Value);
+            Items.Equals<EqTrue<V>>(other.Value);
 
         [Pure]
         public override int GetHashCode() =>
-            items.GetHashCode();
+            Items.GetHashCode();
 
         /// <summary>
         /// Atomically maps the map to a new map
@@ -1560,7 +1561,7 @@ namespace LanguageExt
         /// <returns>Mapped items in a new map</returns>
         [Pure]
         public AtomHashMap<K, U> Select<U>(Func<V, U> f) =>
-            new AtomHashMap<K, U>(items.Map(f));
+            new AtomHashMap<K, U>(Items.Map(f));
 
         /// <summary>
         /// Atomically maps the map to a new map
@@ -1568,7 +1569,7 @@ namespace LanguageExt
         /// <returns>Mapped items in a new map</returns>
         [Pure]
         public AtomHashMap<K, U> Select<U>(Func<K, V, U> f) =>
-            new AtomHashMap<K, U>(items.Map(f));
+            new AtomHashMap<K, U>(Items.Map(f));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -1578,7 +1579,7 @@ namespace LanguageExt
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public AtomHashMap<K, V> Where(Func<V, bool> pred) =>
-            new AtomHashMap<K, V>(items.Filter(pred));
+            new AtomHashMap<K, V>(Items.Filter(pred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -1588,7 +1589,7 @@ namespace LanguageExt
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public AtomHashMap<K, V> Where(Func<K, V, bool> pred) =>
-            new AtomHashMap<K, V>(items.Filter(pred));
+            new AtomHashMap<K, V>(Items.Filter(pred));
 
         /// <summary>
         /// Return true if all items in the map return true when the predicate is applied
@@ -1765,3 +1766,4 @@ namespace LanguageExt
             Values.Fold(state, folder);
     }
 }
+#nullable disable

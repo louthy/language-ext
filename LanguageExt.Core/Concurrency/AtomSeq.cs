@@ -112,7 +112,38 @@ namespace LanguageExt
                 }
             }
         }
-
+        
+        /// <summary>
+        /// Atomically swap the underlying Seq.  Allows for multiple operations on the Seq in an entirely
+        /// transactional and atomic way.
+        /// </summary>
+        /// <param name="swap">Swap function, maps the current state of the AtomSeq to a new state</param>
+        /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
+        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
+        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        internal Unit SwapInternal(Func<ISeqInternal<A>, ISeqInternal<A>> swap)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = items;
+                var nitems = swap(oitems);
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    // no change
+                    return default;
+                }
+                if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        }
+        
         /// <summary>
         /// Add an item to the end of the sequence
         /// </summary>

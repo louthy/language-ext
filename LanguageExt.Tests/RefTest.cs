@@ -34,7 +34,7 @@ namespace LanguageExt.Tests
     public static class Transfer
     {
         public static Unit Do(Ref<Account> from, Ref<Account> to, int amount) => 
-            sync(() =>
+            atomic(() =>
             {
                 from.Value = from.Value.AddBalance(-amount);
                 to.Value   = to.Value.AddBalance(amount);
@@ -52,7 +52,7 @@ namespace LanguageExt.Tests
 
             Transfer.Do(accountA, accountB, 100);
 
-            var (balanceA, balanceB) = sync(() => (accountA.Value.Balance, accountB.Value.Balance));
+            var (balanceA, balanceB) = atomic(() => (accountA.Value.Balance, accountB.Value.Balance));
 
             Assert.True(balanceA == balanceB);
         }
@@ -63,7 +63,7 @@ namespace LanguageExt.Tests
             const int count = 1000;
 
             static int inc(Ref<int> counter) => 
-                sync(() => commute(counter, static x => x + 1));
+                atomic(() => commute(counter, static x => x + 1));
 
             var num = Ref(0);
 
@@ -95,6 +95,6 @@ namespace LanguageExt.Tests
         }
 
         static void LogDeposit(Ref<Account> account, int amount) =>
-            sync(() => commute(account, a => a.Deposit(amount)));
+            atomic(() => commute(account, a => a.Deposit(amount)));
     }
 }

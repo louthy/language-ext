@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -326,3 +327,4 @@ public static class OptionExtensions
     internal static U CheckNullSomeReturn<U>(U value) =>
         CheckNullReturn(value, "Some");
 }
+#nullable disable

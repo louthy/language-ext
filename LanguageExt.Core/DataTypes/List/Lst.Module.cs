@@ -1006,7 +1006,7 @@ namespace LanguageExt
         /// <returns>A new enumerable with all duplicate values removed</returns>
         [Pure]
         public static IEnumerable<T> distinct<EQ, T>(IEnumerable<T> list) where EQ : struct, Eq<T> =>
-            list.Distinct(new EqCompare<T>((x, y) => default(EQ).Equals(x, y)));
+            list.Distinct(new EqCompare<T>(static (x, y) => default(EQ).Equals(x, y)));
 
         /// <summary>
         /// Return a new enumerable with all duplicate values removed

@@ -8,19 +8,36 @@ namespace LanguageExt
     /// </summary>
     public enum Isolation
     {
-        /// <summary>
-        /// Snapshot isolation takes a picture of the world when it starts
-        /// If the transaction writes to a `Ref` that something else modified
-        /// in the meantime then the operation will be retried with the latest
-        /// world.
-        /// </summary>
+        /// <remarks>
+        /// Snapshot isolation requires that nothing outside of the transaction has written to any of the values that are
+        /// *written-to within the transaction*.  If anything does write to the values used within the transaction, then
+        /// the transaction is rolled back and retried (using the latest 'world' state). 
+        /// </remarks>
         Snapshot,
 
-        /// <summary>
-        /// Most strict form of isolation.  Causes a transaction to fail and 
-        /// re-run even if a `Ref` that is read within the transaction is 
-        /// changed (by another transaction).  
-        /// </summary>
+        /// <remarks>
+        /// Serialisable isolation requires that nothing outside of the transaction has written to any of the values that
+        /// are *read-from or written-to within the transaction*.  If anything does write to the values that are used
+        /// within the transaction, then it is rolled back and retried (using the latest 'world' state).
+        ///
+        /// It is the most strict form of isolation, and the most likely to conflict; but protects against cross read/write  
+        /// inconsistencies.  For example, if you have:
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     snapshot(() => x.Value = y.Value + 1);
+        ///
+        /// Then something writing to `y` mid-way through the transaction would not cause the transaction to fail.
+        /// Because `y` was only read-from, not written to.  However, this: 
+        ///
+        ///     var x = Ref(1);
+        ///     var y = Ref(2);
+        ///
+        ///     serial(() => x.Value = y.Value + 1);
+        ///
+        /// ... would fail if something wrote to `y`.  
+        /// </remarks>
         Serialisable
     }
 }
