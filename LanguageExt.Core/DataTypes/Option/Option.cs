@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using static LanguageExt.Optional;
@@ -43,10 +42,8 @@ namespace LanguageExt
         IComparable,
         ISerializable
     {
-        internal readonly A? value;
-
-        public A Value =>
-            value is null ? throw new ValueIsNullException() : value;
+        internal readonly A Value;
+        internal readonly bool isSome;
 
         /// <summary>
         /// None
@@ -62,33 +59,51 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<A> Some(A value) =>
-            new Option<A>(value, true);
+            isnull(value)
+                ? throw new ValueIsNullException()
+                : new Option<A>(value, true);
 
         /// <summary>
         /// Constructor
         /// </summary>
-        internal Option(A value, bool isSome) =>
-            this.value = value;
+        internal Option(A value, bool isSome)
+        {
+            Value = value;
+            this.isSome = isSome;
+        }
 
         /// <summary>
         /// Ctor that facilitates serialisation
         /// </summary>
         /// <param name="option">None or Some A.</param>
+        [Pure]
         public Option(IEnumerable<A> option)
         {
             var first = option.Take(1).ToArray();
-            value = first.Length == 1
-                        ? first[0]
-                        : default;
+            isSome = first.Length == 1;
+            Value = isSome
+                ? first[0]
+                : default;
         }
 
-        Option(SerializationInfo info, StreamingContext context) =>
-            value = (A?)info.GetValue("Value", typeof(A?));
+        [Pure]
+        Option(SerializationInfo info, StreamingContext context)
+        {
+            isSome = (bool)info.GetValue("IsSome", typeof(bool));
+            if(isSome)
+            {
+                Value = (A)info.GetValue("Value", typeof(A));
+            }
+            else
+            {
+                Value = default;
+            }
+        }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            if (IsSome) info.AddValue("Value", Value);
-            else info.AddValue("Value", null);
+            info.AddValue("IsSome", IsSome);
+            if(IsSome) info.AddValue("Value", Value);
         }
 
         /// <summary>
@@ -101,24 +116,10 @@ namespace LanguageExt
         ///
         /// </remarks>
         [Pure]
-        public object? Case =>
+        public object Case =>
             IsSome
-                ? value
+                ? (object)Value
                 : null;
-
-        /// <summary>
-        /// Reference version of option for use in pattern-matching
-        /// </summary>
-        /// <remarks>
-        ///
-        ///     Some = result is A
-        ///     None = result is null
-        ///
-        /// </remarks>
-        [Pure]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Deconstruct(out A? value) =>
-            value = this.value;
 
         /// <summary>
         /// Uses the `EqDefault` instance to do an equality check on the bound value.  
@@ -147,9 +148,9 @@ namespace LanguageExt
         public bool Equals<EqA>(Option<A> other) where EqA : struct, Eq<A>
         {
             var yIsSome = other.IsSome;
-            var xIsNone = !IsSome;
+            var xIsNone = !isSome;
             var yIsNone = !yIsSome;
-            return (xIsNone && yIsNone) || (IsSome && yIsSome && default(EqA).Equals(Value, other.Value));
+            return (xIsNone && yIsNone) || (isSome && yIsSome && default(EqA).Equals(Value, other.Value));
         }
 
         /// <summary>
@@ -173,11 +174,11 @@ namespace LanguageExt
         public int CompareTo<OrdA>(Option<A> other) where OrdA : struct, Ord<A>
         {
             var yIsSome = other.IsSome;
-            var xIsNone = !IsSome;
+            var xIsNone = !isSome;
             var yIsNone = !yIsSome;
 
             if (xIsNone && yIsNone) return 0;
-            if (IsSome && yIsNone) return 1;
+            if (isSome && yIsNone) return 1;
             if (xIsNone && yIsSome) return -1;
 
             return default(OrdA).Compare(Value, other.Value);
@@ -349,8 +350,8 @@ namespace LanguageExt
         /// state, in which case the hash-code will be 0</returns>
         [Pure]
         public override int GetHashCode() =>
-            IsSome 
-                ? Value?.GetHashCode() ?? 0 
+            isSome 
+                ? Value.GetHashCode() 
                 : 0;
         
         [Pure]
@@ -364,8 +365,8 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString() =>
-            IsSome
-                ? $"Some({Value?.ToString() ?? "null"})"
+            isSome
+                ? $"Some({Value.ToString()})"
                 : "None";
 
         /// <summary>
@@ -373,14 +374,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool IsSome =>
-            value != null;
+            isSome;
 
         /// <summary>
         /// Is the option in a None state
         /// </summary>
         [Pure]
         public bool IsNone =>
-            value == null;
+            !isSome;
 
         /// <summary>
         /// Impure iteration of the bound value in the structure
@@ -404,7 +405,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> Select<B>(Func<A, B> f) =>
-            IsSome
+            isSome
                 ? Option<B>.Some(f(Value))
                 : default;
 
@@ -417,7 +418,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> Map<B>(Func<A, B> f) =>
-            IsSome
+            isSome
                 ? Option<B>.Some(f(Value))
                 : default;
 
@@ -427,7 +428,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> Bind<B>(Func<A, Option<B>> f) =>
-            IsSome
+            isSome
                 ? f(Value)
                 : default;
 
@@ -437,7 +438,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> BiBind<B>(Func<A, Option<B>> Some, Func<Option<B>> None) =>
-            IsSome
+            isSome
                 ? Some(Value)
                 : None();
 
@@ -498,7 +499,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> ToArray() =>
-            IsSome
+            isSome
                 ? Arr.create(Value)
                 : Empty;
 
@@ -509,7 +510,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Lst<A> ToList() =>
-            IsSome
+            isSome
                 ? List.create(Value)
                 : Empty;
 
@@ -520,7 +521,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> ToSeq() =>
-            IsSome
+            isSome
                 ? Seq1(Value)
                 : Empty;
 
@@ -536,7 +537,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<FAIL, A> ToValidation<FAIL>(FAIL defaultFailureValue) =>
-            IsSome
+            isSome
                 ? Success<FAIL, A>(Value)
                 : Fail<FAIL, A>(defaultFailureValue);
         
@@ -557,7 +558,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Eff<A> ToEff(Error Fail) =>
-            IsSome
+            isSome
                 ? SuccessEff<A>(Value)
                 : FailEff<A>(Fail);
         
@@ -578,7 +579,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Aff<A> ToAff(Error Fail) =>
-            IsSome
+            isSome
                 ? SuccessAff<A>(Value)
                 : FailAff<A>(Fail);
 
@@ -599,7 +600,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Fin<A> ToFin(Error Fail) =>
-            IsSome
+            isSome
                 ? FinSucc<A>(Value)
                 : FinFail<A>(Fail);
 
@@ -611,7 +612,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Either<L, A> ToEither<L>(L defaultLeftValue) =>
-            IsSome
+            isSome
                 ? Right<L, A>(Value)
                 : Left<L, A>(defaultLeftValue);
 
@@ -624,7 +625,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Either<L, A> ToEither<L>(Func<L> Left) =>
-            IsSome
+            isSome
                 ? Right<L, A>(Value)
                 : Left<L, A>(Left());
 
@@ -636,7 +637,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public EitherUnsafe<L, A> ToEitherUnsafe<L>(L defaultLeftValue) =>
-            IsSome
+            isSome
                 ? RightUnsafe<L, A>(Value)
                 : LeftUnsafe<L, A>(defaultLeftValue);
 
@@ -649,7 +650,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public EitherUnsafe<L, A> ToEitherUnsafe<L>(Func<L> Left) =>
-            IsSome
+            isSome
                 ? RightUnsafe<L, A>(Value)
                 : LeftUnsafe<L, A>(Left());
 
@@ -660,7 +661,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public OptionUnsafe<A> ToOptionUnsafe() =>
-            IsSome
+            isSome
                 ? OptionUnsafe<A>.Some(Value)
                 : default;
 
@@ -710,7 +711,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B Match<B>(Func<A, B> Some, Func<B> None) =>
             Check.NullReturn(
-                IsSome
+                isSome
                     ? Some(Value)
                     : None());
 
@@ -725,7 +726,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B Match<B>(Func<A, B> Some, B None) =>
             Check.NullReturn(
-                IsSome
+                isSome
                     ? Some(Value)
                     : None);
 
@@ -739,7 +740,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B MatchUnsafe<B>(Func<A, B> Some, Func<B> None) =>
-            IsSome
+            isSome
                 ? Some(Value)
                 : None();
 
@@ -753,7 +754,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B MatchUnsafe<B>(Func<A, B> Some, B None) =>
-            IsSome
+            isSome
                 ? Some(Value)
                 : None;
 
@@ -765,7 +766,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit Match(Action<A> Some, Action None)
         {
-            if(IsSome)
+            if(isSome)
             {
                 Some(Value);
             }
@@ -783,7 +784,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit IfSome(Action<A> f)
         {
-            if(IsSome)
+            if(isSome)
             {
                 f(Value);
             }
@@ -798,7 +799,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit IfSome(Func<A, Unit> f)
         {
-            if (IsSome)
+            if (isSome)
             {
                 f(Value);
             }
@@ -816,7 +817,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public A IfNone(Func<A> None) =>
-            IsSome
+            isSome
                 ? Value
                 : Check.NullReturn(None());
 
@@ -842,7 +843,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public A IfNone(A noneValue) =>
-            IsSome
+            isSome
                 ? Value
                 : Check.NullReturn(noneValue);
 
@@ -857,7 +858,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public A IfNoneUnsafe(Func<A> None) =>
-            IsSome
+            isSome
                 ? Value
                 : None();
 
@@ -872,7 +873,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public A IfNoneUnsafe(A noneValue) =>
-            IsSome
+            isSome
                 ? Value
                 : noneValue;
 
@@ -899,7 +900,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S Fold<S>(S state, Func<S, A, S> folder) =>
-            IsSome
+            isSome
                 ? folder(state, Value)
                 : state;
 
@@ -926,7 +927,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S FoldBack<S>(S state, Func<S, A, S> folder) =>
-            IsSome
+            isSome
                 ? folder(state, Value)
                 : state;
 
@@ -954,7 +955,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, Unit, S> None) =>
-            IsSome
+            isSome
                 ? Some(state, Value)
                 : None(state, unit);
 
@@ -982,7 +983,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, S> None) =>
-            IsSome
+            isSome
                 ? Some(state, Value)
                 : None(state);
 
@@ -997,7 +998,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> BiMap<B>(Func<A, B> Some, Func<Unit, B> None) =>
             Check.NullReturn(
-                IsSome
+                isSome
                     ? Some(Value)
                     : None(unit));
 
@@ -1012,7 +1013,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> BiMap<B>(Func<A, B> Some, Func<B> None) =>
             Check.NullReturn(
-                IsSome
+                isSome
                     ? Some(Value)
                     : None());
 
@@ -1031,7 +1032,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Count() =>
-            IsSome ? 1 : 0;
+            isSome ? 1 : 0;
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -1047,7 +1048,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ForAll(Func<A, bool> pred) =>
-            IsSome
+            isSome
                 ? pred(Value)
                 : true;
 
@@ -1066,7 +1067,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool BiForAll(Func<A, bool> Some, Func<Unit, bool> None) =>
-            IsSome
+            isSome
                 ? Some(Value)
                 : None(unit);
 
@@ -1085,7 +1086,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool BiForAll(Func<A, bool> Some, Func<bool> None) =>
-            IsSome
+            isSome
                 ? Some(Value)
                 : None();
 
@@ -1102,7 +1103,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Exists(Func<A, bool> pred) =>
-            IsSome
+            isSome
                 ? pred(Value)
                 : false;
 
@@ -1120,7 +1121,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool BiExists(Func<A, bool> Some, Func<Unit, bool> None) =>
-            IsSome
+            isSome
                 ? Some(Value)
                 : None(unit);
 
@@ -1138,7 +1139,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool BiExists(Func<A, bool> Some, Func<bool> None) =>
-            IsSome
+            isSome
                 ? Some(Value)
                 : None();
 
@@ -1149,7 +1150,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit Iter(Action<A> Some)
         {
-            if(IsSome)
+            if(isSome)
             {
                 Some(Value);
             }
@@ -1164,7 +1165,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit BiIter(Action<A> Some, Action<Unit> None)
         {
-            if (IsSome)
+            if (isSome)
             {
                 Some(Value);
             }
@@ -1183,7 +1184,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit BiIter(Action<A> Some, Action None)
         {
-            if (IsSome)
+            if (isSome)
             {
                 Some(Value);
             }
@@ -1203,7 +1204,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<A> Filter(Func<A, bool> pred) =>
-            IsSome && pred(Value)
+            isSome && pred(Value)
                 ? this
                 : default;
 
@@ -1216,7 +1217,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<A> Where(Func<A, bool> pred) =>
-            IsSome && pred(Value)
+            isSome && pred(Value)
                 ? this
                 : default;
 
@@ -1265,4 +1266,3 @@ namespace LanguageExt
             AsEnumerable().GetEnumerator();
     }
 }
-#nullable disable
