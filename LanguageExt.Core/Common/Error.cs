@@ -8,53 +8,37 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Common
 {
-    public static class Errors
-    {
-        public const string CancelledText = "cancelled";
-        public const int CancelledCode = -2000000000;
-        public static readonly Error Cancelled = (CancelledCode, CancelledText);
-
-        public const string BottomText = "bottom";
-        public const int BottomCode = -2000000001;
-        public readonly static Error Bottom = (BottomCode, BottomText);
-
-        public const string TimedOutText = "timed out";
-        public const int TimedOutCode = -2000000002;
-        public static readonly Error TimedOut = (TimedOutCode, TimedOutText);    
-
-        public const string SequenceEmptyText = "sequence empty";
-        public const int SequenceEmptyCode = -2000000003;
-        public static readonly Error SequenceEmpty = (SequenceEmptyCode, SequenceEmptyText);    
-
-        public const string ClosedText = "closed";
-        public const int ClosedCode = -2000000004;
-        public static readonly Error Closed = (ClosedCode, ClosedText);    
-
-        public const int ParseErrorCode = -2000000005;
-        public static Error ParseError(string msg) => (ParseErrorCode, msg);    
-    }
-
+    /// <summary>
+    /// Error value
+    /// </summary>
+    /// <remarks>
+    /// Unlike exceptions, Error can be either exceptional or non-exceptional, i.e. it is either created from an
+    /// exception or it isn't.  This allows for expected errors to be represented without throwing exceptions.  
+    /// </remarks>
     [Serializable]
     public readonly struct Error : ISerializable, IEquatable<Error>
     {
         readonly int code;
         readonly string message;
-        readonly Option<Exception> exception;
+        internal readonly Exception exception;
+        internal readonly ErrorException inner;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Error(int code, string message, Option<Exception> exception)
+        internal Error(int code, string message, Exception exception, ErrorException inner)
         {
-            this.code = code;
-            this.message = message ?? throw new ArgumentNullException(nameof(message));
+            this.code      = code;
+            this.message   = message ?? throw new ArgumentNullException(nameof(message));
             this.exception = exception;
+            this.inner     = inner;
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Error(SerializationInfo info, StreamingContext context)
         {
-            code = (int)info.GetValue("Code", typeof(int));
-            message = (string)info.GetValue("Message", typeof(string));
-            exception = None;
+            code      = (int)info.GetValue("Code", typeof(int));
+            message   = (string)info.GetValue("Message", typeof(string));
+            exception = null;
+            inner     = null;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -64,6 +48,9 @@ namespace LanguageExt.Common
             info.AddValue("Message", Message);
         }
 
+        /// <summary>
+        /// Error code
+        /// </summary>
         [Pure]
         public int Code
         {
@@ -71,6 +58,9 @@ namespace LanguageExt.Common
             get => message == null ? Errors.BottomCode : code;
         }
 
+        /// <summary>
+        /// Error message
+        /// </summary>
         [Pure]
         public string Message
         {
@@ -78,50 +68,136 @@ namespace LanguageExt.Common
             get => message ?? Errors.BottomText;
         }
 
+        /// <summary>
+        /// Inner error
+        /// </summary>
+        [Pure]
+        public Option<Error> Inner =>
+            inner is null
+                ? None
+                : (Error)inner;
+            
+        /// <summary>
+        /// If this error represents an exceptional error, then this will return that exception, otherwise it will
+        /// generate a new ErrorException that contains the code, message, and inner of this Error.
+        /// </summary>
+        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Exception ToException() =>
+            exception ?? new ErrorException(Code, Message, null, inner);
+
+        /// <summary>
+        /// If this error represents an exceptional error, then this will return that exception, otherwise None
+        /// </summary>
         [Pure]
         public Option<Exception> Exception =>
-            exception;
+            Optional(exception);
 
+        /// <summary>
+        /// If this error represents an exceptional error, then this will return true if the exceptional error is of type E
+        /// </summary>
         [Pure]
         public bool Is<E>() where E : Exception =>
-            exception.IsSome && exception.Value is E; 
+            exception is E; 
         
+        /// <summary>
+        /// Create a new error 
+        /// </summary>
+        /// <param name="code">Error code</param>
+        /// <param name="message">Error message</param>
+        /// <param name="thisException">The exception this error represents</param>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Error New(int code, string message, Option<Exception> exception) => 
-            new Error(code, message, exception);
+        public static Error New(int code, string message, Exception thisException) => 
+            new Error(code, message, thisException, null);
 
+        /// <summary>
+        /// Create a new error 
+        /// </summary>
+        /// <param name="message">Error message</param>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Error New(Exception exception) =>
-            new Error(exception.HResult, exception.Message, exception);
+        public static Error New(Exception thisException) =>
+            new Error(thisException.HResult, thisException.Message, thisException, null);
 
+        /// <summary>
+        /// Create a new error 
+        /// </summary>
+        /// <param name="message">Error message</param>
+        /// <param name="thisException">The exception this error represents</param>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Error New(string message, Exception exception) =>
-            new Error(exception.HResult, message, exception);
+        public static Error New(string message, Exception thisException) =>
+            new Error(thisException.HResult, message, thisException, null);
 
+        /// <summary>
+        /// Create a new error 
+        /// </summary>
+        /// <param name="message">Error message</param>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Error New(string message) =>
-            new Error(0, message, None);
+            new Error(0, message, null, null);
 
+        /// <summary>
+        /// Create a new error 
+        /// </summary>
+        /// <param name="code">Error code</param>
+        /// <param name="message">Error message</param>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Error New(int code, string message) =>
-            new Error(code, message, None);
+            new Error(code, message, null, null);
+        
+        /// <summary>
+        /// Create a new error 
+        /// </summary>
+        /// <param name="code">Error code</param>
+        /// <param name="message">Error message</param>
+        /// <param name="thisException">The exception this error represents</param>
+        /// <param name="inner">The inner error to this error</param>
+        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Error New(int code, string message, Error inner) => 
+            new Error(code, message, null, (ErrorException)inner);
 
+        /// <summary>
+        /// Create a new error 
+        /// </summary>
+        /// <param name="message">Error message</param>
+        /// <param name="inner">The inner error to this error</param>
+        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Error New(Exception thisException, Error inner) =>
+            new Error(thisException.HResult, thisException.Message, thisException, (ErrorException)inner);
+
+        /// <summary>
+        /// Create a new error 
+        /// </summary>
+        /// <param name="message">Error message</param>
+        /// <param name="thisException">The exception this error represents</param>
+        /// <param name="inner">The inner error to this error</param>
+        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Error New(string message, Exception thisException, Error inner) =>
+            new Error(thisException.HResult, message, thisException, (ErrorException)inner);
+
+        /// <summary>
+        /// Create a new error 
+        /// </summary>
+        /// <param name="code">Error code</param>
+        /// <param name="inner">The inner error to this error</param>
+        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Error New(string message, Error inner) =>
+            new Error(0, message, null, (ErrorException)inner);
+
+        /// <summary>
+        /// Attempt to recover an error from an object.
+        /// Will accept Error, ErrorException, Exception, string, Option<Error>
+        /// If it fails, Errors.Bottom is returned
+        /// </summary>
         [Pure]
         public static Error FromObject(object value) =>
             value switch
             {
                 Error err          => err,
+                ErrorException ex  => ex.ToError(),
                 Exception ex       => New(ex),
                 string str         => New(str),
                 Option<Error> oerr => oerr.IfNone(Errors.Bottom),
                 _                  => Errors.Bottom
             };
-
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal Exception ToException() =>
-            Exception.IsSome
-                ? (Exception)Exception
-                : new ErrorException(Code, Message);
 
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString() =>
@@ -192,13 +268,5 @@ namespace LanguageExt.Common
         /// </summary>
         public Unit Throw() =>
             ToException().Rethrow();
-    }
-
-    [Serializable]
-    public class ErrorException : Exception
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ErrorException(int code, string message) : base(message) =>
-            HResult = code;
     }
 }

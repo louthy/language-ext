@@ -54,6 +54,8 @@ public class Program
 {
     static async Task Main(string[] args)
     {
+        var err = Error.New("this has an inner error", Error.New("inner"));
+        
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                                                                                    //
         //                                                                                                    //
