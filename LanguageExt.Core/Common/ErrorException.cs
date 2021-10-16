@@ -228,19 +228,19 @@ namespace LanguageExt.Common
 
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ErrorException(string e) =>
-            New(e);
+            new ErrorException(0, e, null, null);
 
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ErrorException((int Code, string Message) e) =>
-            New(e.Code, e.Message);
+            new ErrorException(e.Code, e.Message, null, null);
 
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ErrorException(Error e) =>
-            New(e.Code, e.Message, e.exception, e.inner);
+            new ErrorException(e.Code, e.Message, e.exception, e.inner);
 
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Error (ErrorException e) =>
-            new Error(e.Code, e.Message, e.exception, e.inner);
+            e is null ? Errors.Bottom : new Error(e.Code, e.Message, e.exception, e.inner);
 
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(ErrorException other) =>
@@ -259,30 +259,6 @@ namespace LanguageExt.Common
         public override bool Equals(object obj) =>
             (obj is ErrorException other1 && Equals(other1)) ||
             (obj is Error other2 && Equals(other2));
-
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(ErrorException lhs, ErrorException rhs) =>
-            lhs?.Equals(rhs) ?? false;
-
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(ErrorException lhs, ErrorException rhs) =>
-            !(lhs == rhs);
-
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(ErrorException lhs, Error rhs) =>
-            lhs?.Equals(rhs) ?? false;
-
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(ErrorException lhs, Error rhs) =>
-            !(lhs == rhs);
-
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(Error lhs, ErrorException rhs) =>
-            lhs.Equals(rhs);
-
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(Error lhs, ErrorException rhs) =>
-            !(lhs == rhs);
         
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode()
