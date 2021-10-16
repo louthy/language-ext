@@ -61,7 +61,7 @@ public class Program
         //                                                                                                    //
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
-        //await PipesTest();
+        await PipesTest();
 
         // await ObsAffTests.Test();
         // await AsyncTests();

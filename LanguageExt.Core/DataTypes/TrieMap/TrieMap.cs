@@ -126,6 +126,18 @@ namespace LanguageExt
         /// Add an item to the map, if it exists update the value
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TrieMap<EqK, K, V> AddOrMaybeUpdate(K key, Func<V, V> Some, Func<Option<V>> None)
+        {
+            var (found, _, value) = FindInternal(key);
+            return found
+                       ? AddOrUpdate(key, Some(value))
+                       : None().Map(x => AddOrUpdate(key, x)).IfNone(this);
+        }
+
+        /// <summary>
+        /// Add an item to the map, if it exists update the value
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TrieMap<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, V None)
         {
             var (found, _, value) = FindInternal(key);

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
+using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -207,7 +208,7 @@ namespace LanguageExt
             {
                 foreach (var z in zs)
                 {
-                    if (default(OrdDefault<A>).Equals(z.x, index))
+                    if (equals<OrdDefault<A>, A>(z.x, index))
                     {
                         value = z.y;
                     }
@@ -226,7 +227,7 @@ namespace LanguageExt
         {
             foreach (var z in Entries)
             {
-                if (default(OrdDefault<A>).Equals(z.Item1, index)) return z.Item2;
+                if (equals<OrdDefault<A>, A>(z.Item1, index)) return z.Item2;
             }
 
             return None;
@@ -242,7 +243,7 @@ namespace LanguageExt
         /// Delete
         /// </summary>
         public VectorClock<A> Remove(A index) =>
-            new VectorClock<A>(Entries.Filter(e => !default(OrdDefault<A>).Equals(e.Item1, index)).ToSeq());
+            new VectorClock<A>(Entries.Filter(e => !equals<OrdDefault<A>, A>(e.Item1, index)).ToSeq());
 
         /// <summary>
         /// Insert or replace the entry for a key.
@@ -256,9 +257,9 @@ namespace LanguageExt
                     ? Seq1((index, value))
                     : entries.Head switch
                       {
-                          (var x1, _) xy when default(OrdDefault<A>).Compare(x1, index) < 0 => xy.Cons(go(entries.Tail)),
-                          (var x1, _) xy when default(OrdDefault<A>).Equals(x1, index)      => (index, value).Cons(entries.Tail),
-                          var xy                                                            => (index, value).Cons(xy.Cons(entries.Tail)),
+                          (var x1, _) xy when lessThan<OrdDefault<A>, A>(x1, index) => xy.Cons(go(entries.Tail)),
+                          (var x1, _) xy when equals<OrdDefault<A>, A>(x1, index)   => (index, value).Cons(entries.Tail),
+                          var xy                                                    => (index, value).Cons(xy.Cons(entries.Tail)),
                       };
         }
 
@@ -301,7 +302,7 @@ namespace LanguageExt
                 {
                     (true,  _) => es2.Map(xy => mk(xy.Item1, f(xy.Item1, None, Some(xy.Item2)))),
                     (_,  true) => es1.Map(xy => mk(xy.Item1, f(xy.Item1, Some(xy.Item2), None))),
-                    _          => default(OrdDefault<A>).Compare(es1.Head.Item1, es2.Head.Item1) switch
+                    _          => compare<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1) switch
                                   {
                                       var c when c < 0  => mk(es1.Head.Item1, f(es1.Head.Item1, Some(es1.Head.Item2), None)).Cons(go(es1.Tail, es2)),
                                       var c when c == 0 => mk(es1.Head.Item1, f(es1.Head.Item1, Some(es1.Head.Item2), Some(es2.Head.Item2))).Cons(go(es1.Tail, es2.Tail)),
@@ -455,8 +456,8 @@ namespace LanguageExt
             rhs is not null &&
             GetHashCode() == rhs.GetHashCode() &&
             Count == rhs.Count &&
-            Entries.Zip(rhs.Entries).ForAll(p => TypeClass.equals<OrdA, A>(p.Left.Item1, p.Right.Item1)) &&
-            Entries.Zip(rhs.Entries).ForAll(p => TypeClass.equals<NumB, B>(p.Left.Item2, p.Right.Item2));
+            Entries.Zip(rhs.Entries).ForAll(p => equals<OrdA, A>(p.Left.Item1, p.Right.Item1)) &&
+            Entries.Zip(rhs.Entries).ForAll(p => equals<NumB, B>(p.Left.Item2, p.Right.Item2));
 
         public override int GetHashCode() =>
             Entries.GetHashCode();
@@ -503,7 +504,7 @@ namespace LanguageExt
             {
                 foreach (var z in zs)
                 {
-                    if (default(OrdA).Equals(z.x, index))
+                    if (equals<OrdA, A>(z.x, index))
                     {
                         value = z.y;
                     }
@@ -522,7 +523,7 @@ namespace LanguageExt
         {
             foreach (var z in Entries)
             {
-                if (default(OrdA).Equals(z.Item1, index)) return z.Item2;
+                if (equals<OrdA, A>(z.Item1, index)) return z.Item2;
             }
 
             return None;
@@ -553,9 +554,9 @@ namespace LanguageExt
                     ? Seq1((index, value))
                     : entries.Head switch
                       {
-                          (var x1, _) xy when default(OrdA).Compare(x1, index) < 0 => xy.Cons(go(entries.Tail)),
-                          (var x1, _) xy when default(OrdA).Equals(x1, index)      => (index, value).Cons(entries.Tail),
-                          var xy                                                   => (index, value).Cons(xy.Cons(entries.Tail)),
+                          (var x1, _) xy when lessThan<OrdA, A>(x1, index) => xy.Cons(go(entries.Tail)),
+                          (var x1, _) xy when equals<OrdA, A>(x1, index)   => (index, value).Cons(entries.Tail),
+                          var xy                                           => (index, value).Cons(xy.Cons(entries.Tail)),
                       };
         }
 
@@ -563,7 +564,7 @@ namespace LanguageExt
         /// Increment the entry for a key by 1
         /// </summary>
         public Option<VectorClock<OrdA, NumB, A, B>> Inc(A index) =>
-            Lookup(index).Map(y => Insert(index, default(NumB).Plus(y, default(NumB).FromInteger(1))));
+            Lookup(index).Map(y => Insert(index, plus<NumB, B>(y, fromInteger<NumB, B>(1))));
 
         /// <summary>
         /// Increment the entry for a key by 1
@@ -571,8 +572,8 @@ namespace LanguageExt
         public VectorClock<OrdA, NumB, A, B> Inc(A index, B defaultValue) =>
             Lookup(index).Case switch
             {
-                B y => Insert(index, default(NumB).Plus(y, default(NumB).FromInteger(1))),
-                _   => Insert(index, default(NumB).Plus(defaultValue, default(NumB).FromInteger(1))),
+                B y => Insert(index, plus<NumB, B>(y, fromInteger<NumB, B>(1))),
+                _   => Insert(index, plus<NumB, B>(defaultValue, fromInteger<NumB, B>(1))),
             };
 
         /// <summary>
@@ -598,7 +599,7 @@ namespace LanguageExt
                 {
                     (true,  _) => es2.Map(xy => mk(xy.Item1, f(xy.Item1, None, Some(xy.Item2)))),
                     (_,  true) => es1.Map(xy => mk(xy.Item1, f(xy.Item1, Some(xy.Item2), None))),
-                    _          => default(OrdA).Compare(es1.Head.Item1, es2.Head.Item1) switch
+                    _          => compare<OrdA, A>(es1.Head.Item1, es2.Head.Item1) switch
                                   {
                                       var c when c < 0  => mk(es1.Head.Item1, f(es1.Head.Item1, Some(es1.Head.Item2), None)).Cons(go(es1.Tail, es2)),
                                       var c when c == 0 => mk(es1.Head.Item1, f(es1.Head.Item1, Some(es1.Head.Item2), Some(es2.Head.Item2))).Cons(go(es1.Tail, es2.Tail)),
@@ -623,7 +624,7 @@ namespace LanguageExt
                     (null, null) => None,
                     (B x, null)  => Some(x),
                     (null, B y)  => Some(y),
-                    (B x, B y)   => Some(TypeClass.max<NumB, B>(x, y)),
+                    (B x, B y)   => Some(max<NumB, B>(x, y)),
                     _            => None
                 };
         }

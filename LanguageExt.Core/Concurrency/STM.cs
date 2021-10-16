@@ -23,12 +23,12 @@ namespace LanguageExt
         /// </summary>
         internal static Ref<A> NewRef<A>(A value, Func<A, bool> validator = null)
         {
-            var valid = validator == null
+            /*var valid = validator == null
                 ? True
-                : CastPredicate(validator);
+                : CastPredicate(validator);*/
 
             var id = Interlocked.Increment(ref refIdNext);
-            var v = new RefState(0, value, valid);
+            var v = new RefState<A>(0, value, validator);
             state.Add(id, v);
             return new Ref<A>(id);
         }
@@ -124,7 +124,6 @@ namespace LanguageExt
                 // Wait one tick before trying again
                 sw.SpinOnce();
             }
-            throw new DeadlockException();
         }
         
         /// <summary>
@@ -195,8 +194,6 @@ namespace LanguageExt
                     // Wait one tick before trying again
                     sw.SpinOnce();
                 }
-
-                throw new DeadlockException();
             });
 
         /// <summary>
@@ -267,8 +264,6 @@ namespace LanguageExt
                     // Wait one tick before trying again
                     sw.SpinOnce();
                 }
-
-                throw new DeadlockException();
             });
         
         /// <summary>
@@ -299,7 +294,6 @@ namespace LanguageExt
                 // Wait one tick before trying again
                 sw.SpinOnce();
             }
-            throw new DeadlockException();
         }
 
         /// <summary>
@@ -318,7 +312,7 @@ namespace LanguageExt
                     var cref = op();
 
                     // Try to do the operations of the transaction
-                    return ValidateAndCommit<R>(t, isolation, (R)t.state[cref.Ref.Id].Value, cref.Ref.Id);
+                    return ValidateAndCommit<R>(t, isolation, (R)t.state[cref.Ref.Id].UntypedValue, cref.Ref.Id);
                 }
                 catch (ConflictException)
                 {
@@ -332,7 +326,6 @@ namespace LanguageExt
                 // Spin, backing off, then yield the thread to avoid deadlock 
                 sw.SpinOnce();
             }
-            throw new DeadlockException();
         }
 
         static R ValidateAndCommit<R>(Transaction t, Isolation isolation, R result, long returnRefId)
@@ -394,14 +387,14 @@ namespace LanguageExt
             {
                 var newState = slocal[write];
 
-                if (!newState.Validator(newState.Value))
+                if (!newState.Validate(newState))
                 {
                     throw new RefValidationFailedException();
                 }
 
                 if (s[write].Version == newState.Version)
                 {
-                    s = s.SetItem(write, new RefState(newState.Version + 1, newState.Value, newState.Validator));
+                    s = s.SetItem(write, newState.Inc());
                 }
                 else
                 {
@@ -420,11 +413,10 @@ namespace LanguageExt
                 var exist = s[commute.Id];
 
                 // Re-run the commute function with what's live now
-                var nval = commute.Fun(exist.Value);
-                var nver = new RefState(exist.Version + 1, nval, exist.Validator);
+                var nver = exist.MapAndInc(commute.Fun);
 
                 // Validate the result
-                if (!nver.Validator(nver.Value))
+                if (!nver.Validate(nver))
                 {
                     throw new RefValidationFailedException();
                 }
@@ -435,7 +427,7 @@ namespace LanguageExt
                 // If it matches our return type, then make it the result
                 if (returnRefId == commute.Id)
                 {
-                    result = (R)nval;
+                    result = (R)nver.UntypedValue;
                 }
             }
 
@@ -450,7 +442,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static object Read(long id) =>
             transaction.Value == null
-                ? state.Items[id].Value
+                ? state.Items[id].UntypedValue
                 : transaction.Value.Read(id);
 
         /// <summary>
@@ -604,14 +596,14 @@ namespace LanguageExt
             public object Read(long id)
             {
                 reads.Add(id);
-                return state[id].Value;
+                return state[id].UntypedValue;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public object Write(long id, object value)
             {
                 var oldState = state[id];
-                var newState = new RefState(oldState.Version, value, oldState.Validator);
+                var newState = oldState.SetValue(value);
                 state = state.SetItem(id, newState);
                 writes.Add(id);
                 return value;
@@ -621,11 +613,10 @@ namespace LanguageExt
             public object Commute(long id, Func<object, object> f)
             {
                 var oldState = state[id];
-                var nvalue = f(oldState.Value);
-                var newState = new RefState(oldState.Version, nvalue, oldState.Validator);
+                var newState = oldState.Map(f);
                 state = state.SetItem(id, newState);
                 commutes.Add((id, f));
-                return nvalue;
+                return newState.UntypedValue;
             }
         }
 
@@ -633,19 +624,39 @@ namespace LanguageExt
         /// The state of a Ref
         /// Includes the value and the version
         /// </summary>
-        class RefState
+        abstract record RefState(long Version)
         {
-            public readonly long Version;
-            public readonly object Value;
-            public readonly Func<object, bool> Validator;
+            public abstract bool Validate(RefState refState);
+            public abstract RefState SetValue(object value);
+            public abstract RefState SetValueAndInc(object value);
+            public abstract RefState Inc();
+            public abstract RefState Map(Func<object, object> f);
+            public abstract RefState MapAndInc(Func<object, object> f);
+            public abstract object UntypedValue { get; }
+        }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public RefState(long version, object value, Func<object, bool> validator)
-            {
-                Version = version;
-                Value = value;
-                Validator = validator;
-            }
+        record RefState<A>(long Version, A Value, Func<A, bool> Validator) : RefState(Version)
+        {
+            public override bool Validate(RefState refState) =>
+                Validator?.Invoke(((RefState<A>)refState).Value) ?? true;
+
+            public override RefState SetValue(object value) =>
+                this with {Value = (A)value};
+
+            public override RefState SetValueAndInc(object value) =>
+                this with {Version = Version + 1,Value = (A)value};
+
+            public override RefState Inc() =>
+                this with {Version = Version + 1};
+
+            public override RefState Map(Func<object, object> f) =>
+                this with {Value = (A)f(Value)};
+
+            public override RefState MapAndInc(Func<object, object> f) =>
+                this with {Version = Version + 1, Value = (A)f(Value)};
+
+            public override object UntypedValue =>
+                Value;
         }
     }
 }

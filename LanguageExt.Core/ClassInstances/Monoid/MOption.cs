@@ -8,7 +8,7 @@ using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct MOption<A> :
+    public struct MOption<MonoidA, A> :
         Alternative<Option<A>, Unit, A>,
         Optional<Option<A>, A>,
         OptionalUnsafe<Option<A>, A>,
@@ -18,6 +18,7 @@ namespace LanguageExt.ClassInstances
         Ord<Option<A>>,
         AsyncPair<Option<A>, OptionAsync<A>>,
         Monoid<Option<A>>
+        where MonoidA : struct, Monoid<A>
     {
         public static readonly MOption<A> Inst = default(MOption<A>);
 
@@ -43,7 +44,11 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Option<A> Plus(Option<A> a, Option<A> b) =>
-            a.IsSome ? a : b;
+            a.IsSome && b.IsSome 
+                ? Some(default(MonoidA).Append(a.Value, b.Value)) 
+                : a.IsSome
+                    ? a
+                    : b;
 
         [Pure]
         public Option<A> Return(Func<Unit, A> f) =>
@@ -51,7 +56,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Option<A> Zero() =>
-            Option<A>.None;
+            Option<A>.Some(default(MonoidA).Empty());
 
         [Pure]
         public bool IsNone(Option<A> opt) =>

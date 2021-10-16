@@ -25,7 +25,10 @@ namespace LanguageExt
     {
         internal volatile TrieMap<EqDefault<K>, K, V> Items;
 
-        public static readonly AtomHashMap<K, V> Empty = new AtomHashMap<K, V>(TrieMap<EqDefault<K>, K, V>.Empty);
+        /// <summary>
+        /// Creates a new atom-hashmap
+        /// </summary>
+        public static AtomHashMap<K, V> Empty => new AtomHashMap<K, V>(TrieMap<EqDefault<K>, K, V>.Empty);
         
         /// <summary>
         /// Constructor
@@ -897,7 +900,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.SetItems(sitems);
+                var nitems = oitems.SetItems(sitems);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
@@ -922,7 +925,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.SetItems(sitems);
+                var nitems = oitems.SetItems(sitems);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
@@ -947,7 +950,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.TrySetItems(sitems);
+                var nitems = oitems.TrySetItems(sitems);
                 if (ReferenceEquals(oitems, nitems))
                 {
                     return default;
@@ -976,7 +979,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.TrySetItems(sitems);
+                var nitems = oitems.TrySetItems(sitems);
                 if (ReferenceEquals(oitems, nitems))
                 {
                     return default;
@@ -1010,7 +1013,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.TrySetItems(skeys, Some);
+                var nitems = oitems.TrySetItems(skeys, Some);
                 if (ReferenceEquals(oitems, nitems))
                 {
                     return default;
@@ -1038,7 +1041,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.RemoveRange(skeys);
+                var nitems = oitems.RemoveRange(skeys);
                 if (ReferenceEquals(oitems, nitems))
                 {
                     return default;
@@ -1201,7 +1204,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.Append(rhs.Items);
+                var nitems = oitems.Append(rhs.Items);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
@@ -1220,7 +1223,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.Append(rhs.Value);
+                var nitems = oitems.Append(rhs.Value);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
@@ -1239,7 +1242,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.Subtract(rhs.Items);
+                var nitems = oitems.Subtract(rhs.Items);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
@@ -1258,7 +1261,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.Subtract(rhs.Value);
+                var nitems = oitems.Subtract(rhs.Value);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
@@ -1352,7 +1355,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.Intersect(srhs);
+                var nitems = oitems.Intersect(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
@@ -1374,7 +1377,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.Intersect(srhs);
+                var nitems = oitems.Intersect(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
@@ -1411,7 +1414,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.Except(srhs);
+                var nitems = oitems.Except(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
@@ -1434,7 +1437,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.Except(srhs);
+                var nitems = oitems.Except(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
@@ -1456,7 +1459,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.Except(rhs);
+                var nitems = oitems.Except(rhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
@@ -1479,7 +1482,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.Except(srhs);
+                var nitems = oitems.Except(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
@@ -1504,7 +1507,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = this.Items.Union(srhs);
+                var nitems = oitems.Union(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     return default;
