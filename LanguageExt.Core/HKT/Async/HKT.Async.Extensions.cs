@@ -84,7 +84,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<OptionAsync<A>> Where< A>(this OptionAsync<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
                     : default(MOptionAsync<A>).Zero());
 
@@ -331,7 +331,7 @@ namespace LanguageExt
         public static OptionAsync<OptionAsync<A>> FilterAsyncT< A>(this OptionAsync<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
                         : default(MOptionAsync<A>).Zero());
 
@@ -520,7 +520,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, OptionAsync<A>> Where<L, A>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
                     : default(MOptionAsync<A>).Zero());
 
@@ -767,7 +767,7 @@ namespace LanguageExt
         public static EitherAsync<L, OptionAsync<A>> FilterAsyncT<L, A>(this EitherAsync<L, OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
                         : default(MOptionAsync<A>).Zero());
 
@@ -956,7 +956,7 @@ namespace LanguageExt
         [Pure]
         public static Task<OptionAsync<A>> Where< A>(this Task<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
                     : default(MOptionAsync<A>).Zero());
 
@@ -1203,7 +1203,7 @@ namespace LanguageExt
         public static Task<OptionAsync<A>> FilterAsyncT< A>(this Task<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
                         : default(MOptionAsync<A>).Zero());
 
@@ -1392,7 +1392,7 @@ namespace LanguageExt
         [Pure]
         public static ValueTask<OptionAsync<A>> Where< A>(this ValueTask<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MValueTask<OptionAsync<A>>, ValueTask<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MValueTask<OptionAsync<A>>, ValueTask<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
                     : default(MOptionAsync<A>).Zero());
 
@@ -1639,7 +1639,7 @@ namespace LanguageExt
         public static ValueTask<OptionAsync<A>> FilterAsyncT< A>(this ValueTask<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MValueTask<OptionAsync<A>>, ValueTask<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MValueTask<OptionAsync<A>>, ValueTask<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
                         : default(MOptionAsync<A>).Zero());
 
@@ -1828,7 +1828,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<OptionAsync<A>> Where< A>(this TryAsync<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
                     : default(MOptionAsync<A>).Zero());
 
@@ -2075,7 +2075,7 @@ namespace LanguageExt
         public static TryAsync<OptionAsync<A>> FilterAsyncT< A>(this TryAsync<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
                         : default(MOptionAsync<A>).Zero());
 
@@ -2264,7 +2264,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<OptionAsync<A>> Where< A>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>).BindAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
                     : default(MOptionAsync<A>).Zero());
 
@@ -2511,7 +2511,7 @@ namespace LanguageExt
         public static TryOptionAsync<OptionAsync<A>> FilterAsyncT< A>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>)
                 .BindAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MOptionAsync<A>).ReturnAsync(a.AsTask())
                         : default(MOptionAsync<A>).Zero());
 
@@ -2708,7 +2708,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<EitherAsync<L, A>> Where<L, A>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
                     : default(MEitherAsync<L, A>).Zero());
 
@@ -2955,7 +2955,7 @@ namespace LanguageExt
         public static OptionAsync<EitherAsync<L, A>> FilterAsyncT<L, A>(this OptionAsync<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
                         : default(MEitherAsync<L, A>).Zero());
 
@@ -3144,7 +3144,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, EitherAsync<L, A>> Where<L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
                     : default(MEitherAsync<L, A>).Zero());
 
@@ -3391,7 +3391,7 @@ namespace LanguageExt
         public static EitherAsync<L, EitherAsync<L, A>> FilterAsyncT<L, A>(this EitherAsync<L, EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
                         : default(MEitherAsync<L, A>).Zero());
 
@@ -3580,7 +3580,7 @@ namespace LanguageExt
         [Pure]
         public static Task<EitherAsync<L, A>> Where<L, A>(this Task<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
                     : default(MEitherAsync<L, A>).Zero());
 
@@ -3827,7 +3827,7 @@ namespace LanguageExt
         public static Task<EitherAsync<L, A>> FilterAsyncT<L, A>(this Task<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
                         : default(MEitherAsync<L, A>).Zero());
 
@@ -4016,7 +4016,7 @@ namespace LanguageExt
         [Pure]
         public static ValueTask<EitherAsync<L, A>> Where<L, A>(this ValueTask<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MValueTask<EitherAsync<L, A>>, ValueTask<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MValueTask<EitherAsync<L, A>>, ValueTask<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
                     : default(MEitherAsync<L, A>).Zero());
 
@@ -4263,7 +4263,7 @@ namespace LanguageExt
         public static ValueTask<EitherAsync<L, A>> FilterAsyncT<L, A>(this ValueTask<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MValueTask<EitherAsync<L, A>>, ValueTask<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MValueTask<EitherAsync<L, A>>, ValueTask<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
                         : default(MEitherAsync<L, A>).Zero());
 
@@ -4452,7 +4452,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<EitherAsync<L, A>> Where<L, A>(this TryAsync<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
                     : default(MEitherAsync<L, A>).Zero());
 
@@ -4699,7 +4699,7 @@ namespace LanguageExt
         public static TryAsync<EitherAsync<L, A>> FilterAsyncT<L, A>(this TryAsync<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
                         : default(MEitherAsync<L, A>).Zero());
 
@@ -4888,7 +4888,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<EitherAsync<L, A>> Where<L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>).BindAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
                     : default(MEitherAsync<L, A>).Zero());
 
@@ -5135,7 +5135,7 @@ namespace LanguageExt
         public static TryOptionAsync<EitherAsync<L, A>> FilterAsyncT<L, A>(this TryOptionAsync<EitherAsync<L, A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>)
                 .BindAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MEitherAsync<L, A>).ReturnAsync(a.AsTask())
                         : default(MEitherAsync<L, A>).Zero());
 
@@ -5332,7 +5332,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<Task<A>> Where< A>(this OptionAsync<Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
                     : default(MTask<A>).Zero());
 
@@ -5579,7 +5579,7 @@ namespace LanguageExt
         public static OptionAsync<Task<A>> FilterAsyncT< A>(this OptionAsync<Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
                         : default(MTask<A>).Zero());
 
@@ -5768,7 +5768,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, Task<A>> Where<L, A>(this EitherAsync<L, Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
                     : default(MTask<A>).Zero());
 
@@ -6015,7 +6015,7 @@ namespace LanguageExt
         public static EitherAsync<L, Task<A>> FilterAsyncT<L, A>(this EitherAsync<L, Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
                         : default(MTask<A>).Zero());
 
@@ -6204,7 +6204,7 @@ namespace LanguageExt
         [Pure]
         public static Task<Task<A>> Where< A>(this Task<Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
                     : default(MTask<A>).Zero());
 
@@ -6451,7 +6451,7 @@ namespace LanguageExt
         public static Task<Task<A>> FilterAsyncT< A>(this Task<Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
                         : default(MTask<A>).Zero());
 
@@ -6640,7 +6640,7 @@ namespace LanguageExt
         [Pure]
         public static ValueTask<Task<A>> Where< A>(this ValueTask<Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MValueTask<Task<A>>, ValueTask<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MValueTask<Task<A>>, ValueTask<Task<A>>, MTask<A>, Task<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
                     : default(MTask<A>).Zero());
 
@@ -6887,7 +6887,7 @@ namespace LanguageExt
         public static ValueTask<Task<A>> FilterAsyncT< A>(this ValueTask<Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MValueTask<Task<A>>, ValueTask<Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MValueTask<Task<A>>, ValueTask<Task<A>>, MTask<A>, Task<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
                         : default(MTask<A>).Zero());
 
@@ -7076,7 +7076,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<Task<A>> Where< A>(this TryAsync<Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
                     : default(MTask<A>).Zero());
 
@@ -7323,7 +7323,7 @@ namespace LanguageExt
         public static TryAsync<Task<A>> FilterAsyncT< A>(this TryAsync<Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
                         : default(MTask<A>).Zero());
 
@@ -7512,7 +7512,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<Task<A>> Where< A>(this TryOptionAsync<Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>).BindAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTask<A>).ReturnAsync(a.AsTask())
                     : default(MTask<A>).Zero());
 
@@ -7759,7 +7759,7 @@ namespace LanguageExt
         public static TryOptionAsync<Task<A>> FilterAsyncT< A>(this TryOptionAsync<Task<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>)
                 .BindAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTask<A>).ReturnAsync(a.AsTask())
                         : default(MTask<A>).Zero());
 
@@ -7956,7 +7956,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<ValueTask<A>> Where< A>(this OptionAsync<ValueTask<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<ValueTask<A>>, OptionAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>).BindAsync<MOptionAsync<ValueTask<A>>, OptionAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MValueTask<A>).ReturnAsync(a.AsTask())
                     : default(MValueTask<A>).Zero());
 
@@ -8203,7 +8203,7 @@ namespace LanguageExt
         public static OptionAsync<ValueTask<A>> FilterAsyncT< A>(this OptionAsync<ValueTask<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<ValueTask<A>>, OptionAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>)
                 .BindAsync<MOptionAsync<ValueTask<A>>, OptionAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MValueTask<A>).ReturnAsync(a.AsTask())
                         : default(MValueTask<A>).Zero());
 
@@ -8392,7 +8392,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, ValueTask<A>> Where<L, A>(this EitherAsync<L, ValueTask<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, ValueTask<A>>, EitherAsync<L, ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>).BindAsync<MEitherAsync<L, ValueTask<A>>, EitherAsync<L, ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MValueTask<A>).ReturnAsync(a.AsTask())
                     : default(MValueTask<A>).Zero());
 
@@ -8639,7 +8639,7 @@ namespace LanguageExt
         public static EitherAsync<L, ValueTask<A>> FilterAsyncT<L, A>(this EitherAsync<L, ValueTask<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, ValueTask<A>>, EitherAsync<L, ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>)
                 .BindAsync<MEitherAsync<L, ValueTask<A>>, EitherAsync<L, ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MValueTask<A>).ReturnAsync(a.AsTask())
                         : default(MValueTask<A>).Zero());
 
@@ -8828,7 +8828,7 @@ namespace LanguageExt
         [Pure]
         public static Task<ValueTask<A>> Where< A>(this Task<ValueTask<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<ValueTask<A>>, Task<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>).BindAsync<MTask<ValueTask<A>>, Task<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MValueTask<A>).ReturnAsync(a.AsTask())
                     : default(MValueTask<A>).Zero());
 
@@ -9075,7 +9075,7 @@ namespace LanguageExt
         public static Task<ValueTask<A>> FilterAsyncT< A>(this Task<ValueTask<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<ValueTask<A>>, Task<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>)
                 .BindAsync<MTask<ValueTask<A>>, Task<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MValueTask<A>).ReturnAsync(a.AsTask())
                         : default(MValueTask<A>).Zero());
 
@@ -9264,7 +9264,7 @@ namespace LanguageExt
         [Pure]
         public static ValueTask<ValueTask<A>> Where< A>(this ValueTask<ValueTask<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MValueTask<ValueTask<A>>, ValueTask<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>).BindAsync<MValueTask<ValueTask<A>>, ValueTask<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MValueTask<A>).ReturnAsync(a.AsTask())
                     : default(MValueTask<A>).Zero());
 
@@ -9302,6 +9302,18 @@ namespace LanguageExt
         public static Task<int> CountT< A>(this ValueTask<ValueTask<A>> ma) =>
             default(TransAsync<MValueTask<ValueTask<A>>, ValueTask<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>).Count(ma);
 
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
+        /// <typeparam name="A">Inner bound value type</typeparam>
+        /// <typeparam name="B">Resulting inner bound value type</typeparam>
+        /// <param name="ma">The `ValueTask&lt;ValueTask&lt;A&gt;&gt;` to perform the operation on</param>
+        /// <param name="f">The bind function to apply</param>
+        /// <returns>`ValueTask&lt;ValueTask&lt;B&gt;&gt;` which is the result of performing `f(a)`</returns>
+        [Pure]
+        public static ValueTask<ValueTask<B>> BindT< A, B>(this ValueTask<ValueTask<A>> ma, Func<A, ValueTask<B>> f) =>
+            default(TransAsync<MValueTask<ValueTask<A>>, ValueTask<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>)
+                .Bind<MValueTask<ValueTask<B>>, ValueTask<ValueTask<B>>, MValueTask<B>, ValueTask<B>, B>(ma, f);
 
         /// <summary>
         /// Monadic bind operation
@@ -9499,7 +9511,7 @@ namespace LanguageExt
         public static ValueTask<ValueTask<A>> FilterAsyncT< A>(this ValueTask<ValueTask<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MValueTask<ValueTask<A>>, ValueTask<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>)
                 .BindAsync<MValueTask<ValueTask<A>>, ValueTask<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MValueTask<A>).ReturnAsync(a.AsTask())
                         : default(MValueTask<A>).Zero());
 
@@ -9688,7 +9700,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<ValueTask<A>> Where< A>(this TryAsync<ValueTask<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<ValueTask<A>>, TryAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>).BindAsync<MTryAsync<ValueTask<A>>, TryAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MValueTask<A>).ReturnAsync(a.AsTask())
                     : default(MValueTask<A>).Zero());
 
@@ -9935,7 +9947,7 @@ namespace LanguageExt
         public static TryAsync<ValueTask<A>> FilterAsyncT< A>(this TryAsync<ValueTask<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<ValueTask<A>>, TryAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>)
                 .BindAsync<MTryAsync<ValueTask<A>>, TryAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MValueTask<A>).ReturnAsync(a.AsTask())
                         : default(MValueTask<A>).Zero());
 
@@ -10124,7 +10136,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<ValueTask<A>> Where< A>(this TryOptionAsync<ValueTask<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<ValueTask<A>>, TryOptionAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>).BindAsync<MTryOptionAsync<ValueTask<A>>, TryOptionAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MValueTask<A>).ReturnAsync(a.AsTask())
                     : default(MValueTask<A>).Zero());
 
@@ -10371,7 +10383,7 @@ namespace LanguageExt
         public static TryOptionAsync<ValueTask<A>> FilterAsyncT< A>(this TryOptionAsync<ValueTask<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<ValueTask<A>>, TryOptionAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>)
                 .BindAsync<MTryOptionAsync<ValueTask<A>>, TryOptionAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MValueTask<A>).ReturnAsync(a.AsTask())
                         : default(MValueTask<A>).Zero());
 
@@ -10568,7 +10580,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryAsync<A>> Where< A>(this OptionAsync<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
                     : default(MTryAsync<A>).Zero());
 
@@ -10815,7 +10827,7 @@ namespace LanguageExt
         public static OptionAsync<TryAsync<A>> FilterAsyncT< A>(this OptionAsync<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
                         : default(MTryAsync<A>).Zero());
 
@@ -11004,7 +11016,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryAsync<A>> Where<L, A>(this EitherAsync<L, TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
                     : default(MTryAsync<A>).Zero());
 
@@ -11251,7 +11263,7 @@ namespace LanguageExt
         public static EitherAsync<L, TryAsync<A>> FilterAsyncT<L, A>(this EitherAsync<L, TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
                         : default(MTryAsync<A>).Zero());
 
@@ -11440,7 +11452,7 @@ namespace LanguageExt
         [Pure]
         public static Task<TryAsync<A>> Where< A>(this Task<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
                     : default(MTryAsync<A>).Zero());
 
@@ -11687,7 +11699,7 @@ namespace LanguageExt
         public static Task<TryAsync<A>> FilterAsyncT< A>(this Task<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
                         : default(MTryAsync<A>).Zero());
 
@@ -11876,7 +11888,7 @@ namespace LanguageExt
         [Pure]
         public static ValueTask<TryAsync<A>> Where< A>(this ValueTask<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MValueTask<TryAsync<A>>, ValueTask<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MValueTask<TryAsync<A>>, ValueTask<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
                     : default(MTryAsync<A>).Zero());
 
@@ -12123,7 +12135,7 @@ namespace LanguageExt
         public static ValueTask<TryAsync<A>> FilterAsyncT< A>(this ValueTask<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MValueTask<TryAsync<A>>, ValueTask<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MValueTask<TryAsync<A>>, ValueTask<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
                         : default(MTryAsync<A>).Zero());
 
@@ -12312,7 +12324,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryAsync<A>> Where< A>(this TryAsync<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
                     : default(MTryAsync<A>).Zero());
 
@@ -12559,7 +12571,7 @@ namespace LanguageExt
         public static TryAsync<TryAsync<A>> FilterAsyncT< A>(this TryAsync<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
                         : default(MTryAsync<A>).Zero());
 
@@ -12748,7 +12760,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryAsync<A>> Where< A>(this TryOptionAsync<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>).BindAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
                     : default(MTryAsync<A>).Zero());
 
@@ -12995,7 +13007,7 @@ namespace LanguageExt
         public static TryOptionAsync<TryAsync<A>> FilterAsyncT< A>(this TryOptionAsync<TryAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>)
                 .BindAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTryAsync<A>).ReturnAsync(a.AsTask())
                         : default(MTryAsync<A>).Zero());
 
@@ -13192,7 +13204,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<TryOptionAsync<A>> Where< A>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
                     : default(MTryOptionAsync<A>).Zero());
 
@@ -13439,7 +13451,7 @@ namespace LanguageExt
         public static OptionAsync<TryOptionAsync<A>> FilterAsyncT< A>(this OptionAsync<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
                         : default(MTryOptionAsync<A>).Zero());
 
@@ -13628,7 +13640,7 @@ namespace LanguageExt
         [Pure]
         public static EitherAsync<L, TryOptionAsync<A>> Where<L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
                     : default(MTryOptionAsync<A>).Zero());
 
@@ -13875,7 +13887,7 @@ namespace LanguageExt
         public static EitherAsync<L, TryOptionAsync<A>> FilterAsyncT<L, A>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
                         : default(MTryOptionAsync<A>).Zero());
 
@@ -14064,7 +14076,7 @@ namespace LanguageExt
         [Pure]
         public static Task<TryOptionAsync<A>> Where< A>(this Task<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
                     : default(MTryOptionAsync<A>).Zero());
 
@@ -14311,7 +14323,7 @@ namespace LanguageExt
         public static Task<TryOptionAsync<A>> FilterAsyncT< A>(this Task<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
                         : default(MTryOptionAsync<A>).Zero());
 
@@ -14500,7 +14512,7 @@ namespace LanguageExt
         [Pure]
         public static ValueTask<TryOptionAsync<A>> Where< A>(this ValueTask<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MValueTask<TryOptionAsync<A>>, ValueTask<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MValueTask<TryOptionAsync<A>>, ValueTask<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
                     : default(MTryOptionAsync<A>).Zero());
 
@@ -14747,7 +14759,7 @@ namespace LanguageExt
         public static ValueTask<TryOptionAsync<A>> FilterAsyncT< A>(this ValueTask<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MValueTask<TryOptionAsync<A>>, ValueTask<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MValueTask<TryOptionAsync<A>>, ValueTask<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
                         : default(MTryOptionAsync<A>).Zero());
 
@@ -14936,7 +14948,7 @@ namespace LanguageExt
         [Pure]
         public static TryAsync<TryOptionAsync<A>> Where< A>(this TryAsync<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
                     : default(MTryOptionAsync<A>).Zero());
 
@@ -15183,7 +15195,7 @@ namespace LanguageExt
         public static TryAsync<TryOptionAsync<A>> FilterAsyncT< A>(this TryAsync<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
                         : default(MTryOptionAsync<A>).Zero());
 
@@ -15372,7 +15384,7 @@ namespace LanguageExt
         [Pure]
         public static TryOptionAsync<TryOptionAsync<A>> Where< A>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>).BindAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
-                async a => (await pred(a))
+                async a => (await pred(a).ConfigureAwait(false))
                     ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
                     : default(MTryOptionAsync<A>).Zero());
 
@@ -15619,7 +15631,7 @@ namespace LanguageExt
         public static TryOptionAsync<TryOptionAsync<A>> FilterAsyncT< A>(this TryOptionAsync<TryOptionAsync<A>> ma, Func<A, Task<bool>> pred) =>
             default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>)
                 .BindAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, A>(ma, 
-                    async a => (await pred(a))
+                    async a => (await pred(a).ConfigureAwait(false))
                         ? default(MTryOptionAsync<A>).ReturnAsync(a.AsTask())
                         : default(MTryOptionAsync<A>).Zero());
 
