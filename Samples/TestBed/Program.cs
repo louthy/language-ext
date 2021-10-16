@@ -52,10 +52,8 @@ public static class Ext
 
 public class Program
 {
-    static async Task Main(string[] args)
+    static void Main(string[] args)
     {
-        var err = Error.New("this has an inner error", Error.New("inner"));
-        
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                                                                                    //
         //                                                                                                    //
@@ -63,22 +61,18 @@ public class Program
         //                                                                                                    //
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
-        await PipesTest();
 
+        var err = Error.New("this has an inner error", Error.New("inner"));
+
+        err.Inner.Iter(e => Console.WriteLine(e));
+
+
+        
+        // await PipesTest();
         // await ObsAffTests.Test();
         // await AsyncTests();
 
-        var data = AtomHashMap<string, int>();
-        data.Swap(data => data.Find("foo").Case switch
-                          {
-                              int x => data.SetItem("foo", x + 1),
-                              _     => data.Add("foo", 1)
-                          });    
-        data.Swap(data => data.Find("foo").Case switch
-                          {
-                              int x => data.SetItem("foo", x + 1),
-                              _     => data.Add("foo", 1)
-                          });    
+   
     }
 
     static Aff<string> ReadAll(string path) =>
