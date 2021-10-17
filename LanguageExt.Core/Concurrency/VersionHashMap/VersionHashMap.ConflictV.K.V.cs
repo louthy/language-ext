@@ -21,27 +21,28 @@ namespace LanguageExt
     /// </para>
     /// <para>
     /// Deleted items are not removed from the hash-map, they are merely marked as deleted.  This allows conflicts between
-    /// writes and deletes to be resolved.
-    /// </para> 
+    /// writes and deletes to be resolved.  
+    /// </para>
     /// <para>
     /// Run `RemoveDeletedItemsOlderThan` to clean up items that have been deleted and are now just hanging around.  Use
     /// a big enough delay that it won't conflict with other commits (this could be seconds, minutes, or longer:
     /// depending on the expected latency of writes to the hash-map).
     /// </para>
     /// </summary>
-    public class VersionHashMap<K, V> :
+    public class VersionHashMap<ConflictV, K, V> :
         IEnumerable<(K Key, V Value)>,
-        IEquatable<VersionHashMap<K, V>>
+        IEquatable<VersionHashMap<ConflictV, K, V>>
+        where ConflictV : struct, Conflict<V>
     {
-        readonly VersionHashMap<LastWriteWins<V>, TString, EqDefault<K>, string, K, V> Items;
+        readonly VersionHashMap<ConflictV, TString, EqDefault<K>, string, K, V> Items;
 
         /// <summary>
         /// Empty version map
         /// </summary>
-        public static VersionHashMap<K, V> Empty
+        public static VersionHashMap<ConflictV, K, V> Empty
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new VersionHashMap<K, V>(VersionHashMap<LastWriteWins<V>, TString, EqDefault<K>, string, K, V>.Empty);
+            get => new VersionHashMap<ConflictV, K, V>(VersionHashMap<ConflictV, TString, EqDefault<K>, string, K, V>.Empty);
         }
         
         /// <summary>
@@ -49,7 +50,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="items">Trie map</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        VersionHashMap(VersionHashMap<LastWriteWins<V>, TString, EqDefault<K>, string, K, V> items) =>
+        VersionHashMap(VersionHashMap<ConflictV, TString, EqDefault<K>, string, K, V> items) =>
             this.Items = items;
 
         /// <summary>
@@ -372,14 +373,14 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object obj) =>
-            obj is VersionHashMap<K, V> hm && Equals(hm);
+            obj is VersionHashMap<ConflictV, K, V> hm && Equals(hm);
 
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(VersionHashMap<K, V> other) =>
+        public bool Equals(VersionHashMap<ConflictV, K, V> other) =>
             Items.Equals(other.Items);
 
         [Pure]
@@ -394,8 +395,8 @@ namespace LanguageExt
         /// <returns>New map with items filtered</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public VersionHashMap<K, V> Where(Func<long, Option<V>, bool> pred) =>
-            new VersionHashMap<K, V>(Items.Filter(pred));
+        public VersionHashMap<ConflictV, K, V> Where(Func<long, Option<V>, bool> pred) =>
+            new VersionHashMap<ConflictV, K, V>(Items.Filter(pred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -404,8 +405,8 @@ namespace LanguageExt
         /// <returns>New map with items filtered</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public VersionHashMap<K, V> Where(Func<K, long, Option<V>, bool> pred) =>
-            new VersionHashMap<K, V>(Items.Filter(pred));
+        public VersionHashMap<ConflictV, K, V> Where(Func<K, long, Option<V>, bool> pred) =>
+            new VersionHashMap<ConflictV, K, V>(Items.Filter(pred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -414,8 +415,8 @@ namespace LanguageExt
         /// <returns>New map with items filtered</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public VersionHashMap<K, V> Filter(Func<long, Option<V>, bool> pred) =>
-            new VersionHashMap<K, V>(Items.Filter(pred));
+        public VersionHashMap<ConflictV, K, V> Filter(Func<long, Option<V>, bool> pred) =>
+            new VersionHashMap<ConflictV, K, V>(Items.Filter(pred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -424,8 +425,8 @@ namespace LanguageExt
         /// <returns>New map with items filtered</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public VersionHashMap<K, V> Filter(Func<K, long, Option<V>, bool> pred) =>
-            new VersionHashMap<K, V>(Items.Filter(pred));
+        public VersionHashMap<ConflictV, K, V> Filter(Func<K, long, Option<V>, bool> pred) =>
+            new VersionHashMap<ConflictV, K, V>(Items.Filter(pred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied

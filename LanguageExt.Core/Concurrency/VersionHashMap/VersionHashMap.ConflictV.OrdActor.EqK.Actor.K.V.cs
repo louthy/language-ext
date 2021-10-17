@@ -23,6 +23,11 @@ namespace LanguageExt
     /// Deleted items are not removed from the hash-map, they are merely marked as deleted.  This allows conflicts between
     /// writes and deletes to be resolved.
     /// </para> 
+    /// <para>
+    /// Run `RemoveDeletedItemsOlderThan` to clean up items that have been deleted and are now just hanging around.  Use
+    /// a big enough delay that it won't conflict with other commits (this could be seconds, minutes, or longer:
+    /// depending on the expected latency of writes to the hash-map).
+    /// </para>
     /// </summary>
     public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
         IEnumerable<(K Key, V Value)>,
