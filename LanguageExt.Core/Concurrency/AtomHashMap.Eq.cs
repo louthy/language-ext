@@ -152,6 +152,96 @@ namespace LanguageExt
                 }
             }
         }
+        
+        /// <summary>
+        /// Atomically swap a key in the hash-map, if it exists.  If it doesn't exist, nothing changes.
+        /// Allows for multiple operations on the hash-map value in an entirely transactional and atomic way.
+        /// </summary>
+        /// <param name="swap">Swap function, maps the current state of a value in the AtomHashMap to a new value</param>
+        /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
+        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
+        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        public Unit SwapKey(K key, Func<V, V> swap)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = Items;
+                var ovalue = oitems.Find(key);
+                if (ovalue.IsNone) return unit;
+                var nitems = oitems.SetItem(key, swap((V)ovalue));
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        }
+
+        /// <summary>
+        /// <para>
+        /// Atomically swap a key in the hash-map:
+        /// </para>
+        /// <para>
+        ///     * If the key doesn't exist, then `None` is passed to `swap`
+        /// </para>
+        /// <para>
+        ///     * If the key does exist, then `Some(x)` is passed to `swap`
+        /// </para>
+        /// <para>
+        /// The operation performed on the hash-map depends on the value going in and out of `swap`:
+        /// </para>
+        /// <code>
+        ///   In      | Out     | Operation
+        ///   -------------------------------------
+        ///   Some(x) | Some(y) | SetItem(key, y)
+        ///   Some(x) | None    | Remove(key)
+        ///   None    | Some(y) | Add(key, y)
+        ///   None    | None    | no-op
+        /// </code>
+        /// <para>
+        /// Allows for multiple operations on the hash-map value in an entirely transactional and atomic way.
+        /// </para>
+        /// </summary>
+        /// <param name="swap">Swap function, maps the current state of a value in the AtomHashMap to a new value</param>
+        /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
+        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
+        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        public Unit SwapKey(K key, Func<Option<V>, Option<V>> swap)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = Items;
+                var ovalue = oitems.Find(key);
+                var nvalue = swap(ovalue);
+
+                var nitems = (ovalue.IsSome, nvalue.IsSome) switch
+                             {
+                                 (true, true)   => oitems.SetItem(key, (V)nvalue),
+                                 (true, false)  => oitems.Remove(key),
+                                 (false, true)  => oitems.Add(key, (V)nvalue),
+                                 (false, false) => oitems
+                             };
+                
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    // no change
+                    return default;
+                }
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        }        
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied

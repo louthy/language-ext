@@ -60,17 +60,24 @@ namespace LanguageExt
         /// Reference version for use in pattern-matching
         /// </summary>
         [Pure]
-        public object? Case =>
-            IsEmpty 
-                ? null
-                : Tail.IsEmpty 
-                    ? (object?)Head
-                    : (Head, Tail);
+        public object? Case
+        {
+            get
+            {
+                var xs = items;
+                return xs.IsEmpty
+                    ? null
+                    : xs.Tail.IsEmpty
+                        ? (object?)xs.Head
+                        : (xs.Head, xs.Tail);
+            }
+        }
 
         public void Deconstruct(out A head, out Seq<A> tail)
         {
-            head = Head;
-            tail = Tail;
+            var xs = items;
+            head = xs.Head;
+            tail = new Seq<A>(xs.Tail);
         }
         
         /// <summary>
@@ -469,10 +476,13 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Option<A> HeadOrNone() =>
-            IsEmpty
-                ? None
-                : Some(Head);
+        public Option<A> HeadOrNone()
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? None
+                       : Some(xs.Head);
+        }
 
         /// <summary>
         /// Last item in sequence.  Throws if no items in sequence
@@ -488,70 +498,91 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Option<A> LastOrNone() =>
-            IsEmpty
-                ? None
-                : Some(Last);
+        public Option<A> LastOrNone()
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? None
+                       : Some(xs.Last);
+        }
 
         /// <summary>
         /// Last item in sequence.
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Either<L, A> LastOrLeft<L>(L Left) =>
-            IsEmpty
-                ? Either<L, A>.Left(Left)
-                : Either<L, A>.Right(Last);
+        public Either<L, A> LastOrLeft<L>(L Left)
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? Either<L, A>.Left(Left)
+                       : Either<L, A>.Right(xs.Last);
+        }
 
         /// <summary>
         /// Last item in sequence.
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Either<L, A> LastOrLeft<L>(Func<L> Left) =>
-            IsEmpty
-                ? Either<L, A>.Left(Left())
-                : Either<L, A>.Right(Last);
+        public Either<L, A> LastOrLeft<L>(Func<L> Left)
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? Either<L, A>.Left(Left())
+                       : Either<L, A>.Right(xs.Last);
+        }
 
         /// <summary>
         /// Last item in sequence.
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Validation<F, A> LastOrInvalid<F>(F Fail) =>
-            IsEmpty
-                ? Validation<F, A>.Fail(Seq1(Fail))
-                : Validation<F, A>.Success(Last);
+        public Validation<F, A> LastOrInvalid<F>(F Fail)
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? Validation<F, A>.Fail(Seq1(Fail))
+                       : Validation<F, A>.Success(xs.Last);
+        }
 
         /// <summary>
         /// Last item in sequence.
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Validation<F, A> LastOrInvalid<F>(Func<F> Fail) =>
-            IsEmpty
-                ? Validation<F, A>.Fail(Seq1(Fail()))
-                : Validation<F, A>.Success(Last);
+        public Validation<F, A> LastOrInvalid<F>(Func<F> Fail)
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? Validation<F, A>.Fail(Seq1(Fail()))
+                       : Validation<F, A>.Success(xs.Last);
+        }
 
         /// <summary>
         /// Last item in sequence.
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(F Fail) where MonoidFail : struct, Monoid<F>, Eq<F> =>
-            IsEmpty
-                ? Validation<MonoidFail, F, A>.Fail(Fail)
-                : Validation<MonoidFail, F, A>.Success(Last);
+        public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(F Fail) where MonoidFail : struct, Monoid<F>, Eq<F>
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? Validation<MonoidFail, F, A>.Fail(Fail)
+                       : Validation<MonoidFail, F, A>.Success(xs.Last);
+        }
 
         /// <summary>
         /// Last item in sequence.
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(Func<F> Fail) where MonoidFail : struct, Monoid<F>, Eq<F> =>
-            IsEmpty
-                ? Validation<MonoidFail, F, A>.Fail(Fail())
-                : Validation<MonoidFail, F, A>.Success(Last);
+        public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(Func<F> Fail) where MonoidFail : struct, Monoid<F>, Eq<F>
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? Validation<MonoidFail, F, A>.Fail(Fail())
+                       : Validation<MonoidFail, F, A>.Success(xs.Last);
+        }
 
         /// <summary>
         /// Head of the sequence if this node isn't the empty node or fail
@@ -561,20 +592,26 @@ namespace LanguageExt
         /// <returns>Head of the sequence or fail</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Validation<Fail, A> HeadOrInvalid<Fail>(Fail fail) =>
-            IsEmpty
-                ? Fail<Fail, A>(fail)
-                : Success<Fail, A>(Head);
+        public Validation<Fail, A> HeadOrInvalid<Fail>(Fail fail)
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? Fail<Fail, A>(fail)
+                       : Success<Fail, A>(xs.Head);
+        }
 
         /// <summary>
         /// Head of the sequence
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Validation<MonoidFail, Fail, A> HeadOrInvalid<MonoidFail, Fail>(Fail fail) where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
-            IsEmpty
-                ? Fail<MonoidFail, Fail, A>(fail)
-                : Success<MonoidFail, Fail, A>(Head);
+        public Validation<MonoidFail, Fail, A> HeadOrInvalid<MonoidFail, Fail>(Fail fail) where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? Fail<MonoidFail, Fail, A>(fail)
+                       : Success<MonoidFail, Fail, A>(xs.Head);
+        }
 
         /// <summary>
         /// Head of the sequence if this node isn't the empty node or left
@@ -583,20 +620,26 @@ namespace LanguageExt
         /// <param name="left">Left case</param>
         /// <returns>Head of the sequence or left</returns>
         [Pure]
-        public Either<L, A> HeadOrLeft<L>(L left) =>
-            IsEmpty
-                ? Left<L, A>(left)
-                : Right<L, A>(Head);
+        public Either<L, A> HeadOrLeft<L>(L left)
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? Left<L, A>(left)
+                       : Right<L, A>(xs.Head);
+        }
 
         /// <summary>
         /// Head of the sequence if this node isn't the empty node
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Either<L, A> HeadOrLeft<L>(Func<L> Left) =>
-            IsEmpty
-                ? Left<L, A>(Left())
-                : Right<L, A>(Head);
+        public Either<L, A> HeadOrLeft<L>(Func<L> Left)
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? Left<L, A>(Left())
+                       : Right<L, A>(xs.Head);
+        }
 
         /// <summary>
         /// Returns true if the sequence is empty
@@ -648,12 +691,13 @@ namespace LanguageExt
         /// <returns>Result of match function invoked</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public B Match<B>(
-            Func<B> Empty,
-            Func<A, Seq<A>, B> Tail) =>
-            IsEmpty
-                ? Empty()
-                : Tail(this.Head, this.Tail);
+        public B Match<B>(Func<B> Empty, Func<A, Seq<A>, B> Tail)
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? Empty()
+                       : Tail(xs.Head, new Seq<A>(xs.Tail));
+        }
 
         /// <summary>
         /// Match empty sequence, or one item sequence, or multi-item sequence
@@ -667,12 +711,15 @@ namespace LanguageExt
         public B Match<B>(
             Func<B> Empty,
             Func<A, B> Head,
-            Func<A, Seq<A>, B> Tail) =>
-            IsEmpty
-                ? Empty()
-                : this.Tail.IsEmpty
-                    ? Head(this.Head)
-                    : Tail(this.Head, this.Tail);
+            Func<A, Seq<A>, B> Tail)
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? Empty()
+                       : xs.Tail.IsEmpty
+                           ? Head(xs.Head)
+                           : Tail(xs.Head, xs.Tail);
+        }
 
         /// <summary>
         /// Match empty sequence, or multi-item sequence
@@ -685,10 +732,13 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B Match<B>(
             Func<B> Empty,
-            Func<Seq<A>, B> Seq) =>
-            IsEmpty
-                ? Empty()
-                : Seq(new Seq<A>(items));
+            Func<Seq<A>, B> Seq)
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? Empty()
+                       : Seq(new Seq<A>(xs));
+        }
 
         /// <summary>
         /// Match empty sequence, or one item sequence, or multi-item sequence
@@ -702,12 +752,15 @@ namespace LanguageExt
         public B Match<B>(
             Func<B> Empty,
             Func<A, B> Head,
-            Func<Seq<A>, B> Tail) =>
-            IsEmpty
-                ? Empty()
-                : this.Tail.IsEmpty
-                    ? Head(this.Head)
-                    : Tail(this.Tail);
+            Func<Seq<A>, B> Tail)
+        {
+            var xs = items;
+            return xs.IsEmpty
+                       ? Empty()
+                       : xs.Tail.IsEmpty
+                           ? Head(xs.Head)
+                           : Tail(new Seq<A>(xs.Tail));
+        }
 
         /// <summary>
         /// Impure iteration of the bound values in the structure
@@ -1030,8 +1083,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public override string ToString() =>
-            items is SeqLazy<A>
-                ? CollectionFormat.ToShortArrayString(items)
+            items is SeqLazy<A> lz
+                ? CollectionFormat.ToShortArrayString(lz)
                 : CollectionFormat.ToShortArrayString(items, Count);
 
         /// <summary>
@@ -1124,30 +1177,29 @@ namespace LanguageExt
         [Pure]
         public bool Equals<EqA>(Seq<A> rhs) where EqA : struct, Eq<A>
         {
+            var lhs = items;
+            
             // Differing lengths?
-            if(Count != rhs.Count) return false;
+            if(lhs.Count != rhs.Count) return false;
 
             // If the hash code has been calculated on both sides then 
             // check for differences
-            if (GetHashCode() != rhs.GetHashCode())
+            if (lhs.GetHashCode() != rhs.GetHashCode())
             {
                 return false;
             }
 
             // Iterate through both sides
-            using (var iterA = GetEnumerator())
+            using var iterA = lhs.GetEnumerator();
+            using var iterB = rhs.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
             {
-                using (var iterB = rhs.GetEnumerator())
+                if (!default(EqA).Equals(iterA.Current, iterB.Current))
                 {
-                    while (iterA.MoveNext() && iterB.MoveNext())
-                    {
-                        if (!default(EqA).Equals(iterA.Current, iterB.Current))
-                        {
-                            return false;
-                        }
-                    }
+                    return false;
                 }
             }
+
             return true;
         }
         
@@ -1157,30 +1209,29 @@ namespace LanguageExt
         [Pure]
         public bool Equals<EqA>(AtomSeq<A> rhs) where EqA : struct, Eq<A>
         {
+            var lhs = items;
+            
             // Differing lengths?
-            if(Count != rhs.Count) return false;
+            if(lhs.Count != rhs.Count) return false;
 
             // If the hash code has been calculated on both sides then 
             // check for differences
-            if (GetHashCode() != rhs.GetHashCode())
+            if (lhs.GetHashCode() != rhs.GetHashCode())
             {
                 return false;
             }
 
             // Iterate through both sides
-            using (var iterA = GetEnumerator())
+            using var iterA = lhs.GetEnumerator();
+            using var iterB = rhs.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
             {
-                using (var iterB = rhs.GetEnumerator())
+                if (!default(EqA).Equals(iterA.Current, iterB.Current))
                 {
-                    while (iterA.MoveNext() && iterB.MoveNext())
-                    {
-                        if (!default(EqA).Equals(iterA.Current, iterB.Current))
-                        {
-                            return false;
-                        }
-                    }
+                    return false;
                 }
             }
+
             return true;
         }
 
@@ -1318,7 +1369,7 @@ namespace LanguageExt
         /// </example>
         /// <returns>Initial segments of the sequence</returns>
         public Seq<Seq<A>> Inits =>
-            Seq<Seq<A>>() + NonEmptyInits;
+            Seq<Seq<A>>(Seq<A>()) + NonEmptyInits;
 
         /// <summary>
         /// Returns all initial segments of the sequence, shortest first.
@@ -1391,21 +1442,19 @@ namespace LanguageExt
         [Pure]
         public int CompareTo<OrdA>(Seq<A> rhs) where OrdA : struct, Ord<A>
         {
+            var lhs = items;
+            
             // Differing lengths?
-            var cmp = Count.CompareTo(rhs.Count);
+            var cmp = lhs.Count.CompareTo(rhs.Count);
             if (cmp != 0) return cmp;
 
             // Iterate through both sides
-            using (var iterA = GetEnumerator())
+            using var iterA = lhs.GetEnumerator();
+            using var iterB = rhs.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
             {
-                using (var iterB = rhs.GetEnumerator())
-                {
-                    while (iterA.MoveNext() && iterB.MoveNext())
-                    {
-                        cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
-                        if (cmp != 0) return cmp;
-                    }
-                }
+                cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
+                if (cmp != 0) return cmp;
             }
 
             return 0;
@@ -1418,21 +1467,19 @@ namespace LanguageExt
         [Pure]
         public int CompareTo<OrdA>(AtomSeq<A> rhs) where OrdA : struct, Ord<A>
         {
+            var lhs = items;
+            
             // Differing lengths?
-            var cmp = Count.CompareTo(rhs.Count);
+            var cmp = lhs.Count.CompareTo(rhs.Count);
             if (cmp != 0) return cmp;
 
             // Iterate through both sides
-            using (var iterA = GetEnumerator())
+            using var iterA = lhs.GetEnumerator();
+            using var iterB = rhs.GetEnumerator();
+            while (iterA.MoveNext() && iterB.MoveNext())
             {
-                using (var iterB = rhs.GetEnumerator())
-                {
-                    while (iterA.MoveNext() && iterB.MoveNext())
-                    {
-                        cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
-                        if (cmp != 0) return cmp;
-                    }
-                }
+                cmp = default(OrdA).Compare(iterA.Current, iterB.Current);
+                if (cmp != 0) return cmp;
             }
 
             return 0;

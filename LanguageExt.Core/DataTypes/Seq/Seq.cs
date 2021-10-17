@@ -1085,7 +1085,7 @@ namespace LanguageExt
         /// </example>
         /// <returns>Initial segments of the sequence</returns>
         public Seq<Seq<A>> Inits =>
-            Seq<Seq<A>>() + NonEmptyInits;
+            Seq<Seq<A>>(Seq<A>()) + NonEmptyInits;
 
         /// <summary>
         /// Returns all initial segments of the sequence, shortest first.

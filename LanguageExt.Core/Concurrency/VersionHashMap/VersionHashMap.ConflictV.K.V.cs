@@ -103,6 +103,7 @@ namespace LanguageExt
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
         /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
         /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit SwapKey(K key, Func<Version<string, K, V>, Version<string, K, V>> swap) =>
             Items.SwapKey(key, swap);
 
@@ -338,6 +339,7 @@ namespace LanguageExt
         /// <summary>
         /// Returns the elements that are in both this and other
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit Intersect(IEnumerable<K> rhs) =>
             Items.Intersect(rhs);
         
@@ -361,6 +363,7 @@ namespace LanguageExt
         /// Returns this - rhs.  Only the items in this that are not in 
         /// rhs will be returned.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit Except(IEnumerable<K> rhs) =>
             Items.Except(rhs);
         
@@ -430,6 +433,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit FilterInPlace(Func<long, Option<V>, bool> pred) =>
             Items.FilterInPlace(pred);
         
@@ -438,6 +442,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit FilterInPlace(Func<K, long, Option<V>, bool> pred) =>
             Items.FilterInPlace(pred);
 
