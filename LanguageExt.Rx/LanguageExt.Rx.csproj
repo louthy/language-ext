@@ -8,7 +8,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-        <PackageVersion>3.5.69-beta</PackageVersion>
+        <PackageVersion>4.0.0</PackageVersion>
         <PackageId>LanguageExt.Rx</PackageId>
         <Title>LanguageExt.Rx</Title>
         <Authors>Paul Louth</Authors>
@@ -22,8 +22,8 @@
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
         <OutputType>library</OutputType>
-        <AssemblyVersion>3.0.0.0</AssemblyVersion>
-        <FileVersion>3.0.0.0</FileVersion>
+        <AssemblyVersion>4.0.0.0</AssemblyVersion>
+        <FileVersion>4.0.0.0</FileVersion>
         <LangVersion>8.0</LangVersion>
     </PropertyGroup>
     <ItemGroup>

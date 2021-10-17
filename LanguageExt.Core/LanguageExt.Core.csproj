@@ -16,7 +16,7 @@
     <DefineConstants>NETSTANDARD21</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
-    <PackageVersion>3.5.69-beta</PackageVersion>
+    <PackageVersion>4.0.0</PackageVersion>
     <PackageId>LanguageExt.Core</PackageId>
     <Title>LanguageExt.Core</Title>
     <Authors>Paul Louth</Authors>
@@ -31,8 +31,8 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <OutputType>library</OutputType>
-    <AssemblyVersion>3.0.0.0</AssemblyVersion>
-    <FileVersion>3.0.0.0</FileVersion>
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
+    <FileVersion>4.0.0.0</FileVersion>
     <LangVersion>default</LangVersion>
   </PropertyGroup>
 

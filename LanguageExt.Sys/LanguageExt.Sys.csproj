@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>default</LangVersion>
 
-        <PackageVersion>3.5.69-beta</PackageVersion>
+        <PackageVersion>4.0.0</PackageVersion>
         <PackageId>LanguageExt.Sys</PackageId>
         <Title>LanguageExt.Sys</Title>
         <Authors>Paul Louth</Authors>
@@ -18,8 +18,8 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <OutputType>library</OutputType>
-        <AssemblyVersion>3.0.0.0</AssemblyVersion>
-        <FileVersion>3.0.0.0</FileVersion>
+        <AssemblyVersion>4.0.0.0</AssemblyVersion>
+        <FileVersion>4.0.0.0</FileVersion>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 

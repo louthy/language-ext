@@ -7,7 +7,7 @@
   <!--<Sdk Name="CodeGeneration.Roslyn.Plugin.Sdk" Version="0.7.5-alpha" />-->
 
   <PropertyGroup>
-    <PackageVersion>3.5.69-beta</PackageVersion>
+    <PackageVersion>4.0.0</PackageVersion>
     <PackageId>LanguageExt.CodeGen</PackageId>
     <Title>LanguageExt.CodeGen</Title>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
@@ -23,8 +23,8 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <DocumentationFile></DocumentationFile>
     <OutputType>library</OutputType>
-    <AssemblyVersion>3.0.0.0</AssemblyVersion>
-    <FileVersion>3.0.0.0</FileVersion>
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
+    <FileVersion>4.0.0.0</FileVersion>
     <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
 
   </PropertyGroup>
