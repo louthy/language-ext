@@ -12,10 +12,10 @@ namespace LanguageExt.Tests
         {
             var data = VersionHashMap<string, int>.Empty;
 
-            data.Update("a", data["a"].Write("paul", 1));
-            data.Update("b", data["b"].Write("james", 1));
-            data.Update("b", data["b"].Write("james", 2));
-            data.Update("b", data["b"].Write("gavin", 3));
+            data.Update(data["a"].Write("paul", 1));
+            data.Update(data["b"].Write("james", 1));
+            data.Update(data["b"].Write("james", 2));
+            data.Update(data["b"].Write("gavin", 3));
 
             var str = data.AsEnumerable().OrderBy(p => p.Key).ToSeq().ToString();
 
@@ -31,9 +31,9 @@ namespace LanguageExt.Tests
             var client2 = data["a"].Write("james", 5000, 2);
             var client3 = data["b"].Write("gavin", 500, 3);
 
-            data.Update("a", client1);
-            data.Update("a", client2);
-            data.Update("b", client3);
+            data.Update(client1);
+            data.Update(client2);
+            data.Update(client3);
 
             var str = data.AsEnumerable().OrderBy(p => p.Key).ToSeq().ToString();
 
@@ -49,9 +49,9 @@ namespace LanguageExt.Tests
             var client2 = data["a"].Write("james", 5000, 2);
             var client3 = data["b"].Write("gavin", 500, 3);
 
-            data.Update("a", client2);
-            data.Update("a", client1);
-            data.Update("b", client3);
+            data.Update(client2);
+            data.Update(client1);
+            data.Update(client3);
 
             var str = data.AsEnumerable().OrderBy(p => p.Key).ToSeq().ToString();
 
@@ -67,9 +67,9 @@ namespace LanguageExt.Tests
             var client2 = data["a"].Write("james", 5000, 2);
             var client3 = data["b"].Write("gavin", 500, 3);
 
-            data.Update("a", client1);
-            data.Update("a", client2);
-            data.Update("b", client3);
+            data.Update(client1);
+            data.Update(client2);
+            data.Update(client3);
 
             var str = data.AsEnumerable().OrderBy(p => p.Key).ToSeq().ToString();
 
@@ -85,9 +85,9 @@ namespace LanguageExt.Tests
             var client2 = data["a"].Write("james", 5000, 2);
             var client3 = data["b"].Write("gavin", 500, 3);
 
-            data.Update("a", client2);
-            data.Update("a", client1);
-            data.Update("b", client3);
+            data.Update(client2);
+            data.Update(client1);
+            data.Update(client3);
 
             var str = data.AsEnumerable().OrderBy(p => p.Key).ToSeq().ToString();
 

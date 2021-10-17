@@ -61,7 +61,7 @@ namespace LanguageExt
         /// <param name="key">Key</param>
         /// <returns>Version - this may be in a state of never existing, but won't ever fail</returns>
         [Pure]
-        public Version<Actor, V> this[K key]
+        public Version<Actor, K, V> this[K key]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => FindVersion(key);
@@ -105,21 +105,22 @@ namespace LanguageExt
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
         /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
         /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
-        public Unit SwapKey(K key, Func<Version<Actor, V>, Version<Actor, V>> swap)
+        public Unit SwapKey(K key, Func<Version<Actor, K, V>, Version<Actor, K, V>> swap)
         {
             SpinWait sw = default;
             while (true)
             {
                 var oitems   = Items;
-                var okey     = oitems.Find(key).Map(static v => v.ToVersion())
-                                     .IfNone(static() => VersionNeverExistedVector<ConflictV, OrdActor, Actor, V>.Default);
+                var okey     = oitems.Find(key)
+                                     .Map(v => v.ToVersion(key))
+                                     .IfNone(() => VersionNeverExistedVector<ConflictV, OrdActor, Actor, K, V>.New(key));
                 
                 var nversion = swap(okey);
 
                 var nitems = oitems.AddOrMaybeUpdate(key,
-                                                     exists => exists.Put(nversion.ToVector<ConflictV, OrdActor, Actor, V>()),
+                                                     exists => exists.Put(nversion.ToVector<ConflictV, OrdActor, Actor, K, V>()),
                                                      #nullable disable
-                                                     () => Optional(nversion.ToVector<ConflictV, OrdActor, Actor, V>()));
+                                                     () => Optional(nversion.ToVector<ConflictV, OrdActor, Actor, K, V>()));
                                                       #nullable enable
                 
                 if(ReferenceEquals(oitems, nitems))
@@ -137,7 +138,7 @@ namespace LanguageExt
                 }
             }
         }
-
+                
         /// <summary>
         /// Atomically updates a new item in the map.  If the key already exists, then the vector clocks, within the version
         /// vector, are compared to ascertain if the proposed version was caused-by, causes, or conflicts with the current
@@ -150,13 +151,34 @@ namespace LanguageExt
         ///       is taken to be the new 'time.
         /// 
         /// </summary>
-        /// <remarks>Null is not allowed for a Key or a Value</remarks>
-        /// <param name="key">Key</param>
-        /// <param name="value">Value</param>
-        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Unit Update(K key, Version<Actor, V> version) =>
-            SwapKey(key, _ => version);
+        /// <param name="version">Version to update</param>
+        public Unit Update(Version<Actor, K, V> nversion)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = Items;
+                var nitems = oitems.AddOrMaybeUpdate(nversion.Key,
+                                                     exists => exists.Put(nversion.ToVector<ConflictV, OrdActor, Actor, K, V>()),
+                                                     #nullable disable
+                                                     () => Optional(nversion.ToVector<ConflictV, OrdActor, Actor, K, V>()));
+                                                      #nullable enable
+                
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    // no change
+                    return default;
+                }
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
+                {
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        }
 
         /// <summary>
         /// Remove items that are older than the specified time-stamp
@@ -207,10 +229,10 @@ namespace LanguageExt
         /// <returns>Found value</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Version<Actor, V> FindVersion(K value) =>
-            Items.Find(value).Match(
-                Some: static v => v.ToVersion(),
-                None: () => VersionNeverExistedVector<ConflictV, OrdActor, Actor, V>.Default);
+        public Version<Actor, K, V> FindVersion(K key) =>
+            Items.Find(key).Match(
+                Some: v => v.ToVersion(key),
+                None: () => VersionNeverExistedVector<ConflictV, OrdActor, Actor, K, V>.New(key));
 
         /// <summary>
         /// Enumerable of keys

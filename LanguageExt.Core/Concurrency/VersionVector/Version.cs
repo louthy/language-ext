@@ -18,32 +18,32 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="Actor">Actor type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
-    public abstract record Version<Actor, V>
+    public abstract record Version<Actor, K, V>(K Key)
     {
         /// <summary>
         /// Perform a write to the vector.  This increases the vector-clock by 1 for the `actor` provided.
         /// </summary>
         /// <param name="value">Value to write</param>
-        public abstract Version<Actor, V> Write(Actor actor, long timeStamp, V value);
+        public abstract Version<Actor, K, V> Write(Actor actor, long timeStamp, V value);
 
         /// <summary>
         /// Perform a write to the vector.  This increases the vector-clock by 1 for the `actor` provided.
         /// </summary>
         /// <param name="value">Value to write</param>
-        public Version<Actor, V> Write(Actor actor, V value) =>
+        public Version<Actor, K, V> Write(Actor actor, V value) =>
             Write(actor, DateTime.UtcNow.Ticks, value);
 
         /// <summary>
         /// Perform a delete to the vector.  This increases the vector-clock by 1 for the `actor` provided.
         /// </summary>
         /// <param name="value">Value to write</param>
-        public abstract Version<Actor, V> Delete(Actor actor, long timeStamp);
+        public abstract Version<Actor, K, V> Delete(Actor actor, long timeStamp);
 
         /// <summary>
         /// Perform a delete to the vector.  This increases the vector-clock by 1 for the `actor` provided.
         /// </summary>
         /// <param name="value">Value to write</param>
-        public Version<Actor, V> Delete(Actor actor) =>
+        public Version<Actor, K, V> Delete(Actor actor) =>
             Delete(actor, DateTime.UtcNow.Ticks);
 
         /// <summary>
@@ -57,21 +57,21 @@ namespace LanguageExt
     /// </summary>
     internal static class Version
     {
-        public static Version<Actor, V> ToVersion<ConflictV, OrdActor, Actor, V>(this VersionVector<ConflictV, OrdActor, TLong, Actor, long, V> vector)
+        public static Version<Actor, K, V> ToVersion<ConflictV, OrdActor, Actor, K, V>(this VersionVector<ConflictV, OrdActor, TLong, Actor, long, V> vector, K key)
             where OrdActor   : struct, Ord<Actor>
             where ConflictV : struct, Conflict<V> =>
             vector.Value.IsSome
-                ? new VersionValueVector<ConflictV, OrdActor, Actor, V>(vector)
-                : new VersionDeletedVector<ConflictV, OrdActor, Actor, V>(vector);
+                ? new VersionValueVector<ConflictV, OrdActor, Actor, K, V>(key, vector)
+                : new VersionDeletedVector<ConflictV, OrdActor, Actor, K, V>(key, vector);
 
-        public static VersionVector<ConflictV, OrdActor, TLong, Actor, long, V>? ToVector<ConflictV, OrdActor, Actor, V>(this Version<Actor, V> version)
+        public static VersionVector<ConflictV, OrdActor, TLong, Actor, long, V>? ToVector<ConflictV, OrdActor, Actor, K, V>(this Version<Actor, K, V> version)
             where OrdActor : struct, Ord<Actor>
             where ConflictV : struct, Conflict<V> =>
             version switch
             {
-                VersionValueVector<ConflictV, OrdActor, Actor, V> vv   => vv.Vector,
-                VersionDeletedVector<ConflictV, OrdActor, Actor, V> vd => vd.Vector,
-                _                                                      => null
+                VersionValueVector<ConflictV, OrdActor, Actor, K, V> vv   => vv.Vector,
+                VersionDeletedVector<ConflictV, OrdActor, Actor, K, V> vd => vd.Vector,
+                _                                                         => null
             };
     }
 
@@ -80,7 +80,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="Actor">Actor type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
-    internal abstract record VersionSome<Actor, V>(V value) : Version<Actor, V>
+    internal abstract record VersionSome<Actor, K, V>(K Key, V value) : Version<Actor, K, V>(Key)
     {
         /// <summary>
         /// Get the value if there is one
@@ -94,7 +94,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="Actor">Actor type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
-    internal abstract record VersionNone<Actor, V> : Version<Actor, V>
+    internal abstract record VersionNone<Actor, K, V>(K Key) : Version<Actor, K, V>(Key)
     {
 
         /// <summary>
@@ -109,18 +109,19 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="Actor">Actor type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
-    internal record VersionNeverExistedVector<ConflictV, OrdActor, Actor, V> : VersionNone<Actor, V>
+    internal record VersionNeverExistedVector<ConflictV, OrdActor, Actor, K, V>(K Key) : VersionNone<Actor, K, V>(Key)
         where OrdActor  : struct, Ord<Actor>
         where ConflictV : struct, Conflict<V>
     {
-        public static Version<Actor, V> Default = new VersionNeverExistedVector<ConflictV, OrdActor, Actor, V>();
+        public static Version<Actor, K, V> New(K key) => new VersionNeverExistedVector<ConflictV, OrdActor, Actor, K, V>(key);
 
         /// <summary>
         /// Perform a write to the vector.  This increases the vector-clock by 1 for the `actor` provided.
         /// </summary>
         /// <param name="value">Value to write</param>
-        public override Version<Actor, V> Write(Actor actor, long timeStamp, V value) =>
-            new VersionValueVector<ConflictV, OrdActor, Actor, V>(
+        public override Version<Actor, K, V> Write(Actor actor, long timeStamp, V value) =>
+            new VersionValueVector<ConflictV, OrdActor, Actor, K, V>(
+                Key,
                 new VersionVector<ConflictV, OrdActor, TLong, Actor, long, V>(
                     value,
                     timeStamp,
@@ -130,7 +131,7 @@ namespace LanguageExt
         /// Perform a write to the vector.  This increases the vector-clock by 1 for the `actor` provided.
         /// </summary>
         /// <param name="value">Value to write</param>
-        public override Version<Actor, V> Delete(Actor actor, long timeStamp) =>
+        public override Version<Actor, K, V> Delete(Actor actor, long timeStamp) =>
             this;
     }
 
@@ -139,7 +140,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="Actor">Actor type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
-    internal record VersionDeletedVector<ConflictV, OrdActor, Actor, V>(VersionVector<ConflictV, OrdActor, TLong, Actor, long, V> Vector) : VersionNone<Actor, V>
+    internal record VersionDeletedVector<ConflictV, OrdActor, Actor, K, V>(K Key, VersionVector<ConflictV, OrdActor, TLong, Actor, long, V> Vector) : VersionNone<Actor, K, V>(Key)
         where OrdActor : struct, Ord<Actor>
         where ConflictV : struct, Conflict<V>
     {
@@ -147,15 +148,15 @@ namespace LanguageExt
         /// Perform a write to the vector.  This increases the vector-clock by 1 for the `actor` provided.
         /// </summary>
         /// <param name="value">Value to write</param>
-        public override Version<Actor, V> Write(Actor actor, long timeStamp, V value) =>
-            new VersionValueVector<ConflictV, OrdActor, Actor, V>(Vector.Put(actor, timeStamp, value));
+        public override Version<Actor, K, V> Write(Actor actor, long timeStamp, V value) =>
+            new VersionValueVector<ConflictV, OrdActor, Actor, K, V>(Key, Vector.Put(actor, timeStamp, value));
         
         /// <summary>
         /// Perform a write to the vector.  This increases the vector-clock by 1 for the `actor` provided.
         /// </summary>
         /// <param name="value">Value to write</param>
-        public override Version<Actor, V> Delete(Actor actor, long timeStamp) =>
-            new VersionDeletedVector<ConflictV, OrdActor, Actor, V>(Vector.Put(actor, timeStamp, None));
+        public override Version<Actor, K, V> Delete(Actor actor, long timeStamp) =>
+            new VersionDeletedVector<ConflictV, OrdActor, Actor, K, V>(Key, Vector.Put(actor, timeStamp, None));
     }
 
     /// <summary>
@@ -163,7 +164,8 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="Actor">Actor type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
-    internal record VersionValueVector<ConflictV, OrdActor, Actor, V>(VersionVector<ConflictV, OrdActor, TLong, Actor, long, V> Vector) : VersionSome<Actor, V>(Vector.Value.Value)
+    internal record VersionValueVector<ConflictV, OrdActor, Actor, K, V>(K Key, VersionVector<ConflictV, OrdActor, TLong, Actor, long, V> Vector) : 
+        VersionSome<Actor, K, V>(Key, Vector.Value.Value)
         where OrdActor : struct, Ord<Actor>
         where ConflictV : struct, Conflict<V>
     {
@@ -171,15 +173,15 @@ namespace LanguageExt
         /// Perform a write to the vector.  This increases the vector-clock by 1 for the `actor` provided.
         /// </summary>
         /// <param name="value">Value to write</param>
-        public override Version<Actor, V> Write(Actor actor, long timeStamp, V value) =>
-            new VersionValueVector<ConflictV, OrdActor, Actor, V>(Vector.Put(actor, timeStamp, value));
+        public override Version<Actor, K, V> Write(Actor actor, long timeStamp, V value) =>
+            new VersionValueVector<ConflictV, OrdActor, Actor, K, V>(Key, Vector.Put(actor, timeStamp, value));
         
         /// <summary>
         /// Perform a write to the vector.  This increases the vector-clock by 1 for the `actor` provided.
         /// </summary>
         /// <param name="value">Value to write</param>
-        public override Version<Actor, V> Delete(Actor actor, long timeStamp) =>
-            new VersionDeletedVector<ConflictV, OrdActor, Actor, V>(Vector.Put(actor, timeStamp, None));
+        public override Version<Actor, K, V> Delete(Actor actor, long timeStamp) =>
+            new VersionDeletedVector<ConflictV, OrdActor, Actor, K, V>(Key, Vector.Put(actor, timeStamp, None));
     }
 }
 #nullable disable

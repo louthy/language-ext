@@ -58,7 +58,7 @@ namespace LanguageExt
         /// <param name="key">Key</param>
         /// <returns>Version - this may be in a state of never existing, but won't ever fail</returns>
         [Pure]
-        public Version<string, V> this[K key]
+        public Version<string, K, V> this[K key]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Items.FindVersion(key);
@@ -102,7 +102,7 @@ namespace LanguageExt
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
         /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
         /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
-        public Unit SwapKey(K key, Func<Version<string, V>, Version<string, V>> swap) =>
+        public Unit SwapKey(K key, Func<Version<string, K, V>, Version<string, K, V>> swap) =>
             Items.SwapKey(key, swap);
 
         /// <summary>
@@ -117,13 +117,10 @@ namespace LanguageExt
         ///       is taken to be the new 'time.
         /// 
         /// </summary>
-        /// <remarks>Null is not allowed for a Key or a Value</remarks>
-        /// <param name="key">Key</param>
-        /// <param name="value">Value</param>
-        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
+        /// <param name="version">Version to update</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Unit Update(K key, Version<string, V> version) =>
-            Items.Update(key, version);
+        public Unit Update(Version<string, K, V> version) =>
+            Items.Update(version);
 
         /// <summary>
         /// Remove items that are older than the specified time-stamp
@@ -174,7 +171,7 @@ namespace LanguageExt
         /// <returns>Found value</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Version<string, V> FindVersion(K value) =>
+        public Version<string, K, V> FindVersion(K value) =>
             Items.FindVersion(value);
 
         /// <summary>

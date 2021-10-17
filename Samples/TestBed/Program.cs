@@ -21,6 +21,7 @@ using LanguageExt.Sys.Live;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using TestBed;
 using static LanguageExt.Prelude;
 using static LanguageExt.Pipes.Proxy;
 
@@ -52,7 +53,7 @@ public static class Ext
 
 public class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                                                                                    //
@@ -62,17 +63,13 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        var err = Error.New("this has an inner error", Error.New("inner"));
+        await AtomHashMapPerf.Test();
 
-        err.Inner.Iter(e => Console.WriteLine(e));
-
-
-        
         // await PipesTest();
         // await ObsAffTests.Test();
         // await AsyncTests();
 
-   
+
     }
 
     static Aff<string> ReadAll(string path) =>
