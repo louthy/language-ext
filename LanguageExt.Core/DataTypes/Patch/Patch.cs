@@ -54,7 +54,7 @@ namespace LanguageExt
         /// Equality operator
         /// </summary>
         public override bool Equals(object obj) =>
-            obj is Patch<EqA, A> p ? Equals(p) : false;
+            obj is Patch<EqA, A> p && Equals(p);
 
         /// <summary>
         /// Equality operator
