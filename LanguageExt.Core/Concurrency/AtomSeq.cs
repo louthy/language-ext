@@ -718,7 +718,7 @@ namespace LanguageExt
                        ? Empty()
                        : xs.Tail.IsEmpty
                            ? Head(xs.Head)
-                           : Tail(xs.Head, xs.Tail);
+                           : Tail(xs.Head, new Seq<A>(xs.Tail));
         }
 
         /// <summary>
