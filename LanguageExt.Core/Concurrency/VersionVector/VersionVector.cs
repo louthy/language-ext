@@ -4,6 +4,16 @@ using static LanguageExt.TypeClass;
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// Version vector.  Container of an optional value, a time-stamp, and a vector clock.  Used to manage versioning
+    /// of a single value.  ConflictA allows for injectable conflict resolution.
+    /// </summary>
+    /// <typeparam name="ConflictA">Conflict resolution instance type</typeparam>
+    /// <typeparam name="OrdActor">Actor ordering instance type</typeparam>
+    /// <typeparam name="NumClock">Numeric clock instance type</typeparam>
+    /// <typeparam name="Actor">Actor type</typeparam>
+    /// <typeparam name="Clock">Clock type</typeparam>
+    /// <typeparam name="A">Value to version type</typeparam>
     public record VersionVector<ConflictA, OrdActor, NumClock, Actor, Clock, A>(Option<A> Value, long TimeStamp, VectorClock<OrdActor, NumClock, Actor, Clock> Vector) 
         where OrdActor  : struct, Ord<Actor>
         where NumClock  : struct, Num<Clock>

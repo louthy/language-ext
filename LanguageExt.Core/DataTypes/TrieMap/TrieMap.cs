@@ -683,17 +683,17 @@ namespace LanguageExt
             if (ReferenceEquals(this, rhs)) return true;
             if (ReferenceEquals(rhs, null)) return false;
             if (Count != rhs.Count) return false;
-            var iterA = GetEnumerator();
-            var iterB = rhs.GetEnumerator();
+            using var iterA = GetEnumerator();
+            using var iterB = rhs.GetEnumerator();
             while (iterA.MoveNext() && iterB.MoveNext())
             {
                 if (!default(EqK).Equals(iterA.Current.Key, iterB.Current.Key)) return false;
             }
-            iterA = GetEnumerator();
-            iterB = rhs.GetEnumerator();
-            while (iterA.MoveNext() && iterB.MoveNext())
+            using var iterA1 = GetEnumerator();
+            using var iterB1 = rhs.GetEnumerator();
+            while (iterA1.MoveNext() && iterB1.MoveNext())
             {
-                if (!default(EqV).Equals(iterA.Current.Value, iterB.Current.Value)) return false;
+                if (!default(EqV).Equals(iterA1.Current.Value, iterB1.Current.Value)) return false;
             }
             return true;
         }

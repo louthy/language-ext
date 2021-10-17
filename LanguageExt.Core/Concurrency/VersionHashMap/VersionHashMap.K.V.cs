@@ -1,42 +1,50 @@
 #nullable enable
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
-using LanguageExt.ClassInstances;
+using System.Collections;
+using System.ComponentModel;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
+using LanguageExt.ClassInstances;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
     /// <summary>
-    /// TODO
+    /// <para>
+    /// Versioned hash-map.  Each value has a vector-clock attached to it which understands the causality of updates
+    /// from multiple actors.  Actors are just unique keys that represent individual contributors.  They could be client
+    /// connections, nodes in a network, users, or whatever is appropriate to discriminate between commits.
+    /// </para>
+    /// <para>
+    /// Deleted items are not removed from the hash-map, they are merely marked as deleted.  This allows conflicts between
+    /// writes and deletes to be resolved.
+    /// </para> 
     /// </summary>
-    public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
+    public class VersionHashMap<K, V> :
         IEnumerable<(K Key, V Value)>,
-        IEquatable<HashMap<K, V>>,
-        IEquatable<AtomHashMap<K, V>>
-        where OrdActor  : struct, Ord<Actor>
-        where EqK       : struct, Eq<K>
-        where ConflictV : struct, Conflict<V>
+        IEquatable<VersionHashMap<K, V>>
     {
-        internal volatile TrieMap<EqK, K, VersionVector<ConflictV, OrdActor, TLong, Actor, long, V>> Items;
+        readonly VersionHashMap<LastWriteWins<V>, TString, EqDefault<K>, string, K, V> Items;
 
         /// <summary>
         /// Empty version map
         /// </summary>
-        public static VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> Empty => 
-            new VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V>(TrieMap<EqK, K, VersionVector<ConflictV, OrdActor, TLong, Actor, long, V>>.Empty);
+        public static VersionHashMap<K, V> Empty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new VersionHashMap<K, V>(VersionHashMap<LastWriteWins<V>, TString, EqDefault<K>, string, K, V>.Empty);
+        }
         
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="items">Trie map</param>
-        VersionHashMap(TrieMap<EqK, K, VersionVector<ConflictV, OrdActor, TLong, Actor, long, V>> items) =>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        VersionHashMap(VersionHashMap<LastWriteWins<V>, TString, EqDefault<K>, string, K, V> items) =>
             this.Items = items;
 
         /// <summary>
@@ -45,10 +53,11 @@ namespace LanguageExt
         /// <param name="key">Key</param>
         /// <returns>Version - this may be in a state of never existing, but won't ever fail</returns>
         [Pure]
-        public Version<Actor, V> this[K key] =>
-            Items.Find(key).Match(
-                Some: static x => x.ToVersion(),
-                None: static () => VersionNeverExistedVector<ConflictV, OrdActor, Actor, V>.Default);
+        public Version<string, V> this[K key]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Items.FindVersion(key);
+        }
 
         /// <summary>
         /// Is the map empty
@@ -79,7 +88,7 @@ namespace LanguageExt
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Items.Count;
         }
-        
+
         /// <summary>
         /// Atomically swap a key in the map.  Allows for multiple operations on the hash-map in an entirely
         /// transactional and atomic way.
@@ -88,35 +97,8 @@ namespace LanguageExt
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
         /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
         /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
-        public Unit SwapKey(K key, Func<Version<Actor, V>, Version<Actor, V>> swap)
-        {
-            SpinWait sw = default;
-            while (true)
-            {
-                var oitems   = Items;
-                var nversion = swap(oitems[key].ToVersion());
-
-                var nitems = oitems.AddOrMaybeUpdate(key,
-                                                     exists => exists.Put(nversion.ToVector<ConflictV, OrdActor, Actor, V>()),
-                                                     #nullable disable
-                                                     () => Optional(nversion.ToVector<ConflictV, OrdActor, Actor, V>()));
-                                                      #nullable enable
-                
-                if(ReferenceEquals(oitems, nitems))
-                {
-                    // no change
-                    return default;
-                }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
-                {
-                    return default;
-                }
-                else
-                {
-                    sw.SpinOnce();
-                }
-            }
-        }
+        public Unit SwapKey(K key, Func<Version<string, V>, Version<string, V>> swap) =>
+            Items.SwapKey(key, swap);
 
         /// <summary>
         /// Atomically updates a new item in the map.  If the key already exists, then the vector clocks, within the version
@@ -134,45 +116,51 @@ namespace LanguageExt
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
-        public Unit Update(K key, Version<Actor, V> version) =>
-            SwapKey(key, _ => version);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Unit Update(K key, Version<string, V> version) =>
+            Items.Update(key, version);
 
         /// <summary>
         /// Remove items that are older than the specified time-stamp
         /// </summary>
-        /// <param name="timeStamp">Cut off time-stamp</param>
+        /// <param name="cutoff">Cut off time-stamp</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit RemoveOlderThan(DateTime cutoff) =>
-            RemoveOlderThan(cutoff.ToUniversalTime().Ticks);
+            Items.RemoveOlderThan(cutoff);
 
         /// <summary>
         /// Remove items that are older than the specified time-stamp
         /// </summary>
         /// <param name="timeStamp">Cut off time-stamp</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit RemoveOlderThan(long timeStamp) =>
-            FilterInPlace((ts, _) => ts > timeStamp);
+            Items.RemoveOlderThan(timeStamp);
+
+        /// <summary>
+        /// Remove deleted items that are older than the specified time-stamp
+        /// </summary>
+        /// <param name="cutoff">Cut off time-stamp</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Unit RemoveDeletedItemsOlderThan(DateTime cutoff) =>
+            Items.RemoveDeletedItemsOlderThan(cutoff);
 
         /// <summary>
         /// Remove deleted items that are older than the specified time-stamp
         /// </summary>
         /// <param name="timeStamp">Cut off time-stamp</param>
-        public Unit RemoveDeletedOlderThan(DateTime cutoff) =>
-            RemoveDeletedOlderThan(cutoff.ToUniversalTime().Ticks);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Unit RemoveDeletedItemsOlderThan(long timeStamp) =>
+            Items.RemoveDeletedItemsOlderThan(timeStamp);
 
-        /// <summary>
-        /// Remove deleted items that are older than the specified time-stamp
-        /// </summary>
-        /// <param name="timeStamp">Cut off time-stamp</param>
-        public Unit RemoveDeletedOlderThan(long timeStamp) =>
-            FilterInPlace((ts, v) => v.IsSome || ts > timeStamp);
-        
         /// <summary>
         /// Retrieve a value from the map by key
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<V> Find(K value) =>
-            Items.Find(value).Bind(static v => v.Value);
+            Items.Find(value);
 
         /// <summary>
         /// Retrieve a value from the map by key
@@ -180,47 +168,56 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         [Pure]
-        public Version<Actor, V> FindVersion(K value) =>
-            Items.Find(value).Match(
-                Some: static v => v.ToVersion(),
-                None: () => VersionNeverExistedVector<ConflictV, OrdActor, Actor, V>.Default);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Version<string, V> FindVersion(K value) =>
+            Items.FindVersion(value);
 
         /// <summary>
         /// Enumerable of keys
         /// </summary>
         [Pure]
-        public IEnumerable<K> Keys =>
-            AsEnumerable().Map(static x => x.Key);
+        public IEnumerable<K> Keys
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Items.Keys;
+        }
 
         /// <summary>
         /// Enumerable of value
         /// </summary>
         [Pure]
-        public IEnumerable<V> Values =>
-            AsEnumerable().Map(static x => x.Value);
+        public IEnumerable<V> Values
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Items.Values;
+        }
 
         /// <summary>
         /// Convert to a HashMap
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public HashMap<K, V> ToHashMap() =>
-            Items.AsEnumerable().Choose(static x => x.Value.Value.Map(v => (x.Key, v))).ToHashMap();
+            Items.ToHashMap();
 
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerator<(K Key, V Value)> GetEnumerator() =>
-            Items.AsEnumerable().Choose(static x => x.Value.Value.Map(v => (x.Key, v))).GetEnumerator();
+            Items.GetEnumerator();
 
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator() =>
             Items.GetEnumerator();
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<(K Key, V Value)> ToSeq() =>
-            Seq(AsEnumerable());
+            Items.ToSeq();
 
         /// <summary>
         /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
@@ -229,40 +226,46 @@ namespace LanguageExt
         /// or `ToFullArrayString`.
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString() =>
-            CollectionFormat.ToShortArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), Count);
+            Items.ToString();
 
         /// <summary>
         /// Format the collection as `(key: value), (key: value), (key: value), ...`
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string ToFullString(string separator = ", ") =>
-            CollectionFormat.ToFullString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+            Items.ToFullString(separator);
 
         /// <summary>
         /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string ToFullArrayString(string separator = ", ") =>
-            CollectionFormat.ToFullArrayString(AsEnumerable().Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+            Items.ToFullArrayString(separator);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<(K Key, V Value)> AsEnumerable() =>
-            Items.AsEnumerable().Choose(static x => x.Value.Value.Map(v => (x.Key, v)));
+            Items.AsEnumerable();
 
         /// <summary>
         /// Returns True if 'other' is a proper subset of this set
         /// </summary>
         /// <returns>True if 'other' is a proper subset of this set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsProperSubsetOf(IEnumerable<(K Key, V Value)> other) =>
-            ToHashMap().IsProperSubsetOf(other);
+            Items.IsProperSubsetOf(other);
 
         /// <summary>
         /// Returns True if 'other' is a proper subset of this set
         /// </summary>
         /// <returns>True if 'other' is a proper subset of this set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsProperSubsetOf(IEnumerable<K> other) =>
             Items.IsProperSubsetOf(other);
 
@@ -271,14 +274,16 @@ namespace LanguageExt
         /// </summary>
         /// <returns>True if 'other' is a proper superset of this set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsProperSupersetOf(IEnumerable<(K Key, V Value)> other) =>
-            ToHashMap().IsProperSupersetOf(other);
+            Items.IsProperSupersetOf(other);
 
         /// <summary>
         /// Returns True if 'other' is a proper superset of this set
         /// </summary>
         /// <returns>True if 'other' is a proper superset of this set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsProperSupersetOf(IEnumerable<K> other) =>
             Items.IsProperSupersetOf(other);
 
@@ -287,14 +292,16 @@ namespace LanguageExt
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsSubsetOf(IEnumerable<(K Key, V Value)> other) =>
-            ToHashMap().IsSubsetOf(other);
+            Items.IsSubsetOf(other);
 
         /// <summary>
         /// Returns True if 'other' is a superset of this set
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsSubsetOf(IEnumerable<K> other) =>
             Items.IsSubsetOf(other);
 
@@ -303,106 +310,75 @@ namespace LanguageExt
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsSubsetOf(HashMap<K, V> other) =>
-            ToHashMap().IsSubsetOf(other.Value);
+            Items.IsSubsetOf(other);
 
         /// <summary>
         /// Returns True if 'other' is a superset of this set
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsSupersetOf(IEnumerable<(K Key, V Value)> other) =>
-            ToHashMap().IsSupersetOf(other);
+            Items.IsSupersetOf(other);
 
         /// <summary>
         /// Returns True if 'other' is a superset of this set
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsSupersetOf(IEnumerable<K> rhs) =>
             Items.IsSupersetOf(rhs);
 
         /// <summary>
         /// Returns the elements that are in both this and other
         /// </summary>
-        public Unit Intersect(IEnumerable<K> rhs)
-        {
-            SpinWait sw = default;
-            var srhs = Seq(rhs);            
-            while (true)
-            {
-                var oitems = this.Items;
-                var nitems = this.Items.Intersect(srhs);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
-                {
-                    return default;
-                }
-                else
-                {
-                    sw.SpinOnce();
-                }
-            }
-        } 
+        public Unit Intersect(IEnumerable<K> rhs) =>
+            Items.Intersect(rhs);
         
         /// <summary>
         /// Returns True if other overlaps this set
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Overlaps(IEnumerable<(K Key, V Value)> other) =>
-            ToHashMap().Overlaps(other);
+            Items.Overlaps(other);
 
         /// <summary>
         /// Returns True if other overlaps this set
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Overlaps(IEnumerable<K> other) =>
-            ToHashMap().Overlaps(other);
+            Items.Overlaps(other);
 
         /// <summary>
         /// Returns this - rhs.  Only the items in this that are not in 
         /// rhs will be returned.
         /// </summary>
-        public Unit Except(IEnumerable<K> rhs)
-        {
-            SpinWait sw = default;
-            var srhs = Seq(rhs);            
-            while (true)
-            {
-                var oitems = this.Items;
-                var nitems = this.Items.Except(srhs);
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
-                {
-                    return default;
-                }
-                else
-                {
-                    sw.SpinOnce();
-                }
-            }
-        } 
+        public Unit Except(IEnumerable<K> rhs) =>
+            Items.Except(rhs);
         
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object obj) =>
-            obj is AtomHashMap<K, V> hm && Equals(hm);
+            obj is VersionHashMap<K, V> hm && Equals(hm);
 
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values
         /// </summary>
         [Pure]
-        public bool Equals(AtomHashMap<K, V> other) =>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(VersionHashMap<K, V> other) =>
             Items.Equals(other.Items);
 
-        /// <summary>
-        /// Equality of keys and values with `EqDefault<V>` used for values
-        /// </summary>
         [Pure]
-        public bool Equals(HashMap<K, V> other) =>
-            Items.Equals(other.Value);
-
-        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() =>
             Items.GetHashCode();
 
@@ -412,8 +388,9 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
-        public VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> Where(Func<long, Option<V>, bool> pred) =>
-            new VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V>(Items.Filter(v => pred(v.TimeStamp, v.Value)));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public VersionHashMap<K, V> Where(Func<long, Option<V>, bool> pred) =>
+            new VersionHashMap<K, V>(Items.Filter(pred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -421,8 +398,9 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
-        public VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> Where(Func<K, long, Option<V>, bool> pred) =>
-            new VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V>(Items.Filter((k, v) => pred(k, v.TimeStamp, v.Value)));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public VersionHashMap<K, V> Where(Func<K, long, Option<V>, bool> pred) =>
+            new VersionHashMap<K, V>(Items.Filter(pred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -430,8 +408,9 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
-        public VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> Filter(Func<long, Option<V>, bool> pred) =>
-            new VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V>(Items.Filter(v => pred(v.TimeStamp, v.Value)));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public VersionHashMap<K, V> Filter(Func<long, Option<V>, bool> pred) =>
+            new VersionHashMap<K, V>(Items.Filter(pred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -439,68 +418,25 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
-        public VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> Filter(Func<K, long, Option<V>, bool> pred) =>
-            new VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V>(Items.Filter((k, v) => pred(k, v.TimeStamp, v.Value)));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public VersionHashMap<K, V> Filter(Func<K, long, Option<V>, bool> pred) =>
+            new VersionHashMap<K, V>(Items.Filter(pred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
-        public Unit FilterInPlace(Func<long, Option<V>, bool> pred)
-        {
-            SpinWait sw = default;
-            while (true)
-            {
-                var oitems = Items;
-                var nitems = oitems.Filter(v => pred(v.TimeStamp, v.Value));
-
-                if (ReferenceEquals(oitems, nitems))
-                {
-                    // no change
-                    return default;
-                }
-
-                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
-                {
-                    return default;
-                }
-                else
-                {
-                    sw.SpinOnce();
-                }
-            }
-        }
+        public Unit FilterInPlace(Func<long, Option<V>, bool> pred) =>
+            Items.FilterInPlace(pred);
         
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
-        public Unit FilterInPlace(Func<K, long, Option<V>, bool> pred)
-        {
-            SpinWait sw = default;
-            while (true)
-            {
-                var oitems = Items;
-                var nitems = oitems.Filter((k, v) => pred(k, v.TimeStamp, v.Value));
-
-                if (ReferenceEquals(oitems, nitems))
-                {
-                    // no change
-                    return default;
-                }
-
-                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
-                {
-                    return default;
-                }
-                else
-                {
-                    sw.SpinOnce();
-                }
-            }
-        }
+        public Unit FilterInPlace(Func<K, long, Option<V>, bool> pred) =>
+            Items.FilterInPlace(pred);
 
         /// <summary>
         /// Return true if all items in the map return true when the predicate is applied
@@ -508,14 +444,9 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
-        public bool ForAll(Func<K, V, bool> pred)
-        {
-            foreach (var (key, value) in AsEnumerable())
-            {
-                if (!pred(key, value)) return false;
-            }
-            return true;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool ForAll(Func<K, V, bool> pred) =>
+            Items.ForAll(pred);
 
         /// <summary>
         /// Return true if all items in the map return true when the predicate is applied
@@ -523,8 +454,9 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ForAll(Func<(K Key, V Value), bool> pred) =>
-            AsEnumerable().Map(kv => (Key: kv.Key, Value: kv.Value)).ForAll(pred);
+            Items.ForAll(pred);
 
         /// <summary>
         /// Return true if *all* items in the map return true when the predicate is applied
@@ -532,8 +464,9 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ForAll(Func<KeyValuePair<K, V>, bool> pred) =>
-            AsEnumerable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).ForAll(pred);
+            Items.ForAll(pred);
 
         /// <summary>
         /// Return true if all items in the map return true when the predicate is applied
@@ -541,22 +474,9 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ForAll(Func<V, bool> pred) =>
-            AsEnumerable().Map(static x => x.Value).ForAll(pred);
-
-        /// <summary>
-        /// Return true if *any* items in the map return true when the predicate is applied
-        /// </summary>
-        /// <param name="pred">Predicate</param>
-        /// <returns>True if all items in the map return true when the predicate is applied</returns>
-        public bool Exists(Func<K, V, bool> pred)
-        {
-            foreach (var (key, value) in AsEnumerable())
-            {
-                if (pred(key, value)) return true;
-            }
-            return false;
-        }
+            Items.ForAll(pred);
 
         /// <summary>
         /// Return true if *any* items in the map return true when the predicate is applied
@@ -564,8 +484,19 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Exists(Func<K, V, bool> pred) =>
+            Items.Exists(pred);
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Exists(Func<(K Key, V Value), bool> pred) =>
-            AsEnumerable().Map(kv => (Key: kv.Key, Value: kv.Value)).Exists(pred);
+            Items.Exists(pred);
 
         /// <summary>
         /// Return true if *any* items in the map return true when the predicate is applied
@@ -573,8 +504,9 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Exists(Func<V, bool> pred) =>
-            AsEnumerable().Map(static x => x.Value).Exists(pred);
+            Items.Exists(pred);
 
         /// <summary>
         /// Atomically iterate through all key/value pairs in the map (in order) and execute an
@@ -582,14 +514,9 @@ namespace LanguageExt
         /// </summary>
         /// <param name="action">Action to execute</param>
         /// <returns>Unit</returns>
-        public Unit Iter(Action<K, V> action)
-        {
-            foreach (var (key, value) in this)
-            {
-                action(key, value);
-            }
-            return unit;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Unit Iter(Action<K, V> action) =>
+            Items.Iter(action);
 
         /// <summary>
         /// Atomically iterate through all values in the map (in order) and execute an
@@ -597,14 +524,9 @@ namespace LanguageExt
         /// </summary>
         /// <param name="action">Action to execute</param>
         /// <returns>Unit</returns>
-        public Unit Iter(Action<V> action)
-        {
-            foreach (var item in this)
-            {
-                action(item.Value);
-            }
-            return unit;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Unit Iter(Action<V> action) =>
+            Items.Iter(action);
 
         /// <summary>
         /// Atomically iterate through all key/value pairs (as tuples) in the map (in order) 
@@ -612,14 +534,9 @@ namespace LanguageExt
         /// </summary>
         /// <param name="action">Action to execute</param>
         /// <returns>Unit</returns>
-        public Unit Iter(Action<(K Key, V Value)> action)
-        {
-            foreach (var item in this)
-            {
-                action(item);
-            }
-            return unit;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Unit Iter(Action<(K Key, V Value)> action) =>
+            Items.Iter(action);
 
         /// <summary>
         /// Atomically iterate through all key/value pairs in the map (in order) and execute an
@@ -627,14 +544,9 @@ namespace LanguageExt
         /// </summary>
         /// <param name="action">Action to execute</param>
         /// <returns>Unit</returns>
-        public Unit Iter(Action<KeyValuePair<K, V>> action)
-        {
-            foreach (var item in this)
-            {
-                action(new KeyValuePair<K, V>(item.Key, item.Value));
-            }
-            return unit;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Unit Iter(Action<KeyValuePair<K, V>> action) =>
+            Items.Iter(action);
 
         /// <summary>
         /// Atomically folds all items in the map (in order) using the folder function provided.
@@ -644,8 +556,9 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S Fold<S>(S state, Func<S, K, V, S> folder) =>
-            AsEnumerable().Fold(state, (s, x) => folder(s, x.Key, x.Value));
+            Items.Fold(state, folder);
 
         /// <summary>
         /// Atomically folds all items in the map (in order) using the folder function provided.
@@ -655,8 +568,9 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S Fold<S>(S state, Func<S, V, S> folder) =>
-            AsEnumerable().Map(static x => x.Value).Fold(state, folder);
+            Items.Fold(state, folder);
     }
 }
 #nullable disable

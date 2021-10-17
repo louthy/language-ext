@@ -1,15 +1,15 @@
 #nullable enable
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
-using LanguageExt.ClassInstances;
+using System.Collections;
+using System.ComponentModel;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
+using LanguageExt.ClassInstances;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
@@ -30,7 +30,7 @@ namespace LanguageExt
         /// Perform a write to the vector.  This increases the vector-clock by 1 for the `actor` provided.
         /// </summary>
         /// <param name="value">Value to write</param>
-        public Version<Actor, V> Put(Actor actor, V value) =>
+        public Version<Actor, V> Write(Actor actor, V value) =>
             Write(actor, DateTime.UtcNow.Ticks, value);
 
         /// <summary>
