@@ -125,7 +125,7 @@ async... C# as a language is becoming more and more like a  functional language 
 features are either inspired by or directly taken from features in functional languages. So perhaps it's time to move the C# 
 idioms closer to the functional world's idioms?
 
-__A note about naming__
+### A note about naming
 
 One of the areas that's likely to get seasoned C# heads worked up is my choice of naming style. The intent is to try and make 
 something that _feels_ like a functional language rather than following rules of naming conventions (mostly set out by 
