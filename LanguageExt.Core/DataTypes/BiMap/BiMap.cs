@@ -289,6 +289,7 @@ namespace LanguageExt
         [Pure]
         public BiMap<A, B> Clear() => default;
 
+        /// <summary>
         /// Enumerable of map lefts in-order
         /// </summary>
         [Pure]
@@ -300,6 +301,7 @@ namespace LanguageExt
         [Pure]
         public IEnumerable<B> RightKeys => Right.Keys;
 
+        /// <summary>
         /// Enumerable of map lefts in-rights-order
         /// </summary>
         [Pure]

@@ -1372,6 +1372,7 @@ namespace LanguageExt
         public EitherAsync<L, Ret> Map<Ret>(Func<R, Ret> f) =>
             BiMap(f, identity);
 
+        /// <summary>
         /// Maps the value in the Either if it's in a Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>

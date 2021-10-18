@@ -34,6 +34,7 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     public struct HashableLst<A> : Hashable<Lst<A>> 
     {
+        /// <summary>
         /// Get hash code of the value
         /// </summary>
         /// <param name="x">Value to get the hash code of</param>

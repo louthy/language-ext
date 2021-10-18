@@ -102,7 +102,6 @@ namespace LanguageExt
         /// <summary>
         /// Ctor that facilitates serialisation
         /// </summary>
-        /// </summary>
         /// <param name="option">None or Some A.</param>
         public OptionAsync(IEnumerable<A> option)
         {
@@ -150,6 +149,7 @@ namespace LanguageExt
         public static implicit operator OptionAsync<A>(Task<A> a) =>
             OptionalAsync(a);
 
+        /// <summary>
         /// Implicit conversion operator from None to Option<A>
         /// </summary>
         /// <param name="a">None value</param>

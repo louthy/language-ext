@@ -132,24 +132,24 @@ namespace LanguageExt
 
         /// <summary>
         /// Gets a value that represents the number one (1).
-        ///
-        /// </remarks><returns>
+        /// </summary>
+        /// <returns>
         /// An object whose value is one (1).
         /// </returns>
         public static readonly bigint One = new bigint(1);
 
         /// <summary>
         /// Gets a value that represents the number negative one (-1).
-        ///
-        /// </remarks><returns>
+        /// </summary>
+        /// <returns>
         /// An integer whose value is negative one (-1).
         /// </returns>
         public static readonly bigint MinusOne = new bigint(-1);
 
         /// <summary>
         /// Gets a value that represents the number 0 (zero).
-        ///
-        /// </remarks><returns>
+        /// </summary>
+        /// <returns>
         /// An integer whose value is 0 (zero).
         /// </returns>
         public static bigint Zero = new bigint(0);
@@ -157,8 +157,8 @@ namespace LanguageExt
         /// <summary>
         /// Indicates whether the value of the current bigint object
         /// is an even number.
-        ///
-        /// </remarks><returns>
+        /// </summary>
+        /// <returns>
         /// true if the value of the bigint object is an even number;
         /// otherwise, false.
         /// </returns>
@@ -167,8 +167,8 @@ namespace LanguageExt
         /// <summary>
         /// Indicates whether the value of the current bigint object
         /// is bigint.Zero.
-        ///
-        /// </remarks><returns>
+        /// </summary>
+        /// <returns>
         /// true if the value of the bigint object is bigint.Zero;
         /// otherwise, false.
         /// </returns>
@@ -177,8 +177,8 @@ namespace LanguageExt
         /// <summary>
         /// Indicates whether the value of the current bigint object
         /// is a power of two.
-        ///
-        /// </remarks><returns>
+        /// </summary>
+        /// <returns>
         /// true if the value of the bigint object is a power of two;
         /// otherwise, false.
         /// </returns>
@@ -187,8 +187,8 @@ namespace LanguageExt
         /// <summary>
         /// Indicates whether the value of the current bigint object
         /// is bigint.One.
-        ///
-        /// </remarks><returns>
+        /// </summary>
+        /// <returns>
         /// true if the value of the bigint object is bigint.One;
         /// otherwise, false.
         /// </returns>
@@ -197,8 +197,8 @@ namespace LanguageExt
         /// <summary>
         /// Gets a number that indicates the sign (negative, positive, or zero) of the current
         /// bigint object.
-        ///
-        /// </remarks><returns>
+        /// </summary>
+        /// <returns>
         /// A number that indicates the sign of the bigint object, as
         /// shown in the following table.NumberDescription-1The value of this object is negative.0The
         /// value of this object is 0 (zero).1The value of this object is positive.
@@ -207,12 +207,8 @@ namespace LanguageExt
 
         /// <summary>
         /// Gets the absolute value of a bigint object.
-        ///
-        /// </summary><remarks>
-        /// value:
-        /// A number.
-        ///
-        /// </remarks><returns>
+        /// </summary>
+        /// <returns>
         /// The absolute value of value.
         /// </returns>
         public static bigint Abs(bigint value) => 
@@ -220,15 +216,8 @@ namespace LanguageExt
 
         /// <summary>
         /// Adds two bigint values and returns the result.
-        ///
-        /// </summary><remarks>
-        /// left:
-        /// The first value to add.
-        ///
-        /// right:
-        /// The second value to add.
-        ///
-        /// </remarks><returns>
+        /// </summary>
+        /// <returns>
         /// The sum of left and right.
         /// </returns>
         public static bigint Add(bigint left, bigint right) =>
@@ -237,15 +226,8 @@ namespace LanguageExt
         /// <summary>
         /// Compares two bigint values and returns an integer that indicates
         /// whether the first value is less than, equal to, or greater than the second value.
-        ///
-        /// </summary><remarks>
-        /// left:
-        /// The first value to compare.
-        ///
-        /// right:
-        /// The second value to compare.
-        ///
-        /// </remarks><returns>
+        /// </summary>
+        /// <returns>
         /// A signed integer that indicates the relative values of left and right, as shown
         /// in the following table.ValueConditionLess than zeroleft is less than right.Zeroleft
         /// equals right.Greater than zeroleft is greater than right.
@@ -398,7 +380,7 @@ namespace LanguageExt
         /// The number by which to divide value raised to the exponent power.
         ///
         /// </remarks><returns>
-        /// The remainder after dividing valueexponent by modulus.
+        /// The remainder after dividing value exponent by modulus.
         ///
         /// </returns>
         public static bigint ModPow(bigint value, bigint exponent, bigint modulus) =>
@@ -752,7 +734,8 @@ namespace LanguageExt
         /// <summary>
         /// Returns the hash code for the current bigint object.
         ///
-        /// </remarks><returns>
+        /// </summary>
+        /// <returns>
         /// A 32-bit signed integer hash code.
         /// </returns>
         public override int GetHashCode() =>
@@ -764,7 +747,7 @@ namespace LanguageExt
         /// <summary>
         /// Converts a bigint value to a byte array.
         ///
-        /// </remarks><returns>
+        /// </summary><returns>
         /// The value of the current bigint object converted to an array
         /// of bytes.
         /// </returns>
@@ -774,8 +757,8 @@ namespace LanguageExt
         /// <summary>
         /// Converts the numeric value of the current bigint object to
         /// its equivalent string representation.
-        ///
-        /// </remarks><returns>
+        /// </summary>
+        /// <returns>
         /// The string representation of the current bigint value.
         /// </returns>
         public override string ToString() =>

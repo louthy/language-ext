@@ -197,6 +197,7 @@ namespace LanguageExt
         public static implicit operator OptionUnsafe<A>(A a) =>
             OptionUnsafe<A>.Some(a);
 
+        /// <summary>
         /// Implicit conversion operator from None to OptionUnsafe<A>
         /// </summary>
         /// <param name="a">None value</param>

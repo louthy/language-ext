@@ -647,7 +647,7 @@ namespace LanguageExt
         /// <remarks>
         /// For lazy streams this will have to peek at the first 
         /// item.  So, the first item will be consumed.
-        /// </summary>
+        /// </remarks>
         public bool IsEmpty
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
