@@ -11,7 +11,161 @@ using static LanguageExt.Prelude;
 namespace LanguageExt.Pipes
 {
     /// <summary>
-    /// Proxy prelude
+    /// The pipes library decouples stream processing stages from each other so
+    /// that you can mix and match diverse stages to produce useful streaming
+    /// programs.  If you are a library writer, pipes lets you package up streaming
+    /// components into a reusable interface.  If you are an application writer,
+    /// pipes lets you connect pre-made streaming components with minimal effort to
+    /// produce a highly-efficient program that streams data in constant memory.
+    ///
+    /// To enforce loose coupling, components can only communicate using two commands:
+    /// 
+    /// * `yield`: Send output data
+    /// * `await`: Receive input data
+    ///
+    /// Pipes has four types of components built around these two commands:
+    /// 
+    /// * `Producer` can only `yield` values and they model streaming sources
+    /// * `Consumer` can only `await` values and they model streaming sinks
+    /// * `Pipe` can both `yield` and `await` values and they model stream transformations
+    /// * `Effect` can neither `yield` nor `await` and they model non-streaming components
+    /// 
+    /// Pipes uses parametric polymorphism (i.e. generics) to overload all operations.
+    ///
+    /// You've probably noticed this overloading already:
+    /// 
+    ///  * `yield` works within both `Producer` and a `Pipe`
+    ///  * `await` works within both `Consumer` and `Pipe`
+    ///  * `|` connects `Producer`, `Consumer`, and `Pipe` in varying ways
+    /// 
+    /// This overloading is great when it works, but when connections fail they
+    /// produce type errors that appear intimidating at first.  This section
+    /// explains the underlying types so that you can work through type errors
+    /// intelligently.
+    /// 
+    /// `Producer`, `Consumer`, `Pipe`, and `Effect` are all special cases of a
+    /// single underlying type: `Proxy`.  This overarching type permits fully
+    /// bidirectional communication on both an upstream and downstream interface.
+    /// 
+    /// You can think of it as having the following shape:
+    /// 
+    ///      Proxy a' a b' b m r
+    ///
+    ///        Upstream | Downstream
+    ///            +---------+
+    ///            |         |
+    ///        a' ◄--       ◄-- b'  -- Information flowing upstream
+    ///            |         |
+    ///        a  --►       --► b   -- Information flowing downstream
+    ///            |    |    |
+    ///            +----|----+
+    ///                 v
+    ///                 r
+    /// 
+    ///  The four core types do not use the upstream flow of information.  This means
+    ///  that the `a'` and `b'` in the above diagram go unused unless you use the
+    ///  more advanced features.
+    /// 
+    ///  Pipes uses type synonyms to hide unused inputs or outputs and clean up
+    ///  type signatures.  These type synonyms come in two flavors:
+    /// 
+    ///  * Concrete type synonyms that explicitly close unused inputs and outputs of
+    ///    the 'Proxy' type
+    /// 
+    ///  * Polymorphic type synonyms that don't explicitly close unused inputs or
+    ///    outputs
+    /// 
+    ///  The concrete type synonyms use `()` to close unused inputs and `Void` (the
+    ///  uninhabited type) to close unused outputs:
+    /// 
+    ///  * `Effect`: explicitly closes both ends, forbidding `await` and `yield`
+    /// 
+    ///         type Effect = Proxy X () () X
+    ///          
+    ///           Upstream | Downstream
+    ///               +---------+
+    ///               |         |
+    ///         Void ◄--       ◄-- ()
+    ///               |         |
+    ///           () --►       --► Void
+    ///               |    |    |
+    ///               +----|----+
+    ///                    v
+    ///                    r
+    /// 
+    ///  * `Producer`: explicitly closes the upstream end, forbidding `await`
+    /// 
+    ///         type Producer b = Proxy X () () b
+    ///          
+    ///           Upstream | Downstream
+    ///               +---------+
+    ///               |         |
+    ///         Void ◄--       ◄-- ()
+    ///               |         |
+    ///           () --►       --► b
+    ///               |    |    |
+    ///               +----|----+
+    ///                    v
+    ///                    r
+    ///    
+    ///  * `Consumer`: explicitly closes the downstream end, forbidding `yield`
+    /// 
+    ///          type Consumer a = Proxy () a () X
+    ///         
+    ///            Upstream | Downstream
+    ///                +---------+
+    ///                |         |
+    ///            () ◄--       ◄-- ()
+    ///                |         |
+    ///            a  --►       --► Void
+    ///                |    |    |
+    ///                +----|----+
+    ///                     v
+    ///                     r
+    ///     
+    ///  Pipe: marks both ends open, allowing both `await` and `yield`
+    /// 
+    ///          type Pipe a b = Proxy () a () b
+    ///           
+    ///            Upstream | Downstream
+    ///                +---------+
+    ///                |         |
+    ///            () ◄--       ◄-- ()
+    ///                |         |
+    ///            a  --►       --► b
+    ///                |    |    |
+    ///                +----|----+
+    ///                     v
+    ///                     r
+    ///     
+    /// When you compose `Proxy` using `|` all you are doing is placing them
+    /// side by side and fusing them laterally.  For example, when you compose a
+    /// `Producer`, `Pipe`, and a `Consumer`, you can think of information flowing
+    /// like this:
+    /// 
+    ///                 Producer                Pipe                 Consumer
+    ///              +-----------+          +----------+          +------------+
+    ///              |           |          |          |          |            |
+    ///        Void ◄--         ◄--   ()   ◄--        ◄--   ()   ◄--          ◄-- ()
+    ///              |  stdinLn  |          |  take 3  |          |  stdoutLn  |
+    ///          () --►         --► String --►        --► String --►          --► Void
+    ///              |     |     |          |    |     |          |      |     |
+    ///              +-----|-----+          +----|-----+          +------|-----+
+    ///                    v                     v                       v
+    ///                    ()                    ()                      ()
+    /// 
+    ///  Composition fuses away the intermediate interfaces, leaving behind an `Effect`:
+    /// 
+    ///                            Effect
+    ///             +-----------------------------------+
+    ///             |                                   |
+    ///       Void ◄--                                 ◄-- ()
+    ///             |  stdinLn >-> take 3 >-> stdoutLn  |
+    ///         () --►                                 --► Void
+    ///             |                                   |
+    ///             +----------------|------------------+
+    ///                              v
+    ///                              () 
     /// </summary>
     public static partial class Proxy
     {

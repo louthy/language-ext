@@ -11,8 +11,8 @@ namespace LanguageExt
     /// Provides a mechanism for composing scheduled events
     /// </summary>
     /// <remarks>
-    /// Used heavily by repeat, retry, and fold with the Aff and Eff types.  Use the static methods to create parts
-    /// of schedulers and then union them using | or intersect them using &.  Union will take the minimum of the two
+    /// Used heavily by `repeat`, `retry`, and `fold` with the `Aff` and `Eff` types.  Use the static methods to create parts
+    /// of schedulers and then union them using `|` or intersect them using `&`.  Union will take the minimum of the two
     /// schedulers, intersect will take the maximum. 
     /// </remarks>
     /// <example>
@@ -27,7 +27,6 @@ namespace LanguageExt
     /// at 10 milliseconds and with a maximum delay of 2000 milliseconds:
     /// 
     ///     var s = Schedule.Recurs(5) | Schedule.Exponential(10) | Schedule.Spaced(2000)
-    /// 
     /// </example>
     public class Schedule
     {
