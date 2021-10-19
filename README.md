@@ -274,12 +274,12 @@ Location | Feature | Description
 ---------|---------|------------
 `Core` | `Nullable<T>` extensions | [Extension methods for `Nullable<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/Nullable/index.html) that make it into a functor, applicative, foldable, iterable and a monad
 `Core` | `Task<T>` extensions | [Extension methods for `Task<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/Task/index.html) that make it into a functor, applicative, foldable, iterable and a monad
-`Core` | [Improved lambda type inference](https://louthy.github.io/language-ext/LanguageExt.Core/Prelude/index.html) | `var add = fun( (int x, int y) => x + y)`
-`Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/language-ext/LanguageExt.Core/Prelude/index.html)
-`Core` | Partial application | [the process of fixing a number of arguments to a function, producing another function of smaller arity](https://louthy.github.io/language-ext/LanguageExt.Core/Prelude/index.html)
+`Core` | [Improved lambda type inference](https://louthy.github.io/language-ext/LanguageExt.Core/Prelude/Lambda%20function%20inference/index.html) | `var add = fun( (int x, int y) => x + y)`
+`Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/language-ext/LanguageExt.Core/Prelude/Currying%20and%20Partial%20Application/index.html)
+`Core` | Partial application | [the process of fixing a number of arguments to a function, producing another function of smaller arity](https://louthy.github.io/language-ext/LanguageExt.Core/Prelude/Currying%20and%20Partial%20Application/index.html)
 `Core` | [`IQueryable<T>` extensions](https://louthy.github.io/language-ext/LanguageExt.Core/Extensions/index.html)  |
 `Core` | [`IObservable<T>` extensions](https://louthy.github.io/language-ext/LanguageExt.Core/Extensions/index.html)  |
-`Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/language-ext/LanguageExt.Core/Prelude/index.html)
+`Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/language-ext/LanguageExt.Core/Prelude/Memoizing/index.html)
 
 
 
@@ -722,7 +722,7 @@ Note, if you're creating a `Func` or `Action` that take parameters, you must pro
     var add = fun( (int x, int y) => x + y );
 ```
 
-* [`fun`, `act`, `expr` and prelude reference](https://louthy.github.io/language-ext/LanguageExt.Core/Prelude/index.html)
+* [`fun`, `act`, `expr` and prelude reference](https://louthy.github.io/language-ext/LanguageExt.Core/Prelude/Lambda%20function%20inference/index.html)
 
 ## Void isn't a real type
 
