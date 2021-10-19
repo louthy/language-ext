@@ -19,7 +19,7 @@ namespace LanguageExt
     /// Immutable map
     /// AVL tree implementation
     /// AVL tree is a self-balancing binary search tree. 
-    /// http://en.wikipedia.org/wiki/AVL_tree
+    /// [wikipedia.org/wiki/AVL_tree](http://en.wikipedia.org/wiki/AVL_tree)
     /// </summary>
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value type</typeparam>

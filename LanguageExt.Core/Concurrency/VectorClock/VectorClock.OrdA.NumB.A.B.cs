@@ -10,8 +10,8 @@ namespace LanguageExt
 {
     /// <summary>
     /// <para>
-    /// To create a vector clock, start from 'Empty' or 'Single' and 'Insert'
-    /// elements into it.  As a shortcut, 'fromList' just inserts all the
+    /// To create a vector clock, start from `Empty` or `Single` and `Insert`
+    /// elements into it.  As a shortcut, `fromList` just inserts all the
     /// elements in a list, in order.
     /// </para>
     /// <code>
@@ -42,8 +42,8 @@ namespace LanguageExt
     /// received message's clocks.
     /// </para>
     /// <code>
-    ///    vc.Inc('a') == Some [('a', 2), ('b', 2)]
-    ///    VectorClock.max( [('a', 1), ('b', 2)], [('c', 3), ('b', 1)] ) == [('a', 1), ('b', 2), ('c' 3)]
+    ///     vc.Inc('a') == Some [('a', 2), ('b', 2)]
+    ///     VectorClock.max( [('a', 1), ('b', 2)], [('c', 3), ('b', 1)] ) == [('a', 1), ('b', 2), ('c' 3)]
     /// </code>
     /// <para>
     /// Finally, upon receiving different messages, you may wish to

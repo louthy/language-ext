@@ -11,7 +11,7 @@ namespace LanguageExt
     /// numeric types,and expects a Floating<A> class-instance as an argument (TFloat, TDouble, 
     /// TDecimal, etc.)
     /// 
-    /// https://wiki.haskell.org/Newtype
+    /// [wiki.haskell.org/Newtype](https://wiki.haskell.org/Newtype)
     /// 
     /// Derive type from this one to get: Equatable, Comparable, Appendable, Foldable, 
     /// Functor, Iterable: strongly typed values.

@@ -6,14 +6,14 @@ namespace LanguageExt
     public static class CombinatorsDynamic
     {
         /// <summary>
-        /// Identity function, or the Idiot bird (http://dkeenan.com/Lambda/ )
+        /// Identity function, or the Idiot bird [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<dynamic, dynamic> I =
             (dynamic x) =>
                 x;
 
         /// <summary>
-        /// The Mockingbird (http://dkeenan.com/Lambda/ )
+        /// The Mockingbird [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<dynamic, Func<dynamic, dynamic>> M =
             (dynamic x) =>
@@ -21,7 +21,7 @@ namespace LanguageExt
                     x(x(a));
 
         /// <summary>
-        /// The Kestrel (http://dkeenan.com/Lambda/ )
+        /// The Kestrel [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<dynamic, Func<dynamic, dynamic>> K =
             (dynamic x) =>
@@ -29,7 +29,7 @@ namespace LanguageExt
                     x;
 
         /// <summary>
-        /// The Thrush (http://dkeenan.com/Lambda/ )
+        /// The Thrush [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<dynamic, Func<dynamic, dynamic>> T =
             (dynamic x) =>
@@ -37,7 +37,7 @@ namespace LanguageExt
                     y(x);
 
         /// <summary>
-        /// The Queer bird (http://dkeenan.com/Lambda/ )
+        /// The Queer bird [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<dynamic, Func<dynamic, Func<dynamic, dynamic>>> Q =
             (dynamic x) =>
@@ -46,7 +46,7 @@ namespace LanguageExt
                         y(x(z));
 
         /// <summary>
-        /// The Starling (http://dkeenan.com/Lambda/ )
+        /// The Starling [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<dynamic, Func<dynamic, Func<dynamic, dynamic>>> S =
             (dynamic x) =>
@@ -55,7 +55,7 @@ namespace LanguageExt
                         x(z)(y(z));
 
         /// <summary>
-        /// The infamous Y-combinator, or Sage bird (http://dkeenan.com/Lambda/ )
+        /// The infamous Y-combinator, or Sage bird [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<dynamic, Func<dynamic, dynamic>> Y =
             (dynamic f) =>
@@ -66,14 +66,14 @@ namespace LanguageExt
     public static class Combinators<A>
     {
         /// <summary>
-        /// Identity function, or the Idiot bird (http://dkeenan.com/Lambda/ )
+        /// Identity function, or the Idiot bird [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<A, A> I = 
             (A x) => 
                 x;
 
         /// <summary>
-        /// The Mockingbird (http://dkeenan.com/Lambda/ )
+        /// The Mockingbird [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<Func<A, A>, Func<A, A>> M = 
             (Func<A, A> x) =>
@@ -84,7 +84,7 @@ namespace LanguageExt
     public static class Combinators<A, B>
     {
         /// <summary>
-        /// The Kestrel (http://dkeenan.com/Lambda/ )
+        /// The Kestrel [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<A, Func<B, A>> K =
             (A x) =>
@@ -92,7 +92,7 @@ namespace LanguageExt
                     x;
 
         /// <summary>
-        /// The Thrush (http://dkeenan.com/Lambda/ )
+        /// The Thrush [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<A, Func<Func<A, B>, B>> T =
             (A x) =>
@@ -103,7 +103,7 @@ namespace LanguageExt
     public static class Combinators<A, B, C>
     {
         /// <summary>
-        /// The Queer bird (http://dkeenan.com/Lambda/ )
+        /// The Queer bird [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<Func<A, B>, Func<Func<B, C>, Func<A, C>>> Q = 
             (Func<A, B> x) => 
@@ -112,7 +112,7 @@ namespace LanguageExt
                         y(x(z));
 
         /// <summary>
-        /// The Starling (http://dkeenan.com/Lambda/ )
+        /// The Starling [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<Func<A, Func<B, C>>, Func<Func<A, B>, Func<A, C>>> S = 
             (Func<A, Func<B, C>> x) => 
@@ -121,7 +121,7 @@ namespace LanguageExt
                         x(z)(y(z));
 
         /// <summary>
-        /// The infamous Y-combinator, or Sage bird (http://dkeenan.com/Lambda/ )
+        /// The infamous Y-combinator, or Sage bird [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<Func<Func<A, B>, A, B>, Func<A, B>> Y = 
             (Func<Func<A, B>, A, B> f) => 
@@ -132,35 +132,35 @@ namespace LanguageExt
     public static class Combinators
     {
         /// <summary>
-        /// Identity function, or the Idiot bird (http://dkeenan.com/Lambda/ )
+        /// Identity function, or the Idiot bird [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static A I<A>(A x) => x;
 
         /// <summary>
-        /// The Kestrel (http://dkeenan.com/Lambda/ )
+        /// The Kestrel [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<B, A> K<A, B>(A x) => (B y) => x;
 
         /// <summary>
-        /// The Mockingbird (http://dkeenan.com/Lambda/ )
+        /// The Mockingbird [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<A, A> M<A>(Func<A, A> x) =>
             a => x(x(a));
 
         /// <summary>
-        /// The Thrush (http://dkeenan.com/Lambda/ )
+        /// The Thrush [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<Func<A, B>, B> T<A, B>(A x) => (Func<A, B> y) =>
             y(x);
 
         /// <summary>
-        /// The Queer bird (http://dkeenan.com/Lambda/ )
+        /// The Queer bird [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<Func<B, C>, Func<A, C>> Q<A, B, C>(Func<A, B> x) => (Func<B, C> y) => (A z) =>
              y(x(z));
 
         /// <summary>
-        /// The Starling (http://dkeenan.com/Lambda/ )
+        /// The Starling [dkeenan.com/Lambda/](http://dkeenan.com/Lambda/)
         /// </summary>
         public static Func<Func<A, B>, Func<A, C>> S<A, B, C>(Func<A, B, C> x) => (Func<A, B> y) => (A z) =>
             x(z, y(z));

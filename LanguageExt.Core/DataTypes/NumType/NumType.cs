@@ -10,7 +10,7 @@ namespace LanguageExt
     /// NumType - inspired by Haskell's 'newtype' keyword.  This is setup for numeric
     /// types,and expects a Num<A> class-instance as an argument (TInt, TDouble, etc.)
     /// 
-    /// https://wiki.haskell.org/Newtype
+    /// [wiki.haskell.org/Newtype](https://wiki.haskell.org/Newtype)
     /// 
     /// Derive type from this one to get: Equatable, Comparable, Appendable, Foldable, 
     /// Functor, Iterable: strongly typed values.

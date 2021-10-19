@@ -16,7 +16,7 @@ namespace LanguageExt
     /// Immutable set
     /// AVL tree implementation
     /// AVL tree is a self-balancing binary search tree. 
-    /// http://en.wikipedia.org/wiki/AVL_tree
+    /// [wikipedia.org/wiki/AVL_tree](http://en.wikipedia.org/wiki/AVL_tree)
     /// </summary>
     /// <typeparam name="A">Set item type</typeparam>
     [Serializable]

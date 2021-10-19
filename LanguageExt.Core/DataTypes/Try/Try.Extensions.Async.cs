@@ -210,7 +210,7 @@ public static class TryExtensionsAsync
 
     /// <summary>
     /// Folds Try value into an S.
-    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// [wikipedia.org/wiki/Fold_(higher-order_function)](https://en.wikipedia.org/wiki/Fold_(higher-order_function))
     /// </summary>
     /// <param name="self">Try to fold</param>
     /// <param name="state">Initial state</param>
@@ -222,7 +222,7 @@ public static class TryExtensionsAsync
 
     /// <summary>
     /// Folds Try value into an S.
-    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// [wikipedia.org/wiki/Fold_(higher-order_function)](https://en.wikipedia.org/wiki/Fold_(higher-order_function))
     /// </summary>
     /// <param name="self">Try to fold</param>
     /// <param name="state">Initial state</param>
@@ -234,7 +234,7 @@ public static class TryExtensionsAsync
 
     /// <summary>
     /// Folds Try value into an S.
-    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// [wikipedia.org/wiki/Fold_(higher-order_function)](https://en.wikipedia.org/wiki/Fold_(higher-order_function))
     /// </summary>
     /// <param name="self">Try to fold</param>
     /// <param name="state">Initial state</param>
@@ -247,7 +247,7 @@ public static class TryExtensionsAsync
 
     /// <summary>
     /// Folds Try value into an S.
-    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// [wikipedia.org/wiki/Fold_(higher-order_function)](https://en.wikipedia.org/wiki/Fold_(higher-order_function))
     /// </summary>
     /// <param name="self">Try to fold</param>
     /// <param name="state">Initial state</param>
@@ -260,7 +260,7 @@ public static class TryExtensionsAsync
 
     /// <summary>
     /// Folds Try value into an S.
-    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// [wikipedia.org/wiki/Fold_(higher-order_function)](https://en.wikipedia.org/wiki/Fold_(higher-order_function))
     /// </summary>
     /// <param name="self">Try to fold</param>
     /// <param name="state">Initial state</param>
@@ -273,7 +273,7 @@ public static class TryExtensionsAsync
 
     /// <summary>
     /// Folds Try value into an S.
-    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// [wikipedia.org/wiki/Fold_(higher-order_function)](https://en.wikipedia.org/wiki/Fold_(higher-order_function))
     /// </summary>
     /// <param name="self">Try to fold</param>
     /// <param name="state">Initial state</param>

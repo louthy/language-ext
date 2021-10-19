@@ -20,7 +20,7 @@ namespace LanguageExt.ClassInstances
         Monoid<Option<A>>
         where SemigroupA : struct, Semigroup<A>
     {
-        public static readonly MOption<A> Inst = default(MOption<A>);
+        public static readonly SemiOption<SemigroupA, A> Inst = default(SemiOption<SemigroupA, A>);
 
         [Pure]
         public Option<A> None => 

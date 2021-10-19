@@ -8,7 +8,7 @@ namespace LanguageExt
     /// Fowler–Noll–Vo 32bit hash function
     /// </summary>
     /// <remarks>
-    /// https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
+    /// [Fowler–Noll–Vo hash function](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function)
     /// </remarks>
     internal static class FNV32
     {

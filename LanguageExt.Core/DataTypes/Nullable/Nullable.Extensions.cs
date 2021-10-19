@@ -365,7 +365,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Folds Nullable into an S.
-        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// [wikipedia.org/wiki/Fold_(higher-order_function)](https://en.wikipedia.org/wiki/Fold_(higher-order_function))
         /// </summary>
         /// <param name="tryDel">Try to fold</param>
         /// <param name="state">Initial state</param>
@@ -379,7 +379,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Folds Nullable into an S.
-        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// [wikipedia.org/wiki/Fold_(higher-order_function)](https://en.wikipedia.org/wiki/Fold_(higher-order_function))
         /// </summary>
         /// <param name="tryDel">Try to fold</param>
         /// <param name="state">Initial state</param>

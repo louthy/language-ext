@@ -13,7 +13,7 @@ namespace LanguageExt
 {
     /// <summary>
     /// Implementation of the CHAMP trie hash map data structure (Compressed Hash Array Map Trie)
-    /// https://michael.steindorfer.name/publications/phd-thesis-efficient-immutable-collections.pdf
+    /// [efficient-immutable-collections.pdf](https://michael.steindorfer.name/publications/phd-thesis-efficient-immutable-collections.pdf)
     /// </summary>
     /// <remarks>
     /// Used by internally by `LanguageExt.HashMap`

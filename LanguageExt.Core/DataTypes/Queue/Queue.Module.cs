@@ -63,7 +63,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Folds each value of the QueT into an S.
-        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// [wikipedia.org/wiki/Fold_(higher-order_function)](https://en.wikipedia.org/wiki/Fold_(higher-order_function))
         /// </summary>
         /// <param name="queue">Queue to fold</param>
         /// <param name="state">Initial state</param>
@@ -75,7 +75,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Folds each value of the QueT into an S, but in reverse order.
-        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// [wikipedia.org/wiki/Fold_(higher-order_function)](https://en.wikipedia.org/wiki/Fold_(higher-order_function))
         /// </summary>
         /// <param name="queue">Queue to fold</param>
         /// <param name="state">Initial state</param>

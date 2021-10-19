@@ -382,7 +382,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Folds the value of TryAsync into an S.
-        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// [wikipedia.org/wiki/Fold_(higher-order_function)](https://en.wikipedia.org/wiki/Fold_(higher-order_function))
         /// </summary>
         /// <param name="self">TryAsync to fold</param>
         /// <param name="state">Initial state</param>
@@ -394,7 +394,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Folds the result of TryAsync into an S.
-        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// [wikipedia.org/wiki/Fold_(higher-order_function)](https://en.wikipedia.org/wiki/Fold_(higher-order_function))
         /// </summary>
         /// <param name="tryDel">TryAsync to fold</param>
         /// <param name="state">Initial state</param>

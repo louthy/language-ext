@@ -80,92 +80,92 @@ namespace LanguageExt.Pipes
     /// 
     ///  * `Effect`: explicitly closes both ends, forbidding `await` and `yield`
     /// 
-    ///      type Effect = Proxy X () () X
-    ///       
-    ///        Upstream | Downstream
-    ///            +---------+
-    ///            |         |
-    ///      Void ◄--       ◄-- ()
-    ///            |         |
-    ///        () --►       --► Void
-    ///            |    |    |
-    ///            +----|----+
-    ///                 v
-    ///                 r
+    ///         type Effect = Proxy X () () X
+    ///          
+    ///           Upstream | Downstream
+    ///               +---------+
+    ///               |         |
+    ///         Void ◄--       ◄-- ()
+    ///               |         |
+    ///           () --►       --► Void
+    ///               |    |    |
+    ///               +----|----+
+    ///                    v
+    ///                    r
     /// 
     ///  * `Producer`: explicitly closes the upstream end, forbidding `await`
     /// 
-    ///      type Producer b = Proxy X () () b
-    ///       
-    ///        Upstream | Downstream
-    ///            +---------+
-    ///            |         |
-    ///      Void ◄--       ◄-- ()
-    ///            |         |
-    ///        () --►       --► b
-    ///            |    |    |
-    ///            +----|----+
-    ///                 v
-    ///                 r
-    /// 
+    ///         type Producer b = Proxy X () () b
+    ///          
+    ///           Upstream | Downstream
+    ///               +---------+
+    ///               |         |
+    ///         Void ◄--       ◄-- ()
+    ///               |         |
+    ///           () --►       --► b
+    ///               |    |    |
+    ///               +----|----+
+    ///                    v
+    ///                    r
+    ///    
     ///  * `Consumer`: explicitly closes the downstream end, forbidding `yield`
     /// 
-    ///      type Consumer a = Proxy () a () X
+    ///          type Consumer a = Proxy () a () X
+    ///         
+    ///            Upstream | Downstream
+    ///                +---------+
+    ///                |         |
+    ///            () ◄--       ◄-- ()
+    ///                |         |
+    ///            a  --►       --► Void
+    ///                |    |    |
+    ///                +----|----+
+    ///                     v
+    ///                     r
     ///     
-    ///        Upstream | Downstream
-    ///            +---------+
-    ///            |         |
-    ///        () ◄--       ◄-- ()
-    ///            |         |
-    ///        a  --►       --► Void
-    ///            |    |    |
-    ///            +----|----+
-    ///                 v
-    ///                 r
-    /// 
     ///  Pipe: marks both ends open, allowing both `await` and `yield`
     /// 
-    ///        type Pipe a b = Proxy () a () b
-    ///       
-    ///        Upstream | Downstream
-    ///            +---------+
-    ///            |         |
-    ///        () ◄--       ◄-- ()
-    ///            |         |
-    ///        a  --►       --► b
-    ///            |    |    |
-    ///            +----|----+
-    ///                 v
-    ///                 r
-    /// 
+    ///          type Pipe a b = Proxy () a () b
+    ///           
+    ///            Upstream | Downstream
+    ///                +---------+
+    ///                |         |
+    ///            () ◄--       ◄-- ()
+    ///                |         |
+    ///            a  --►       --► b
+    ///                |    |    |
+    ///                +----|----+
+    ///                     v
+    ///                     r
+    ///     
     /// When you compose `Proxy` using `|` all you are doing is placing them
     /// side by side and fusing them laterally.  For example, when you compose a
     /// `Producer`, `Pipe`, and a `Consumer`, you can think of information flowing
     /// like this:
     /// 
-    ///             Producer                Pipe                 Consumer
-    ///          +-----------+          +----------+          +------------+
-    ///          |           |          |          |          |            |
-    ///    Void ◄--         ◄--   ()   ◄--        ◄--   ()   ◄--          ◄-- ()
-    ///          |  stdinLn  |          |  take 3  |          |  stdoutLn  |
-    ///      () --►         --► String --►        --► String --►          --► Void
-    ///          |     |     |          |    |     |          |      |     |
-    ///          +-----|-----+          +----|-----+          +------|-----+
-    ///                v                     v                       v
-    ///                ()                    ()                      ()
+    ///                 Producer                Pipe                 Consumer
+    ///              +-----------+          +----------+          +------------+
+    ///              |           |          |          |          |            |
+    ///        Void ◄--         ◄--   ()   ◄--        ◄--   ()   ◄--          ◄-- ()
+    ///              |  stdinLn  |          |  take 3  |          |  stdoutLn  |
+    ///          () --►         --► String --►        --► String --►          --► Void
+    ///              |     |     |          |    |     |          |      |     |
+    ///              +-----|-----+          +----|-----+          +------|-----+
+    ///                    v                     v                       v
+    ///                    ()                    ()                      ()
     /// 
     ///  Composition fuses away the intermediate interfaces, leaving behind an `Effect`:
     /// 
-    ///                         Effect
-    ///          +-----------------------------------+
-    ///          |                                   |
-    ///    Void ◄--                                 ◄-- ()
-    ///          |  stdinLn >-> take 3 >-> stdoutLn  |
-    ///      () --►                                 --► Void
-    ///          |                                   |
-    ///          +----------------|------------------+
-    ///                           v
-    ///                           () 
+    ///                            Effect
+    ///             +-----------------------------------+
+    ///             |                                   |
+    ///       Void ◄--                                 ◄-- ()
+    ///             |  stdinLn >-> take 3 >-> stdoutLn  |
+    ///         () --►                                 --► Void
+    ///             |                                   |
+    ///             +----------------|------------------+
+    ///                              v
+    ///                              () 
     /// </summary>
     public abstract class Proxy<RT, UOut, UIn, DIn, DOut, A>  where RT : struct, HasCancel<RT>
     {
