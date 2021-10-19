@@ -152,20 +152,18 @@ namespace LanguageExt
         /// <summary>
         /// Atomically swap a key in the hash-map:
         /// 
-        ///  1. If the key doesn't exist, then `None` is passed to `swap`
-        ///  2. If the key does exist, then `Some(x)` is passed to `swap`
+        /// * If the key doesn't exist, then `None` is passed to `swap`
+        /// * If the key does exist, then `Some(x)` is passed to `swap`
         /// 
         /// The operation performed on the hash-map depends on the value going in and out of `swap`:
         /// 
-        ///      |---------|---------|-----------------|
-        ///      | In      | Out     | Operation       |
-        ///      |---------|---------|-----------------|
-        ///      | Some(x) | Some(y) | SetItem(key, y) |
-        ///      | Some(x) | None    | Remove(key)     |
-        ///      | None    | Some(y) | Add(key, y)     |
-        ///      | None    | None    | no-op           |
-        ///      |---------|---------|-----------------|
-        /// 
+        ///   In        | Out       | Operation       
+        ///   --------- | --------- | --------------- 
+        ///   `Some(x)` | `Some(y)` | `SetItem(key, y)` 
+        ///   `Some(x)` | `None`    | `Remove(key)`     
+        ///   `None`    | `Some(y)` | `Add(key, y)`     
+        ///   `None`    | `None`    | `no-op`           
+        ///  
         /// Allows for multiple operations on the hash-map value in an entirely transactional and atomic way.
         /// </summary>
         /// <param name="swap">Swap function, maps the current state of a value in the AtomHashMap to a new value</param>
