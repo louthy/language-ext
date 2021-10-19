@@ -10,7 +10,7 @@ using LanguageExt.Thunks;
 
 namespace LanguageExt
 {
-    public static partial class EffExtensions
+    public static partial class AffExtensions
     {
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> ToAff<RT, A>(this Eff<RT, A> ma) where RT : struct, HasCancel<RT> =>
@@ -637,7 +637,7 @@ namespace LanguageExt
     }    
 
     
-    public static partial class EffExtensions
+    public static partial class AffExtensions
     {
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> ToAsync<A>(this Eff<A> ma) =>
