@@ -178,54 +178,57 @@ Location | Feature | Description
 
 Location | Feature | Description
 ---------|---------|------------
-`Core` | `Atom<A>` | [A lock-free atomically mutable reference for working with shared state](https://github.com/louthy/language-ext/wiki/Concurrency)
-`Core` | `Ref<A>` | [An atomic reference to be used in the transactional memory system](https://github.com/louthy/language-ext/wiki/Concurrency)
-`Core` | `AtomHashMap<K, V>` | [An immutable `HashMap` with a lock-free atomically mutable reference](https://github.com/louthy/language-ext/wiki/Concurrency)
-`Core` | `AtomSeq<A>` | [An immutable `Seq` with a lock-free atomically mutable reference](https://github.com/louthy/language-ext/wiki/Concurrency)
+`Core` | `Atom<A>` | [A lock-free atomically mutable reference for working with shared state](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/Atom)
+`Core` | `Ref<A>` | [An atomic reference to be used in the transactional memory system](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/STM)
+`Core` | `AtomHashMap<K, V>` | [An immutable `HashMap` with a lock-free atomically mutable reference](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/AtomHashMap)
+`Core` | `AtomSeq<A>` | [An immutable `Seq` with a lock-free atomically mutable reference](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/AtomSeq)
+`Core` | `VectorClock<A>` | [Understand distributed causality](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/VectorClock)
+`Core` | `VersionVector<A>` | [A vector clock with some versioned data](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/VersionVector)
+`Core` | `VersionHashMap <ConflictV, K, V>` | [Distrubuted atomic versioning of keys in a hash-map](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/VersionHashMap)
 
 ### Immutable collections
 
 Location | Feature | Description
 ---------|---------|------------
-`Core` | `Arr<A>` | [Immutable array](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Immutable%20Collections/Arr/index.html)
-`Core` | `Seq<A>` | [Immutable list with lazy behavior - a better `IEnumerable`.  Very, very fast!](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Immutable%20Collections/Seq/index.html)
-`Core` | `Lst<A>` | [Immutable list - use `Seq` over `Lst` unless you need `InsertAt`](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Immutable%20Collections/List/index.html)
-`Core` | `Map<K, V>` | [Immutable map](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Immutable%20Collections/Map/index.html)
-`Core` | `Map<OrdK, K, V>` | [Immutable map with Ord constraint on `K`](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Immutable%20Collections/Map/index.html)
-`Core` | `HashMap<K, V>` | [Immutable hash-map](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Immutable%20Collections/HashMap/index.html)
-`Core` | `HashMap<EqK, K, V>` | [Immutable hash-map with Eq constraint on `K`](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Immutable%20Collections/HashMap/index.html)
-`Core` | `Set<A>` | [Immutable set](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Immutable%20Collections/Set/index.html)
-`Core` | `Set<OrdA, A>` | [Immutable set with Ord constraint on `A`](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Immutable%20Collections/Set/index.html)
-`Core` | `HashSet<A>` | [Immutable hash-set](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Immutable%20Collections/HashSet/index.html)
-`Core` | `HashSet<EqA, A>` | [Immutable hash-set with Eq constraint on `A`](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Immutable%20Collections/HashSet/index.html)
-`Core` | `Que<A>` | [Immutable queue](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Immutable%20Collections/Queue/index.html)
-`Core` | `Stck<A>` | [Immutable stack](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Immutable%20Collections/Stack/index.html)
+`Core` | `Arr<A>` | [Immutable array](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Arr/index.html)
+`Core` | `Seq<A>` | [Immutable list with lazy behavior - a better `IEnumerable`.  Very, very fast!](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Seq/index.html)
+`Core` | `Lst<A>` | [Immutable list - use `Seq` over `Lst` unless you need `InsertAt`](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/List/index.html)
+`Core` | `Map<K, V>` | [Immutable map](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Map/index.html)
+`Core` | `Map<OrdK, K, V>` | [Immutable map with Ord constraint on `K`](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Map/index.html)
+`Core` | `HashMap<K, V>` | [Immutable hash-map](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/HashMap/index.html)
+`Core` | `HashMap<EqK, K, V>` | [Immutable hash-map with Eq constraint on `K`](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/HashMap/index.html)
+`Core` | `Set<A>` | [Immutable set](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Set/index.html)
+`Core` | `Set<OrdA, A>` | [Immutable set with Ord constraint on `A`](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Set/index.html)
+`Core` | `HashSet<A>` | [Immutable hash-set](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/HashSet/index.html)
+`Core` | `HashSet<EqA, A>` | [Immutable hash-set with Eq constraint on `A`](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/HashSet/index.html)
+`Core` | `Que<A>` | [Immutable queue](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Queue/index.html)
+`Core` | `Stck<A>` | [Immutable stack](https://louthy.github.io/language-ext/LanguageExt.Core/Immutable%20Collections/Stack/index.html)
 
 ### Optional and alternative value monads
 
 Location | Feature | Description
 ---------|---------|------------
-`Core` | `Option<A>` | [Option monad](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/Option/Option/index.html) that can't be used with `null` values
-`Core` | `OptionAsync<A>` | [OptionAsync monad](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/Option/OptionAsync/index.html) that can't be used with `null` values with all value realisation does asynchronously
-`Core` | `OptionUnsafe<T>` | [Option monad](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/Option/OptionUnsafe/index.html) that can be used with `null` values
-`Core` | `Either<L,R>` | [Right/Left choice monad](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/Either/Either/index.html) that won't accept `null` values
-`Core` | `EitherUnsafe<L, R>` | [Right/Left choice monad](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/Either/EitherUnsafe/index.html) that can be used with `null` values
-`Core` | `EitherAsync<L, R>` | [EitherAsync monad](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/Either/EitherAsync/index.html) that can't be used with `null` values with all value realisation done asynchronously
-`Core` | `Try<A>` | [Exception handling lazy monad](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/Try/Try/index.html)
-`Core` | `TryAsync<A>` | [Asynchronous exception handling lazy monad](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/Try/TryAsync/index.html)
-`Core` | `TryOption<A>` | [Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/Try/TryOption/index.html) 'Fail' that catches exceptions
-`Core` | `TryOptionAsync<A>` | [Asynchronous Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/Try/TryOptionAsync/index.html) 'Fail' that catches exceptions
-`Core` | `Validation<FAIL,SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/Validation/index.html) for collecting multiple errors before aborting an operation
-`Core` | `Validation<MonoidFail, FAIL, SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/Validation/index.html) for collecting multiple errors before aborting an operation, uses the supplied monoid in the first generic argument to collect the failure values.
+`Core` | `Option<A>` | [Option monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Option/Option/index.html) that can't be used with `null` values
+`Core` | `OptionAsync<A>` | [OptionAsync monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Option/OptionAsync/index.html) that can't be used with `null` values with all value realisation does asynchronously
+`Core` | `OptionUnsafe<T>` | [Option monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Option/OptionUnsafe/index.html) that can be used with `null` values
+`Core` | `Either<L,R>` | [Right/Left choice monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Either/Either/index.html) that won't accept `null` values
+`Core` | `EitherUnsafe<L, R>` | [Right/Left choice monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Either/EitherUnsafe/index.html) that can be used with `null` values
+`Core` | `EitherAsync<L, R>` | [EitherAsync monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Either/EitherAsync/index.html) that can't be used with `null` values with all value realisation done asynchronously
+`Core` | `Try<A>` | [Exception handling lazy monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Try/Try/index.html)
+`Core` | `TryAsync<A>` | [Asynchronous exception handling lazy monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Try/TryAsync/index.html)
+`Core` | `TryOption<A>` | [Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Try/TryOption/index.html) 'Fail' that catches exceptions
+`Core` | `TryOptionAsync<A>` | [Asynchronous Option monad with third state](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Try/TryOptionAsync/index.html) 'Fail' that catches exceptions
+`Core` | `Validation<FAIL,SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Validation/index.html) for collecting multiple errors before aborting an operation
+`Core` | `Validation<MonoidFail, FAIL, SUCCESS>` | [Validation applicative and monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Validation/index.html) for collecting multiple errors before aborting an operation, uses the supplied monoid in the first generic argument to collect the failure values.
 
 ### State managing monads
 
 Location | Feature | Description
 ---------|---------|------------
-`Core` | `Reader<E, A>` | [Reader monad](https://louthy.github.io/language-ext/LanguageExt.Core/State%20and%20Environment%20Monads/Reader/index.html)
-`Core` | `Writer<MonoidW, W, T>` | [Writer monad that logs to a `W` constrained to be a Monoid](https://louthy.github.io/language-ext/LanguageExt.Core/State%20and%20Environment%20Monads/Writer/index.html)
-`Core` | `State<S, A>` | [State monad](https://louthy.github.io/language-ext/LanguageExt.Core/State%20and%20Environment%20Monads/State/index.html)
-`Core` | `RWS<R, W, S, A>` | [Reader Writer State monad](https://louthy.github.io/language-ext/LanguageExt.Core/State%20and%20Environment%20Monads/RWS/index.html)
+`Core` | `Reader<E, A>` | [Reader monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/Reader/index.html)
+`Core` | `Writer<MonoidW, W, T>` | [Writer monad that logs to a `W` constrained to be a Monoid](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/Writer/index.html)
+`Core` | `State<S, A>` | [State monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/State/index.html)
+`Core` | `RWS<R, W, S, A>` | [Reader Writer State monad](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/State%20and%20Environment%20Monads/RWS/index.html)
 
 ### Parser combinators
 
@@ -272,7 +275,7 @@ Location | Feature | Description
 
 Location | Feature | Description
 ---------|---------|------------
-`Core` | `Nullable<T>` extensions | [Extension methods for `Nullable<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/Nullable/index.html) that make it into a functor, applicative, foldable, iterable and a monad
+`Core` | `Nullable<T>` extensions | [Extension methods for `Nullable<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/Nullable/index.html) that make it into a functor, applicative, foldable, iterable and a monad
 `Core` | `Task<T>` extensions | [Extension methods for `Task<T>`](https://louthy.github.io/language-ext/LanguageExt.Core/Concurrency/Task/index.html) that make it into a functor, applicative, foldable, iterable and a monad
 `Core` | [Improved lambda type inference](https://louthy.github.io/language-ext/LanguageExt.Core/Prelude/Lambda%20function%20inference/index.html) | `var add = fun( (int x, int y) => x + y)`
 `Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/language-ext/LanguageExt.Core/Prelude/Currying%20and%20Partial%20Application/index.html)
