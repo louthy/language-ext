@@ -5,7 +5,7 @@ need some shared mutable state.  With the immutable types in this library you'd 
     static HashSet<int> set = HashSet(1, 2, 3);
     static object sync = new();
 
-    lock(object)
+    lock(sync)
     {
         set = set.Add(4);
     }
