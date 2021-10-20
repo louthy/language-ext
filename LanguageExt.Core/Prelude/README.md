@@ -1,4 +1,4 @@
-[`Prelude`](Prelude/index.html) is a
+`Prelude` is a
 `static partial class`, this type is loaded with functions for constructing the key data types, as well
 as many of the things you'd expect in a functional programming language's prelude.  Note, the `Prelude` type
 extends into many other parts of the source-tree.  It's the same type, but spread all over the code-base.

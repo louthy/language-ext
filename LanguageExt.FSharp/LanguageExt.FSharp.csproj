@@ -8,7 +8,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-        <PackageVersion>4.0.1</PackageVersion>
+        <PackageVersion>4.0.2</PackageVersion>
         <PackageId>LanguageExt.FSharp</PackageId>
         <Title>LanguageExt.FSharp</Title>
         <Authors>Paul Louth</Authors>

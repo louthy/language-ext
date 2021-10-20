@@ -13,7 +13,7 @@ namespace LanguageExt
     /// locks. 
     /// </summary>
     /// <remarks>
-    /// The intended use of atom is to hold one an immutable data structure. You change 
+    /// The intended use of atom is to hold an immutable data structure. You change 
     /// the value by applying a function to the old value. This is done in an atomic 
     /// manner by `Swap`.  
     /// 
@@ -27,6 +27,9 @@ namespace LanguageExt
     /// 
     /// Atoms are an efficient way to represent some state that will never need to be 
     /// coordinated with any other, and for which you wish to make synchronous changes.
+    /// </remarks>
+    /// <remarks>
+    /// See the [concurrency section](https://github.com/louthy/language-ext/wiki/Concurrency) of the wiki for more info.
     /// </remarks>
     public sealed class Atom<M, A>
     {

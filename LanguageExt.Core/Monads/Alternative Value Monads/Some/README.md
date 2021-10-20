@@ -1,0 +1,1 @@
+**`Some` will almost certainly be deprecated in future releases.  Please do not use it.**

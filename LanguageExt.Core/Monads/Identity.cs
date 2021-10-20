@@ -9,6 +9,13 @@ namespace LanguageExt
     /// <summary>
     /// Identity monad
     /// </summary>
+    /// <remarks>
+    /// Simply carries the bound value through its bind expressions without imparting any additional behaviours.  It can
+    /// be constructed using:
+    ///
+    ///     Identity<int> ma = Id(123);
+    /// 
+    /// </remarks>
     /// <typeparam name="A">Bound value type</typeparam>
     public readonly struct Identity<A> : 
         IEquatable<Identity<A>>, 

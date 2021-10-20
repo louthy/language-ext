@@ -20,4 +20,4 @@ of those are free!  The above code can be written:
 Finally, there's the Software Transactional Memory (STM) system.  Which allows for transactional changes to multiple 
 `Ref` values.  `Ref` just wrap up access to a value, and allows the state changes to be tracked by the `STM`.
 
-See the [Concurrency](https://github.com/louthy/language-ext/wiki/Concurrency) section of the wiki for more info.
+ See the [concurrency section](https://github.com/louthy/language-ext/wiki/Concurrency) of the wiki for more info.

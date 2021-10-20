@@ -6,6 +6,9 @@ namespace LanguageExt
     /// `sync` transaction isolation level.  Used to enforce ACI properties
     /// of ACID on `Ref`s.
     /// </summary>
+    /// <remarks>
+    /// See the [concurrency section](https://github.com/louthy/language-ext/wiki/Concurrency) of the wiki for more info.
+    /// </remarks>
     public enum Isolation
     {
         /// <remarks>

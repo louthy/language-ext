@@ -12,6 +12,9 @@ namespace LanguageExt
     /// <summary>
     /// Software transactional memory using Multi-Version Concurrency Control (MVCC)
     /// </summary>
+    /// <remarks>
+    /// See the [concurrency section](https://github.com/louthy/language-ext/wiki/Concurrency) of the wiki for more info.
+    /// </remarks>
     public static class STM
     {
         static long refIdNext;

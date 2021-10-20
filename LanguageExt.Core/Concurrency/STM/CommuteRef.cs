@@ -4,10 +4,13 @@ using LanguageExt.ClassInstances;
 namespace LanguageExt
 {
     /// <summary>
-    /// A proxy for Ref, returned by `commute`.  This allows the transaction system to know that the
+    /// A proxy for `Ref`, returned by `commute`.  This allows the transaction system to know that the
     /// result is a commutative and therefore give you a result based on the live state rather than
     /// the transaction.  
     /// </summary>
+    /// <remarks>
+    /// See the [concurrency section](https://github.com/louthy/language-ext/wiki/Concurrency) of the wiki for more info.
+    /// </remarks>
     public readonly struct CommuteRef<A>
     {
         internal CommuteRef(Ref<A> r) => Ref = r;

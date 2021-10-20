@@ -61,6 +61,9 @@ namespace LanguageExt
         ///
         /// The values placed in Refs must be, or be considered, **immutable** Otherwise, Clojure can’t help you.
         /// </remarks>
+        /// <remarks>
+        /// See the [concurrency section](https://github.com/louthy/language-ext/wiki/Concurrency) of the wiki for more info.
+        /// </remarks>
         /// <param name="value">Initial value of the ref</param>
         /// <param name="validator">Validator that is called on the ref value just
         /// before any transaction is committed (within a `sync`)</param>

@@ -15,9 +15,12 @@ namespace LanguageExt
 {
     /// <summary>
     /// Atoms provide a way to manage shared, synchronous, independent state without 
-    /// locks.  AtomHashMap wraps the language-ext HashMap, and makes sure all operations are atomic and thread-safe
+    /// locks.  `AtomHashMap` wraps the language-ext `HashMap`, and makes sure all operations are atomic and thread-safe
     /// without resorting to locking
     /// </summary>
+    /// <remarks>
+    /// See the [concurrency section](https://github.com/louthy/language-ext/wiki/Concurrency) of the wiki for more info.
+    /// </remarks>
     public class AtomHashMap<EqK, K, V> :
         IEnumerable<(K Key, V Value)>,
         IEquatable<HashMap<EqK, K, V>>,

@@ -11,6 +11,9 @@ namespace LanguageExt
     /// memory (STM) system. Refs are bound to a single storage location for their lifetime, and 
     /// only allow mutation of that location to occur within a transaction.
     /// </summary>
+    /// <remarks>
+    /// See the [concurrency section](https://github.com/louthy/language-ext/wiki/Concurrency) of the wiki for more info.
+    /// </remarks>
     public class Ref<A> : IEquatable<A>
     {
         internal readonly long Id;
