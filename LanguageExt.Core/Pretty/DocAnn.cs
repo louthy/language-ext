@@ -215,7 +215,7 @@ namespace LanguageExt.Pretty
         /// Delimit and intersperse the documents with a separator
         /// </summary>
         public static Doc<A> BetweenSep<A>(Doc<A> leftDelim, Doc<A> rightDelim, Doc<A> sep, params Doc<A>[] docs) =>
-            BetweenSep(leftDelim, rightDelim, sep, Seq(docs));
+            BetweenSep(leftDelim, rightDelim, sep, toSeq(docs));
 
         /// <summary>
         /// Haskell-inspired array/list formatting

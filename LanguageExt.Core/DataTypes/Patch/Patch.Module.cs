@@ -40,11 +40,11 @@ namespace LanguageExt
         /// </summary>
         public static Patch<EqA, A> fromSeq<EqA, A>(Seq<Edit<EqA, A>> edits) where EqA : struct, Eq<A> =>
             new Patch<EqA, A>(
-                Seq((from es in normalise(edits)
-                     group es by es.Position into eg
-                     from ed in eg.Distinct()
-                     orderby ed.Position
-                     select ed).ToArray()));
+                toSeq((from es in normalise(edits)
+                       group es by es.Position into eg
+                       from ed in eg.Distinct()
+                       orderby ed.Position
+                       select ed).ToArray()));
 
         /// <summary>
         /// Internal: Eliminate conflicting edits
@@ -81,8 +81,8 @@ namespace LanguageExt
             static Seq<Edit<EqA, A>> normalise1(Seq<Edit<EqA, A>.Insert> inserts, Seq<Edit<EqA, A>.Delete> deletes, Seq<Edit<EqA, A>.Replace> replaces)
             {
                 if (!inserts.IsEmpty && !deletes.IsEmpty) return normalise1(inserts.Tail, deletes.Tail, Edit<EqA, A>.Replace.New(deletes.Head.Position, deletes.Head.Element, inserts.Head.Element).Cons(replaces));
-                if (deletes.IsEmpty) return Seq(inserts.Map(i => i as Edit<EqA, A>).ConcatFast(replaces.Take(1)).ToArray());
-                if (inserts.IsEmpty) return Seq1(deletes.Head as Edit<EqA, A>);
+                if (deletes.IsEmpty) return toSeq(inserts.Map(i => i as Edit<EqA, A>).ConcatFast(replaces.Take(1)).ToArray());
+                if (inserts.IsEmpty) return Seq(deletes.Head as Edit<EqA, A>);
                 throw new InvalidOperationException();
             }
         }

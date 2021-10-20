@@ -14,8 +14,8 @@ namespace LanguageExt.Tests
         {
             var x = "test";
 
-            Assert.True(Seq1(x).Count() == 1);
-            Assert.True(Seq1(x).Head() == x);
+            Assert.True(Seq(x).Count() == 1);
+            Assert.True(Seq(x).Head() == x);
         }
 
         [Fact]
@@ -31,15 +31,15 @@ namespace LanguageExt.Tests
         {
             var x = new[] { "a", "b", "c" };
 
-            var y = Seq(x);
+            var y = toSeq(x);
 
-            var res = Seq(x).Tail().AsEnumerable().ToList();
+            var res = toSeq(x).Tail().AsEnumerable().ToList();
 
 
-            Assert.True(Seq(x).Count() == 3);
-            Assert.True(Seq(x).Head() == "a");
-            Assert.True(Seq(x).Tail().Head() == "b");
-            Assert.True(Seq(x).Tail().Tail().Head() == "c");
+            Assert.True(toSeq(x).Count == 3);
+            Assert.True(toSeq(x).Head == "a");
+            Assert.True(toSeq(x).Tail.Head == "b");
+            Assert.True(toSeq(x).Tail.Tail.Head == "c");
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace LanguageExt.Tests
         {
             string[] x = null;
 
-            Assert.True(Seq(x).Count() == 0);
+            Assert.True(toSeq(x).Count == 0);
         }
 
         [Fact]
@@ -243,7 +243,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void AddTest()
         {
-            var a = Seq1("a");
+            var a = Seq("a");
 
             var b = a.Add("b");
 
@@ -258,7 +258,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void ConsTest()
         {
-            var a = Seq1("a");
+            var a = Seq("a");
 
             var b = "b".Cons(a);
 
@@ -284,7 +284,7 @@ namespace LanguageExt.Tests
             Assert.True(sb == Seq(1, 2, 3, 4));
             Assert.True(sc == Seq(1, 2, 3));
             Assert.True(sd == Seq(1, 2));
-            Assert.True(se == Seq1(1));
+            Assert.True(se == Seq(1));
             Assert.True(sf == Empty);
         }
 
@@ -302,7 +302,7 @@ namespace LanguageExt.Tests
             Assert.True(sb == Seq(1, 2, 3, 4));
             Assert.True(sc == Seq(1, 2, 3));
             Assert.True(sd == Seq(1, 2));
-            Assert.True(se == Seq1(1));
+            Assert.True(se == Seq(1));
             Assert.True(sf == Empty);
         }
 
@@ -320,15 +320,15 @@ namespace LanguageExt.Tests
             Assert.True(sb == Seq(1, 2, 3, 4));
             Assert.True(sc == Seq(1, 2, 3));
             Assert.True(sd == Seq(1, 2));
-            Assert.True(se == Seq1(1));
+            Assert.True(se == Seq(1));
             Assert.True(sf == Empty);
         }
 
         [Fact]
         public void HashTest()
         {
-            var s1 = Seq1("test");
-            var s2 = Seq1("test");
+            var s1 = Seq("test");
+            var s2 = Seq("test");
 
             Assert.True(s1.GetHashCode() == s2.GetHashCode());
         }
@@ -393,7 +393,7 @@ namespace LanguageExt.Tests
         [InlineData(1000, 10000)]
         public void TakingNAfterGeneratingMoreThanNGivesLengthNSequence(int actualLength, int tryToTake)
         {
-            var expect = Seq(generate(actualLength, identity)).Strict();
+            var expect = toSeq(generate(actualLength, identity)).Strict();
             
             var actual = generate(actualLength, identity).Take(tryToTake);
             Assert.Equal(expect, actual);

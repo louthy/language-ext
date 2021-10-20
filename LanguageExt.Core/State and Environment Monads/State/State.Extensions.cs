@@ -63,7 +63,7 @@ public static class StateExtensions
                 yield return x;
             }
         }
-        return Seq(Yield());
+        return toSeq(Yield());
     }
 
     [Pure]

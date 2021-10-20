@@ -29,19 +29,19 @@ public static class ListExtensions
     /// Converts an enumerable to a `Seq`
     /// </summary>
     public static Seq<A> ToSeq<A>(this IEnumerable<A> enumerable) =>
-        Seq(enumerable);
+        toSeq(enumerable);
 
     /// <summary>
     /// Converts an enumerable to a `Seq`
     /// </summary>
     public static Seq<A> ToSeq<A>(this IList<A> enumerable) =>
-        Seq(enumerable);
+        toSeq(enumerable);
 
     /// <summary>
     /// Converts an array to a `Seq`
     /// </summary>
     public static Seq<A> ToSeq<A>(this A[] array) =>
-        Seq(array);
+        toSeq(array);
 
     /// <summary>
     /// Concatenate two enumerables (Concat in LINQ)
@@ -64,7 +64,7 @@ public static class ListExtensions
     public static B Match<A, B>(this IEnumerable<A> list,
         Func<B> Empty,
         Func<Seq<A>, B> More) =>
-        Seq(list).Match(Empty, More);
+        toSeq(list).Match(Empty, More);
 
     /// <summary>
     /// List pattern matching
@@ -73,7 +73,7 @@ public static class ListExtensions
     public static B Match<A, B>(this IEnumerable<A> list,
         Func<B> Empty,
         Func<A, Seq<A>, B> More) =>
-        Seq(list).Match(Empty, More);
+        toSeq(list).Match(Empty, More);
 
     /// <summary>
     /// List pattern matching
@@ -83,7 +83,7 @@ public static class ListExtensions
         Func<R> Empty,
         Func<T, R> One,
         Func<T, Seq<T>, R> More ) =>
-        Seq(list).Match(Empty, One, More);
+        toSeq(list).Match(Empty, One, More);
 
     /// <summary>
     /// Get the item at the head (first) of the list
@@ -177,7 +177,7 @@ public static class ListExtensions
     [Pure]
     public static Validation<Fail, Success> LastOrInvalid<Fail, Success>(this IEnumerable<Success> list, Fail fail) =>
         list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq1(fail)))
+            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq(fail)))
             .LastOrDefault();
 
     /// <summary>

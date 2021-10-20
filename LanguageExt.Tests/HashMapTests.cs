@@ -232,7 +232,7 @@ namespace LanguageExt.Tests
         public void FetchBack()
         {
             var init = Seq(69, 1477);
-            var rmv = Seq1(69);
+            var rmv = Seq(69);
 
             var map = toHashMap(init.Zip(Enumerable.Repeat(1, int.MaxValue)));
 

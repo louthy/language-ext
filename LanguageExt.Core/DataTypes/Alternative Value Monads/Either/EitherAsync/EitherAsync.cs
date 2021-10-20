@@ -821,7 +821,7 @@ namespace LanguageExt
         [Pure]
         public Task<Seq<R>> RightAsEnumerable() =>
             Match(
-                Right: r => Seq1(r),
+                Right: r => Seq(r),
                 Left: l => Seq<R>.Empty,
                 Bottom: () => Seq<R>.Empty);
 
@@ -833,7 +833,7 @@ namespace LanguageExt
         public Task<Seq<L>> LeftAsEnumerable() =>
             Match(
                 Right: r => Seq<L>.Empty,
-                Left: l => Seq1(l),
+                Left: l => Seq(l),
                 Bottom: () => Seq<L>.Empty);
 
         [Pure]

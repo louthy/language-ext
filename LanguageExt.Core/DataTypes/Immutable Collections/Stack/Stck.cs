@@ -125,7 +125,7 @@ namespace LanguageExt
         /// <returns>IEnumerable of T</returns>
         [Pure]
         public Seq<A> ToSeq() =>
-            Seq(Value);
+            toSeq(Value);
 
         /// <summary>
         /// Format the collection as `[a, b, c, ...]`

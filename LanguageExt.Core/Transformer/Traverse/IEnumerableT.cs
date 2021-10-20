@@ -55,7 +55,7 @@ namespace LanguageExt
         
         public static IEnumerable<Seq<B>> Traverse<A, B>(this Seq<IEnumerable<A>> ma, Func<A, B> f) =>
             CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
-                .Map(xs => Seq(xs));
+                .Map(toSeq);
 
         public static IEnumerable<IEnumerable<B>> Traverse<A, B>(this IEnumerable<IEnumerable<A>> ma, Func<A, B> f) =>
             CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f);

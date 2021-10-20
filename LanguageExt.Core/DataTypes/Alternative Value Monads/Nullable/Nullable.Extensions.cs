@@ -33,7 +33,7 @@ namespace LanguageExt
         /// <returns>Zero or One values, depending on HasValue</returns>
         [Pure]
         public static Seq<A> ToSeq<A>(this A? self) where A : struct =>
-            Seq(self);
+            toSeq(self);
 
         /// <summary>
         /// Convert NullableT to IEnumerableT (0..1 entries)
@@ -43,7 +43,7 @@ namespace LanguageExt
         /// <returns>Zero or One enumerable values, depending on HasValue</returns>
         [Pure]
         public static Seq<T> AsEnumerable<T>(this T? self) where T : struct =>
-            Seq(self);
+            toSeq(self);
 
         /// <summary>
         /// Match the two states of the Nullable and return a non-null R.

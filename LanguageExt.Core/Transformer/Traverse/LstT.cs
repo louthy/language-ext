@@ -59,7 +59,7 @@ namespace LanguageExt
 
         public static Lst<Seq<B>> Traverse<A, B>(this Seq<Lst<A>> ma, Func<A, B> f) =>
             CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
-                .Map(xs => Seq(xs))
+                .Map(toSeq)
                 .Freeze();
 
         public static Lst<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Lst<A>> ma, Func<A, B> f) =>

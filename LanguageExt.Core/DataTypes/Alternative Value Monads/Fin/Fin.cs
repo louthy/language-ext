@@ -599,7 +599,7 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public Seq<A> ToSeq() =>
             IsSucc
-                ? Seq1(Value)
+                ? Seq(Value)
                 : Empty;
 
         [Pure, MethodImpl(Opt.Default)]

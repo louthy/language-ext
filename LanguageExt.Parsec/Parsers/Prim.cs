@@ -171,7 +171,7 @@ namespace LanguageExt.Parsec
         /// The value of the succeeding parser.
         /// </returns>
         public static Parser<T> choice<T>(params Parser<T>[] ps) =>
-            choicei(Seq(ps));
+            choicei(toSeq(ps));
 
         /// <summary>
         /// choice(ps) tries to apply the parsers in the list ps in order, until one 
@@ -191,7 +191,7 @@ namespace LanguageExt.Parsec
         /// The result of each parser as an enumerable.
         /// </returns>
         public static Parser<Seq<T>> chain<T>(params Parser<T>[] ps) =>
-            chaini(Seq(ps));
+            chaini(toSeq(ps));
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -344,7 +344,7 @@ namespace LanguageExt.Parsec
                     }
 
                     // eerr
-                    return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                    return EmptyOK(toSeq(results), current, mergeError(error, t.Reply.Error));
                 }
             };
 
@@ -381,7 +381,7 @@ namespace LanguageExt.Parsec
                         error = t.Reply.Error;
                         if (count == n)
                         {
-                            return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                            return EmptyOK(toSeq(results), current, mergeError(error, t.Reply.Error));
                         }
                         continue;
                     }
@@ -439,7 +439,7 @@ namespace LanguageExt.Parsec
                             error = t.Reply.Error;
                             if (count == n)
                             {
-                                return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                                return EmptyOK(toSeq(results), current, mergeError(error, t.Reply.Error));
                             }
 
                             continue;
@@ -459,7 +459,7 @@ namespace LanguageExt.Parsec
                         }
 
                         // eerr
-                        return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                        return EmptyOK(toSeq(results), current, mergeError(error, t.Reply.Error));
                     }
                 };
 

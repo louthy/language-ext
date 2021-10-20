@@ -65,7 +65,7 @@ namespace LanguageExt
         [Pure]
         public Seq<A> ToSeq() =>
             initialised
-                ? Seq1(value)
+                ? Seq(value)
                 : Empty;
 
         [Pure]

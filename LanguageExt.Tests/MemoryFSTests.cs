@@ -199,7 +199,7 @@ namespace LanguageExt.Tests
 
             var r   = comp.Run(rt);
             var dbg = ((Seq<string>)r).ToArray();
-            Assert.True(r == Seq(folders));
+            Assert.True(r == toSeq(folders));
         }
 
         [Theory]

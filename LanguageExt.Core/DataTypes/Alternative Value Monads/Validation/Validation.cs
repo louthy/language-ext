@@ -57,7 +57,7 @@ namespace LanguageExt
         /// </summary>
         public Validation(IEnumerable<ValidationData<MonoidFail, FAIL, SUCCESS>> validationData)
         {
-            var seq = Seq(validationData);
+            var seq = toSeq(validationData);
             if (seq.IsEmpty)
             {
                 this.state = Validation.StateType.Fail;

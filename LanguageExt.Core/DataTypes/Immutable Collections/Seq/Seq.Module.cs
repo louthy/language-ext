@@ -196,7 +196,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<B> map<A, B>(Seq<A> list, Func<int, A, B> map) =>
-            Seq(zip(list, Seq(Range(0, Int32.MaxValue)), (t, i) => map(i, t)));
+            toSeq(zip(list, Seq(Range(0, Int32.MaxValue)), (t, i) => map(i, t)));
 
         /// <summary>
         /// Removes items from the sequence that do not match the given predicate (Where in LINQ)
@@ -334,7 +334,7 @@ namespace LanguageExt
                 ? Seq<T>.Empty
                 : lists.Length == 1
                     ? lists[0]
-                    : append(lists[0], Seq(lists).Skip(1));
+                    : append(lists[0], toSeq(lists).Skip(1));
 
         /// <summary>
         /// Applies a function 'folder' to each element of the sequence, threading an accumulator 
@@ -698,7 +698,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<V> zip<T, U, V>(Seq<T> list, Seq<U> other, Func<T, U, V> zipper) =>
-            Seq(list.Zip(other, zipper));
+            toSeq(list.Zip(other, zipper));
 
         /// <summary>
         /// Joins two sequences together either into an sequence of tuples
@@ -710,7 +710,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<(T Left, U Right)> zip<T, U>(Seq<T> list, Seq<U> other) =>
-            Seq(list.Zip(other, (t, u) => (t, u)));
+            toSeq(list.Zip(other, (t, u) => (t, u)));
 
         /// <summary>
         /// Returns the number of items in the sequence
@@ -778,7 +778,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<T> distinct<T>(Seq<T> list) =>
-            Seq(list.Distinct());
+            toSeq(list.Distinct());
 
         /// <summary>
         /// Return a new sequence with all duplicate values removed

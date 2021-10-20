@@ -346,7 +346,7 @@ namespace LanguageExt
 
         [Pure]
         public Seq<(A Key, B Value)> ToSeq() =>
-            Prelude.Seq(this);
+            Prelude.toSeq(this);
 
         [Pure]
         public bool Equals(BiMap<A, B> y) =>

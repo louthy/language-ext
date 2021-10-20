@@ -70,7 +70,7 @@ namespace LanguageExt
         /// <returns>Enumerable of successes</returns>
         [Pure]
         public static Seq<S> Successes<F, S>(this Seq<Validation<F, S>> vs) =>
-            Seq(Successes(vs.AsEnumerable()));
+            toSeq(Successes(vs.AsEnumerable()));
 
         /// <summary>
         /// Extract only the failures 
@@ -81,7 +81,7 @@ namespace LanguageExt
         /// <returns>Enumerable of failures</returns>
         [Pure]
         public static Seq<F> Fails<F, S>(this Seq<Validation<F, S>> vs) =>
-            Seq(Fails(vs.AsEnumerable()));
+            toSeq(Fails(vs.AsEnumerable()));
 
         /// <summary>
         /// Extract only the successes 

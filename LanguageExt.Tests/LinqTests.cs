@@ -100,7 +100,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void WithEitherRightList()
         {
-            var res = from v in Seq(GetEitherValue(true))
+            var res = from v in toSeq(GetEitherValue(true))
                       from r in Range(1, 10)
                       select v * r;
 
@@ -114,7 +114,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void WithEitherLeftList()
         {
-            var res = from v in Seq(GetEitherValue(false))
+            var res = from v in toSeq(GetEitherValue(false))
                       from r in Range(1, 10)
                       select v * r;
 
@@ -124,7 +124,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void WithEitherUnsafeRightList()
         {
-            var res = from v in Seq(GetEitherUnsafeValue(true))
+            var res = from v in toSeq(GetEitherUnsafeValue(true))
                       from r in Range(1, 10)
                       select v * r;
 
@@ -138,7 +138,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void WithEitherUnsafeLeftList()
         {
-            var res = from v in Seq(GetEitherUnsafeValue(false))
+            var res = from v in toSeq(GetEitherUnsafeValue(false))
                       from r in Range(1, 10)
                       select v * r;
 
@@ -148,7 +148,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void WithTryOptionSomeList()
         {
-            var res = from v in Seq(GetTryOptionValue(true))
+            var res = from v in toSeq(GetTryOptionValue(true))
                       from r in Range(1, 10)
                       select v * r;
 
@@ -162,7 +162,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void WithTryOptionNoneList()
         {
-            var res = from v in Seq(GetTryOptionValue(false))
+            var res = from v in toSeq(GetTryOptionValue(false))
                       from r in Range(1, 10)
                       select v * r;
 

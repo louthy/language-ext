@@ -11,7 +11,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
         {
             var ma = Option<Seq<int>>.None;
             var mb = ma.Sequence();
-            var mc = Seq1(Option<int>.None);
+            var mc = Seq(Option<int>.None);
 
             Assert.True(mb == mc);
         }

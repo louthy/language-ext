@@ -160,13 +160,13 @@ namespace LanguageExt.Tests
         {
             var arr = FiveItems;
 
-            var seq1 = Seq(arr);
+            var seq1 = toSeq(arr);
             var seq2 = seq1.Map(x => x * 2);
             var seq3 = seq1.Select(x => x * 2);
             var seq4 = from x in seq1
                        select x * 2;
 
-            var expected = Seq(DoubleFiveItems);
+            var expected = toSeq(DoubleFiveItems);
 
             Assert.True(expected == seq2);
             Assert.True(expected == seq3);
@@ -178,7 +178,7 @@ namespace LanguageExt.Tests
         {
             var arr = FiveItems;
 
-            var seq1 = Seq(arr);
+            var seq1 = toSeq(arr);
             var seq2 = seq1.Filter(x => x % 2 == 0);
             var seq3 = seq1.Where(x => x % 2 == 0);
             var seq4 = from x in seq1
@@ -232,13 +232,13 @@ namespace LanguageExt.Tests
         [Fact]
         public void Existential()
         {
-            var seq1 = Seq(abcdeChars);
-            var seq2 = Seq(abc_eChars);
+            var Seq  = toSeq(abcdeChars);
+            var seq2 = toSeq(abc_eChars);
 
-            var ex1 = seq1.Exists(x => x == 'd');
+            var ex1 = Seq.Exists(x => x == 'd');
             var ex2 = seq2.Exists(x => x == 'd');
 
-            var fa1 = seq1.ForAll(Char.IsLetter);
+            var fa1 = Seq.ForAll(Char.IsLetter);
             var fa2 = seq2.ForAll(Char.IsLetter);
 
             Assert.True(ex1);

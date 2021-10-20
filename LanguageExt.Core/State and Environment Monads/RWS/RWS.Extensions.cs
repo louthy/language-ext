@@ -63,7 +63,7 @@ public static class RWSExtensions
                 yield return res.Value;
             }
         }
-        return Seq(Yield());
+        return toSeq(Yield());
     }
 
     [Pure]

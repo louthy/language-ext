@@ -263,7 +263,7 @@ namespace LanguageExt
 
         [Pure]
         public Seq<A> ToSeq() =>
-            Seq(this);
+            toSeq(this);
 
         /// <summary>
         /// Format the collection as `[a, b, c, ...]`

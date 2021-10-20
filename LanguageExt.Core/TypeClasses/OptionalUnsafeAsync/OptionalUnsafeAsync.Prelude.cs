@@ -330,7 +330,7 @@ namespace LanguageExt
         [Pure]
         public static Task<Seq<A>> asEnumerableAsync<OPT, OA, A>(OA ma)
             where OPT : struct, OptionalAsync<OA, A> =>
-            toArrayAsync<OPT, OA, A>(ma).Map(Prelude.Seq);
+            toArrayAsync<OPT, OA, A>(ma).Map(Prelude.toSeq);
 
         /// <summary>
         /// Convert the structure to an Either
@@ -339,7 +339,7 @@ namespace LanguageExt
         public static Task<Either<L, A>> toEitherAsync<OPT, OA, L, A>(OA ma, L defaultLeftValue)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).Match(ma,
-                Some: x  => Right<L, A>(x),
+                Some: Right<L, A>,
                 None: () => Left<L, A>(defaultLeftValue));
 
         /// <summary>

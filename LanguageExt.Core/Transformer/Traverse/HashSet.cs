@@ -55,7 +55,7 @@ namespace LanguageExt
 
         public static HashSet<Seq<B>> Traverse<A, B>(this Seq<HashSet<A>> ma, Func<A, B> f) =>
             toHashSet(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
-                .Map(xs => Seq(xs)));
+                .Map(toSeq));
 
         public static HashSet<IEnumerable<B>> Traverse<A, B>(this IEnumerable<HashSet<A>> ma, Func<A, B> f) =>
             toHashSet(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)

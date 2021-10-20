@@ -189,7 +189,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Seq<char> Range(char from, char to) =>
-            Seq(CharRange.FromMinMax(from, to));
+            toSeq(CharRange.FromMinMax(from, to));
 
         /// <summary>
         /// Lazily generate integers from any number of provided ranges
@@ -922,22 +922,439 @@ namespace LanguageExt
                    None);
 
         /// <summary>
-        /// Construct a sequence from any value
-        ///     T     : [x]
-        ///     null  : []
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq1<A>(A value) =>
-            value.IsNull() 
-                ? Empty 
-                : LSeq.FromSingleValue(value);
-
-        /// <summary>
         /// Construct an empty Seq
         /// </summary>
         [Pure]
         public static Seq<A> Seq<A>() =>
             Empty;
+        
+        /// <summary>
+        /// Construct a sequence from any value
+        ///
+        ///     var list = Seq(1);
+        /// 
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(A value)
+        {
+            var arr = new A[4];
+            arr[2] = value;
+            return new Seq<A>(new SeqStrict<A>(arr, 2, 1, 0, 0));
+        }
+        
+        /// <summary>
+        /// Construct a sequence from any value
+        ///
+        ///     var list = Seq(1, 2);
+        /// 
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(A a, A b)
+        {
+            var arr = new A[4];
+            arr[2] = a;
+            arr[3] = b;
+            return new Seq<A>(new SeqStrict<A>(arr, 2, 2, 0, 0));
+        }
+        
+        /// <summary>
+        /// Construct a sequence from any value
+        ///
+        ///     var list = Seq(1, 2, 3);
+        /// 
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(A a, A b, A c)
+        {
+            var arr = new A[8];
+            arr[2] = a;
+            arr[3] = b;
+            arr[4] = c;
+            return new Seq<A>(new SeqStrict<A>(arr, 2, 3, 0, 0));
+        }
+        
+        /// <summary>
+        /// Construct a sequence from any value
+        ///
+        ///     var list = Seq(1, 2, 3, 4);
+        /// 
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(A a, A b, A c, A d)
+        {
+            var arr = new A[8];
+            arr[2] = a;
+            arr[3] = b;
+            arr[4] = c;
+            arr[5] = d;
+            return new Seq<A>(new SeqStrict<A>(arr, 2, 4, 0, 0));
+        }
+        
+        /// <summary>
+        /// Construct a sequence from any value
+        ///
+        ///     var list = Seq(1, 2, 3, 4, 5);
+        /// 
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(A a, A b, A c, A d, A e)
+        {
+            var arr = new A[8];
+            arr[2] = a;
+            arr[3] = b;
+            arr[4] = c;
+            arr[5] = d;
+            arr[6] = e;
+            return new Seq<A>(new SeqStrict<A>(arr, 2, 5, 0, 0));
+        }
+        
+        /// <summary>
+        /// Construct a sequence from any value
+        ///
+        ///     var list = Seq(1, 2, 3, 4, 5, 6);
+        /// 
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(A a, A b, A c, A d, A e, A f)
+        {
+            var arr = new A[16];
+            arr[4] = a;
+            arr[5] = b;
+            arr[6] = c;
+            arr[7] = d;
+            arr[8] = e;
+            arr[9] = f;
+            return new Seq<A>(new SeqStrict<A>(arr, 4, 6, 0, 0));
+        }
+        
+        /// <summary>
+        /// Construct a sequence from any value
+        ///
+        ///     var list = Seq(1, 2, 3, 4, 5, 6, 7);
+        /// 
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(A a, A b, A c, A d, A e, A f, A g)
+        {
+            var arr = new A[16];
+            arr[4] = a;
+            arr[5] = b;
+            arr[6] = c;
+            arr[7] = d;
+            arr[8] = e;
+            arr[9] = f;
+            arr[10] = g;
+            return new Seq<A>(new SeqStrict<A>(arr, 4, 7, 0, 0));
+        }
+        
+        /// <summary>
+        /// Construct a sequence from any value
+        ///
+        ///     var list = Seq(1, 2, 3, 4, 5, 6, 7, 8);
+        /// 
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(A a, A b, A c, A d, A e, A f, A g, A h)
+        {
+            var arr = new A[16];
+            arr[4]  = a;
+            arr[5]  = b;
+            arr[6]  = c;
+            arr[7]  = d;
+            arr[8]  = e;
+            arr[9]  = f;
+            arr[10] = g;
+            arr[11] = h;
+            return new Seq<A>(new SeqStrict<A>(arr, 4, 8, 0, 0));
+        }
+        
+        /// <summary>
+        /// Construct a sequence from any value
+        ///
+        ///     var list = Seq(1, 2, 3, 4);
+        /// 
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(A a, A b, A c, A d, A e, A f, A g, A h, params A[] tail)
+        {
+            var arr = new A[16 + tail.Length];
+            arr[4]  = a;
+            arr[5]  = b;
+            arr[6]  = c;
+            arr[7]  = d;
+            arr[8]  = e;
+            arr[9]  = f;
+            arr[10] = g;
+            arr[11] = h;
+            return new Seq<A>(new SeqStrict<A>(arr, 4, 8, 0, 0));
+
+            Buffer.BlockCopy(tail, 0, arr, 12, tail.Length);
+            return new Seq<A>(new SeqStrict<A>(arr, 4, 8 + tail.Length, 0, 0));
+        }
+
+        /// <summary>
+        /// Construct a sequence from a nullable
+        ///     HasValue == true  : [x]
+        ///     HasValue == false : []
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(A? value) where A : struct =>
+            value == null 
+                ? Empty 
+                : LSeq.FromSingleValue(value.Value);
+
+        /// <summary>
+        /// Construct a sequence from an Enumerable
+        /// Deals with `value == null` by returning `[]` and also memoizes the
+        /// items in the enumerable as they're being consumed.
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(IEnumerable<A> value) =>
+            value switch
+            {
+                null                => Empty,
+                Seq<A> seq          => seq,
+                Arr<A> arr          => LSeq.FromArray(arr.Value),
+                A[] array           => toSeq(array),
+                IList<A> list       => toSeq(list),
+                ICollection<A> coll => toSeq(coll),
+                _                   => new Seq<A>(value)
+            };
+
+        /// <summary>
+        /// Construct a sequence from an Enumerable
+        /// Deals with `value == null` by returning `[]` and also memoizes the
+        /// items in the enumerable as they're being consumed.
+        /// </summary>
+        [Pure]
+        public static Seq<A> Seq<A>(IEnumerable<A> value) =>
+            value switch
+            {
+                null                => Empty,
+                Seq<A> seq          => seq,
+                Arr<A> arr          => LSeq.FromArray(arr.Value),
+                A[] array           => toSeq(array),
+                IList<A> list       => toSeq(list),
+                ICollection<A> coll => toSeq(coll),
+                _                   => new Seq<A>(value)
+            };
+
+        /// <summary>
+        /// Construct a sequence from an array
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(A[] value)
+        {
+            if (value == null)
+            {
+                return Empty;
+            }
+            else
+            {
+                var length = value.Length;
+                var data = new A[length];
+                System.Array.Copy(value, data, length);
+                return LSeq.FromArray(data);
+            }
+        }
+
+        /// <summary>
+        /// Construct a sequence from an immutable array
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(Arr<A> value) =>
+            toSeq(value.Value);
+
+        /// <summary>
+        /// Construct a sequence from a list
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(IList<A> value) =>
+            toSeq(value?.ToArray());
+
+        /// <summary>
+        /// Construct a sequence from a list
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(ICollection<A> value) =>
+            toSeq(value?.ToArray());
+
+        /// <summary>
+        /// Construct a sequence from an either
+        ///     Right(x) : [x]
+        ///     Left(y)  : []
+        /// </summary>
+        [Pure]
+        public static Seq<R> toSeq<L, R>(Either<L, R> value) =>
+            value.IsRight
+                ? LSeq.FromSingleValue(value.RightValue)
+                : Empty;
+
+        /// <summary>
+        /// Construct a sequence from an either
+        ///     Right(x) : [x]
+        ///     Left(y)  : []
+        /// </summary>
+        [Pure]
+        public static Seq<R> toSeq<L, R>(EitherUnsafe<L, R> value) =>
+            value.IsRight
+                ? LSeq.FromSingleValue(value.RightValue)
+                : Empty;
+
+        /// <summary>
+        /// Construct a sequence from a Try
+        ///     Succ(x) : [x]
+        ///     Fail(e) : []
+        ///     null    : []
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(Try<A> value) =>
+            toSeq(value?.ToOption() ?? Option<A>.None);
+
+        /// <summary>
+        /// Construct a sequence from a TryOption
+        ///     Succ(x) : [x]
+        ///     Fail(e) : []
+        ///     None    : []
+        ///     null    : []
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(TryOption<A> value) =>
+            toSeq(value?.ToOption() ?? Option<A>.None);
+
+        /// <summary>
+        /// Construct a sequence from a TryOption
+        ///     Succ(x) : [x]
+        ///     Fail(e) : []
+        ///     None    : []
+        ///     null    : []
+        /// </summary>
+        [Pure]
+        public static Task<Seq<T>> toSeq<T>(TryAsync<T> value) =>
+            value?.AsEnumerable() ?? LanguageExt.Seq<T>.Empty.AsTask();
+
+        /// <summary>
+        /// Construct a sequence from a TryOption
+        ///     Succ(x) : [x]
+        ///     Fail(e) : []
+        ///     None    : []
+        ///     null    : []
+        /// </summary>
+        [Pure]
+        public static Task<Seq<T>> toSeq<T>(TryOptionAsync<T> value) =>
+            value?.AsEnumerable() ?? LanguageExt.Seq<T>.Empty.AsTask();
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(Tuple<A> tup) =>
+            tup == null
+                ? Empty
+                : LSeq.FromSingleValue(tup.Item1);
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(Tuple<A, A> tup) =>
+            tup == null
+                ? Empty
+                : LSeq.FromArray(new [] { tup.Item1, tup.Item2 });
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(Tuple<A, A, A> tup) =>
+            tup == null
+                ? Empty
+                : LSeq.FromArray(new [] { tup.Item1, tup.Item2, tup.Item3 });
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(Tuple<A, A, A, A> tup) =>
+            tup == null
+                ? Empty
+                : LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4 });
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(Tuple<A, A, A, A, A> tup) =>
+            tup == null
+                ? Empty
+                : LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5 });
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(Tuple<A, A, A, A, A, A> tup) =>
+            tup == null
+                ? Empty
+                : LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6 });
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(Tuple<A, A, A, A, A, A, A> tup) =>
+            tup == null
+                ? Empty
+                : LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 });
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(ValueTuple<A> tup) =>
+            LSeq.FromSingleValue(tup.Item1);
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(ValueTuple<A, A> tup) =>
+            LSeq.FromArray(new[] { tup.Item1, tup.Item2 });
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(ValueTuple<A, A, A> tup) =>
+            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3 });
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(ValueTuple<A, A, A, A> tup) =>
+            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4 });
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(ValueTuple<A, A, A, A, A> tup) =>
+            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5 });
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(ValueTuple<A, A, A, A, A, A> tup) =>
+            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6 });
+
+        /// <summary>
+        /// Construct a sequence from a tuple
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(ValueTuple<A, A, A, A, A, A, A> tup) =>
+            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 });        
 
         /// <summary>
         /// Construct an empty AtomSeq
@@ -966,273 +1383,6 @@ namespace LanguageExt
         [Pure]
         public static AtomSeq<A> AtomSeq<A>(IEnumerable<A> items) =>
             new AtomSeq<A>(items);
-
-        /// <summary>
-        /// Construct a sequence from a nullable
-        ///     HasValue == true  : [x]
-        ///     HasValue == false : []
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(A? value) where A : struct =>
-            value == null 
-                ? Empty 
-                : LSeq.FromSingleValue(value.Value);
-
-        /// <summary>
-        /// Construct a sequence from an Enumerable
-        /// Deals with `value == null` by returning `[]` and also memoizes the
-        /// items in the enumerable as they're being consumed.
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(IEnumerable<A> value) =>
-            value switch
-            {
-                null                => Empty,
-                Seq<A> seq          => seq,
-                Arr<A> arr          => LSeq.FromArray(arr.Value),
-                A[] array           => Seq(array),
-                IList<A> list       => Seq(list),
-                ICollection<A> coll => Seq(coll),
-                _                   => new Seq<A>(value)
-            };
-
-        /// <summary>
-        /// Construct a sequence from an array
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(A[] value)
-        {
-            if (value == null)
-            {
-                return Empty;
-            }
-            else
-            {
-                var length = value.Length;
-                var data = new A[length];
-                System.Array.Copy(value, data, length);
-                return LSeq.FromArray(data);
-            }
-        }
-
-        /// <summary>
-        /// Construct a sequence from an array
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(A a, A b) =>
-            LSeq.FromArray(new[] { a, b });
-
-        /// <summary>
-        /// Construct a sequence from an array
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(A a, A b, A c, params A[] ds)
-        {
-            var data = new A[ds.Length + 3];
-            System.Array.Copy(ds, 0, data, 3, ds.Length);
-            data[0] = a;
-            data[1] = b;
-            data[2] = c;
-            return LSeq.FromArray(data);
-        }
-
-        /// <summary>
-        /// Construct a sequence from an immutable array
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(Arr<A> value) =>
-            Seq(value.Value);
-
-        /// <summary>
-        /// Construct a sequence from a list
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(IList<A> value) =>
-            Seq(value.ToArray());
-
-        /// <summary>
-        /// Construct a sequence from a list
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(ICollection<A> value) =>
-            Seq(value.ToArray());
-
-        /// <summary>
-        /// Construct a sequence from an either
-        ///     Right(x) : [x]
-        ///     Left(y)  : []
-        /// </summary>
-        [Pure]
-        public static Seq<R> Seq<L, R>(Either<L, R> value) =>
-            value.IsRight
-                ? LSeq.FromSingleValue(value.RightValue)
-                : Empty;
-
-        /// <summary>
-        /// Construct a sequence from an either
-        ///     Right(x) : [x]
-        ///     Left(y)  : []
-        /// </summary>
-        [Pure]
-        public static Seq<R> Seq<L, R>(EitherUnsafe<L, R> value) =>
-            value.IsRight
-                ? LSeq.FromSingleValue(value.RightValue)
-                : Empty;
-
-        /// <summary>
-        /// Construct a sequence from a Try
-        ///     Succ(x) : [x]
-        ///     Fail(e) : []
-        ///     null    : []
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(Try<A> value) =>
-            Seq(value?.ToOption() ?? Option<A>.None);
-
-        /// <summary>
-        /// Construct a sequence from a TryOption
-        ///     Succ(x) : [x]
-        ///     Fail(e) : []
-        ///     None    : []
-        ///     null    : []
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(TryOption<A> value) =>
-            Seq(value?.ToOption() ?? Option<A>.None);
-
-        /// <summary>
-        /// Construct a sequence from a TryOption
-        ///     Succ(x) : [x]
-        ///     Fail(e) : []
-        ///     None    : []
-        ///     null    : []
-        /// </summary>
-        [Pure]
-        public static Task<Seq<T>> Seq<T>(TryAsync<T> value) =>
-            value?.AsEnumerable() ?? LanguageExt.Seq<T>.Empty.AsTask();
-
-        /// <summary>
-        /// Construct a sequence from a TryOption
-        ///     Succ(x) : [x]
-        ///     Fail(e) : []
-        ///     None    : []
-        ///     null    : []
-        /// </summary>
-        [Pure]
-        public static Task<Seq<T>> Seq<T>(TryOptionAsync<T> value) =>
-            value?.AsEnumerable() ?? LanguageExt.Seq<T>.Empty.AsTask();
-
-        /// <summary>
-        /// Construct a sequence from a tuple
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(Tuple<A> tup) =>
-            tup == null
-                ? Empty
-                : LSeq.FromSingleValue(tup.Item1);
-
-        /// <summary>
-        /// Construct a sequence from a tuple
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(Tuple<A, A> tup) =>
-            tup == null
-                ? Empty
-                : LSeq.FromArray(new [] { tup.Item1, tup.Item2 });
-
-        /// <summary>
-        /// Construct a sequence from a tuple
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(Tuple<A, A, A> tup) =>
-            tup == null
-                ? Empty
-                : LSeq.FromArray(new [] { tup.Item1, tup.Item2, tup.Item3 });
-
-        /// <summary>
-        /// Construct a sequence from a tuple
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(Tuple<A, A, A, A> tup) =>
-            tup == null
-                ? Empty
-                : LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4 });
-
-        /// <summary>
-        /// Construct a sequence from a tuple
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(Tuple<A, A, A, A, A> tup) =>
-            tup == null
-                ? Empty
-                : LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5 });
-
-        /// <summary>
-        /// Construct a sequence from a tuple
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(Tuple<A, A, A, A, A, A> tup) =>
-            tup == null
-                ? Empty
-                : LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6 });
-
-        /// <summary>
-        /// Construct a sequence from a tuple
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(Tuple<A, A, A, A, A, A, A> tup) =>
-            tup == null
-                ? Empty
-                : LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 });
-
-        /// <summary>
-        /// Construct a sequence from a tuple
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(ValueTuple<A> tup) =>
-            LSeq.FromSingleValue(tup.Item1);
-
-        /// <summary>
-        /// Construct a sequence from a tuple
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(ValueTuple<A, A> tup) =>
-            LSeq.FromArray(new[] { tup.Item1, tup.Item2 });
-
-        /// <summary>
-        /// Construct a sequence from a tuple
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(ValueTuple<A, A, A> tup) =>
-            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3 });
-
-        /// <summary>
-        /// Construct a sequence from a tuple
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(ValueTuple<A, A, A, A> tup) =>
-            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4 });
-
-        /// <summary>
-        /// Construct a sequence from a tuple
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(ValueTuple<A, A, A, A, A> tup) =>
-            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5 });
-
-        /// <summary>
-        /// Construct a sequence from a tuple
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(ValueTuple<A, A, A, A, A, A> tup) =>
-            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6 });
-
-        /// <summary>
-        /// Construct a sequence from a tuple
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(ValueTuple<A, A, A, A, A, A, A> tup) =>
-            LSeq.FromArray(new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 });
 
         /// <summary>
         /// Compute the difference between two documents, using the Wagner-Fischer algorithm. 

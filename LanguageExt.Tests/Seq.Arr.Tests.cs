@@ -46,7 +46,7 @@ namespace LanguageExt.Tests
         {
             var arr = Arr.create(1);
 
-            var seq = Seq(arr);
+            var seq = toSeq(arr);
 
             Assert.True(seq.Head == 1);
             Assert.True(seq.Tail.IsEmpty);
@@ -85,7 +85,7 @@ namespace LanguageExt.Tests
         {
             var arr = Arr.create(1, 2, 3, 4, 5);
 
-            var seq = Seq(arr);
+            var seq = toSeq(arr);
 
             Assert.True(seq.Head == 1);
             Assert.True(seq.Tail.Head == 2);
@@ -145,13 +145,13 @@ namespace LanguageExt.Tests
         {
             var arr = Arr.create(1, 2, 3, 4, 5);
 
-            var seq1 = Seq(arr);
-            var seq2 = seq1.Map(x => x * 2);
-            var seq3 = seq1.Select(x => x * 2);
-            var seq4 = from x in seq1
+            var Seq  = toSeq(arr);
+            var seq2 = Seq.Map(x => x * 2);
+            var seq3 = Seq.Select(x => x * 2);
+            var seq4 = from x in Seq
                        select x * 2;
 
-            var expected = Seq(Arr.create(2, 4, 6, 8, 10));
+            var expected = toSeq(Arr.create(2, 4, 6, 8, 10));
 
             Assert.True(expected == seq2);
             Assert.True(expected == seq3);
@@ -163,14 +163,14 @@ namespace LanguageExt.Tests
         {
             var arr = Arr.create(1, 2, 3, 4, 5);
 
-            var seq1 = Seq(arr);
-            var seq2 = seq1.Filter(x => x % 2 == 0);
-            var seq3 = seq1.Where(x => x % 2 == 0);
-            var seq4 = from x in seq1
+            var Seq  = toSeq(arr);
+            var seq2 = Seq.Filter(x => x % 2 == 0);
+            var seq3 = Seq.Where(x => x % 2 == 0);
+            var seq4 = from x in Seq
                        where x % 2 == 0
                        select x;
 
-            var expected = Seq(Arr.create(2, 4));
+            var expected = toSeq(Arr.create(2, 4));
 
             Assert.True(expected == seq2);
             Assert.True(expected == seq3);
@@ -180,8 +180,8 @@ namespace LanguageExt.Tests
         [Fact]
         public void BindTest()
         {
-            var seq1 = Seq(Arr.create(10, 100));
-            var seq2 = Seq(Arr.create(1, 2, 3, 4, 5));
+            var seq1 = toSeq(Arr.create(10, 100));
+            var seq2 = toSeq(Arr.create(1, 2, 3, 4, 5));
 
             var seq3 = seq1.Bind(x => seq2.Map(y => x * y));
 
@@ -193,7 +193,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void FoldTest1()
         {
-            var seq = Seq(Arr.create(1, 2, 3, 4, 5));
+            var seq = toSeq(Arr.create(1, 2, 3, 4, 5));
 
             var res1 = seq.Fold(1, (s, x) => s * x);
             var res2 = seq.FoldBack(1, (s, x) => s * x);
@@ -205,7 +205,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void FoldTest2()
         {
-            var seq = Seq(Arr.create("a", "b", "c", "d", "e"));
+            var seq = toSeq(Arr.create("a", "b", "c", "d", "e"));
 
             var res1 = seq.Fold("", (s, x) => s + x);
             var res2 = seq.FoldBack("", (s, x) => s + x);
@@ -217,13 +217,13 @@ namespace LanguageExt.Tests
         [Fact]
         public void Existential()
         {
-            var seq1 = Seq(Arr.create('a', 'b', 'c', 'd', 'e'));
-            var seq2 = Seq(Arr.create('a', 'b', 'c', '_', 'e'));
+            var Seq  = toSeq(Arr.create('a', 'b', 'c', 'd', 'e'));
+            var seq2 = toSeq(Arr.create('a', 'b', 'c', '_', 'e'));
 
-            var ex1 = seq1.Exists(x => x == 'd');
+            var ex1 = Seq.Exists(x => x == 'd');
             var ex2 = seq2.Exists(x => x == 'd');
 
-            var fa1 = seq1.ForAll(Char.IsLetter);
+            var fa1 = Seq.ForAll(Char.IsLetter);
             var fa2 = seq2.ForAll(Char.IsLetter);
 
             Assert.True(ex1);

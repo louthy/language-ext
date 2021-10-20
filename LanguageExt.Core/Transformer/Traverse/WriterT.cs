@@ -13,7 +13,7 @@ namespace LanguageExt
         //
         
         public static Writer<MonoidW, W, Seq<A>> Sequence<MonoidW, W, A>(this Seq<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma).Map(Prelude.Seq);
+            SequenceFast(ma).Map(Prelude.toSeq);
 
         public static Writer<MonoidW, W, Lst<A>> Sequence<MonoidW, W, A>(this Lst<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
             SequenceFast(ma).Map(toList);
@@ -38,7 +38,7 @@ namespace LanguageExt
 
 
         public static Writer<MonoidW, W, Seq<B>> Traverse<MonoidW, W, A, B>(this Seq<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
-            TraverseFast(ma, f).Map(Prelude.Seq);
+            TraverseFast(ma, f).Map(Prelude.toSeq);
 
         public static Writer<MonoidW, W, Lst<B>> Traverse<MonoidW, W, A, B>(this Lst<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
             TraverseFast(ma, f).Map(toList);

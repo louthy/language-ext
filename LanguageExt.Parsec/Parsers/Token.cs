@@ -372,6 +372,6 @@ namespace LanguageExt.Parsec
             select code;
 
         static readonly Seq<(char, char)> escMap =
-            Seq(List.zip("abfnrtv\\\"\'", "\a\b\f\n\r\t\v\\\"\'").ToArray());
+            toSeq(List.zip("abfnrtv\\\"\'", "\a\b\f\n\r\t\v\\\"\'").ToArray());
     }
 }

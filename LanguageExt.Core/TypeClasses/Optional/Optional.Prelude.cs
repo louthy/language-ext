@@ -112,7 +112,7 @@ namespace LanguageExt
         [Pure]
         public static Seq<A> asEnumerable<OPT, OA, A>(OA ma)
             where OPT : struct, Optional<OA, A> =>
-            Seq(toArray<OPT, OA, A>(ma));
+            toSeq(toArray<OPT, OA, A>(ma));
 
         /// <summary>
         /// Convert the structure to an Either
@@ -121,7 +121,7 @@ namespace LanguageExt
         public static Either<L, A> toEither<OPT, OA, L, A>(OA ma, L defaultLeftValue)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).Match(ma,
-                Some: x => Right<L, A>(x),
+                Some: Right<L, A>,
                 None: () => Left<L, A>(defaultLeftValue));
 
         /// <summary>

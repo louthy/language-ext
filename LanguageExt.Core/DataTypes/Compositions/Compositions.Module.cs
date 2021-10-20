@@ -94,7 +94,7 @@ namespace LanguageExt
                 else
                 {
                     return default(MCompositions<MonoidA, A>)
-                                .Append(new Compositions<A>(Seq1(x)), new Compositions<A>(go(n - s, ri)))
+                                .Append(new Compositions<A>(Seq(x)), new Compositions<A>(go(n - s, ri)))
                                 .Tree;
                 }
             }
@@ -148,7 +148,7 @@ namespace LanguageExt
         /// Construct a compositions list containing just one element.
         /// </summary>
         public static Compositions<A> singleton<A>(A value) =>
-            new Compositions<A>(Seq1(new Compositions<A>.Node(1, None, value)));
+            new Compositions<A>(Seq(new Compositions<A>.Node(1, None, value)));
 
         /// <summary>
         /// Get the number of elements in the compositions list, in `O(log n)` time.

@@ -144,7 +144,7 @@ namespace LanguageExt.Parsec
                                 if (count == 0)
                                 {
                                     results.Add(t.Reply.Result);
-                                    return ConsumedOK(Seq(results), t.Reply.State, t.Reply.Error);
+                                    return ConsumedOK(toSeq(results), t.Reply.State, t.Reply.Error);
                                 }
                                 else
                                 {
@@ -161,7 +161,7 @@ namespace LanguageExt.Parsec
                                 {
                                     // cok, eok -> cok  (not a typo, this should be -> cok)
                                     results.Add(t.Reply.Result);
-                                    return ConsumedOK(Seq(results), t.Reply.State, mergeError(error, t.Reply.Error));
+                                    return ConsumedOK(toSeq(results), t.Reply.State, mergeError(error, t.Reply.Error));
                                 }
                                 else
                                 {
@@ -189,7 +189,7 @@ namespace LanguageExt.Parsec
                                 if (count == 0)
                                 {
                                     results.Add(t.Reply.Result);
-                                    return ConsumedOK(Seq(results), t.Reply.State, t.Reply.Error);
+                                    return ConsumedOK(toSeq(results), t.Reply.State, t.Reply.Error);
                                 }
                                 else
                                 {
@@ -205,7 +205,7 @@ namespace LanguageExt.Parsec
                                 if (count == 0)
                                 {
                                     results.Add(t.Reply.Result);
-                                    return EmptyOK(Seq(results), t.Reply.State, mergeError(error, t.Reply.Error));
+                                    return EmptyOK(toSeq(results), t.Reply.State, mergeError(error, t.Reply.Error));
                                 }
                                 else
                                 {
@@ -217,7 +217,7 @@ namespace LanguageExt.Parsec
                         }
                     }
                 }
-                return ConsumedOK(Seq(results), current, error);
+                return ConsumedOK(toSeq(results), current, error);
             };
 
 

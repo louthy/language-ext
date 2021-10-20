@@ -55,7 +55,7 @@ namespace LanguageExt
         [Pure]
         public Validation(IEnumerable<ValidationData<FAIL, SUCCESS>> validationData)
         {
-            var seq = Seq(validationData);
+            var seq = toSeq(validationData);
             if (seq.IsEmpty)
             {
                 this.state = Validation.StateType.Fail;
@@ -192,7 +192,7 @@ namespace LanguageExt
         public static implicit operator Validation<FAIL, SUCCESS>(FAIL value) =>
             isnull(value)
                 ? throw new ValueIsNullException()
-                : Fail(Seq1(value));
+                : Fail(Seq(value));
 
         [Pure]
         public Validation<FAIL, SUCCESS> Disjunction<SUCCESSB>(Validation<FAIL, SUCCESSB> other)

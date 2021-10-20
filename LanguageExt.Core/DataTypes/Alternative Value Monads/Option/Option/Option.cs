@@ -522,7 +522,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> ToSeq() =>
             isSome
-                ? Seq1(Value)
+                ? Seq(Value)
                 : Empty;
 
         /// <summary>

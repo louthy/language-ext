@@ -13,6 +13,25 @@ namespace LanguageExt
 {
     public static partial class Prelude
     {
+        
+        /// <summary>
+        /// Construct a sequence from any value
+        ///
+        ///     var list = Seq(124);
+        /// 
+        /// </summary>
+        /// <remarks>
+        ///     Seq(x) is deprecated, use Seq(x)
+        /// </remarks>
+        [Pure]
+        [Obsolete("Seq(x) is deprecated, use Seq(x)")]
+        public static Seq<A> Seq1<A>(A value)
+        {
+            var arr = new A[4];
+            arr[2] = value;
+            return new Seq<A>(new SeqStrict<A>(arr, 2, 1, 0, 0));
+        }
+        
         [Obsolete("'with' has been renamed to 'map', please use that instead")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static R with<T1, T2, R>(Tuple<T1, T2> self, Func<T1, T2, R> func) =>
@@ -436,7 +455,7 @@ namespace LanguageExt
         ///     null  : []
         /// </summary>
         [Pure]
-        [Obsolete("SeqOne has been deprecated for the more concise Seq1")]
+        [Obsolete("SeqOne has been deprecated for the more concise Seq")]
         public static Seq<A> SeqOne<A>(A value) =>
             value.IsNull()
                 ? Empty

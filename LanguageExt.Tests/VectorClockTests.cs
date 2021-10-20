@@ -39,7 +39,7 @@ namespace LanguageExt.Tests
             var rel = VectorClock.relation(vc1, vc2);
             var flg = VectorClock.causes(vc1, vc2);
             
-            Assert.Equal(rel, Relation.Causes);
+            Assert.Equal(Relation.Causes, rel);
             Assert.True(flg);
         }
 
@@ -52,7 +52,7 @@ namespace LanguageExt.Tests
             var rel = VectorClock.relation(vc1, vc2);
             var flg = VectorClock.causes(vc1, vc2);
             
-            Assert.Equal(rel, Relation.CausedBy);
+            Assert.Equal(Relation.CausedBy, rel);
             Assert.False(flg);
         }
 
@@ -65,7 +65,7 @@ namespace LanguageExt.Tests
             var rel = VectorClock.relation(vc1, vc2);
             var flg = VectorClock.causes(vc1, vc2);
             
-            Assert.Equal(rel, Relation.Concurrent);
+            Assert.Equal(Relation.Concurrent, rel);
             Assert.False(flg);
         }
     }

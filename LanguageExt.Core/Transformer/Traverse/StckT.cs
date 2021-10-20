@@ -55,7 +55,7 @@ namespace LanguageExt
 
         public static Stck<Seq<B>> Traverse<A, B>(this Seq<Stck<A>> ma, Func<A, B> f) =>
             toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
-                .Map(xs => Seq(xs)));
+                .Map(toSeq));
 
         public static Stck<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Stck<A>> ma, Func<A, B> f) =>
             toStack(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)

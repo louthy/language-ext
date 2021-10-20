@@ -462,7 +462,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<F, A> LastOrInvalid<F>(F Fail) =>
             IsEmpty
-                ? Validation<F, A>.Fail(Seq1(Fail))
+                ? Validation<F, A>.Fail(Seq(Fail))
                 : Validation<F, A>.Success(Last);
 
         /// <summary>
@@ -472,7 +472,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<F, A> LastOrInvalid<F>(Func<F> Fail) =>
             IsEmpty
-                ? Validation<F, A>.Fail(Seq1(Fail()))
+                ? Validation<F, A>.Fail(Seq(Fail()))
                 : Validation<F, A>.Success(Last);
 
         /// <summary>

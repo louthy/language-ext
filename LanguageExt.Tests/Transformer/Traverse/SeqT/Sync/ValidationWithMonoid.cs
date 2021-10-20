@@ -11,9 +11,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
         [Fact]
         public void FailIsSingletonFail()
         {
-            var ma = Fail<MSeq<Error>, Seq<Error>, Seq<int>>(Seq1(Error.New("alt")));
+            var ma = Fail<MSeq<Error>, Seq<Error>, Seq<int>>(Seq(Error.New("alt")));
             var mb = ma.Traverse(identity);
-            var mc = Seq1(Fail<MSeq<Error>, Seq<Error>, int>(Seq1(Error.New("alt"))));
+            var mc = Seq(Fail<MSeq<Error>, Seq<Error>, int>(Seq(Error.New("alt"))));
 
             Assert.True(mb == mc);
         }

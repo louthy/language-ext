@@ -87,10 +87,10 @@ namespace LanguageExt
         }
         
         public static Task<Seq<B>> TraverseParallel<A, B>(this Seq<Task<A>> ma, int windowSize, Func<A, B> f) =>
-            ma.WindowMap(windowSize, f).Map(xs => Seq(xs));        
+            ma.WindowMap(windowSize, f).Map(toSeq);        
 
         public static Task<Seq<B>> TraverseParallel<A, B>(this Seq<Task<A>> ma, Func<A, B> f) =>
-            ma.WindowMap(f).Map(xs => Seq(xs));
+            ma.WindowMap(f).Map(toSeq);
         
         [Obsolete("use TraverseSerial or TraverseParallel instead")]
         public static Task<Seq<A>> Sequence<A>(this Seq<Task<A>> ma) =>

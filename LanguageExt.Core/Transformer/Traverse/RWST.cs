@@ -43,7 +43,7 @@ namespace LanguageExt
         };
 
         public static RWS<MonoidW, R, W, S, Seq<A>> Sequence<MonoidW, R, W, S, A>(this Seq<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma).Map(Prelude.Seq);
+            SequenceFast(ma).Map(Prelude.toSeq);
 
         public static RWS<MonoidW, R, W, S, Lst<A>> Sequence<MonoidW, R, W, S, A>(this Lst<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> =>
             SequenceFast(ma).Map(toList);
@@ -68,7 +68,7 @@ namespace LanguageExt
 
 
         public static RWS<MonoidW, R, W, S, Seq<B>> Traverse<MonoidW, R, W, S, A, B>(this Seq<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
-            TraverseFast(ma, f).Map(Prelude.Seq);
+            TraverseFast(ma, f).Map(Prelude.toSeq);
 
         public static RWS<MonoidW, R, W, S, Lst<B>> Traverse<MonoidW, R, W, S, A, B>(this Lst<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
             TraverseFast(ma, f).Map(toList);

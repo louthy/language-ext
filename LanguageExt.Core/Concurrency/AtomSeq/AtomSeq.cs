@@ -194,7 +194,7 @@ namespace LanguageExt
             Arr<A> arr              => Concat(arr),
             Stck<A> stck            => Concat(stck),
             IReadOnlyList<A> rolist => Concat(rolist),
-            _                       => Concat(Seq(items))
+            _                       => Concat(toSeq(items))
         };
                            
         /// <summary>
@@ -541,7 +541,7 @@ namespace LanguageExt
         {
             var xs = items;
             return xs.IsEmpty
-                       ? Validation<F, A>.Fail(Seq1(Fail))
+                       ? Validation<F, A>.Fail(Seq(Fail))
                        : Validation<F, A>.Success(xs.Last);
         }
 
@@ -554,7 +554,7 @@ namespace LanguageExt
         {
             var xs = items;
             return xs.IsEmpty
-                       ? Validation<F, A>.Fail(Seq1(Fail()))
+                       ? Validation<F, A>.Fail(Seq(Fail()))
                        : Validation<F, A>.Success(xs.Last);
         }
 

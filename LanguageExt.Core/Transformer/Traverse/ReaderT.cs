@@ -12,7 +12,7 @@ namespace LanguageExt
         // Collections
         //
         public static Reader<Env, Seq<A>> Sequence<Env, A>(this Seq<Reader<Env, A>> ma) =>
-            SequenceFast(ma).Map(Prelude.Seq);
+            SequenceFast(ma).Map(Prelude.toSeq);
 
         public static Reader<Env, Lst<A>> Sequence<Env, A>(this Lst<Reader<Env, A>> ma) =>
             SequenceFast(ma).Map(toList);
@@ -36,7 +36,7 @@ namespace LanguageExt
             SequenceFast(ma).Map(Enumerable.AsEnumerable);
 
         public static Reader<Env, Seq<B>> Traverse<Env, A, B>(this Seq<Reader<Env, A>> ma, Func<A, B> f) =>
-            TraverseFast(ma, f).Map(Prelude.Seq);
+            TraverseFast(ma, f).Map(Prelude.toSeq);
 
         public static Reader<Env, Lst<B>> Traverse<Env, A, B>(this Lst<Reader<Env, A>> ma, Func<A, B> f) =>
             TraverseFast(ma, f).Map(toList);

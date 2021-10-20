@@ -113,7 +113,7 @@ namespace LanguageExt
         [Pure]
         public static Seq<A> asEnumerable<OPT, OA, A>(OA ma)
             where OPT : struct, OptionalUnsafe<OA, A> =>
-            Seq(toArray<OPT, OA, A>(ma));
+            toSeq(toArray<OPT, OA, A>(ma));
 
         /// <summary>
         /// Convert the structure to an EitherUnsafe
@@ -122,7 +122,7 @@ namespace LanguageExt
         public static EitherUnsafe<L, A> toEitherUnsafe<OPT, OA, L, A>(OA ma, L defaultLeftValue)
             where OPT : struct, OptionalUnsafe<OA, A> =>
             default(OPT).MatchUnsafe(ma,
-                Some: x => RightUnsafe<L, A>(x),
+                Some: RightUnsafe<L, A>,
                 None: () => LeftUnsafe<L, A>(defaultLeftValue));
 
         /// <summary>

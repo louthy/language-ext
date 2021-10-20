@@ -526,7 +526,7 @@ namespace LanguageExt
                             .GetTypeInfo()
                             .GetAllMethods(true)
                             .Where(m => m.Name == "GetHashCode")
-                            .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq1(f.FieldType))
+                            .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq(f.FieldType))
                             .Head();
 
                         return (Expression.Field(

@@ -46,7 +46,7 @@ namespace LanguageExt.Tests
         {
             var arr = 1.Cons();
 
-            var seq = Seq(arr);
+            var seq = toSeq(arr);
 
             Assert.True(seq.Head == 1);
             Assert.True(seq.Tail.IsEmpty);
@@ -85,7 +85,7 @@ namespace LanguageExt.Tests
         {
             var arr = 1.Cons(2.Cons(3.Cons(4.Cons(5.Cons()))));
 
-            var seq = Seq(arr);
+            var seq = toSeq(arr);
 
             Assert.True(seq.Head == 1);
             Assert.True(seq.Tail.Head == 2);
@@ -145,7 +145,7 @@ namespace LanguageExt.Tests
         {
             var arr = 1.Cons(2.Cons(3.Cons(4.Cons(5.Cons()))));
 
-            var seq1 = Seq(arr);
+            var seq1 = toSeq(arr);
             var seq2 = seq1.Map(x => x * 2);
             var seq3 = seq1.Select(x => x * 2);
             var seq4 = from x in seq1
@@ -163,7 +163,7 @@ namespace LanguageExt.Tests
         {
             var arr = 1.Cons(2.Cons(3.Cons(4.Cons(5.Cons()))));
 
-            var seq1 = Seq(arr);
+            var seq1 = toSeq(arr);
             var seq2 = seq1.Filter(x => x % 2 == 0);
             var seq3 = seq1.Where(x => x % 2 == 0);
             var seq4 = from x in seq1
@@ -217,13 +217,13 @@ namespace LanguageExt.Tests
         [Fact]
         public void Existential()
         {
-            var seq1 = 'a'.Cons('b'.Cons('c'.Cons('d'.Cons('e'.Cons()))));
+            var Seq = 'a'.Cons('b'.Cons('c'.Cons('d'.Cons('e'.Cons()))));
             var seq2 = 'a'.Cons('b'.Cons('c'.Cons('_'.Cons('e'.Cons()))));
 
-            var ex1 = seq1.Exists(x => x == 'd');
+            var ex1 = Seq.Exists(x => x == 'd');
             var ex2 = seq2.Exists(x => x == 'd');
 
-            var fa1 = seq1.ForAll(Char.IsLetter);
+            var fa1 = Seq.ForAll(Char.IsLetter);
             var fa2 = seq2.ForAll(Char.IsLetter);
 
             Assert.True(ex1);

@@ -55,7 +55,7 @@ namespace LanguageExt
 
         public static Que<Seq<B>> Traverse<A, B>(this Seq<Que<A>> ma, Func<A, B> f) =>
             toQueue(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)
-                .Map(xs => Seq(xs)));
+                .Map(toSeq));
 
         public static Que<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Que<A>> ma, Func<A, B> f) =>
             toQueue(CollT.AllCombinationsOf(ma.Map(xs => xs.ToList()).ToArray(), f)

@@ -166,7 +166,7 @@ namespace LanguageExt.Parsec
         /// The value of the succeeding parser.
         /// </returns>
         public static Parser<I, O> choice<I, O>(params Parser<I, O>[] ps) =>
-            choicei(Seq(ps));
+            choicei(toSeq(ps));
 
         /// <summary>
         /// choice(ps) tries to apply the parsers in the list ps in order, until one 
@@ -186,7 +186,7 @@ namespace LanguageExt.Parsec
         /// The result of each parser as an enumerable.
         /// </returns>
         public static Parser<I, Seq<O>> chain<I, O>(params Parser<I, O>[] ps) =>
-            chaini(Seq(ps));
+            chaini(toSeq(ps));
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -319,7 +319,7 @@ namespace LanguageExt.Parsec
                     }
 
                     // eerr
-                    return EmptyOK(Seq(results), current, mergeError(error, t.Reply.Error));
+                    return EmptyOK(toSeq(results), current, mergeError(error, t.Reply.Error));
                 }
             };
 

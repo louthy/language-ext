@@ -648,7 +648,7 @@ namespace LanguageExt
 
         [Pure]
         public Seq<A> ToSeq() =>
-            Seq(this);
+            toSeq(this);
 
         [Pure]
         public IEnumerable<A> AsEnumerable() =>

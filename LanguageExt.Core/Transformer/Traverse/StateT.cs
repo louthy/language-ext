@@ -12,7 +12,7 @@ namespace LanguageExt
         // Collections
         //
         public static State<S, Seq<A>> Sequence<S, A>(this Seq<State<S, A>> ma) =>
-            SequenceFast(ma).Map(Prelude.Seq);
+            SequenceFast(ma).Map(Prelude.toSeq);
 
         public static State<S, Lst<A>> Sequence<S, A>(this Lst<State<S, A>> ma) =>
             SequenceFast(ma).Map(toList);
@@ -37,7 +37,7 @@ namespace LanguageExt
 
 
         public static State<S, Seq<B>> Traverse<S, A, B>(this Seq<State<S, A>> ma, Func<A, B> f) =>
-            TraverseFast(ma, f).Map(Prelude.Seq);
+            TraverseFast(ma, f).Map(Prelude.toSeq);
 
         public static State<S, Lst<B>> Traverse<S, A, B>(this Lst<State<S, A>> ma, Func<A, B> f) =>
             TraverseFast(ma, f).Map(toList);

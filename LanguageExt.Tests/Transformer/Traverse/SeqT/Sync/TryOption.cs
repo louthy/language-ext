@@ -11,7 +11,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
         {
             var ma = TryOptionFail<Seq<int>>(new Exception("fail"));
             var mb = ma.Sequence();
-            var mc = Seq1(TryOptionFail<int>(new Exception("fail")));
+            var mc = Seq(TryOptionFail<int>(new Exception("fail")));
 
             Assert.True(mb == mc);
         }

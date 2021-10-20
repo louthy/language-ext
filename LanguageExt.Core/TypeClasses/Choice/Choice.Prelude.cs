@@ -308,7 +308,7 @@ namespace LanguageExt
                 }
             }
 
-            return Seq(lst);
+            return Prelude.toSeq(lst);
         }
         
         /// <summary>
@@ -361,7 +361,7 @@ namespace LanguageExt
                 }
             }
 
-            return Seq(lst);
+            return Prelude.toSeq(lst);
         }
 
 

@@ -56,7 +56,7 @@ public static class OptionExtensions
                 }
             }
         }
-        return Seq(ToSequence(self));
+        return toSeq(ToSequence(self));
     }
 
     /// <summary>

@@ -382,7 +382,7 @@ namespace LanguageExt
 
         [Pure]
         public Seq<A> ToSeq() =>
-            Prelude.Seq(this);
+            toSeq(this);
 
         /// <summary>
         /// Format the collection as `[a, b, c, ...]`

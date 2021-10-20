@@ -55,7 +55,7 @@ public static class OptionUnsafeExtensions
                 }
             }
         }
-        return Seq(ToSequence(self));
+        return toSeq(ToSequence(self));
     }
     
     /// <summary>

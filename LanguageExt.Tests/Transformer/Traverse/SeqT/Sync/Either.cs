@@ -12,7 +12,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Sync
         {
             var ma = Left<Error, Seq<int>>(Error.New("alt"));
             var mb = ma.Sequence();
-            var mc = Seq1(Left<Error, int>(Error.New("alt")));
+            var mc = Seq(Left<Error, int>(Error.New("alt")));
 
             Assert.True(mb == mc);
         }

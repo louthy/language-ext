@@ -10,7 +10,7 @@ namespace LanguageExt
     public static partial class WriterT
     {
         public static Writer<MonoidW, W, Seq<A>> sequence<MonoidW, W, A>(Seq<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma).Map(Prelude.Seq);
+            SequenceFast(ma).Map(Prelude.toSeq);
 
         public static Writer<MonoidW, W, Lst<A>> sequence<MonoidW, W, A>(Lst<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
             SequenceFast(ma).Map(toList);
@@ -35,7 +35,7 @@ namespace LanguageExt
 
 
         public static Writer<MonoidW, W, Seq<B>> traverse<MonoidW, W, A, B>(Seq<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
-            TraverseFast(ma, f).Map(Prelude.Seq);
+            TraverseFast(ma, f).Map(Prelude.toSeq);
 
         public static Writer<MonoidW, W, Lst<B>> traverse<MonoidW, W, A, B>(Lst<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
             TraverseFast(ma, f).Map(toList);
@@ -62,7 +62,7 @@ namespace LanguageExt
     public static partial class ReaderT
     {
         public static Reader<Env, Seq<A>> sequence<Env, A>(Seq<Reader<Env, A>> ma) =>
-            SequenceFast(ma).Map(Prelude.Seq);
+            SequenceFast(ma).Map(Prelude.toSeq);
 
         public static Reader<Env, Lst<A>> sequence<Env, A>(Lst<Reader<Env, A>> ma) =>
             SequenceFast(ma).Map(toList);
@@ -87,7 +87,7 @@ namespace LanguageExt
 
 
         public static Reader<Env, Seq<B>> traverse<Env, A, B>(Seq<Reader<Env, A>> ma, Func<A, B> f) =>
-            TraverseFast(ma, f).Map(Prelude.Seq);
+            TraverseFast(ma, f).Map(Prelude.toSeq);
 
         public static Reader<Env, Lst<B>> traverse<Env, A, B>(Lst<Reader<Env, A>> ma, Func<A, B> f) =>
             TraverseFast(ma, f).Map(toList);
@@ -114,7 +114,7 @@ namespace LanguageExt
     public static partial class StateT
     {
         public static State<S, Seq<A>> sequence<S, A>(Seq<State<S, A>> ma) =>
-            SequenceFast(ma).Map(Prelude.Seq);
+            SequenceFast(ma).Map(Prelude.toSeq);
 
         public static State<S, Lst<A>> sequence<S, A>(Lst<State<S, A>> ma) =>
             SequenceFast(ma).Map(toList);
@@ -139,7 +139,7 @@ namespace LanguageExt
 
 
         public static State<S, Seq<B>> traverse<S, A, B>(Seq<State<S, A>> ma, Func<A, B> f) =>
-            TraverseFast(ma, f).Map(Prelude.Seq);
+            TraverseFast(ma, f).Map(Prelude.toSeq);
 
         public static State<S, Lst<B>> traverse<S, A, B>(Lst<State<S, A>> ma, Func<A, B> f) =>
             TraverseFast(ma, f).Map(toList);
@@ -166,7 +166,7 @@ namespace LanguageExt
     public static partial class RwsT
     {
         public static RWS<MonoidW, R, W, S, Seq<A>> sequence<MonoidW, R, W, S, A>(Seq<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma).Map(Prelude.Seq);
+            SequenceFast(ma).Map(Prelude.toSeq);
 
         public static RWS<MonoidW, R, W, S, Lst<A>> sequence<MonoidW, R, W, S, A>(Lst<RWS<MonoidW, R, W, S, A>> ma) where MonoidW : struct, Monoid<W> =>
             SequenceFast(ma).Map(toList);
@@ -191,7 +191,7 @@ namespace LanguageExt
 
 
         public static RWS<MonoidW, R, W, S, Seq<B>> traverse<MonoidW, R, W, S, A, B>(Seq<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
-            TraverseFast(ma, f).Map(Prelude.Seq);
+            TraverseFast(ma, f).Map(Prelude.toSeq);
 
         public static RWS<MonoidW, R, W, S, Lst<B>> traverse<MonoidW, R, W, S, A, B>(Lst<RWS<MonoidW, R, W, S, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
             TraverseFast(ma, f).Map(toList);

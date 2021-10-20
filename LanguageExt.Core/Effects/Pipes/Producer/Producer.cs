@@ -441,7 +441,7 @@ namespace LanguageExt.Pipes
         /// <param name="ms">Sequence of producers to merge</param>
         /// <returns>Merged producers</returns>
         public static Producer<RT, OUT, A> merge<RT, OUT, A>(params Producer<RT, OUT, A>[] ms) where RT : struct, HasCancel<RT> =>
-            merge(Seq(ms));
+            merge(toSeq(ms));
  
         /// <summary>
         /// Merge an array of producers into a single producer
@@ -450,7 +450,7 @@ namespace LanguageExt.Pipes
         /// <param name="ms">Sequence of producers to merge</param>
         /// <returns>Merged producers</returns>
         public static Producer<RT, OUT, A> merge<RT, OUT, A>(params Proxy<RT, Void, Unit, Unit, OUT, A>[] ms) where RT : struct, HasCancel<RT> =>
-            merge(Seq(ms).Map(m => m.ToProducer()));
+            merge(toSeq(ms).Map(m => m.ToProducer()));
  
         /// <summary>
         /// Merge a sequence of queues into a single producer

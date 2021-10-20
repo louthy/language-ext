@@ -26,7 +26,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.ValidationMonoid.Collections
         [Fact]
         public void ArrayFailedIsFailedArray()
         {
-            var ma = Array(Fail<MSeq<Error>, Seq<Error>, int>(Seq1(Error.New("failed"))), Fail<MSeq<Error>, Seq<Error>, int>(Seq1(Error.New("failure"))));
+            var ma = Array(Fail<MSeq<Error>, Seq<Error>, int>(Seq(Error.New("failed"))), Fail<MSeq<Error>, Seq<Error>, int>(Seq(Error.New("failure"))));
             var mb = ma.Traverse(identity);
             var expected = Fail<MSeq<Error>, Seq<Error>, Arr<int>>(Seq(Error.New("failed"), Error.New("failure")));
             Assert.Equal(expected, mb);
@@ -35,9 +35,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.ValidationMonoid.Collections
         [Fact]
         public void ArrSuccAndFailIsFailedArr()
         {
-            var ma = Array(Fail<MSeq<Error>, Seq<Error>, int>(Seq1(Error.New("failed"))), Success<MSeq<Error>, Seq<Error>, int>(12));
+            var ma = Array(Fail<MSeq<Error>, Seq<Error>, int>(Seq(Error.New("failed"))), Success<MSeq<Error>, Seq<Error>, int>(12));
             var mb = ma.Traverse(identity);
-            Assert.Equal(Fail<MSeq<Error>, Seq<Error>, Arr<int>>(Seq1(Error.New("failed"))), mb);
+            Assert.Equal(Fail<MSeq<Error>, Seq<Error>, Arr<int>>(Seq(Error.New("failed"))), mb);
         }
     }
 }

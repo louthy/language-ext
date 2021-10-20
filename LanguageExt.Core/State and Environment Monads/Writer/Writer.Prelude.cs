@@ -145,7 +145,7 @@ namespace LanguageExt
         /// <returns>Updated writer monad</returns>
         [Pure]
         public static Writer<MSeq<W>, Seq<W>, Unit> tell<W>(W what) =>
-            default(MWriter<MSeq<W>, Seq<W>, Unit>).Tell(Seq1(what));
+            default(MWriter<MSeq<W>, Seq<W>, Unit>).Tell(Seq(what));
 
         /// <summary>
         /// Bind

@@ -26,7 +26,7 @@ namespace LanguageExt
     public record AcyclicSCC<VERTEX>(VERTEX vertex) : SCC<VERTEX>
     {
         public override Seq<VERTEX> Flatten() =>
-            Seq1(vertex);
+            Seq(vertex);
     }
 
     /// <summary>

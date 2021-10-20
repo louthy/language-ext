@@ -543,7 +543,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> ToSeq() =>
-            Seq(this);
+            toSeq(this);
 
         /// <summary>
         /// Format the collection as `[a, b, c, ...]`

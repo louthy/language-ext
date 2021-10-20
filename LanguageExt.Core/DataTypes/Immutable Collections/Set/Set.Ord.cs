@@ -591,7 +591,7 @@ namespace LanguageExt
 
         [Pure]
         public Seq<A> ToSeq() =>
-            Prelude.Seq(this);
+            Prelude.toSeq(this);
 
         [Pure]
         public IEnumerable<A> AsEnumerable() => this;

@@ -414,7 +414,7 @@ public static class SeqExtensions
     /// <returns>Joined sequence</returns>
     [Pure]
     public static Seq<V> Zip<T, U, V>(this Seq<T> list, Seq<U> other, Func<T, U, V> zipper) =>
-        Seq(Enumerable.Zip(list, other, zipper));
+        toSeq(Enumerable.Zip(list, other, zipper));
 
     /// <summary>
     /// Joins two sequences together either into an sequence of tuples
@@ -425,7 +425,7 @@ public static class SeqExtensions
     /// <returns>Joined sequence of tuples</returns>
     [Pure]
     public static Seq<(T Left, U Right)> Zip<T, U>(this Seq<T> list, Seq<U> other) =>
-        Seq(Enumerable.Zip(list, other, (t, u) => (t, u)));
+        toSeq(Enumerable.Zip(list, other, (t, u) => (t, u)));
 
     /// <summary>
     /// Invokes an action for each item in the sequence in order
@@ -456,7 +456,7 @@ public static class SeqExtensions
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
     public static Seq<T> Distinct<T>(this Seq<T> list) =>
-        Seq(Enumerable.Distinct(list));
+        toSeq(Enumerable.Distinct(list));
 
     /// <summary>
     /// Return a new sequence with all duplicate values removed
@@ -466,7 +466,7 @@ public static class SeqExtensions
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
     public static Seq<T> Distinct<EQ, T>(this Seq<T> list) where EQ : struct, Eq<T> =>
-        Seq(Enumerable.Distinct(list, new EqCompare<T>((x, y) => default(EQ).Equals(x, y))));
+        toSeq(Enumerable.Distinct(list, new EqCompare<T>((x, y) => default(EQ).Equals(x, y))));
 
     /// <summary>
     /// Return a new sequence with all duplicate values removed
@@ -476,7 +476,7 @@ public static class SeqExtensions
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
     public static Seq<T> Distinct<T, K>(this Seq<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
-         Seq(Enumerable.Distinct(list, new EqCompare<T>((a, b) => compare.IfNone(default(EqDefault<K>).Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0)));
+        toSeq(Enumerable.Distinct(list, new EqCompare<T>((a, b) => compare.IfNone(default(EqDefault<K>).Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0)));
 
     /// <summary>
     /// Apply a sequence of values to a sequence of functions

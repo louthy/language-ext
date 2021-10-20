@@ -91,7 +91,7 @@ namespace LanguageExt
         public Seq<A> ToSeq() =>
             IsFaulted
                 ? Empty
-                : Seq1(Value);
+                : Seq(Value);
 
         public Lst<A> ToList() =>
             IsFaulted
