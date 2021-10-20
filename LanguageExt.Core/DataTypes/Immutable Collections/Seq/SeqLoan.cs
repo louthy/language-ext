@@ -114,7 +114,7 @@ namespace LanguageExt
         {
             if(freed == 1) return Seq<A>.Empty;
             var ndata = new A[data.Length];
-            Buffer.BlockCopy(data, start, ndata, start, count);
+            System.Array.Copy(data, start, ndata, start, count);
             return new Seq<A>(new SeqStrict<A>(ndata, start, count, 0, 0));
         }
 

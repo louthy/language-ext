@@ -1086,9 +1086,8 @@ namespace LanguageExt
             arr[9]  = f;
             arr[10] = g;
             arr[11] = h;
-            return new Seq<A>(new SeqStrict<A>(arr, 4, 8, 0, 0));
 
-            Buffer.BlockCopy(tail, 0, arr, 12, tail.Length);
+            System.Array.Copy(tail, 0, arr, 12, tail.Length);
             return new Seq<A>(new SeqStrict<A>(arr, 4, 8 + tail.Length, 0, 0));
         }
 

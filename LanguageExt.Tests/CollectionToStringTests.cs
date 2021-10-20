@@ -63,21 +63,21 @@ namespace LanguageExt.Tests
         [Fact]
         public void SeqShortToString()
         {
-            var items = Seq(zeroToFour);
+            var items = toSeq(zeroToFour);
             Assert.True(items.ToString() == zeroToFourString);
         }
 
         [Fact]
         public void SeqMedToString()
         {
-            var items = Seq(zeroToFourtyNine);
+            var items = toSeq(zeroToFourtyNine);
             Assert.True(items.ToString() == zeroToFourtyNineString);
         }
 
         [Fact]
         public void SeqLongToString()
         {
-            var items = Seq(zeroToFiftyNine);
+            var items = toSeq(zeroToFiftyNine);
             Assert.True(items.ToString() == zeroToFiftyNineString);
         }
 

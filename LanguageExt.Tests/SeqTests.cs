@@ -418,5 +418,142 @@ namespace LanguageExt.Tests
                    .Concat(seq2)
                    .Concat(seq3));
         }
+
+        [Fact]
+        public void CheckItems()
+        {
+            var xs = Seq<int>();
+            Assert.True(xs.Count == 0);
+            
+            xs = Seq<int>(0);
+            Assert.True(xs.Count == 1);
+            Assert.True(xs[0] == 0);
+            
+            xs = Seq<int>(0, 1);
+            Assert.True(xs.Count == 2);
+            Assert.True(xs[0] == 0);
+            Assert.True(xs[1] == 1);
+            
+            xs = Seq<int>(0, 1, 2);
+            Assert.True(xs.Count == 3);
+            Assert.True(xs[0] == 0);
+            Assert.True(xs[1] == 1);
+            Assert.True(xs[2] == 2);
+            
+            xs = Seq<int>(0, 1, 2, 3);
+            Assert.True(xs.Count == 4);
+            Assert.True(xs[0] == 0);
+            Assert.True(xs[1] == 1);
+            Assert.True(xs[2] == 2);
+            Assert.True(xs[3] == 3);
+            
+            xs = Seq<int>(0, 1, 2, 3, 4);
+            Assert.True(xs.Count == 5);
+            Assert.True(xs[0] == 0);
+            Assert.True(xs[1] == 1);
+            Assert.True(xs[2] == 2);
+            Assert.True(xs[3] == 3);
+            Assert.True(xs[4] == 4);
+            
+            xs = Seq<int>(0, 1, 2, 3, 4, 5);
+            Assert.True(xs.Count == 6);
+            Assert.True(xs[0] == 0);
+            Assert.True(xs[1] == 1);
+            Assert.True(xs[2] == 2);
+            Assert.True(xs[3] == 3);
+            Assert.True(xs[4] == 4);
+            Assert.True(xs[5] == 5);
+            
+            xs = Seq<int>(0, 1, 2, 3, 4, 5, 6);
+            Assert.True(xs.Count == 7);
+            Assert.True(xs[0] == 0);
+            Assert.True(xs[1] == 1);
+            Assert.True(xs[2] == 2);
+            Assert.True(xs[3] == 3);
+            Assert.True(xs[4] == 4);
+            Assert.True(xs[5] == 5);
+            Assert.True(xs[6] == 6);
+            
+            xs = Seq<int>(0, 1, 2, 3, 4, 5, 6, 7);
+            Assert.True(xs.Count == 8);
+            Assert.True(xs[0] == 0);
+            Assert.True(xs[1] == 1);
+            Assert.True(xs[2] == 2);
+            Assert.True(xs[3] == 3);
+            Assert.True(xs[4] == 4);
+            Assert.True(xs[5] == 5);
+            Assert.True(xs[6] == 6);
+            Assert.True(xs[7] == 7);
+            
+            xs = Seq<int>(0, 1, 2, 3, 4, 5, 6, 7, 8);
+            Assert.True(xs.Count == 9);
+            Assert.True(xs[0] == 0);
+            Assert.True(xs[1] == 1);
+            Assert.True(xs[2] == 2);
+            Assert.True(xs[3] == 3);
+            Assert.True(xs[4] == 4);
+            Assert.True(xs[5] == 5);
+            Assert.True(xs[6] == 6);
+            Assert.True(xs[7] == 7);
+            Assert.True(xs[8] == 8);
+            
+            xs = Seq<int>(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            Assert.True(xs.Count == 10);
+            Assert.True(xs[0] == 0);
+            Assert.True(xs[1] == 1);
+            Assert.True(xs[2] == 2);
+            Assert.True(xs[3] == 3);
+            Assert.True(xs[4] == 4);
+            Assert.True(xs[5] == 5);
+            Assert.True(xs[6] == 6);
+            Assert.True(xs[7] == 7);
+            Assert.True(xs[8] == 8);
+            Assert.True(xs[9] == 9);
+            
+            xs = Seq<int>(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+            Assert.True(xs.Count == 11);
+            Assert.True(xs[0] == 0);
+            Assert.True(xs[1] == 1);
+            Assert.True(xs[2] == 2);
+            Assert.True(xs[3] == 3);
+            Assert.True(xs[4] == 4);
+            Assert.True(xs[5] == 5);
+            Assert.True(xs[6] == 6);
+            Assert.True(xs[7] == 7);
+            Assert.True(xs[8] == 8);
+            Assert.True(xs[9] == 9);
+            Assert.True(xs[10] == 10);
+            
+            xs = Seq<int>(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
+            Assert.True(xs.Count == 12);
+            Assert.True(xs[0] == 0);
+            Assert.True(xs[1] == 1);
+            Assert.True(xs[2] == 2);
+            Assert.True(xs[3] == 3);
+            Assert.True(xs[4] == 4);
+            Assert.True(xs[5] == 5);
+            Assert.True(xs[6] == 6);
+            Assert.True(xs[7] == 7);
+            Assert.True(xs[8] == 8);
+            Assert.True(xs[9] == 9);
+            Assert.True(xs[10] == 10);
+            Assert.True(xs[11] == 11);
+            
+            xs = Seq<int>(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+            Assert.True(xs.Count == 13);
+            Assert.True(xs[0] == 0);
+            Assert.True(xs[1] == 1);
+            Assert.True(xs[2] == 2);
+            Assert.True(xs[3] == 3);
+            Assert.True(xs[4] == 4);
+            Assert.True(xs[5] == 5);
+            Assert.True(xs[6] == 6);
+            Assert.True(xs[7] == 7);
+            Assert.True(xs[8] == 8);
+            Assert.True(xs[9] == 9);
+            Assert.True(xs[10] == 10);
+            Assert.True(xs[11] == 11);
+            Assert.True(xs[12] == 12);
+        }
     }
 }
