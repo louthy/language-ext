@@ -111,10 +111,9 @@ namespace LanguageExt.Thunks
         {
             try
             {
+                SpinWait sw = default;
                 while (true)
                 {
-                    SpinIfEvaluating();
-
                     switch (state)
                     {
                         case Thunk.IsSuccess:
@@ -123,7 +122,7 @@ namespace LanguageExt.Thunks
                         case Thunk.NotEvaluated:
                             return Thunk<Env, B>.Lazy(e =>
                             {
-                                var ev = fun(e);
+                                var ev = Eval(e);
                                 if (ev.IsSucc)
                                 {
                                     return Fin<B>.Succ(f(ev.value));
@@ -140,6 +139,8 @@ namespace LanguageExt.Thunks
                         case Thunk.IsFailed:
                             return Thunk<Env, B>.Fail(error);
                     }
+
+                    sw.SpinOnce();
                 }
             }
             catch (Exception e)
@@ -156,10 +157,9 @@ namespace LanguageExt.Thunks
         {
             try
             {
+                SpinWait sw = default;
                 while (true)
                 {
-                    SpinIfEvaluating();
-
                     switch (state)
                     {
                         case Thunk.IsSuccess:
@@ -168,7 +168,7 @@ namespace LanguageExt.Thunks
                         case Thunk.NotEvaluated:
                             return Thunk<Env, B>.Lazy(e =>
                             {
-                                var ev = fun(e);
+                                var ev = Eval(e);
                                 return ev.IsSucc
                                     ? Fin<B>.Succ(Succ(ev.value))
                                     : Fin<B>.Fail(Fail(ev.Error));
@@ -180,6 +180,8 @@ namespace LanguageExt.Thunks
                         case Thunk.IsFailed:
                             return Thunk<Env, B>.Fail(Fail(error));
                     }
+
+                    sw.SpinOnce();
                 }
             }
             catch (Exception e)
@@ -197,6 +199,7 @@ namespace LanguageExt.Thunks
         [Pure]
         internal Fin<A> Eval(Env env)
         {
+            SpinWait sw = default;
             while (true)
             {
                 if (Interlocked.CompareExchange(ref state, Thunk.Evaluating, Thunk.NotEvaluated) == Thunk.NotEvaluated)
@@ -228,7 +231,7 @@ namespace LanguageExt.Thunks
                 }
                 else
                 {
-                    SpinIfEvaluating();
+                    sw.SpinOnce();
 
                     // Once we're here we should have a result from the eval thread and
                     // so we can use `value` to return
@@ -247,21 +250,6 @@ namespace LanguageExt.Thunks
                             throw new InvalidOperationException("should never happen");
                     }
                 }
-            }
-        }
-        
-        /// <summary>
-        /// Spin whilst it's running so we don't run the operation twice
-        /// this will block obviously, but this event should be super rare
-        /// and it's purely to stop race conditions with the eval
-        /// </summary>
-        [MethodImpl(Thunk.mops)]
-        public void SpinIfEvaluating()
-        {
-            while (state == Thunk.Evaluating)
-            {
-                SpinWait sw = default;
-                sw.SpinOnce();
             }
         }
  

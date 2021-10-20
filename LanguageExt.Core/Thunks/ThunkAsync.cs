@@ -116,10 +116,9 @@ namespace LanguageExt.Thunks
         {
             try
             {
+                SpinWait sw = default;
                 while (true)
                 {
-                    SpinIfEvaluating();
-
                     switch (state)
                     {
                         case Thunk.IsSuccess:
@@ -128,7 +127,7 @@ namespace LanguageExt.Thunks
                         case Thunk.NotEvaluated:
                             return ThunkAsync<B>.Lazy(async () =>
                             {
-                                var ev = await fun().ConfigureAwait(false);
+                                var ev = await Eval().ConfigureAwait(false);
                                 if (ev.IsSucc)
                                 {
                                     return Fin<B>.Succ(f(ev.value));
@@ -145,6 +144,8 @@ namespace LanguageExt.Thunks
                         case Thunk.IsFailed:
                             return ThunkAsync<B>.Fail(error);
                     }
+
+                    sw.SpinOnce();
                 }
             }
             catch (Exception e)
@@ -161,10 +162,9 @@ namespace LanguageExt.Thunks
         {
             try
             {
+                SpinWait sw = default;
                 while (true)
                 {
-                    SpinIfEvaluating();
-
                     switch (state)
                     {
                         case Thunk.IsSuccess:
@@ -173,7 +173,7 @@ namespace LanguageExt.Thunks
                         case Thunk.NotEvaluated:
                             return ThunkAsync<B>.Lazy(async () =>
                             {
-                                var ev = await fun().ConfigureAwait(false);
+                                var ev = await Eval().ConfigureAwait(false);
                                 if (ev.IsSucc)
                                 {
                                     return Fin<B>.Succ(Succ(ev.value));
@@ -190,6 +190,8 @@ namespace LanguageExt.Thunks
                         case Thunk.IsFailed:
                             return ThunkAsync<B>.Fail(Fail(error));
                     }
+
+                    sw.SpinOnce();
                 }
             }
             catch (Exception e)
@@ -206,10 +208,9 @@ namespace LanguageExt.Thunks
         {
             try
             {
+                SpinWait sw = default;
                 while (true)
                 {
-                    SpinIfEvaluating();
-
                     switch (state)
                     {
                         case Thunk.IsSuccess:
@@ -218,7 +219,7 @@ namespace LanguageExt.Thunks
                         case Thunk.NotEvaluated:
                             return ThunkAsync<B>.Lazy(async () =>
                             {
-                                var ev = await fun().ConfigureAwait(false);
+                                var ev = await Eval().ConfigureAwait(false);
                                 if (ev.IsSucc)
                                 {
                                     return Fin<B>.Succ(await f(ev.value).ConfigureAwait(false));
@@ -235,6 +236,8 @@ namespace LanguageExt.Thunks
                         case Thunk.IsFailed:
                             return ThunkAsync<B>.Fail(error);
                     }
+
+                    sw.SpinOnce();
                 }
             }
             catch (Exception e)
@@ -249,42 +252,36 @@ namespace LanguageExt.Thunks
         [Pure]
         public ThunkAsync<B> BiMapAsync<B>(Func<A, ValueTask<B>> Succ, Func<Error, ValueTask<Error>> Fail)
         {
-            try
+            SpinWait sw = default;
+            while (true)
             {
-                while (true)
+                switch (state)
                 {
-                    SpinIfEvaluating();
+                    case Thunk.IsSuccess:
+                        return ThunkAsync<B>.Lazy(async () => await Succ(value).ConfigureAwait(false));
 
-                    switch (state)
-                    {
-                        case Thunk.IsSuccess:
-                            return ThunkAsync<B>.Lazy(async () => await Succ(value).ConfigureAwait(false));
-
-                        case Thunk.NotEvaluated:
-                            return ThunkAsync<B>.Lazy(async () =>
+                    case Thunk.NotEvaluated:
+                        return ThunkAsync<B>.Lazy(async () =>
+                        {
+                            var ev = await Eval().ConfigureAwait(false);
+                            if (ev.IsSucc)
                             {
-                                var ev = await fun().ConfigureAwait(false);
-                                if (ev.IsSucc)
-                                {
-                                    return Fin<B>.Succ(await Succ(ev.value).ConfigureAwait(false));
-                                }
-                                else
-                                {
-                                    return Fin<B>.Fail(await Fail(ev.Error).ConfigureAwait(false));
-                                }
-                            });
+                                return Fin<B>.Succ(await Succ(ev.value).ConfigureAwait(false));
+                            }
+                            else
+                            {
+                                return Fin<B>.Fail(await Fail(ev.Error).ConfigureAwait(false));
+                            }
+                        });
 
-                        case Thunk.IsCancelled:
-                            return ThunkAsync<B>.Lazy(async () => await Fail(Errors.Cancelled).ConfigureAwait(false));
+                    case Thunk.IsCancelled:
+                        return ThunkAsync<B>.Lazy(async () => await Fail(Errors.Cancelled).ConfigureAwait(false));
 
-                        case Thunk.IsFailed:
-                            return ThunkAsync<B>.Lazy(async () => await Fail(error).ConfigureAwait(false));
-                    }
+                    case Thunk.IsFailed:
+                        return ThunkAsync<B>.Lazy(async () => await Fail(error).ConfigureAwait(false));
                 }
-            }
-            catch (Exception e)
-            {
-                return ThunkAsync<B>.Lazy(async () => await Fail(e).ConfigureAwait(false));
+
+                sw.SpinOnce();
             }
         }
 
@@ -297,6 +294,7 @@ namespace LanguageExt.Thunks
         [Pure, MethodImpl(Thunk.mops)]
         async ValueTask<Fin<A>> Eval()
         {
+            SpinWait sw = default;
             while (true)
             {
                 if (Interlocked.CompareExchange(ref state, Thunk.Evaluating, Thunk.NotEvaluated) == Thunk.NotEvaluated)
@@ -334,7 +332,7 @@ namespace LanguageExt.Thunks
                 }
                 else
                 {
-                    SpinIfEvaluating();
+                    sw.SpinOnce();
 
                     // Once we're here we should have a result from the eval thread and
                     // so we can use `value` to return
@@ -353,21 +351,6 @@ namespace LanguageExt.Thunks
                             throw new InvalidOperationException("should never happen");
                     }
                 }
-            }
-        }
-        
-        /// <summary>
-        /// Spin whilst it's running so we don't run the operation twice
-        /// this will block obviously, but this event should be super rare
-        /// and it's purely to stop race conditions with the eval
-        /// </summary>
-        [MethodImpl(Thunk.mops)]
-        public void SpinIfEvaluating()
-        {
-            while (state == Thunk.Evaluating)
-            {
-                SpinWait sw = default;
-                sw.SpinOnce();
             }
         }
  
