@@ -4,7 +4,7 @@ using LanguageExt.TypeClasses;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct EqTuple<EqA, EqB, A, B> : Eq<(A, B)>
+    public struct EqTuple2<EqA, EqB, A, B> : Eq<(A, B)>
         where EqA : struct, Eq<A>
         where EqB : struct, Eq<B>
     {
@@ -22,7 +22,7 @@ namespace LanguageExt.ClassInstances
         
         public Task<bool> EqualsAsync((A, B) x, (A, B) y) =>
             default(EqA).EqualsAsync(x.Item1, y.Item1)
-                        .MapAsync(async eq => eq && await default(EqB).EqualsAsync(x.Item2, y.Item2));
+                        .MapAsync(async eq => eq && await default(EqB).EqualsAsync(x.Item2, y.Item2).ConfigureAwait(false));
 
         public bool Equals((A, B) x, (A, B) y) =>
             default(EqA).Equals(x.Item1, y.Item1) &&

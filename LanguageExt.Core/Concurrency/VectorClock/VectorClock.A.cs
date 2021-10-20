@@ -342,7 +342,7 @@ namespace LanguageExt
                 if (valid.HasValue) return valid.Value;
                 var keys     = Entries.Map(e => e.Item1);
                 var sorted   = keys.Sort<OrdDefault<A>, A>() == keys;
-                var distinct = Entries.Distinct<EqTuple<OrdDefault<A>, TLong, A, long>, (A, long)>().Count == Entries.Count;
+                var distinct = Entries.Distinct<EqTuple2<OrdDefault<A>, TLong, A, long>, (A, long)>().Count == Entries.Count;
                 valid = sorted && distinct;
                 return valid.Value;
             }
