@@ -41,8 +41,8 @@ namespace LanguageExt.Pipes
             new Repeat<RT, UOut, UIn, DIn, DOut, S>(Inner.Map(f));
 
         [Pure]
-        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
-            new Repeat<RT, UOut, UIn, C1, C, A>(Inner.For(f));
+        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body) =>
+            new Repeat<RT, UOut, UIn, C1, C, A>(Inner.For(body));
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>

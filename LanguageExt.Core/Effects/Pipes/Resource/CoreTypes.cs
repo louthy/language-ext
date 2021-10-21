@@ -71,8 +71,8 @@ namespace LanguageExt.Pipes
             new Use<RT, UOut, UIn, DIn, DOut, X, B>(Acquire, Release, x => Next(x).Map(f));
         
         [Pure]
-        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
-            new Use<RT, UOut, UIn, C1, C, X, A>(Acquire, Release, x => Next(x).For(f));
+        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body) =>
+            new Use<RT, UOut, UIn, C1, C, X, A>(Acquire, Release, x => Next(x).For(body));
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, B> Action<B>(Proxy<RT, UOut, UIn, DIn, DOut, B> rhs) =>
@@ -193,8 +193,8 @@ namespace LanguageExt.Pipes
             new Release<RT, UOut, UIn, DIn, DOut, X, B>(Value, x => Next(x).Map(f));
         
         [Pure]
-        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
-            new Release<RT, UOut, UIn, C1, C, X, A>(Value, x => Next(x).For(f));
+        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body) =>
+            new Release<RT, UOut, UIn, C1, C, X, A>(Value, x => Next(x).For(body));
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, B> Action<B>(Proxy<RT, UOut, UIn, DIn, DOut, B> rhs) =>

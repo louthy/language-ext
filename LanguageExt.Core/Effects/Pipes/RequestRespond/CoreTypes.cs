@@ -38,8 +38,8 @@ namespace LanguageExt.Pipes
             (value, fun) = (Value, Next);
 
         [Pure]
-        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
-            new Request<RT, UOut, UIn, C1, C, A>(Value, x => Next(x).For(f));
+        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body) =>
+            new Request<RT, UOut, UIn, C1, C, A>(Value, x => Next(x).For(body));
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
@@ -114,8 +114,8 @@ namespace LanguageExt.Pipes
             new Respond<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Map(f));
 
         [Pure]
-        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> fb) =>
-            fb(Value).Bind(b1 => Next(b1).For(fb));
+        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body) =>
+            body(Value).Bind(b1 => Next(b1).For(body));
             
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>

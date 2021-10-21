@@ -47,8 +47,8 @@ namespace LanguageExt.Pipes
             Value.Map(f);
 
         [Pure]
-        public override Proxy<RT, Void, Unit, C1, C, A> For<C1, C>(Func<Void, Proxy<RT, Void, Unit, C1, C, Unit>> f) =>
-            Value.For(f);
+        public override Proxy<RT, Void, Unit, C1, C, A> For<C1, C>(Func<Void, Proxy<RT, Void, Unit, C1, C, Unit>> body) =>
+            Value.For(body);
 
         [Pure]
         public override Proxy<RT, Void, Unit, Unit, Void, S> Action<S>(Proxy<RT, Void, Unit, Unit, Void, S> r) =>

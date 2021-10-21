@@ -74,23 +74,82 @@ namespace LanguageExt.Pipes
         /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
         public abstract Proxy<RT, UOut, UIn, DIn, DOut, B> Map<B>(Func<A, B> f);
         
-        public abstract Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f);
+        /// <summary>
+        /// `For(body)` loops over the `Proxy p` replacing each `yield` with `body`
+        /// </summary>
+        /// <param name="body">Any `yield` found in the `Proxy` will be replaced with this function.  It will be composed so
+        /// that the value yielded will be passed to the argument of the function.  That returns a `Proxy` to continue the
+        /// processing of the computation</param>
+        /// <returns></returns>
+        public abstract Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body);
+        
+        /// <summary>
+        /// Applicative action
+        ///
+        /// Invokes this `Proxy`, then the `Proxy r` 
+        /// </summary>
+        /// <param name="r">`Proxy` to run after this one</param>
         public abstract Proxy<RT, UOut, UIn, DIn, DOut, B> Action<B>(Proxy<RT, UOut, UIn, DIn, DOut, B> r);
+        
+        /// <summary>
+        /// Used when composing proxies with the `|` operator 
+        /// </summary>
         public abstract Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> lhs);
+
+        /// <summary>
+        /// Used when composing proxies with the `|` operator 
+        /// </summary>
         public abstract Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs);
+
+        /// <summary>
+        /// Used when composing proxies with the `|` operator 
+        /// </summary>
         public abstract Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs);
+
+        /// <summary>
+        /// Used when composing proxies with the `|` operator 
+        /// </summary>
         public abstract Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT,  UOut, UIn, DInC, DOutC, DIn>> rhs);
+
+        /// <summary>
+        /// Reverse the arrows of the `Proxy` to find its dual.  
+        /// </summary>
+        /// <returns>The dual of `this1</returns>
         public abstract Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect();
+        
+        /// <summary>
+        /// Inject side-effects into the `Proxy`
+        /// </summary>
+        /// <returns>This with side-effects</returns>
         public abstract Proxy<RT, UOut, UIn, DIn, DOut, A> Observe();
         
+        /// <summary>
+        /// Monadic bind operation, enables usage in LINQ expressions
+        /// </summary>
+        /// <param name="f">The bind function</param>
+        /// <typeparam name="B">The new bound value type</typeparam>
+        /// <returns>The result of the bind composition</returns>
         [Pure]
         public Proxy<RT, UOut, UIn, DIn, DOut, B> SelectMany<B>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f) =>
             Bind(f);
 
+        /// <summary>
+        /// Monadic bind operation, followed by a mapping projection, enables usage in LINQ expressions
+        /// </summary>
+        /// <param name="f">The bind function</param>
+        /// <param name="prject">The mapping projection function</param>
+        /// <typeparam name="C">The new bound value type</typeparam>
+        /// <returns>The result of the bind and mapping composition</returns>
         [Pure]
         public Proxy<RT, UOut, UIn, DIn, DOut, C> SelectMany<B, C>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f, Func<A, B, C> project) =>
             Bind(a => f(a).Map(b => project(a, b)));
 
+        /// <summary>
+        /// Functor map operation, enables usage in LINQ expressions
+        /// </summary>
+        /// <param name="f">Map function</param>
+        /// <typeparam name="B">The new bound value type</typeparam>
+        /// <returns>The result of the lifted function applied to the bound value</returns>
         [Pure]
         public Proxy<RT, UOut, UIn, DIn, DOut, B> Select<B>(Func<A, B> f) =>
             Map(f);
@@ -116,45 +175,93 @@ namespace LanguageExt.Pipes
         public Pure(A value) =>
             Value = value;
 
+        /// <summary>
+        /// Convert to the base `Proxy` type
+        /// </summary>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
 
+        /// <summary>
+        /// Monadic bind operation, for chaining `Proxy` computations together
+        /// </summary>
+        /// <param name="f">The bind function</param>
+        /// <typeparam name="B">The mapped bound value type</typeparam>
+        /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, B> Bind<B>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f) =>
             f(Value);
 
+        /// <summary>
+        /// Lifts a pure function into the `Proxy` domain, causing it to map the bound value within
+        /// </summary>
+        /// <param name="f">The map function</param>
+        /// <typeparam name="B">The mapped bound value type</typeparam>
+        /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, B> Map<B>(Func<A, B> f) =>
             new Pure<RT, UOut, UIn, DIn, DOut, B>(f(Value));
 
+        /// <summary>
+        /// `For(body)` loops over the `Proxy p` replacing each `yield` with `body`
+        /// </summary>
+        /// <param name="body">Any `yield` found in the `Proxy` will be replaced with this function.  It will be composed so
+        /// that the value yielded will be passed to the argument of the function.  That returns a `Proxy` to continue the
+        /// processing of the computation</param>
+        /// <returns></returns>
         [Pure]
-        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
+        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body) =>
             new Pure<RT, UOut, UIn, C1, C, A>(Value);
 
+        /// <summary>
+        /// Applicative action
+        ///
+        /// Invokes this `Proxy`, then the `Proxy r` 
+        /// </summary>
+        /// <param name="r">`Proxy` to run after this one</param>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, B> Action<B>(Proxy<RT, UOut, UIn, DIn, DOut, B> r) =>
             r;
 
+        /// <summary>
+        /// Used when composing proxies with the `|` operator 
+        /// </summary>
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
             new Pure<RT, UOutA, AUInA, DIn, DOut, A>(Value);
 
+        /// <summary>
+        /// Used when composing proxies with the `|` operator 
+        /// </summary>
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
             new Pure<RT, UOutA, AUInA, DIn, DOut, A>(Value);
                 
+        /// <summary>
+        /// Used when composing proxies with the `|` operator 
+        /// </summary>
         [Pure]
         public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
             new Pure<RT, UOut, UIn, DInC, DOutC, A>(Value);
 
+        /// <summary>
+        /// Used when composing proxies with the `|` operator 
+        /// </summary>
         [Pure]
         public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
             new Pure<RT, UOut, UIn, DInC, DOutC, A>(Value);
 
+        /// <summary>
+        /// Reverse the arrows of the `Proxy` to find its dual.  
+        /// </summary>
+        /// <returns>The dual of `this1</returns>
         [Pure]
         public override Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect() =>
             new Pure<RT, DOut, DIn, UIn, UOut, A>(Value);
 
+        /// <summary>
+        /// Inject side-effects into the `Proxy`
+        /// </summary>
+        /// <returns>This with side-effects</returns>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
             new M<RT, UOut, UIn, DIn, DOut, A>(Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>>.Success(this));
@@ -184,45 +291,93 @@ namespace LanguageExt.Pipes
         public M(Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>> value) =>
             Value = value;
         
+        /// <summary>
+        /// Convert to the base `Proxy` type
+        /// </summary>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
 
+        /// <summary>
+        /// Monadic bind operation, for chaining `Proxy` computations together
+        /// </summary>
+        /// <param name="f">The bind function</param>
+        /// <typeparam name="B">The mapped bound value type</typeparam>
+        /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
             new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Bind(f)));
 
+        /// <summary>
+        /// Lifts a pure function into the `Proxy` domain, causing it to map the bound value within
+        /// </summary>
+        /// <param name="f">The map function</param>
+        /// <typeparam name="B">The mapped bound value type</typeparam>
+        /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<A, S> f) =>
             new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Map(f)));
 
+        /// <summary>
+        /// `For(body)` loops over the `Proxy p` replacing each `yield` with `body`
+        /// </summary>
+        /// <param name="body">Any `yield` found in the `Proxy` will be replaced with this function.  It will be composed so
+        /// that the value yielded will be passed to the argument of the function.  That returns a `Proxy` to continue the
+        /// processing of the computation</param>
+        /// <returns></returns>
         [Pure]
-        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
-            new M<RT, UOut, UIn, C1, C, A>(Value.Map(mx => mx.For(f)));
+        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body) =>
+            new M<RT, UOut, UIn, C1, C, A>(Value.Map(mx => mx.For(body)));
 
+        /// <summary>
+        /// Applicative action
+        ///
+        /// Invokes this `Proxy`, then the `Proxy r` 
+        /// </summary>
+        /// <param name="r">`Proxy` to run after this one</param>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
             new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Action(r)));
 
+        /// <summary>
+        /// Used when composing proxies with the `|` operator 
+        /// </summary>
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
             new M<RT, UOutA, AUInA, DIn, DOut, A>(Value.Map(p1 => p1.ComposeRight(fb1)));
 
+        /// <summary>
+        /// Used when composing proxies with the `|` operator 
+        /// </summary>
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
             new M<RT, UOutA, AUInA, DIn, DOut, A>(Value.Map(x => x.ComposeRight(lhs)));
 
+        /// <summary>
+        /// Used when composing proxies with the `|` operator 
+        /// </summary>
         [Pure]
         public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
             new M<RT, UOut, UIn, DInC, DOutC, A>(Value.Map(p1 => p1.ComposeLeft(rhs)));
 
+        /// <summary>
+        /// Used when composing proxies with the `|` operator 
+        /// </summary>
         [Pure]
         public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
             new M<RT, UOut, UIn, DInC, DOutC, A>(Value.Map(x => x.ComposeLeft(rhs)));
 
+        /// <summary>
+        /// Reverse the arrows of the `Proxy` to find its dual.  
+        /// </summary>
+        /// <returns>The dual of `this1</returns>
         [Pure]
         public override Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect() =>
             new M<RT, DOut, DIn, UIn, UOut, A>(Value.Map(x => x.Reflect()));
          
+        /// <summary>
+        /// Inject side-effects into the `Proxy`
+        /// </summary>
+        /// <returns>This with side-effects</returns>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
             new M<RT, UOut, UIn, DIn, DOut, A>(

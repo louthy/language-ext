@@ -61,8 +61,8 @@ namespace LanguageExt.Pipes
             Value.Map(f).ToProducer();
 
         [Pure]
-        public override Proxy<RT, Void, Unit, C1, C, A> For<C1, C>(Func<OUT, Proxy<RT, Void, Unit, C1, C, Unit>> f) =>
-            Value.For(f);
+        public override Proxy<RT, Void, Unit, C1, C, A> For<C1, C>(Func<OUT, Proxy<RT, Void, Unit, C1, C, Unit>> body) =>
+            Value.For(body);
 
         [Pure]
         public override Proxy<RT, Void, Unit, Unit, OUT, B> Action<B>(Proxy<RT, Void, Unit, Unit, OUT, B> r) =>

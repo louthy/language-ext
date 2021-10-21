@@ -25,21 +25,15 @@ namespace LanguageExt.Pipes
             new Pure<A>(value);
 
         /// <summary>
-        /// Wait for a value from upstream (whilst in a pipe)
+        /// Wait for a value to flow from upstream (whilst in a `Pipe` or a `Consumer`)
         /// </summary>
-        /// <remarks>
-        /// This is the version of `await` that works for pipes.  In consumers, use `Consumer.await`
-        /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<A, A> awaiting<A>() =>
             PureProxy.ConsumerAwait<A>();
 
         /// <summary>
-        /// Send a value downstream (whilst in a pipe)
+        /// Send a value flowing downstream (whilst in a `Producer` or a `Pipe`)
         /// </summary>
-        /// <remarks>
-        /// This is the version of `yield` that works for pipes.  In producers, use `Producer.yield`
-        /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<A, Unit> yield<A>(A value) =>
             PureProxy.ProducerYield(value);
@@ -47,7 +41,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Create a queue
         /// </summary>
-        /// <remarks>A `Queue` is a Producer with an `Enqueue`, `EnqueueError`, and a `Done` to cancel the operation</remarks>
+        /// <remarks>A `Queue` is a `Producer` with an `Enqueue`, `EnqueueError`, and a `Done` to cancel the operation</remarks>
         [Pure, MethodImpl(Proxy.mops)]
         public static Queue<RT, A, Unit> Queue<RT, A>() where RT : struct, HasCancel<RT>
         {
@@ -73,74 +67,191 @@ namespace LanguageExt.Pipes
                 });
         }
 
+        /// <summary>
+        /// Create a `Producer` from an `IEnumerable`.  This will automatically `yield` each value of the
+        /// `IEnumerable` down stream
+        /// </summary>
+        /// <param name="xs">Items to `yield`</param>
+        /// <typeparam name="X">Type of the value to `yield`</typeparam>
+        /// <returns>`Producer`</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<X, Unit> enumerate<X>(IEnumerable<X> xs) =>
             enumerate2<X>(xs).Bind(yield);
         
+        /// <summary>
+        /// Create a `Producer` from an `IEnumerable`.  This will **not** automatically `yield` each value
+        /// of the `IEnumerable` down stream, it will return each of the values in the `IEnumerable` as the
+        /// bound value, so you can first transform it (for example), before yielding down stream.
+        /// </summary>
+        /// <example>
+        ///
+        ///     from text  in enumerate(list)
+        ///     from value in parseInt(text).Case switch
+        ///                   {
+        ///                       int x => yield(x),
+        ///                       _     => Pure(unit)
+        ///                   }
+        ///     select unit;
+        /// 
+        /// <param name="xs">Items to `yield`</param>
+        /// <typeparam name="X">Type of the value to `yield`</typeparam>
+        /// <returns>`Producer`</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<OUT, X> enumerate<OUT, X>(IEnumerable<X> xs) =>
             PureProxy.ProducerEnumerate<OUT, X>(xs);
 
+        /// <summary>
+        /// Create a `Producer` from an `IEnumerable`.  This will **not** automatically `yield` each value
+        /// of the `IEnumerable` down stream, it will return each of the values in the `IEnumerable` as the
+        /// bound value, so you can first transform it (for example), before yielding down stream.
+        /// </summary>
+        /// <example>
+        /// <typeparam name="X">Type of the value to `yield`</typeparam>
+        /// <returns>`Producer`</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<X, X> enumerate2<X>(IEnumerable<X> xs) =>
             PureProxy.ProducerEnumerate<X, X>(xs);
 
-
+        /// <summary>
+        /// Create a `Producer` from an `IAsyncEnumerable`.  This will automatically `yield` each value of the
+        /// `IEnumerable` down stream
+        /// </summary>
+        /// <param name="xs">Items to `yield`</param>
+        /// <typeparam name="X">Type of the value to `yield`</typeparam>
+        /// <returns>`Producer`</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<X, Unit> enumerate<X>(IAsyncEnumerable<X> xs) =>
             enumerate2<X>(xs).Bind(yield);
         
+        /// <summary>
+        /// Create a `Producer` from an `IAsyncEnumerable`.  This will **not** automatically `yield` each value
+        /// of the `IEnumerable` down stream, it will return each of the values in the `IAsyncEnumerable` as the
+        /// bound value, so you can first transform it (for example), before yielding down stream.
+        /// </summary>
+        /// <example>
+        ///
+        ///     from text  in enumerate(list)
+        ///     from value in parseInt(text).Case switch
+        ///                   {
+        ///                       int x => yield(x),
+        ///                       _     => Pure(unit)
+        ///                   }
+        ///     select unit;
+        /// 
+        /// <param name="xs">Items to `yield`</param>
+        /// <typeparam name="X">Type of the value to `yield`</typeparam>
+        /// <returns>`Producer`</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<OUT, X> enumerate<OUT, X>(IAsyncEnumerable<X> xs) =>
             PureProxy.ProducerEnumerate<OUT, X>(xs);
 
+        /// <summary>
+        /// Create a `Producer` from an `IAsyncEnumerable`.  This will **not** automatically `yield` each value
+        /// of the `IEnumerable` down stream, it will return each of the values in the `IAsyncEnumerable` as the
+        /// bound value, so you can first transform it (for example), before yielding down stream.
+        /// </summary>
+        /// <example>
+        ///
+        ///     from text  in enumerate(list)
+        ///     from value in parseInt(text).Case switch
+        ///                   {
+        ///                       int x => yield(x),
+        ///                       _     => Pure(unit)
+        ///                   }
+        ///     select unit;
+        /// 
+        /// <param name="xs">Items to `yield`</param>
+        /// <typeparam name="X">Type of the value to `yield`</typeparam>
+        /// <returns>`Producer`</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<X, X> enumerate2<X>(IAsyncEnumerable<X> xs) =>
             PureProxy.ProducerEnumerate<X, X>(xs);
 
-        
+        /// <summary>
+        /// Create a `Producer` from an `IObservable`.  This will automatically `yield` each value of the
+        /// `IObservable` down stream
+        /// </summary>
+        /// <param name="xs">Items to `yield`</param>
+        /// <typeparam name="X">Type of the value to `yield`</typeparam>
+        /// <returns>`Producer`</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<X, Unit> observe<X>(IObservable<X> xs) =>
             observeX<X>(xs).Bind(yield);
 
+        /// <summary>
+        /// Create a `Producer` from an `IObservable`.  This will **not** automatically `yield` each value
+        /// of the `IObservable` down stream, it will return each of the values in the `IObservable` as the
+        /// bound value, so you can first transform it (for example), before yielding down stream.
+        /// </summary>
+        /// <example>
+        ///
+        ///     from text  in enumerate(list)
+        ///     from value in parseInt(text).Case switch
+        ///                   {
+        ///                       int x => yield(x),
+        ///                       _     => Pure(unit)
+        ///                   }
+        ///     select unit;
+        /// 
+        /// <param name="xs">Items to `yield`</param>
+        /// <typeparam name="X">Type of the value to `yield`</typeparam>
+        /// <returns>`Producer`</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<OUT, X> observe<OUT, X>(IObservable<X> xs) =>
             PureProxy.ProducerObserve<OUT, X>(xs);
 
+        /// <summary>
+        /// Create a `Producer` from an `IObservable`.  This will **not** automatically `yield` each value
+        /// of the `IObservable` down stream, it will return each of the values in the `IObservable` as the
+        /// bound value, so you can first transform it (for example), before yielding down stream.
+        /// </summary>
+        /// <example>
+        ///
+        ///     from text  in enumerate(list)
+        ///     from value in parseInt(text).Case switch
+        ///                   {
+        ///                       int x => yield(x),
+        ///                       _     => Pure(unit)
+        ///                   }
+        ///     select unit;
+        /// 
+        /// <param name="xs">Items to `yield`</param>
+        /// <typeparam name="X">Type of the value to `yield`</typeparam>
+        /// <returns>`Producer`</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<X, X> observeX<X>(IObservable<X> xs) =>
             PureProxy.ProducerObserve<X, X>(xs);
 
         /// <summary>
-        /// Lift the IO monad into the monad transformer 
+        /// Lift the `Eff` monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Lift<RT, R> lift<RT, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
             Lift.Eff<RT, R>(ma);
 
         /// <summary>
-        /// Lift the IO monad into the monad transformer 
+        /// Lift the `Aff` monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Lift<RT, R> lift<RT, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
             Lift.Aff<RT, R>(ma);
 
         /// <summary>
-        /// Lift the IO monad into the monad transformer 
+        /// Lift the `Eff` monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Lift<RT, R> lift<RT, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
             Lift.Eff<RT, R>(ma);
 
         /// <summary>
-        /// Lift the IO monad into the monad transformer 
+        /// Lift the `Aff` monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Lift<RT, R> lift<RT, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
             Lift.Aff<RT, R>(ma);
 
         /// <summary>
-        /// Lift the IO monad into the monad transformer 
+        /// Lift the `Eff` monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Lift<RT, R> use<RT, R>(Eff<RT, R> ma)
@@ -149,7 +260,7 @@ namespace LanguageExt.Pipes
             Lift.Eff<RT, R>(ma);
 
         /// <summary>
-        /// Lift the IO monad into the monad transformer 
+        /// Lift the `Aff` monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Lift<RT, R> use<RT, R>(Aff<RT, R> ma)
@@ -158,7 +269,7 @@ namespace LanguageExt.Pipes
             Lift.Aff<RT, R>(ma);
 
         /// <summary>
-        /// Lift the IO monad into the monad transformer 
+        /// Lift the `Eff` monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Lift<RT, R> use<RT, R>(Eff<R> ma)
@@ -167,7 +278,7 @@ namespace LanguageExt.Pipes
             Lift.Eff<RT, R>(ma);
 
         /// <summary>
-        /// Lift the IO monad into the monad transformer 
+        /// Lift the `Aff` monad into the monad transformer 
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Lift<RT, R> use<RT, R>(Aff<R> ma)
@@ -183,21 +294,21 @@ namespace LanguageExt.Pipes
             new Release<Unit>.Do<A>(value, PureProxy.ReleasePure<Unit>);
 
         /// <summary>
-        /// Repeat the Producer indefinitely
+        /// Repeat the `Producer` indefinitely
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, OUT, R> repeat<RT, OUT, R>(Producer<RT, OUT, R> ma) where RT : struct, HasCancel<RT> =>
             new Repeat<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
 
         /// <summary>
-        /// Repeat the Consumer indefinitely
+        /// Repeat the `Consumer` indefinitely
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, IN, R> repeat<RT, IN, R>(Consumer<RT, IN, R> ma) where RT : struct, HasCancel<RT> =>
             new Repeat<RT, Unit, IN, Unit, Void, R>(ma).ToConsumer();
 
         /// <summary>
-        /// Repeat the Pipe indefinitely
+        /// Repeat the `Pipe` indefinitely
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, IN, OUT, R> repeat<RT, IN, OUT, R>(Pipe<RT, IN, OUT, R> ma) where RT : struct, HasCancel<RT> =>
@@ -406,9 +517,9 @@ namespace LanguageExt.Pipes
             p.Reflect();
 
         /// <summary>
-        /// `p.@for(body)` loops over `p` replacing each `yield` with `body`
+        /// `p.ForEach(body)` loops over the `Producer p` replacing each `yield` with `body`
         /// 
-        /// Producer b r -> (b -> Producer c ()) -> Producer c r
+        ///     Producer b r -> (b -> Producer c ()) -> Producer c r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, OUT_B, A> ForEach<RT, OUT_A, OUT_B, A>(this Producer<RT, OUT_A, A> p, Func<OUT_A, Producer<RT, OUT_B, Unit>> body)
@@ -416,9 +527,9 @@ namespace LanguageExt.Pipes
             p.For(body).ToProducer();
 
         /// <summary>
-        /// `p.@for(body)` loops over `p` replacing each `yield` with `body`
+        /// `p.ForEach(body)` loops over `Producer p` replacing each `yield` with `body`
         /// 
-        /// Producer b r -> (b -> Effect ()) -> Effect r
+        ///     Producer b r -> (b -> Effect ()) -> Effect r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Effect<RT, A> ForEach<RT, OUT, A>(this Producer<RT, OUT, A> p, Func<OUT, Effect<RT, Unit>> fb)
@@ -426,9 +537,9 @@ namespace LanguageExt.Pipes
             p.For(fb).ToEffect();
 
         /// <summary>
-        /// `p.@for(body)` loops over `p` replacing each `yield` with `body`
+        /// `p.ForEach(body)` loops over `Pipe p` replacing each `yield` with `body`
         /// 
-        /// Pipe x b r -> (b -> Consumer x ()) -> Consumer x r
+        ///     Pipe x b r -> (b -> Consumer x ()) -> Consumer x r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, IN, A> ForEach<RT, IN, OUT, A>(this Pipe<RT, IN, OUT, A> p0, Func<OUT, Consumer<RT, IN, Unit>> fb)
@@ -436,9 +547,9 @@ namespace LanguageExt.Pipes
             p0.For(fb).ToConsumer();
 
         /// <summary>
-        /// `p.@for(body)` loops over `p` replacing each `yield` with `body`
+        /// `p.ForEach(body)` loops over `Pie p` replacing each `yield` with `body`
         /// 
-        /// Pipe x b r -> (b -> Pipe x c ()) -> Pipe x c r
+        ///     Pipe x b r -> (b -> Pipe x c ()) -> Pipe x c r
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, IN, OUT, R> ForEach<RT, IN, B, OUT, R>(this Pipe<RT, IN, B, R> p0, Func<B, Pipe<RT, IN, OUT, Unit>> fb)
@@ -456,7 +567,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
         /// 
-        /// Effect b -> Consumer b c -> Effect c
+        ///     Effect b -> Consumer b c -> Effect c
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Effect<RT, A> compose<RT, OUT, A>(Effect<RT, OUT> p1, Consumer<RT, OUT, A> p2)
@@ -466,7 +577,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
         /// 
-        /// Consumer a b -> Consumer b c -> Consumer a c
+        ///     Consumer a b -> Consumer b c -> Consumer a c
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Consumer<RT, A, C> compose<RT, A, B, C>(Consumer<RT, A, B> p1, Consumer<RT, B, C> p2) where RT : struct, HasCancel<RT> =>
@@ -475,7 +586,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
         /// 
-        /// Producer y b -> Pipe b y m c -> Producer y c
+        ///     Producer y b -> Pipe b y m c -> Producer y c
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<RT, OUT, C> compose<RT, OUT, IN, C>(Producer<RT, OUT, IN> p1, Pipe<RT, IN, OUT, C> p2) where RT : struct, HasCancel<RT> =>
@@ -484,7 +595,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
         /// 
-        /// Pipe a y b -> Pipe b y c -> Pipe a y c
+        ///     Pipe a y b -> Pipe b y c -> Pipe a y c
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Pipe<RT, A, Y, C> compose<RT, Y, A, B, C>(Pipe<RT, A, Y, B> p1,
@@ -619,30 +730,21 @@ namespace LanguageExt.Pipes
             compose(p0, fb);
 
 
-        /// {-| Compose two folds, creating a new fold
-        ///         @
-        ///     (f '\>\' g) x = f '>\\' g x
-        ///         @
+        /// <summary>
+        ///  Compose two folds, creating a new fold
         /// 
-        ///     ('\>\') is the composition operator of the request category.
-        ///     -}
-        /// (\>\)
-        /// :: Functor m
-        /// => (b' -> Proxy a' a y' y m b)
-        /// -- ^
-        /// -> (c' -> Proxy b' b y' y m c)
-        /// -- ^
-        /// -> (c' -> Proxy a' a y' y m c)
-        /// -- ^
-        /// (fb' \>\ fc') c' = fb' >\\ fc' c'
+        ///     (f | g) x = f | g x
+        /// 
+        ///     | is the composition operator of the request category.
+        /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Func<C1, Proxy<RT, A1, A, Y1, Y, C>> compose<RT, A1, A, B1, B, Y1, Y, C1, C>(Func<B1, Proxy<RT, A1, A, Y1, Y, B>> fb1,
             Func<C1, Proxy<RT, B1, B, Y1, Y, C>> fc1) where RT : struct, HasCancel<RT> =>
             c1 => compose(fb1, fc1(c1));
 
         /// <summary>
-        /// observe (lift (return r)) = observe (return r)
-        /// observe (lift (m >>= f)) = observe (lift m >>= lift . f)
+        ///     observe (lift (return r)) = observe (return r)
+        ///     observe (lift (m >>= f)) = observe (lift m >>= lift . f)
         /// 
         /// This correctness comes at a small cost to performance, so use this function sparingly.
         /// This function is a convenience for low-level pipes implementers.  You do not need to
@@ -654,8 +756,8 @@ namespace LanguageExt.Pipes
             p0.Observe();
 
         /// <summary>
-        /// 'Absurd' function
-        /// `VoidX` is supposed to represent `void`, nothing can be constructed from `void` and
+        /// `Absurd` function
+        /// `Void` is supposed to represent `void`, nothing can be constructed from `void` and
         /// so this method just throws `ApplicationException("closed")`
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]

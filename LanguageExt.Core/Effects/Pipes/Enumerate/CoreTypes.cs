@@ -54,8 +54,8 @@ namespace LanguageExt.Pipes
             new Enumerate<RT, UOut, UIn, DIn, DOut, X, S>(Items, x => Next(x).Map(f));
 
         [Pure]
-        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> f) =>
-            new Enumerate<RT, UOut, UIn, C1, C, X, A>(Items, x => Next(x).For(f));
+        public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body) =>
+            new Enumerate<RT, UOut, UIn, C1, C, X, A>(Items, x => Next(x).For(body));
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
