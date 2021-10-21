@@ -26,7 +26,7 @@ namespace LanguageExt.Tests
         {
             var arr = EmptyList;
 
-            var seq = Seq1(arr);
+            var seq = toSeq(arr);
 
             Assert.True(seq.IsEmpty);
             Assert.True(seq.Tail.IsEmpty);
