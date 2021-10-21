@@ -250,7 +250,7 @@ namespace LanguageExt.Tests
         {
             var m = Map((1, 1), (2, 2), (3, 3), (4, 4), (5, 5));
 
-            var vs = Seq(m.Values);
+            var vs = toSeq(m.Values);
 
             Assert.True(vs.Head == 1);
             Assert.True(vs.Tail.Head == 2);
@@ -265,7 +265,7 @@ namespace LanguageExt.Tests
         {
             var m = Map((1, 1), (2, 2), (3, 3), (4, 4), (5, 5));
 
-            var vs = Seq(m.Keys);
+            var vs = toSeq(m.Keys);
 
             Assert.True(vs.Head == 1);
             Assert.True(vs.Tail.Head == 2);

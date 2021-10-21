@@ -9,7 +9,7 @@ namespace LanguageExt.Tests.SeqTypes
         [Fact]
         public void Take_ZeroFromNonempty_Empty()
         {
-            var seq = Seq(new List<int> { 0 });
+            var seq    = toSeq(new List<int> { 0 });
             var actual = seq.Take(0);
             Assert.Equal(actual, SeqEmpty.Default);
         }
@@ -17,7 +17,7 @@ namespace LanguageExt.Tests.SeqTypes
         [Fact]
         public void Take_NegativeFromNonempty_Empty()
         {
-            var seq = Seq(new List<int> { 0 });
+            var seq    = toSeq(new List<int> { 0 });
             var actual = seq.Take(-1);
             Assert.Equal(actual, SeqEmpty.Default);
         }
@@ -25,8 +25,8 @@ namespace LanguageExt.Tests.SeqTypes
         [Fact]
         public void Skip_NegativeFromNonempty_Unchanged()
         {
-            var expected = Seq(new List<int> { 0 });
-            var actual = expected.Skip(-1);
+            var expected = toSeq(new List<int> { 0 });
+            var actual   = expected.Skip(-1);
             Assert.Equal(actual, expected);
         }
 

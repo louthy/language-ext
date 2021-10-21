@@ -34,7 +34,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.SeqT.Collections
                 Seq(2, 20),
                 Seq(2, 30));
 
-            Assert.True(mb.Map(Prelude.Seq) == mc.Map(Prelude.Seq));
+            Assert.True(mb.Map(Prelude.Seq1) == mc.Map(Prelude.Seq1));
         }
 
         [Fact]

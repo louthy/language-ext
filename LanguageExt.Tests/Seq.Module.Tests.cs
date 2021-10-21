@@ -183,7 +183,7 @@ namespace LanguageExt.Tests
         {
             var sum = Range(1, 10000).Sum();
 
-            var seq = Seq(Range(1, 10000));
+            var seq = toSeq(Range(1, 10000));
 
             var tasks = new List<Task<int>>();
             foreach(var x in Range(1, 1000))

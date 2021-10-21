@@ -14,8 +14,8 @@ namespace LanguageExt.Tests
         {
             var x = "test";
 
-            Assert.True(Seq(x).Count() == 1);
-            Assert.True(Seq(x).Head() == x);
+            Assert.True(toSeq(x).Count() == 1);
+            Assert.True(Seq1(x).Head() == x);
         }
 
         [Fact]
@@ -23,7 +23,7 @@ namespace LanguageExt.Tests
         {
             string x = null;
 
-            Assert.True(Seq(x).Count() == 0);
+            Assert.True(toSeq(x).Count() == 0);
         }
 
         [Fact]
@@ -243,7 +243,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void AddTest()
         {
-            var a = Seq("a");
+            var a = Seq1("a");
 
             var b = a.Add("b");
 
@@ -258,7 +258,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void ConsTest()
         {
-            var a = Seq("a");
+            var a = Seq1("a");
 
             var b = "b".Cons(a);
 
@@ -284,14 +284,14 @@ namespace LanguageExt.Tests
             Assert.True(sb == Seq(1, 2, 3, 4));
             Assert.True(sc == Seq(1, 2, 3));
             Assert.True(sd == Seq(1, 2));
-            Assert.True(se == Seq(1));
+            Assert.True(se == Seq1(1));
             Assert.True(sf == Empty);
         }
 
         [Fact]
         public void InitLazyTest()
         {
-            var sa = Seq(Range(1, 5));
+            var sa = toSeq(Range(1, 5));
 
             var sb = sa.Init;  // [1,2,3,4]
             var sc = sb.Init;  // [1,2,3]
@@ -302,14 +302,14 @@ namespace LanguageExt.Tests
             Assert.True(sb == Seq(1, 2, 3, 4));
             Assert.True(sc == Seq(1, 2, 3));
             Assert.True(sd == Seq(1, 2));
-            Assert.True(se == Seq(1));
+            Assert.True(se == Seq1(1));
             Assert.True(sf == Empty);
         }
 
         [Fact]
         public void InitConcatTest()
         {
-            var sa = Seq(Range(1, 2)) + Seq(Range(3, 3));
+            var sa = toSeq(Range(1, 2)) + toSeq(Range(3, 3));
 
             var sb = sa.Init;  // [1,2,3,4]
             var sc = sb.Init;  // [1,2,3]
@@ -320,15 +320,15 @@ namespace LanguageExt.Tests
             Assert.True(sb == Seq(1, 2, 3, 4));
             Assert.True(sc == Seq(1, 2, 3));
             Assert.True(sd == Seq(1, 2));
-            Assert.True(se == Seq(1));
+            Assert.True(se == Seq1(1));
             Assert.True(sf == Empty);
         }
 
         [Fact]
         public void HashTest()
         {
-            var s1 = Seq("test");
-            var s2 = Seq("test");
+            var s1 = Seq1("test");
+            var s2 = Seq1("test");
 
             Assert.True(s1.GetHashCode() == s2.GetHashCode());
         }
@@ -425,7 +425,7 @@ namespace LanguageExt.Tests
             var xs = Seq<int>();
             Assert.True(xs.Count == 0);
             
-            xs = Seq<int>(0);
+            xs = Seq1<int>(0);
             Assert.True(xs.Count == 1);
             Assert.True(xs[0] == 0);
             

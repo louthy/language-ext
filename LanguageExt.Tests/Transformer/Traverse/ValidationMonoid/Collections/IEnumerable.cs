@@ -29,9 +29,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.ValidationMonoid.Collections
         [Fact]
         public void IEnumerableSuccAndFailIsFailedIEnumerable()
         {
-            var ma = List(Fail<MSeq<Error>, Seq<Error>, int>(Seq(Error.New("failed"))), Success<MSeq<Error>, Seq<Error>, int>(12)).AsEnumerable();
+            var ma = List(Fail<MSeq<Error>, Seq<Error>, int>(Seq1(Error.New("failed"))), Success<MSeq<Error>, Seq<Error>, int>(12)).AsEnumerable();
             var mb = ma.Traverse(identity);
-            Assert.Equal(Fail<MSeq<Error>, Seq<Error>, IEnumerable<int>>(Seq(Error.New("failed"))), mb);
+            Assert.Equal(Fail<MSeq<Error>, Seq<Error>, IEnumerable<int>>(Seq1(Error.New("failed"))), mb);
         }
     }
 }

@@ -26,9 +26,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.ValidationMonoid.Collections
         [Fact]
         public void StckSuccAndFailIsFailedStck()
         {
-            var ma = Stack(Fail<MSeq<Error>, Seq<Error>, int>(Seq(Error.New("failed"))), Success<MSeq<Error>, Seq<Error>, int>(12));
+            var ma = Stack(Fail<MSeq<Error>, Seq<Error>, int>(Seq1(Error.New("failed"))), Success<MSeq<Error>, Seq<Error>, int>(12));
             var mb = ma.Traverse(identity);
-            Assert.Equal(Fail<MSeq<Error>, Seq<Error>, Stck<int>>(Seq(Error.New("failed"))), mb);
+            Assert.Equal(Fail<MSeq<Error>, Seq<Error>, Stck<int>>(Seq1(Error.New("failed"))), mb);
         }
     }
 }

@@ -76,8 +76,8 @@ namespace LanguageExt.Tests
         }
 
         static Writer<MSeq<string>, Seq<string>, Seq<int>> multWithLog(Seq<int> input) =>
-            from _ in Writer(0, Seq("Start"))
-            let c = input.Map(i => Writer(i * 10, Seq($"Number: {i}")))
+            from _ in Writer(0, Seq1("Start"))
+            let c = input.Map(i => Writer(i * 10, Seq1($"Number: {i}")))
             from r in c.Sequence()
             select r;
 
@@ -346,9 +346,9 @@ namespace Issues
 
             var mc = from x in ma
                      from y in mb
-                     from _1 in tell<MSeq<string>, Seq<string>>(Seq("Hello"))
-                     from _2 in tell<MSeq<string>, Seq<string>>(Seq("World"))
-                     from _3 in tell<MSeq<string>, Seq<string>>(Seq($"the result is {x + y}"))
+                     from _1 in tell<MSeq<string>, Seq<string>>(Seq1("Hello"))
+                     from _2 in tell<MSeq<string>, Seq<string>>(Seq1("World"))
+                     from _3 in tell<MSeq<string>, Seq<string>>(Seq1($"the result is {x + y}"))
                      select x + y;
 
             var r = mc();

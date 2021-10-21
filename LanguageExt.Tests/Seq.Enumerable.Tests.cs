@@ -26,7 +26,7 @@ namespace LanguageExt.Tests
         {
             var arr = EmptyList;
 
-            var seq = Seq(arr);
+            var seq = Seq1(arr);
 
             Assert.True(seq.IsEmpty);
             Assert.True(seq.Tail.IsEmpty);
@@ -61,7 +61,7 @@ namespace LanguageExt.Tests
         {
             var arr = OneItem;
 
-            var seq = Seq(arr);
+            var seq = toSeq(arr);
 
             Assert.True(seq.Head == 1);
             Assert.True(seq.Tail.IsEmpty);
@@ -100,7 +100,7 @@ namespace LanguageExt.Tests
         {
             var arr = FiveItems;
 
-            var seq = Seq(arr);
+            var seq = toSeq(arr);
 
             Assert.True(seq.Head == 1);
             Assert.True(seq.Tail.Head == 2);
@@ -185,7 +185,7 @@ namespace LanguageExt.Tests
                        where x % 2 == 0
                        select x;
 
-            var expected = Seq(EvenItems);
+            var expected = toSeq(EvenItems);
 
             Assert.True(expected == seq2);
             Assert.True(expected == seq3);
@@ -195,12 +195,12 @@ namespace LanguageExt.Tests
         [Fact]
         public void BindTest()
         {
-            var seq1 = Seq(TenHundred);
-            var seq2 = Seq(FiveItems);
+            var seq1 = toSeq(TenHundred);
+            var seq2 = toSeq(FiveItems);
 
             var seq3 = seq1.Bind(x => seq2.Map(y => x * y));
 
-            var expected = Seq(BoundItems);
+            var expected = toSeq(BoundItems);
 
             Assert.True(seq3 == expected);
         }
@@ -208,7 +208,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void FoldTest1()
         {
-            var seq = Seq(FiveItems);
+            var seq = toSeq(FiveItems);
 
             var res1 = seq.Fold(1, (s, x) => s * x);
             var res2 = seq.FoldBack(1, (s, x) => s * x);
@@ -220,7 +220,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void FoldTest2()
         {
-            var seq = Seq(abcdeStrs);
+            var seq = toSeq(abcdeStrs);
 
             var res1 = seq.Fold("", (s, x) => s + x);
             var res2 = seq.FoldBack("", (s, x) => s + x);

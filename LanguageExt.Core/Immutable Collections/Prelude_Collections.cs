@@ -1099,17 +1099,24 @@ namespace LanguageExt
             System.Array.Copy(tail, 0, arr, 12, tail.Length);
             return new Seq<A>(new SeqStrict<A>(arr, 4, 8 + tail.Length, 0, 0));
         }
-
+        
         /// <summary>
-        /// Construct a sequence from a nullable
-        ///     HasValue == true  : [x]
-        ///     HasValue == false : []
+        /// Construct a sequence from an Enumerable
+        /// Deals with `value == null` by returning `[]` and also memoizes the
+        /// items in the enumerable as they're being consumed.
         /// </summary>
         [Pure]
-        public static Seq<A> toSeq<A>(A? value) where A : struct =>
-            value == null 
-                ? Empty 
-                : LSeq.FromSingleValue(value.Value);
+        public static Seq<A> Seq<A>(IEnumerable<A> value) =>
+            value switch
+            {
+                null                => Empty,
+                Seq<A> seq          => seq,
+                Arr<A> arr          => LSeq.FromArray(arr.Value),
+                A[] array           => toSeq(array),
+                IList<A> list       => toSeq(list),
+                ICollection<A> coll => toSeq(coll),
+                _                   => new Seq<A>(value)
+            };
 
         /// <summary>
         /// Construct a sequence from an Enumerable
@@ -1128,7 +1135,18 @@ namespace LanguageExt
                 ICollection<A> coll => toSeq(coll),
                 _                   => new Seq<A>(value)
             };
-
+        
+        /// <summary>
+        /// Construct a sequence from a nullable
+        ///     HasValue == true  : [x]
+        ///     HasValue == false : []
+        /// </summary>
+        [Pure]
+        public static Seq<A> toSeq<A>(A? value) where A : struct =>
+            value == null 
+                ? Empty 
+                : LSeq.FromSingleValue(value.Value);
+        
         /// <summary>
         /// Construct a sequence from an array
         /// </summary>

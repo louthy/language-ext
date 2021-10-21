@@ -77,7 +77,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void Validation_MapFails_Failure()
         {
-            var failure = Fail<MSeq<string>, Seq<string>, int>(Seq("something went wrong"))
+            var failure = Fail<MSeq<string>, Seq<string>, int>(Seq1("something went wrong"))
                 .MapFail<MSeq<string>, Seq<string>>(f => f.Map(ToUpper));
 
             failure.Match(
@@ -103,7 +103,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void Validation_BiMap_Failure()
         {
-            var failure = Fail<MSeq<string>, Seq<string>, int>(Seq("something went wrong"))
+            var failure = Fail<MSeq<string>, Seq<string>, int>(Seq1("something went wrong"))
                 .BiMap<MSeq<string>, Seq<string>, int>(
                     Success: succ => succ + 1,
                     Fail: fail => fail.Map(ToUpper)

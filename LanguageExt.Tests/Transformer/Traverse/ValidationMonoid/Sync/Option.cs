@@ -30,9 +30,9 @@ namespace LanguageExt.Tests.Transformer.Traverse.ValidationMonoid.Sync
         [Fact]
         public void SomeFailIsFailSome()
         {
-            var ma = Some(Fail<MSeq<Error>, Seq<Error>, int>(Seq(Error.New("Err"))));
+            var ma = Some(Fail<MSeq<Error>, Seq<Error>, int>(Seq1(Error.New("Err"))));
             var mb = ma.Traverse(identity);
-            var mc = Fail<MSeq<Error>, Seq<Error>, Option<int>>(Seq(Error.New("Err")));
+            var mc = Fail<MSeq<Error>, Seq<Error>, Option<int>>(Seq1(Error.New("Err")));
 
             Assert.Equal(mc, mb);
         }

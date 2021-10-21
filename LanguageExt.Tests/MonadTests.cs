@@ -36,8 +36,8 @@ namespace LanguageExt.Tests
             (value, output, false);
 
         static Writer<MSeq<string>, Seq<string>, Seq<int>> multWithLog(Seq<int> input) =>
-            from _ in writer(0, Seq("Start"))
-            let c = input.Map(i => writer(i * 10, Seq($"Number: {i}")))
+            from _ in writer(0, Seq1("Start"))
+            let c = input.Map(i => writer(i * 10, Seq1($"Number: {i}")))
             from r in c.Sequence()
             select r;
 

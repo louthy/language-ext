@@ -10,9 +10,9 @@ namespace LanguageExt.Tests
         [Fact]
         public void TestEmpty()
         {
-            var arr = Seq(new List<int>());
+            var arr = toSeq(new List<int>());
 
-            var seq = Seq(arr);
+            var seq = toSeq(arr);
 
             Assert.True(seq.IsEmpty);
             Assert.True(seq.Tail.IsEmpty);
@@ -206,7 +206,7 @@ namespace LanguageExt.Tests
         [Fact]
         public void FoldTest2()
         {
-            var seq = Seq(new List<string>() { "a", "b", "c", "d", "e" });
+            var seq = toSeq(new List<string>() { "a", "b", "c", "d", "e" });
 
             var res1 = seq.Fold("", (s, x) => s + x);
             var res2 = seq.FoldBack("", (s, x) => s + x);
