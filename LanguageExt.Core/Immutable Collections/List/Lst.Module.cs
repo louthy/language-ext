@@ -163,7 +163,7 @@ namespace LanguageExt
         [Pure]
         public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail) =>
             list.Select(Validation<Fail, Success>.Success)
-                .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq(fail)))
+                .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq1(fail)))
                 .FirstOrDefault();
 
         /// <summary>
@@ -228,7 +228,7 @@ namespace LanguageExt
         [Pure]
         public static Validation<Fail, Success> lastOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail) =>
             list.Select(Validation<Fail, Success>.Success)
-                .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq(fail)))
+                .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq1(fail)))
                 .LastOrDefault();
 
         /// <summary>

@@ -37,7 +37,7 @@ namespace LanguageExt
         {
             if (ma.IsLeft)
             {
-                return Validation<Fail, Either<Fail, B>>.Fail(Seq(ma.LeftValue));
+                return Validation<Fail, Either<Fail, B>>.Fail(Seq1(ma.LeftValue));
             }
             else
             {
@@ -77,7 +77,7 @@ namespace LanguageExt
         {
             if (ma.IsLeft)
             {
-                return Validation<Fail, EitherUnsafe<Fail, B>>.Fail(Seq(ma.LeftValue));
+                return Validation<Fail, EitherUnsafe<Fail, B>>.Fail(Seq1(ma.LeftValue));
             }
             else
             {

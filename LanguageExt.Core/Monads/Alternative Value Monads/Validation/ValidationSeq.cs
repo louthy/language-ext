@@ -192,7 +192,7 @@ namespace LanguageExt
         public static implicit operator Validation<FAIL, SUCCESS>(FAIL value) =>
             isnull(value)
                 ? throw new ValueIsNullException()
-                : Fail(Seq(value));
+                : Fail(Seq1(value));
 
         [Pure]
         public Validation<FAIL, SUCCESS> Disjunction<SUCCESSB>(Validation<FAIL, SUCCESSB> other)

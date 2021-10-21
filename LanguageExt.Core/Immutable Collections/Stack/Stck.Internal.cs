@@ -129,7 +129,7 @@ namespace LanguageExt
                     self = self.tail;
                 }
             }
-            return Prelude.Seq(Yield());
+            return Prelude.toSeq(Yield());
         }
 
         /// <summary>

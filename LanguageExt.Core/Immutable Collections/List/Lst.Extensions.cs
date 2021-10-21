@@ -177,7 +177,7 @@ public static class ListExtensions
     [Pure]
     public static Validation<Fail, Success> LastOrInvalid<Fail, Success>(this IEnumerable<Success> list, Fail fail) =>
         list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq(fail)))
+            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq1(fail)))
             .LastOrDefault();
 
     /// <summary>

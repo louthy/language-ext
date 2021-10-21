@@ -82,7 +82,7 @@ namespace LanguageExt
             {
                 if (!inserts.IsEmpty && !deletes.IsEmpty) return normalise1(inserts.Tail, deletes.Tail, Edit<EqA, A>.Replace.New(deletes.Head.Position, deletes.Head.Element, inserts.Head.Element).Cons(replaces));
                 if (deletes.IsEmpty) return toSeq(inserts.Map(i => i as Edit<EqA, A>).ConcatFast(replaces.Take(1)).ToArray());
-                if (inserts.IsEmpty) return Seq(deletes.Head as Edit<EqA, A>);
+                if (inserts.IsEmpty) return Seq1(deletes.Head as Edit<EqA, A>);
                 throw new InvalidOperationException();
             }
         }
@@ -248,7 +248,7 @@ namespace LanguageExt
         /// Apply a patch to a document, returning the transformed document.
         /// </summary>
         public static Seq<A> apply<EqA, A>(Patch<EqA, A> patch, Seq<A> va) where EqA : struct, Eq<A> =>
-            Seq(apply(patch, va.AsEnumerable()));
+            toSeq(apply(patch, va.AsEnumerable()));
 
         /// <summary>
         /// Apply a patch to a document, returning the transformed document.

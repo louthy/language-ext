@@ -878,7 +878,7 @@ namespace LanguageExt
         public static B match<A, B>(IEnumerable<A> list,
             Func<B> Empty,
             Func<Seq<A>, B> More) =>
-            Seq(list).Match(Empty, More);
+            toSeq(list).Match(Empty, More);
 
         /// <summary>
         /// List pattern matching
@@ -887,7 +887,7 @@ namespace LanguageExt
         public static B match<A, B>(IEnumerable<A> list,
             Func<B> Empty,
             Func<A, Seq<A>, B> More) =>
-            Seq(list).Match(Empty, More);
+            toSeq(list).Match(Empty, More);
 
         /// <summary>
         /// List pattern matching
@@ -897,7 +897,7 @@ namespace LanguageExt
             Func<R> Empty,
             Func<T, R> One,
             Func<T, Seq<T>, R> More) =>
-            Seq(list).Match(Empty, One, More);
+            toSeq(list).Match(Empty, One, More);
 
         [Pure]
         public static R match<K, V, R>(Map<K, V> map, K key, Func<V, R> Some, Func<R> None) =>
@@ -928,14 +928,23 @@ namespace LanguageExt
         public static Seq<A> Seq<A>() =>
             Empty;
         
+        // TODO: Enable this on in June 2022
+        //[Pure]
+        //public static Seq<A> Seq<A>(A value)
+        //{
+        //    var arr = new A[4];
+        //    arr[2] = value;
+        //    return new Seq<A>(new SeqStrict<A>(arr, 2, 1, 0, 0));
+        //}
+        
         /// <summary>
         /// Construct a sequence from any value
         ///
-        ///     var list = Seq(1);
+        ///     var list = Seq1(124);
         /// 
         /// </summary>
         [Pure]
-        public static Seq<A> Seq<A>(A value)
+        public static Seq<A> Seq1<A>(A value)
         {
             var arr = new A[4];
             arr[2] = value;
@@ -1109,24 +1118,6 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Seq<A> toSeq<A>(IEnumerable<A> value) =>
-            value switch
-            {
-                null                => Empty,
-                Seq<A> seq          => seq,
-                Arr<A> arr          => LSeq.FromArray(arr.Value),
-                A[] array           => toSeq(array),
-                IList<A> list       => toSeq(list),
-                ICollection<A> coll => toSeq(coll),
-                _                   => new Seq<A>(value)
-            };
-
-        /// <summary>
-        /// Construct a sequence from an Enumerable
-        /// Deals with `value == null` by returning `[]` and also memoizes the
-        /// items in the enumerable as they're being consumed.
-        /// </summary>
-        [Pure]
-        public static Seq<A> Seq<A>(IEnumerable<A> value) =>
             value switch
             {
                 null                => Empty,

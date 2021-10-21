@@ -119,7 +119,7 @@ namespace LanguageExt
         /// <param name="seq">Enumerable to memoize</param>
         /// <returns>IEnumerable with caching properties</returns>
         public static Seq<T> memo<T>(IEnumerable<T> seq) =>
-            Seq(seq);
+            toSeq(seq);
 
         /// <summary>
         /// Used internally by the memo function.  It wraps a concurrent dictionary that has 

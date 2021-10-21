@@ -52,7 +52,7 @@ namespace LanguageExt.ClassInstances
             EnumerableOptimal.BindFast(ma, f);
 
         static Seq<B> BindLazy<B>(Seq<A> ma, Func<A, Seq<B>> f) =>
-            Seq(EnumerableOptimal.BindFast(ma, a => f(a).AsEnumerable()));
+            toSeq(EnumerableOptimal.BindFast(ma, a => f(a).AsEnumerable()));
 
         [Pure]
         public MB BindAsync<MONADB, MB, B>(IEnumerable<A> ma, Func<A, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B>

@@ -261,7 +261,7 @@ namespace LanguageExt
         [Pure]
         public static Seq<A> lefts<CHOICE, CH, A, B>(Seq<CH> ma)
             where CHOICE : struct, ChoiceUnsafe<CH, A, B> =>
-            Seq(lefts<CHOICE, CH, A, B>(ma.AsEnumerable()));
+            Prelude.toSeq(lefts<CHOICE, CH, A, B>(ma.AsEnumerable()));
 
         /// <summary>
         /// Extracts from a list of 'Either' all the 'Right' elements.
@@ -299,7 +299,7 @@ namespace LanguageExt
         [Pure]
         public static Seq<B> rights<CHOICE, CH, A, B>(Seq<CH> ma)
             where CHOICE : struct, ChoiceUnsafe<CH, A, B> =>
-            Seq(rights<CHOICE, CH, A, B>(ma.AsEnumerable()));
+            Prelude.toSeq(rights<CHOICE, CH, A, B>(ma.AsEnumerable()));
 
         /// <summary>
         /// Partitions a list of 'Either' into two lists.

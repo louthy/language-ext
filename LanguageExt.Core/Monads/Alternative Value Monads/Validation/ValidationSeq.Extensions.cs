@@ -127,7 +127,7 @@ namespace LanguageExt
         [Pure]
         public static Seq<S> Successes<MonoidF, F, S>(this Seq<Validation<MonoidF, F, S>> vs)
             where MonoidF : struct, Monoid<F>, Eq<F> =>
-            Seq(Successes(vs.AsEnumerable()));
+            toSeq(Successes(vs.AsEnumerable()));
 
         /// <summary>
         /// Extract only the failures 
@@ -139,6 +139,6 @@ namespace LanguageExt
         [Pure]
         public static Seq<F> Fails<MonoidF, F, S>(this Seq<Validation<MonoidF, F, S>> vs)
             where MonoidF : struct, Monoid<F>, Eq<F> => 
-            Seq(Fails(vs.AsEnumerable()));
+            toSeq(Fails(vs.AsEnumerable()));
     }
 }

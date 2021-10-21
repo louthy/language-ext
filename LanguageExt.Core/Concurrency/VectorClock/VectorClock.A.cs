@@ -80,7 +80,7 @@ namespace LanguageExt
         /// A vector clock with a single element
         /// </summary>
         public static VectorClock<A> Single(A x, long y) =>
-            fromList(Seq((x, y)));
+            fromList(Seq1((x, y)));
 
         /// <summary>
         /// Insert each entry in the list one at a time.
@@ -164,7 +164,7 @@ namespace LanguageExt
 
             Seq<(A, long)> go(Seq<(A, long)> entries) =>
                 entries.IsEmpty
-                    ? Seq((index, value))
+                    ? Seq1((index, value))
                     : entries.Head switch
                       {
                           (var x1, _) xy when lessThan<OrdDefault<A>, A>(x1, index) => xy.Cons(go(entries.Tail)),

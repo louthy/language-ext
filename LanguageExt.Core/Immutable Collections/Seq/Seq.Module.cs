@@ -75,7 +75,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<A> generate<A>(int count, Func<int, A> generator) =>
-            Seq(Range(0, count).Map(generator));
+            toSeq(Range(0, count).Map(generator));
 
         /// <summary>
         /// Generates a sequence that contains one repeated value.
@@ -83,7 +83,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<A> repeat<A>(A item, int count) =>
-            Seq(Range(0, count).Map(_ => item));
+            toSeq(Range(0, count).Map(_ => item));
 
         /// <summary>
         /// Get the item at the head (first) of the sequence
@@ -196,7 +196,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<B> map<A, B>(Seq<A> list, Func<int, A, B> map) =>
-            toSeq(zip(list, Seq(Range(0, Int32.MaxValue)), (t, i) => map(i, t)));
+            toSeq(zip(list, toSeq(Range(0, Int32.MaxValue)), (t, i) => map(i, t)));
 
         /// <summary>
         /// Removes items from the sequence that do not match the given predicate (Where in LINQ)
@@ -296,7 +296,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<T> rev<T>(Seq<T> list) =>
-            Seq(list.Reverse());
+            toSeq(list.Reverse());
 
         /// <summary>
         /// Concatenate two sequences (Concat in LINQ)
@@ -621,7 +621,7 @@ namespace LanguageExt
                     yield return state;
                 }
             }
-            return Seq(Yield());
+            return toSeq(Yield());
         }
 
         /// <summary>
@@ -684,7 +684,7 @@ namespace LanguageExt
                     }
                 }
             }
-            return Seq(Yield());
+            return toSeq(Yield());
         }
 
         /// <summary>
@@ -789,7 +789,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<T> distinct<EQ, T>(Seq<T> list) where EQ : struct, Eq<T> =>
-            Seq(list.Distinct(new EqCompare<T>((x, y) => default(EQ).Equals(x, y))));
+            toSeq(list.Distinct(new EqCompare<T>((x, y) => default(EQ).Equals(x, y))));
 
         /// <summary>
         /// Return a new sequence with all duplicate values removed
@@ -800,7 +800,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<T> distinct<T, K>(Seq<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
-             Seq(list.Distinct(new EqCompare<T>((a, b) => compare.IfNone(default(EqDefault<K>).Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0)));
+             toSeq(list.Distinct(new EqCompare<T>((a, b) => compare.IfNone(default(EqDefault<K>).Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0)));
 
         /// <summary>
         /// Returns a new sequence with the first 'count' items from the sequence provided

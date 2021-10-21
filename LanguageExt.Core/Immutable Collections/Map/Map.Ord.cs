@@ -72,7 +72,7 @@ namespace LanguageExt
         public object Case =>
             IsEmpty 
                 ? null
-                : Seq(this).Case;
+                : toSeq(this).Case;
 
         /// <summary>
         /// 'this' accessor

@@ -52,7 +52,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public object Case =>
-            Prelude.Seq(this).Case;
+            Prelude.Seq1(this).Case;
 
         /// <summary>
         /// Construct a new range
@@ -123,7 +123,7 @@ namespace LanguageExt
 
         [Pure]
         public Seq<A> ToSeq() =>
-            Prelude.Seq(AsEnumerable());
+            Prelude.toSeq(AsEnumerable());
 
         [Pure]
         public IEnumerable<A> AsEnumerable()

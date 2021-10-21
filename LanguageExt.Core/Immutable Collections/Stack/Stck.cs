@@ -62,7 +62,7 @@ namespace LanguageExt
         public object Case =>
             IsEmpty
                 ? null
-                : Seq(Value).Case;
+                : toSeq(Value).Case;
 
         /// <summary>
         /// Reverses the order of the items in the stack

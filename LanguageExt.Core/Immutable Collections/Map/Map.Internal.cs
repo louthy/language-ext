@@ -1222,7 +1222,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<(K Key, V Value)> ToSeq() =>
-            Seq(AsEnumerable());
+            toSeq(AsEnumerable());
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

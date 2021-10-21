@@ -821,7 +821,7 @@ namespace LanguageExt
         [Pure]
         public Task<Seq<R>> RightAsEnumerable() =>
             Match(
-                Right: r => Seq(r),
+                Right: Seq1,
                 Left: l => Seq<R>.Empty,
                 Bottom: () => Seq<R>.Empty);
 
@@ -833,14 +833,14 @@ namespace LanguageExt
         public Task<Seq<L>> LeftAsEnumerable() =>
             Match(
                 Right: r => Seq<L>.Empty,
-                Left: l => Seq(l),
+                Left: Seq1,
                 Bottom: () => Seq<L>.Empty);
 
         [Pure]
         public Task<Validation<L, R>> ToValidation() =>
             Match(
-                Right: r => Success<L, R>(r),
-                Left: l => Fail<L, R>(l),
+                Right: Success<L, R>,
+                Left: Fail<L, R>,
                 Bottom: () => Validation<L, R>.Fail(Seq<L>.Empty));
 
         /// <summary>

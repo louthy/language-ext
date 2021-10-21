@@ -400,7 +400,7 @@ namespace LanguageExt
         public Unit Intersect(IEnumerable<K> rhs)
         {
             SpinWait sw = default;
-            var srhs = Seq(rhs);            
+            var srhs = toSeq(rhs);            
             while (true)
             {
                 var oitems = this.Items;
@@ -439,7 +439,7 @@ namespace LanguageExt
         public Unit Except(IEnumerable<K> rhs)
         {
             SpinWait sw = default;
-            var srhs = Seq(rhs);            
+            var srhs = toSeq(rhs);            
             while (true)
             {
                 var oitems = this.Items;

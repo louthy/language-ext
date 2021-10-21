@@ -109,11 +109,11 @@ namespace LanguageExt.ClassInstances
             {
                 // Messy, but we're doing our best to recover an error rather than return Bottom
                 
-                FAIL fail => Validation<FAIL, SUCCESS>.Fail(Seq(fail)),
+                FAIL fail => Validation<FAIL, SUCCESS>.Fail(Seq1(fail)),
                 Seq<FAIL> fails => Validation<FAIL, SUCCESS>.Fail(fails),
                 _ => Common.Error
                     .Convert<FAIL>(err)
-                    .Map(f => Validation<FAIL, SUCCESS>.Fail(Seq(f)))
+                    .Map(f => Validation<FAIL, SUCCESS>.Fail(Seq1(f)))
                     .IfNone(Validation<FAIL, SUCCESS>.Fail(Seq<FAIL>.Empty))
             };            
 

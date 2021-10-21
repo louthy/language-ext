@@ -462,7 +462,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<F, A> LastOrInvalid<F>(F Fail) =>
             IsEmpty
-                ? Validation<F, A>.Fail(Seq(Fail))
+                ? Validation<F, A>.Fail(Seq1(Fail))
                 : Validation<F, A>.Success(Last);
 
         /// <summary>
@@ -472,7 +472,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<F, A> LastOrInvalid<F>(Func<F> Fail) =>
             IsEmpty
-                ? Validation<F, A>.Fail(Seq(Fail()))
+                ? Validation<F, A>.Fail(Seq1(Fail()))
                 : Validation<F, A>.Success(Last);
 
         /// <summary>
@@ -851,7 +851,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Intersperse(A value) =>
-            Seq(Value.Intersperse(value));
+            toSeq(Value.Intersperse(value));
 
         /// <summary>
         /// Get the hash code for all of the items in the sequence, or 0 if empty
@@ -867,7 +867,7 @@ namespace LanguageExt
         public int CompareTo(object obj) => obj switch 
         {
             Seq<A>         s => CompareTo(s),
-            IEnumerable<A> e => CompareTo(Seq(e)),
+            IEnumerable<A> e => CompareTo(toSeq(e)),
             _                => 1
         };
 
@@ -953,7 +953,7 @@ namespace LanguageExt
         public override bool Equals(object obj) => obj switch 
         {
             Seq<A>         s => Equals(s),
-            IEnumerable<A> e => Equals(Seq(e)),
+            IEnumerable<A> e => Equals(toSeq(e)),
             _                => false
         };
 
@@ -1085,7 +1085,7 @@ namespace LanguageExt
         /// </example>
         /// <returns>Initial segments of the sequence</returns>
         public Seq<Seq<A>> Inits =>
-            Seq<Seq<A>>(Seq<A>()) + NonEmptyInits;
+            Seq1<Seq<A>>(Seq<A>()) + NonEmptyInits;
 
         /// <summary>
         /// Returns all initial segments of the sequence, shortest first.

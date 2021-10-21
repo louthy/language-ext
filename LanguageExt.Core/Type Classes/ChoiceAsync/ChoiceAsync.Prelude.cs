@@ -300,7 +300,7 @@ namespace LanguageExt
         [Pure]
         public static async Task<Seq<A>> leftsAsync<CHOICE, CH, A, B>(Seq<CH> ma)
             where CHOICE : struct, ChoiceAsync<CH, A, B> =>
-            Seq(await leftsAsync<CHOICE, CH, A, B>(ma.AsEnumerable()).ConfigureAwait(false));
+            Prelude.toSeq(await leftsAsync<CHOICE, CH, A, B>(ma.AsEnumerable()).ConfigureAwait(false));
 
         /// <summary>
         /// Extracts from a list of 'Either' all the 'Right' elements.
@@ -335,7 +335,7 @@ namespace LanguageExt
         [Pure]
         public static async Task<Seq<B>> rightsAsync<CHOICE, CH, A, B>(Seq<CH> ma)
             where CHOICE : struct, ChoiceAsync<CH, A, B> =>
-            Seq(await rightsAsync<CHOICE, CH, A, B>(ma.AsEnumerable()).ConfigureAwait(false));
+            Prelude.toSeq(await rightsAsync<CHOICE, CH, A, B>(ma.AsEnumerable()).ConfigureAwait(false));
 
         /// <summary>
         /// Partitions a list of 'Either' into two lists.
@@ -375,6 +375,6 @@ namespace LanguageExt
         public static Task<(Seq<A> Lefts, Seq<B> Rights)> partitionAsync<CHOICE, CH, A, B>(Seq<CH> ma)
             where CHOICE : struct, ChoiceAsync<CH, A, B> =>
             partitionAsync<CHOICE, CH, A, B>(ma.AsEnumerable())
-                .Map(pair => (Seq(pair.Lefts), Seq(pair.Rights)));
+                .Map(pair => (Prelude.toSeq(pair.Lefts), Prelude.toSeq(pair.Rights)));
     }
 }

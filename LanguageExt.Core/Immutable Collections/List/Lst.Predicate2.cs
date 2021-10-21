@@ -89,7 +89,7 @@ namespace LanguageExt
                 ? null
                 : Count == 1
                     ? this[0]
-                    : Seq(this).Case;
+                    : toSeq(this).Case;
 
         Lst<PredList, PredItem, A> Wrap(LstInternal<A> list)=>
             new Lst<PredList, PredItem, A>(list);

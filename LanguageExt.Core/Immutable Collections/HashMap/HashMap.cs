@@ -647,7 +647,7 @@ namespace LanguageExt
 
         [Pure]
         public Seq<(K Key, V Value)> ToSeq() =>
-            Seq(AsEnumerable());
+            toSeq(AsEnumerable());
 
         /// <summary>
         /// Format the collection as `[(key: value), (key: value), (key: value), ...]`

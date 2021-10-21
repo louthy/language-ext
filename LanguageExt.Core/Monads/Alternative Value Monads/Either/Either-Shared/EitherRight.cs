@@ -131,7 +131,7 @@ namespace LanguageExt
 
         [Pure]
         public Seq<R> ToSeq() =>
-            Seq(Value);
+            Seq1(Value);
 
         [Pure]
         public IEnumerable<R> AsEnumerable() =>

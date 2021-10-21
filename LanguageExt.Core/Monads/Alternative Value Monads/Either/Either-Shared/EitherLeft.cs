@@ -90,11 +90,11 @@ namespace LanguageExt
 
         [Pure]
         public Seq<L> ToSeq() =>
-            Seq(Value);
+            Seq1(Value);
 
         [Pure]
         public IEnumerable<L> AsEnumerable() =>
-            Seq(Value).AsEnumerable();
+            Seq1(Value).AsEnumerable();
 
         [Pure]
         public EitherUnsafe<L, R> ToEitherUnsafe<R>() =>

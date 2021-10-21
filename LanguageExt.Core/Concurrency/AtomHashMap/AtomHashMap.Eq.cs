@@ -485,7 +485,7 @@ namespace LanguageExt
         public Unit AddRange(IEnumerable<(K Key, V Value)> range)
         {
             SpinWait sw = default;
-            var srange = Seq(range);
+            var srange = toSeq(range);
             if (srange.IsEmpty) return default;
             while (true)
             {
@@ -512,7 +512,7 @@ namespace LanguageExt
         public Unit TryAddRange(IEnumerable<(K Key, V Value)> range)
         {
             SpinWait sw = default;
-            var srange = Seq(range);
+            var srange = toSeq(range);
             if (srange.IsEmpty) return default;
             while (true)
             {
@@ -543,7 +543,7 @@ namespace LanguageExt
         public Unit TryAddRange(IEnumerable<KeyValuePair<K, V>> range)
         {
             SpinWait sw = default;
-            var srange = Seq(range);
+            var srange = toSeq(range);
             while (true)
             {
                 var oitems = Items;
@@ -574,7 +574,7 @@ namespace LanguageExt
         public Unit AddOrUpdateRange(IEnumerable<(K Key, V Value)> range)
         {
             SpinWait sw = default;
-            var srange = Seq(range);
+            var srange = toSeq(range);
             if (srange.IsEmpty) return default;
             while (true)
             {
@@ -601,7 +601,7 @@ namespace LanguageExt
         public Unit AddOrUpdateRange(IEnumerable<KeyValuePair<K, V>> range)
         {
             SpinWait sw = default;
-            var srange = Seq(range);
+            var srange = toSeq(range);
             if (srange.IsEmpty) return default;
             while (true)
             {
@@ -985,7 +985,7 @@ namespace LanguageExt
         public Unit AddRange(IEnumerable<KeyValuePair<K, V>> pairs)
         {
             SpinWait sw = default;
-            var spairs = Seq(pairs);
+            var spairs = toSeq(pairs);
             if (spairs.IsEmpty) return default;
             while (true)
             {
@@ -1010,7 +1010,7 @@ namespace LanguageExt
         public Unit SetItems(IEnumerable<KeyValuePair<K, V>> items)
         {
             SpinWait sw = default;
-            var sitems = Seq(items);
+            var sitems = toSeq(items);
             if (sitems.IsEmpty) return default;
             while (true)
             {
@@ -1035,7 +1035,7 @@ namespace LanguageExt
         public Unit SetItems(IEnumerable<(K Key, V Value)> items)
         {
             SpinWait sw = default;
-            var sitems = Seq(items);
+            var sitems = toSeq(items);
             if (sitems.IsEmpty) return default;
             while (true)
             {
@@ -1060,7 +1060,7 @@ namespace LanguageExt
         public Unit TrySetItems(IEnumerable<KeyValuePair<K, V>> items)
         {
             SpinWait sw = default;
-            var sitems = Seq(items);
+            var sitems = toSeq(items);
             if (sitems.IsEmpty) return default;
             while (true)
             {
@@ -1089,7 +1089,7 @@ namespace LanguageExt
         public Unit TrySetItems(IEnumerable<(K Key, V Value)> items)
         {
             SpinWait sw = default;
-            var sitems = Seq(items);
+            var sitems = toSeq(items);
             if (sitems.IsEmpty) return default;
             while (true)
             {
@@ -1123,7 +1123,7 @@ namespace LanguageExt
         public Unit TrySetItems(IEnumerable<K> keys, Func<V, V> Some)
         {
             SpinWait sw = default;
-            var skeys = Seq(keys);
+            var skeys = toSeq(keys);
             if (skeys.IsEmpty) return default;
             while (true)
             {
@@ -1151,7 +1151,7 @@ namespace LanguageExt
         public Unit RemoveRange(IEnumerable<K> keys)
         {
             SpinWait sw = default;
-            var skeys = Seq(keys);
+            var skeys = toSeq(keys);
             if (skeys.IsEmpty) return default;
             while (true)
             {
@@ -1232,7 +1232,7 @@ namespace LanguageExt
 
         [Pure]
         public Seq<(K Key, V Value)> ToSeq() =>
-            Seq(AsEnumerable());
+            toSeq(AsEnumerable());
 
         /// <summary>
         /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
@@ -1466,7 +1466,7 @@ namespace LanguageExt
         public Unit Intersect(IEnumerable<K> rhs)
         {
             SpinWait sw = default;
-            var srhs = Seq(rhs);            
+            var srhs = toSeq(rhs);            
             while (true)
             {
                 var oitems = this.Items;
@@ -1488,7 +1488,7 @@ namespace LanguageExt
         public Unit Intersect(IEnumerable<(K Key, V Value)> rhs)
         {
             SpinWait sw = default;
-            var srhs = Seq(rhs);            
+            var srhs = toSeq(rhs);            
             while (true)
             {
                 var oitems = this.Items;
@@ -1525,7 +1525,7 @@ namespace LanguageExt
         public Unit Except(IEnumerable<K> rhs)
         {
             SpinWait sw = default;
-            var srhs = Seq(rhs);            
+            var srhs = toSeq(rhs);            
             while (true)
             {
                 var oitems = this.Items;
@@ -1548,7 +1548,7 @@ namespace LanguageExt
         public Unit Except(IEnumerable<(K Key, V Value)> rhs)
         {
             SpinWait sw = default;
-            var srhs = Seq(rhs);            
+            var srhs = toSeq(rhs);            
             while (true)
             {
                 var oitems = this.Items;
@@ -1593,7 +1593,7 @@ namespace LanguageExt
         public Unit SymmetricExcept(IEnumerable<(K Key, V Value)> rhs)
         {
             SpinWait sw = default;
-            var srhs = Seq(rhs);
+            var srhs = toSeq(rhs);
             while (true)
             {
                 var oitems = this.Items;
@@ -1618,7 +1618,7 @@ namespace LanguageExt
         public Unit Union(IEnumerable<(K, V)> rhs)
         {
             SpinWait sw = default;
-            var srhs = Seq(rhs);
+            var srhs = toSeq(rhs);
             while (true)
             {
                 var oitems = this.Items;

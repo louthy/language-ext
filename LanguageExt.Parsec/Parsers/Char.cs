@@ -251,13 +251,13 @@ namespace LanguageExt.Parsec
         /// Parse a string
         /// </summary>
         public static Parser<string> str(string s) =>
-            asString(chain(Seq(s.Map(ch)))).label($"'{s}'");
+            asString(chain(toSeq(s.Map(ch)))).label($"'{s}'");
 
         /// <summary>
         /// Parse a string case insensitive (char by char)
         /// <typeparam name="EQ">Eq<char> type-class</typeparam>
         /// </summary>
         public static Parser<string> str<EQ>(string s) where EQ: struct, Eq<char>  =>
-            asString(chain(Seq(s.Map(ch<EQ>)))).label($"'{s}'");
+            asString(chain(toSeq(s.Map(ch<EQ>)))).label($"'{s}'");
     }
 }

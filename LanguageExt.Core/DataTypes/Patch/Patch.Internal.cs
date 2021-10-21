@@ -29,7 +29,7 @@ namespace LanguageExt
         {
             var rawChanges = rawChanges<MonoidC, V, O, C>(p, ss, tt);
             var changes = rawChanges.Last;
-            var newlst = changes.Map(pair => Seq(pair.Item2.Somes().Reverse()));
+            var newlst = changes.Map(pair => toSeq(pair.Item2.Somes().Reverse()));
             return (changes.Item1, newlst);
         }
 

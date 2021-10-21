@@ -689,7 +689,7 @@ namespace LanguageExt
                         if (!success) return OptionAsync<Seq<B>>.None;
                         results = EnumerableOptimal.ConcatFast(results, imb);
                     }
-                    return OptionAsync<Seq<B>>.Some(Seq(results));
+                    return OptionAsync<Seq<B>>.Some(toSeq(results));
                 });
 
         public static Task<Seq<B>> BindT<A, B>(this Task<Seq<A>> ma, Func<A, Task<Seq<B>>> f) =>
@@ -702,7 +702,7 @@ namespace LanguageExt
                         var imb = await f(ia).ConfigureAwait(false);
                         results = EnumerableOptimal.ConcatFast(results, imb);
                     }
-                    return Seq(results);
+                    return toSeq(results);
                 });
 
         public static ValueTask<Seq<B>> BindT<A, B>(this ValueTask<Seq<A>> ma, Func<A, ValueTask<Seq<B>>> f) =>
@@ -715,7 +715,7 @@ namespace LanguageExt
                         var imb = await f(ia).ConfigureAwait(false);
                         results = EnumerableOptimal.ConcatFast(results, imb);
                     }
-                    return Seq(results);
+                    return toSeq(results);
                 });
 
         public static EitherAsync<L, Seq<B>> BindT<L, A, B>(this EitherAsync<L, Seq<A>> ma, Func<A, EitherAsync<L, Seq<B>>> f) =>
@@ -729,7 +729,7 @@ namespace LanguageExt
                         if (!success) return EitherAsync<L, Seq<B>>.Left(left);
                         results = EnumerableOptimal.ConcatFast(results, imb);
                     }
-                    return EitherAsync<L, Seq<B>>.Right(Seq(results));
+                    return EitherAsync<L, Seq<B>>.Right(toSeq(results));
                 });
 
         public static TryAsync<Seq<B>> BindT<A, B>(this TryAsync<Seq<A>> ma, Func<A, TryAsync<Seq<B>>> f) =>
@@ -745,7 +745,7 @@ namespace LanguageExt
                         if (!success) return TryAsync<Seq<B>>(e);
                         results = EnumerableOptimal.ConcatFast(results, imb);
                     }
-                    return TryAsync(Seq(results));
+                    return TryAsync(toSeq(results));
                 });
 
         public static TryOptionAsync<Seq<B>> BindT<A, B>(this TryOptionAsync<Seq<A>> ma, Func<A, TryOptionAsync<Seq<B>>> f) =>
@@ -763,7 +763,7 @@ namespace LanguageExt
                         if (!success && e != null) return TryOptionAsync<Seq<B>>(e);
                         results = EnumerableOptimal.ConcatFast(results, imb);
                     }
-                    return TryOptionAsync(Seq(results));
+                    return TryOptionAsync(toSeq(results));
                 });
 
         // Async : Set

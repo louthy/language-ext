@@ -620,7 +620,7 @@ namespace LanguageExt
 
         [Pure]
         public Seq<(K Key, V Value)> ToSeq() =>
-            Seq(Value.AsEnumerable());
+            toSeq(Value.AsEnumerable());
 
         /// <summary>
         /// Format the collection as `[(key: value), (key: value), (key: value), ...]`

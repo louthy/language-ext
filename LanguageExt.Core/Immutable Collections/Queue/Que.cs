@@ -67,7 +67,7 @@ namespace LanguageExt
         public object Case =>
             IsEmpty
                 ? null
-                : Seq(Value).Case;
+                : toSeq(Value).Case;
 
         /// <summary>
         /// Is the queue empty

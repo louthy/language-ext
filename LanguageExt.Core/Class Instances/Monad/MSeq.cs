@@ -40,7 +40,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Seq<A> Subtract(Seq<A> x, Seq<A> y) =>
-            Seq(Enumerable.Except(x, y));
+            toSeq(Enumerable.Except(x, y));
 
         [Pure]
         public Seq<A> Empty() =>
@@ -70,7 +70,7 @@ namespace LanguageExt.ClassInstances
                 foreach (var a in ma) yield return a;
                 foreach (var b in mb) yield return b;
             }
-            return Seq(Yield());
+            return toSeq(Yield());
         }
 
         [Pure]

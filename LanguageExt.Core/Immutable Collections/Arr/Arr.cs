@@ -165,7 +165,7 @@ namespace LanguageExt
                 ? null
                 : Count == 1
                     ? this[0]
-                    : Seq(this).Case;
+                    : toSeq(this).Case;
 
         /// <summary>
         /// Is the stack empty
