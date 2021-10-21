@@ -11,18 +11,19 @@ using LanguageExt.Effects.Traits;
 namespace LanguageExt.Pipes
 {
     /// <summary>
-    /// Pipes both await and yield
+    /// Pipes both can both be `await` and can `yield`
     /// </summary>
     /// <remarks>
-    ///     Upstream | Downstream
-    ///         +---------+
-    ///         |         |
-    ///     () <==       <== ()
-    ///         |         |
-    ///     A  ==>       ==> B
-    ///         |    |    |
-    ///         +----|----+
-    ///              R
+    ///       Upstream | Downstream
+    ///           +---------+
+    ///           |         |
+    ///     Unit <==       <== Unit
+    ///           |         |
+    ///      IN  ==>       ==> OUT
+    ///           |    |    |
+    ///           +----|----+
+    ///                |
+    ///                A
     /// </remarks>
     public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT : struct, HasCancel<RT>
     {

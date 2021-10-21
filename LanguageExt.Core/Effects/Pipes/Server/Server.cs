@@ -6,6 +6,23 @@ using System.Runtime.CompilerServices;
 
 namespace LanguageExt.Pipes
 {
+    /// <summary>
+    /// `Server` receives requests of type `REQ` and sends responses of type `RES`.
+    ///
+    /// `Servers` only `respond` and never `request`.
+    /// </summary>
+    /// <remarks> 
+    ///       Upstream | Downstream
+    ///           +---------+
+    ///           |         |
+    ///     Void <==       <== RES
+    ///           |         |
+    ///     Unit ==>       ==> REQ
+    ///           |    |    |
+    ///           +----|----+
+    ///                |
+    ///                A
+    /// </remarks>
     public class Server
     {
         /// <summary>

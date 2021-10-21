@@ -12,6 +12,23 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes
 {
+    /// <summary>
+    /// Effects represent a 'fused' set of producer, pipes, and consumer into one type.
+    /// 
+    /// It neither can neither `yield` nor be `awaiting`, it represents an entirely closed effect system.
+    /// </summary>
+    /// <remarks>
+    ///       Upstream | Downstream
+    ///           +---------+
+    ///           |         |
+    ///     Void <==       <== Unit
+    ///           |         |
+    ///     Unit ==>       ==> Void
+    ///           |    |    |
+    ///           +----|----+
+    ///                |
+    ///                A
+    /// </remarks>
     public static class Effect
     {
         [Pure]

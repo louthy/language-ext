@@ -11,8 +11,20 @@ using LanguageExt.Effects.Traits;
 namespace LanguageExt.Pipes
 {
     /// <summary>
-    /// Consumers only await
+    /// Consumers both can only be `awaiting` 
     /// </summary>
+    /// <remarks>
+    ///       Upstream | Downstream
+    ///           +---------+
+    ///           |         |
+    ///     Unit <==       <== Unit
+    ///           |         |
+    ///      IN  ==>       ==> Void
+    ///           |    |    |
+    ///           +----|----+
+    ///                |
+    ///                A
+    /// </remarks>
     public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT : struct, HasCancel<RT>
     {
         public readonly Proxy<RT, Unit, IN, Unit, Void, A> Value;

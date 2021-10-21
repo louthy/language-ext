@@ -6,6 +6,24 @@ using System.Runtime.CompilerServices;
 
 namespace LanguageExt.Pipes
 {
+    /// <summary>
+    /// `Client` sends requests of type `REQ` and receives responses of type `RES`.
+    /// 
+    /// Clients only `request` and never `respond`.
+    /// </summary>
+    /// <remarks>
+    /// 
+    ///       Upstream | Downstream
+    ///           +---------+
+    ///           |         |
+    ///     REQ  <==       <== Unit
+    ///           |         |
+    ///     RES  ==>       ==> Void
+    ///           |    |    |
+    ///           +----|----+
+    ///                |
+    ///                A
+    /// </remarks>
     public class Client
     {
         /// <summary>

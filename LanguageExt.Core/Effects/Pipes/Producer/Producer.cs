@@ -13,6 +13,21 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes
 {
+    /// <summary>
+    /// Producers can only `yield`
+    /// </summary>
+    /// <remarks>
+    ///       Upstream | Downstream
+    ///           +---------+
+    ///           |         |
+    ///     Void <==       <== Unit
+    ///           |         |
+    ///     Unit ==>       ==> OUT
+    ///           |    |    |
+    ///           +----|----+
+    ///                |
+    ///                A
+    /// </remarks>
     public static class Producer
     {
         /// <summary>

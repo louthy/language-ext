@@ -9,6 +9,21 @@ using System.Runtime.CompilerServices;
 
 namespace LanguageExt.Pipes
 {
+    /// <summary>
+    /// Pipes both can both be `await` and can `yield`
+    /// </summary>
+    /// <remarks>
+    ///       Upstream | Downstream
+    ///           +---------+
+    ///           |         |
+    ///     Unit <==       <== Unit
+    ///           |         |
+    ///      IN  ==>       ==> OUT
+    ///           |    |    |
+    ///           +----|----+
+    ///                |
+    ///                A
+    /// </remarks>
     public static class Pipe
     {
         /// <summary>

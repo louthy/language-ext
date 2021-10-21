@@ -7,6 +7,21 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes
 {
+    /// <summary>
+    /// Consumers both can only be `awaiting` 
+    /// </summary>
+    /// <remarks>
+    ///       Upstream | Downstream
+    ///           +---------+
+    ///           |         |
+    ///     Unit <==       <== Unit
+    ///           |         |
+    ///      IN  ==>       ==> Void
+    ///           |    |    |
+    ///           +----|----+
+    ///                |
+    ///                A
+    /// </remarks>
     public static class Consumer
     {
         /// <summary>

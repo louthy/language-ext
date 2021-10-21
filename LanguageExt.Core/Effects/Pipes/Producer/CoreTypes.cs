@@ -11,11 +11,20 @@ using LanguageExt.Effects.Traits;
 namespace LanguageExt.Pipes
 {
     /// <summary>
-    /// Producers are effectful streams of input.  Specifically, a `Producer` is a
-    /// monad transformer that extends the base IO monad with a new `yield` command.
-    /// This `yield` command lets you send output downstream to an anonymous handler,
-    /// decoupling how you generate values from how you consume them.
+    /// Producers can only `yield`
     /// </summary>
+    /// <remarks>
+    ///       Upstream | Downstream
+    ///           +---------+
+    ///           |         |
+    ///     Void <==       <== Unit
+    ///           |         |
+    ///     Unit ==>       ==> OUT
+    ///           |    |    |
+    ///           +----|----+
+    ///                |
+    ///                A
+    /// </remarks>
     public class Producer<RT, OUT, A> : Proxy<RT, Void, Unit, Unit, OUT, A> where RT : struct, HasCancel<RT>
     {
         public readonly Proxy<RT, Void, Unit, Unit, OUT, A> Value;

@@ -11,8 +11,22 @@ using LanguageExt.Effects.Traits;
 namespace LanguageExt.Pipes
 {
     /// <summary>
-    /// Servers only respond and never request
+    /// `Server` receives requests of type `REQ` and sends responses of type `RES`.
+    ///
+    /// `Servers` only `respond` and never `request`.
     /// </summary>
+    /// <remarks> 
+    ///       Upstream | Downstream
+    ///           +---------+
+    ///           |         |
+    ///     Void <==       <== RES
+    ///           |         |
+    ///     Unit ==>       ==> REQ
+    ///           |    |    |
+    ///           +----|----+
+    ///                |
+    ///                A
+    /// </remarks>
     public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where RT : struct, HasCancel<RT>
     {
         public readonly Proxy<RT, Void, Unit, REQ, RES, A> Value;

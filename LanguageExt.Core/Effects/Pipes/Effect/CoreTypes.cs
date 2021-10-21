@@ -11,9 +11,22 @@ using LanguageExt.Effects.Traits;
 namespace LanguageExt.Pipes
 {
     /// <summary>
-    /// Effects represent a 'fused' set of producer, pipes, and consumer into one type
-    /// It neither yields nor awaits, but represents an entire effect system
+    /// Effects represent a 'fused' set of producer, pipes, and consumer into one type.
+    /// 
+    /// It neither can neither `yield` nor be `awaiting`, it represents an entirely closed effect system.
     /// </summary>
+    /// <remarks>
+    ///       Upstream | Downstream
+    ///           +---------+
+    ///           |         |
+    ///     Void <==       <== Unit
+    ///           |         |
+    ///     Unit ==>       ==> Void
+    ///           |    |    |
+    ///           +----|----+
+    ///                |
+    ///                A
+    /// </remarks>
     public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : struct, HasCancel<RT>
     {
         public readonly Proxy<RT, Void, Unit, Unit, Void, A> Value;
