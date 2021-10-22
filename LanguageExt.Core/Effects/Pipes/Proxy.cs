@@ -12,27 +12,29 @@ namespace LanguageExt.Pipes
 {
     /// <summary>
     /// A `Proxy` is a monad transformer that receives and sends information on both
-    /// an upstream and downstream interface.
+    /// an upstream and downstream interface.  It is the base type for all of the key
+    /// other important types in the Pipes ecosystem, like `Producer`, `Consumer`,
+    /// `Pipe`, etc.
     /// 
     /// Diagrammatically, you can think of a `Proxy` as having the following shape:
     /// 
     ///         Upstream | Downstream
     ///             +---------+
     ///             |         |
-    ///       UOut <==       <== DIn
+    ///       UOut ◄--       ◄-- DIn
     ///             |         |
-    ///       UIn  ==>       ==> DOut
+    ///       UIn  --►       --► DOut
     ///             |    |    |
     ///             +----|----+
     ///                  A
     ///
     /// You can connect proxies together in five different ways:
     /// 
-    ///   1. connect pull-based streams
-    ///   2. connect push-based streams
-    ///   3. chain folds
-    ///   4. chain unfolds
-    ///   5. sequence proxies
+    ///   1. Connect pull-based streams
+    ///   2. Connect push-based streams
+    ///   3. Chain folds
+    ///   4. Chain unfolds
+    ///   5. Sequence proxies
     /// 
     /// The type variables signify:
     ///
@@ -53,13 +55,13 @@ namespace LanguageExt.Pipes
     public abstract class Proxy<RT, UOut, UIn, DIn, DOut, A>  where RT : struct, HasCancel<RT>
     {
         /// <summary>
-        /// When working with sub-types, like `Producer`, calling this will effectively cast the sub-type to the base
+        /// When working with sub-types, like `Producer`, calling this will effectively cast the sub-type to the base.
         /// </summary>
         /// <returns>A general `Proxy` type from a more specialised type</returns>
         public abstract Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy();
         
         /// <summary>
-        /// Monadic bind operation, for chaining `Proxy` computations together
+        /// Monadic bind operation, for chaining `Proxy` computations together.
         /// </summary>
         /// <param name="f">The bind function</param>
         /// <typeparam name="B">The mapped bound value type</typeparam>
@@ -80,7 +82,7 @@ namespace LanguageExt.Pipes
         /// <param name="body">Any `yield` found in the `Proxy` will be replaced with this function.  It will be composed so
         /// that the value yielded will be passed to the argument of the function.  That returns a `Proxy` to continue the
         /// processing of the computation</param>
-        /// <returns></returns>
+        /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the function provided</returns>
         public abstract Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body);
         
         /// <summary>
@@ -92,35 +94,44 @@ namespace LanguageExt.Pipes
         public abstract Proxy<RT, UOut, UIn, DIn, DOut, B> Action<B>(Proxy<RT, UOut, UIn, DIn, DOut, B> r);
         
         /// <summary>
-        /// Used when composing proxies with the `|` operator 
+        /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
+        /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         public abstract Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> lhs);
 
         /// <summary>
-        /// Used when composing proxies with the `|` operator 
+        /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
+        /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         public abstract Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs);
 
         /// <summary>
-        /// Used when composing proxies with the `|` operator 
+        /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
+        /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         public abstract Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs);
 
         /// <summary>
-        /// Used when composing proxies with the `|` operator 
+        /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
+        /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         public abstract Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT,  UOut, UIn, DInC, DOutC, DIn>> rhs);
 
         /// <summary>
         /// Reverse the arrows of the `Proxy` to find its dual.  
         /// </summary>
-        /// <returns>The dual of `this1</returns>
+        /// <returns>The dual of `this`</returns>
         public abstract Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect();
         
         /// <summary>
-        /// Inject side-effects into the `Proxy`
+        /// 
+        ///     Observe(lift (Pure(r))) = Observe(Pure(r))
+        ///     Observe(lift (m.Bind(f))) = Observe(lift(m.Bind(x => lift(f(x)))))
+        /// 
+        /// This correctness comes at a small cost to performance, so use this function sparingly.
+        /// This function is a convenience for low-level pipes implementers.  You do not need to
+        /// use observe if you stick to the safe API.        
         /// </summary>
-        /// <returns>This with side-effects</returns>
         public abstract Proxy<RT, UOut, UIn, DIn, DOut, A> Observe();
         
         /// <summary>
@@ -176,8 +187,9 @@ namespace LanguageExt.Pipes
             Value = value;
 
         /// <summary>
-        /// Convert to the base `Proxy` type
+        /// When working with sub-types, like `Producer`, calling this will effectively cast the sub-type to the base.
         /// </summary>
+        /// <returns>A general `Proxy` type from a more specialised type</returns>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
 
@@ -223,28 +235,32 @@ namespace LanguageExt.Pipes
             r;
 
         /// <summary>
-        /// Used when composing proxies with the `|` operator 
+        /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
+        /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
             new Pure<RT, UOutA, AUInA, DIn, DOut, A>(Value);
 
         /// <summary>
-        /// Used when composing proxies with the `|` operator 
+        /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
+        /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
             new Pure<RT, UOutA, AUInA, DIn, DOut, A>(Value);
                 
         /// <summary>
-        /// Used when composing proxies with the `|` operator 
+        /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
+        /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
         public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
             new Pure<RT, UOut, UIn, DInC, DOutC, A>(Value);
 
         /// <summary>
-        /// Used when composing proxies with the `|` operator 
+        /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
+        /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
         public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
@@ -259,9 +275,14 @@ namespace LanguageExt.Pipes
             new Pure<RT, DOut, DIn, UIn, UOut, A>(Value);
 
         /// <summary>
-        /// Inject side-effects into the `Proxy`
+        /// 
+        ///     Observe(lift (Pure(r))) = Observe(Pure(r))
+        ///     Observe(lift (m.Bind(f))) = Observe(lift(m.Bind(x => lift(f(x)))))
+        /// 
+        /// This correctness comes at a small cost to performance, so use this function sparingly.
+        /// This function is a convenience for low-level pipes implementers.  You do not need to
+        /// use observe if you stick to the safe API.        
         /// </summary>
-        /// <returns>This with side-effects</returns>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
             new M<RT, UOut, UIn, DIn, DOut, A>(Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>>.Success(this));
@@ -292,8 +313,9 @@ namespace LanguageExt.Pipes
             Value = value;
         
         /// <summary>
-        /// Convert to the base `Proxy` type
+        /// When working with sub-types, like `Producer`, calling this will effectively cast the sub-type to the base.
         /// </summary>
+        /// <returns>A general `Proxy` type from a more specialised type</returns>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
 
@@ -339,28 +361,32 @@ namespace LanguageExt.Pipes
             new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Action(r)));
 
         /// <summary>
-        /// Used when composing proxies with the `|` operator 
+        /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
+        /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
             new M<RT, UOutA, AUInA, DIn, DOut, A>(Value.Map(p1 => p1.ComposeRight(fb1)));
 
         /// <summary>
-        /// Used when composing proxies with the `|` operator 
+        /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
+        /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
             new M<RT, UOutA, AUInA, DIn, DOut, A>(Value.Map(x => x.ComposeRight(lhs)));
 
         /// <summary>
-        /// Used when composing proxies with the `|` operator 
+        /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
+        /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
         public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
             new M<RT, UOut, UIn, DInC, DOutC, A>(Value.Map(p1 => p1.ComposeLeft(rhs)));
 
         /// <summary>
-        /// Used when composing proxies with the `|` operator 
+        /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
+        /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
         public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
@@ -375,9 +401,14 @@ namespace LanguageExt.Pipes
             new M<RT, DOut, DIn, UIn, UOut, A>(Value.Map(x => x.Reflect()));
          
         /// <summary>
-        /// Inject side-effects into the `Proxy`
+        /// 
+        ///     Observe(lift (Pure(r))) = Observe(Pure(r))
+        ///     Observe(lift (m.Bind(f))) = Observe(lift(m.Bind(x => lift(f(x)))))
+        /// 
+        /// This correctness comes at a small cost to performance, so use this function sparingly.
+        /// This function is a convenience for low-level pipes implementers.  You do not need to
+        /// use observe if you stick to the safe API.        
         /// </summary>
-        /// <returns>This with side-effects</returns>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
             new M<RT, UOut, UIn, DIn, DOut, A>(

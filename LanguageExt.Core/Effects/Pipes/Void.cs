@@ -12,8 +12,10 @@ namespace LanguageExt.Pipes
     /// </summary>
     public class Void
     {
+        /// <summary>
+        /// Voids can't be constructed, as they're the 'uninhabited type', i.e. an empty set, with no values.
+        /// </summary>
         [MethodImpl(Proxy.mops)]
-        public Void() =>
-            throw new BottomException();
+        Void() => throw new BottomException();
     }
 }

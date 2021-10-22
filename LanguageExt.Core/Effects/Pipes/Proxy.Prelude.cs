@@ -743,8 +743,9 @@ namespace LanguageExt.Pipes
             c1 => compose(fb1, fc1(c1));
 
         /// <summary>
-        ///     observe (lift (return r)) = observe (return r)
-        ///     observe (lift (m >>= f)) = observe (lift m >>= lift . f)
+        /// 
+        ///     observe(lift (Pure(r))) = observe(Pure(r))
+        ///     observe(lift (m.Bind(f))) = observe(lift(m.Bind(x => lift(f(x)))))
         /// 
         /// This correctness comes at a small cost to performance, so use this function sparingly.
         /// This function is a convenience for low-level pipes implementers.  You do not need to
@@ -757,11 +758,11 @@ namespace LanguageExt.Pipes
 
         /// <summary>
         /// `Absurd` function
-        /// `Void` is supposed to represent `void`, nothing can be constructed from `void` and
-        /// so this method just throws `ApplicationException("closed")`
         /// </summary>
+        /// <param name="value">`Void` is supposed to represent `void`, nothing can be constructed from `void` and
+        /// so this method just throws `ApplicationException("closed")`</param>
         [Pure, MethodImpl(Proxy.mops)]
-        public static A closed<A>(Void _) =>
+        public static A closed<A>(Void value) =>
             throw new ApplicationException("closed");
 
         /// <summary>

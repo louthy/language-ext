@@ -58,7 +58,7 @@ To enforce loose coupling, components can only communicate using two commands:
 Pipes has four types of components built around these two commands:
 
 * [`Producer`](Producer) can only [`yield`](#Proxy_0_yield_1) values and they model streaming sources
-* [`Consumer`](Consumer) can only [`awaiting`](#Proxy_0_awaiting_1) values and they model streaming sinks
+* [`Consumer`](Consumer) can only be [`awaiting`](#Proxy_0_awaiting_1) values and they model streaming sinks
 * [`Pipe`](Pipe) can both [`yield`](#Proxy_0_yield_1) and be [`awaiting`](#Proxy_0_awaiting_1) values and they model stream transformations
 * [`Effect`](Effect) can neither [`yield`](#Proxy_0_yield_1) nor be [`awaiting`](#Proxy_0_awaiting_1) and they model non-streaming components
 
@@ -180,7 +180,7 @@ like this:
              |            |          |            |          |             |
        Void ◄--          ◄--  Unit   ◄--         ◄--  Unit  ◄--           ◄-- Unit
              |  readLine  |          |  parseInt  |          |  writeLine  |
-       Unit --►         --► string --►            --► String --►           --► Void
+       Unit --►         --► string  --►          --► string --►           --► Void
              |     |      |          |    |       |          |      |      |
              +-----|------+          +----|-------+          +------|------+
                    v                     v                       v

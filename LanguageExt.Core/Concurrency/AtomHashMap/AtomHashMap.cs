@@ -99,8 +99,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="swap">Swap function, maps the current state of the AtomHashMap to a new state</param>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit Swap(Func<HashMap<K, V>, HashMap<K, V>> swap)
         {
             SpinWait sw = default;
@@ -130,8 +130,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="swap">Swap function, maps the current state of a value in the AtomHashMap to a new value</param>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit SwapKey(K key, Func<V, V> swap)
         {
             SpinWait sw = default;
@@ -171,8 +171,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="swap">Swap function, maps the current state of a value in the AtomHashMap to a new value</param>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit SwapKey(K key, Func<Option<V>, Option<V>> swap)
         {
             SpinWait sw = default;
@@ -221,8 +221,8 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit FilterInPlace(Func<V, bool> pred)
         {
             SpinWait sw = default;
@@ -254,8 +254,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit FilterInPlace(Func<K, V, bool> pred)
         {
             SpinWait sw = default;
@@ -279,8 +279,8 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Mapped items in a new map</returns>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit MapInPlace(Func<V, V> f) 
         {
             SpinWait sw = default;
@@ -396,8 +396,8 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if None returns null</exception>
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit AddOrUpdate(K key, Func<V, V> Some, Func<V> None)
         {
             SpinWait sw = default;
@@ -424,8 +424,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException if None is null</exception>
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit AddOrUpdate(K key, Func<V, V> Some, V None)
         {
             SpinWait sw = default;
@@ -651,8 +651,8 @@ namespace LanguageExt
         /// <param name="None">Delegate to get the value</param>
         /// <returns>Added value</returns>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public V FindOrAdd(K key, Func<V> None)
         {
             SpinWait sw = default;
@@ -712,8 +712,8 @@ namespace LanguageExt
         /// <param name="None">Delegate to get the value</param>
         /// <returns>Added value</returns>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Option<V> FindOrMaybeAdd(K key, Func<Option<V>> None)
         {
             SpinWait sw = default;
@@ -798,8 +798,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if the item isn't found</exception>
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit SetItem(K key, Func<V, V> Some)
         {
             SpinWait sw = default;
@@ -857,8 +857,8 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit TrySetItem(K key, Func<V, V> Some)
         {
             SpinWait sw = default;
@@ -1088,8 +1088,8 @@ namespace LanguageExt
         /// <param name="keys">Keys of items to set</param>
         /// <param name="Some">Function map the existing item to a new one</param>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit TrySetItems(IEnumerable<K> keys, Func<V, V> Some)
         {
             SpinWait sw = default;

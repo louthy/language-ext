@@ -98,8 +98,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="swap">Swap function, maps the current state of the AtomSeq to a new state</param>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit Swap(Func<Seq<A>, Seq<A>> swap)
         {
             SpinWait sw = default;
@@ -129,8 +129,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="swap">Swap function, maps the current state of the AtomSeq to a new state</param>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         internal Unit SwapInternal(Func<ISeqInternal<A>, ISeqInternal<A>> swap)
         {
             SpinWait sw = default;
@@ -801,8 +801,8 @@ namespace LanguageExt
         /// <param name="f">Mapping function</param>
         /// <returns>Mapped sequence</returns>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         [Pure]
         public Unit MapInPlace(Func<A, A> f)
         {
@@ -862,8 +862,8 @@ namespace LanguageExt
         /// <param name="f">Bind function</param>
         /// <returns>Flat-mapped sequence</returns>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit BindInPlace<B>(Func<A, Seq<A>> f)
         {
             SpinWait sw = default;
@@ -931,8 +931,8 @@ namespace LanguageExt
         /// <param name="f">Predicate to apply to the items</param>
         /// <returns>Filtered sequence</returns>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit FilterInPlace(Func<A, bool> f)
         {
             SpinWait sw = default;
@@ -1299,8 +1299,8 @@ namespace LanguageExt
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit TakeWhile(Func<A, bool> pred)
         {
             SpinWait sw = default;
@@ -1332,8 +1332,8 @@ namespace LanguageExt
         /// <returns>A new sequence with the first items that match the 
         /// predicate</returns>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         public Unit TakeWhile(Func<A, int, bool> pred)
         {
             SpinWait sw = default;

@@ -101,8 +101,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="swap">Swap function, maps the current state of the value associated with the key to a new state</param>
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
-        /// to update this data structure.  Therefore the functions must be idempotent and it's advised that you spend
-        /// as little time performing the injected behaviours as possible to avoid repeated attempts</remarks>
+        /// to update this data structure.  Therefore the functions must spend as little time performing the injected
+        /// behaviours as possible to avoid repeated attempts</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Unit SwapKey(K key, Func<Version<string, K, V>, Version<string, K, V>> swap) =>
             Items.SwapKey(key, swap);
