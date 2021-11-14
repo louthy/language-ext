@@ -127,7 +127,6 @@ namespace LanguageExt
             if (da.State == EitherStatus.IsBottom) throw new BottomException();
             if (da.State == EitherStatus.IsLeft) return EitherAsync<L, B>.Left(da.Left);
             var a = await da.Right.ConfigureAwait(false);
-            if(da.Right.IsFaulted) da.Right.AsTask().Exception.Rethrow();
             return EitherAsync<L, B>.Right(f(a));
         }
 
@@ -136,7 +135,6 @@ namespace LanguageExt
             var (s, v) = await ma.Data.ConfigureAwait(false);
             if (!s) return OptionAsync<B>.None;
             var a = await v.ConfigureAwait(false);
-            if (v.IsFaulted) v.AsTask().Exception.Rethrow();
             return OptionAsync<B>.Some(f(a));
         }
         
@@ -146,7 +144,6 @@ namespace LanguageExt
             if (da.IsBottom) throw new BottomException();
             if (da.IsFaulted) return TryAsyncFail<B>(da.Exception);
             var a = await da.Value.ConfigureAwait(false);
-            if(da.Value.IsFaulted) da.Value.AsTask().Exception.Rethrow();
             return TryAsyncSucc(f(a));
         }
         
@@ -157,7 +154,6 @@ namespace LanguageExt
             if (da.IsNone) return TryOptionalAsync<B>(None);
             if (da.IsFaulted) return TryOptionAsyncFail<B>(da.Exception);
             var a = await da.Value.Value.ConfigureAwait(false);
-            if(da.Value.Value.IsFaulted) da.Value.Value.AsTask().Exception.Rethrow();
             return TryOptionAsyncSucc(f(a));
         }
 
@@ -171,9 +167,7 @@ namespace LanguageExt
         public static async ValueTask<ValueTask<B>> Traverse<A, B>(this ValueTask<ValueTask<A>> ma, Func<A, B> f)
         {
             var da = await ma.ConfigureAwait(false);
-            if (ma.IsFaulted) return ValueTaskFail<B>(da.AsTask().Exception);
             var a = await da.ConfigureAwait(false);
-            if (da.IsFaulted) da.AsTask().Exception.Rethrow();
             return ValueTaskSucc(f(a));
         }
                 
@@ -183,7 +177,6 @@ namespace LanguageExt
             if (da.IsBottom) throw new BottomException();
             if (da.IsFail) return FailAff<B>(da.Error);
             var a = await da.Value.ConfigureAwait(false);
-            if(da.Value.IsFaulted) da.Value.AsTask().Exception.Rethrow();
             return SuccessAff(f(a));
         }
 

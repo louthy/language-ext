@@ -26,11 +26,13 @@ namespace LanguageExt
         public static Aff<Arr<B>> TraverseParallel<A, B>(this Arr<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<Arr<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
-                return fails.Any()
-                    ? FinFail<Arr<B>>(fails.Head())
+                var fails1 = fails.Take(1).ToArray();
+                
+                return fails1.Length == 1
+                    ? FinFail<Arr<B>>(fails1[0])
                     : FinSucc<Arr<B>>(toArray(succs));
             });
 
@@ -41,7 +43,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = await m.Run();
+                    var r = await m.Run().ConfigureAwait(false);
                     if (r.IsFail) return FinFail<Arr<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -57,12 +59,14 @@ namespace LanguageExt
         public static Aff<HashSet<B>> TraverseParallel<A, B>(this HashSet<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<HashSet<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
-                return fails.Any()
-                    ? FinFail<HashSet<B>>(fails.Head())
-                    : FinSucc<HashSet<B>>(toHashSet(succs));
+                var fails1 = fails.Take(1).ToArray();
+                
+                return fails1.Length == 1
+                           ? FinFail<HashSet<B>>(fails1[0])
+                           : FinSucc<HashSet<B>>(toHashSet(succs));
             });
 
         [Pure]
@@ -72,7 +76,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = await m.Run();
+                    var r = await m.Run().ConfigureAwait(false);;
                     if (r.IsFail) return FinFail<HashSet<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -84,12 +88,14 @@ namespace LanguageExt
         public static Aff<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<IEnumerable<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
-                return fails.Any()
-                    ? FinFail<IEnumerable<B>>(fails.Head())
-                    : FinSucc<IEnumerable<B>>(succs);
+                var fails1 = fails.Take(1).ToArray();
+                
+                return fails1.Length == 1
+                           ? FinFail<IEnumerable<B>>(fails1[0])
+                           : FinSucc<IEnumerable<B>>(succs);
             });
 
         [Pure]
@@ -99,7 +105,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = await m.Run();
+                    var r = await m.Run().ConfigureAwait(false);
                     if (r.IsFail) return FinFail<IEnumerable<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -115,12 +121,14 @@ namespace LanguageExt
         public static Aff<Lst<B>> TraverseParallel<A, B>(this Lst<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<Lst<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
-                return fails.Any()
-                    ? FinFail<Lst<B>>(fails.Head())
-                    : FinSucc<Lst<B>>(toList(succs));
+                var fails1 = fails.Take(1).ToArray();
+
+                return fails1.Length == 1
+                           ? FinFail<Lst<B>>(fails1[0])
+                           : FinSucc<Lst<B>>(toList(succs));
             });
 
         [Pure]
@@ -130,7 +138,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = await m.Run();
+                    var r = await m.Run().ConfigureAwait(false);
                     if (r.IsFail) return FinFail<Lst<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -147,12 +155,14 @@ namespace LanguageExt
         public static Aff<Que<B>> TraverseParallel<A, B>(this Que<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<Que<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
-                return fails.Any()
-                    ? FinFail<Que<B>>(fails.Head())
-                    : FinSucc<Que<B>>(toQueue(succs));
+                var fails1 = fails.Take(1).ToArray();
+
+                return fails1.Length == 1
+                           ? FinFail<Que<B>>(fails1[0])
+                           : FinSucc<Que<B>>(toQueue(succs));
             });
 
         [Pure]
@@ -162,7 +172,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = await m.Run();
+                    var r = await m.Run().ConfigureAwait(false);
                     if (r.IsFail) return FinFail<Que<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -180,12 +190,14 @@ namespace LanguageExt
         public static Aff<Seq<B>> TraverseParallel<A, B>(this Seq<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<Seq<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
-                return fails.Any()
-                    ? FinFail<Seq<B>>(fails.Head())
-                    : FinSucc<Seq<B>>(Seq.FromArray(succs.ToArray()));
+                var fails1 = fails.Take(1).ToArray();
+
+                return fails1.Length == 1
+                           ? FinFail<Seq<B>>(fails1[0])
+                           : FinSucc<Seq<B>>(Seq.FromArray(succs.ToArray()));
             });
 
         [Pure]
@@ -195,7 +207,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = await m.Run();
+                    var r = await m.Run().ConfigureAwait(false);
                     if (r.IsFail) return FinFail<Seq<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -210,12 +222,14 @@ namespace LanguageExt
         public static Aff<Set<B>> TraverseParallel<A, B>(this Set<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<Set<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
-                return fails.Any()
-                    ? FinFail<Set<B>>(fails.Head())
-                    : FinSucc<Set<B>>(toSet(succs));
+                var fails1 = fails.Take(1).ToArray();
+
+                return fails1.Length == 1
+                           ? FinFail<Set<B>>(fails1[0])
+                           : FinSucc<Set<B>>(toSet(succs));
             });
 
         [Pure]
@@ -225,7 +239,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = await m.Run();
+                    var r = await m.Run().ConfigureAwait(false);
                     if (r.IsFail) return FinFail<Set<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
@@ -244,12 +258,14 @@ namespace LanguageExt
         public static Aff<Stck<B>> TraverseParallel<A, B>(this Stck<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<Stck<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
-                return fails.Any()
-                    ? FinFail<Stck<B>>(fails.Head())
-                    : FinSucc<Stck<B>>(toStack(succs));
+                var fails1 = fails.Take(1).ToArray();
+
+                return fails1.Length == 1
+                           ? FinFail<Stck<B>>(fails1[0])
+                           : FinSucc<Stck<B>>(toStack(succs));
             });
 
         [Pure]
@@ -259,7 +275,7 @@ namespace LanguageExt
                 var rs = new List<B>();
                 foreach (var m in ma)
                 {
-                    var r = await m.Run();
+                    var r = await m.Run().ConfigureAwait(false);;
                     if (r.IsFail) return FinFail<Stck<B>>(r.Error);
                     rs.Add(f(r.Value));
                 }
