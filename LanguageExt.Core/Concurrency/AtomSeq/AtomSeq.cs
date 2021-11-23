@@ -24,8 +24,8 @@ namespace LanguageExt
         IComparable<AtomSeq<A>>, 
         IEquatable<AtomSeq<A>>, 
         IComparable<Seq<A>>, 
-        IEquatable<Seq<A>>, 
-        IEnumerable,
+        IEquatable<Seq<A>>,
+        IEnumerable<A>,
         IComparable
     {
         /// <summary>
