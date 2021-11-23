@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using Xunit;
@@ -32,5 +33,13 @@ namespace LanguageExt.Tests
             Debug.Assert(atom == Set(1, 2, 3, 4, 5));
         }
 
+        [Fact]
+        public void AtomSeqEnumeration()
+        {
+            var xs = Seq(1,2,3,4);
+            var atom = AtomSeq(xs);
+            
+            Assert.Equal(atom.Sum(), xs.Sum());
+        }
     }
 }
