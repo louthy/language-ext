@@ -10,7 +10,7 @@
     <PackageVersion>4.0.3</PackageVersion>
     <PackageId>LanguageExt.CodeGen</PackageId>
     <Title>LanguageExt.CodeGen</Title>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
     <Authors>Paul Louth</Authors>
     <Summary>Functional language code-generation for C#</Summary>
@@ -19,9 +19,9 @@
     <PackageTags>C#, Functional, Language Extension, Lenses, Records, Unions, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
     <PackageIconUrl>https://github.com/louthy/language-ext/blob/master/Images/lang-ext-small.png?raw=true</PackageIconUrl>
     <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <OutputType>library</OutputType>
     <AssemblyVersion>4.0.0.0</AssemblyVersion>
     <FileVersion>4.0.0.0</FileVersion>
