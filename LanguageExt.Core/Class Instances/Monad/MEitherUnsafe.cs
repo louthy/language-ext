@@ -187,11 +187,21 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Unit Match(EitherUnsafe<L, R> choice, Action<L> Left, Action<R> Right, Action Bottom = null)
         {
-            if (choice.State == EitherStatus.IsRight) Right(choice.right);
-            if (choice.State == EitherStatus.IsLeft) Left(choice.left);
+            if (choice.State == EitherStatus.IsRight)
+            {
+                Right(choice.right);
+                return default;
+            }
+
+            if (choice.State == EitherStatus.IsLeft)
+            {
+                Left(choice.left);
+                return default;
+            }
+
             if (Bottom == null) throw new BottomException();
             Bottom();
-            return unit;
+            return default;
         }
 
         [Pure]
