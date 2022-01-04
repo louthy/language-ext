@@ -28,6 +28,8 @@ namespace LanguageExt
     {
         internal volatile TrieMap<EqDefault<K>, K, V> Items;
 
+        public event AtomChangedEvent<HashMap<K, V>>? Change;
+
         /// <summary>
         /// Creates a new atom-hashmap
         /// </summary>
@@ -115,6 +117,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -143,6 +146,7 @@ namespace LanguageExt
                 var nitems = oitems.SetItem(key, swap((V)ovalue));
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -197,6 +201,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -232,6 +237,7 @@ namespace LanguageExt
                 var nitems = oitems.Filter(pred);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -265,6 +271,7 @@ namespace LanguageExt
                 var nitems = oitems.Filter(pred);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -290,6 +297,7 @@ namespace LanguageExt
                 var nitems = oitems.Map(f);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -323,6 +331,7 @@ namespace LanguageExt
                 var nitems = oitems.Add(key, value);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -353,6 +362,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -379,6 +389,7 @@ namespace LanguageExt
                 var nitems = oitems.AddOrUpdate(key, value);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -407,6 +418,7 @@ namespace LanguageExt
                 var nitems = oitems.AddOrUpdate(key, Some, None);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -435,6 +447,7 @@ namespace LanguageExt
                 var nitems = oitems.AddOrUpdate(key, Some, None);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -462,6 +475,7 @@ namespace LanguageExt
                 var nitems = oitems.AddRange(srange);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -493,6 +507,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -524,6 +539,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -552,6 +568,7 @@ namespace LanguageExt
                 var nitems = Items.AddOrUpdateRange(srange);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -579,6 +596,7 @@ namespace LanguageExt
                 var nitems = Items.AddOrUpdateRange(srange);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -606,6 +624,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -666,6 +685,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return value;
                 }
                 else
@@ -695,6 +715,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return nvalue;
                 }
                 else
@@ -727,6 +748,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return nvalue;
                 }
                 else
@@ -756,6 +778,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return nvalue;
                 }
                 else
@@ -781,6 +804,7 @@ namespace LanguageExt
                 var nitems = Items.SetItem(key, value);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -809,6 +833,7 @@ namespace LanguageExt
                 var nitems = Items.SetItem(key, Some);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -839,6 +864,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -872,6 +898,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -938,6 +965,7 @@ namespace LanguageExt
                 var nitems = Items.Clear();
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -963,6 +991,7 @@ namespace LanguageExt
                 var nitems = Items.AddRange(spairs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -988,6 +1017,7 @@ namespace LanguageExt
                 var nitems = oitems.SetItems(sitems);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1013,6 +1043,7 @@ namespace LanguageExt
                 var nitems = oitems.SetItems(sitems);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1042,6 +1073,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1071,6 +1103,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1105,6 +1138,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1133,6 +1167,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1292,6 +1327,7 @@ namespace LanguageExt
                 var nitems = oitems.Append(rhs.Items);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1311,6 +1347,7 @@ namespace LanguageExt
                 var nitems = oitems.Append(rhs.Value);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1330,6 +1367,7 @@ namespace LanguageExt
                 var nitems = oitems.Subtract(rhs.Items);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1349,6 +1387,7 @@ namespace LanguageExt
                 var nitems = oitems.Subtract(rhs.Value);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1443,6 +1482,7 @@ namespace LanguageExt
                 var nitems = oitems.Intersect(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1465,6 +1505,7 @@ namespace LanguageExt
                 var nitems = oitems.Intersect(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1502,6 +1543,7 @@ namespace LanguageExt
                 var nitems = oitems.Except(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1525,6 +1567,7 @@ namespace LanguageExt
                 var nitems = oitems.Except(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1547,6 +1590,7 @@ namespace LanguageExt
                 var nitems = oitems.Except(rhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1570,6 +1614,7 @@ namespace LanguageExt
                 var nitems = oitems.Except(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
@@ -1595,6 +1640,7 @@ namespace LanguageExt
                 var nitems = oitems.Union(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new HashMap<K, V>(nitems));
                     return default;
                 }
                 else
