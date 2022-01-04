@@ -33,6 +33,8 @@ namespace LanguageExt
         /// </summary>
         public static readonly Seq<A> Empty = new Seq<A>(SeqEmptyInternal<A>.Default);
 
+        public event AtomChangedEvent<Seq<A>>? Change;
+
         /// <summary>
         /// Internal representation of the sequence (SeqStrict|SeqLazy|SeqEmptyInternal)
         /// </summary>
@@ -114,6 +116,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new Seq<A>(nitems));
                     return default;
                 }
                 else
@@ -145,6 +148,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new Seq<A>(nitems));
                     return default;
                 }
                 else
@@ -171,6 +175,7 @@ namespace LanguageExt
                 var nitems = oitems.Add(value);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new Seq<A>(nitems));
                     return default;
                 }
                 else
@@ -416,6 +421,7 @@ namespace LanguageExt
 
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new Seq<A>(nitems));
                     return default;
                 }
                 else
@@ -437,6 +443,7 @@ namespace LanguageExt
                 var nitems = oitems.Cons(value);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new Seq<A>(nitems));
                     return default;
                 }
                 else
@@ -813,6 +820,7 @@ namespace LanguageExt
                 var nitems = new SeqLazy<A>(oitems.Map(f));
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new Seq<A>(nitems));
                     return default;
                 }
                 else
@@ -873,6 +881,7 @@ namespace LanguageExt
                 var nitems = new Seq<A>(oitems).Bind(f);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems.Value, oitems), oitems))
                 {
+                    this.Change?.Invoke(new Seq<A>(nitems));
                     return default;
                 }
                 else
@@ -947,6 +956,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new Seq<A>(nitems));
                     return default;
                 }
                 else
@@ -1050,6 +1060,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new Seq<A>(nitems));
                     return default;
                 }
                 else
@@ -1256,6 +1267,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new Seq<A>(nitems));
                     return default;
                 }
                 else
@@ -1283,6 +1295,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new Seq<A>(nitems));
                     return default;
                 }
                 else
@@ -1315,6 +1328,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new Seq<A>(nitems));
                     return default;
                 }
                 else
@@ -1348,6 +1362,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref items, nitems, oitems), oitems))
                 {
+                    this.Change?.Invoke(new Seq<A>(nitems));
                     return default;
                 }
                 else
