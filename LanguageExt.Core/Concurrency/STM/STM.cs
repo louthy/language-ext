@@ -21,6 +21,11 @@ namespace LanguageExt
         static readonly AtomHashMap<EqLong, long, RefState> state = AtomHashMap<EqLong, long, RefState>();
         static readonly AsyncLocal<Transaction> transaction = new AsyncLocal<Transaction>();
 
+        internal static event AtomChangedEvent<HashMap<EqLong, long, object>> Change;
+
+        static STM()
+            => state.Change += v => Change?.Invoke(v.Map(s => s.UntypedValue));
+
         /// <summary>
         /// Generates a new reference that can be used within a sync transaction
         /// </summary>

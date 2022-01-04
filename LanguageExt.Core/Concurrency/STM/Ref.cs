@@ -18,16 +18,41 @@ namespace LanguageExt
     {
         internal readonly long Id;
 
+        private A previousValue;
+
+        public event RefChangedEvent<A> Change;
+
         /// <summary>
         /// Internal ctor
         /// </summary>
-        internal Ref(long id) =>
+        internal Ref(long id)
+        {
             Id = id;
+            this.previousValue = this.Value;
+            STM.Change += this.OnSTMChange;
+        }
 
         /// <summary>
         /// Destructor
         /// </summary>
-        ~Ref() => STM.Finalise(Id);
+        ~Ref()
+        {
+            STM.Change -= this.OnSTMChange;
+            STM.Finalise(Id);
+        }
+
+        private void OnSTMChange(HashMap<EqLong, long, object> values)
+        {
+            var value = values.Find(this.Id).Map(v => (A)v);
+            value.IfSome(v =>
+            {
+                if (!v.Equals(previousValue))
+                {
+                    this.Change?.Invoke(v);
+                    previousValue = v;
+                }
+            });
+        }
 
         /// <summary>
         /// Value accessor

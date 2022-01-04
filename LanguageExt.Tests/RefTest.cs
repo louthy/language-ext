@@ -58,6 +58,37 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        public void BankBalanceChangeTest()
+        {
+            var accountA = Account.New(200);
+            var accountB = Account.New(0);
+
+            var stateA = Option<Account>.None;
+            var stateB = Option<Account>.None;
+            var changedA = 0;
+            var changedB = 0;
+            accountA.Change += v => { stateA = v; changedA++; };
+            accountB.Change += v => { stateB = v; changedB++; };
+
+            atomic(() =>
+            {
+                accountA.Value = accountA.Value.AddBalance(-50);
+                accountB.Value = accountB.Value.AddBalance(50);
+                accountA.Value = accountA.Value.AddBalance(-5);
+                accountB.Value = accountB.Value.AddBalance(5);
+
+                Assert.Equal(None, stateA);
+                Assert.Equal(None, stateB);
+            });
+
+            Assert.Equal(Some(accountA.Value), stateA);
+            Assert.Equal(Some(accountB.Value), stateB);
+            Assert.Equal(1, changedA);
+            Assert.Equal(1, changedB);
+        }
+
+
+        [Fact]
         public void CommuteTest()
         {
             const int count = 1000;
