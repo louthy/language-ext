@@ -1030,7 +1030,7 @@ This can now be achieved simply by deriving your type from `Record<A>` where `A`
 
 This gives you `Equals`, `IEquatable.Equals`, `IComparer.CompareTo`, `GetHashCode`, `operator==`, `operator!=`, `operator >`, `operator >=`, `operator <`, and `operator <=` implemented by default. It also gives you a default `ToString()` implementation and `ISerializable.GetObjectData()` with a deserialisation constructor.
 
-Note that only _fields_ or _field backed properties_ are used in the structural comparisons and hash-code building. There are also `Attribute`s for opting fields out of the equality testing, ordering comparisons, hash-code generation, stringification (`ToString`), and serialisation:
+Note that only _fields_ or _field backed properties_ (including auto-properties) are used in the structural comparisons and hash-code building. There are also `Attribute`s for opting fields out of the equality testing, ordering comparisons, hash-code generation, stringification (`ToString`), and serialisation:
 
 * `Equals()` - `NonEq`
 * `CompareTo()` - `NonOrd`
