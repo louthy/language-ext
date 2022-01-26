@@ -12,9 +12,7 @@ namespace EffectsExamples
         where RT : struct,
         HasCancel<RT>,
         HasTime<RT>,
-        HasConsole<RT>,
-        HasTextRead<RT>,
-        HasFile<RT>
+        HasConsole<RT>
     {
         public static Aff<RT, Unit> menu =>
             repeat(from __0 in clearConsole(ConsoleColor.Green)
@@ -28,8 +26,8 @@ namespace EffectsExamples
             menuItems.Sequence(p => Console<RT>.writeLine($"{p.Item}. {p.Text}"));
 
         static Aff<RT, Unit> clearConsole(ConsoleColor color) =>
-            from _   in Console<RT>.clear
-            from __4 in Console<RT>.setColor(color)
+            from _0 in Console<RT>.clear
+            from _1 in Console<RT>.setColor(color)
             select unit;
 
         static Aff<RT, Unit> runExample(char ix) =>
@@ -56,10 +54,10 @@ namespace EffectsExamples
         static Aff<RT, Unit> showComplete(int x) =>
             x == 0
                 ? unitEff
-                : from _1 in Console<RT>.setColor(ConsoleColor.Cyan)
-                  from _2 in Console<RT>.writeLine($"Returning to menu in {x}")
-                  from _3 in Time<RT>.sleepFor(1 * second)
-                  from _4 in showComplete(x - 1)
+                : from _0 in Console<RT>.setColor(ConsoleColor.Cyan)
+                  from _1 in Console<RT>.writeLine($"Returning to menu in {x}")
+                  from _2 in Time<RT>.sleepFor(1 * second)
+                  from _3 in showComplete(x - 1)
                   select unit;
         
         static Seq<(char Item, Aff<RT, Unit> Example, string Text, string Desc)> menuItems =>
