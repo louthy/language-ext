@@ -164,7 +164,6 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>Null is not allowed for a Key</remarks>
         /// <param name="range">Range of keys to add</param>
-        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException if any of the keys are null</exception>
         /// <returns>New Set with the items added</returns>
         [Pure]
@@ -172,11 +171,10 @@ namespace LanguageExt
             Wrap(Value.TryAddRange(range));
 
         /// <summary>
-        /// Atomically adds a range of items to the set.  If any items already exist, they're ignored.
+        /// Atomically adds a range of items to the set.  If an item already exists then replace it.
         /// </summary>
         /// <remarks>Null is not allowed for a Key</remarks>
         /// <param name="range">Range of keys to add</param>
-        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException if any of the keys are null</exception>
         /// <returns>New Set with the items added</returns>
         [Pure]
