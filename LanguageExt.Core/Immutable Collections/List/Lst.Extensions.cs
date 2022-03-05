@@ -393,7 +393,9 @@ public static class ListExtensions
         LanguageExt.List.map(list, map);
 
     /// <summary>
-    /// Projects the values in the enumerable using a map function into a new enumerable (Select in LINQ).
+    /// Projects the values in the enumerable into a new enumerable using a map function, which is also given an index value
+    /// (Select in LINQ - note that the order of the arguments of the map function are the other way around, here the index
+    /// is the first argument).
     /// </summary>
     /// <typeparam name="T">Enumerable item type</typeparam>
     /// <typeparam name="R">Return enumerable item type</typeparam>
