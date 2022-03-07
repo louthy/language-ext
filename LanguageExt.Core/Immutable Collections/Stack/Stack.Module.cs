@@ -135,7 +135,9 @@ namespace LanguageExt
             toStackRev(List.map(stack, map));
 
         /// <summary>
-        /// Projects the values in the stack using a map function into a new enumerable (Select in LINQ).
+        /// Projects the values in the stack into a new enumerable using a map function, which is also given an index value
+        /// (Select in LINQ - note that the order of the arguments of the map function are the other way around, here the index
+        /// is the first argument).
         /// </summary>
         /// <typeparam name="T">Stack item type</typeparam>
         /// <typeparam name="R">Return enumerable item type</typeparam>
@@ -538,7 +540,9 @@ public static class StackExtensions
         toStackRev(LanguageExt.List.map(stack, map));
 
     /// <summary>
-    /// Projects the values in the stack using a map function into a new enumerable (Select in LINQ).
+    /// Projects the values in the stack into a new stack using a map function, which is also given an index value
+    /// (Select in LINQ - note that the order of the arguments of the map function are the other way around, here the index
+    /// is the first argument).
     /// </summary>
     /// <typeparam name="T">Stack item type</typeparam>
     /// <typeparam name="R">Return enumerable item type</typeparam>
