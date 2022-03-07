@@ -11,6 +11,8 @@ namespace EffectsExamples
     public class Menu<RT>
         where RT : struct,
         HasCancel<RT>,
+        HasFile<RT>,
+        HasTextRead<RT>,
         HasTime<RT>,
         HasConsole<RT>
     {
