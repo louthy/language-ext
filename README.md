@@ -1,4 +1,4 @@
-![lang-ext](https://github.com/louthy/language-ext/blob/master/Images/banner.png?raw=true)
+![lang-ext](https://raw.githubusercontent.com/louthy/language-ext/main/Images/banner.png)
 
 C# Functional Programming Language Extensions
 =============================================
