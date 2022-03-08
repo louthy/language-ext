@@ -27,7 +27,7 @@ namespace LanguageExt
         IEquatable<AtomHashMap<K, V>>
     {
         volatile TrieMap<EqDefault<K>, K, V> Items;
-        public event AtomHashMapChangeEvent<K, V>? OnChange;
+        public event AtomHashMapChangeEvent<K, V>? Change;
 
         /// <summary>
         /// Creates a new atom-hashmap
@@ -103,36 +103,28 @@ namespace LanguageExt
         /// to update this data structure.  Therefore the functions must spend as little time performing the injected
         /// behaviours as possible to avoid repeated attempts</remarks>
         /// <remarks>
-        /// NOTE: If using change-tracking (by hooking up to the `OnChange` event, then `Swap` can be expensive as it
-        ///       tries to ascertain the changes made during the swap `Func`.  Either don't use change-tracking, or
-        ///       consider using other methods on this type to mutate the collection, as they can perfectly track
-        ///       changes.
-        ///
-        ///       If this still isn't acceptable, consider using the `Ref` system for Software Transactional Memory. 
+        /// NOTE: The change-tracking only works if you transform the `TrackingHashMap` provided to the `Func`.  If you
+        ///       build a fresh one then it won't have any tracking.  You can call `map.Clear()` to get to an empty
+        ///       map, which will also track the removals.
         /// </remarks>
-        public Unit Swap(Func<HashMap<K, V>, HashMap<K, V>> swap)
+        public Unit Swap(Func<TrackingHashMap<K, V>, TrackingHashMap<K, V>> swap)
         {
             SpinWait sw = default;
             while (true)
             {
                 var oitems = Items;
-                var nitems = swap(new HashMap<K, V>(oitems)).Value;
-                if(ReferenceEquals(oitems, nitems))
+                var nitems = swap(new TrackingHashMap<K, V>(oitems));
+                if(ReferenceEquals(oitems, nitems.Value))
                 {
                     // no change
                     return default;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems.Value, oitems), oitems))
                 {
-                    var onChange = OnChange;
-                    if (onChange != null)
-                    {
-                        var changes = TrieMap<EqDefault<K>, K, V>.FindChanges(oitems, nitems);
-                        onChange.Invoke(
-                            new HashMap<K, V>(oitems), 
-                            new HashMap<K, V>(nitems), 
-                            new HashMap<K, Change<V>>(changes));
-                    }
+                    Change?.Invoke(
+                        new HashMap<K, V>(oitems),
+                        new HashMap<K, V>(nitems),
+                        nitems.Changes);
 
                     return default;
                 }
@@ -160,7 +152,7 @@ namespace LanguageExt
                 var ovalue = oitems.Find(key);
                 if (ovalue.IsNone) return unit;
                 var nvalue = swap((V)ovalue);
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, change) = onChange == null 
                     ? (oitems.SetItem(key, nvalue), Change<V>.None) 
                     : oitems.SetItemWithLog(key, nvalue);
@@ -206,7 +198,7 @@ namespace LanguageExt
                 var ovalue = oitems.Find(key);
                 var nvalue = swap(ovalue);
 
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, change) = onChange == null
                     ? (ovalue.IsSome, nvalue.IsSome) switch
                     {
@@ -263,7 +255,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Filter(pred), null)
                     : oitems.FilterWithLog(pred);
@@ -300,7 +292,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Filter(pred), null)
                     : oitems.FilterWithLog(pred);
@@ -329,7 +321,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Map(f), null)
                     : oitems.MapWithLog(f);
@@ -366,7 +358,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, change) = onChange == null
                     ? (oitems.Add(key, value), null)
                     : oitems.AddWithLog(key, value);
@@ -396,7 +388,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, change) = onChange == null
                     ? (oitems.TryAdd(key, value), null)
                     : oitems.TryAddWithLog(key, value);
@@ -430,7 +422,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, change) = onChange == null
                     ? (oitems.AddOrUpdate(key, value), null)
                     : oitems.AddOrUpdateWithLog(key, value);
@@ -462,7 +454,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, change) = onChange == null
                     ? (oitems.AddOrUpdate(key, Some, None), null)
                     : oitems.AddOrUpdateWithLog(key, Some, None);
@@ -494,7 +486,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, change) = onChange == null
                     ? (oitems.AddOrUpdate(key, Some, None), null)
                     : oitems.AddOrUpdateWithLog(key, Some, None);
@@ -525,7 +517,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = oitems.AddRangeWithLog(srange);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
@@ -554,7 +546,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.TryAddRange(srange), null)
                     : oitems.TryAddRangeWithLog(srange);
@@ -589,7 +581,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.TryAddRange(srange), null)
                     : oitems.TryAddRangeWithLog(srange);
@@ -625,7 +617,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.AddOrUpdateRange(srange), null)
                     : oitems.AddOrUpdateRangeWithLog(srange);
@@ -656,7 +648,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.AddOrUpdateRange(srange), null)
                     : oitems.AddOrUpdateRangeWithLog(srange);
@@ -683,7 +675,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, change) = onChange == null
                     ? (oitems.Remove(key), null)
                     : oitems.RemoveWithLog(key);
@@ -870,7 +862,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, change) = onChange == null
                     ? (oitems.SetItem(key, value), null)
                     : oitems.SetItemWithLog(key, value);
@@ -902,7 +894,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var(nitems, change) = onChange == null
                     ? (oitems.SetItem(key, Some), null)
                     : oitems.SetItemWithLog(key, Some);
@@ -932,7 +924,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, change) = onChange == null
                     ? (oitems.TrySetItem(key, value), null)
                     : oitems.TrySetItemWithLog(key, value);
@@ -969,7 +961,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, change) = onChange == null
                     ? (oitems.TrySetItem(key, Some), null)
                     : oitems.TrySetItemWithLog(key, Some);
@@ -1043,7 +1035,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Clear(), null)
                     : oitems.ClearWithLog();
@@ -1072,7 +1064,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.AddRange(spairs), null)
                     : oitems.AddRangeWithLog(spairs);
@@ -1101,7 +1093,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.SetItems(sitems), null)
                     : oitems.SetItemsWithLog(sitems);
@@ -1130,7 +1122,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.SetItems(sitems), null)
                     : oitems.SetItemsWithLog(sitems);
@@ -1159,7 +1151,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.TrySetItems(sitems), null)
                     : oitems.TrySetItemsWithLog(sitems);
@@ -1192,7 +1184,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.TrySetItems(sitems), null)
                     : oitems.TrySetItemsWithLog(sitems);
@@ -1230,7 +1222,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.TrySetItems(skeys, Some), null)
                     : oitems.TrySetItemsWithLog(skeys, Some);
@@ -1262,7 +1254,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.RemoveRange(skeys), null)
                     : oitems.RemoveRangeWithLog(skeys);
@@ -1429,7 +1421,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Append(rhs.Items), null)
                     : oitems.AppendWithLog(rhs.Items);
@@ -1452,7 +1444,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Append(rhs.Value), null)
                     : oitems.AppendWithLog(rhs.Value);
@@ -1475,7 +1467,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Subtract(rhs.Items), null)
                     : oitems.SubtractWithLog(rhs.Items);
@@ -1498,7 +1490,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Subtract(rhs.Value), null)
                     : oitems.SubtractWithLog(rhs.Value);
@@ -1596,7 +1588,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Intersect(srhs), null)
                     : oitems.IntersectWithLog(srhs);
@@ -1622,7 +1614,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Intersect(srhs), null)
                     : oitems.IntersectWithLog(srhs);
@@ -1663,7 +1655,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Except(srhs), null)
                     : oitems.ExceptWithLog(srhs);
@@ -1690,7 +1682,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Except(srhs), null)
                     : oitems.ExceptWithLog(srhs);
@@ -1716,7 +1708,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Except(rhs), null)
                     : oitems.ExceptWithLog(rhs);
@@ -1743,7 +1735,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Except(srhs), null)
                     : oitems.ExceptWithLog(srhs);
@@ -1772,7 +1764,7 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var onChange = OnChange;
+                var onChange = Change;
                 var (nitems, changes) = onChange == null
                     ? (oitems.Union(srhs), null)
                     : oitems.UnionWithLog(srhs);
@@ -2042,7 +2034,7 @@ namespace LanguageExt
         {
             if (change?.HasChanged ?? false)
             {
-                OnChange?.Invoke(new HashMap<K, V>(prev), new HashMap<K, V>(current), HashMap((key, change)));
+                Change?.Invoke(new HashMap<K, V>(prev), new HashMap<K, V>(current), HashMap((key, change)));
             }
         }
 
@@ -2052,7 +2044,7 @@ namespace LanguageExt
         {
             if (changes != null)
             {
-                OnChange?.Invoke(new HashMap<K, V>(prev), new HashMap<K, V>(current),
+                Change?.Invoke(new HashMap<K, V>(prev), new HashMap<K, V>(current),
                     new HashMap<K, Change<V>>(changes));
             }
         }

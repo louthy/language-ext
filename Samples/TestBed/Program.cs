@@ -53,7 +53,7 @@ public static class Ext
 
 public class Program
 {
-    static async Task Main(string[] args)
+    static void Main(string[] args)
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                                                                                    //
@@ -63,8 +63,9 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        await AtomHashMapPerf.Test();
+        AtomHashMapTests.Test();
 
+        //await AtomHashMapPerf.Test();
         // await PipesTest();
         // await ObsAffTests.Test();
         // await AsyncTests();

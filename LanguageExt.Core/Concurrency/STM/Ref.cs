@@ -14,9 +14,10 @@ namespace LanguageExt
     /// <remarks>
     /// See the [concurrency section](https://github.com/louthy/language-ext/wiki/Concurrency) of the wiki for more info.
     /// </remarks>
-    public class Ref<A> : IEquatable<A>
+    public sealed class Ref<A> : IEquatable<A>
     {
         internal readonly long Id;
+        public event AtomChangedEvent<A> Change; 
 
         /// <summary>
         /// Internal ctor
@@ -28,6 +29,12 @@ namespace LanguageExt
         /// Destructor
         /// </summary>
         ~Ref() => STM.Finalise(Id);
+
+        /// <summary>
+        /// Change handler
+        /// </summary>
+        internal void OnChange(A value) =>
+            Change?.Invoke(value);
 
         /// <summary>
         /// Value accessor

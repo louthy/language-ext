@@ -1,5 +1,6 @@
 ﻿using System;
 using LanguageExt.ClassInstances;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -106,6 +107,8 @@ namespace LanguageExt
             value = Value;
 
         public override int GetHashCode() => Value?.GetHashCode() ?? FNV32.OffsetBasis;
+
+        public override string ToString() => $"? -> {Value}";
     }
     
     /// <summary>
@@ -136,6 +139,8 @@ namespace LanguageExt
             FNV32.Next(
                 OldValue?.GetHashCode() ?? FNV32.OffsetBasis,
                 Value?.GetHashCode() ?? FNV32.OffsetBasis);
+
+        public override string ToString() => $"{OldValue} -> {Value}";
 
         public void Deconstruct(out A oldValue, out B value)
         {
@@ -176,6 +181,8 @@ namespace LanguageExt
                 OldValue?.GetHashCode() ?? FNV32.OffsetBasis,
                 Value?.GetHashCode() ?? FNV32.OffsetBasis);
 
+        public override string ToString() => $"{OldValue} -> {Value}";
+        
         public void Deconstruct(out V oldValue, out V value)
         {
             oldValue = OldValue;
@@ -211,6 +218,8 @@ namespace LanguageExt
         {
             value = Value;
         }
+
+        public override string ToString() => $"+{Value}";
     }
 
     /// <summary>
@@ -235,6 +244,13 @@ namespace LanguageExt
         public bool Equals(ItemRemoved<V> rhs) =>
             rhs != null &&
             default(EqDefault<V>).Equals(OldValue, rhs.OldValue);
+
+        public void Deconstruct(out V oldValue)
+        {
+            oldValue = OldValue;
+        }
+        
+        public override string ToString() => $"-{OldValue}";
     }
 
     /// <summary>
@@ -255,5 +271,28 @@ namespace LanguageExt
 
         public override int GetHashCode() => 
             FNV32.OffsetBasis;
+
+        public override string ToString() => $"No Change";
+    }
+
+    /// <summary>
+    /// Monoid instance for Change
+    /// </summary>
+    public struct MChange<V> : Monoid<Change<V>>
+    {
+        public Change<V> Append(Change<V> x, Change<V> y) =>
+            (x, y) switch
+            {
+                (NoChange<V> _, _)                                     => y,
+                (_, NoChange<V> _)                                     => x,
+                (_, ItemRemoved<V> _)                                  => y,
+                (ItemRemoved<V> (var vx), ItemAdded<V> (var vy))       => Change<V>.Updated(vx, vy),
+                (ItemAdded<V> _, ItemUpdated<V>(_, var vz))            => Change<V>.Added(vz),
+                (ItemUpdated<V>(var vx, _), ItemUpdated<V>(_, var vz)) => Change<V>.Updated(vx, vz),
+                _                                                      => y 
+            };
+
+        public Change<V> Empty() => 
+            Change<V>.None;
     }
 }

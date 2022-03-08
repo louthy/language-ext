@@ -424,6 +424,112 @@ namespace LanguageExt
             LanguageExt.HashMap.createRange<EqK, K, V>(items);
 
 
+        
+
+
+
+        /// <summary>
+        /// Create an immutable tracking hash-map
+        /// </summary>
+        [Pure]
+        public static TrackingHashMap<K, V> TrackingHashMap<K, V>() =>
+            LanguageExt.TrackingHashMap.empty<K, V>();
+
+        /// <summary>
+        /// Create an immutable tracking hash-map
+        /// </summary>
+        [Pure]
+        public static TrackingHashMap<K, V> TrackingHashMap<K, V>(Tuple<K,V> head, params Tuple<K, V>[] tail) =>
+            LanguageExt.TrackingHashMap.create(head, tail);
+
+        /// <summary>
+        /// Create an immutable tracking hash-map
+        /// </summary>
+        [Pure]
+        public static TrackingHashMap<K, V> TrackingHashMap<K, V>((K, V) head, params (K, V)[] tail) =>
+            LanguageExt.TrackingHashMap.create(head, tail);
+
+        /// <summary>
+        /// Create an immutable tracking hash-map
+        /// </summary>
+        [Pure]
+        public static TrackingHashMap<K, V> TrackingHashMap<K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) =>
+            LanguageExt.TrackingHashMap.create(head, tail);
+
+        /// <summary>
+        /// Create an immutable tracking hash-map
+        /// </summary>
+        [Pure]
+        public static TrackingHashMap<K, V> toTrackingHashMap<K, V>(IEnumerable<(K, V)> items) =>
+            LanguageExt.TrackingHashMap.createRange(items);
+
+        /// <summary>
+        /// Create an immutable tracking hash-map
+        /// </summary>
+        [Pure]
+        public static TrackingHashMap<K, V> toTrackingHashMap<K, V>(IEnumerable<Tuple<K, V>> items) =>
+            LanguageExt.TrackingHashMap.createRange(items);
+
+        /// <summary>
+        /// Create an immutable tracking hash-map
+        /// </summary>
+        [Pure]
+        public static TrackingHashMap<K, V> toTrackingHashMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
+            LanguageExt.TrackingHashMap.createRange(items);
+
+
+
+        /// <summary>
+        /// Create an immutable tracking hash-map
+        /// </summary>
+        [Pure]
+        public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>() where EqK : struct, Eq<K> =>
+            LanguageExt.TrackingHashMap.empty<EqK, K, V>();
+
+        /// <summary>
+        /// Create an immutable tracking hash-map
+        /// </summary>
+        [Pure]
+        public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) where EqK : struct, Eq<K> =>
+            LanguageExt.TrackingHashMap.create<EqK, K, V>(head, tail);
+
+        /// <summary>
+        /// Create an immutable tracking hash-map
+        /// </summary>
+        [Pure]
+        public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>((K, V) head, params (K, V)[] tail) where EqK : struct, Eq<K> =>
+            LanguageExt.TrackingHashMap.create<EqK, K, V>(head, tail);
+
+        /// <summary>
+        /// Create an immutable tracking hash-map
+        /// </summary>
+        [Pure]
+        public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where EqK : struct, Eq<K> =>
+            LanguageExt.TrackingHashMap.create<EqK, K, V>(head, tail);
+
+        /// <summary>
+        /// Create an immutable tracking hash-map
+        /// </summary>
+        [Pure]
+        public static TrackingHashMap<EqK, K, V> toTrackingHashMap<EqK, K, V>(IEnumerable<Tuple<K, V>> items) where EqK : struct, Eq<K> =>
+            LanguageExt.TrackingHashMap.createRange<EqK, K, V>(items);
+
+        /// <summary>
+        /// Create an immutable tracking hash-map
+        /// </summary>
+        [Pure]
+        public static TrackingHashMap<EqK, K, V> toTrackingHashMap<EqK, K, V>(IEnumerable<(K, V)> items) where EqK : struct, Eq<K> =>
+            LanguageExt.TrackingHashMap.createRange<EqK, K, V>(items);
+
+        /// <summary>
+        /// Create an immutable tracking hash-map
+        /// </summary>
+        [Pure]
+        public static TrackingHashMap<EqK, K, V> toTrackingHashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : struct, Eq<K> =>
+            LanguageExt.TrackingHashMap.createRange<EqK, K, V>(items);
+
+        
+        
 
 
         /// <summary>

@@ -1,13 +1,13 @@
-﻿using LanguageExt.TypeClasses;
+﻿using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClasses;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -16,49 +16,67 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value</typeparam>
-    public readonly struct HashMap<EqK, K, V> :
+    public readonly struct TrackingHashMap<K, V> :
         IEnumerable<(K Key, V Value)>,
-        IEquatable<HashMap<EqK, K, V>>
-        where EqK : struct, Eq<K>
+        IEquatable<TrackingHashMap<K, V>>
     {
-        public static readonly HashMap<EqK, K, V> Empty = new HashMap<EqK, K, V>(TrieMap<EqK, K, V>.Empty);
+        public static readonly TrackingHashMap<K, V> Empty = new TrackingHashMap<K,V>(TrieMap<EqDefault<K>, K, V>.Empty);
 
-        readonly TrieMap<EqK, K, V> value;
+        readonly TrieMap<EqDefault<K>, K, V> value;
+        readonly TrieMap<EqDefault<K>, K, Change<V>> changes;
 
-        internal TrieMap<EqK, K, V> Value => 
-            value ?? TrieMap<EqK, K, V>.Empty;
+        internal TrieMap<EqDefault<K>, K, V> Value => 
+            value ?? TrieMap<EqDefault<K>, K, V>.Empty;
 
-        internal HashMap(TrieMap<EqK, K, V> value) =>
-            this.value = value;
+        internal TrieMap<EqDefault<K>, K, Change<V>> ChangesInternal => 
+            changes ?? TrieMap<EqDefault<K>, K, Change<V>>.Empty;
 
-        public HashMap(IEnumerable<(K Key, V Value)> items) : this(items, true)
-        { }
+        public HashMap<K, Change<V>> Changes => 
+            new HashMap<K, Change<V>>(ChangesInternal);
 
-        public HashMap(IEnumerable<(K Key, V Value)> items, bool tryAdd)
+        internal TrackingHashMap(TrieMap<EqDefault<K>, K, V> value, TrieMap<EqDefault<K>, K, Change<V>> changes)
         {
-            var map = HashMap<EqK, K, V>.Empty;
-            if (tryAdd)
-            {
-                foreach (var item in items)
-                {
-                    map = map.TryAdd(item.Key, item.Value);
-                }
-            }
-            else
-            {
-                foreach (var item in items)
-                {
-                    map = map.Add(item.Key, item.Value);
-                }
-            }
-            this.value = map.value;
+            this.value = value;
+            this.changes = changes;
         }
 
-        static HashMap<EqK, K, V> Wrap(TrieMap<EqK, K, V> value) =>
-            new HashMap<EqK, K, V>(value);
 
-        static HashMap<EqK, K, U> Wrap<U>(TrieMap<EqK, K, U> value) =>
-            new HashMap<EqK, K, U>(value);
+        public TrackingHashMap(IEnumerable<(K Key, V Value)> items) 
+            : this(items, true)
+        { }
+
+        public TrackingHashMap(IEnumerable<(K Key, V Value)> items, bool tryAdd)
+        {
+            this.value = new TrieMap<EqDefault<K>, K, V>(items, tryAdd);
+            this.changes = TrieMap<EqDefault<K>, K, Change<V>>.Empty;
+        }
+
+        /// <summary>
+        /// Item at index lens
+        /// </summary>
+        [Pure]
+        public static Lens<TrackingHashMap<K, V>, V> item(K key) => Lens<TrackingHashMap<K, V>, V>.New(
+            Get: la => la[key],
+            Set: a => la => la.AddOrUpdate(key, a)
+            );
+
+        /// <summary>
+        /// Item or none at index lens
+        /// </summary>
+        [Pure]
+        public static Lens<TrackingHashMap<K, V>, Option<V>> itemOrNone(K key) => Lens<TrackingHashMap<K, V>, Option<V>>.New(
+            Get: la => la[key],
+            Set: a => la => a.Match(Some: x => la.AddOrUpdate(key, x), None: () => la.Remove(key))
+            );
+
+        static TrackingHashMap<K, V> Wrap(TrieMap<EqDefault<K>, K, V> value) =>
+            new (value, TrieMap<EqDefault<K>, K, Change<V>>.Empty);
+
+        TrackingHashMap<K, V> Wrap((TrieMap<EqDefault<K>, K, V> Map, TrieMap<EqDefault<K>, K, Change<V>> Changes) pair) =>
+            new (pair.Map, ChangesInternal.Merge<MChange<V>>(pair.Changes));
+
+        TrackingHashMap<K, V> Wrap(K key, (TrieMap<EqDefault<K>, K, V> Map, Change<V> Change) pair) =>
+            new (pair.Map, ChangesInternal.TrySetItem(key, Some: ex => default(MChange<V>).Append(ex, pair.Change)));
 
         /// <summary>
         /// 'this' accessor
@@ -98,13 +116,13 @@ namespace LanguageExt
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => value?.Count ?? 0;
         }
-        
+
         /// <summary>
         /// Get a IReadOnlyDictionary for this map.  No mapping is required, so this is very fast.
         /// </summary>
         [Pure]
         public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
-            value;
+            Value;
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -112,8 +130,8 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
-        public HashMap<EqK, K, V> Filter(Func<V, bool> pred) =>
-            Wrap(Value.Filter(pred));
+        public TrackingHashMap<K, V> Filter(Func<V, bool> pred) =>
+            Wrap(Value.FilterWithLog(pred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -121,24 +139,8 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
-        public HashMap<EqK, K, V> Filter(Func<K, V, bool> pred) =>
-            Wrap(Value.Filter(pred));
-
-        /// <summary>
-        /// Atomically maps the map to a new map
-        /// </summary>
-        /// <returns>Mapped items in a new map</returns>
-        [Pure]
-        public HashMap<EqK, K, U> Map<U>(Func<V, U> mapper) =>
-            Wrap(Value.Map(mapper));
-
-        /// <summary>
-        /// Atomically maps the map to a new map
-        /// </summary>
-        /// <returns>Mapped items in a new map</returns>
-        [Pure]
-        public HashMap<EqK, K, U> Map<U>(Func<K, V, U> mapper) =>
-            Wrap(Value.Map(mapper));
+        public TrackingHashMap<K, V> Filter(Func<K, V, bool> pred) =>
+            Wrap(Value.FilterWithLog(pred));
 
         /// <summary>
         /// Atomically adds a new item to the map
@@ -150,8 +152,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public HashMap<EqK, K, V> Add(K key, V value) =>
-            Wrap(Value.Add(key, value));
+        public TrackingHashMap<K, V> Add(K key, V value) =>
+            Wrap(key, Value.AddWithLog(key, value));
 
         /// <summary>
         /// Atomically adds a new item to the map.
@@ -163,8 +165,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public HashMap<EqK, K, V> TryAdd(K key, V value) =>
-            Wrap(Value.TryAdd(key, value));
+        public TrackingHashMap<K, V> TryAdd(K key, V value) =>
+            Wrap(key, Value.TryAddWithLog(key, value));
 
         /// <summary>
         /// Atomically adds a new item to the map.
@@ -176,8 +178,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public HashMap<EqK, K, V> AddOrUpdate(K key, V value) =>
-            Wrap(Value.AddOrUpdate(key, value));
+        public TrackingHashMap<K, V> AddOrUpdate(K key, V value) =>
+            Wrap(key, Value.AddOrUpdateWithLog(key, value));
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,
@@ -188,8 +190,8 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         [Pure]
-        public HashMap<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None) =>
-            Wrap(Value.AddOrUpdate(key, Some, None));
+        public TrackingHashMap<K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None) =>
+            Wrap(key, Value.AddOrUpdateWithLog(key, Some, None));
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,
@@ -200,8 +202,8 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         [Pure]
-        public HashMap<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, V None) =>
-            Wrap(Value.AddOrUpdate(key, Some, None));
+        public TrackingHashMap<K, V> AddOrUpdate(K key, Func<V, V> Some, V None) =>
+            Wrap(key, Value.AddOrUpdateWithLog(key, Some, None));
 
         /// <summary>
         /// Atomically adds a range of items to the map.
@@ -212,8 +214,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMap<EqK, K, V> AddRange(IEnumerable<Tuple<K, V>> range) =>
-            Wrap(Value.AddRange(range));
+        public TrackingHashMap<K, V> AddRange(IEnumerable<Tuple<K, V>> range) =>
+            Wrap(Value.AddRangeWithLog(range));
 
         /// <summary>
         /// Atomically adds a range of items to the map.
@@ -224,8 +226,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMap<EqK, K, V> AddRange(IEnumerable<(K, V)> range) =>
-            Wrap(Value.AddRange(range));
+        public TrackingHashMap<K, V> AddRange(IEnumerable<(K Key, V Value)> range) =>
+            Wrap(Value.AddRangeWithLog(range));
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -236,8 +238,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMap<EqK, K, V> TryAddRange(IEnumerable<Tuple<K, V>> range) =>
-            Wrap(Value.TryAddRange(range));
+        public TrackingHashMap<K, V> TryAddRange(IEnumerable<Tuple<K, V>> range) =>
+            Wrap(Value.TryAddRangeWithLog(range));
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -248,8 +250,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMap<EqK, K, V> TryAddRange(IEnumerable<(K, V)> range) =>
-            Wrap(Value.TryAddRange(range));
+        public TrackingHashMap<K, V> TryAddRange(IEnumerable<(K Key, V Value)> range) =>
+            Wrap(Value.TryAddRangeWithLog(range));
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -260,8 +262,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMap<EqK, K, V> TryAddRange(IEnumerable<KeyValuePair<K, V>> range) =>
-            Wrap(Value.TryAddRange(range));
+        public TrackingHashMap<K, V> TryAddRange(IEnumerable<KeyValuePair<K, V>> range) =>
+            Wrap(Value.TryAddRangeWithLog(range));
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -272,8 +274,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMap<EqK, K, V> AddOrUpdateRange(IEnumerable<Tuple<K, V>> range) =>
-            Wrap(Value.AddOrUpdateRange(range));
+        public TrackingHashMap<K, V> AddOrUpdateRange(IEnumerable<Tuple<K, V>> range) =>
+            Wrap(Value.AddOrUpdateRangeWithLog(range));
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -284,8 +286,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMap<EqK, K, V> AddOrUpdateRange(IEnumerable<(K, V)> range) =>
-            Wrap(Value.AddOrUpdateRange(range));
+        public TrackingHashMap<K, V> AddOrUpdateRange(IEnumerable<(K Key, V Value)> range) =>
+            Wrap(Value.AddOrUpdateRangeWithLog(range));
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -296,8 +298,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMap<EqK, K, V> AddOrUpdateRange(IEnumerable<KeyValuePair<K, V>> range) =>
-            Wrap(Value.AddOrUpdateRange(range));
+        public TrackingHashMap<K, V> AddOrUpdateRange(IEnumerable<KeyValuePair<K, V>> range) =>
+            Wrap(Value.AddOrUpdateRangeWithLog(range));
 
         /// <summary>
         /// Atomically removes an item from the map
@@ -306,8 +308,8 @@ namespace LanguageExt
         /// <param name="key">Key</param>
         /// <returns>New map with the item removed</returns>
         [Pure]
-        public HashMap<EqK, K, V> Remove(K key) =>
-            Wrap(Value.Remove(key));
+        public TrackingHashMap<K, V> Remove(K key) =>
+            Wrap(key, Value.RemoveWithLog(key));
 
         /// <summary>
         /// Retrieve a value from the map by key
@@ -335,7 +337,7 @@ namespace LanguageExt
         /// <returns>Found value</returns>
         [Pure]
         public R Find<R>(K key, Func<V, R> Some, Func<R> None) =>
-            Value.Find(key,Some,None);
+            Value.Find(key, Some, None);
 
         /// <summary>
         /// Try to find the key in the map, if it doesn't exist, add a new 
@@ -345,8 +347,11 @@ namespace LanguageExt
         /// <param name="None">Delegate to get the value</param>
         /// <returns>Updated map and added value</returns>
         [Pure]
-        public (HashMap<EqK, K, V> Map, V Value) FindOrAdd(K key, Func<V> None) =>
-            Value.FindOrAdd(key, None).Map((x, y) => (Wrap(x), y));
+        public (TrackingHashMap<K, V> Map, V Value) FindOrAdd(K key, Func<V> None)
+        {
+            var (x, y, cs) = Value.FindOrAddWithLog(key, None);
+            return (Wrap(key, (x, cs)), y);
+        }
 
         /// <summary>
         /// Try to find the key in the map, if it doesn't exist, add a new 
@@ -356,8 +361,11 @@ namespace LanguageExt
         /// <param name="value">Delegate to get the value</param>
         /// <returns>Updated map and added value</returns>
         [Pure]
-        public (HashMap<EqK, K, V>, V Value) FindOrAdd(K key, V value) =>
-            Value.FindOrAdd(key, value).Map((x, y) => (Wrap(x), y));
+        public (TrackingHashMap<K, V>, V Value) FindOrAdd(K key, V value)
+        {
+            var (x, y, cs) = Value.FindOrAddWithLog(key, value);
+            return (Wrap(key, (x, cs)), y);
+        }
 
         /// <summary>
         /// Try to find the key in the map, if it doesn't exist, add a new 
@@ -367,8 +375,11 @@ namespace LanguageExt
         /// <param name="None">Delegate to get the value</param>
         /// <returns>Updated map and added value</returns>
         [Pure]
-        public (HashMap<EqK, K, V> Map, Option<V> Value) FindOrMaybeAdd(K key, Func<Option<V>> None) =>
-            Value.FindOrMaybeAdd(key, None).Map((x, y) => (Wrap(x), y));
+        public (TrackingHashMap<K, V> Map, Option<V> Value) FindOrMaybeAdd(K key, Func<Option<V>> None)
+        {
+            var (x, y, cs) = Value.FindOrMaybeAddWithLog(key, None);
+            return (Wrap(key, (x, cs)), y);
+        }
 
         /// <summary>
         /// Try to find the key in the map, if it doesn't exist, add a new 
@@ -378,8 +389,11 @@ namespace LanguageExt
         /// <param name="None">Delegate to get the value</param>
         /// <returns>Updated map and added value</returns>
         [Pure]
-        public (HashMap<EqK, K, V> Map, Option<V> Value) FindOrMaybeAdd(K key, Option<V> None) =>
-            Value.FindOrMaybeAdd(key, None).Map((x, y) => (Wrap(x), y));
+        public (TrackingHashMap<K, V> Map, Option<V> Value) FindOrMaybeAdd(K key, Option<V> None)
+        {
+            var (x, y, cs) = Value.FindOrMaybeAddWithLog(key, None);
+            return (Wrap(key, (x, cs)), y);
+        }
 
         /// <summary>
         /// Atomically updates an existing item
@@ -390,8 +404,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public HashMap<EqK, K, V> SetItem(K key, V value) =>
-            Wrap(Value.SetItem(key, value));
+        public TrackingHashMap<K, V> SetItem(K key, V value) =>
+            Wrap(key, Value.SetItemWithLog(key, value));
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,
@@ -402,8 +416,8 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         [Pure]
-        public HashMap<EqK, K, V> SetItem(K key, Func<V, V> Some) =>
-            Wrap(Value.SetItem(key, Some));
+        public TrackingHashMap<K, V> SetItem(K key, Func<V, V> Some) =>
+            Wrap(key, Value.SetItemWithLog(key, Some));
 
         /// <summary>
         /// Atomically updates an existing item, unless it doesn't exist, in which case 
@@ -415,8 +429,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the value is null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public HashMap<EqK, K, V> TrySetItem(K key, V value) =>
-            Wrap(Value.TrySetItem(key, value));
+        public TrackingHashMap<K, V> TrySetItem(K key, V value) =>
+            Wrap(key, Value.TrySetItemWithLog(key, value));
 
         /// <summary>
         /// Atomically sets an item by first retrieving it, applying a map, and then putting it back.
@@ -428,8 +442,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New map with the item set</returns>
         [Pure]
-        public HashMap<EqK, K, V> TrySetItem(K key, Func<V, V> Some) =>
-            Wrap(Value.SetItem(key, Some));
+        public TrackingHashMap<K, V> TrySetItem(K key, Func<V, V> Some) =>
+            Wrap(key, Value.TrySetItemWithLog(key, Some));
 
         /// <summary>
         /// Checks for existence of a key in the map
@@ -450,6 +464,24 @@ namespace LanguageExt
             Value.Contains(key, value);
 
         /// <summary>
+        /// Checks for existence of a value in the map
+        /// </summary>
+        /// <param name="value">Value to check</param>
+        /// <returns>True if an item with the value supplied is in the map</returns>
+        [Pure]
+        public bool Contains(V value) =>
+            Value.Contains(value);
+
+        /// <summary>
+        /// Checks for existence of a value in the map
+        /// </summary>
+        /// <param name="value">Value to check</param>
+        /// <returns>True if an item with the value supplied is in the map</returns>
+        [Pure]
+        public bool Contains<EqV>(V value) where EqV : struct, Eq<V> =>
+            Value.Contains<EqV>(value);
+
+        /// <summary>
         /// Checks for existence of a key in the map
         /// </summary>
         /// <param name="key">Key to check</param>
@@ -464,7 +496,16 @@ namespace LanguageExt
         /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
         /// <returns>Empty map</returns>
         [Pure]
-        public HashMap<EqK, K, V> Clear() =>
+        public TrackingHashMap<K, V> Clear() =>
+            Wrap(Value.ClearWithLog());
+
+        /// <summary>
+        /// Clears all items from the map 
+        /// </summary>
+        /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
+        /// <returns>Empty map</returns>
+        [Pure]
+        public TrackingHashMap<K, V> ClearChanges() =>
             Wrap(Value.Clear());
 
         /// <summary>
@@ -474,8 +515,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMap<EqK, K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) =>
-            Wrap(Value.AddRange(pairs));
+        public TrackingHashMap<K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) =>
+            Wrap(Value.AddRangeWithLog(pairs));
 
         /// <summary>
         /// Atomically sets a series of items using the KeyValuePairs provided
@@ -484,8 +525,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMap<EqK, K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items) =>
-            Wrap(Value.SetItems(items));
+        public TrackingHashMap<K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items) =>
+            Wrap(Value.SetItemsWithLog(items));
 
         /// <summary>
         /// Atomically sets a series of items using the Tuples provided.
@@ -494,8 +535,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMap<EqK, K, V> SetItems(IEnumerable<Tuple<K, V>> items) =>
-            Wrap(Value.SetItems(items));
+        public TrackingHashMap<K, V> SetItems(IEnumerable<Tuple<K, V>> items) =>
+            Wrap(Value.SetItemsWithLog(items));
 
         /// <summary>
         /// Atomically sets a series of items using the Tuples provided.
@@ -504,8 +545,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMap<EqK, K, V> SetItems(IEnumerable<(K, V)> items) =>
-            Wrap(Value.SetItems(items));
+        public TrackingHashMap<K, V> SetItems(IEnumerable<(K Key, V Value)> items) =>
+            Wrap(Value.SetItemsWithLog(items));
 
         /// <summary>
         /// Atomically sets a series of items using the KeyValuePairs provided.  If any of the 
@@ -514,8 +555,8 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMap<EqK, K, V> TrySetItems(IEnumerable<KeyValuePair<K, V>> items) =>
-            Wrap(Value.TrySetItems(items));
+        public TrackingHashMap<K, V> TrySetItems(IEnumerable<KeyValuePair<K, V>> items) =>
+            Wrap(Value.TrySetItemsWithLog(items));
 
         /// <summary>
         /// Atomically sets a series of items using the Tuples provided  If any of the 
@@ -524,8 +565,8 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMap<EqK, K, V> TrySetItems(IEnumerable<Tuple<K, V>> items) =>
-            Wrap(Value.TrySetItems(items));
+        public TrackingHashMap<K, V> TrySetItems(IEnumerable<Tuple<K, V>> items) =>
+            Wrap(Value.TrySetItemsWithLog(items));
 
         /// <summary>
         /// Atomically sets a series of items using the Tuples provided  If any of the 
@@ -534,8 +575,8 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMap<EqK, K, V> TrySetItems(IEnumerable<(K, V)> items) =>
-            Wrap(Value.TrySetItems(items));
+        public TrackingHashMap<K, V> TrySetItems(IEnumerable<(K Key, V Value)> items) =>
+            Wrap(Value.TrySetItemsWithLog(items));
 
         /// <summary>
         /// Atomically sets a series of items using the keys provided to find the items
@@ -546,8 +587,8 @@ namespace LanguageExt
         /// <param name="Some">Function map the existing item to a new one</param>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMap<EqK, K, V> TrySetItems(IEnumerable<K> keys, Func<V, V> Some) =>
-            Wrap(Value.TrySetItems(keys, Some));
+        public TrackingHashMap<K, V> TrySetItems(IEnumerable<K> keys, Func<V, V> Some) =>
+            Wrap(Value.TrySetItemsWithLog(keys, Some));
 
         /// <summary>
         /// Atomically removes a set of keys from the map
@@ -555,8 +596,8 @@ namespace LanguageExt
         /// <param name="keys">Keys to remove</param>
         /// <returns>New map with the items removed</returns>
         [Pure]
-        public HashMap<EqK, K, V> RemoveRange(IEnumerable<K> keys) =>
-            Wrap(Value.RemoveRange(keys));
+        public TrackingHashMap<K, V> RemoveRange(IEnumerable<K> keys) =>
+            Wrap(Value.RemoveRangeWithLog(keys));
 
         /// <summary>
         /// Returns true if a Key/Value pair exists in the map
@@ -566,15 +607,6 @@ namespace LanguageExt
         [Pure]
         public bool Contains(KeyValuePair<K, V> pair) =>
             Value.Contains(pair.Key, pair.Value);
-
-        /// <summary>
-        /// Returns true if a Key/Value pair exists in the map
-        /// </summary>
-        /// <param name="pair">Pair to find</param>
-        /// <returns>True if exists, false otherwise</returns>
-        [Pure]
-        public bool Contains<EqV>(KeyValuePair<K, V> pair) where EqV : struct, Eq<V> =>
-            Value.Contains<EqV>(pair.Key, pair.Value);
 
         /// <summary>
         /// Enumerable of map keys
@@ -591,7 +623,7 @@ namespace LanguageExt
             Value.Values;
 
         /// <summary>
-        /// Convert the map to an `IReadOnlyDictionary<K, V>`
+        /// Convert the map to an IDictionary
         /// </summary>
         /// <returns></returns>
         [Pure]
@@ -603,9 +635,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K Key, V Value), KR> keySelector, Func<(K Key, V Value), VR> valueSelector) =>
-            Value.AsEnumerable().ToDictionary(keySelector, valueSelector);
+            AsEnumerable().ToDictionary(x => keySelector(x), x => valueSelector(x));
 
-        #region IEnumerable interface
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
@@ -620,13 +651,13 @@ namespace LanguageExt
 
         [Pure]
         public Seq<(K Key, V Value)> ToSeq() =>
-            toSeq(Value.AsEnumerable());
+            toSeq(AsEnumerable());
 
         /// <summary>
-        /// Allocation free conversion to a TrackingHashMap
+        /// Allocation free conversion to a HashMap
         /// </summary>
         [Pure]
-        public HashMap<EqK, K, V> ToTrackingHashMap() =>
+        public HashMap<K, V> ToHashMap() =>
             new (value);
 
         /// <summary>
@@ -655,47 +686,45 @@ namespace LanguageExt
 
         [Pure]
         public IEnumerable<(K Key, V Value)> AsEnumerable() =>
-            Value.AsEnumerable();
+            Value;
 
-        #endregion
-        
         /// <summary>
         /// Implicit conversion from an untyped empty list
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator HashMap<EqK, K, V>(SeqEmpty _) =>
+        public static implicit operator TrackingHashMap<K, V>(SeqEmpty _) =>
             Empty;
 
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values
         /// </summary>
         [Pure]
-        public static bool operator ==(HashMap<EqK, K, V> lhs, HashMap<EqK, K, V> rhs) =>
+        public static bool operator ==(TrackingHashMap<K, V> lhs, TrackingHashMap<K, V> rhs) =>
             lhs.Equals(rhs);
 
         /// <summary>
         /// In-equality of keys and values with `EqDefault<V>` used for values
         /// </summary>
         [Pure]
-        public static bool operator !=(HashMap<EqK, K, V> lhs, HashMap<EqK, K, V> rhs) =>
+        public static bool operator !=(TrackingHashMap<K, V> lhs, TrackingHashMap<K, V> rhs) =>
             !(lhs == rhs);
 
         [Pure]
-        public static HashMap<EqK, K, V> operator +(HashMap<EqK, K, V> lhs, HashMap<EqK, K, V> rhs) =>
+        public static TrackingHashMap<K, V> operator +(TrackingHashMap<K, V> lhs, TrackingHashMap<K, V> rhs) =>
             lhs.Append(rhs);
 
         [Pure]
-        public HashMap<EqK, K, V> Append(HashMap<EqK, K, V> rhs) =>
-            Wrap(Value.Append(rhs.Value));
+        public TrackingHashMap<K, V> Append(TrackingHashMap<K, V> rhs) =>
+            Wrap(Value.AppendWithLog(rhs.Value));
 
         [Pure]
-        public static HashMap<EqK, K, V> operator -(HashMap<EqK, K, V> lhs, HashMap<EqK, K, V> rhs) =>
+        public static TrackingHashMap<K, V> operator -(TrackingHashMap<K, V> lhs, TrackingHashMap<K, V> rhs) =>
             lhs.Subtract(rhs);
 
         [Pure]
-        public HashMap<EqK, K, V> Subtract(HashMap<EqK, K, V> rhs) =>
-            Wrap(Value.Subtract(rhs.Value));
+        public TrackingHashMap<K, V> Subtract(TrackingHashMap<K, V> rhs) =>
+            Wrap(Value.SubtractWithLog(rhs.Value));
 
         /// <summary>
         /// Returns True if 'other' is a proper subset of this set
@@ -750,7 +779,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
-        public bool IsSubsetOf(HashMap<EqK, K, V> other) =>
+        public bool IsSubsetOf(TrackingHashMap<K, V> other) =>
             Value.IsSubsetOf(other.Value);
 
         /// <summary>
@@ -770,6 +799,20 @@ namespace LanguageExt
             Value.IsSupersetOf(rhs);
 
         /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        [Pure]
+        public TrackingHashMap<K, V> Intersect(IEnumerable<K> rhs) =>
+            Wrap(Value.IntersectWithLog(rhs));
+
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        [Pure]
+        public TrackingHashMap<K, V> Intersect(IEnumerable<(K Key, V Value)> rhs) =>
+            Wrap(Value.IntersectWithLog(rhs));
+
+        /// <summary>
         /// Returns True if other overlaps this set
         /// </summary>
         [Pure]
@@ -784,50 +827,36 @@ namespace LanguageExt
             Value.Overlaps(other);
 
         /// <summary>
-        /// Returns the elements that are in both this and other
+        /// Returns this - other.  Only the items in this that are not in 
+        /// other will be returned.
         /// </summary>
         [Pure]
-        public HashMap<EqK, K, V> Intersect(IEnumerable<K> rhs) =>
-            Wrap(Value.Intersect(rhs));
-
-        /// <summary>
-        /// Returns the elements that are in both this and other
-        /// </summary>
-        [Pure]
-        public HashMap<EqK, K, V> Intersect(IEnumerable<(K Key, V Value)> rhs) =>
-            Wrap(Value.Intersect(rhs));
+        public TrackingHashMap<K, V> Except(IEnumerable<K> rhs) =>
+            Wrap(Value.ExceptWithLog(rhs));
 
         /// <summary>
         /// Returns this - other.  Only the items in this that are not in 
         /// other will be returned.
         /// </summary>
         [Pure]
-        public HashMap<EqK, K, V> Except(IEnumerable<K> rhs) =>
-            Wrap(Value.Except(rhs));
-
-        /// <summary>
-        /// Returns this - other.  Only the items in this that are not in 
-        /// other will be returned.
-        /// </summary>
-        [Pure]
-        public HashMap<EqK, K, V> Except(IEnumerable<(K Key, V Value)> rhs) =>
-            Wrap(Value.Except(rhs));
+        public TrackingHashMap<K, V> Except(IEnumerable<(K Key, V Value)> rhs) =>
+            Wrap(Value.ExceptWithLog(rhs));
 
         /// <summary>
         /// Only items that are in one set or the other will be returned.
         /// If an item is in both, it is dropped.
         /// </summary>
         [Pure]
-        public HashMap<EqK, K, V> SymmetricExcept(HashMap<EqK, K, V> rhs) =>
-            Wrap(Value.SymmetricExcept(rhs.Value));
+        public TrackingHashMap<K, V> SymmetricExcept(TrackingHashMap<K, V> rhs) =>
+            Wrap(Value.SymmetricExceptWithLog(rhs.Value));
 
         /// <summary>
         /// Only items that are in one set or the other will be returned.
         /// If an item is in both, it is dropped.
         /// </summary>
         [Pure]
-        public HashMap<EqK, K, V> SymmetricExcept(IEnumerable<(K Key, V Value)> rhs) =>
-            Wrap(Value.SymmetricExcept(rhs));
+        public TrackingHashMap<K, V> SymmetricExcept(IEnumerable<(K Key, V Value)> rhs) =>
+            Wrap(Value.SymmetricExceptWithLog(rhs));
 
         /// <summary>
         /// Finds the union of two sets and produces a new set with 
@@ -836,35 +865,35 @@ namespace LanguageExt
         /// <param name="other">Other set to union with</param>
         /// <returns>A set which contains all items from both sets</returns>
         [Pure]
-        public HashMap<EqK, K, V> Union(IEnumerable<(K, V)> rhs) =>
+        public TrackingHashMap<K, V> Union(IEnumerable<(K, V)> rhs) =>
             this.TryAddRange(rhs);
-
-        /// <summary>
-        /// Equality of keys
-        /// </summary>
-        [Pure]
-        public override bool Equals(object obj) =>
-            obj is HashMap<EqK, K, V> hm && Equals(hm);
 
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values
         /// </summary>
         [Pure]
-        public bool Equals(HashMap<EqK, K, V> other) =>
+        public override bool Equals(object obj) =>
+            obj is TrackingHashMap<K, V> hm && Equals(hm);
+
+        /// <summary>
+        /// Equality of keys and values with `EqDefault<V>` used for values
+        /// </summary>
+        [Pure]
+        public bool Equals(TrackingHashMap<K, V> other) =>
             Value.Equals<EqDefault<V>>(other.Value);
 
         /// <summary>
-        /// Equality of keys and values
+        /// Equality of keys and values with `EqV` used for values
         /// </summary>
         [Pure]
-        public bool Equals<EqV>(HashMap<EqK, K, V> other) where EqV : struct, Eq<V> =>
+        public bool Equals<EqV>(TrackingHashMap<K, V> other) where EqV : struct, Eq<V> =>
             Value.Equals<EqV>(other.Value);
 
         /// <summary>
         /// Equality of keys only
         /// </summary>
         [Pure]
-        public bool EqualKeys(HashMap<EqK, K, V> other) =>
+        public bool EqualsKeys(TrackingHashMap<K, V> other) =>
             Value.Equals<EqTrue<V>>(other.Value);
 
         [Pure]
@@ -877,27 +906,11 @@ namespace LanguageExt
         /// <returns>
         /// Returns the original unmodified structure
         /// </returns>
-        public HashMap<EqK, K, V> Do(Action<V> f)
+        public TrackingHashMap<K, V> Do(Action<V> f)
         {
             this.Iter(f);
             return this;
         }
-
-        /// <summary>
-        /// Atomically maps the map to a new map
-        /// </summary>
-        /// <returns>Mapped items in a new map</returns>
-        [Pure]
-        public HashMap<EqK, K, U> Select<U>(Func<V, U> mapper) =>
-            Map(mapper);
-
-        /// <summary>
-        /// Atomically maps the map to a new map
-        /// </summary>
-        /// <returns>Mapped items in a new map</returns>
-        [Pure]
-        public HashMap<EqK, K, U> Select<U>(Func<K, V, U> mapper) =>
-            Map(mapper);
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -906,7 +919,7 @@ namespace LanguageExt
         /// <returns>New map with items filtered</returns>
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public HashMap<EqK, K, V> Where(Func<V, bool> pred) =>
+        public TrackingHashMap<K, V> Where(Func<V, bool> pred) =>
             Filter(pred);
 
         /// <summary>
@@ -916,7 +929,7 @@ namespace LanguageExt
         /// <returns>New map with items filtered</returns>
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public HashMap<EqK, K, V> Where(Func<K, V, bool> pred) =>
+        public TrackingHashMap<K, V> Where(Func<K, V, bool> pred) =>
             Filter(pred);
 
         /// <summary>
@@ -1118,67 +1131,67 @@ namespace LanguageExt
             Values.Fold(state, folder);
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(ValueTuple<(K, V)> items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1 });
+        public static implicit operator TrackingHashMap<K, V>(ValueTuple<(K, V)> items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2, items.Item3 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2, items.Item3 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V), (K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13, items.Item14 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13, items.Item14 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13, items.Item14, items.Item15 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13, items.Item14, items.Item15 });
 
         [Pure]
-        public static implicit operator HashMap<EqK, K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
-            new HashMap<EqK, K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13, items.Item14, items.Item15, items.Item16 });
+        public static implicit operator TrackingHashMap<K, V>(((K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V), (K, V)) items) =>
+            new TrackingHashMap<K, V>(new[] { items.Item1, items.Item2, items.Item3, items.Item4, items.Item5, items.Item6, items.Item7, items.Item8, items.Item9, items.Item10, items.Item11, items.Item12, items.Item13, items.Item14, items.Item15, items.Item16 });
     }
 }

@@ -650,6 +650,13 @@ namespace LanguageExt
             toSeq(AsEnumerable());
 
         /// <summary>
+        /// Allocation free conversion to a TrackingHashMap
+        /// </summary>
+        [Pure]
+        public HashMap<K, V> ToTrackingHashMap() =>
+            new (value);
+
+        /// <summary>
         /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
         /// The elipsis is used for collections over 50 items
         /// To get a formatted string with all the items, use `ToFullString`

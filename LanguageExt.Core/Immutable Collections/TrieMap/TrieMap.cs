@@ -1836,7 +1836,25 @@ namespace LanguageExt
                 }
             }
             return (self, changes);
-        }         
+        }
+
+        public TrieMap<EqK, K, V> Merge<SemigroupV>(TrieMap<EqK, K, V> rhs) where SemigroupV : struct, Semigroup<V>
+        {
+            var self = this;
+            foreach (var iy in rhs)
+            {
+                var ix = self.Find(iy.Key);
+                if (ix.IsSome)
+                {
+                    self = self.SetItem(iy.Key, default(SemigroupV).Append(ix.Value, iy.Value));
+                }
+                else
+                {
+                    self = self.Add(iy.Key, iy.Value);
+                }
+            }
+            return self;
+        }
 
         /// <summary>
         /// Finds the union of two sets and produces a new set with 

@@ -18,22 +18,40 @@ namespace LanguageExt
     public static class STM
     {
         static long refIdNext;
-        static readonly AtomHashMap<EqLong, long, RefState> state = AtomHashMap<EqLong, long, RefState>();
-        static readonly AsyncLocal<Transaction> transaction = new AsyncLocal<Transaction>();
+        static readonly AtomHashMap<EqLong, long, RefState> state;
+        static readonly AsyncLocal<Transaction> transaction;
+
+        static STM()
+        {
+            state = AtomHashMap<EqLong, long, RefState>();
+            state.Change += OnChange;
+            transaction = new AsyncLocal<Transaction>();
+        }
+
+        static void OnChange(
+            HashMap<EqLong, long, RefState> prev,
+            HashMap<EqLong, long, RefState> curr,
+            HashMap<EqLong, long, Change<RefState>> changes)
+        {
+            foreach (var change in changes)
+            {
+                if (change.Value is ItemUpdated<RefState> update)
+                {
+                    update.Value.OnChange(update.Value);
+                }
+            }
+        }
 
         /// <summary>
         /// Generates a new reference that can be used within a sync transaction
         /// </summary>
         internal static Ref<A> NewRef<A>(A value, Func<A, bool> validator = null)
         {
-            /*var valid = validator == null
-                ? True
-                : CastPredicate(validator);*/
-
             var id = Interlocked.Increment(ref refIdNext);
-            var v = new RefState<A>(0, value, validator);
+            var r = new Ref<A>(id);
+            var v = new RefState<A>(0, value, validator, r);
             state.Add(id, v);
-            return new Ref<A>(id);
+            return r;
         }
         
         /// <summary>
@@ -346,26 +364,26 @@ namespace LanguageExt
             }
 
             // Attempt to apply the changes atomically
-            state.SwapInternal(s =>
-                               {
-                                   if (isolation == Isolation.Serialisable)
-                                   {
-                                       ValidateReads(t, s, isolation);
-                                   }
+            state.Swap(s =>
+            {
+                if (isolation == Isolation.Serialisable)
+                {
+                    ValidateReads(t, s, isolation);
+                }
 
-                                   s = anyWrites
-                                           ? CommitWrites(t, s)
-                                           : s;
-                                   (s, result) = anyCommutes ? CommitCommutes(t, s, returnRefId, result) : (s, result);
-                                   return s;
-                               });
+                s = anyWrites
+                    ? CommitWrites(t, s)
+                    : s;
+                (s, result) = anyCommutes ? CommitCommutes(t, s, returnRefId, result) : (s, result);
+                return s;
+            });
 
             // Changes applied successfully
             return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void ValidateReads(Transaction t, TrieMap<EqLong, long, RefState> s, Isolation isolation)
+        static void ValidateReads(Transaction t, TrackingHashMap<EqLong, long, RefState> s, Isolation isolation)
         {
             var tlocal = t;
             var slocal = tlocal.state;
@@ -380,7 +398,7 @@ namespace LanguageExt
             }
         }
 
-        static TrieMap<EqLong, long, RefState> CommitWrites(Transaction t, TrieMap<EqLong, long, RefState> s)
+        static TrackingHashMap<EqLong, long, RefState> CommitWrites(Transaction t, TrackingHashMap<EqLong, long, RefState> s)
         {
             // Check if something else wrote to what we were writing
             var tlocal = t;
@@ -408,7 +426,7 @@ namespace LanguageExt
             return s;
         }
 
-        static (TrieMap<EqLong, long, RefState>, R) CommitCommutes<R>(Transaction t, TrieMap<EqLong, long, RefState> s, long returnRefId, R result)
+        static (TrackingHashMap<EqLong, long, RefState>, R) CommitCommutes<R>(Transaction t, TrackingHashMap<EqLong, long, RefState> s, long returnRefId, R result)
         {
             // Run the commutative operations
             foreach (var commute in t.commutes)
@@ -635,10 +653,11 @@ namespace LanguageExt
             public abstract RefState Inc();
             public abstract RefState Map(Func<object, object> f);
             public abstract RefState MapAndInc(Func<object, object> f);
+            public abstract void OnChange(object value);
             public abstract object UntypedValue { get; }
         }
 
-        record RefState<A>(long Version, A Value, Func<A, bool> Validator) : RefState(Version)
+        record RefState<A>(long Version, A Value, Func<A, bool> Validator, Ref<A> Ref) : RefState(Version)
         {
             public override bool Validate(RefState refState) =>
                 Validator?.Invoke(((RefState<A>)refState).Value) ?? true;
@@ -658,6 +677,9 @@ namespace LanguageExt
             public override RefState MapAndInc(Func<object, object> f) =>
                 this with {Version = Version + 1, Value = (A)f(Value)};
 
+            public override void OnChange(object value) =>
+                Ref.OnChange((A)value);
+            
             public override object UntypedValue =>
                 Value;
         }
