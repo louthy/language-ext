@@ -37,7 +37,7 @@ namespace LanguageExt
             {
                 if (change.Value is ItemUpdated<RefState> update)
                 {
-                    update.Value.OnChange(update.Value);
+                    update.Value.OnChange(update.Value.UntypedValue);
                 }
             }
         }
