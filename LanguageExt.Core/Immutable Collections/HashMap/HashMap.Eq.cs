@@ -34,25 +34,8 @@ namespace LanguageExt
         public HashMap(IEnumerable<(K Key, V Value)> items) : this(items, true)
         { }
 
-        public HashMap(IEnumerable<(K Key, V Value)> items, bool tryAdd)
-        {
-            var map = HashMap<EqK, K, V>.Empty;
-            if (tryAdd)
-            {
-                foreach (var item in items)
-                {
-                    map = map.TryAdd(item.Key, item.Value);
-                }
-            }
-            else
-            {
-                foreach (var item in items)
-                {
-                    map = map.Add(item.Key, item.Value);
-                }
-            }
-            this.value = map.value;
-        }
+        public HashMap(IEnumerable<(K Key, V Value)> items, bool tryAdd) =>
+            this.value = new TrieMap<EqK, K, V>(items, tryAdd);
 
         static HashMap<EqK, K, V> Wrap(TrieMap<EqK, K, V> value) =>
             new HashMap<EqK, K, V>(value);

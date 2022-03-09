@@ -12,8 +12,26 @@ using System.Runtime.CompilerServices;
 namespace LanguageExt
 {
     /// <summary>
-    /// Unsorted immutable hash-map
+    /// Unsorted immutable hash-map that tracks changes.
     /// </summary>
+    /// <remarks>
+    /// Changes are accessible via the `Changes` property.  It is a `HashMap` of `Change` values from either the initial
+    /// empty state of the collection, or since the last call to `Snapshot()`.
+    ///
+    /// The fact that the changes are represented as a single-value `HashMap` shows that the tracked changes are not an
+    /// ever increasing log of changes, but instead a morphism between one previous state of the `TrackingHashMap` and
+    /// another.  Therefore there's at most one morphism for each key, and potentially none.
+    ///
+    /// The morphisms are:
+    ///
+    ///     * `EntryAdded`
+    ///     * `EntryMapped`
+    ///     * `EntryRemoved`
+    ///
+    /// A new 'zero-changes starting-state' can be created by calling `Snapshot()`.  `Snapshot` creates the first
+    /// snapshot (effectively clears the `Changes` to zero), and `Changes` will collect the difference from this point
+    /// to any morphed future-state as collection-transforming operations are performed
+    /// </remarks>
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value</typeparam>
     public readonly struct TrackingHashMap<K, V> :
@@ -52,6 +70,18 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Creates a 'zero change' snapshot.  *The data does not change*!   
+        /// </summary>
+        /// <remarks>Useful for creating new starting points for capturing the difference between two snapshots of the
+        /// `TrackingHashMap`.  `Snapshot` creates the first snapshot (effectively clears the `Changes` to zero), and
+        /// `Changes` will collect the difference from this point to any morphed future point as collection 
+        /// transforming operations are performed</remarks>
+        /// <returns>Map with changes zeroed</returns>
+        [Pure]
+        public TrackingHashMap<K, V> Snapshot() =>
+            new (Value, TrieMap<EqDefault<K>, K, Change<V>>.Empty);
+
+        /// <summary>
         /// Item at index lens
         /// </summary>
         [Pure]
@@ -68,9 +98,6 @@ namespace LanguageExt
             Get: la => la[key],
             Set: a => la => a.Match(Some: x => la.AddOrUpdate(key, x), None: () => la.Remove(key))
             );
-
-        static TrackingHashMap<K, V> Wrap(TrieMap<EqDefault<K>, K, V> value) =>
-            new (value, TrieMap<EqDefault<K>, K, Change<V>>.Empty);
 
         TrackingHashMap<K, V> Wrap((TrieMap<EqDefault<K>, K, V> Map, TrieMap<EqDefault<K>, K, Change<V>> Changes) pair) =>
             new (pair.Map, ChangesInternal.Merge<MChange<V>>(pair.Changes));
@@ -498,15 +525,6 @@ namespace LanguageExt
         [Pure]
         public TrackingHashMap<K, V> Clear() =>
             Wrap(Value.ClearWithLog());
-
-        /// <summary>
-        /// Clears all items from the map 
-        /// </summary>
-        /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
-        /// <returns>Empty map</returns>
-        [Pure]
-        public TrackingHashMap<K, V> ClearChanges() =>
-            Wrap(Value.Clear());
 
         /// <summary>
         /// Atomically adds a range of items to the map

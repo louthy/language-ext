@@ -10,7 +10,7 @@ using LanguageExt.TypeClasses;
 public static partial class TrackingHashMapExtensions
 {
     /// <summary>
-    /// Create an immutable hash-map
+    /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
     public static TrackingHashMap<EqK, K, V> ToTrackingHashMap<EqK, K, V>(this IEnumerable<(K, V)> items) 
@@ -18,7 +18,7 @@ public static partial class TrackingHashMapExtensions
         LanguageExt.TrackingHashMap.createRange<EqK, K, V>(items);
 
     /// <summary>
-    /// Create an immutable hash-map
+    /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
     public static TrackingHashMap<EqK, K, V> ToTrackingHashMap<EqK, K, V>(this IEnumerable<Tuple<K, V>> items)
@@ -26,7 +26,7 @@ public static partial class TrackingHashMapExtensions
         LanguageExt.TrackingHashMap.createRange<EqK, K, V>(items);
 
     /// <summary>
-    /// Create an immutable hash-map
+    /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
     public static TrackingHashMap<EqK, K, V> ToTrackingHashMap<EqK, K, V>(this IEnumerable<KeyValuePair<K, V>> items)

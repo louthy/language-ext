@@ -9,7 +9,7 @@ using System.Diagnostics.Contracts;
 namespace LanguageExt
 {
     /// <summary>
-    /// Immutable hash-map module
+    /// Immutable tracking hash-map module
     /// </summary>
     public static partial class TrackingHashMap
     {

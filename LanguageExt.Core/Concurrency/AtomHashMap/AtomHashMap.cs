@@ -121,11 +121,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems.Value, oitems), oitems))
                 {
-                    Change?.Invoke(
-                        new HashMap<K, V>(oitems),
-                        new HashMap<K, V>(nitems),
-                        nitems.Changes);
-
+                    AnnounceChanges(oitems, nitems.Value, nitems.Changes.Value);
                     return default;
                 }
                 else
@@ -2034,18 +2030,16 @@ namespace LanguageExt
         {
             if (change?.HasChanged ?? false)
             {
-                Change?.Invoke(new HashMap<K, V>(prev), new HashMap<K, V>(current), HashMap((key, change)));
+                Change?.Invoke(new HashMapPatch<K, V>(prev, current, key, change));
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void AnnounceChanges(TrieMap<EqDefault<K>, K, V> prev, TrieMap<EqDefault<K>, K, V> current,
-            TrieMap<EqDefault<K>, K, Change<V>>? changes)
+        void AnnounceChanges(TrieMap<EqDefault<K>, K, V> prev, TrieMap<EqDefault<K>, K, V> current, TrieMap<EqDefault<K>, K, Change<V>>? changes)
         {
-            if (changes != null)
+            if (!isnull(changes))
             {
-                Change?.Invoke(new HashMap<K, V>(prev), new HashMap<K, V>(current),
-                    new HashMap<K, Change<V>>(changes));
+                Change?.Invoke(new HashMapPatch<K, V>(prev, current, changes));
             }
         }
     }

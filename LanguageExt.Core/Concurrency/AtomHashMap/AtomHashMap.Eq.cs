@@ -122,11 +122,33 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems.Value, oitems), oitems))
                 {
-                    Change?.Invoke(
-                        new HashMap<EqK, K, V>(oitems), 
-                        new HashMap<EqK, K, V>(nitems), 
-                        nitems.Changes);
-
+                    AnnounceChanges(oitems, nitems.Value, nitems.Changes.Value);
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Internal version of `Swap` that doesn't do any change tracking
+        /// </remarks>
+        internal Unit SwapInternal(Func<TrieMap<EqK, K, V>, TrieMap<EqK, K, V>> swap)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = Items;
+                var nitems = swap(oitems);
+                if(ReferenceEquals(oitems, nitems))
+                {
+                    // no change
+                    return default;
+                }
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
+                {
                     return default;
                 }
                 else
@@ -2035,7 +2057,7 @@ namespace LanguageExt
         {
             if (change?.HasChanged ?? false)
             {
-                Change?.Invoke(new HashMap<EqK, K, V>(prev), new HashMap<EqK, K, V>(current), HashMap<EqK, K, Change<V>>((key, change)));
+                Change?.Invoke(new HashMapPatch<EqK, K, V>(prev, current, key, change));
             }
         }
 
@@ -2043,10 +2065,9 @@ namespace LanguageExt
         void AnnounceChanges(TrieMap<EqK, K, V> prev, TrieMap<EqK, K, V> current,
             TrieMap<EqK, K, Change<V>>? changes)
         {
-            if (changes != null)
+            if (!isnull(changes))
             {
-                Change?.Invoke(new HashMap<EqK, K, V>(prev), new HashMap<EqK, K, V>(current),
-                    new HashMap<EqK, K, Change<V>>(changes));
+                Change?.Invoke(new HashMapPatch<EqK, K, V>(prev, current, changes));
             }
         }
     }

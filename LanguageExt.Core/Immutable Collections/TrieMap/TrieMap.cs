@@ -42,7 +42,7 @@ namespace LanguageExt
         }
 
         public static readonly TrieMap<EqK, K, V> Empty = new TrieMap<EqK, K, V>(EmptyNode.Default, 0);
-        static TrieMap<EqK, K, V> EmptyForMutating => new TrieMap<EqK, K, V>(new EmptyNode(), 0);
+        internal static TrieMap<EqK, K, V> EmptyForMutating => new TrieMap<EqK, K, V>(new EmptyNode(), 0);
 
         readonly Node Root;
         readonly int count;
@@ -131,7 +131,7 @@ namespace LanguageExt
         /// Add an item to the map, if it exists update the value
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        TrieMap<EqK, K, V> AddOrUpdateInPlace(K key, V value) =>
+        internal TrieMap<EqK, K, V> AddOrUpdateInPlace(K key, V value) =>
             Update(key, value, UpdateType.AddOrUpdate, true);
 
         /// <summary>
@@ -1154,7 +1154,7 @@ namespace LanguageExt
                     {
                         if (!default(EqDefault<V>).Equals(x.Value, y.Value))
                         {
-                            changes = changes.AddOrUpdateInPlace(x.Key, Change<V>.Updated(x.Value, y.Value));
+                            changes = changes.AddOrUpdateInPlace(x.Key, Change<V>.Mapped(x.Value, y.Value));
                         }
                     }
                 }
@@ -1196,7 +1196,7 @@ namespace LanguageExt
             {
                 var newv = f(pair.Value);
                 target = target.AddOrUpdateInPlace(pair.Key, newv);
-                changes = changes.AddOrUpdateInPlace(pair.Key, new ItemMapped<V, U>(pair.Value, newv));
+                changes = changes.AddOrUpdateInPlace(pair.Key, new EntryMapped<V, U>(pair.Value, newv));
             }
             return (target, changes);
         }
@@ -1221,7 +1221,7 @@ namespace LanguageExt
             {
                 var newv = f(pair.Key, pair.Value);
                 target = target.AddOrUpdateInPlace(pair.Key, newv);
-                changes = changes.AddOrUpdateInPlace(pair.Key, new ItemMapped<V, U>(pair.Value, newv));
+                changes = changes.AddOrUpdateInPlace(pair.Key, new EntryMapped<V, U>(pair.Value, newv));
             }
             return (target, changes);
         }
@@ -1445,7 +1445,7 @@ namespace LanguageExt
                     countDelta == 0 
                         ? default(EqDefault<V>).Equals(oldV, value)
                             ? Change<V>.None 
-                            : Change<V>.Updated(oldV, value)
+                            : Change<V>.Mapped(oldV, value)
                         : Change<V>.Added(value));
         }
 

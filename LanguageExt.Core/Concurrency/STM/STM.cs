@@ -24,20 +24,16 @@ namespace LanguageExt
         static STM()
         {
             state = AtomHashMap<EqLong, long, RefState>();
-            state.Change += OnChange;
             transaction = new AsyncLocal<Transaction>();
         }
 
-        static void OnChange(
-            HashMap<EqLong, long, RefState> prev,
-            HashMap<EqLong, long, RefState> curr,
-            HashMap<EqLong, long, Change<RefState>> changes)
+        static void OnChange(TrieMap<EqLong, long, Change<RefState>> patch) 
         {
-            foreach (var change in changes)
+            foreach (var change in patch)
             {
-                if (change.Value is ItemUpdated<RefState> update)
+                if (change.Value is EntryMapped<RefState, RefState> update)
                 {
-                    update.Value.OnChange(update.Value.UntypedValue);
+                    update.To.OnChange(update.To.UntypedValue);
                 }
             }
         }
@@ -141,6 +137,9 @@ namespace LanguageExt
                 {
                     // Clear the current transaction on the way out
                     transaction.Value = null;
+                    
+                    // Announce changes
+                    OnChange(t.changes);
                 }
                 // Wait one tick before trying again
                 sw.SpinOnce();
@@ -175,6 +174,9 @@ namespace LanguageExt
                     {
                         // Clear the current transaction on the way out
                         transaction.Value = null;
+                    
+                        // Announce changes
+                        OnChange(t.changes);
                     }
 
                     // Wait one tick before trying again
@@ -210,6 +212,9 @@ namespace LanguageExt
                     {
                         // Clear the current transaction on the way out
                         transaction.Value = null;
+                    
+                        // Announce changes
+                        OnChange(t.changes);
                     }
 
                     // Wait one tick before trying again
@@ -245,6 +250,9 @@ namespace LanguageExt
                     {
                         // Clear the current transaction on the way out
                         transaction.Value = null;
+                    
+                        // Announce changes
+                        OnChange(t.changes);
                     }
 
                     // Wait one tick before trying again
@@ -280,6 +288,9 @@ namespace LanguageExt
                     {
                         // Clear the current transaction on the way out
                         transaction.Value = null;
+                    
+                        // Announce changes
+                        OnChange(t.changes);
                     }
 
                     // Wait one tick before trying again
@@ -311,6 +322,9 @@ namespace LanguageExt
                 {
                     // Clear the current transaction on the way out
                     transaction.Value = null;
+                    
+                    // Announce changes
+                    OnChange(t.changes);
                 }
                 // Wait one tick before trying again
                 sw.SpinOnce();
@@ -343,6 +357,9 @@ namespace LanguageExt
                 {
                     // Clear the current transaction on the way out
                     transaction.Value = null;
+                    
+                    // Announce changes
+                    OnChange(t.changes);
                 }
                 // Spin, backing off, then yield the thread to avoid deadlock 
                 sw.SpinOnce();
@@ -364,7 +381,7 @@ namespace LanguageExt
             }
 
             // Attempt to apply the changes atomically
-            state.Swap(s =>
+            state.SwapInternal(s =>
             {
                 if (isolation == Isolation.Serialisable)
                 {
@@ -383,7 +400,7 @@ namespace LanguageExt
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void ValidateReads(Transaction t, TrackingHashMap<EqLong, long, RefState> s, Isolation isolation)
+        static void ValidateReads(Transaction t, TrieMap<EqLong, long, RefState> s, Isolation isolation)
         {
             var tlocal = t;
             var slocal = tlocal.state;
@@ -398,7 +415,7 @@ namespace LanguageExt
             }
         }
 
-        static TrackingHashMap<EqLong, long, RefState> CommitWrites(Transaction t, TrackingHashMap<EqLong, long, RefState> s)
+        static TrieMap<EqLong, long, RefState> CommitWrites(Transaction t, TrieMap<EqLong, long, RefState> s)
         {
             // Check if something else wrote to what we were writing
             var tlocal = t;
@@ -426,7 +443,7 @@ namespace LanguageExt
             return s;
         }
 
-        static (TrackingHashMap<EqLong, long, RefState>, R) CommitCommutes<R>(Transaction t, TrackingHashMap<EqLong, long, RefState> s, long returnRefId, R result)
+        static (TrieMap<EqLong, long, RefState>, R) CommitCommutes<R>(Transaction t, TrieMap<EqLong, long, RefState> s, long returnRefId, R result)
         {
             // Run the commutative operations
             foreach (var commute in t.commutes)
@@ -602,6 +619,7 @@ namespace LanguageExt
             static long transactionIdNext;
             public readonly long transactionId;
             public TrieMap<EqLong, long, RefState> state;
+            public TrieMap<EqLong, long, Change<RefState>> changes;
             public readonly System.Collections.Generic.HashSet<long> reads = new();
             public readonly System.Collections.Generic.HashSet<long> writes = new();
             public readonly System.Collections.Generic.List<(long Id, Func<object, object> Fun)> commutes = new();
@@ -610,6 +628,7 @@ namespace LanguageExt
             public Transaction(TrieMap<EqLong, long, RefState> state)
             {
                 this.state = state;
+                changes = TrieMap<EqLong, long, Change<RefState>>.EmptyForMutating;
                 transactionId = Interlocked.Increment(ref transactionIdNext);
             }
 
@@ -627,6 +646,16 @@ namespace LanguageExt
                 var newState = oldState.SetValue(value);
                 state = state.SetItem(id, newState);
                 writes.Add(id);
+                var change = changes.Find(id);
+                if (change.IsSome)
+                {
+                    var last = (EntryMapped<RefState, RefState>)change.Value;
+                    changes = changes.AddOrUpdateInPlace(id, Change<RefState>.Mapped(last.From, newState));
+                }
+                else
+                {
+                    changes = changes.AddOrUpdateInPlace(id, Change<RefState>.Mapped(oldState, newState));
+                }
                 return value;
             }
 

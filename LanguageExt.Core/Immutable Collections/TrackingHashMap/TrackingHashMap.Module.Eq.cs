@@ -10,7 +10,7 @@ using LanguageExt.TypeClasses;
 namespace LanguageExt
 {
     /// <summary>
-    /// Immutable hash-map module
+    /// Immutable tracking hash-map module
     /// </summary>
     public static partial class TrackingHashMap
     {
