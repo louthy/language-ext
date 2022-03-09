@@ -46,13 +46,13 @@ namespace LanguageExt
             this.change = change;
         }
 
-        public HashMap<K, V> Previous
+        public HashMap<K, V> From
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => new(prev);
         }
 
-        public HashMap<K, V> Current
+        public HashMap<K, V> To
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => new(curr);
