@@ -103,7 +103,7 @@ namespace LanguageExt
             new (pair.Map, ChangesInternal.Merge<MChange<V>>(pair.Changes));
 
         TrackingHashMap<EqK, K, V> Wrap(K key, (TrieMap<EqK, K, V> Map, Change<V> Change) pair) =>
-            new (pair.Map, ChangesInternal.TrySetItem(key, Some: ex => default(MChange<V>).Append(ex, pair.Change)));
+            new (pair.Map, ChangesInternal.AddOrUpdate(key, Some: ex => default(MChange<V>).Append(ex, pair.Change), pair.Change));
 
         /// <summary>
         /// 'this' accessor

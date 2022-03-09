@@ -8,7 +8,6 @@ namespace LanguageExt
     /// <summary>
     /// Entry added to a collection
     /// </summary>
-    /// <param name="Value">Value</param>
     /// <typeparam name="A">Value type</typeparam>
     public sealed class EntryAdded<A> :
         Change<A>, 

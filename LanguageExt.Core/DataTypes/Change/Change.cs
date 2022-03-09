@@ -30,13 +30,13 @@ namespace LanguageExt
         /// <summary>
         /// Returns true if a value has been mapped to another
         /// </summary>
-        public bool HasMapped => this is EntryMapped<A, A>;
+        public bool HasMapped => this is EntryMappedTo<A>;
         
         /// <summary>
         /// Returns true if a value has been mapped to another
         /// </summary>
         public bool HasMappedFrom<FROM>() => 
-            this is EntryMapped<FROM, A>;
+            this is EntryMappedFrom<FROM>;
         
         /// <summary>
         /// Returns true if a value has been added
@@ -49,7 +49,8 @@ namespace LanguageExt
         public Option<A> ToOption() =>
             this switch
             {
-                EntryMapped<A, A>(_, var v) => Some(v),
+                EntryAdded<A>(var v) => Some(v),
+                EntryMappedTo<A>(var v) => Some(v),
                 _ => Option<A>.None
             };
 

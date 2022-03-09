@@ -11,36 +11,36 @@ namespace TestBed
     {
         public static void Test()
         {
+            var thm = TrackingHashMap<int, string>();
+
+            Console.WriteLine(thm);
+
+            thm = thm.Add(100, "World");
+            thm = thm.Snapshot();
+            thm = thm.SetItem(100, "Hello");
+
+            Console.WriteLine(thm.Changes);
+ 
             var xs = AtomHashMap<string, int>();
-            xs.Add("Hello", 123);
 
-            xs.OnChange().Subscribe(patch =>
-            {
-                Console.WriteLine(patch.Changes);
-            });
-
-            xs.OnEntryChange().Subscribe(pair =>
-            {
-                Console.WriteLine(pair);
-            });
+            xs.OnEntryChange().Subscribe(pair => Console.WriteLine(pair));
             
-            xs.Add("World", 456);
-            xs.SetItem("World", 123);
-            xs.Remove("World");
-            xs.Remove("World");
+            xs.Add("Hello", 456);
+            xs.SetItem("Hello", 123);
+            xs.Remove("Hello");
+            xs.Remove("Hello");
 
             var rx = Ref("Hello");
             var ry = Ref("World");
 
-            Observable.Merge(rx.OnChange(), ry.OnChange()).Subscribe(v =>
-            {
-                Console.WriteLine(v);
-            });
+            Observable.Merge(rx.OnChange(), 
+                             ry.OnChange())
+                      .Subscribe(Console.WriteLine);
 
             atomic(() =>
             {
-                swap(rx, _ => "Helloy");
-                swap(ry, _ => "Worldy");
+                swap(rx, x => $"1. {x}");
+                swap(ry, y => $"2. {y}");
             });
         }
     }

@@ -31,7 +31,7 @@ namespace LanguageExt
         {
             foreach (var change in patch)
             {
-                if (change.Value is EntryMapped<RefState, RefState> update)
+                if (change.Value is EntryMappedTo<RefState> update)
                 {
                     update.To.OnChange(update.To.UntypedValue);
                 }

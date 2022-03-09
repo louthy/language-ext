@@ -6,31 +6,63 @@ using static LanguageExt.Prelude;
 namespace LanguageExt
 {
     /// <summary>
-    /// Existing entry updated 
+    /// Existing entry updated to this value
     /// </summary>
-    /// <param name="OldValue">Value as it was before the change</param>
-    /// <param name="Value">Value</param>
-    /// <typeparam name="A">Old value type</typeparam>
-    /// <typeparam name="B">New value type</typeparam>
-    public sealed class EntryMapped<A, B> : 
-        Change<B>,
-        IEquatable<EntryMapped<A, B>>
+    /// <typeparam name="B">Value mapped to type</typeparam>
+    public interface EntryMappedTo<B>
     {
-        /// <summary>
-        /// Original value mapped-from
-        /// </summary>
-        public readonly A From;
-        
         /// <summary>
         /// Value mapped-to
         /// </summary>
-        public readonly B To;
+        public B To { get; }
 
+        /// <summary>
+        /// Deconstructs to a single value
+        /// </summary>
+        void Deconstruct(out B @to);
+    }
+    
+    /// <summary>
+    /// Existing entry updated from this value
+    /// </summary>
+    /// <typeparam name="A">Value mapped from type</typeparam>
+    public interface EntryMappedFrom<A>
+    {
+        /// <summary>
+        /// Value mapped-from
+        /// </summary>
+        public A From { get; }
+
+        /// <summary>
+        /// Deconstructs to a single value
+        /// </summary>
+        void Deconstruct(out A @from);
+    }
+    
+    /// <summary>
+    /// Existing entry updated 
+    /// </summary>
+    public sealed class EntryMapped<A, B> : 
+        Change<B>,
+        EntryMappedFrom<A>,
+        EntryMappedTo<B>,
+        IEquatable<EntryMapped<A, B>>
+    {
         internal EntryMapped(A @from, B to)
         {
             From = @from;
-            To = to;
+            To = @to;
         }
+
+        /// <summary>
+        /// Value mapped from 
+        /// </summary>
+        public A From { get; }
+        
+        /// <summary>
+        /// Value mapped to
+        /// </summary>
+        public B To { get; }
 
         public override bool Equals(Change<B> obj) =>
             obj is EntryMapped<A, B> rhs && Equals(rhs);
@@ -47,10 +79,16 @@ namespace LanguageExt
 
         public override string ToString() => $"{From} -> {To}";
 
-        public void Deconstruct(out A oldValue, out B value)
+        public void Deconstruct(out B to) =>
+            to = To;
+
+        public void Deconstruct(out A @from) =>
+            @from = From;
+
+        public void Deconstruct(out A @from, out B to)
         {
-            oldValue = From;
-            value = To;
+            @from = From;
+            to = To;
         }
     }
 }
