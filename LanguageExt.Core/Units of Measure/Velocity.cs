@@ -157,13 +157,13 @@ namespace LanguageExt.UnitsOfMeasure
             new Velocity(self * 1000.0);
 
         public static Velocity KilometresPerHour(this int self) =>
-            new Velocity(self * 1000.0 * 3600.0);
+            new Velocity(self * 1000.0 / 3600.0);
 
         public static Velocity KilometresPerHour(this float self) =>
-            new Velocity(self * 1000.0 * 3600.0);
+            new Velocity(self * 1000.0 / 3600.0);
 
         public static Velocity KilometresPerHour(this double self) =>
-            new Velocity(self * 1000.0 * 3600.0);
+            new Velocity(self * 1000.0 / 3600.0);
 
         public static Velocity MilesPerSecond(this int self) =>
             new Velocity(self * 1609.344000006437376000025749504);
@@ -175,12 +175,12 @@ namespace LanguageExt.UnitsOfMeasure
             new Velocity(self * 1609.344000006437376000025749504);
 
         public static Velocity MilesPerHour(this int self) =>
-            new Velocity(self * 1609.344000006437376000025749504 * 3600.0);
+            new Velocity(self * 1609.344000006437376000025749504 / 3600.0);
 
         public static Velocity MilesPerHour(this float self) =>
-            new Velocity(self * 1609.344000006437376000025749504 * 3600.0);
+            new Velocity(self * 1609.344000006437376000025749504 / 3600.0);
 
         public static Velocity MilesPerHour(this double self) =>
-            new Velocity(self * 1609.344000006437376000025749504 * 3600.0);
+            new Velocity(self * 1609.344000006437376000025749504 / 3600.0);
     }
 }
