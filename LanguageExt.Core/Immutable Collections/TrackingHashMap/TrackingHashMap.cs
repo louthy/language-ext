@@ -1,4 +1,5 @@
-﻿using LanguageExt.ClassInstances;
+﻿#nullable enable
+using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using System;
 using System.Collections;
