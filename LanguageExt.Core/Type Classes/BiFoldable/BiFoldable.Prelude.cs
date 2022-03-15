@@ -78,7 +78,7 @@ namespace LanguageExt
         [Pure]
         public static IEnumerable<C> collect<FOLD, F, A, B, C>(F foldable, Func<A, C> fa, Func<B, C> fb)
             where FOLD : struct, BiFoldable<F, A, B> =>
-            biFoldBack<FOLD, F, A, B, IEnumerable<C>>(foldable, new C[0].AsEnumerable(), (s, x) => fa(x).Cons(s), (s, x) => fb(x).Cons(s));
+            biFoldBack<FOLD, F, A, B, IEnumerable<C>>(foldable, Enumerable.Empty<C>(), (s, x) => fa(x).Cons(s), (s, x) => fb(x).Cons(s));
 
         /// <summary>
         /// Does the element occur in the structure?

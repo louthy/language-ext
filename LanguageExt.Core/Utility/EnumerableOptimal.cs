@@ -17,18 +17,18 @@ namespace LanguageExt
 
         internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A> ma, Func<A, IEnumerable<B>> f) =>
             ma == null
-                ? (IEnumerable<B>)(new B[0])
+                ? System.Linq.Enumerable.Empty<B>()
                 : new BindEnum<A, B>(ma, f);
 
         internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A> ma, Func<A, Lst<B>> f) =>
             ma == null
-                ? (IEnumerable<B>)(new B[0])
+                ? System.Linq.Enumerable.Empty<B>()
                 : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
 
         internal static IEnumerable<B> BindFast<PredList, A, B>(this IEnumerable<A> ma, Func<A, Lst<PredList, B>> f)
             where PredList : struct, Pred<ListInfo> =>
             ma == null
-                ? (IEnumerable<B>)(new B[0])
+                ? System.Linq.Enumerable.Empty<B>()
                 : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
 
         internal static IEnumerable<B> BindFast<PredList, PredItemA, PredItemB, A, B>(this IEnumerable<A> ma, Func<A, Lst<PredList, PredItemB, B>> f)
@@ -36,12 +36,12 @@ namespace LanguageExt
             where PredItemA : struct, Pred<A>
             where PredItemB : struct, Pred<B> =>
             ma == null
-                ? (IEnumerable<B>)(new B[0])
+                ? System.Linq.Enumerable.Empty<B>()
                 : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
 
         internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A> ma, Func<A, Seq<B>> f) =>
             ma == null
-                ? (IEnumerable<B>)(new B[0])
+                ? System.Linq.Enumerable.Empty<B>()
                 : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
 
         internal class ConcatEnum<A> : IEnumerable<A>

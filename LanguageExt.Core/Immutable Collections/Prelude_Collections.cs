@@ -654,7 +654,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Lst<PredList, T> List<PredList, T>() where PredList : struct, Pred<ListInfo> =>
-            new Lst<PredList, T>(new T[0]);
+            new Lst<PredList, T>(Enumerable.Empty<T>());
 
         /// <summary>
         /// Create an immutable list
@@ -688,7 +688,7 @@ namespace LanguageExt
         public static Lst<PredList, PredItem, T> List<PredList, PredItem, T>() 
             where PredItem : struct, Pred<T>
             where PredList : struct, Pred<ListInfo>  =>
-            new Lst<PredList, PredItem, T>(new T[0]);
+            new Lst<PredList, PredItem, T>(Enumerable.Empty<T>());
 
         /// <summary>
         /// Create an immutable list

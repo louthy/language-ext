@@ -617,7 +617,7 @@ namespace LanguageExt.CodeGen
         {
             // Ugly, but fast
 
-            if (xs.Length == 0) return new A[0];
+            if (xs.Length == 0) return Array.Empty<A>();
             var nxs = new A[xs.Length * 2 - 1];
             for(int i = 0; i < nxs.Length; i++)
             {

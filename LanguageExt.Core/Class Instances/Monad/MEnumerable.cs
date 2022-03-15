@@ -75,7 +75,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public IEnumerable<A> Empty() =>
-            new A[0];
+            Enumerable.Empty<A>();
 
         [Pure]
         public bool Equals(IEnumerable<A> x, IEnumerable<A> y) =>
