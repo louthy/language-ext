@@ -43,7 +43,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public A[] Empty() =>
-            new A[0];
+            System.Array.Empty<A>();
 
         [Pure]
         public bool Equals(A[] x, A[] y) =>

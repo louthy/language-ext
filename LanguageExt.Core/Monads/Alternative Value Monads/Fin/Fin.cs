@@ -611,8 +611,8 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public A[] ToArray() =>
             IsSucc
-                ? new A[] {Value}
-                : new A[0];
+                ? new A[] { Value }
+                : System.Array.Empty<A>();
 
         [Pure, MethodImpl(Opt.Default)]
         public Option<A> ToOption() =>

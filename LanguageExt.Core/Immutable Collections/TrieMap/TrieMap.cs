@@ -2365,7 +2365,7 @@ namespace LanguageExt
                     dataMap = Bit.Set(dataMap, Mask(pair2Index), true);
                     return new Entries(dataMap, 0, pair1Index < pair2Index
                         ? new[] { pair1, pair2 }
-                        : new[] { pair2, pair1 }, new Node[0]);
+                        : new[] { pair2, pair1 }, Array.Empty<Node>());
                 }
             }
         }

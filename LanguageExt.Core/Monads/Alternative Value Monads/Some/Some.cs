@@ -72,7 +72,7 @@ namespace LanguageExt
         public IEnumerable<A> AsEnumerable() =>
             initialised
                 ? new[] { value }
-                : new A[0];
+                : Enumerable.Empty<A>();
 
         [Pure]
         public IEnumerator<A> GetEnumerator() =>

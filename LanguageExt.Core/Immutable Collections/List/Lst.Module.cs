@@ -482,7 +482,7 @@ namespace LanguageExt
         [Pure]
         public static IEnumerable<T> append<T>(params IEnumerable<T>[] lists) =>
             lists.Length == 0
-                ? new T[0]
+                ? Enumerable.Empty<T>()
                 : lists.Length == 1
                     ? lists[0]
                     : append(lists[0], lists.Skip(1));
@@ -1358,7 +1358,7 @@ namespace LanguageExt
             {
                 yield return lst.Skip(skip);
             }
-            yield return new T[0];
+            yield return Enumerable.Empty<T>();
         }
 
         /// <summary>

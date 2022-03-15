@@ -36,9 +36,9 @@ namespace LanguageExt
         public static Arr<B> toArray<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, ChoiceUnsafe<CH, A, B> =>
             default(CHOICE).MatchUnsafe(ma,
-                Left: x => new B[0],
+                Left: x => System.Array.Empty<B>(),
                 Right: y => new B[1] { y },
-                Bottom: () => new B[0]);
+                Bottom: () => System.Array.Empty<B>());
 
         /// <summary>
         /// Convert the Option to an immutable list of zero or one items

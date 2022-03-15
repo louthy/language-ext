@@ -92,7 +92,7 @@ namespace LanguageExt
             where OPT : struct, OptionalUnsafe<OA, A> =>
             default(OPT).MatchUnsafe(ma,
                 Some: x => new A[1] { x },
-                None: () => new A[0]);
+                None: () => System.Array.Empty<A>());
 
         /// <summary>
         /// Convert the Option to an immutable list of zero or one items

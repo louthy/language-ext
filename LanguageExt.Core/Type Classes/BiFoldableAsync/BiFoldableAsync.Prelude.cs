@@ -196,7 +196,7 @@ namespace LanguageExt
         [Pure]
         public static Task<IEnumerable<C>> collectAsync<FOLD, F, A, B, C>(F foldable, Func<A, C> fa, Func<B, C> fb)
             where FOLD : struct, BiFoldableAsync<F, A, B> =>
-            biFoldBackAsync<FOLD, F, A, B, IEnumerable<C>>(foldable, new C[0].AsEnumerable(), (s, x) => fa(x).Cons(s), (s, x) => fb(x).Cons(s));
+            biFoldBackAsync<FOLD, F, A, B, IEnumerable<C>>(foldable, Enumerable.Empty<C>(), (s, x) => fa(x).Cons(s), (s, x) => fb(x).Cons(s));
 
         /// <summary>
         /// Does the element occur in the structure?

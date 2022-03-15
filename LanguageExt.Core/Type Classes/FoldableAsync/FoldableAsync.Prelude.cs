@@ -122,7 +122,7 @@ namespace LanguageExt
         /// <returns>Sequence of As that represent the value(s) in the structure</returns>
         [Pure]
         public static Task<IEnumerable<B>> collectAsync<FOLD, F, A, B>(F self, Func<A, B> f) where FOLD : FoldableAsync<F, A> =>
-            default(FOLD).FoldBack(self, new B[0].AsEnumerable(), (s, x) => f(x).Cons(s))(unit);
+            default(FOLD).FoldBack(self, Enumerable.Empty<B>(), (s, x) => f(x).Cons(s))(unit);
 
         /// <summary>
         /// Get the first item in a foldable structure

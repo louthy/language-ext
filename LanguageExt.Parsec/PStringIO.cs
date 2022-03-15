@@ -48,7 +48,7 @@ namespace LanguageExt.Parsec
             $"{typeof(T).Name}({Index}, {EndIndex})";
 
         public static PString<T> Zero(Func<T, Pos> tokenPos) =>
-            new PString<T>(new T[0], 0, 0, None, tokenPos);
+            new PString<T>(System.Array.Empty<T>(), 0, 0, None, tokenPos);
 
         public PString<U> Cast<U>() where U : T =>
             new PString<U>(Value.Cast<U>().ToArray(), Index, EndIndex, UserState, u => TokenPos((T)u));
