@@ -474,7 +474,7 @@ namespace LanguageExt.Tests
         {
             var hashMap = AtomHashMap<TString, string, int>(
                 ("foo", 3), ("bar", 42));
-            var toAppend = HashMap(("foo", 7), ("biz", 7), ("baz", 9));
+            var toAppend = HashMap<TString, string, int>(("foo", 7), ("biz", 7), ("baz", 9));
             var initialValue = hashMap.ToHashMap();
             HashMapPatch<TString, string, int> state = default;
             hashMap.Change += v => state = v;
@@ -494,10 +494,8 @@ namespace LanguageExt.Tests
         [Fact]
         public void AppendAtomInvokesChange()
         {
-            var hashMap = AtomHashMap<TString, string, int>(
-                ("foo", 3), ("bar", 42));
-            var toAppend = AtomHashMap<TString, string, int>(
-                ("foo", 7), ("biz", 7), ("baz", 9));
+            var hashMap = AtomHashMap<TString, string, int>(("foo", 3), ("bar", 42));
+            var toAppend = AtomHashMap<TString, string, int>(("foo", 7), ("biz", 7), ("baz", 9));
             var initialValue = hashMap.ToHashMap();
             HashMapPatch<TString, string, int> state = default;
             hashMap.Change += v => state = v;
@@ -695,10 +693,9 @@ namespace LanguageExt.Tests
         [Fact]
         public void UnionInvokesChange()
         {
-            var hashMap = AtomHashMap<TString, string, int>(
-                ("foo", 3), ("bar", 42));
-            var toUnion = AtomHashMap<TString, string, int>(
-                ("foo", 7), ("biz", 7), ("baz", 9));
+            var hashMap = AtomHashMap<TString, string, int>(("foo", 3), ("bar", 42));
+            var toUnion = AtomHashMap<TString, string, int>(("foo", 7), ("biz", 7), ("baz", 9));
+            
             var initialValue = hashMap.ToHashMap();
             HashMapPatch<TString, string, int> state = default;
             hashMap.Change += v => state = v;
@@ -712,7 +709,55 @@ namespace LanguageExt.Tests
                 hashMap.ToHashMap());
             Assert.Equal(
                 HashMap(
+                    ("biz", Change<int>.Added(7)),
+                    ("baz", Change<int>.Added(9))),
+                state.Changes);
+        }
+        
+        [Fact]
+        public void Union_TakeRight_InvokesChange()
+        {
+            var hashMap = AtomHashMap<TString, string, int>(("foo", 3), ("bar", 42));
+            var toUnion = AtomHashMap<TString, string, int>(("foo", 7), ("biz", 7), ("baz", 9));
+            
+            var initialValue = hashMap.ToHashMap();
+            HashMapPatch<TString, string, int> state = default;
+            hashMap.Change += v => state = v;
+
+            hashMap.Union(toUnion, Merge: (_, _, r) => r);
+
+            Assert.Equal(initialValue, state.From);
+            Assert.Equal(hashMap.ToHashMap(), state.To);
+            Assert.Equal(
+                initialValue.Union(toUnion, Merge: (_, _, r) => r),
+                hashMap.ToHashMap());
+            Assert.Equal(
+                HashMap(
                     ("foo", Change<int>.Mapped(3, 7)),
+                    ("biz", Change<int>.Added(7)),
+                    ("baz", Change<int>.Added(9))),
+                state.Changes);
+        }
+        
+        [Fact]
+        public void Union_TakeLeft_InvokesChange()
+        {
+            var hashMap = AtomHashMap<TString, string, int>(("foo", 3), ("bar", 42));
+            var toUnion = AtomHashMap<TString, string, int>(("foo", 7), ("biz", 7), ("baz", 9));
+            
+            var initialValue = hashMap.ToHashMap();
+            HashMapPatch<TString, string, int> state = default;
+            hashMap.Change += v => state = v;
+
+            hashMap.Union(toUnion, Merge: (_, l, _) => l);
+
+            Assert.Equal(initialValue, state.From);
+            Assert.Equal(hashMap.ToHashMap(), state.To);
+            Assert.Equal(
+                initialValue.Union(toUnion, Merge: (_, l, _) => l),
+                hashMap.ToHashMap());
+            Assert.Equal(
+                HashMap(
                     ("biz", Change<int>.Added(7)),
                     ("baz", Change<int>.Added(9))),
                 state.Changes);

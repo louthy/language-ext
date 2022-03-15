@@ -5,6 +5,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 
 public static class HashMapExtensions
 {
@@ -12,6 +13,7 @@ public static class HashMapExtensions
     /// Create an immutable hash-map
     /// </summary>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K, V> ToHashMap<K, V>(this IEnumerable<(K, V)> items) =>
         LanguageExt.HashMap.createRange(items);
 
@@ -19,6 +21,7 @@ public static class HashMapExtensions
     /// Create an immutable hash-map
     /// </summary>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K, V> ToHashMap<K, V>(this IEnumerable<Tuple<K, V>> items) =>
         LanguageExt.HashMap.createRange(items);
 
@@ -26,6 +29,7 @@ public static class HashMapExtensions
     /// Create an immutable hash-map
     /// </summary>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K, V> ToHashMap<K, V>(this IEnumerable<KeyValuePair<K, V>> items) =>
         LanguageExt.HashMap.createRange(items);
 
@@ -33,6 +37,7 @@ public static class HashMapExtensions
     /// Create an immutable hash-map
     /// </summary>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K1, HashMap<K2, V>> ToHashMap<K1, K2, V>(this IEnumerable<(K1, K2, V)> items) =>
         items.Fold(HashMap<K1, HashMap<K2, V>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3));
 
@@ -40,6 +45,7 @@ public static class HashMapExtensions
     /// Create an immutable hash-map
     /// </summary>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K1, HashMap<K2, V>> ToHashMap<K1, K2, V>(this IEnumerable<Tuple<K1, K2, V>> items) =>
         items.Fold(HashMap<K1, HashMap<K2, V>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3));
 
@@ -47,6 +53,7 @@ public static class HashMapExtensions
     /// Create an immutable hash-map
     /// </summary>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K1, HashMap<K2, HashMap<K3, V>>> ToHashMap<K1, K2, K3, V>(this IEnumerable<(K1, K2, K3, V)> items) =>
         items.Fold(HashMap<K1, HashMap<K2, HashMap<K3, V>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4));
 
@@ -54,6 +61,7 @@ public static class HashMapExtensions
     /// Create an immutable hash-map
     /// </summary>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K1, HashMap<K2, HashMap<K3, V>>> ToHashMap<K1, K2, K3, V>(this IEnumerable<Tuple<K1, K2, K3, V>> items) =>
         items.Fold(HashMap<K1, HashMap<K2, HashMap<K3, V>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4));
 
@@ -61,6 +69,7 @@ public static class HashMapExtensions
     /// Create an immutable hash-map
     /// </summary>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K1, HashMap<K2, HashMap<K3, HashMap<K4, V>>>> ToHashMap<K1, K2, K3, K4, V>(this IEnumerable<(K1, K2, K3, K4, V)> items) =>
         items.Fold(HashMap<K1, HashMap<K2, HashMap<K3, HashMap<K4, V>>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5));
 
@@ -68,6 +77,7 @@ public static class HashMapExtensions
     /// Create an immutable hash-map
     /// </summary>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K1, HashMap<K2, HashMap<K3, HashMap<K4, V>>>> ToHashMap<K1, K2, K3, K4, V>(this IEnumerable<Tuple<K1, K2, K3, K4, V>> items) =>
         items.Fold(HashMap<K1, HashMap<K2, HashMap<K3, HashMap<K4, V>>>>(), (s, x) => s.AddOrUpdate(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5));
 
@@ -75,26 +85,32 @@ public static class HashMapExtensions
     /// Number of items in the map
     /// </summary>
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Count<K, V>(this HashMap<K, V> self) =>
         self.Count;
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Sum<K>(this HashMap<K, int> self) =>
         self.Values.Sum();
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<T> Find<A, B, T>(this HashMap<A, HashMap<B, T>> self, A outerKey, B innerKey) =>
         self.Find(outerKey, b => b.Find(innerKey), () => None);
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<T> Find<A, B, C, T>(this HashMap<A, HashMap<B, HashMap<C, T>>> self, A aKey, B bKey, C cKey) =>
         self.Find(aKey, b => b.Find(bKey, c => c.Find(cKey), () => None), () => None);
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static R Find<A, B, T, R>(this HashMap<A, HashMap<B, T>> self, A outerKey, B innerKey, Func<T, R> Some, Func<R> None) =>
         self.Find(outerKey, b => b.Find(innerKey, Some, None), None);
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static R Find<A, B, C, T, R>(this HashMap<A, HashMap<B, HashMap<C, T>>> self, A aKey, B bKey, C cKey, Func<T, R> Some, Func<R> None) =>
         self.Find(aKey,
             b => b.Find(bKey,
@@ -103,6 +119,7 @@ public static class HashMapExtensions
             None);
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static R Find<A, B, C, D, T, R>(this HashMap<A, HashMap<B, HashMap<C, HashMap<D, T>>>> self, A aKey, B bKey, C cKey, D dKey, Func<T, R> Some, Func<R> None) =>
         self.Find(aKey,
             b => b.Find(bKey,
@@ -113,6 +130,7 @@ public static class HashMapExtensions
             None);
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<A, HashMap<B, T>> AddOrUpdate<A, B, T>(this HashMap<A, HashMap<B, T>> self, A outerKey, B innerKey, Func<T, T> Some, Func<T> None) =>
         self.AddOrUpdate(
             outerKey,
@@ -121,6 +139,7 @@ public static class HashMapExtensions
         );
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<A, HashMap<B, T>> AddOrUpdate<A, B, T>(this HashMap<A, HashMap<B, T>> self, A outerKey, B innerKey, T value) =>
         self.AddOrUpdate(
             outerKey,
@@ -129,6 +148,7 @@ public static class HashMapExtensions
         );
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<A, HashMap<B, HashMap<C, T>>> AddOrUpdate<A, B, C, T>(this HashMap<A, HashMap<B, HashMap<C, T>>> self, A aKey, B bKey, C cKey, T value) =>
         self.AddOrUpdate(
             aKey,
@@ -138,6 +158,7 @@ public static class HashMapExtensions
         );
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<A, HashMap<B, HashMap<C, T>>> AddOrUpdate<A, B, C, T>(this HashMap<A, HashMap<B, HashMap<C, T>>> self, A aKey, B bKey, C cKey, Func<T, T> Some, Func<T> None) =>
         self.AddOrUpdate(
             aKey,
@@ -147,6 +168,7 @@ public static class HashMapExtensions
         );
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<A, HashMap<B, HashMap<C, HashMap<D, T>>>> AddOrUpdate<A, B, C, D, T>(this HashMap<A, HashMap<B, HashMap<C, HashMap<D, T>>>> self, A aKey, B bKey, C cKey, D dKey, T value) =>
         self.AddOrUpdate(
             aKey,
@@ -157,6 +179,7 @@ public static class HashMapExtensions
         );
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<A, HashMap<B, HashMap<C, HashMap<D, T>>>> AddOrUpdate<A, B, C, D, T>(this HashMap<A, HashMap<B, HashMap<C, HashMap<D, T>>>> self, A aKey, B bKey, C cKey, D dKey, Func<T, T> Some, Func<T> None) =>
         self.AddOrUpdate(
             aKey,

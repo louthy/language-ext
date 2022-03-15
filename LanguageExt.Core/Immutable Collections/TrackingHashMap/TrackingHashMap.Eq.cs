@@ -831,11 +831,35 @@ namespace LanguageExt
             Wrap(Value.IntersectWithLog(rhs));
 
         /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TrackingHashMap<EqK, K, V> Intersect(IEnumerable<(K Key, V Value)> rhs, WhenMatched<K, V, V, V> Merge) =>
+            Wrap(Value.IntersectWithLog(new TrieMap<EqK, K, V>(rhs), Merge));
+
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TrackingHashMap<EqK, K, V> Intersect(HashMap<EqK, K, V> rhs, WhenMatched<K, V, V, V> Merge) =>
+            Wrap(Value.IntersectWithLog(rhs.Value, Merge));
+
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TrackingHashMap<EqK, K, V> Intersect(TrackingHashMap<EqK, K, V> rhs, WhenMatched<K, V, V, V> Merge) =>
+            Wrap(Value.IntersectWithLog(rhs.Value, Merge));
+
+        /// <summary>
         /// Returns True if other overlaps this set
         /// </summary>
         [Pure]
         public bool Overlaps(IEnumerable<(K Key, V Value)> other) =>
-            Overlaps(other);
+            Value.Overlaps(other);
 
         /// <summary>
         /// Returns True if other overlaps this set
@@ -886,6 +910,34 @@ namespace LanguageExt
         public TrackingHashMap<EqK, K, V> Union(IEnumerable<(K, V)> rhs) =>
             this.TryAddRange(rhs);
 
+        /// <summary>
+        /// Union two maps.  
+        /// </summary>
+        /// <remarks>
+        /// The `WhenMatched` merge function is called when keys are present in both map to allow resolving to a
+        /// sensible value.
+        /// </remarks>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TrackingHashMap<EqK, K, V> Union(IEnumerable<(K Key, V Value)> other, WhenMatched<K, V, V, V> Merge) =>
+            Wrap(Value.UnionWithLog(other, static (_, v) => v, static (_, v) => v, Merge));
+
+        /// <summary>
+        /// Union two maps.  
+        /// </summary>
+        /// <remarks>
+        /// The `WhenMatched` merge function is called when keys are present in both map to allow resolving to a
+        /// sensible value.
+        /// </remarks>
+        /// <remarks>
+        /// The `WhenMissing` function is called when there is a key in the right-hand side, but not the left-hand-side.
+        /// This allows the `V2` value-type to be mapped to the target `V` value-type. 
+        /// </remarks>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TrackingHashMap<EqK, K, V> Union<W>(IEnumerable<(K Key, W Value)> other, WhenMissing<K, W, V> MapRight, WhenMatched<K, V, W, V> Merge) =>
+            Wrap(Value.UnionWithLog(other, static (_, v) => v, MapRight, Merge));
+        
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values
         /// </summary>

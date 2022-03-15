@@ -641,6 +641,7 @@ namespace LanguageExt.Tests
         {
             var hashMap = AtomHashMap(("foo", 3), ("bar", 42));
             var toExcept = AtomHashMap(("foo", 3), ("biz", 7), ("baz", 9));
+            var expected = HashMap(("bar", 42), ("biz", 7), ("baz", 9));
             var initialValue = hashMap.ToHashMap();
             HashMapPatch<string, int> state = default;
             hashMap.Change += v => state = v;
@@ -648,10 +649,7 @@ namespace LanguageExt.Tests
             hashMap.SymmetricExcept(toExcept);
 
             Assert.Equal(initialValue, state.From);
-            Assert.Equal(hashMap.ToHashMap(), state.To);
-            Assert.Equal(
-                initialValue.SymmetricExcept(toExcept),
-                hashMap.ToHashMap());
+            Assert.Equal(hashMap.ToHashMap(), expected);
             Assert.Equal(
                 HashMap(
                     ("foo", Change<int>.Removed(3)),
@@ -678,10 +676,58 @@ namespace LanguageExt.Tests
                 hashMap.ToHashMap());
             Assert.Equal(
                 HashMap(
-                    ("foo", Change<int>.Mapped(0, 7)),
                     ("biz", Change<int>.Added(7)),
                     ("baz", Change<int>.Added(9))),
                 state.Changes);
         }
+        
+        [Fact]
+        public void Union_TakeRight_InvokesChange()
+        {
+            var hashMap = AtomHashMap<string, int>(("foo", 3), ("bar", 42));
+            var toUnion = AtomHashMap<string, int>(("foo", 7), ("biz", 7), ("baz", 9));
+            
+            var initialValue = hashMap.ToHashMap();
+            HashMapPatch<string, int> state = default;
+            hashMap.Change += v => state = v;
+
+            hashMap.Union(toUnion, Merge: (_, _, r) => r);
+
+            Assert.Equal(initialValue, state.From);
+            Assert.Equal(hashMap.ToHashMap(), state.To);
+            Assert.Equal(
+                initialValue.Union(toUnion, Merge: (_, _, r) => r),
+                hashMap.ToHashMap());
+            Assert.Equal(
+                HashMap(
+                    ("foo", Change<int>.Mapped(3, 7)),
+                    ("biz", Change<int>.Added(7)),
+                    ("baz", Change<int>.Added(9))),
+                state.Changes);
+        }
+        
+        [Fact]
+        public void Union_TakeLeft_InvokesChange()
+        {
+            var hashMap = AtomHashMap<string, int>(("foo", 3), ("bar", 42));
+            var toUnion = AtomHashMap<string, int>(("foo", 7), ("biz", 7), ("baz", 9));
+            
+            var initialValue = hashMap.ToHashMap();
+            HashMapPatch<string, int> state = default;
+            hashMap.Change += v => state = v;
+
+            hashMap.Union(toUnion, Merge: (_, l, _) => l);
+
+            Assert.Equal(initialValue, state.From);
+            Assert.Equal(hashMap.ToHashMap(), state.To);
+            Assert.Equal(
+                initialValue.Union(toUnion, Merge: (_, l, _) => l),
+                hashMap.ToHashMap());
+            Assert.Equal(
+                HashMap(
+                    ("biz", Change<int>.Added(7)),
+                    ("baz", Change<int>.Added(9))),
+                state.Changes);
+        }        
     }
 }

@@ -390,11 +390,11 @@ namespace LanguageExt
                     : oitems.TryAddWithLog(key, value);
                 if(ReferenceEquals(oitems, nitems))
                 {
-                    AnnounceChange(oitems, nitems, key, change);
                     return default;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return default;
                 }
                 else
@@ -1606,7 +1606,7 @@ namespace LanguageExt
         public Unit Intersect(IEnumerable<(K Key, V Value)> rhs)
         {
             SpinWait sw = default;
-            var srhs = toSeq(rhs);            
+            var srhs = new TrieMap<EqDefault<K>, K, V>(rhs);            
             while (true)
             {
                 var oitems = this.Items;
@@ -1614,6 +1614,57 @@ namespace LanguageExt
                 var (nitems, changes) = onChange == null
                     ? (oitems.Intersect(srhs), null)
                     : oitems.IntersectWithLog(srhs);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
+                {
+                    AnnounceChanges(oitems, nitems, changes);
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        } 
+        
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        public Unit Intersect(IEnumerable<(K Key, V Value)> rhs, WhenMatched<K, V, V, V> Merge)
+        {
+            SpinWait sw = default;
+            var srhs = new TrieMap<EqDefault<K>, K, V>(rhs);            
+            while (true)
+            {
+                var oitems = this.Items;
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Intersect(srhs, Merge), null)
+                    : oitems.IntersectWithLog(srhs, Merge);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
+                {
+                    AnnounceChanges(oitems, nitems, changes);
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        } 
+        
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        public Unit Intersect(HashMap<K, V> rhs, WhenMatched<K, V, V, V> Merge)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = this.Items;
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Intersect(rhs.Value, Merge), null)
+                    : oitems.IntersectWithLog(rhs.Value, Merge);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     AnnounceChanges(oitems, nitems, changes);
@@ -1706,8 +1757,8 @@ namespace LanguageExt
                 var oitems = this.Items;
                 var onChange = Change;
                 var (nitems, changes) = onChange == null
-                    ? (oitems.Except(rhs), null)
-                    : oitems.ExceptWithLog(rhs);
+                    ? (oitems.SymmetricExcept(rhs), null)
+                    : oitems.SymmetricExceptWithLog(rhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     AnnounceChanges(oitems, nitems, changes);
@@ -1733,8 +1784,8 @@ namespace LanguageExt
                 var oitems = this.Items;
                 var onChange = Change;
                 var (nitems, changes) = onChange == null
-                    ? (oitems.Except(srhs), null)
-                    : oitems.ExceptWithLog(srhs);
+                    ? (oitems.SymmetricExcept(srhs), null)
+                    : oitems.SymmetricExceptWithLog(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
                     AnnounceChanges(oitems, nitems, changes);
@@ -1757,6 +1808,7 @@ namespace LanguageExt
         {
             SpinWait sw = default;
             var srhs = toSeq(rhs);
+            if (srhs.IsEmpty) return unit;
             while (true)
             {
                 var oitems = this.Items;
@@ -1774,7 +1826,73 @@ namespace LanguageExt
                     sw.SpinOnce();
                 }
             }
-        } 
+        }
+
+        /// <summary>
+        /// Union two maps.  
+        /// </summary>
+        /// <remarks>
+        /// The `WhenMatched` merge function is called when keys are present in both map to allow resolving to a
+        /// sensible value.
+        /// </remarks>
+        public Unit Union(IEnumerable<(K Key, V Value)> rhs, WhenMatched<K, V, V, V> Merge)
+        {
+            SpinWait sw = default;
+            var srhs = toSeq(rhs);
+            if (srhs.IsEmpty) return unit;
+            while (true)
+            {
+                var oitems = this.Items;
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Union(srhs, Merge), null)
+                    : oitems.UnionWithLog(srhs, Merge);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
+                {
+                    AnnounceChanges(oitems, nitems, changes);
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Union two maps.  
+        /// </summary>
+        /// <remarks>
+        /// The `WhenMatched` merge function is called when keys are present in both map to allow resolving to a
+        /// sensible value.
+        /// </remarks>
+        /// <remarks>
+        /// The `WhenMissing` function is called when there is a key in the right-hand side, but not the left-hand-side.
+        /// This allows the `V2` value-type to be mapped to the target `V` value-type. 
+        /// </remarks>
+        public Unit Union<W>(IEnumerable<(K Key, W Value)> rhs, WhenMissing<K, W, V> MapRight, WhenMatched<K, V, W, V> Merge)
+        {
+            SpinWait sw = default;
+            var srhs = toSeq(rhs);
+            if (srhs.IsEmpty) return unit;
+            while (true)
+            {
+                var oitems = this.Items;
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Union(srhs, MapRight, Merge), null)
+                    : oitems.UnionWithLog(srhs, MapRight, Merge);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
+                {
+                    AnnounceChanges(oitems, nitems, changes);
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }            
+        }
         
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values

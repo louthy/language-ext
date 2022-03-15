@@ -5,6 +5,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt
@@ -21,6 +22,7 @@ namespace LanguageExt
         /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
         /// <returns>Empty map</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> clear<EqK, K, V>(HashMap<EqK, K, V> map) where EqK : struct, Eq<K> =>
             HashMap<EqK, K, V>.Empty;
 
@@ -28,6 +30,7 @@ namespace LanguageExt
         /// Creates a new empty Map
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> empty<EqK, K, V>() where EqK : struct, Eq<K> =>
             HashMap<EqK, K, V>.Empty;
 
@@ -35,6 +38,7 @@ namespace LanguageExt
         /// Creates a new empty HashMap
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> create<EqK, K, V>() where EqK : struct, Eq<K> =>
             HashMap<EqK, K, V>.Empty;
 
@@ -42,43 +46,54 @@ namespace LanguageExt
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> create<EqK, K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) where EqK : struct, Eq<K> =>
-            empty<EqK, K, V>().AddRange(head.Cons(tail));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static HashMap<EqK, K, V> create<EqK, K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) 
+            where EqK : struct, Eq<K> =>
+            createRange<EqK, K, V>(head.Cons(tail));
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> create<EqK, K, V>((K, V) head, params (K, V)[] tail) where EqK : struct, Eq<K> =>
-            empty<EqK, K, V>().AddRange(head.Cons(tail));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static HashMap<EqK, K, V> create<EqK, K, V>((K, V) head, params (K, V)[] tail)
+            where EqK : struct, Eq<K> =>
+            createRange<EqK, K, V>(head.Cons(tail));
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> create<EqK, K, V>(KeyValuePair<K,V> head, params KeyValuePair<K, V>[] tail) where EqK : struct, Eq<K> =>
-            empty<EqK, K, V>().AddRange(head.Cons(tail));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static HashMap<EqK, K, V> create<EqK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail)
+            where EqK : struct, Eq<K> =>
+            createRange<EqK, K, V>(head.Cons(tail));
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> createRange<EqK, K, V>(IEnumerable<Tuple<K, V>> keyValues) where EqK : struct, Eq<K> =>
-            empty<EqK, K, V>().AddRange(keyValues);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static HashMap<EqK, K, V> createRange<EqK, K, V>(IEnumerable<Tuple<K, V>> keyValues)
+            where EqK : struct, Eq<K> =>
+            createRange<EqK, K, V>(keyValues.Map(static kv => (kv.Item1, kv.Item2)));
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> createRange<EqK, K, V>(IEnumerable<(K, V)> keyValues) where EqK : struct, Eq<K> =>
-            empty<EqK, K, V>().AddRange(keyValues);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static HashMap<EqK, K, V> createRange<EqK, K, V>(IEnumerable<(K, V)> keyValues)
+            where EqK : struct, Eq<K> =>
+            new (new TrieMap<EqK, K, V>(keyValues));
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> createRange<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> keyValues) where EqK : struct, Eq<K> =>
-            empty<EqK, K, V>().AddRange(keyValues);
+        public static HashMap<EqK, K, V> createRange<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> keyValues)
+            where EqK : struct, Eq<K> =>
+            createRange<EqK, K, V>(keyValues.Map(static kv => (kv.Key, kv.Value)));
 
         /// <summary>
         /// Atomically adds a new item to the map
@@ -90,6 +105,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> add<EqK, K, V>(HashMap<EqK, K, V> map, K key, V value) where EqK : struct, Eq<K> =>
             map.Add(key, value);
 
@@ -103,6 +119,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> tryAdd<EqK, K, V>(HashMap<EqK, K, V> map, K key, V value) where EqK : struct, Eq<K> =>
             map.TryAdd(key, value);
 
@@ -116,6 +133,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> addOrUpdate<EqK, K, V>(HashMap<EqK, K, V> map, K key, V value) where EqK : struct, Eq<K> =>
             map.AddOrUpdate(key, value);
 
@@ -128,6 +146,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> addOrUpdate<EqK, K, V>(HashMap<EqK, K, V> map, K key, Func<V, V> Some, Func<V> None) where EqK : struct, Eq<K> =>
             map.AddOrUpdate(key, Some, None);
 
@@ -140,6 +159,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> addOrUpdate<EqK, K, V>(HashMap<EqK, K, V> map, K key, Func<V, V> Some, V None) where EqK : struct, Eq<K> =>
             map.AddOrUpdate(key, Some, None);
 
@@ -152,6 +172,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> addRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<Tuple<K, V>> keyValues) where EqK : struct, Eq<K> =>
             map.AddRange(keyValues);
 
@@ -164,6 +185,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> addRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<(K, V)> keyValues) where EqK : struct, Eq<K> =>
             map.AddRange(keyValues);
 
@@ -176,6 +198,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> addRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<KeyValuePair<K, V>> keyValues) where EqK : struct, Eq<K> =>
             map.AddRange(keyValues);
 
@@ -188,6 +211,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> tryAddRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<Tuple<K, V>> keyValues) where EqK : struct, Eq<K> =>
             map.TryAddRange(keyValues);
 
@@ -200,6 +224,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> tryAddRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<(K, V)> keyValues) where EqK : struct, Eq<K> =>
             map.TryAddRange(keyValues);
 
@@ -212,6 +237,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> tryAddRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<KeyValuePair<K, V>> keyValues) where EqK : struct, Eq<K> =>
             map.TryAddRange(keyValues);
 
@@ -222,6 +248,7 @@ namespace LanguageExt
         /// <param name="range">Range of tuples to add</param>
         /// <returns>New Map with the items added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> addOrUpdateRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<Tuple<K, V>> range) where EqK : struct, Eq<K> =>
             map.AddOrUpdateRange(range);
 
@@ -232,6 +259,7 @@ namespace LanguageExt
         /// <param name="range">Range of tuples to add</param>
         /// <returns>New Map with the items added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> addOrUpdateRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<(K, V)> range) where EqK : struct, Eq<K> =>
             map.AddOrUpdateRange(range);
 
@@ -244,6 +272,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> addOrUpdateRange<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<KeyValuePair<K, V>> range) where EqK : struct, Eq<K> =>
             map.AddOrUpdateRange(range);
 
@@ -254,6 +283,7 @@ namespace LanguageExt
         /// <param name="key">Key</param>
         /// <returns>New map with the item removed</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> remove<EqK, K, V>(HashMap<EqK, K, V> map, K key) where EqK : struct, Eq<K> =>
             map.Remove(key);
 
@@ -263,6 +293,7 @@ namespace LanguageExt
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool containsKey<EqK, K, V>(HashMap<EqK, K, V> map, K key) where EqK : struct, Eq<K> =>
             map.ContainsKey(key);
 
@@ -272,6 +303,7 @@ namespace LanguageExt
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool contains<EqK, K, V>(HashMap<EqK, K, V> map, KeyValuePair<K, V> kv) where EqK : struct, Eq<K> =>
             map.Contains(kv.Key, kv.Value);
 
@@ -281,6 +313,7 @@ namespace LanguageExt
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool contains<EqK, K, V>(HashMap<EqK, K, V> map, Tuple<K, V> kv) where EqK : struct, Eq<K> =>
             map.Contains(kv.Item1, kv.Item2);
 
@@ -290,6 +323,7 @@ namespace LanguageExt
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool contains<EqK, K, V>(HashMap<EqK, K, V> map, (K, V) kv) where EqK : struct, Eq<K> =>
             map.Contains(kv.Item1, kv.Item2);
 
@@ -302,6 +336,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> setItem<EqK, K, V>(HashMap<EqK, K, V> map, K key, V value) where EqK : struct, Eq<K> =>
             map.SetItem(key, value);
 
@@ -315,6 +350,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the value is null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> trySetItem<EqK, K, V>(HashMap<EqK, K, V> map, K key, V value) where EqK : struct, Eq<K> =>
             map.TrySetItem(key, value);
 
@@ -327,6 +363,7 @@ namespace LanguageExt
         /// <param name="Some">delegate to map the existing value to a new one before setting</param>
         /// <returns>New map with the item set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> trySetItem<EqK, K, V>(HashMap<EqK, K, V> map, K key, Func<V, V> Some) where EqK : struct, Eq<K> =>
             map.TrySetItem(key, Some);
 
@@ -337,6 +374,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> setItems<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<Tuple<K, V>> items) where EqK : struct, Eq<K> =>
             map.SetItems(items);
 
@@ -347,6 +385,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> setItems<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<(K, V)> items) where EqK : struct, Eq<K> =>
             map.SetItems(items);
 
@@ -357,6 +396,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> setItems<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<KeyValuePair<K, V>> items) where EqK : struct, Eq<K> =>
             map.SetItems(items);
 
@@ -367,6 +407,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> trySetItems<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<Tuple<K, V>> items) where EqK : struct, Eq<K> =>
             map.SetItems(items);
 
@@ -377,6 +418,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> trySetItems<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<(K, V)> items) where EqK : struct, Eq<K> =>
             map.SetItems(items);
 
@@ -387,6 +429,7 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <returns>New map with the items set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> trySetItems<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<KeyValuePair<K, V>> items) where EqK : struct, Eq<K> =>
             map.TrySetItems(items);
 
@@ -399,6 +442,7 @@ namespace LanguageExt
         /// <param name="Some">Function map the existing item to a new one</param>
         /// <returns>New map with the items set</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> trySetItems<EqK, K, V>(HashMap<EqK, K, V> map, IEnumerable<K> keys, Func<V, V> Some) where EqK : struct, Eq<K> =>
             map.TrySetItems(keys, Some);
 
@@ -408,6 +452,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<V> find<EqK, K, V>(HashMap<EqK, K, V> map, K key) where EqK : struct, Eq<K> =>
             map.Find(key);
 
@@ -417,6 +462,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<V> findSeq<EqK, K, V>(HashMap<EqK, K, V> map, K key) where EqK : struct, Eq<K> =>
             map.FindSeq(key);
 
@@ -427,6 +473,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static R find<EqK, K, V, R>(HashMap<EqK, K, V> map, K key, Func<V, R> Some, Func<R> None) where EqK : struct, Eq<K> =>
             map.Find(key, Some, None);
 
@@ -437,6 +484,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>New map with the mapped value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> setItem<EqK, K, V>(HashMap<EqK, K, V> map, K key, Func<V, V> mapper) where EqK : struct, Eq<K> =>
             map.SetItem(key, mapper);
 
@@ -446,6 +494,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="action">Action to execute</param>
         /// <returns>Unit</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Unit iter<EqK, K, V>(HashMap<EqK, K, V> map, Action<V> action) where EqK : struct, Eq<K> =>
             map.Iter(action);
 
@@ -455,6 +504,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="action">Action to execute</param>
         /// <returns>Unit</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Unit iter<EqK, K, V>(HashMap<EqK, K, V> map, Action<K, V> action) where EqK : struct, Eq<K> =>
             map.Iter(action);
 
@@ -464,6 +514,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool forall<EqK, K, V>(HashMap<EqK, K, V> map, Func<V, bool> pred) where EqK : struct, Eq<K> =>
             map.ForAll(pred);
 
@@ -473,6 +524,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool forall<EqK, K, V>(HashMap<EqK, K, V> map, Func<K, V, bool> pred) where EqK : struct, Eq<K> =>
             map.ForAll(pred);
 
@@ -482,6 +534,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool forall<EqK, K, V>(HashMap<EqK, K, V> map, Func<Tuple<K, V>, bool> pred) where EqK : struct, Eq<K> =>
             map.ForAll(pred);
 
@@ -491,6 +544,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool forall<EqK, K, V>(HashMap<EqK, K, V> map, Func<(K Key, V Value), bool> pred) where EqK : struct, Eq<K> =>
             map.ForAll(pred);
 
@@ -500,6 +554,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool forall<EqK, K, V>(HashMap<EqK, K, V> map, Func<KeyValuePair<K, V>, bool> pred) where EqK : struct, Eq<K> =>
             map.ForAll(pred);
 
@@ -508,6 +563,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Mapped items in a new map</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, U> map<EqK, K, T, U>(HashMap<EqK, K, T> map, Func<T, U> f) where EqK : struct, Eq<K> =>
             (HashMap<EqK, K, U>)map.Select(f);
 
@@ -516,6 +572,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Mapped items in a new map</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, U> map<EqK, K, T, U>(HashMap<EqK, K, T> map, Func<K, T, U> f) where EqK : struct, Eq<K> =>
             map.Select(f);
 
@@ -525,6 +582,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> filter<EqK, K, V>(HashMap<EqK, K, V> map, Func<V, bool> predicate) where EqK : struct, Eq<K> =>
             map.Filter(predicate);
 
@@ -534,6 +592,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HashMap<EqK, K, V> filter<EqK, K, V>(HashMap<EqK, K, V> map, Func<K, V, bool> predicate) where EqK : struct, Eq<K> =>
             map.Filter(predicate);
 
@@ -541,6 +600,7 @@ namespace LanguageExt
         /// Number of items in the map
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int length<EqK, K, T>(HashMap<EqK, K, T> map) where EqK : struct, Eq<K> =>
             map.Count;
 
@@ -552,6 +612,7 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static S fold<EqK, S, K, V>(HashMap<EqK, K, V> map, S state, Func<S, K, V, S> folder) where EqK : struct, Eq<K> =>
             map.Fold(state, folder);
 
@@ -563,6 +624,7 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static S fold<EqK, S, K, V>(HashMap<EqK, K, V> map, S state, Func<S, V, S> folder) where EqK : struct, Eq<K> =>
             map.Fold(state, folder);
 
@@ -572,6 +634,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool exists<EqK, K, V>(HashMap<EqK, K, V> map, Func<K, V, bool> pred) where EqK : struct, Eq<K> =>
             map.Exists(pred);
 
@@ -581,6 +644,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool exists<EqK, K, V>(HashMap<EqK, K, V> map, Func<Tuple<K, V>, bool> pred) where EqK : struct, Eq<K> =>
             map.Exists(pred);
 
@@ -590,6 +654,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool exists<EqK, K, V>(HashMap<EqK, K, V> map, Func<(K Key, V Value), bool> pred) where EqK : struct, Eq<K> =>
             map.Exists(pred);
 
@@ -599,6 +664,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool exists<EqK, K, V>(HashMap<EqK, K, V> map, Func<KeyValuePair<K, V>, bool> pred) where EqK : struct, Eq<K> =>
             map.Exists(pred);
 
@@ -608,6 +674,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool exists<EqK, K, V>(HashMap<EqK, K, V> map, Func<V, bool> pred) where EqK : struct, Eq<K> =>
             map.Exists(pred);
     }

@@ -959,7 +959,7 @@ namespace LanguageExt
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Contains(K key, V value) =>
-            Find(key).Map(v => ReferenceEquals(v, value) || (v?.Equals(value) ?? false)).IfNone(false);
+            Contains<EqDefault<V>>(key, value);
 
         /// <summary>
         /// Returns the whether the `key` exists in the map
@@ -1691,13 +1691,62 @@ namespace LanguageExt
             return new TrieMap<EqK, K, V>(res);
         }
 
-
         /// <summary>
         /// Returns the elements that are in both this and other
         /// </summary>
         public (TrieMap<EqK, K, V> Map, TrieMap<EqK, K, Change<V>> Changes) IntersectWithLog(
             IEnumerable<(K Key, V Value)> other) =>
             IntersectWithLog(other.Map(pair => pair.Key));
+
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        public TrieMap<EqK, K, V> Intersect(
+            IEnumerable<(K Key, V Value)> other,
+            WhenMatched<K, V, V, V> Merge)
+        {
+            var t = EmptyForMutating;
+            foreach (var py in other)
+            {
+                var px = Find(py.Key);
+                if (px.IsSome)
+                {
+                    var r = Merge(py.Key, px.Value, py.Value);
+                    t = t.AddOrUpdateInPlace(py.Key, r);
+                }
+            }
+            return t;
+        }
+
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        public (TrieMap<EqK, K, V> Map, TrieMap<EqK, K, Change<V>> Changes) IntersectWithLog(
+            TrieMap<EqK, K, V> other,
+            WhenMatched<K, V, V, V> Merge)
+        {
+            var t = EmptyForMutating;
+            var c = TrieMap<EqK, K, Change<V>>.EmptyForMutating;
+            foreach (var px in this)
+            {
+                var py = other.Find(px.Key);
+                if (py.IsSome)
+                {
+                    var r = Merge(px.Key, px.Value, py.Value);
+                    t = t.AddOrUpdateInPlace(px.Key, r);
+                    if (!default(EqDefault<V>).Equals(px.Value, r))
+                    {
+                        c = c.AddOrUpdateInPlace(px.Key, Change<V>.Mapped(px.Value, r));
+                    }
+                }
+                else
+                {
+                    c = c.AddOrUpdateInPlace(px.Key, Change<V>.Removed(px.Value));
+                }
+            }
+
+            return (t, c);
+        }
 
         /// <summary>
         /// Returns this - other.  Only the items in this that are not in 
@@ -1802,7 +1851,6 @@ namespace LanguageExt
         /// </summary>
         public TrieMap<EqK, K, V> SymmetricExcept(IEnumerable<(K Key, V Value)> rhs)
         {
-            var changes = TrieMap<EqK, K, Change<V>>.EmptyForMutating;
             var self = this;
             
             foreach (var item in rhs)
@@ -1811,7 +1859,10 @@ namespace LanguageExt
                 if (pair.Change.HasNoChange)
                 {
                     self = self.Add(item.Key, item.Value);
-                    changes = changes.AddOrUpdateInPlace(item.Key, Change<V>.Added(item.Value));
+                }
+                else
+                {
+                    self = pair.Map;
                 }
             }
             return self;
@@ -1833,6 +1884,11 @@ namespace LanguageExt
                 {
                     self = self.Add(item.Key, item.Value);
                     changes = changes.AddOrUpdateInPlace(item.Key, Change<V>.Added(item.Value));
+                }
+                else
+                {
+                    self = pair.Map;
+                    changes = changes.AddOrUpdateInPlace(item.Key, pair.Change);
                 }
             }
             return (self, changes);
@@ -1873,7 +1929,198 @@ namespace LanguageExt
         /// <returns>A set which contains all items from both sets</returns>
         public (TrieMap<EqK, K, V> Map, TrieMap<EqK, K, Change<V>> Changes) UnionWithLog(IEnumerable<(K, V)> other) =>
             TryAddRangeWithLog(other);
+        
+        /// <summary>
+        /// Union two maps.  
+        /// </summary>
+        /// <remarks>
+        /// The `WhenMatched` merge function is called when keys are present in both map to allow resolving to a
+        /// sensible value.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TrieMap<EqK, K, V> Union(
+            IEnumerable<(K Key, V Value)> other,
+            WhenMatched<K, V, V, V> Merge) =>
+            Union(other, MapLeft: static (_, v) => v, MapRight: static (_, v) => v, Merge);
 
+        /// <summary>
+        /// Union two maps.  
+        /// </summary>
+        /// <remarks>
+        /// The `WhenMatched` merge function is called when keys are present in both map to allow resolving to a
+        /// sensible value.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public (TrieMap<EqK, K, V> Map, TrieMap<EqK, K, Change<V>> Changes) UnionWithLog(
+            IEnumerable<(K Key, V Value)> other,
+            WhenMatched<K, V, V, V> Merge) =>
+            UnionWithLog(other, MapLeft: static (_, v) => v, MapRight: static (_, v) => v, Merge);
+        
+        /// <summary>
+        /// Union two maps.  
+        /// </summary>
+        /// <remarks>
+        /// The `WhenMatched` merge function is called when keys are present in both map to allow resolving to a
+        /// sensible value.
+        /// </remarks>
+        /// <remarks>
+        /// The `WhenMissing` function is called when there is a key in the right-hand side, but not the left-hand-side.
+        /// This allows the `V2` value-type to be mapped to the target `V` value-type. 
+        /// </remarks>
+        public TrieMap<EqK, K, V> Union<W>(
+            IEnumerable<(K Key, W Value)> other,
+            WhenMissing<K, W, V> MapRight, 
+            WhenMatched<K, V, W, V> Merge) =>
+            Union(other, MapLeft: static (_, v) => v, MapRight, Merge);
+
+        /// <summary>
+        /// Union two maps.  
+        /// </summary>
+        /// <remarks>
+        /// The `WhenMatched` merge function is called when keys are present in both map to allow resolving to a
+        /// sensible value.
+        /// </remarks>
+        /// <remarks>
+        /// The `WhenMissing` function is called when there is a key in the right-hand side, but not the left-hand-side.
+        /// This allows the `V2` value-type to be mapped to the target `V` value-type. 
+        /// </remarks>
+        public (TrieMap<EqK, K, V> Map, TrieMap<EqK, K, Change<V>> Changes) UnionWithLog<W>(
+            IEnumerable<(K Key, W Value)> other, 
+            WhenMissing<K, W, V> MapRight, 
+            WhenMatched<K, V, W, V> Merge) =>
+            UnionWithLog(other, MapLeft: static (_, v) => v, MapRight, Merge);
+
+        /// <summary>
+        /// Union two maps.  
+        /// </summary>
+        /// <remarks>
+        /// The `WhenMatched` merge function is called when keys are present in both map to allow resolving to a
+        /// sensible value.
+        /// </remarks>
+        /// <remarks>
+        /// The `WhenMissing` function is called when there is a key in the left-hand side, but not the right-hand-side.
+        /// This allows the `V` value-type to be mapped to the target `V2` value-type. 
+        /// </remarks>
+        public TrieMap<EqK, K, W> Union<W>(
+            IEnumerable<(K Key, W Value)> other,
+            WhenMissing<K, V, W> MapLeft, 
+            WhenMatched<K, V, W, W> Merge) =>
+            Union(other, MapLeft, MapRight: static (_, v2) => v2, Merge);
+
+        /// <summary>
+        /// Union two maps.  
+        /// </summary>
+        /// <remarks>
+        /// The `WhenMatched` merge function is called when keys are present in both map to allow resolving to a
+        /// sensible value.
+        /// </remarks>
+        /// <remarks>
+        /// The `WhenMissing` function is called when there is a key in the left-hand side, but not the right-hand-side.
+        /// This allows the `V` value-type to be mapped to the target `V2` value-type. 
+        /// </remarks>
+        public (TrieMap<EqK, K, W> Map, TrieMap<EqK, K, Change<W>> Changes) UnionWithLog<W>(
+            IEnumerable<(K Key, W Value)> other,
+            WhenMissing<K, V, W> MapLeft,
+            WhenMatched<K, V, W, W> Merge) =>
+            UnionWithLog(other, MapLeft, MapRight: static (_, v2) => v2, Merge);
+        
+        /// <summary>
+        /// Union two maps.  
+        /// </summary>
+        /// <remarks>
+        /// The `WhenMatched` merge function is called when keys are present in both map to allow resolving to a
+        /// sensible value.
+        /// </remarks>
+        /// <remarks>
+        /// The `WhenMissing MapLeft` function is called when there is a key in the left-hand side, but not the
+        /// right-hand-side.   This allows the `V` value-type to be mapped to the target `R` value-type. 
+        /// </remarks>
+        /// <remarks>
+        /// The `WhenMissing MapRight` function is called when there is a key in the right-hand side, but not the
+        /// left-hand-side.   This allows the `V2` value-type to be mapped to the target `R` value-type. 
+        /// </remarks>
+        public TrieMap<EqK, K, R> Union<W, R>(
+            IEnumerable<(K Key, W Value)> other, 
+            WhenMissing<K, V, R> MapLeft, 
+            WhenMissing<K, W, R> MapRight, 
+            WhenMatched<K, V, W, R> Merge)
+        {
+            var t = TrieMap<EqK, K, R>.EmptyForMutating;
+            foreach(var (key, value) in other)
+            {
+                var px = Find(key);
+                t = t.AddOrUpdateInPlace(key, px.IsSome 
+                    ? Merge(key, px.Value, value) 
+                    : MapRight(key, value));
+            }
+
+            foreach (var (key, value) in this)
+            {
+                if (t.ContainsKey(key)) continue;
+                t = t.AddOrUpdateInPlace(key, MapLeft(key, value));
+            }
+
+            return t;
+        }
+        
+        /// <summary>
+        /// Union two maps.  
+        /// </summary>
+        /// <remarks>
+        /// The `WhenMatched` merge function is called when keys are present in both map to allow resolving to a
+        /// sensible value.
+        /// </remarks>
+        /// <remarks>
+        /// The `WhenMissing MapLeft` function is called when there is a key in the left-hand side, but not the
+        /// right-hand-side.   This allows the `V` value-type to be mapped to the target `R` value-type. 
+        /// </remarks>
+        /// <remarks>
+        /// The `WhenMissing MapRight` function is called when there is a key in the right-hand side, but not the
+        /// left-hand-side.   This allows the `V2` value-type to be mapped to the target `R` value-type. 
+        /// </remarks>
+        public (TrieMap<EqK, K, R> Map, TrieMap<EqK, K, Change<R>> Changes) UnionWithLog<W, R>(
+            IEnumerable<(K Key, W Value)> other, 
+            WhenMissing<K, V, R> MapLeft,
+            WhenMissing<K, W, R> MapRight, 
+            WhenMatched<K, V, W, R> Merge)
+        {
+            var t = TrieMap<EqK, K, R>.EmptyForMutating;
+            var c = TrieMap<EqK, K, Change<R>>.EmptyForMutating;
+            foreach(var (key, value) in other)
+            {
+                var px = Find(key);
+                if (px.IsSome)
+                {
+                    var r = Merge(key, px.Value, value);
+                    t = t.AddOrUpdateInPlace(key, r);
+                    if (!EqDefault<V, W>.Equals(px.Value, r))
+                    {
+                        c = c.AddOrUpdateInPlace(key, Change<R>.Mapped(px.Value, r));
+                    }
+                }
+                else
+                {
+                    var r = MapRight(key, value);
+                    t = t.AddOrUpdateInPlace(key, r);
+                    c = c.AddOrUpdateInPlace(key, Change<R>.Added(r));
+                }
+            }
+
+            foreach (var (key, value) in this)
+            {
+                if (t.ContainsKey(key)) continue;
+                
+                var r = MapLeft(key, value);
+                t = t.AddOrUpdateInPlace(key, r);
+                if (!EqDefault<V, W>.Equals(value, r))
+                {
+                    c = c.AddOrUpdateInPlace(key, Change<R>.Mapped(value, r));
+                }
+            }
+
+            return (t, c);
+        }
+        
         /// <summary>
         /// Nodes in the CHAMP hash trie map can be in one of three states:
         /// 
