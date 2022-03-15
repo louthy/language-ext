@@ -1,4 +1,4 @@
-I:
+Q:
 
 echo building the docs
 
