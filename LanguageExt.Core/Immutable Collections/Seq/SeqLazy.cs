@@ -511,9 +511,9 @@ namespace LanguageExt
             {
                 hash = FNV32.Hash<HashableDefault<A>, A>(data, start, count, hash);
             }
-            if (seq.Count > 0)
+            if (seq.Count - seqStart > 0)
             {
-                hash = FNV32.Hash<HashableDefault<A>, A>(seq.Data, 0, seq.Count, hash);
+                hash = FNV32.Hash<HashableDefault<A>, A>(seq.Data, seqStart, seq.Count - seqStart, hash);
             }
             return hash;
         }
