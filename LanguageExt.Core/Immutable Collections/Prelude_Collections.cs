@@ -114,35 +114,35 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static IEnumerable<A> Sort<OrdA, A>(this IEnumerable<A> xs) where OrdA : struct, Ord<A> =>
-            xs.OrderBy(identity, default(OrdA).ToComparable());
+            xs.OrderBy(identity, default(OrdA).ToComparer());
 
         /// <summary>
         /// Provide a sorted Seq
         /// </summary>
         [Pure]
         public static Seq<A> Sort<OrdA, A>(this Seq<A> xs) where OrdA : struct, Ord<A> =>
-            xs.OrderBy(identity, default(OrdA).ToComparable()).ToSeq();
+            xs.OrderBy(identity, default(OrdA).ToComparer()).ToSeq();
 
         /// <summary>
         /// Provide a sorted Lst
         /// </summary>
         [Pure]
         public static Lst<A> Sort<OrdA, A>(this Lst<A> xs) where OrdA : struct, Ord<A> =>
-            xs.OrderBy(identity, default(OrdA).ToComparable()).Freeze();
+            xs.OrderBy(identity, default(OrdA).ToComparer()).Freeze();
 
         /// <summary>
         /// Provide a sorted Arr
         /// </summary>
         [Pure]
         public static Arr<A> Sort<OrdA, A>(this Arr<A> xs) where OrdA : struct, Ord<A> =>
-            xs.OrderBy(identity, default(OrdA).ToComparable()).ToArr();
+            xs.OrderBy(identity, default(OrdA).ToComparer()).ToArr();
 
         /// <summary>
         /// Provide a sorted array
         /// </summary>
         [Pure]
         public static A[] Sort<OrdA, A>(this A[] xs) where OrdA : struct, Ord<A> =>
-            xs.OrderBy(identity, default(OrdA).ToComparable()).ToArray();
+            xs.OrderBy(identity, default(OrdA).ToComparer()).ToArray();
 
         /// <summary>
         /// Lazy sequence of natural numbers up to Int32.MaxValue
