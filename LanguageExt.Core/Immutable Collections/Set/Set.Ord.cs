@@ -87,7 +87,7 @@ namespace LanguageExt
         public object Case =>
             IsEmpty
                 ? null
-                : Seq1(Value).Case;
+                : toSeq(Value).Case;
 
         /// <summary>
         /// Add an item to the set

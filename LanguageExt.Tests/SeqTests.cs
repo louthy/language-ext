@@ -555,5 +555,23 @@ namespace LanguageExt.Tests
             Assert.True(xs[11] == 11);
             Assert.True(xs[12] == 12);
         }
+
+        [Fact]
+        void SeqHashCodeRegression()
+        {
+            // GetHashCode is internally used to compare Seq values => has to be equal irrespective of creation method 
+
+            var originalStrictTail = Seq(2, 3);
+            var lazyTailSeq = Set(1, 2, 3).Tail().ToSeq();
+            var lazySeqTail = Set(1, 2, 3).ToSeq().Tail;
+            var lazyPattern = Set(1, 2, 3).Case is (int _, Seq<int> tail) ? tail : throw new ("invalid");
+            
+            Assert.Equal(originalStrictTail.GetHashCode(), lazyTailSeq.GetHashCode());
+            Assert.Equal(originalStrictTail, lazyTailSeq);
+            Assert.Equal(originalStrictTail.GetHashCode(), lazySeqTail.GetHashCode());
+            Assert.Equal(originalStrictTail, lazySeqTail);
+            Assert.Equal(originalStrictTail.GetHashCode(), lazyPattern.GetHashCode());
+            Assert.Equal(originalStrictTail, lazyPattern);
+        }
     }
 }
