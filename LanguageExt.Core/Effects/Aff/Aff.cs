@@ -1,7 +1,5 @@
+#nullable enable
 using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.ComponentModel;
 using LanguageExt.Common;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
@@ -9,8 +7,6 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using LanguageExt.Effects.Traits;
-using LanguageExt.Pipes;
-using LanguageExt.Thunks;
 
 namespace LanguageExt
 {
@@ -20,39 +16,31 @@ namespace LanguageExt
     public readonly struct Aff<RT, A> 
         where RT : struct, HasCancel<RT>
     {
-        internal ThunkAsync<RT, A> Thunk => thunk ?? ThunkAsync<RT, A>.Fail(Errors.Bottom);
-        readonly ThunkAsync<RT, A> thunk;
+        internal Func<RT, ValueTask<Fin<A>>> Thunk => thunk ?? (_ => FinFail<A>(Errors.Bottom).AsValueTask());
+        readonly Func<RT, ValueTask<Fin<A>>> thunk;
 
         /// <summary>
         /// Constructor
         /// </summary>
         [MethodImpl(Opt.Default)]
-        internal Aff(ThunkAsync<RT, A> thunk) =>
+        internal Aff(Func<RT, ValueTask<Fin<A>>> thunk) =>
             this.thunk = thunk ?? throw new ArgumentNullException(nameof(thunk));
 
         /// <summary>
         /// Invoke the effect
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
-        public ValueTask<Fin<A>> Run(in RT env) =>
-            Thunk.Value(env);
-
-        /// <summary>
-        /// Invoke the effect
-        /// </summary>
-        [Pure, MethodImpl(Opt.Default)]
-        public ValueTask<Fin<A>> ReRun(RT env) =>
-            Thunk.ReValue(env);
-
-        /// <summary>
-        /// Clone the effect
-        /// </summary>
-        /// <remarks>
-        /// If the effect had already run, then this state will be wiped in the clone, meaning it can be re-run
-        /// </remarks>
-        [Pure, MethodImpl(Opt.Default)]
-        public Aff<RT, A> Clone() =>
-            new Aff<RT, A>(Thunk.Clone());        
+        public async ValueTask<Fin<A>> Run(RT runtime)
+        {
+            try
+            {
+                return await Thunk(runtime).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                return FinFail<A>(e);
+            }
+        }
 
         /// <summary>
         /// Invoke the effect
@@ -61,13 +49,30 @@ namespace LanguageExt
         /// Throws on error
         /// </remarks>
         [MethodImpl(Opt.Default)]
-        public async ValueTask<Unit> RunUnit(RT env) =>
-            (await Thunk.Value(env).ConfigureAwait(false)).Case switch
+        public async ValueTask<Unit> RunUnit(RT runtime) =>
+            (await Thunk(runtime).ConfigureAwait(false)).Case switch
             {
-                A _     => unit,
+                A       => unit,
                 Error e => e.Throw(),
                 _       => throw new NotSupportedException()
             };
+
+        /// <summary>
+        /// Memoise the result, so subsequent calls don't invoke the side-effect
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public Aff<RT, A> Memo()
+        {
+            var thnk = Thunk;
+            Fin<A> mr = default;
+
+            return new Aff<RT, A>(async rt =>
+            {
+                if (mr.IsSucc) return mr;
+                mr = await thnk(rt).ConfigureAwait(false);
+                return mr;
+            });
+        }
 
         /// <summary>
         /// Launch the async computation without awaiting the result
@@ -95,7 +100,7 @@ namespace LanguageExt
                     var reg = env.CancellationToken.Register(() => lenv.CancellationTokenSource.Cancel());
                     
                     // Run
-                    ignore(t.Value(lenv).Iter(_ => Dispose()));
+                    ignore(t(lenv).Iter(_ => Dispose()));
                     
                     // Return an effect that cancels the fire-and-forget expression
                     return Eff<Unit>(() =>
@@ -123,39 +128,39 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> Effect(Func<RT, ValueTask<A>> f) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(f));
+            new (async rt => FinSucc(await f(rt).ConfigureAwait(false)));
 
         /// <summary>
         /// Lift an asynchronous effect into the Aff monad
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> EffectMaybe(Func<RT, ValueTask<Fin<A>>> f) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(f));
+            new (f);
 
         /// <summary>
         /// Lift an asynchronous effect into the Aff monad
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, Unit> Effect(Func<RT, ValueTask> f) =>
-            new Aff<RT, Unit>(ThunkAsync<RT, Unit>.Lazy(async e =>
+            new (async rt =>
             {
-                await f(e).ConfigureAwait(false);
-                return Fin<Unit>.Succ(default);
-            }));
+                await f(rt).ConfigureAwait(false);
+                return FinSucc<Unit>(default);
+            });
 
         /// <summary>
         /// Lift a value into the Aff monad 
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> Success(A value) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Success(value));
+            new (_ => FinSucc(value).AsValueTask());
 
         /// <summary>
         /// Lift a failure into the Aff monad 
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> Fail(Error error) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Fail(error));
+            new (_ => FinFail<A>(error).AsValueTask());
 
         /// <summary>
         /// Force the operation to end after a time out delay
@@ -172,7 +177,7 @@ namespace LanguageExt
                     using var delayTokSrc = new CancellationTokenSource();
                     var lenv       = env.LocalCancel;
                     var delay      = Task.Delay(timeoutDelay, delayTokSrc.Token);
-                    var task       = t.Value(lenv).AsTask();
+                    var task       = t(lenv).AsTask();
                     var completed  = await Task.WhenAny(new Task[] {delay, task}).ConfigureAwait(false);
 
                     if (completed == delay)
@@ -183,174 +188,161 @@ namespace LanguageExt
                     else
                     {
                         delayTokSrc.Cancel();
-                        return await task;
+                        return await task.ConfigureAwait(false);
                     }
                 });
         }
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> operator |(Aff<RT, A> ma, Aff<RT, A> mb) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
-                                async env =>
-                                {
-                                    var ra = await ma.ReRun(env).ConfigureAwait(false);
-                                    return ra.IsSucc
-                                               ? ra
-                                               : await mb.ReRun(env).ConfigureAwait(false);
-                                }));
+            new(async env =>
+            {
+                var ra = await ma.Run(env).ConfigureAwait(false);
+                return ra.IsSucc
+                    ? ra
+                    : await mb.Run(env).ConfigureAwait(false);
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> operator |(Aff<RT, A> ma, Aff<A> mb) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
-                                async env =>
-                                {
-                                    var ra = await ma.ReRun(env).ConfigureAwait(false);
-                                    return ra.IsSucc
-                                               ? ra
-                                               : await mb.ReRun().ConfigureAwait(false);
-                                }));
+            new(async env =>
+            {
+                var ra = await ma.Run(env).ConfigureAwait(false);
+                return ra.IsSucc
+                    ? ra
+                    : await mb.Run().ConfigureAwait(false);
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> operator |(Aff<A> ma, Aff<RT, A> mb) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
-                                async env =>
-                                {
-                                    var ra = await ma.ReRun().ConfigureAwait(false);
-                                    return ra.IsSucc
-                                               ? ra
-                                               : await mb.ReRun(env).ConfigureAwait(false);
-                                }));
+            new(async env =>
+            {
+                var ra = await ma.Run().ConfigureAwait(false);
+                return ra.IsSucc
+                    ? ra
+                    : await mb.Run(env).ConfigureAwait(false);
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> operator |(Aff<RT, A> ma, Eff<RT, A> mb) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
-                                async env =>
-                                {
-                                    var ra = await ma.ReRun(env).ConfigureAwait(false);
-                                    return ra.IsSucc
-                                               ? ra
-                                               : mb.ReRun(env);
-                                }));
+            new(async env =>
+            {
+                var ra = await ma.Run(env).ConfigureAwait(false);
+                return ra.IsSucc
+                    ? ra
+                    : mb.Run(env);
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> operator |(Eff<RT, A> ma, Aff<RT, A> mb) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
-                                async env =>
-                                {
-                                    var ra = ma.ReRun(env);
-                                    return ra.IsSucc
-                                               ? ra
-                                               : await mb.ReRun(env).ConfigureAwait(false);
-                                }));
+            new(async env =>
+            {
+                var ra = ma.Run(env);
+                return ra.IsSucc
+                    ? ra
+                    : await mb.Run(env).ConfigureAwait(false);
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> operator |(Eff<A> ma, Aff<RT, A> mb) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
-                                async env =>
-                                {
-                                    var ra = ma.ReRun();
-                                    return ra.IsSucc
-                                               ? ra
-                                               : await mb.ReRun(env).ConfigureAwait(false);
-                                }));
+            new(async env =>
+            {
+                var ra = ma.Run();
+                return ra.IsSucc
+                    ? ra
+                    : await mb.Run(env).ConfigureAwait(false);
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> operator |(Aff<RT, A> ma, Eff<A> mb) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
-                                async env =>
-                                {
-                                    var ra = await ma.ReRun(env).ConfigureAwait(false);
-                                    return ra.IsSucc
-                                               ? ra
-                                               : mb.ReRun();
-                                }));
+            new(async env =>
+            {
+                var ra = await ma.Run(env).ConfigureAwait(false);
+                return ra.IsSucc
+                    ? ra
+                    : mb.Run();
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> operator |(Aff<RT, A> ma, EffCatch<A> mb) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
-                                async env =>
-                                {
-                                    var ra = await ma.ReRun(env).ConfigureAwait(false);
-                                    return ra.IsSucc
-                                               ? ra
-                                               : mb.Run(ra.Error);
-                                }));
+            new(async env =>
+            {
+                var ra = await ma.Run(env).ConfigureAwait(false);
+                return ra.IsSucc
+                    ? ra
+                    : mb.Run(ra.Error);
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> operator |(Aff<RT, A> ma, AffCatch<A> mb) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
-                                async env =>
-                                {
-                                    var ra = await ma.ReRun(env).ConfigureAwait(false);
-                                    return ra.IsSucc
-                                               ? ra
-                                               : await mb.Run(ra.Error).ConfigureAwait(false);
-                                }));
+            new(async env =>
+            {
+                var ra = await ma.Run(env).ConfigureAwait(false);
+                return ra.IsSucc
+                    ? ra
+                    : await mb.Run(ra.Error).ConfigureAwait(false);
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> operator |(Aff<RT, A> ma, EffCatch<RT, A> mb) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
-                                async env =>
-                                {
-                                    var ra = await ma.ReRun(env).ConfigureAwait(false);
-                                    return ra.IsSucc
-                                               ? ra
-                                               : mb.Run(env, ra.Error);
-                                }));
+            new(async env =>
+            {
+                var ra = await ma.Run(env).ConfigureAwait(false);
+                return ra.IsSucc
+                    ? ra
+                    : mb.Run(env, ra.Error);
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> operator |(Aff<RT, A> ma, AffCatch<RT, A> mb) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
-                                async env =>
-                                {
-                                    var ra = await ma.ReRun(env).ConfigureAwait(false);
-                                    return ra.IsSucc
-                                               ? ra
-                                               : await mb.Run(env, ra.Error).ConfigureAwait(false);
-                                }));
+            new(async env =>
+            {
+                var ra = await ma.Run(env).ConfigureAwait(false);
+                return ra.IsSucc
+                    ? ra
+                    : await mb.Run(env, ra.Error).ConfigureAwait(false);
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> operator |(Aff<RT, A> ma, CatchValue<A> value) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
-                                async env =>
-                                {
-                                    var ra = await ma.ReRun(env).ConfigureAwait(false);
-                                    return ra.IsSucc
-                                               ? ra
-                                               : value.Match(ra.Error)
-                                                   ? FinSucc(value.Value(ra.Error))
-                                                   : ra;
-                                }));
+            new(async env =>
+            {
+                var ra = await ma.Run(env).ConfigureAwait(false);
+                return ra.IsSucc
+                    ? ra
+                    : value.Match(ra.Error)
+                        ? FinSucc(value.Value(ra.Error))
+                        : ra;
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> operator |(Aff<RT, A> ma, CatchError value) =>
-            new Aff<RT, A>(ThunkAsync<RT, A>.Lazy(
-                                async env =>
-                                {
-                                    var ra = await ma.ReRun(env).ConfigureAwait(false);
-                                    return ra.IsSucc
-                                               ? ra
-                                               : value.Match(ra.Error)
-                                                   ? FinFail<A>(value.Value(ra.Error))
-                                                   : ra;
-                                }));
+            new(async env =>
+            {
+                var ra = await ma.Run(env).ConfigureAwait(false);
+                return ra.IsSucc
+                    ? ra
+                    : value.Match(ra.Error)
+                        ? FinFail<A>(value.Value(ra.Error))
+                        : ra;
+            });
 
         /// <summary>
         /// Implicit conversion from pure Aff
         /// </summary>
         public static implicit operator Aff<RT, A>(Aff<A> ma) =>
-            EffectMaybe(env => ma.ReRun());
+            EffectMaybe(_ => ma.Run());
 
         /// <summary>
         /// Implicit conversion from pure Eff
         /// </summary>
         public static implicit operator Aff<RT, A>(Eff<A> ma) =>
-            EffectMaybe(env => ma.ReRun().AsValueTask());
+            EffectMaybe(_ => ma.Run().AsValueTask());
 
         /// <summary>
         /// Implicit conversion from Eff
         /// </summary>
         public static implicit operator Aff<RT, A>(Eff<RT, A> ma) =>
-            EffectMaybe(env => ma.ReRun(env).AsValueTask());
+            EffectMaybe(env => ma.Run(env).AsValueTask());
     }
 }

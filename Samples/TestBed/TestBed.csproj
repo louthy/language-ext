@@ -6,6 +6,7 @@
         <LangVersion>default</LangVersion>
         <StartupObject>Program</StartupObject>
         <RoslynCodeGenVersion>0.6.1</RoslynCodeGenVersion>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>

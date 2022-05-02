@@ -40,7 +40,7 @@ namespace LanguageExt.Pipes
                 {
                     Request<RT, Void, Unit, Unit, Void, R> (var v, var _) => Proxy.closed<Aff<RT, R>>(v),
                     Respond<RT, Void, Unit, Unit, Void, R> (var v, var _) => Proxy.closed<Aff<RT, R>>(v),
-                    M<RT, Void, Unit, Unit, Void, R> (var m)              => m.Clone().Bind(Go),
+                    M<RT, Void, Unit, Unit, Void, R> (var m)              => m.Bind(Go),
                     Pure<RT, Void, Unit, Unit, Void, R> (var r)           => Aff<RT, R>.Success(r),                                                                                
                     _                                                     => throw new NotSupportedException()
                 };
@@ -57,7 +57,7 @@ namespace LanguageExt.Pipes
                                 var disps = new ConcurrentDictionary<object, IDisposable>(new ReferenceEqualityComparer<object>());
                                 try
                                 {
-                                    return await RunEffect(ma, disps).ReRun(env);
+                                    return await RunEffect(ma, disps).Run(env);
                                 }
                                 finally
                                 {
@@ -82,7 +82,7 @@ namespace LanguageExt.Pipes
                                             return FinSucc<R>(r);
 
                                         case M<RT, Void, Unit, Unit, Void, R> (var m):
-                                            var fp = await m.ReRun(env).ConfigureAwait(false);
+                                            var fp = await m.Run(env).ConfigureAwait(false);
                                             if (fp.IsFail) return fp.Error;
                                             p = fp.Value.ToProxy();
                                             break;
@@ -91,7 +91,7 @@ namespace LanguageExt.Pipes
                                             var effect = inner.RunEffect<RT, R>(disps);
                                             while (!env.CancellationToken.IsCancellationRequested)
                                             {
-                                                var fi = await effect.ReRun(env).ConfigureAwait(false);
+                                                var fi = await effect.Run(env).ConfigureAwait(false);
                                                 if (fi.IsFail) return fi.Error;
                                                 if (fi.Value is IDisposable d)
                                                 {
@@ -110,7 +110,7 @@ namespace LanguageExt.Pipes
                                                     await foreach (var f in me.MakeEffectsAsync().ConfigureAwait(false))
                                                     {
                                                         if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
-                                                        lastResult = await f.RunEffect<RT, R>(disps).ReRun(env).ConfigureAwait(false);
+                                                        lastResult = await f.RunEffect<RT, R>(disps).Run(env).ConfigureAwait(false);
                                                         if (lastResult.IsFail) return lastResult.Error;
                                                     }
 
@@ -120,7 +120,7 @@ namespace LanguageExt.Pipes
                                                     foreach (var f in me.MakeEffects())
                                                     {
                                                         if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
-                                                        lastResult = await f.RunEffect<RT, R>(disps).ReRun(env).ConfigureAwait(false);
+                                                        lastResult = await f.RunEffect<RT, R>(disps).Run(env).ConfigureAwait(false);
                                                         if (lastResult.IsFail) return lastResult.Error;
                                                     }
 
@@ -131,7 +131,7 @@ namespace LanguageExt.Pipes
                                                     var    lastTask = unit.AsValueTask();
                                                     Fin<R> last     = Errors.Cancelled;
 
-                                                    using (var sub = me.Subscribe(onNext: fx => lastTask = fx.RunEffect<RT, R>(disps).ReRun(env).Iter(r => last = r),
+                                                    using (var sub = me.Subscribe(onNext: fx => lastTask = fx.RunEffect<RT, R>(disps).Run(env).Iter(r => last = r),
                                                                                   onError: err =>
                                                                                            {
                                                                                                last = err;

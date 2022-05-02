@@ -63,15 +63,20 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        AtomHashMapTests.Test();
-
+        //AtomHashMapTests.Test();
         //await AtomHashMapPerf.Test();
         // await PipesTest();
         // await ObsAffTests.Test();
         // await AsyncTests();
 
-
+        testing.Run(Runtime.New());
     }
+    
+    static Eff<Runtime, Unit> testing = 
+        repeat(from l in Console<Runtime>.readLine
+               let r = l + l
+               from _ in Console<Runtime>.writeLine(l)
+               select unit);
 
     static Aff<string> ReadAll(string path) =>
         Aff(async () => await System.IO.File.ReadAllTextAsync(path));

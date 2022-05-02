@@ -22,7 +22,7 @@ namespace LanguageExt
    
                     while (true)
                     {
-                        var ra = ma.ReRun(env);
+                        var ra = ma.Run(env);
                         var (cont, value) = map(ra);
                         state = value.IsSucc ? fold(state, (A)value) : state;
                         
@@ -91,7 +91,7 @@ namespace LanguageExt
    
                     while (true)
                     {
-                        var ra = ma.ReRun();
+                        var ra = ma.Run();
                         var (cont, value) = map(ra);
                         state = value.IsSucc ? fold(state, (A)value) : state;
                         

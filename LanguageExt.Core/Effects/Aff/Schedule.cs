@@ -25,7 +25,7 @@ namespace LanguageExt
    
                     while (!env.CancellationToken.IsCancellationRequested)
                     {
-                        var ra  = await ma.ReRun(env).ConfigureAwait(false);
+                        var ra  = await ma.Run(env).ConfigureAwait(false);
                         var (cont, value) = map(ra);
                         state = value.IsSucc ? fold(state, (A)value) : state;
                         
@@ -94,7 +94,7 @@ namespace LanguageExt
    
                     while (true)
                     {
-                        var ra = await ma.ReRun().ConfigureAwait(false);
+                        var ra = await ma.Run().ConfigureAwait(false);
                         var (cont, value) = map(ra);
                         state = value.IsSucc ? fold(state, (A)value) : state;
                         

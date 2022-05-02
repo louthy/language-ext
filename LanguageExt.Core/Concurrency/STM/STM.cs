@@ -161,7 +161,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = await op.ReRun(env).ConfigureAwait(false);
+                        var res = await op.Run(env).ConfigureAwait(false);
                         return res.IsFail 
                                    ? res 
                                    : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
@@ -199,7 +199,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = op.ReRun(env);
+                        var res = op.Run(env);
                         return res.IsFail 
                                    ? res 
                                    : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
@@ -237,7 +237,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = await op.ReRun().ConfigureAwait(false);
+                        var res = await op.Run().ConfigureAwait(false);
                         return res.IsFail 
                                    ? res 
                                    : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
@@ -275,7 +275,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = op.ReRun();
+                        var res = op.Run();
                         return res.IsFail 
                                    ? res 
                                    : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
