@@ -68,23 +68,9 @@ public class Program
         // await PipesTest();
         // await ObsAffTests.Test();
         // await AsyncTests();
+        //testing.Run(Runtime.New());
 
-        testing.Run(Runtime.New());
-    }
-    
-    static Eff<Runtime, Unit> testing = 
-        repeat(from l in Console<Runtime>.readLine
-               let r = l + l
-               from _ in Console<Runtime>.writeLine(l)
-               select unit);
-
-    static Aff<string> ReadAll(string path) =>
-        Aff(async () => await System.IO.File.ReadAllTextAsync(path));
-
-    static Effect<Runtime, Unit> Example<A>(IAsyncQueue<A>[] queues)
-    {
-        var producer = queues.ToProducer<Runtime, A>();
-        return producer | toString<A>() | writeLine;
+        IssueTests.Run();
     }
 
     public static async Task PipesTest()

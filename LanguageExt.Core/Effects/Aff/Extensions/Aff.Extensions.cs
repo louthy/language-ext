@@ -30,7 +30,7 @@ namespace LanguageExt
                 var t2 = ms.Item2.Run(env).AsTask();
                 
                 var tasks = new Task[] {t1, t2};
-                await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks).ConfigureAwait(false);
                 return from r1 in t1.Result
                        from r2 in t2.Result
                        select (r1, r2);
@@ -47,7 +47,7 @@ namespace LanguageExt
                 var t3 = ms.Item3.Run(env).AsTask();
                 
                 var tasks = new Task[] {t1, t2, t3};
-                await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks).ConfigureAwait(false);
                 return from r1 in t1.Result
                        from r2 in t2.Result
                        from r3 in t3.Result
@@ -66,7 +66,7 @@ namespace LanguageExt
                 var t4 = ms.Item4.Run(env).AsTask();
                 
                 var tasks = new Task[] {t1, t2, t3, t4};
-                await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks).ConfigureAwait(false);
                 return from r1 in t1.Result
                        from r2 in t2.Result
                        from r3 in t3.Result
@@ -87,7 +87,7 @@ namespace LanguageExt
                 var t5 = ms.Item5.Run(env).AsTask();
                 
                 var tasks = new Task[] {t1, t2, t3, t4, t5};
-                await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks).ConfigureAwait(false);
                 return from r1 in t1.Result
                        from r2 in t2.Result
                        from r3 in t3.Result
@@ -846,7 +846,7 @@ namespace LanguageExt
                 var t2 = ms.Item2.Run().AsTask();
                 
                 var tasks = new Task[] {t1, t2};
-                await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks).ConfigureAwait(false);
                 return from r1 in t1.Result
                        from r2 in t2.Result
                        select (r1, r2);
@@ -863,7 +863,7 @@ namespace LanguageExt
                 var t3 = ms.Item3.Run().AsTask();
                 
                 var tasks = new Task[] {t1, t2, t3};
-                await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks).ConfigureAwait(false);
                 return from r1 in t1.Result
                        from r2 in t2.Result
                        from r3 in t3.Result
@@ -882,7 +882,7 @@ namespace LanguageExt
                 var t4 = ms.Item4.Run().AsTask();
                 
                 var tasks = new Task[] {t1, t2, t3, t4};
-                await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks).ConfigureAwait(false);
                 return from r1 in t1.Result
                        from r2 in t2.Result
                        from r3 in t3.Result
@@ -903,7 +903,7 @@ namespace LanguageExt
                 var t5 = ms.Item5.Run().AsTask();
                 
                 var tasks = new Task[] {t1, t2, t3, t4, t5};
-                await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks).ConfigureAwait(false);
                 return from r1 in t1.Result
                        from r2 in t2.Result
                        from r3 in t3.Result
@@ -1364,7 +1364,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> Filter<A>(this Aff<A> ma, Func<A, bool> f) =>
-            ma.Bind(x => f(x) ? SuccessEff<A>(x) : FailEff<A>(Errors.Cancelled));        
+            ma.Bind(x => f(x) ? SuccessEff(x) : FailEff<A>(Errors.Cancelled));        
 
         //
         // Bind
@@ -1374,7 +1374,7 @@ namespace LanguageExt
         public static Aff<B> Bind<A, B>(this Aff<A> ma, Func<A, Eff<B>> f) =>
             new (async () =>
             {
-                var fa = await ma.Run();
+                var fa = await ma.Run().ConfigureAwait(false);
                 if (fa.IsFail) return FinFail<B>(fa.Error);
                 var mb = f(fa.Value);
                 return mb.Run();
@@ -1385,7 +1385,7 @@ namespace LanguageExt
             where RT : struct, HasCancel<RT> =>
             new (async env =>
             {
-                var fa = await ma.Run();
+                var fa = await ma.Run().ConfigureAwait(false);
                 if (fa.IsFail) return FinFail<B>(fa.Error);
                 var mb = f(fa.Value);
                 return mb.Run(env);
@@ -1395,7 +1395,7 @@ namespace LanguageExt
         public static Aff<B> Bind<A, B>(this Aff<A> ma, Func<A, Aff<B>> f) =>
             new (async () =>
             {
-                var fa = await ma.Run();
+                var fa = await ma.Run().ConfigureAwait(false);
                 if (fa.IsFail) return FinFail<B>(fa.Error);
                 var mb = f(fa.Value);
                 return await mb.Run().ConfigureAwait(false);
@@ -1406,7 +1406,7 @@ namespace LanguageExt
             where RT : struct, HasCancel<RT> =>
             new (async env =>
             {
-                var fa = await ma.Run();
+                var fa = await ma.Run().ConfigureAwait(false);
                 if (fa.IsFail) return FinFail<B>(fa.Error);
                 var mb = f(fa.Value);
                 return await mb.Run(env).ConfigureAwait(false);

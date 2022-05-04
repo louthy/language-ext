@@ -80,7 +80,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static Eff<RT, R> use<RT, H, R>(Eff<H> Acq, Func<H, Eff<RT, R>> Use)
-            where RT : struct, HasCancel<RT>
+            where RT : struct
             where H : IDisposable =>
             EffMaybe<RT, R>(env =>
                              {
@@ -147,7 +147,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static Eff<RT, R> use<RT, H, R>(Eff<RT, H> Acq, Func<H, Eff<R>> Use)
-            where RT : struct, HasCancel<RT>
+            where RT : struct
             where H : IDisposable =>
             EffMaybe<RT, R>(env =>
                              {
@@ -169,7 +169,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static Eff<RT, R> use<RT, H, R>(Eff<RT, H> Acq, Func<H, Eff<RT, R>> Use)
-            where RT : struct, HasCancel<RT>
+            where RT : struct
             where H : IDisposable =>
             EffMaybe<RT, R>(env =>
                              {

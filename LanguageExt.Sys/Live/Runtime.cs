@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.Threading;
+using System.Diagnostics;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Sys.Traits;
 using static LanguageExt.Prelude;
