@@ -23,7 +23,7 @@ namespace LanguageExt.SysX.Diag
         /// </summary>
         /// <param name="operation">The operation to whose activity will be traced</param>
         /// <param name="name">The operation name of the activity.</param>
-        /// <returns>The created activity object, if it had active listeners, or null if it has no event listeners.</returns>
+        /// <returns>The result of the `operation`</returns>
         public static Eff<RT, A> span<A>(string name, Eff<RT, A> operation) =>
             span(name, ActivityKind.Internal, default, default, DateTimeOffset.Now, operation);
         
@@ -33,7 +33,7 @@ namespace LanguageExt.SysX.Diag
         /// </summary>
         /// <param name="operation">The operation to whose activity will be traced</param>
         /// <param name="name">The operation name of the activity.</param>
-        /// <returns>The created activity object, if it had active listeners, or null if it has no event listeners.</returns>
+        /// <returns>The result of the `operation`</returns>
         public static Aff<RT, A> span<A>(string name, Aff<RT, A> operation) =>
             span(name, ActivityKind.Internal, default, default, DateTimeOffset.Now, operation);
             
@@ -44,7 +44,7 @@ namespace LanguageExt.SysX.Diag
         /// <param name="operation">The operation to whose activity will be traced</param>
         /// <param name="name">The operation name of the activity.</param>
         /// <param name="kind">The activity kind.</param>
-        /// <returns>The created activity object, if it had active listeners, or null if it has no event listeners.</returns>
+        /// <returns>The result of the `operation`</returns>
         public static Eff<RT, A> span<A>(string name, ActivityKind kind, Eff<RT, A> operation) =>
             span(name, kind, default, default, DateTimeOffset.Now, operation);
         
@@ -55,7 +55,7 @@ namespace LanguageExt.SysX.Diag
         /// <param name="operation">The operation to whose activity will be traced</param>
         /// <param name="name">The operation name of the activity.</param>
         /// <param name="kind">The activity kind.</param>
-        /// <returns>The created activity object, if it had active listeners, or null if it has no event listeners.</returns>
+        /// <returns>The result of the `operation`</returns>
         public static Aff<RT, A> span<A>(string name, ActivityKind kind, Aff<RT, A> operation) =>
             span(name, kind, default, default, DateTimeOffset.Now, operation);
             
@@ -67,7 +67,7 @@ namespace LanguageExt.SysX.Diag
         /// <param name="name">The operation name of the activity.</param>
         /// <param name="kind">The activity kind.</param>
         /// <param name="tags">The optional tags list to initialise the created activity object with.</param>
-        /// <returns>The created activity object, if it had active listeners, or null if it has no event listeners.</returns>
+        /// <returns>The result of the `operation`</returns>
         public static Eff<RT, A> span<A>(string name, ActivityKind kind, HashMap<string, object> tags, Eff<RT, A> operation) =>
             span(name, kind, tags, default, DateTimeOffset.Now, operation);
         
@@ -79,7 +79,7 @@ namespace LanguageExt.SysX.Diag
         /// <param name="name">The operation name of the activity.</param>
         /// <param name="kind">The activity kind.</param>
         /// <param name="tags">The optional tags list to initialise the created activity object with.</param>
-        /// <returns>The created activity object, if it had active listeners, or null if it has no event listeners.</returns>
+        /// <returns>The result of the `operation`</returns>
         public static Aff<RT, A> span<A>(string name, ActivityKind kind, HashMap<string, object> tags, Aff<RT, A> operation) =>
             span(name, kind, tags, default, DateTimeOffset.Now, operation);
                     
@@ -95,7 +95,7 @@ namespace LanguageExt.SysX.Diag
         /// <param name="tags">The optional tags list to initialise the created activity object with.</param>
         /// <param name="links">The optional `ActivityLink` list to initialise the created activity object with.</param>
         /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
-        /// <returns>The created activity object, if it had active listeners, or null if it has no event listeners.</returns>
+        /// <returns>The result of the `operation`</returns>
         public static Eff<RT, A> span<A>(
             string name, 
             ActivityKind kind, 
@@ -125,7 +125,7 @@ namespace LanguageExt.SysX.Diag
         /// <param name="tags">The optional tags list to initialise the created activity object with.</param>
         /// <param name="links">The optional `ActivityLink` list to initialise the created activity object with.</param>
         /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
-        /// <returns>The created activity object, if it had active listeners, or null if it has no event listeners.</returns>
+        /// <returns>The result of the `operation`</returns>
         public static Aff<RT, A> span<A>(
             string name, 
             ActivityKind kind, 
@@ -153,7 +153,7 @@ namespace LanguageExt.SysX.Diag
         /// <param name="tags">The optional tags list to initialise the created activity object with.</param>
         /// <param name="links">The optional `ActivityLink` list to initialise the created activity object with.</param>
         /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
-        /// <returns>The created activity object, if it had active listeners, or null if it has no event listeners.</returns>
+        /// <returns>The result of the `operation`</returns>
         static Eff<RT, A> span<A>(
             string name,
             ActivityKind kind,
@@ -185,7 +185,7 @@ namespace LanguageExt.SysX.Diag
         /// <param name="tags">The optional tags list to initialise the created activity object with.</param>
         /// <param name="links">The optional `ActivityLink` list to initialise the created activity object with.</param>
         /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
-        /// <returns>The created activity object, if it had active listeners, or null if it has no event listeners.</returns>
+        /// <returns>The result of the `operation`</returns>
         static Aff<RT, A> span<A>(
             string name,
             ActivityKind kind,

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
-using static LanguageExt.Prelude;
-using LanguageExt.SysX.Diag;
-using LanguageExt.SysX.Live;
 using LanguageExt;
 using LanguageExt.Sys;
+using LanguageExt.SysX.Diag;
+using LanguageExt.SysX.Live;
+using static LanguageExt.Prelude;
 
 namespace TestBed
 {
@@ -29,7 +28,6 @@ namespace TestBed
             };
 
             ActivitySource.AddActivityListener(listener);
- 
             var activitySource = new ActivitySource("what?!");
             
             await Start(activitySource);
