@@ -14,6 +14,7 @@ namespace TestBed
     {
         public static void Run()
         {
+            Issue1028_Alt().Wait();
             Issue1028();
         }
 
@@ -64,5 +65,65 @@ namespace TestBed
 
             var r = q.Run(Runtime.New());
         }
+        
+        public static async Task Issue1028_Alt()
+        {
+            Console.WriteLine(Assembly.GetExecutingAssembly().GetName().Name);
+
+            using var listener = new ActivityListener
+            {
+                ShouldListenTo = _ => true,
+                Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+                ActivityStarted = activity => Console.WriteLine($"{activity.ParentId}:{activity.Id} - Start"),
+                ActivityStopped = activity => Console.WriteLine($"{activity.ParentId}:{activity.Id} - Stop")
+            };
+            ActivitySource.AddActivityListener(listener);
+            var src = new ActivitySource("what?!");
+
+            var q = span("outer", src,
+                from d in delay(1)
+                from n in operationName 
+                from _ in writeLine(n)
+                from rs in span<Unit>("inner", src,
+                    from n in operationName 
+                    from _ in writeLine(n)
+                    select unit)
+                select rs);
+
+            var r = await q.Run();
+        }
+
+        public static Aff<A> span<A>(string name, ActivitySource? src, Aff<A> ma) =>
+            AffMaybe(async () =>
+            {
+                var act = Activity.Current is null
+                    ? src?.StartActivity(name)
+                    : src?.StartActivity(name, ActivityKind.Internal, Activity.Current.Context);
+                
+                using (act)
+                {
+                    return await ma.Run().ConfigureAwait(false);
+                }
+            });
+
+        public static Eff<Activity?> current =>
+            Eff(() => Activity.Current);
+
+        public static Eff<string?> operationName =>
+            current.Map(a => a?.OperationName);
+
+        public static Aff<Unit> delay(int ms) =>
+            Aff(async () =>
+            {
+                await Task.Delay(ms);
+                return unit;
+            });
+
+        public static Eff<Unit> writeLine(string line) =>
+            Eff(() =>
+            {
+                Console.WriteLine(line);
+                return unit;
+            });
     }
 }
