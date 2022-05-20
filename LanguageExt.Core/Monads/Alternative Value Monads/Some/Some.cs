@@ -35,6 +35,7 @@ namespace LanguageExt
     [Serializable]
     public readonly struct Some<A> : 
         IEnumerable<A>,
+        IEquatable<Some<A>>,
         IOptional
     {
         readonly A value;
@@ -113,8 +114,12 @@ namespace LanguageExt
             Value.GetHashCode();
 
         [Pure]
+        public bool Equals(Some<A> other) =>
+            Value.Equals(other.Value);
+
+        [Pure]
         public override bool Equals(object obj) =>
-            Value.Equals(obj);
+            obj is Some<A> a && Equals(a);
 
         [Pure]
         public bool IsSome =>
