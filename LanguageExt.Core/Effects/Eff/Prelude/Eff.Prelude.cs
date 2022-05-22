@@ -99,9 +99,9 @@ namespace LanguageExt
         /// <param name="ma">IO monad to run in the new context</param>
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<OuterRT, A> localEff<OuterRT, InnerRT, A>(Func<OuterRT, InnerRT> f, Eff<InnerRT, A> ma) 
-            where InnerRT : struct, HasCancel<InnerRT> 
-            where OuterRT : struct, HasCancel<OuterRT> =>
-            new Eff<OuterRT, A>(Thunk<OuterRT, A>.Lazy(oenv => ma.Thunk.Value(f(oenv))));
+            where InnerRT : struct 
+            where OuterRT : struct =>
+            new (oenv => ma.Thunk(f(oenv)));
 
         /// <summary>
         /// Unit effect

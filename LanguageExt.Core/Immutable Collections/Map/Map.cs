@@ -12,8 +12,8 @@ using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
-    public delegate B WhenMissing<K, A, B>(K key, A value);
-    public delegate C WhenMatched<K, A, B, C>(K key, A left, B right);
+    public delegate B WhenMissing<in K, in A, out B>(K key, A value);
+    public delegate C WhenMatched<in K, in A, in B, out C>(K key, A left, B right);
 
     /// <summary>
     /// Immutable map

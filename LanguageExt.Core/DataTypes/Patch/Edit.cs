@@ -86,7 +86,7 @@ namespace LanguageExt
             public override Edit<EqA, A> MapOld(Func<A, A> f) => this;
             public override Edit<EqA, A> MapNew(Func<A, A> f) => new Insert(Position, f(Element));
             public bool Equals(Insert other) => base.Equals(other);
-            public override bool Equals(object obj) => obj is Insert ins ? Equals(ins) : false;
+            public override bool Equals(object obj) => obj is Insert ins && Equals(ins);
             public static bool operator ==(Insert a, Insert b) => a.Equals(b);
             public static bool operator !=(Insert a, Insert b) => !(a == b);
             public override int GetHashCode() => (Position + 13) * (Element.GetHashCode() + 7);
@@ -104,7 +104,7 @@ namespace LanguageExt
             public override Edit<EqA, A> MapOld(Func<A, A> f) => new Delete(Position, f(Element));
             public override Edit<EqA, A> MapNew(Func<A, A> f) => this;
             public bool Equals(Delete other) => base.Equals(other);
-            public override bool Equals(object obj) => obj is Delete del ? Equals(del) : false;
+            public override bool Equals(object obj) => obj is Delete del && Equals(del);
             public static bool operator ==(Delete a, Delete b) => a.Equals(b);
             public static bool operator !=(Delete a, Delete b) => !(a == b);
             public override int GetHashCode() => (Position + 13) * (Element.GetHashCode() + 7);
@@ -126,7 +126,7 @@ namespace LanguageExt
             public bool Equals(Replace other) =>
                 ReferenceEquals(this, other) ||
                 (base.Equals(other) && default(EqA).Equals(ReplaceElement, other.ReplaceElement));
-            public override bool Equals(object obj) => obj is Replace repl ? Equals(repl) : false;
+            public override bool Equals(object obj) => obj is Replace repl && Equals(repl);
             public static bool operator ==(Replace a, Replace b) => a.Equals(b);
             public static bool operator !=(Replace a, Replace b) => !(a == b);
             public override int GetHashCode() => (Position + 13) * (Element.GetHashCode() + 17) * (ReplaceElement.GetHashCode() + 7);

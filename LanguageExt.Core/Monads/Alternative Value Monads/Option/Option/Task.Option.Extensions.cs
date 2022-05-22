@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using static LanguageExt.OptionalAsync;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
@@ -12,7 +13,9 @@ using System.Collections.Generic;
 public static class TaskOptionAsyncExtensions
 {
     public static OptionAsync<A> ToAsync<A>(this Task<Option<A>> ma) =>
+        #nullable disable
         new OptionAsync<A>(ma.Map(a => (a.IsSome, a.Value)));
+        #nullable enable
 
     /// <summary>
     /// Projection from one value to another 
@@ -159,7 +162,9 @@ public static class TaskOptionAsyncExtensions
     /// <returns>An Either representation of the structure</returns>
     [Pure]
     public static EitherAsync<L, A> ToEitherAsync<L, A>(this Task<Option<A>> self, Func<L> Left) =>
+        #nullable disable
         toEitherAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(new OptionAsync<A>(self.Map(x => (x.IsSome, x.Value))), Left);
+        #nullable enable
 
     /// <summary>
     /// Convert the structure to an EitherUnsafe
@@ -167,8 +172,10 @@ public static class TaskOptionAsyncExtensions
     /// <param name="defaultLeftValue">Default value if the structure is in a None state</param>
     /// <returns>An EitherUnsafe representation of the structure</returns>
     [Pure]
-    public static Task<EitherUnsafe<L, A>> ToEitherUnsafeAsync<L, A>(this Task<Option<A>> self, L defaultLeftValue) =>
+    public static Task<EitherUnsafe<L, A>> ToEitherUnsafeAsync<L, A>(this Task<Option<A>> self, L? defaultLeftValue) =>
+        #nullable disable
         toEitherUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(new OptionAsync<A>(self.Map(x => (x.IsSome, x.Value))), defaultLeftValue);
+        #nullable enable
 
     /// <summary>
     /// Convert the structure to an EitherUnsafe
@@ -177,8 +184,10 @@ public static class TaskOptionAsyncExtensions
     /// structure is in a None state</param>
     /// <returns>An EitherUnsafe representation of the structure</returns>
     [Pure]
-    public static Task<EitherUnsafe<L, A>> ToEitherUnsafeAsync<L, A>(this Task<Option<A>> self, Func<L> Left) =>
+    public static Task<EitherUnsafe<L, A>> ToEitherUnsafeAsync<L, A>(this Task<Option<A>> self, Func<L?> Left) =>
+        #nullable disable
         toEitherUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, L, A>(self.ToAsync(), Left);
+        #nullable enable
 
     /// <summary>
     /// Convert the structure to a OptionUnsafe
@@ -256,7 +265,7 @@ public static class TaskOptionAsyncExtensions
     /// <param name="None">None match operation. May return null.</param>
     /// <returns>B, or null</returns>
     [Pure]
-    public static Task<B> MatchUnsafe<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<B> None) =>
+    public static Task<B?> MatchUnsafe<A, B>(this Task<Option<A>> self, Func<A, B?> Some, Func<B?> None) =>
         MOptionAsync<A>.Inst.MatchUnsafe(self.ToAsync(), Some, None);
 
     /// <summary>
@@ -267,7 +276,7 @@ public static class TaskOptionAsyncExtensions
     /// <param name="None">None match operation. May return null.</param>
     /// <returns>B, or null</returns>
     [Pure]
-    public static Task<B> MatchUnsafeAsync<A, B>(this Task<Option<A>> self, Func<A, Task<B>> Some, Func<B> None) =>
+    public static Task<B?> MatchUnsafeAsync<A, B>(this Task<Option<A>> self, Func<A, Task<B?>> Some, Func<B?> None) =>
         MOptionAsync<A>.Inst.MatchUnsafeAsync(self.ToAsync(), Some, None);
 
     /// <summary>
@@ -278,7 +287,7 @@ public static class TaskOptionAsyncExtensions
     /// <param name="None">None match operation. May return null.</param>
     /// <returns>B, or null</returns>
     [Pure]
-    public static Task<B> MatchUnsafeAsync<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<Task<B>> None) =>
+    public static Task<B?> MatchUnsafeAsync<A, B>(this Task<Option<A>> self, Func<A, B?> Some, Func<Task<B?>> None) =>
         MOptionAsync<A>.Inst.MatchUnsafeAsync(self.ToAsync(), Some, None);
 
     /// <summary>
@@ -289,7 +298,7 @@ public static class TaskOptionAsyncExtensions
     /// <param name="None">None match operation. May return null.</param>
     /// <returns>B, or null</returns>
     [Pure]
-    public static Task<B> MatchUnsafeAsync<A, B>(this Task<Option<A>> self, Func<A, Task<B>> Some, Func<Task<B>> None) =>
+    public static Task<B?> MatchUnsafeAsync<A, B>(this Task<Option<A>> self, Func<A, Task<B?>> Some, Func<Task<B?>> None) =>
         MOptionAsync<A>.Inst.MatchUnsafeAsync(self.ToAsync(), Some, None);
 
     /// <summary>
@@ -376,8 +385,10 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Tesult of invoking the None() operation if the optional 
     /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
     [Pure]
-    public static Task<A> IfNoneUnsafeAsync<A>(this Task<Option<A>> self, Func<A> None) =>
+    public static Task<A?> IfNoneUnsafeAsync<A>(this Task<Option<A>> self, Func<A?> None) =>
+        #nullable disable
         OptionalUnsafeAsync.ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), None);
+        #nullable enable
 
     /// <summary>
     /// Returns the result of invoking the None() operation if the optional 
@@ -388,8 +399,10 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Tesult of invoking the None() operation if the optional 
     /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
     [Pure]
-    public static Task<A> IfNoneUnsafeAsync<A>(this Task<Option<A>> self, Func<Task<A>> None) =>
+    public static Task<A?> IfNoneUnsafeAsync<A>(this Task<Option<A>> self, Func<Task<A?>> None) =>
+        #nullable disable
         OptionalUnsafeAsync.ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), None);
+        #nullable enable
 
     /// <summary>
     /// Returns the noneValue if the optional is in a None state, otherwise
@@ -400,8 +413,10 @@ public static class TaskOptionAsyncExtensions
     /// <returns>noneValue if the optional is in a None state, otherwise
     /// the bound Some(x) value is returned</returns>
     [Pure]
-    public static Task<A> IfNoneUnsafeAsync<A>(this Task<Option<A>> self, A noneValue) =>
+    public static Task<A?> IfNoneUnsafeAsync<A>(this Task<Option<A>> self, A? noneValue) =>
+        #nullable disable
         OptionalUnsafeAsync.ifNoneUnsafeAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), noneValue);
+        #nullable enable
 
     /// <summary>
     /// <para>

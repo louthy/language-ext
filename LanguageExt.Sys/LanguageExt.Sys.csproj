@@ -4,13 +4,13 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>default</LangVersion>
 
-        <PackageVersion>4.0.3</PackageVersion>
+        <PackageVersion>4.1.1</PackageVersion>
         <PackageId>LanguageExt.Sys</PackageId>
         <Title>LanguageExt.Sys</Title>
         <Authors>Paul Louth</Authors>
         <Summary>BCL System namespace wrapped up into Aff and Eff effects for controlled functional side-effects in C#</Summary>
         <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
-        <Description>This library uses and abuses the features of C# to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself.</Description>
+        <Description>Extensions to language-ext effects system that wraps the IO behaviours from the .NET BCL</Description>
         <PackageTags>C#, Functional, Language Extension, Aff, Eff, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
         <PackageIcon>lang-ext-small.png</PackageIcon>
         <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>

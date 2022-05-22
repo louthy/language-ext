@@ -22,7 +22,7 @@ namespace LanguageExt
    
                     while (true)
                     {
-                        var ra = ma.ReRun(env);
+                        var ra = ma.Run(env);
                         var (cont, value) = map(ra);
                         state = value.IsSucc ? fold(state, (A)value) : state;
                         
@@ -84,14 +84,14 @@ namespace LanguageExt
             EffMaybe<S>(
                 () =>
                 {
-                    var repeats  = schedule.Repeats;
+                    var repeats  = schedule.Repeats.Map(static r => r - 1);
                     var spacing0 = schedule.Spacing;
                     var spacing1 = schedule.Spacing;
                     var wait     = spacing1.IsSome ? new AutoResetEvent(false) : null;
    
                     while (true)
                     {
-                        var ra = ma.ReRun();
+                        var ra = ma.Run();
                         var (cont, value) = map(ra);
                         state = value.IsSucc ? fold(state, (A)value) : state;
                         

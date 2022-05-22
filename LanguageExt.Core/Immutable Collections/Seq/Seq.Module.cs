@@ -185,8 +185,9 @@ namespace LanguageExt
             list.Select(map);
 
         /// <summary>
-        /// Projects the values in the sequence using a map function into a new sequence (Select in LINQ).
-        /// An index value is passed through to the map function also.
+        /// Projects the values in the sequence into a new sequnce using a map function, which is also given an index value
+        /// (Select in LINQ - note that the order of the arguments of the map function are the other way around, here the index
+        /// is the first argument).
         /// </summary>
         /// <typeparam name="A">sequence item type</typeparam>
         /// <typeparam name="B">Return sequence item type</typeparam>

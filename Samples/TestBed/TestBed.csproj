@@ -6,6 +6,7 @@
         <LangVersion>default</LangVersion>
         <StartupObject>Program</StartupObject>
         <RoslynCodeGenVersion>0.6.1</RoslynCodeGenVersion>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,6 +24,13 @@
         <ProjectReference Include="..\..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
         <ProjectReference Include="..\..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />
         <ProjectReference Include="..\..\LanguageExt.Rx\LanguageExt.Rx.csproj" />
+        <ProjectReference Include="..\..\LanguageExt.SysX\LanguageExt.SysX.csproj" />
         <ProjectReference Include="..\..\LanguageExt.Sys\LanguageExt.Sys.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="AtomHashMapTests.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
     </ItemGroup>
 </Project>

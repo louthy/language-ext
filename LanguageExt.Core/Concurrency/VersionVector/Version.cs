@@ -1,15 +1,8 @@
 #nullable enable
 using System;
-using System.Linq;
-using System.Threading;
-using System.Collections;
-using System.ComponentModel;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
@@ -165,7 +158,7 @@ namespace LanguageExt
     /// <typeparam name="Actor">Actor type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
     internal record VersionValueVector<ConflictV, OrdActor, Actor, K, V>(K Key, VersionVector<ConflictV, OrdActor, TLong, Actor, long, V> Vector) : 
-        VersionSome<Actor, K, V>(Key, Vector.Value.Value)
+        VersionSome<Actor, K, V>(Key, Vector.Value.Value ?? throw new ArgumentNullException(nameof(Vector.Value.Value)))
         where OrdActor : struct, Ord<Actor>
         where ConflictV : struct, Conflict<V>
     {

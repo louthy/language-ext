@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using static LanguageExt.Optional;
@@ -42,7 +44,7 @@ namespace LanguageExt
         IComparable,
         ISerializable
     {
-        internal readonly A Value;
+        internal readonly A? Value;
         internal readonly bool isSome;
 
         /// <summary>
@@ -61,22 +63,21 @@ namespace LanguageExt
         public static Option<A> Some(A value) =>
             isnull(value)
                 ? throw new ValueIsNullException()
-                : new Option<A>(value, true);
+                : new Option<A>(value);
 
         /// <summary>
         /// Constructor
         /// </summary>
-        internal Option(A value, bool isSome)
+        internal Option(A value)
         {
             Value = value;
-            this.isSome = isSome;
+            this.isSome = true;
         }
 
         /// <summary>
         /// Ctor that facilitates serialisation
         /// </summary>
         /// <param name="option">None or Some A.</param>
-        [Pure]
         public Option(IEnumerable<A> option)
         {
             var first = option.Take(1).ToArray();
@@ -86,7 +87,6 @@ namespace LanguageExt
                 : default;
         }
 
-        [Pure]
         Option(SerializationInfo info, StreamingContext context)
         {
             isSome = (bool)info.GetValue("IsSome", typeof(bool));
@@ -116,9 +116,9 @@ namespace LanguageExt
         ///
         /// </remarks>
         [Pure]
-        public object Case =>
+        public object? Case =>
             IsSome
-                ? (object)Value
+                ? Value
                 : null;
 
         /// <summary>
@@ -150,7 +150,9 @@ namespace LanguageExt
             var yIsSome = other.IsSome;
             var xIsNone = !isSome;
             var yIsNone = !yIsSome;
+            #nullable disable
             return (xIsNone && yIsNone) || (isSome && yIsSome && default(EqA).Equals(Value, other.Value));
+            #nullable enable
         }
 
         /// <summary>
@@ -179,9 +181,11 @@ namespace LanguageExt
 
             if (xIsNone && yIsNone) return 0;
             if (isSome && yIsNone) return 1;
-            if (xIsNone && yIsSome) return -1;
+            if (xIsNone) return -1;
 
+            #nullable disable
             return default(OrdA).Compare(Value, other.Value);
+            #nullable enable
         }
 
         /// <summary>
@@ -191,9 +195,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static explicit operator A(Option<A> ma) =>
+            #nullable disable
             ma.IsSome
                 ? ma.Value
                 : throw new InvalidCastException("Option is not in a Some state");
+            #nullable enable
 
         /// <summary>
         /// Implicit conversion operator from A to Option<A>
@@ -201,7 +207,7 @@ namespace LanguageExt
         /// <param name="a">Unit value</param>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Option<A>(A a) =>
+        public static implicit operator Option<A>(A? a) =>
             Optional(a);
 
         /// <summary>
@@ -351,7 +357,7 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             isSome 
-                ? Value.GetHashCode() 
+                ? Value?.GetHashCode() ?? 0 
                 : 0;
         
         [Pure]
@@ -366,7 +372,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString() =>
             isSome
-                ? $"Some({Value.ToString()})"
+                ? $"Some({Value?.ToString() ?? ""})"
                 : "None";
 
         /// <summary>
@@ -405,9 +411,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> Select<B>(Func<A, B> f) =>
+            #nullable disable
             isSome
                 ? Option<B>.Some(f(Value))
                 : default;
+            #nullable enable
 
         /// <summary>
         /// Projection from one value to another 
@@ -418,9 +426,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> Map<B>(Func<A, B> f) =>
+            #nullable disable
             isSome
                 ? Option<B>.Some(f(Value))
                 : default;
+            #nullable enable
 
         /// <summary>
         /// Monad bind operation
@@ -428,9 +438,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> Bind<B>(Func<A, Option<B>> f) =>
+            #nullable disable
             isSome
                 ? f(Value)
                 : default;
+            #nullable enable
 
         /// <summary>
         /// Bi-bind.  Allows mapping of both monad states
@@ -438,9 +450,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> BiBind<B>(Func<A, Option<B>> Some, Func<Option<B>> None) =>
+            #nullable disable
             isSome
                 ? Some(Value)
                 : None();
+            #nullable enable
 
         /// <summary>
         /// Monad bind operation
@@ -451,10 +465,12 @@ namespace LanguageExt
             Func<A, Option<B>> bind,
             Func<A, B, C> project)
         {
+            #nullable disable
             if (IsNone) return default;
             var mb = bind(Value);
             if (mb.IsNone) return default;
             return Check.NullReturn(project(Value, mb.Value));
+            #nullable enable
         }
 
         /// <summary>
@@ -480,8 +496,10 @@ namespace LanguageExt
         /// <returns>The result of the match operation</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public R MatchUntypedUnsafe<R>(Func<object, R> Some, Func<R> None) =>
+        public R MatchUntypedUnsafe<R>(Func<object, R?> Some, Func<R?> None) =>
+            #nullable disable
             matchUntypedUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A, R>(ToOptionUnsafe(), Some, None);
+            #nullable enable
 
         /// <summary>
         /// Get the Type of the bound value
@@ -499,9 +517,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Arr<A> ToArray() =>
+            #nullable disable
             isSome
                 ? Arr.create(Value)
                 : Empty;
+            #nullable enable
 
         /// <summary>
         /// Convert the Option to an immutable list of zero or one items
@@ -510,9 +530,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Lst<A> ToList() =>
+            #nullable disable
             isSome
                 ? List.create(Value)
                 : Empty;
+            #nullable enable
 
         /// <summary>
         /// Convert the Option to an enumerable sequence of zero or one items
@@ -521,9 +543,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> ToSeq() =>
+            #nullable disable
             isSome
                 ? Seq1(Value)
                 : Empty;
+            #nullable enable
 
         /// <summary>
         /// Convert the Option to an enumerable of zero or one items
@@ -537,9 +561,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Validation<FAIL, A> ToValidation<FAIL>(FAIL defaultFailureValue) =>
+            #nullable disable
             isSome
                 ? Success<FAIL, A>(Value)
                 : Fail<FAIL, A>(defaultFailureValue);
+            #nullable enable
         
         /// <summary>
         /// Convert the structure to an Eff
@@ -558,9 +584,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Eff<A> ToEff(Error Fail) =>
+            #nullable disable
             isSome
                 ? SuccessEff<A>(Value)
                 : FailEff<A>(Fail);
+            #nullable enable
         
         /// <summary>
         /// Convert the structure to an Aff
@@ -579,9 +607,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Aff<A> ToAff(Error Fail) =>
+            #nullable disable
             isSome
                 ? SuccessAff<A>(Value)
                 : FailAff<A>(Fail);
+            #nullable enable
 
         /// <summary>
         /// Convert the structure to a Fin
@@ -600,9 +630,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Fin<A> ToFin(Error Fail) =>
+            #nullable disable
             isSome
                 ? FinSucc<A>(Value)
                 : FinFail<A>(Fail);
+            #nullable enable
 
         /// <summary>
         /// Convert the structure to an Either
@@ -612,9 +644,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Either<L, A> ToEither<L>(L defaultLeftValue) =>
+            #nullable disable
             isSome
                 ? Right<L, A>(Value)
                 : Left<L, A>(defaultLeftValue);
+            #nullable enable
 
         /// <summary>
         /// Convert the structure to an Either
@@ -625,9 +659,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Either<L, A> ToEither<L>(Func<L> Left) =>
+            #nullable disable
             isSome
                 ? Right<L, A>(Value)
                 : Left<L, A>(Left());
+            #nullable enable
 
         /// <summary>
         /// Convert the structure to an EitherUnsafe
@@ -636,10 +672,12 @@ namespace LanguageExt
         /// <returns>An EitherUnsafe representation of the structure</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EitherUnsafe<L, A> ToEitherUnsafe<L>(L defaultLeftValue) =>
+        public EitherUnsafe<L, A> ToEitherUnsafe<L>(L? defaultLeftValue) =>
+            #nullable disable
             isSome
                 ? RightUnsafe<L, A>(Value)
                 : LeftUnsafe<L, A>(defaultLeftValue);
+            #nullable enable
 
         /// <summary>
         /// Convert the structure to an EitherUnsafe
@@ -649,10 +687,12 @@ namespace LanguageExt
         /// <returns>An EitherUnsafe representation of the structure</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EitherUnsafe<L, A> ToEitherUnsafe<L>(Func<L> Left) =>
+        public EitherUnsafe<L, A> ToEitherUnsafe<L>(Func<L?> Left) =>
+            #nullable disable
             isSome
                 ? RightUnsafe<L, A>(Value)
                 : LeftUnsafe<L, A>(Left());
+            #nullable enable
 
         /// <summary>
         /// Convert the structure to a OptionUnsafe
@@ -661,9 +701,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public OptionUnsafe<A> ToOptionUnsafe() =>
+            #nullable disable
             isSome
                 ? OptionUnsafe<A>.Some(Value)
                 : default;
+            #nullable enable
 
         /// <summary>
         /// Convert the structure to a TryOption
@@ -684,7 +726,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SomeUnitContext<MOption<A>, Option<A>, A> Some(Action<A> f) =>
-            new SomeUnitContext<MOption<A>, Option<A>, A>(this, f);
+            new (this, f);
 
         /// <summary>
         /// Fluent pattern matching.  Provide a Some handler and then follow
@@ -698,7 +740,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SomeContext<MOption<A>, Option<A>, A, B> Some<B>(Func<A, B> f) =>
-            new SomeContext<MOption<A>, Option<A>, A, B>(this, f);
+            new (this, f);
 
         /// <summary>
         /// Match the two states of the Option and return a non-null R.
@@ -710,10 +752,12 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B Match<B>(Func<A, B> Some, Func<B> None) =>
+            #nullable disable
             Check.NullReturn(
                 isSome
                     ? Some(Value)
                     : None());
+            #nullable enable
 
         /// <summary>
         /// Match the two states of the Option and return a non-null R.
@@ -725,10 +769,12 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public B Match<B>(Func<A, B> Some, B None) =>
+            #nullable disable
             Check.NullReturn(
                 isSome
                     ? Some(Value)
                     : None);
+            #nullable enable
 
         /// <summary>
         /// Match the two states of the Option and return a B, which can be null.
@@ -739,10 +785,12 @@ namespace LanguageExt
         /// <returns>B, or null</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public B MatchUnsafe<B>(Func<A, B> Some, Func<B> None) =>
+        public B? MatchUnsafe<B>(Func<A, B?> Some, Func<B?> None) =>
+            #nullable disable
             isSome
                 ? Some(Value)
                 : None();
+            #nullable enable
 
         /// <summary>
         /// Match the two states of the Option and return a B, which can be null.
@@ -753,10 +801,12 @@ namespace LanguageExt
         /// <returns>B, or null</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public B MatchUnsafe<B>(Func<A, B> Some, B None) =>
+        public B? MatchUnsafe<B>(Func<A, B?> Some, B? None) =>
+            #nullable disable
             isSome
                 ? Some(Value)
                 : None;
+            #nullable enable
 
         /// <summary>
         /// Match the two states of the Option
@@ -768,7 +818,9 @@ namespace LanguageExt
         {
             if(isSome)
             {
+                #nullable disable
                 Some(Value);
+                #nullable enable
             }
             else
             {
@@ -786,7 +838,9 @@ namespace LanguageExt
         {
             if(isSome)
             {
+                #nullable disable
                 f(Value);
+                #nullable enable
             }
             return default;
         }
@@ -801,7 +855,9 @@ namespace LanguageExt
         {
             if (isSome)
             {
+                #nullable disable
                 f(Value);
+                #nullable enable
             }
             return default;
         }
@@ -812,14 +868,16 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>Will not accept a null return value from the None operation</remarks>
         /// <param name="None">Operation to invoke if the structure is in a None state</param>
-        /// <returns>Tesult of invoking the None() operation if the optional 
+        /// <returns>Result of invoking the None() operation if the optional 
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public A IfNone(Func<A> None) =>
+            #nullable disable
             isSome
                 ? Value
                 : Check.NullReturn(None());
+            #nullable enable
 
 
         /// <summary>
@@ -843,9 +901,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public A IfNone(A noneValue) =>
+            #nullable disable
             isSome
                 ? Value
                 : Check.NullReturn(noneValue);
+            #nullable enable
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 
@@ -853,11 +913,11 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>Will allow null the be returned from the None operation</remarks>
         /// <param name="None">Operation to invoke if the structure is in a None state</param>
-        /// <returns>Tesult of invoking the None() operation if the optional 
+        /// <returns>Result of invoking the None() operation if the optional 
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public A IfNoneUnsafe(Func<A> None) =>
+        public A? IfNoneUnsafe(Func<A?> None) =>
             isSome
                 ? Value
                 : None();
@@ -872,7 +932,7 @@ namespace LanguageExt
         /// the bound Some(x) value is returned</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public A IfNoneUnsafe(A noneValue) =>
+        public A? IfNoneUnsafe(A? noneValue) =>
             isSome
                 ? Value
                 : noneValue;
@@ -900,9 +960,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S Fold<S>(S state, Func<S, A, S> folder) =>
+            #nullable disable
             isSome
                 ? folder(state, Value)
                 : state;
+            #nullable enable
 
         /// <summary>
         /// <para>
@@ -927,9 +989,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S FoldBack<S>(S state, Func<S, A, S> folder) =>
+            #nullable disable
             isSome
                 ? folder(state, Value)
                 : state;
+            #nullable enable
 
         /// <summary>
         /// <para>
@@ -955,9 +1019,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, Unit, S> None) =>
+            #nullable disable
             isSome
                 ? Some(state, Value)
                 : None(state, unit);
+            #nullable enable
 
         /// <summary>
         /// <para>
@@ -983,9 +1049,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, S> None) =>
+            #nullable disable
             isSome
                 ? Some(state, Value)
                 : None(state);
+            #nullable enable
 
         /// <summary>
         /// Projection from one value to another
@@ -997,10 +1065,12 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> BiMap<B>(Func<A, B> Some, Func<Unit, B> None) =>
+            #nullable disable
             Check.NullReturn(
                 isSome
                     ? Some(Value)
                     : None(unit));
+            #nullable enable
 
         /// <summary>
         /// Projection from one value to another
@@ -1012,10 +1082,12 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> BiMap<B>(Func<A, B> Some, Func<B> None) =>
+            #nullable disable
             Check.NullReturn(
                 isSome
                     ? Some(Value)
                     : None());
+            #nullable enable
 
         /// <summary>
         /// <para>
@@ -1048,9 +1120,9 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ForAll(Func<A, bool> pred) =>
-            isSome
-                ? pred(Value)
-                : true;
+            #nullable disable
+            !isSome || pred(Value);
+            #nullable enable
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -1067,9 +1139,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool BiForAll(Func<A, bool> Some, Func<Unit, bool> None) =>
+            #nullable disable
             isSome
                 ? Some(Value)
                 : None(unit);
+            #nullable enable
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -1086,9 +1160,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool BiForAll(Func<A, bool> Some, Func<bool> None) =>
+            #nullable disable
             isSome
                 ? Some(Value)
                 : None();
+            #nullable enable
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -1103,9 +1179,9 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Exists(Func<A, bool> pred) =>
-            isSome
-                ? pred(Value)
-                : false;
+            #nullable disable
+            isSome && pred(Value);
+            #nullable enable
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -1121,9 +1197,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool BiExists(Func<A, bool> Some, Func<Unit, bool> None) =>
+            #nullable disable
             isSome
                 ? Some(Value)
                 : None(unit);
+            #nullable enable
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -1139,9 +1217,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool BiExists(Func<A, bool> Some, Func<bool> None) =>
+            #nullable disable
             isSome
                 ? Some(Value)
                 : None();
+            #nullable enable
 
         /// <summary>
         /// Invoke an action for the bound value (if in a Some state)
@@ -1152,7 +1232,9 @@ namespace LanguageExt
         {
             if(isSome)
             {
+                #nullable disable
                 Some(Value);
+                #nullable enable
             }
             return unit;
         }
@@ -1167,11 +1249,13 @@ namespace LanguageExt
         {
             if (isSome)
             {
+                #nullable disable
                 Some(Value);
             }
             else
             {
                 None(unit);
+                #nullable enable
             }
             return unit;
         }
@@ -1186,7 +1270,9 @@ namespace LanguageExt
         {
             if (isSome)
             {
+                #nullable disable
                 Some(Value);
+                #nullable enable
             }
             else
             {
@@ -1204,9 +1290,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<A> Filter(Func<A, bool> pred) =>
+            #nullable disable
             isSome && pred(Value)
                 ? this
                 : default;
+            #nullable enable
 
         /// <summary>
         /// Apply a predicate to the bound value (if in a Some state)
@@ -1217,9 +1305,11 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<A> Where(Func<A, bool> pred) =>
+            #nullable disable
             isSome && pred(Value)
                 ? this
                 : default;
+            #nullable enable
 
         /// <summary>
         /// Monadic join

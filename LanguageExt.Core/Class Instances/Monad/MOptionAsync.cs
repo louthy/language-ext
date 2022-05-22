@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct MOptionAsync<A> :
+    public readonly struct MOptionAsync<A> :
         Alternative<OptionAsync<A>, Unit, A>,
         OptionalAsync<OptionAsync<A>, A>,
         OptionalUnsafeAsync<OptionAsync<A>, A>,

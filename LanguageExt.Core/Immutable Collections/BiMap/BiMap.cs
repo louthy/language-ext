@@ -100,7 +100,6 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="range">Range of tuples to add</param>
-        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
@@ -112,7 +111,6 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="range">Range of tuples to add</param>
-        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
@@ -124,7 +122,6 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="range">Range of tuples to add</param>
-        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]

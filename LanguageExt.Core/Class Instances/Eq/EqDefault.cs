@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
@@ -14,7 +15,7 @@ namespace LanguageExt.ClassInstances
     /// falls back to the standard .NET EqualityComparer<A>.Default.Equals(a,b) method to
     /// provide equality testing.
     /// </summary>
-    public struct EqDefault<A> : Eq<A>
+    public readonly struct EqDefault<A> : Eq<A>
     {
         public static readonly EqDefault<A> Inst = default(EqDefault<A>);
 
@@ -49,5 +50,37 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Task<int> GetHashCodeAsync(A x) => 
             default(HashableDefaultAsync<A>).GetHashCodeAsync(x);
+    }
+
+    /// <summary>
+    /// This is a utility type for when two generic types are used, but it's not clear if they
+    /// have the same underlying type.  We'd like to do structural equality if they are, and
+    /// return false if they're not.
+    /// </summary>
+    public static class EqDefault<A, B> 
+    {
+        static readonly Func<A, B, bool> Eq;
+
+        static EqDefault()
+        {
+            Eq = typeof(A).FullName == typeof(B).FullName
+                ? (x, y) => y is A y1 && default(EqDefault<A>).Equals(x, y1)
+                : (_, _) => false;
+        }
+        
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        [Pure]
+        public static bool Equals(A a, B b)
+        {
+            if (isnull(a)) return isnull(b);
+            if (isnull(b)) return false;
+            if (ReferenceEquals(a, b)) return true;
+            return Eq(a, b);
+        }
     }
 }

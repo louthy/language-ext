@@ -26,7 +26,8 @@ namespace LanguageExt
         IEquatable<HashMap<K, V>>,
         IEquatable<AtomHashMap<K, V>>
     {
-        internal volatile TrieMap<EqDefault<K>, K, V> Items;
+        volatile TrieMap<EqDefault<K>, K, V> Items;
+        public event AtomHashMapChangeEvent<K, V>? Change;
 
         /// <summary>
         /// Creates a new atom-hashmap
@@ -101,20 +102,26 @@ namespace LanguageExt
         /// <remarks>Any functions passed as arguments may be run multiple times if there are multiple threads competing
         /// to update this data structure.  Therefore the functions must spend as little time performing the injected
         /// behaviours as possible to avoid repeated attempts</remarks>
-        public Unit Swap(Func<HashMap<K, V>, HashMap<K, V>> swap)
+        /// <remarks>
+        /// NOTE: The change-tracking only works if you transform the `TrackingHashMap` provided to the `Func`.  If you
+        ///       build a fresh one then it won't have any tracking.  You can call `map.Clear()` to get to an empty
+        ///       map, which will also track the removals.
+        /// </remarks>
+        public Unit Swap(Func<TrackingHashMap<K, V>, TrackingHashMap<K, V>> swap)
         {
             SpinWait sw = default;
             while (true)
             {
                 var oitems = Items;
-                var nitems = swap(new HashMap<K, V>(oitems)).Value;
-                if(ReferenceEquals(oitems, nitems))
+                var nitems = swap(new TrackingHashMap<K, V>(oitems));
+                if(ReferenceEquals(oitems, nitems.Value))
                 {
                     // no change
                     return default;
                 }
-                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
+                if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems.Value, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems.Value, nitems.Changes.Value);
                     return default;
                 }
                 else
@@ -140,9 +147,14 @@ namespace LanguageExt
                 var oitems = Items;
                 var ovalue = oitems.Find(key);
                 if (ovalue.IsNone) return unit;
-                var nitems = oitems.SetItem(key, swap((V)ovalue));
+                var nvalue = swap((V)ovalue);
+                var onChange = Change;
+                var (nitems, change) = onChange == null 
+                    ? (oitems.SetItem(key, nvalue), Change<V>.None) 
+                    : oitems.SetItemWithLog(key, nvalue);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return default;
                 }
                 else
@@ -182,13 +194,22 @@ namespace LanguageExt
                 var ovalue = oitems.Find(key);
                 var nvalue = swap(ovalue);
 
-                var nitems = (ovalue.IsSome, nvalue.IsSome) switch
-                             {
-                                 (true, true)   => oitems.SetItem(key, (V)nvalue),
-                                 (true, false)  => oitems.Remove(key),
-                                 (false, true)  => oitems.Add(key, (V)nvalue),
-                                 (false, false) => oitems
-                             };
+                var onChange = Change;
+                var (nitems, change) = onChange == null
+                    ? (ovalue.IsSome, nvalue.IsSome) switch
+                    {
+                        (true, true) => (oitems.SetItem(key, (V)nvalue), Change<V>.None),
+                        (true, false) => (oitems.Remove(key), Change<V>.None),
+                        (false, true) => (oitems.Add(key, (V)nvalue), Change<V>.None),
+                        (false, false) => (oitems, Change<V>.None)
+                    }
+                    : (ovalue.IsSome, nvalue.IsSome) switch
+                    {
+                        (true, true) => oitems.SetItemWithLog(key, (V)nvalue),
+                        (true, false) => oitems.RemoveWithLog(key),
+                        (false, true) => oitems.AddWithLog(key, (V)nvalue),
+                        (false, false) => (oitems, Change<V>.None)
+                    };
                 
                 if(ReferenceEquals(oitems, nitems))
                 {
@@ -197,6 +218,7 @@ namespace LanguageExt
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return default;
                 }
                 else
@@ -229,9 +251,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = oitems.Filter(pred);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Filter(pred), null)
+                    : oitems.FilterWithLog(pred);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -262,9 +288,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = oitems.Filter(pred);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Filter(pred), null)
+                    : oitems.FilterWithLog(pred);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -287,9 +317,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = oitems.Map(f);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Map(f), null)
+                    : oitems.MapWithLog(f);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -320,9 +354,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = oitems.Add(key, value);
+                var onChange = Change;
+                var (nitems, change) = onChange == null
+                    ? (oitems.Add(key, value), null)
+                    : oitems.AddWithLog(key, value);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return default;
                 }
                 else
@@ -346,13 +384,17 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = oitems.TryAdd(key, value);
+                var onChange = Change;
+                var (nitems, change) = onChange == null
+                    ? (oitems.TryAdd(key, value), null)
+                    : oitems.TryAddWithLog(key, value);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return default;
                 }
                 else
@@ -376,9 +418,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = oitems.AddOrUpdate(key, value);
+                var onChange = Change;
+                var (nitems, change) = onChange == null
+                    ? (oitems.AddOrUpdate(key, value), null)
+                    : oitems.AddOrUpdateWithLog(key, value);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return default;
                 }
                 else
@@ -404,9 +450,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = oitems.AddOrUpdate(key, Some, None);
+                var onChange = Change;
+                var (nitems, change) = onChange == null
+                    ? (oitems.AddOrUpdate(key, Some, None), null)
+                    : oitems.AddOrUpdateWithLog(key, Some, None);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return default;
                 }
                 else
@@ -432,9 +482,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = oitems.AddOrUpdate(key, Some, None);
+                var onChange = Change;
+                var (nitems, change) = onChange == null
+                    ? (oitems.AddOrUpdate(key, Some, None), null)
+                    : oitems.AddOrUpdateWithLog(key, Some, None);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return default;
                 }
                 else
@@ -459,9 +513,11 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = oitems.AddRange(srange);
+                var onChange = Change;
+                var (nitems, changes) = oitems.AddRangeWithLog(srange);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -486,13 +542,17 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = oitems.TryAddRange(srange);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.TryAddRange(srange), null)
+                    : oitems.TryAddRangeWithLog(srange);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -517,13 +577,17 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = Items.TryAddRange(srange);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.TryAddRange(srange), null)
+                    : oitems.TryAddRangeWithLog(srange);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -549,9 +613,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = Items.AddOrUpdateRange(srange);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.AddOrUpdateRange(srange), null)
+                    : oitems.AddOrUpdateRangeWithLog(srange);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -576,9 +644,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = Items.AddOrUpdateRange(srange);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.AddOrUpdateRange(srange), null)
+                    : oitems.AddOrUpdateRangeWithLog(srange);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -599,13 +671,17 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = Items.Remove(key);
+                var onChange = Change;
+                var (nitems, change) = onChange == null
+                    ? (oitems.Remove(key), null)
+                    : oitems.RemoveWithLog(key);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return default;
                 }
                 else
@@ -659,13 +735,14 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var (nitems, value) = Items.FindOrAdd(key, None);
+                var (nitems, value, change) = Items.FindOrAddWithLog(key, None);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return value;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return value;
                 }
                 else
@@ -673,7 +750,7 @@ namespace LanguageExt
                     sw.SpinOnce();
                 }
             }
-        }        
+        }
 
         /// <summary>
         /// Try to find the key in the map, if it doesn't exist, add a new 
@@ -688,13 +765,14 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var (nitems, nvalue) = Items.FindOrAdd(key, value);
+                var (nitems, nvalue, change) = Items.FindOrAddWithLog(key, value);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return nvalue;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return nvalue;
                 }
                 else
@@ -720,13 +798,14 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var (nitems, nvalue) = Items.FindOrMaybeAdd(key, None);
+                var (nitems, nvalue, change) = Items.FindOrMaybeAddWithLog(key, None);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return nvalue;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return nvalue;
                 }
                 else
@@ -749,13 +828,14 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var (nitems, nvalue) = Items.FindOrMaybeAdd(key, None);
+                var (nitems, nvalue, change) = Items.FindOrMaybeAddWithLog(key, None);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return nvalue;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return nvalue;
                 }
                 else
@@ -778,9 +858,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = Items.SetItem(key, value);
+                var onChange = Change;
+                var (nitems, change) = onChange == null
+                    ? (oitems.SetItem(key, value), null)
+                    : oitems.SetItemWithLog(key, value);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return default;
                 }
                 else
@@ -806,9 +890,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = Items.SetItem(key, Some);
+                var onChange = Change;
+                var(nitems, change) = onChange == null
+                    ? (oitems.SetItem(key, Some), null)
+                    : oitems.SetItemWithLog(key, Some);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return default;
                 }
                 else
@@ -832,13 +920,17 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = Items.TrySetItem(key, value);
+                var onChange = Change;
+                var (nitems, change) = onChange == null
+                    ? (oitems.TrySetItem(key, value), null)
+                    : oitems.TrySetItemWithLog(key, value);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return default;
                 }
                 else
@@ -865,13 +957,17 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = Items.TrySetItem(key, Some);
+                var onChange = Change;
+                var (nitems, change) = onChange == null
+                    ? (oitems.TrySetItem(key, Some), null)
+                    : oitems.TrySetItemWithLog(key, Some);
                 if(ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChange(oitems, nitems, key, change);
                     return default;
                 }
                 else
@@ -935,9 +1031,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = Items.Clear();
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Clear(), null)
+                    : oitems.ClearWithLog();
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -960,9 +1060,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = Items;
-                var nitems = Items.AddRange(spairs);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.AddRange(spairs), null)
+                    : oitems.AddRangeWithLog(spairs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -985,9 +1089,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.SetItems(sitems);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.SetItems(sitems), null)
+                    : oitems.SetItemsWithLog(sitems);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1010,9 +1118,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.SetItems(sitems);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.SetItems(sitems), null)
+                    : oitems.SetItemsWithLog(sitems);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1035,13 +1147,17 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.TrySetItems(sitems);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.TrySetItems(sitems), null)
+                    : oitems.TrySetItemsWithLog(sitems);
                 if (ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1064,13 +1180,17 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.TrySetItems(sitems);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.TrySetItems(sitems), null)
+                    : oitems.TrySetItemsWithLog(sitems);
                 if (ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1098,13 +1218,17 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.TrySetItems(skeys, Some);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.TrySetItems(skeys, Some), null)
+                    : oitems.TrySetItemsWithLog(skeys, Some);
                 if (ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1126,13 +1250,17 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.RemoveRange(skeys);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.RemoveRange(skeys), null)
+                    : oitems.RemoveRangeWithLog(skeys);
                 if (ReferenceEquals(oitems, nitems))
                 {
                     return default;
                 }
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1289,9 +1417,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.Append(rhs.Items);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Append(rhs.Items), null)
+                    : oitems.AppendWithLog(rhs.Items);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1308,9 +1440,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.Append(rhs.Value);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Append(rhs.Value), null)
+                    : oitems.AppendWithLog(rhs.Value);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1327,9 +1463,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.Subtract(rhs.Items);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Subtract(rhs.Items), null)
+                    : oitems.SubtractWithLog(rhs.Items);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1346,9 +1486,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.Subtract(rhs.Value);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Subtract(rhs.Value), null)
+                    : oitems.SubtractWithLog(rhs.Value);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1440,9 +1584,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.Intersect(srhs);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Intersect(srhs), null)
+                    : oitems.IntersectWithLog(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1458,13 +1606,68 @@ namespace LanguageExt
         public Unit Intersect(IEnumerable<(K Key, V Value)> rhs)
         {
             SpinWait sw = default;
-            var srhs = toSeq(rhs);            
+            var srhs = new TrieMap<EqDefault<K>, K, V>(rhs);            
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.Intersect(srhs);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Intersect(srhs), null)
+                    : oitems.IntersectWithLog(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        } 
+        
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        public Unit Intersect(IEnumerable<(K Key, V Value)> rhs, WhenMatched<K, V, V, V> Merge)
+        {
+            SpinWait sw = default;
+            var srhs = new TrieMap<EqDefault<K>, K, V>(rhs);            
+            while (true)
+            {
+                var oitems = this.Items;
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Intersect(srhs, Merge), null)
+                    : oitems.IntersectWithLog(srhs, Merge);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
+                {
+                    AnnounceChanges(oitems, nitems, changes);
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        } 
+        
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        public Unit Intersect(HashMap<K, V> rhs, WhenMatched<K, V, V, V> Merge)
+        {
+            SpinWait sw = default;
+            while (true)
+            {
+                var oitems = this.Items;
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Intersect(rhs.Value, Merge), null)
+                    : oitems.IntersectWithLog(rhs.Value, Merge);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
+                {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1499,9 +1702,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.Except(srhs);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Except(srhs), null)
+                    : oitems.ExceptWithLog(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1522,9 +1729,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.Except(srhs);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Except(srhs), null)
+                    : oitems.ExceptWithLog(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1544,9 +1755,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.Except(rhs);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.SymmetricExcept(rhs), null)
+                    : oitems.SymmetricExceptWithLog(rhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1567,9 +1782,13 @@ namespace LanguageExt
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.Except(srhs);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.SymmetricExcept(srhs), null)
+                    : oitems.SymmetricExceptWithLog(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1589,12 +1808,17 @@ namespace LanguageExt
         {
             SpinWait sw = default;
             var srhs = toSeq(rhs);
+            if (srhs.IsEmpty) return unit;
             while (true)
             {
                 var oitems = this.Items;
-                var nitems = oitems.Union(srhs);
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Union(srhs), null)
+                    : oitems.UnionWithLog(srhs);
                 if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
                 {
+                    AnnounceChanges(oitems, nitems, changes);
                     return default;
                 }
                 else
@@ -1602,7 +1826,73 @@ namespace LanguageExt
                     sw.SpinOnce();
                 }
             }
-        } 
+        }
+
+        /// <summary>
+        /// Union two maps.  
+        /// </summary>
+        /// <remarks>
+        /// The `WhenMatched` merge function is called when keys are present in both map to allow resolving to a
+        /// sensible value.
+        /// </remarks>
+        public Unit Union(IEnumerable<(K Key, V Value)> rhs, WhenMatched<K, V, V, V> Merge)
+        {
+            SpinWait sw = default;
+            var srhs = toSeq(rhs);
+            if (srhs.IsEmpty) return unit;
+            while (true)
+            {
+                var oitems = this.Items;
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Union(srhs, Merge), null)
+                    : oitems.UnionWithLog(srhs, Merge);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
+                {
+                    AnnounceChanges(oitems, nitems, changes);
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Union two maps.  
+        /// </summary>
+        /// <remarks>
+        /// The `WhenMatched` merge function is called when keys are present in both map to allow resolving to a
+        /// sensible value.
+        /// </remarks>
+        /// <remarks>
+        /// The `WhenMissing` function is called when there is a key in the right-hand side, but not the left-hand-side.
+        /// This allows the `V2` value-type to be mapped to the target `V` value-type. 
+        /// </remarks>
+        public Unit Union<W>(IEnumerable<(K Key, W Value)> rhs, WhenMissing<K, W, V> MapRight, WhenMatched<K, V, W, V> Merge)
+        {
+            SpinWait sw = default;
+            var srhs = toSeq(rhs);
+            if (srhs.IsEmpty) return unit;
+            while (true)
+            {
+                var oitems = this.Items;
+                var onChange = Change;
+                var (nitems, changes) = onChange == null
+                    ? (oitems.Union(srhs, MapRight, Merge), null)
+                    : oitems.UnionWithLog(srhs, MapRight, Merge);
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this.Items, nitems, oitems), oitems))
+                {
+                    AnnounceChanges(oitems, nitems, changes);
+                    return default;
+                }
+                else
+                {
+                    sw.SpinOnce();
+                }
+            }            
+        }
         
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values
@@ -1852,6 +2142,24 @@ namespace LanguageExt
         [Pure]
         public S Fold<S>(S state, Func<S, V, S> folder) =>
             Values.Fold(state, folder);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void AnnounceChange(TrieMap<EqDefault<K>, K, V> prev, TrieMap<EqDefault<K>, K, V> current, K key, Change<V>? change)
+        {
+            if (change?.HasChanged ?? false)
+            {
+                Change?.Invoke(new HashMapPatch<K, V>(prev, current, key, change));
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void AnnounceChanges(TrieMap<EqDefault<K>, K, V> prev, TrieMap<EqDefault<K>, K, V> current, TrieMap<EqDefault<K>, K, Change<V>>? changes)
+        {
+            if (!isnull(changes))
+            {
+                Change?.Invoke(new HashMapPatch<K, V>(prev, current, changes));
+            }
+        }
     }
 }
 #nullable disable

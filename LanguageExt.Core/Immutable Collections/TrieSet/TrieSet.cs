@@ -703,7 +703,7 @@ namespace LanguageExt
                                         Mask(Bit.Get((uint)default(EqK).GetHashCode(subEntries.Items[0]), section)),
                                         0,
                                         Clone(subEntries.Items),
-                                        new Node[0]
+                                        System.Array.Empty<Node>()
                                         ));
                                 }
                                 else
@@ -1045,7 +1045,7 @@ namespace LanguageExt
                 }
 
                 var dataMap = Mask(Bit.Get(hash, section));
-                return (1, new Entries(dataMap, 0, new[] { change }, new Node[0]));
+                return (1, new Entries(dataMap, 0, new[] { change }, System.Array.Empty<Node>()));
             }
 
             public IEnumerator<K> GetEnumerator()
@@ -1077,7 +1077,7 @@ namespace LanguageExt
                 {
                     var node = Merge(key1, key2, pair1Hash, pair2Hash, nextLevel);
                     var nodeMap = Mask(pair1Index);
-                    return new Entries(0, nodeMap, new K[0], new[] { node });
+                    return new Entries(0, nodeMap, System.Array.Empty<K>(), new[] { node });
                 }
                 else
                 {
@@ -1085,7 +1085,7 @@ namespace LanguageExt
                     dataMap = Bit.Set(dataMap, Mask(pair2Index), true);
                     return new Entries(dataMap, 0, pair1Index < pair2Index
                         ? new[] { key1, key2 }
-                        : new[] { key2, key1 }, new Node[0]);
+                        : new[] { key2, key1 }, System.Array.Empty<Node>());
                 }
             }
         }

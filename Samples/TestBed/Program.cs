@@ -53,7 +53,7 @@ public static class Ext
 
 public class Program
 {
-    static async Task Main(string[] args)
+    static void Main(string[] args)
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                                                                                    //
@@ -63,22 +63,14 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
-        await AtomHashMapPerf.Test();
-
+        //AtomHashMapTests.Test();
+        //await AtomHashMapPerf.Test();
         // await PipesTest();
         // await ObsAffTests.Test();
         // await AsyncTests();
+        //testing.Run(Runtime.New());
 
-
-    }
-
-    static Aff<string> ReadAll(string path) =>
-        Aff(async () => await System.IO.File.ReadAllTextAsync(path));
-
-    static Effect<Runtime, Unit> Example<A>(IAsyncQueue<A>[] queues)
-    {
-        var producer = queues.ToProducer<Runtime, A>();
-        return producer | toString<A>() | writeLine;
+        IssueTests.Run();
     }
 
     public static async Task PipesTest()

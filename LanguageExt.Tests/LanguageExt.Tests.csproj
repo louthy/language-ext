@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <FileVersion>3.0.0.0</FileVersion>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <LangVersion>default</LangVersion>
     <RoslynCodeGenVersion>0.6.1</RoslynCodeGenVersion>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="dotnet-codegen" Version="$(RoslynCodeGenVersion)" />

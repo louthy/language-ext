@@ -89,7 +89,7 @@ namespace LanguageExt.Tests
             public override bool CanConvert(Type objectType) => objectType.IsClass && objectType.BaseType?.BaseType?.GetCustomAttribute<MyUnionAttribute>() != null;
         }
         
-        [Fact]
+        [Fact(Skip = "No feature written that supports this yet")]
         public void UnionFromJson()
         {
             var json = @"{""Type"":""B"",""Value"":{""I"":42}}";
@@ -97,7 +97,7 @@ namespace LanguageExt.Tests
             Assert.Equal(42, x?.I);
         }
         
-        [Fact]
+        [Fact(Skip = "No feature written that supports this yet")]
         public void UnionToJson()
         {
             var x = JsonConvert.SerializeObject(UnionTestClassCon.UnionB(42), new UnionJsonWriteConverter());

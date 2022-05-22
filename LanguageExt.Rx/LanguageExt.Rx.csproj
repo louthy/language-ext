@@ -8,7 +8,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <PackageVersion>4.0.3</PackageVersion>
+        <PackageVersion>4.1.1</PackageVersion>
         <PackageId>LanguageExt.Rx</PackageId>
         <Title>LanguageExt.Rx</Title>
         <Authors>Paul Louth</Authors>
@@ -24,7 +24,7 @@
         <OutputType>library</OutputType>
         <AssemblyVersion>4.0.0.0</AssemblyVersion>
         <FileVersion>4.0.0.0</FileVersion>
-        <LangVersion>8.0</LangVersion>
+        <LangVersion>default</LangVersion>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\Images\lang-ext-small.png">

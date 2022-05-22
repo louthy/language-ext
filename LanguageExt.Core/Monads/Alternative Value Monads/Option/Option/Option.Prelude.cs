@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -103,7 +104,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<A> Some<A>(A? value) where A : struct =>
             value.HasValue
-                ? new Option<A>(value.Value, true)
+                ? new Option<A>(value.Value)
                 : throw new ValueIsNullException();
 
         /// <summary>
@@ -114,10 +115,10 @@ namespace LanguageExt
         /// <returns>If the value is `null` it will be `None` else `Some(value)`</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Option<A> Optional<A>(A value) =>
-            isnull(value)
+        public static Option<A> Optional<A>(A? value) =>
+            value is null
                 ? default
-                : new Option<A>(value, true);
+                : new Option<A>(value);
 
         /// <summary>
         /// Create an `Option` of `A`
@@ -129,7 +130,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<A> Optional<A>(A? value) where A : struct =>
             value.HasValue
-                ? new Option<A>(value.Value, true)
+                ? new Option<A>(value.Value)
                 : default;
 
         /// <summary>
@@ -176,7 +177,7 @@ namespace LanguageExt
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T ifNoneUnsafe<T>(Option<T> option, Func<T> None) =>
+        public static T? ifNoneUnsafe<T>(Option<T> option, Func<T?> None) =>
             option.IfNoneUnsafe(None);
 
         /// <summary>
@@ -189,7 +190,7 @@ namespace LanguageExt
         /// the bound Some(x) value is returned</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T ifNoneUnsafe<T>(Option<T> option, T noneValue) =>
+        public static T? ifNoneUnsafe<T>(Option<T> option, T? noneValue) =>
             option.IfNoneUnsafe(noneValue);
 
         /// <summary>
@@ -213,7 +214,7 @@ namespace LanguageExt
         /// <returns>B, or null</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static R matchUnsafe<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) =>
+        public static R? matchUnsafe<T, R>(Option<T> option, Func<T, R?> Some, Func<R?> None) =>
             option.MatchUnsafe(Some, None);
 
         /// <summary>

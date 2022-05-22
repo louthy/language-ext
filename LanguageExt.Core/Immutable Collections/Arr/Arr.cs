@@ -367,7 +367,7 @@ namespace LanguageExt
         [Pure]
         public Arr<A> InsertRange(int index, IEnumerable<A> items)
         {
-            items = items ?? new A[0];
+            items = items ?? Enumerable.Empty<A>();
             var arr = Value;
             if (index < 0 || index > arr.Length) throw new IndexOutOfRangeException(nameof(index));
 

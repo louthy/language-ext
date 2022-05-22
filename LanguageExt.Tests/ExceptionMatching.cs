@@ -69,7 +69,7 @@ namespace LanguageExt.Tests
                 .IfFail()
                 .OtherwiseReThrow());
 
-            Assert.DoesNotContain("End of stack trace from previous location where exception was thrown", ex.StackTrace);
+            Assert.DoesNotContain("End of stack trace from previous location", ex.StackTrace);
         }
         
         [Fact]
@@ -79,7 +79,7 @@ namespace LanguageExt.Tests
                 .IfFail()
                 .OtherwiseReThrow());
 
-            Assert.Contains("End of stack trace from previous location where exception was thrown", ex.StackTrace);
+            Assert.Contains("End of stack trace from previous location", ex.StackTrace);
         }
         
         [Fact]

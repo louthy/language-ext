@@ -103,14 +103,14 @@ namespace LanguageExt
         public static Aff<OuterRT, A> localAff<OuterRT, InnerRT, A>(Func<OuterRT, InnerRT> f, Aff<InnerRT, A> ma)
             where OuterRT : struct, HasCancel<OuterRT>
             where InnerRT : struct, HasCancel<InnerRT> =>
-            new Aff<OuterRT, A>(ThunkAsync<OuterRT, A>.Lazy(oenv => ma.Thunk.Value(f(oenv))));
+            new(oenv => ma.Thunk(f(oenv)));
 
         /// <summary>
         /// Runtime
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<RT, RT> runtime<RT>() where RT : struct =>
-            new Eff<RT, RT>(Thunk<RT, RT>.Lazy(Fin<RT>.Succ));
+            new (Fin<RT>.Succ);
 
         /// <summary>
         /// Launch the async computation without awaiting the result
@@ -161,7 +161,7 @@ namespace LanguageExt
                                 var rt1 = rt.LocalCancel;
                                 using (rt1.CancellationTokenSource)
                                 {
-                                    return await ma.ReRun(rt1).ConfigureAwait(false);
+                                    return await ma.Run(rt1).ConfigureAwait(false);
                                 }
                             });
         
@@ -178,7 +178,7 @@ namespace LanguageExt
                                 var rt1 = rt.LocalCancel;
                                 using (rt1.CancellationTokenSource)
                                 {
-                                    return ma.ReRun(rt1);
+                                    return ma.Run(rt1);
                                 }
                             });
                                                                

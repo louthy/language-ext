@@ -14,13 +14,13 @@ namespace LanguageExt
     {
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> ToAff<RT, A>(this Eff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            Aff<RT, A>.EffectMaybe(e => new ValueTask<Fin<A>>(ma.ReRun(e)));
+            Aff<RT, A>.EffectMaybe(e => new ValueTask<Fin<A>>(ma.Run(e)));
 
         // Map and map-left
  
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<RT, B> Map<RT, A, B>(this Eff<RT, A> ma, Func<A, B> f) where RT : struct =>
-            new Eff<RT, B>(ma.Thunk.Map(f));
+            new (rt => ma.Run(rt).Map(f));
 
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<RT, A> MapFail<RT, A>(this Eff<RT, A> ma, Func<Error, Error> f) where RT : struct =>
@@ -28,7 +28,12 @@ namespace LanguageExt
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, B> MapAsync<RT, A, B>(this Eff<RT, A> ma, Func<A, ValueTask<B>> f) where RT : struct, HasCancel<RT> =>
-            new Aff<RT, B>(ma.Thunk.MapAsync(f));
+            new(async rt => ma.Run(rt).Case switch
+            {
+                A x     => FinSucc(await f(x).ConfigureAwait(false)),
+                Error e => FinFail<B>(e),
+                _       => throw new BottomException()
+            });
         
         //
         // Bi-map
@@ -36,7 +41,12 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<RT, B> BiMap<RT, A, B>(this Eff<RT, A> ma, Func<A, B> Succ, Func<Error, Error> Fail) where RT : struct =>
-            new Eff<RT, B>(ma.Thunk.BiMap(Succ, Fail));
+            new(rt => ma.Run(rt).Case switch
+            {
+                A x     => FinSucc(Succ(x)),
+                Error e => FinFail<B>(Fail(e)),
+                _       => throw new BottomException()
+            });
 
         //
         // Match
@@ -46,7 +56,7 @@ namespace LanguageExt
         public static Eff<RT, B> Match<RT, A, B>(this Eff<RT, A> ma, Func<A, B> Succ, Func<Error, B> Fail) where RT : struct, HasCancel<RT> =>
             Eff<RT, B>(env => { 
             
-                var r = ma.ReRun(env);
+                var r = ma.Run(env);
                 return r.IsSucc
                     ? Succ(r.Value)
                     : Fail(r.Error);
@@ -56,17 +66,17 @@ namespace LanguageExt
         public static Aff<RT, B> MatchEff<RT, A, B>(this Eff<RT, A> ma, Func<A, B> Succ, Aff<RT, B> Fail) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, B>(async env =>
             {
-                var r = ma.ReRun(env);
+                var r = ma.Run(env);
                 return r.IsSucc
                     ? Succ(r.Value)
-                    : await Fail.ReRun(env).ConfigureAwait(false);
+                    : await Fail.Run(env).ConfigureAwait(false);
             });
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, B> MatchAff<RT, A, B>(this Eff<RT, A> ma, Func<A, B> Succ, Func<Error, Aff<RT, B>> Fail) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, B>(async env =>
                              {
-                                 var r = ma.ReRun(env);
+                                 var r = ma.Run(env);
                                  return r.IsSucc
                                             ? Succ(r.Value)
                                             : await Fail(r.Error).Run(env).ConfigureAwait(false);
@@ -76,17 +86,17 @@ namespace LanguageExt
         public static Eff<RT, B> MatchEff<RT, A, B>(this Eff<RT, A> ma, Func<A, B> Succ, Eff<RT, B> Fail) where RT : struct =>
             EffMaybe<RT, B>(env =>
             {
-                var r = ma.ReRun(env);
+                var r = ma.Run(env);
                 return r.IsSucc
                     ? Succ(r.Value)
-                    : Fail.ReRun(env);
+                    : Fail.Run(env);
             });
         
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<RT, B> MatchEff<RT, A, B>(this Eff<RT, A> ma, Func<A, B> Succ, Func<Error, Eff<RT, B>> Fail) where RT : struct =>
             EffMaybe<RT, B>(env =>
                              {
-                                 var r = ma.ReRun(env);
+                                 var r = ma.Run(env);
                                  return r.IsSucc
                                             ? Succ(r.Value)
                                             : Fail(r.Error).Run(env);
@@ -96,9 +106,9 @@ namespace LanguageExt
         public static Aff<RT, B> MatchAff<RT, A, B>(this Eff<RT, A> ma, Aff<RT, B> Succ, Func<Error, B> Fail) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, B>(async env =>
             {
-                var r = ma.ReRun(env);
+                var r = ma.Run(env);
                 return r.IsSucc
-                    ? await Succ.ReRun(env).ConfigureAwait(false)
+                    ? await Succ.Run(env).ConfigureAwait(false)
                     : Fail(r.Error);
             });
 
@@ -106,7 +116,7 @@ namespace LanguageExt
         public static Aff<RT, B> MatchAff<RT, A, B>(this Eff<RT, A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, B> Fail) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, B>(async env =>
                              {
-                                 var r = ma.ReRun(env);
+                                 var r = ma.Run(env);
                                  return r.IsSucc
                                             ? await Succ(r.Value).Run(env).ConfigureAwait(false)
                                             : Fail(r.Error);
@@ -116,9 +126,9 @@ namespace LanguageExt
         public static Eff<RT, B> MatchEff<RT, A, B>(this Eff<RT, A> ma, Eff<RT, B> Succ, Func<Error, B> Fail) where RT : struct =>
             EffMaybe<RT, B>(env =>
             {
-                var r = ma.ReRun(env);
+                var r = ma.Run(env);
                 return r.IsSucc
-                    ? Succ.ReRun(env)
+                    ? Succ.Run(env)
                     : Fail(r.Error);
             });
 
@@ -126,7 +136,7 @@ namespace LanguageExt
         public static Eff<RT, B> MatchEff<RT, A, B>(this Eff<RT, A> ma, Func<A, Eff<RT, B>> Succ, Func<Error, B> Fail) where RT : struct =>
             EffMaybe<RT, B>(env =>
                              {
-                                 var r = ma.ReRun(env);
+                                 var r = ma.Run(env);
                                  return r.IsSucc
                                             ? Succ(r.Value).Run(env)
                                             : Fail(r.Error);
@@ -136,17 +146,17 @@ namespace LanguageExt
         public static Aff<RT, B> MatchAff<RT, A, B>(this Eff<RT, A> ma, Aff<RT, B> Succ, Aff<RT, B> Fail) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, B>(async env =>
             {
-                var r = ma.ReRun(env);
+                var r = ma.Run(env);
                 return r.IsSucc
-                    ? await Succ.ReRun(env).ConfigureAwait(false)
-                    : await Fail.ReRun(env).ConfigureAwait(false);
+                    ? await Succ.Run(env).ConfigureAwait(false)
+                    : await Fail.Run(env).ConfigureAwait(false);
             });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, B> MatchAff<RT, A, B>(this Eff<RT, A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, Aff<RT, B>> Fail) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, B>(async env =>
                              {
-                                 var r = ma.ReRun(env);
+                                 var r = ma.Run(env);
                                  return r.IsSucc
                                             ? await Succ(r.Value).Run(env).ConfigureAwait(false)
                                             : await Fail(r.Error).Run(env).ConfigureAwait(false);
@@ -156,17 +166,17 @@ namespace LanguageExt
         public static Eff<RT, B> MatchEff<RT, A, B>(this Eff<RT, A> ma, Eff<RT, B> Succ, Eff<RT, B> Fail) where RT : struct =>
             EffMaybe<RT, B>(env =>
             {
-                var r = ma.ReRun(env);
+                var r = ma.Run(env);
                 return r.IsSucc
-                    ? Succ.ReRun(env)
-                    : Fail.ReRun(env);
+                    ? Succ.Run(env)
+                    : Fail.Run(env);
             });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<RT, B> MatchEff<RT, A, B>(this Eff<RT, A> ma, Func<A, Eff<RT, B>> Succ, Func<Error, Eff<RT, B>> Fail) where RT : struct =>
             EffMaybe<RT, B>(env =>
                              {
-                                 var r = ma.ReRun(env);
+                                 var r = ma.Run(env);
                                  return r.IsSucc
                                             ? Succ(r.Value).Run(env)
                                             : Fail(r.Error).Run(env);
@@ -176,7 +186,7 @@ namespace LanguageExt
         public static Eff<RT, B> Match<RT, A, B>(this Eff<RT, A> ma, B Succ, Func<Error, B> Fail) where RT : struct =>
             Eff<RT, B>(env =>
             {
-                var r = ma.ReRun(env);
+                var r = ma.Run(env);
                 return r.IsSucc
                     ? Succ
                     : Fail(r.Error);
@@ -186,7 +196,7 @@ namespace LanguageExt
         public static Eff<RT, B> Match<RT, A, B>(this Eff<RT, A> ma, Func<A, B> Succ, B Fail) where RT : struct =>
             Eff<RT, B>(env =>
             {
-                var r = ma.ReRun(env);
+                var r = ma.Run(env);
                 return r.IsSucc
                            ? Succ(r.Value)
                            : Fail;
@@ -196,7 +206,7 @@ namespace LanguageExt
         public static Eff<RT, B> Match<RT, A, B>(this Eff<RT, A> ma, B Succ, B Fail) where RT : struct =>
             Eff<RT, B>(env =>
             {
-                var r = ma.ReRun(env);
+                var r = ma.Run(env);
                 return r.IsSucc
                            ? Succ
                            : Fail;
@@ -211,7 +221,7 @@ namespace LanguageExt
             EffMaybe<RT, A>(
                 env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     return res.IsSucc
                                ? res
                                : Fin<A>.Succ(f(res.Error));
@@ -222,7 +232,7 @@ namespace LanguageExt
             EffMaybe<RT, A>(
                 env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     return res.IsSucc
                                ? res
                                : Fin<A>.Succ(alternative);
@@ -233,10 +243,10 @@ namespace LanguageExt
             AffMaybe<RT, A>(
                 async env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     return res.IsSucc
                                ? res
-                               : await alternative.ReRun(env).ConfigureAwait(false);
+                               : await alternative.Run(env).ConfigureAwait(false);
                 });
         
         [Pure, MethodImpl(Opt.Default)]
@@ -244,7 +254,7 @@ namespace LanguageExt
             AffMaybe<RT, A>(
                 async env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     return res.IsSucc
                                ? res
                                : await alternative(res.Error).Run(env).ConfigureAwait(false);
@@ -255,10 +265,10 @@ namespace LanguageExt
             AffMaybe<RT, A>(
                 async env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     return res.IsSucc
                                ? res
-                               : await alternative.ReRun().ConfigureAwait(false);
+                               : await alternative.Run().ConfigureAwait(false);
                 });
         
         [Pure, MethodImpl(Opt.Default)]
@@ -266,7 +276,7 @@ namespace LanguageExt
             AffMaybe<RT, A>(
                 async env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     return res.IsSucc
                                ? res
                                : await alternative(res.Error).Run().ConfigureAwait(false);
@@ -277,10 +287,10 @@ namespace LanguageExt
             EffMaybe<RT, A>(
                 env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     return res.IsSucc
                                ? res
-                               : alternative.ReRun(env);
+                               : alternative.Run(env);
                 });
         
         [Pure, MethodImpl(Opt.Default)]
@@ -288,7 +298,7 @@ namespace LanguageExt
             EffMaybe<RT, A>(
                 env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     return res.IsSucc
                                ? res
                                : alternative(res.Error).Run(env);
@@ -299,10 +309,10 @@ namespace LanguageExt
             EffMaybe<RT, A>(
                 env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     return res.IsSucc
                                ? res
-                               : alternative.ReRun();
+                               : alternative.Run();
                 });
         
         [Pure, MethodImpl(Opt.Default)]
@@ -310,7 +320,7 @@ namespace LanguageExt
             EffMaybe<RT, A>(
                 env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     return res.IsSucc
                                ? res
                                : alternative(res.Error).Run();
@@ -325,7 +335,7 @@ namespace LanguageExt
             Eff<RT, Unit>(
                 env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     if (res.IsSucc)
                     {
                         f(res.Value);
@@ -338,7 +348,7 @@ namespace LanguageExt
             Aff<RT, Unit>(
                 async env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     if (res.IsSucc)
                     {
                         ignore(await f(res.Value).Run(env).ConfigureAwait(false));
@@ -351,7 +361,7 @@ namespace LanguageExt
             Aff<RT, Unit>(
                 async env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     if (res.IsSucc)
                     {
                         ignore(await f(res.Value).Run().ConfigureAwait(false));
@@ -364,7 +374,7 @@ namespace LanguageExt
             Eff<RT, Unit>(
                 env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     if (res.IsSucc)
                     {
                         ignore(f(res.Value).Run(env));
@@ -377,7 +387,7 @@ namespace LanguageExt
             Eff<RT, Unit>(
                 env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     if (res.IsSucc)
                     {
                         ignore(f(res.Value).Run());
@@ -390,7 +400,7 @@ namespace LanguageExt
             EffMaybe<RT, A>(
                 env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     if (res.IsSucc)
                     {
                         f(res.Value);
@@ -403,7 +413,7 @@ namespace LanguageExt
             AffMaybe<RT, A>(
                 async env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     if (res.IsSucc)
                     {
                         var ures = await f(res.Value).Run(env).ConfigureAwait(false);
@@ -419,7 +429,7 @@ namespace LanguageExt
             EffMaybe<RT, A>(
                 env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     if (res.IsSucc)
                     {
                         var ures = f(res.Value).Run(env);
@@ -435,7 +445,7 @@ namespace LanguageExt
             AffMaybe<RT, A>(
                 async env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     if (res.IsSucc)
                     {
                         var ures = await f(res.Value).Run().ConfigureAwait(false);
@@ -451,7 +461,7 @@ namespace LanguageExt
             EffMaybe<RT, A>(
                 env =>
                 {
-                    var res = ma.ReRun(env);
+                    var res = ma.Run(env);
                     if (res.IsSucc)
                     {
                         var ures = f(res.Value).Run();
@@ -476,67 +486,85 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<RT, B> Bind<RT, A, B>(this Eff<RT, A> ma, Func<A, Eff<B>> f) where RT : struct =>
-            new Eff<RT, B>(Thunk<RT, B>.Lazy(
-                               env =>
-                               {
-                                   var fa = ma.ReRun(env);
-                                   if (fa.IsFail) return FinFail<B>(fa.Error);
-                                   var mb = f(fa.Value);
-                                   return mb.Run();
-                               }));
+            new (env =>
+            {
+                var fa = ma.Run(env);
+                if (fa.IsFail) return FinFail<B>(fa.Error);
+                var mb = f(fa.Value);
+                return mb.Run();
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<RT, B> Bind<RT, A, B>(this Eff<RT, A> ma, Func<A, Eff<RT, B>> f) where RT : struct =>
-            new Eff<RT, B>(Thunk<RT, B>.Lazy(
-                               env =>
-                               {
-                                   var fa = ma.ReRun(env);
-                                   if (fa.IsFail) return FinFail<B>(fa.Error);
-                                   var mb = f(fa.Value);
-                                   return mb.Run(env);
-                               }));
-        
-        [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> Bind<RT, A, B>(this Eff<RT, A> ma, Func<A, Aff<B>> f) where RT : struct, HasCancel<RT> =>
-            new Aff<RT, B>(ThunkAsync<RT, B>.Lazy(
-                               async env =>
-                               {
-                                   var fa = ma.ReRun(env);
-                                   if (fa.IsFail) return FinFail<B>(fa.Error);
-                                   var mb = f(fa.Value);
-                                   return await mb.Run().ConfigureAwait(false);
-                               }));
+            new(env =>
+            {
+                var fa = ma.Run(env);
+                if (fa.IsFail) return FinFail<B>(fa.Error);
+                var mb = f(fa.Value);
+                return mb.Run(env);
+            });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> Bind<RT, A, B>(this Eff<RT, A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            new Aff<RT, B>(ThunkAsync<RT, B>.Lazy(
-                               async env =>
-                               {
-                                   var fa = ma.ReRun(env);
-                                   if (fa.IsFail) return FinFail<B>(fa.Error);
-                                   var mb = f(fa.Value);
-                                   return await mb.Run(env).ConfigureAwait(false);
-                               }));        
+        public static Aff<RT, B> Bind<RT, A, B>(this Eff<RT, A> ma, Func<A, Aff<B>> f)
+            where RT : struct, HasCancel<RT> =>
+            new (async env =>
+            {
+                var fa = ma.Run(env);
+                if (fa.IsFail) return FinFail<B>(fa.Error);
+                var mb = f(fa.Value);
+                return await mb.Run().ConfigureAwait(false);
+            });
+
+        [Pure, MethodImpl(Opt.Default)]
+        public static Aff<RT, B> Bind<RT, A, B>(this Eff<RT, A> ma, Func<A, Aff<RT, B>> f)
+            where RT : struct, HasCancel<RT> =>
+            new(async env =>
+            {
+                var fa = ma.Run(env);
+                if (fa.IsFail) return FinFail<B>(fa.Error);
+                var mb = f(fa.Value);
+                return await mb.Run(env).ConfigureAwait(false);
+            });        
         
         //
         // Flatten
         //
+
+        [Pure, MethodImpl(Opt.Default)]
+        public static Eff<RT, A> Flatten<RT, A>(this Eff<RT, Eff<RT, A>> mma) where RT : struct =>
+            new(rt =>
+            {
+                var ma = mma.Run(rt);
+                if (ma.IsFail) return ma.Error;
+                return ma.Value.Run(rt);
+            });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Eff<RT, A> Flatten<RT, A>(this Eff<RT, Eff<RT, A>> ma) where RT : struct =>
-            new Eff<RT, A>(ma.Thunk.Map(ThunkFromIO).Flatten());
+        public static Eff<RT, A> Flatten<RT, A>(this Eff<RT, Eff<A>> mma) where RT : struct =>
+            new (rt =>
+            {
+                var ma = mma.Run(rt);
+                if (ma.IsFail) return ma.Error;
+                return ma.Value.Run();
+            });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Eff<RT, A> Flatten<RT, A>(this Eff<RT, Eff<A>> ma) where RT : struct =>
-            new Eff<RT, A>(ma.Thunk.Map(ThunkFromIO).Flatten());
+        public static Aff<RT, A> Flatten<RT, A>(this Eff<RT, Aff<RT, A>> mma) where RT : struct, HasCancel<RT> =>
+            new (async rt =>
+            {
+                var ma = mma.Run(rt);
+                if (ma.IsFail) return ma.Error;
+                return await ma.Value.Run(rt).ConfigureAwait(false);
+            });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Flatten<RT, A>(this Eff<RT, Aff<RT, A>> ma) where RT : struct, HasCancel<RT> =>
-            new Aff<RT, A>(ma.Thunk.Map(ThunkFromIO).Flatten());
-        
-        [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Flatten<RT, A>(this Eff<RT, Aff<A>> ma) where RT : struct, HasCancel<RT> =>
-            new Aff<RT, A>(ma.Thunk.Map(ThunkFromIO).Flatten());
+        public static Aff<RT, A> Flatten<RT, A>(this Eff<RT, Aff<A>> mma) where RT : struct, HasCancel<RT> =>
+            new (async rt =>
+            {
+                var ma = mma.Run(rt);
+                if (ma.IsFail) return ma.Error;
+                return await ma.Value.Run().ConfigureAwait(false);
+            });
 
         //
         // Select
@@ -597,43 +625,39 @@ namespace LanguageExt
         //
         // Zip
         //
-        
+
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<RT, (A, B)> Zip<RT, A, B>(Eff<RT, A> ma, Eff<RT, B> mb) where RT : struct =>
-            new Eff<RT, (A, B)>(Thunk<RT, (A, B)>.Lazy(e =>
+            new(e =>
             {
-                var ta = ma.ReRun(e);
+                var ta = ma.Run(e);
                 if (ta.IsFail) return ta.Cast<(A, B)>();
-                var tb = mb.ReRun(e);
+                var tb = mb.Run(e);
                 if (tb.IsFail) return tb.Cast<(A, B)>();
                 return Fin<(A, B)>.Succ((ta.Value, tb.Value));
-            }));
-        
+            });
+
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<RT, (A, B)> Zip<RT, A, B>(Eff<A> ma, Eff<RT, B> mb) where RT : struct =>
-            new Eff<RT, (A, B)>(Thunk<RT, (A, B)>.Lazy(e =>
+            new(e =>
             {
-                var ta = ma.ReRun();
+                var ta = ma.Run();
                 if (ta.IsFail) return ta.Cast<(A, B)>();
-                var tb = mb.ReRun(e);
+                var tb = mb.Run(e);
                 if (tb.IsFail) return tb.Cast<(A, B)>();
                 return Fin<(A, B)>.Succ((ta.Value, tb.Value));
-            }));
-        
+            });
+
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<RT, (A, B)> Zip<RT, A, B>(Eff<RT, A> ma, Eff<B> mb) where RT : struct =>
-            new Eff<RT, (A, B)>(Thunk<RT, (A, B)>.Lazy(e =>
+            new(e =>
             {
-                var ta = ma.ReRun(e);
+                var ta = ma.Run(e);
                 if (ta.IsFail) return ta.Cast<(A, B)>();
-                var tb = mb.ReRun();
+                var tb = mb.Run();
                 if (tb.IsFail) return tb.Cast<(A, B)>();
                 return Fin<(A, B)>.Succ((ta.Value, tb.Value));
-            }));           
-       
-        [Pure, MethodImpl(Opt.Default)]
-        static Thunk<RT, A> ThunkFromIO<RT, A>(Eff<RT, A> ma) where RT : struct =>
-            ma.Thunk;
+            });           
     }    
 
     
@@ -641,23 +665,29 @@ namespace LanguageExt
     {
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> ToAsync<A>(this Eff<A> ma) =>
-            Aff<A>.EffectMaybe(() => new ValueTask<Fin<A>>(ma.ReRun()));
+            Aff<A>.EffectMaybe(() => new ValueTask<Fin<A>>(ma.Run()));
 
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<B> Map<A, B>(this Eff<A> ma, Func<A, B> f) =>
-            new Eff<B>(ma.Thunk.Map(f));
-        
-        [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> MapAsync<RT, A, B>(this Eff<A> ma, Func<A, ValueTask<B>> f) where RT : struct, HasCancel<RT> =>
-            new Aff<RT, B>(ma.Thunk.MapAsync<RT, A, B>(f));
+            new (() => ma.Run().Map(f));
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<B> MapAsync<A, B>(this Eff<A> ma, Func<A, ValueTask<B>> f) =>
-            new Aff<B>(ma.Thunk.MapAsync(f));
+            new(async () => ma.Run().Case switch
+            {
+                A x     => FinSucc(await f(x).ConfigureAwait(false)),
+                Error e => FinFail<B>(e),
+                _       => throw new BottomException()
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<B> BiMap<A, B>(this Eff<A> ma, Func<A, B> Succ, Func<Error, Error> Fail) =>
-            new Eff<B>(ma.Thunk.BiMap(Succ, Fail));
+            new(() => ma.Run().Case switch
+            {
+                A x     => FinSucc(Succ(x)),
+                Error e => FinFail<B>(Fail(e)),
+                _       => throw new BottomException()
+            });
 
         //
         // Match
@@ -666,7 +696,7 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<B> Match<A, B>(this Eff<A> ma, Func<A, B> Succ, Func<Error, B> Fail) =>
             Eff(() => { 
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
                     ? Succ(r.Value)
                     : Fail(r.Error);
@@ -676,17 +706,17 @@ namespace LanguageExt
         public static Aff<RT, B> MatchAff<RT, A, B>(this Eff<A> ma, Func<A, B> Succ, Aff<RT, B> Fail) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, B>(async env =>
             {
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
                     ? Succ(r.Value)
-                    : await Fail.ReRun(env).ConfigureAwait(false);
+                    : await Fail.Run(env).ConfigureAwait(false);
             });
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, B> MatchAff<RT, A, B>(this Eff<A> ma, Func<A, B> Succ, Func<Error, Aff<RT, B>> Fail) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, B>(async env =>
                              {
-                                 var r = ma.ReRun();
+                                 var r = ma.Run();
                                  return r.IsSucc
                                             ? Succ(r.Value)
                                             : await Fail(r.Error).Run(env).ConfigureAwait(false);
@@ -696,17 +726,17 @@ namespace LanguageExt
         public static Eff<RT, B> MatchEff<RT, A, B>(this Eff<A> ma, Func<A, B> Succ, Eff<RT, B> Fail) where RT : struct =>
             EffMaybe<RT, B>(env =>
             {
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
                     ? Succ(r.Value)
-                    : Fail.ReRun(env);
+                    : Fail.Run(env);
             });
         
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<RT, B> MatchEff<RT, A, B>(this Eff<A> ma, Func<A, B> Succ, Func<Error, Eff<RT, B>> Fail) where RT : struct =>
             EffMaybe<RT, B>(env =>
                              {
-                                 var r = ma.ReRun();
+                                 var r = ma.Run();
                                  return r.IsSucc
                                             ? Succ(r.Value)
                                             : Fail(r.Error).Run(env);
@@ -716,17 +746,17 @@ namespace LanguageExt
         public static Eff<B> MatchEff<A, B>(this Eff<A> ma, Func<A, B> Succ, Eff<B> Fail) =>
             EffMaybe<B>(() =>
             {
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
                     ? Succ(r.Value)
-                    : Fail.ReRun();
+                    : Fail.Run();
             });
         
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<B> MatchEff<A, B>(this Eff<A> ma, Func<A, B> Succ, Func<Error, Eff<B>> Fail) =>
             EffMaybe<B>(() =>
                         {
-                            var r = ma.ReRun();
+                            var r = ma.Run();
                             return r.IsSucc
                                        ? Succ(r.Value)
                                        : Fail(r.Error).Run();
@@ -736,9 +766,9 @@ namespace LanguageExt
         public static Aff<RT, B> MatchAff<RT, A, B>(this Eff<A> ma, Aff<RT, B> Succ, Func<Error, B> Fail) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, B>(async env =>
             {
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
-                    ? await Succ.ReRun(env).ConfigureAwait(false)
+                    ? await Succ.Run(env).ConfigureAwait(false)
                     : Fail(r.Error);
             });
 
@@ -746,7 +776,7 @@ namespace LanguageExt
         public static Aff<RT, B> MatchAff<RT, A, B>(this Eff<A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, B> Fail) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, B>(async env =>
                              {
-                                 var r = ma.ReRun();
+                                 var r = ma.Run();
                                  return r.IsSucc
                                             ? await Succ(r.Value).Run(env).ConfigureAwait(false)
                                             : Fail(r.Error);
@@ -756,9 +786,9 @@ namespace LanguageExt
         public static Eff<RT, B> MatchEff<RT, A, B>(this Eff<A> ma, Eff<RT, B> Succ, Func<Error, B> Fail) where RT : struct =>
             EffMaybe<RT, B>(env =>
             {
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
-                    ? Succ.ReRun(env)
+                    ? Succ.Run(env)
                     : Fail(r.Error);
             });
 
@@ -766,7 +796,7 @@ namespace LanguageExt
         public static Eff<RT, B> MatchEff<RT, A, B>(this Eff<A> ma, Func<A, Eff<RT, B>> Succ, Func<Error, B> Fail) where RT : struct =>
             EffMaybe<RT, B>(env =>
                              {
-                                 var r = ma.ReRun();
+                                 var r = ma.Run();
                                  return r.IsSucc
                                             ? Succ(r.Value).Run(env)
                                             : Fail(r.Error);
@@ -776,9 +806,9 @@ namespace LanguageExt
         public static Eff<B> MatchEff<A, B>(this Eff<A> ma, Eff<B> Succ, Func<Error, B> Fail) =>
             EffMaybe<B>(() =>
             {
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
-                    ? Succ.ReRun()
+                    ? Succ.Run()
                     : Fail(r.Error);
             });
 
@@ -786,7 +816,7 @@ namespace LanguageExt
         public static Eff<B> MatchEff<A, B>(this Eff<A> ma, Func<A, Eff<B>> Succ, Func<Error, B> Fail) =>
             EffMaybe<B>(() =>
                         {
-                            var r = ma.ReRun();
+                            var r = ma.Run();
                             return r.IsSucc
                                        ? Succ(r.Value).Run()
                                        : Fail(r.Error);
@@ -796,17 +826,17 @@ namespace LanguageExt
         public static Aff<RT, B> MatchAff<RT, A, B>(this Eff<A> ma, Aff<RT, B> Succ, Aff<RT, B> Fail) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, B>(async env =>
             {
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
-                    ? await Succ.ReRun(env).ConfigureAwait(false)
-                    : await Fail.ReRun(env).ConfigureAwait(false);
+                    ? await Succ.Run(env).ConfigureAwait(false)
+                    : await Fail.Run(env).ConfigureAwait(false);
             });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, B> MatchAff<RT, A, B>(this Eff<A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, Aff<RT, B>> Fail) where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, B>(async env =>
                              {
-                                 var r = ma.ReRun();
+                                 var r = ma.Run();
                                  return r.IsSucc
                                             ? await Succ(r.Value).Run(env).ConfigureAwait(false)
                                             : await Fail(r.Error).Run(env).ConfigureAwait(false);
@@ -816,17 +846,17 @@ namespace LanguageExt
         public static Eff<RT, B> MatchEff<RT, A, B>(this Eff<A> ma, Eff<RT, B> Succ, Eff<RT, B> Fail) where RT : struct =>
             EffMaybe<RT, B>(env =>
             {
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
-                    ? Succ.ReRun(env)
-                    : Fail.ReRun(env);
+                    ? Succ.Run(env)
+                    : Fail.Run(env);
             });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<RT, B> MatchEff<RT, A, B>(this Eff<A> ma, Func<A, Eff<RT, B>> Succ, Func<Error, Eff<RT, B>> Fail) where RT : struct =>
             EffMaybe<RT, B>(env =>
             {
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
                     ? Succ(r.Value).Run(env)
                     : Fail(r.Error).Run(env);
@@ -836,17 +866,17 @@ namespace LanguageExt
         public static Eff<B> MatchEff<A, B>(this Eff<A> ma, Eff<B> Succ, Eff<B> Fail) =>
             EffMaybe<B>(() =>
             {
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
-                    ? Succ.ReRun()
-                    : Fail.ReRun();
+                    ? Succ.Run()
+                    : Fail.Run();
             });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<B> MatchEff<A, B>(this Eff<A> ma, Func<A, Eff<B>> Succ, Func<Error, Eff<B>> Fail) =>
             EffMaybe<B>(() =>
                         {
-                            var r = ma.ReRun();
+                            var r = ma.Run();
                             return r.IsSucc
                                        ? Succ(r.Value).Run()
                                        : Fail(r.Error).Run();
@@ -856,7 +886,7 @@ namespace LanguageExt
         public static Eff<B> Match<A, B>(this Eff<A> ma, B Succ, Func<Error, B> Fail) =>
             Eff<B>(() =>
             {
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
                     ? Succ
                     : Fail(r.Error);
@@ -866,7 +896,7 @@ namespace LanguageExt
         public static Eff<B> Match<RT, A, B>(this Eff<A> ma, Func<A, B> Succ, B Fail) =>
             Eff<B>(() =>
             {
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
                            ? Succ(r.Value)
                            : Fail;
@@ -876,7 +906,7 @@ namespace LanguageExt
         public static Eff<RT, B> Match<RT, A, B>(this Eff<A> ma, B Succ, B Fail) where RT : struct =>
             Eff<RT, B>(env =>
             {
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
                            ? Succ
                            : Fail;
@@ -886,7 +916,7 @@ namespace LanguageExt
         public static Eff<B> Match<A, B>(this Eff<A> ma, B Succ, B Fail) =>
             Eff<B>(() =>
             {
-                var r = ma.ReRun();
+                var r = ma.Run();
                 return r.IsSucc
                            ? Succ
                            : Fail;
@@ -901,7 +931,7 @@ namespace LanguageExt
             EffMaybe<A>(
                 () =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     return res.IsSucc
                                ? res
                                : Fin<A>.Succ(f(res.Error));
@@ -912,7 +942,7 @@ namespace LanguageExt
             EffMaybe<A>(
                 () =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     return res.IsSucc
                                ? res
                                : Fin<A>.Succ(alternative);
@@ -923,10 +953,10 @@ namespace LanguageExt
             AffMaybe<RT, A>(
                 async env =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     return res.IsSucc
                                ? res
-                               : await alternative.ReRun(env).ConfigureAwait(false);
+                               : await alternative.Run(env).ConfigureAwait(false);
                 });
         
         [Pure, MethodImpl(Opt.Default)]
@@ -934,7 +964,7 @@ namespace LanguageExt
             AffMaybe<RT, A>(
                 async env =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     return res.IsSucc
                                ? res
                                : await alternative(res.Error).Run(env).ConfigureAwait(false);
@@ -945,10 +975,10 @@ namespace LanguageExt
             AffMaybe<A>(
                 async () =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     return res.IsSucc
                                ? res
-                               : await alternative.ReRun().ConfigureAwait(false);
+                               : await alternative.Run().ConfigureAwait(false);
                 });
         
         [Pure, MethodImpl(Opt.Default)]
@@ -956,7 +986,7 @@ namespace LanguageExt
             AffMaybe<A>(
                 async () =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     return res.IsSucc
                                ? res
                                : await alternative(res.Error).Run().ConfigureAwait(false);
@@ -967,10 +997,10 @@ namespace LanguageExt
             EffMaybe<RT, A>(
                 env =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     return res.IsSucc
                                ? res
-                               : alternative.ReRun(env);
+                               : alternative.Run(env);
                 });
         
         [Pure, MethodImpl(Opt.Default)]
@@ -978,7 +1008,7 @@ namespace LanguageExt
             EffMaybe<RT, A>(
                 env =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     return res.IsSucc
                                ? res
                                : alternative(res.Error).Run(env);
@@ -989,10 +1019,10 @@ namespace LanguageExt
             EffMaybe<A>(
                 () =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     return res.IsSucc
                                ? res
-                               : alternative.ReRun();
+                               : alternative.Run();
                 });
         
         [Pure, MethodImpl(Opt.Default)]
@@ -1000,7 +1030,7 @@ namespace LanguageExt
             EffMaybe<A>(
                 () =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     return res.IsSucc
                                ? res
                                : alternative(res.Error).Run();
@@ -1015,7 +1045,7 @@ namespace LanguageExt
             Eff<Unit>(
                 () =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     if (res.IsSucc)
                     {
                         f(res.Value);
@@ -1028,7 +1058,7 @@ namespace LanguageExt
             Aff<RT, Unit>(
                 async env =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     if (res.IsSucc)
                     {
                         ignore(await f(res.Value).Run(env).ConfigureAwait(false));
@@ -1041,7 +1071,7 @@ namespace LanguageExt
             Aff<Unit>(
                 async () =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     if (res.IsSucc)
                     {
                         ignore(await f(res.Value).Run().ConfigureAwait(false));
@@ -1054,7 +1084,7 @@ namespace LanguageExt
             Eff<RT, Unit>(
                 env =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     if (res.IsSucc)
                     {
                         ignore(f(res.Value).Run(env));
@@ -1067,7 +1097,7 @@ namespace LanguageExt
             Eff<Unit>(
                 () =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     if (res.IsSucc)
                     {
                         ignore(f(res.Value).Run());
@@ -1080,7 +1110,7 @@ namespace LanguageExt
             EffMaybe<A>(
                 () =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     if (res.IsSucc)
                     {
                         f(res.Value);
@@ -1093,7 +1123,7 @@ namespace LanguageExt
             AffMaybe<RT, A>(
                 async env =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     if (res.IsSucc)
                     {
                         var ures = await f(res.Value).Run(env).ConfigureAwait(false);
@@ -1109,7 +1139,7 @@ namespace LanguageExt
             EffMaybe<RT, A>(
                 env =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     if (res.IsSucc)
                     {
                         var ures = f(res.Value).Run(env);
@@ -1125,7 +1155,7 @@ namespace LanguageExt
             AffMaybe<A>(
                 async () =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     if (res.IsSucc)
                     {
                         var ures = await f(res.Value).Run().ConfigureAwait(false);
@@ -1141,7 +1171,7 @@ namespace LanguageExt
             EffMaybe<A>(
                 () =>
                 {
-                    var res = ma.ReRun();
+                    var res = ma.Run();
                     if (res.IsSucc)
                     {
                         var ures = f(res.Value).Run();
@@ -1166,47 +1196,44 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<B> Bind<A, B>(this Eff<A> ma, Func<A, Eff<B>> f) =>
-            new Eff<B>(Thunk<B>.Lazy(
-                           () =>
-                           {
-                               var fa = ma.ReRun();
-                               if (fa.IsFail) return FinFail<B>(fa.Error);
-                               var mb = f(fa.Value);
-                               return mb.Run();
-                           }));
+            new(() =>
+            {
+                var fa = ma.Run();
+                if (fa.IsFail) return FinFail<B>(fa.Error);
+                var mb = f(fa.Value);
+                return mb.Run();
+            });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<RT, B> Bind<RT, A, B>(this Eff<A> ma, Func<A, Eff<RT, B>> f) where RT : struct =>
-            new Eff<RT, B>(Thunk<RT, B>.Lazy(
-                               env =>
-                               {
-                                   var fa = ma.ReRun();
-                                   if (fa.IsFail) return FinFail<B>(fa.Error);
-                                   var mb = f(fa.Value);
-                                   return mb.Run(env);
-                               }));
-        
-        [Pure, MethodImpl(Opt.Default)]
-        public static Aff<B> Bind<A, B>(this Eff<A> ma, Func<A, Aff<B>> f) =>
-            new Aff<B>(ThunkAsync<B>.Lazy(
-                               async () =>
-                               {
-                                   var fa = ma.ReRun();
-                                   if (fa.IsFail) return FinFail<B>(fa.Error);
-                                   var mb = f(fa.Value);
-                                   return await mb.Run().ConfigureAwait(false);
-                               }));
+            new (env =>
+            {
+                var fa = ma.Run();
+                if (fa.IsFail) return FinFail<B>(fa.Error);
+                var mb = f(fa.Value);
+                return mb.Run(env);
+            });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> Bind<RT, A, B>(this Eff<A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            new Aff<RT, B>(ThunkAsync<RT, B>.Lazy(
-                               async env =>
-                               {
-                                   var fa = ma.ReRun();
-                                   if (fa.IsFail) return FinFail<B>(fa.Error);
-                                   var mb = f(fa.Value);
-                                   return await mb.Run(env).ConfigureAwait(false);
-                               }));
+        public static Aff<B> Bind<A, B>(this Eff<A> ma, Func<A, Aff<B>> f) =>
+            new(async () =>
+            {
+                var fa = ma.Run();
+                if (fa.IsFail) return FinFail<B>(fa.Error);
+                var mb = f(fa.Value);
+                return await mb.Run().ConfigureAwait(false);
+            });
+
+        [Pure, MethodImpl(Opt.Default)]
+        public static Aff<RT, B> Bind<RT, A, B>(this Eff<A> ma, Func<A, Aff<RT, B>> f)
+            where RT : struct, HasCancel<RT> =>
+            new(async env =>
+            {
+                var fa = ma.Run();
+                if (fa.IsFail) return FinFail<B>(fa.Error);
+                var mb = f(fa.Value);
+                return await mb.Run(env).ConfigureAwait(false);
+            });
         
         //
         // Bi-bind
@@ -1237,20 +1264,40 @@ namespace LanguageExt
         //
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Eff<A> Flatten<A>(this Eff<Eff<A>> ma) =>
-            new Eff<A>(ma.Thunk.Map(ThunkFromIO).Flatten());
+        public static Eff<A> Flatten<A>(this Eff<Eff<A>> mma) =>
+            new (() =>
+            {
+                var ma = mma.Run();
+                if (ma.IsFail) return ma.Error;
+                return ma.Value.Run();
+            });
+
+        [Pure, MethodImpl(Opt.Default)]
+        public static Eff<RT, A> Flatten<RT, A>(this Eff<Eff<RT, A>> mma) where RT : struct =>
+            new (rt =>
+            {
+                var ma = mma.Run();
+                if (ma.IsFail) return ma.Error;
+                return ma.Value.Run(rt);
+            });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Eff<RT, A> Flatten<RT, A>(this Eff<Eff<RT, A>> ma) where RT : struct =>
-            new Eff<RT, A>(ma.Thunk.Map(ThunkFromIO).Flatten());
+        public static Aff<A> Flatten<A>(this Eff<Aff<A>> mma) =>
+            new (async () =>
+            {
+                var ma = mma.Run();
+                if (ma.IsFail) return ma.Error;
+                return await ma.Value.Run().ConfigureAwait(false);
+            });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<A> Flatten<A>(this Eff<Aff<A>> ma) =>
-            new Aff<A>(ma.Thunk.Map(ThunkFromIO).Flatten());
-        
-        [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Flatten<RT, A>(this Eff<Aff<RT, A>> ma) where RT : struct, HasCancel<RT> =>
-            new Aff<RT, A>(ma.Thunk.Map(ThunkFromIO).Flatten());
+        public static Aff<RT, A> Flatten<RT, A>(this Eff<Aff<RT, A>> mma) where RT : struct, HasCancel<RT> =>
+            new (async rt =>
+            {
+                var ma = mma.Run();
+                if (ma.IsFail) return ma.Error;
+                return await ma.Value.Run(rt).ConfigureAwait(false);
+            });
 
         //
         // Select
@@ -1311,20 +1358,16 @@ namespace LanguageExt
         //
         // Zip
         //
-        
+
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<(A, B)> Zip<A, B>(Eff<A> ma, Eff<B> mb) =>
-            new Eff<(A, B)>(Thunk<(A, B)>.Lazy(() =>
+            new(() =>
             {
-                var ta = ma.ReRun();
+                var ta = ma.Run();
                 if (ta.IsFail) return ta.Cast<(A, B)>();
-                var tb = mb.ReRun();
+                var tb = mb.Run();
                 if (tb.IsFail) return tb.Cast<(A, B)>();
                 return Fin<(A, B)>.Succ((ta.Value, tb.Value));
-            }));
-        
-        [Pure, MethodImpl(Opt.Default)]
-        static Thunk<A> ThunkFromIO<A>(Eff<A> ma) =>
-            ma.Thunk;
+            });
     }
 }

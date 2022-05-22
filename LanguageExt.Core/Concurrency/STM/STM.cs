@@ -18,22 +18,36 @@ namespace LanguageExt
     public static class STM
     {
         static long refIdNext;
-        static readonly AtomHashMap<EqLong, long, RefState> state = AtomHashMap<EqLong, long, RefState>();
-        static readonly AsyncLocal<Transaction> transaction = new AsyncLocal<Transaction>();
+        static readonly AtomHashMap<EqLong, long, RefState> state;
+        static readonly AsyncLocal<Transaction> transaction;
+
+        static STM()
+        {
+            state = AtomHashMap<EqLong, long, RefState>();
+            transaction = new AsyncLocal<Transaction>();
+        }
+
+        static void OnChange(TrieMap<EqLong, long, Change<RefState>> patch) 
+        {
+            foreach (var change in patch)
+            {
+                if (change.Value is EntryMappedTo<RefState> update)
+                {
+                    update.To.OnChange(update.To.UntypedValue);
+                }
+            }
+        }
 
         /// <summary>
         /// Generates a new reference that can be used within a sync transaction
         /// </summary>
         internal static Ref<A> NewRef<A>(A value, Func<A, bool> validator = null)
         {
-            /*var valid = validator == null
-                ? True
-                : CastPredicate(validator);*/
-
             var id = Interlocked.Increment(ref refIdNext);
-            var v = new RefState<A>(0, value, validator);
+            var r = new Ref<A>(id);
+            var v = new RefState<A>(0, value, validator, r);
             state.Add(id, v);
-            return new Ref<A>(id);
+            return r;
         }
         
         /// <summary>
@@ -123,6 +137,9 @@ namespace LanguageExt
                 {
                     // Clear the current transaction on the way out
                     transaction.Value = null;
+                    
+                    // Announce changes
+                    OnChange(t.changes);
                 }
                 // Wait one tick before trying again
                 sw.SpinOnce();
@@ -144,7 +161,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = await op.ReRun(env).ConfigureAwait(false);
+                        var res = await op.Run(env).ConfigureAwait(false);
                         return res.IsFail 
                                    ? res 
                                    : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
@@ -157,6 +174,9 @@ namespace LanguageExt
                     {
                         // Clear the current transaction on the way out
                         transaction.Value = null;
+                    
+                        // Announce changes
+                        OnChange(t.changes);
                     }
 
                     // Wait one tick before trying again
@@ -179,7 +199,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = op.ReRun(env);
+                        var res = op.Run(env);
                         return res.IsFail 
                                    ? res 
                                    : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
@@ -192,6 +212,9 @@ namespace LanguageExt
                     {
                         // Clear the current transaction on the way out
                         transaction.Value = null;
+                    
+                        // Announce changes
+                        OnChange(t.changes);
                     }
 
                     // Wait one tick before trying again
@@ -214,7 +237,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = await op.ReRun().ConfigureAwait(false);
+                        var res = await op.Run().ConfigureAwait(false);
                         return res.IsFail 
                                    ? res 
                                    : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
@@ -227,6 +250,9 @@ namespace LanguageExt
                     {
                         // Clear the current transaction on the way out
                         transaction.Value = null;
+                    
+                        // Announce changes
+                        OnChange(t.changes);
                     }
 
                     // Wait one tick before trying again
@@ -249,7 +275,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = op.ReRun();
+                        var res = op.Run();
                         return res.IsFail 
                                    ? res 
                                    : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
@@ -262,6 +288,9 @@ namespace LanguageExt
                     {
                         // Clear the current transaction on the way out
                         transaction.Value = null;
+                    
+                        // Announce changes
+                        OnChange(t.changes);
                     }
 
                     // Wait one tick before trying again
@@ -293,6 +322,9 @@ namespace LanguageExt
                 {
                     // Clear the current transaction on the way out
                     transaction.Value = null;
+                    
+                    // Announce changes
+                    OnChange(t.changes);
                 }
                 // Wait one tick before trying again
                 sw.SpinOnce();
@@ -325,6 +357,9 @@ namespace LanguageExt
                 {
                     // Clear the current transaction on the way out
                     transaction.Value = null;
+                    
+                    // Announce changes
+                    OnChange(t.changes);
                 }
                 // Spin, backing off, then yield the thread to avoid deadlock 
                 sw.SpinOnce();
@@ -347,18 +382,18 @@ namespace LanguageExt
 
             // Attempt to apply the changes atomically
             state.SwapInternal(s =>
-                               {
-                                   if (isolation == Isolation.Serialisable)
-                                   {
-                                       ValidateReads(t, s, isolation);
-                                   }
+            {
+                if (isolation == Isolation.Serialisable)
+                {
+                    ValidateReads(t, s, isolation);
+                }
 
-                                   s = anyWrites
-                                           ? CommitWrites(t, s)
-                                           : s;
-                                   (s, result) = anyCommutes ? CommitCommutes(t, s, returnRefId, result) : (s, result);
-                                   return s;
-                               });
+                s = anyWrites
+                    ? CommitWrites(t, s)
+                    : s;
+                (s, result) = anyCommutes ? CommitCommutes(t, s, returnRefId, result) : (s, result);
+                return s;
+            });
 
             // Changes applied successfully
             return result;
@@ -584,6 +619,7 @@ namespace LanguageExt
             static long transactionIdNext;
             public readonly long transactionId;
             public TrieMap<EqLong, long, RefState> state;
+            public TrieMap<EqLong, long, Change<RefState>> changes;
             public readonly System.Collections.Generic.HashSet<long> reads = new();
             public readonly System.Collections.Generic.HashSet<long> writes = new();
             public readonly System.Collections.Generic.List<(long Id, Func<object, object> Fun)> commutes = new();
@@ -592,6 +628,7 @@ namespace LanguageExt
             public Transaction(TrieMap<EqLong, long, RefState> state)
             {
                 this.state = state;
+                changes = TrieMap<EqLong, long, Change<RefState>>.EmptyForMutating;
                 transactionId = Interlocked.Increment(ref transactionIdNext);
             }
 
@@ -609,6 +646,16 @@ namespace LanguageExt
                 var newState = oldState.SetValue(value);
                 state = state.SetItem(id, newState);
                 writes.Add(id);
+                var change = changes.Find(id);
+                if (change.IsSome)
+                {
+                    var last = (EntryMapped<RefState, RefState>)change.Value;
+                    changes = changes.AddOrUpdateInPlace(id, Change<RefState>.Mapped(last.From, newState));
+                }
+                else
+                {
+                    changes = changes.AddOrUpdateInPlace(id, Change<RefState>.Mapped(oldState, newState));
+                }
                 return value;
             }
 
@@ -635,10 +682,11 @@ namespace LanguageExt
             public abstract RefState Inc();
             public abstract RefState Map(Func<object, object> f);
             public abstract RefState MapAndInc(Func<object, object> f);
+            public abstract void OnChange(object value);
             public abstract object UntypedValue { get; }
         }
 
-        record RefState<A>(long Version, A Value, Func<A, bool> Validator) : RefState(Version)
+        record RefState<A>(long Version, A Value, Func<A, bool> Validator, Ref<A> Ref) : RefState(Version)
         {
             public override bool Validate(RefState refState) =>
                 Validator?.Invoke(((RefState<A>)refState).Value) ?? true;
@@ -658,6 +706,9 @@ namespace LanguageExt
             public override RefState MapAndInc(Func<object, object> f) =>
                 this with {Version = Version + 1, Value = (A)f(Value)};
 
+            public override void OnChange(object value) =>
+                Ref.OnChange((A)value);
+            
             public override object UntypedValue =>
                 Value;
         }

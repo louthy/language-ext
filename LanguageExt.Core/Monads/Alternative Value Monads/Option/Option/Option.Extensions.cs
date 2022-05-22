@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -33,7 +34,9 @@ public static class OptionExtensions
         {
             if (item.IsSome)
             {
+                #nullable disable
                 yield return item.Value;
+                #nullable enable
             }
         }
     }
@@ -52,7 +55,9 @@ public static class OptionExtensions
             {
                 if (item.IsSome)
                 {
+                    #nullable disable
                     yield return item.Value;
+                    #nullable enable
                 }
             }
         }
@@ -238,7 +243,7 @@ public static class OptionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static A? ToNullable<A>(this Option<A> ma) where A : struct =>
         ma.IsNone
-            ? (A?)null
+            ? null
             : ma.Value;
 
     /// <summary>
