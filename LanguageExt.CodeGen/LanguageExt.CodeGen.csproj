@@ -7,7 +7,7 @@
   <!--<Sdk Name="CodeGeneration.Roslyn.Plugin.Sdk" Version="0.7.5-alpha" />-->
 
   <PropertyGroup>
-    <PackageVersion>4.1.1</PackageVersion>
+    <PackageVersion>4.1.2</PackageVersion>
     <PackageId>LanguageExt.CodeGen</PackageId>
     <Title>LanguageExt.CodeGen</Title>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -17,7 +17,7 @@
     <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
     <Description>Design and build-time code-gen for records, unions, lenses and immutable With functions</Description>
     <PackageTags>C#, Functional, Language Extension, Lenses, Records, Unions, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
-    <PackageIconUrl>https://github.com/louthy/language-ext/blob/master/Images/lang-ext-small.png?raw=true</PackageIconUrl>
+    <PackageIcon>lang-ext-small.png</PackageIcon>
     <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
@@ -28,7 +28,12 @@
     <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
 
   </PropertyGroup>
-
+  <ItemGroup>
+    <None Include="..\Images\lang-ext-small.png">
+      <Pack>True</Pack>
+      <PackagePath/>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CodeGeneration.Roslyn" Version="$(RoslynCodeGenVersion)" />
   </ItemGroup>

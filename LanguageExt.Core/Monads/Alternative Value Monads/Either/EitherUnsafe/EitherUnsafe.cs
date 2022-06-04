@@ -676,11 +676,11 @@ namespace LanguageExt
                 : value;
 
         [Pure]
-        internal static EitherUnsafe<L, R> Right(R value) =>
+        public static EitherUnsafe<L, R> Right(R value) =>
             new EitherUnsafe<L, R>(value);
 
         [Pure]
-        internal static EitherUnsafe<L, R> Left(L value) =>
+        public static EitherUnsafe<L, R> Left(L value) =>
             new EitherUnsafe<L, R>(value);
 
         [Pure]

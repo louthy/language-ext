@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using LanguageExt;
 using System.Linq;
 using System.Collections.Generic;
@@ -21,7 +22,9 @@ namespace LanguageExt
                 if (x.IsBottom) return new OptionalResult<Arr<B>>(BottomException.Default);
                 if (x.IsFaulted) return new OptionalResult<Arr<B>>(x.Exception);
                 if (x.IsNone) return OptionalResult<Arr<B>>.None;
+                #nullable disable
                 res[ix] = f(x.Value.Value);
+                #nullable enable
                 ix++;
             }
 
@@ -44,7 +47,9 @@ namespace LanguageExt
                 if (mr.IsBottom) return new OptionalResult<Either<L, B>>(BottomException.Default);
                 if (mr.IsFaulted) return new OptionalResult<Either<L, B>>(mr.Exception);
                 if (mr.IsNone) return OptionalResult<Either<L, B>>.None;
+                #nullable disable                
                 return new OptionalResult<Either<L, B>>(Either<L, B>.Right(f(mr.Value.Value)));
+                #nullable enable
             }
         };
         
@@ -64,7 +69,9 @@ namespace LanguageExt
                 if (mr.IsBottom) return new OptionalResult<EitherUnsafe<L, B>>(BottomException.Default);
                 if (mr.IsFaulted) return new OptionalResult<EitherUnsafe<L, B>>(mr.Exception);
                 if (mr.IsNone) return OptionalResult<EitherUnsafe<L, B>>.None;
+                #nullable disable
                 return new OptionalResult<EitherUnsafe<L, B>>(EitherUnsafe<L, B>.Right(f(mr.Value.Value)));
+                #nullable enable
             }
         };
 
@@ -78,7 +85,9 @@ namespace LanguageExt
                 if (x.IsBottom) return new OptionalResult<HashSet<B>>(BottomException.Default);
                 if (x.IsFaulted) return new OptionalResult<HashSet<B>>(x.Exception);
                 if (x.IsNone) return OptionalResult<HashSet<B>>.None;
+                #nullable disable
                 res[ix] = f(x.Value.Value);
+                #nullable enable
                 ix++;
             }
 
@@ -91,7 +100,9 @@ namespace LanguageExt
             if (mr.IsBottom) return new OptionalResult<Identity<B>>(BottomException.Default);
             if (mr.IsFaulted) return new OptionalResult<Identity<B>>(mr.Exception);
             if (mr.IsNone) return OptionalResult<Identity<B>>.None;
+            #nullable disable
             return new OptionalResult<Identity<B>>(new Identity<B>(f(mr.Value.Value)));
+            #nullable enable
         };
 
         public static TryOption<Lst<B>> Traverse<A, B>(this Lst<TryOption<A>> ma, Func<A, B> f) => () =>
@@ -104,7 +115,9 @@ namespace LanguageExt
                 if (x.IsBottom) return new OptionalResult<Lst<B>>(BottomException.Default);
                 if (x.IsFaulted) return new OptionalResult<Lst<B>>(x.Exception);
                 if (x.IsNone) return OptionalResult<Lst<B>>.None;
+                #nullable disable
                 res[ix] = f(x.Value.Value);
+                #nullable enable
                 ix++;
             }
 
@@ -118,17 +131,23 @@ namespace LanguageExt
             if (mr.IsBottom) return new OptionalResult<Fin<B>>(BottomException.Default);
             if (mr.IsFaulted) return new OptionalResult<Fin<B>>(mr.Exception);
             if (mr.IsNone) return OptionalResult<Fin<B>>.None;
+            #nullable disable
             return new OptionalResult<Fin<B>>(Fin<B>.Succ(f(mr.Value.Value)));
+            #nullable enable
         };
 
         public static TryOption<Option<B>> Traverse<A, B>(this Option<TryOption<A>> ma, Func<A, B> f) => () =>
         {
             if (ma.IsNone) return new OptionalResult<Option<B>>(Option<B>.None);
+            #nullable disable
             var mr = ma.Value();
+            #nullable enable
             if (mr.IsBottom) return new OptionalResult<Option<B>>(BottomException.Default);
             if (mr.IsFaulted) return new OptionalResult<Option<B>>(mr.Exception);
             if (mr.IsNone) return OptionalResult<Option<B>>.None;
+            #nullable disable
             return new OptionalResult<Option<B>>(Option<B>.Some(f(mr.Value.Value)));
+            #nullable enable
         };
         
         public static TryOption<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<TryOption<A>> ma, Func<A, B> f) => () =>
@@ -138,7 +157,9 @@ namespace LanguageExt
             if (mr.IsBottom) return new OptionalResult<OptionUnsafe<B>>(BottomException.Default);
             if (mr.IsFaulted) return new OptionalResult<OptionUnsafe<B>>(mr.Exception);
             if (mr.IsNone) return OptionalResult<OptionUnsafe<B>>.None;
+            #nullable disable
             return new OptionalResult<OptionUnsafe<B>>(OptionUnsafe<B>.Some(f(mr.Value.Value)));
+            #nullable enable
         };
 
         public static TryOption<Que<B>> Traverse<A, B>(this Que<TryOption<A>> ma, Func<A, B> f) => () =>
@@ -151,7 +172,9 @@ namespace LanguageExt
                 if (x.IsBottom) return new OptionalResult<Que<B>>(BottomException.Default);
                 if (x.IsFaulted) return new OptionalResult<Que<B>>(x.Exception);
                 if (x.IsNone) return OptionalResult<Que<B>>.None;
+                #nullable disable
                 res[ix] = f(x.Value.Value);
+                #nullable enable
                 ix++;
             }
 
@@ -168,7 +191,9 @@ namespace LanguageExt
                 if (x.IsBottom) return new OptionalResult<Seq<B>>(BottomException.Default);
                 if (x.IsFaulted) return new OptionalResult<Seq<B>>(x.Exception);
                 if (x.IsNone) return OptionalResult<Seq<B>>.None;
+                #nullable disable
                 res[ix] = f(x.Value.Value);
+                #nullable enable
                 ix++;
             }
 
@@ -184,7 +209,9 @@ namespace LanguageExt
                 if (x.IsBottom) return new OptionalResult<IEnumerable<B>>(BottomException.Default);
                 if (x.IsFaulted) return new OptionalResult<IEnumerable<B>>(x.Exception);
                 if (x.IsNone) return OptionalResult<IEnumerable<B>>.None;
+                #nullable disable
                 res.Add(f(x.Value.Value));
+                #nullable enable
             }
 
             return new OptionalResult<IEnumerable<B>>(res);
@@ -200,7 +227,9 @@ namespace LanguageExt
                 if (x.IsBottom) return new OptionalResult<Set<B>>(BottomException.Default);
                 if (x.IsFaulted) return new OptionalResult<Set<B>>(x.Exception);
                 if (x.IsNone) return OptionalResult<Set<B>>.None;
+                #nullable disable
                 res[ix] = f(x.Value.Value);
+                #nullable enable
                 ix++;
             }
 
@@ -217,7 +246,9 @@ namespace LanguageExt
                 if (x.IsBottom) return new OptionalResult<Stck<B>>(BottomException.Default);
                 if (x.IsFaulted) return new OptionalResult<Stck<B>>(x.Exception);
                 if (x.IsNone) return OptionalResult<Stck<B>>.None;
+                #nullable disable
                 res[ix] = f(x.Value.Value);
+                #nullable enable 
                 ix--;
             }
 
@@ -233,7 +264,9 @@ namespace LanguageExt
             if (mr.IsBottom) return  OptionalResult<Try<B>>.None;
             if (mr.IsFaulted) return new OptionalResult<Try<B>>(mr.Exception);
             if (mr.IsNone) return OptionalResult<Try<B>>.None;
+            #nullable disable
             return new OptionalResult<Try<B>>(Try<B>(f(mr.Value.Value)));
+            #nullable enable
         };
         
         public static TryOption<TryOption<B>> Traverse<A, B>(this TryOption<TryOption<A>> ma, Func<A, B> f) => () =>
@@ -246,7 +279,9 @@ namespace LanguageExt
             if (mr.IsBottom) return OptionalResult<TryOption<B>>.None;
             if (mr.IsFaulted) return new OptionalResult<TryOption<B>>(mr.Exception);
             if (mr.IsNone) return OptionalResult<TryOption<B>>.None;
+            #nullable disable
             return new OptionalResult<TryOption<B>>(TryOption<B>(f(mr.Value.Value)));
+            #nullable enable
         };
         
         public static TryOption<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, TryOption<A>> ma, Func<A, B> f) => () =>
@@ -256,7 +291,9 @@ namespace LanguageExt
             if (mr.IsBottom) return new OptionalResult<Validation<Fail, B>>(BottomException.Default);
             if (mr.IsFaulted) return new OptionalResult<Validation<Fail, B>>(mr.Exception);
             if (mr.IsNone) return OptionalResult<Validation<Fail, B>>.None;
+            #nullable disable
             return new OptionalResult<Validation<Fail, B>>(Validation<Fail, B>.Success(f(mr.Value.Value)));
+            #nullable enable
         };
 
         public static TryOption<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(
@@ -268,7 +305,9 @@ namespace LanguageExt
             if (mr.IsBottom) return new OptionalResult<Validation<MonoidFail, Fail, B>>(BottomException.Default);
             if (mr.IsFaulted) return new OptionalResult<Validation<MonoidFail, Fail, B>>(mr.Exception);
             if (mr.IsNone) return OptionalResult<Validation<MonoidFail, Fail, B>>.None;
+            #nullable disable
             return new OptionalResult<Validation<MonoidFail, Fail, B>>(Validation<MonoidFail, Fail, B>.Success(f(mr.Value.Value)));
+            #nullable enable
         };
         
         public static TryOption<Eff<B>> Traverse<A, B>(this Eff<TryOption<A>> ma, Func<A, B> f) => () =>
@@ -280,7 +319,9 @@ namespace LanguageExt
             if (mr.IsBottom) return  OptionalResult<Eff<B>>.None;
             if (mr.IsFaulted) return new OptionalResult<Eff<B>>(mr.Exception);
             if (mr.IsNone) return OptionalResult<Eff<B>>.None;
+            #nullable disable
             return new OptionalResult<Eff<B>>(SuccessEff<B>(f(mr.Value.Value)));
+            #nullable enable
         };
     }
 }

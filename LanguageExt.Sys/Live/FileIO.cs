@@ -25,7 +25,7 @@ namespace LanguageExt.Sys.Live
             return default;
         }
 
-#if NETSTANDARD21
+#if NET5PLUS
         /// <summary>
         /// Append lines to the end of a file
         /// </summary>
@@ -45,7 +45,7 @@ namespace LanguageExt.Sys.Live
         }
 #endif
 
-#if NETSTANDARD21
+#if NET5PLUS
         /// <summary>
         /// Read all lines from a file
         /// </summary>
@@ -59,7 +59,7 @@ namespace LanguageExt.Sys.Live
             File.ReadAllLines(path, encoding).ToSeq().AsValueTask();
 #endif
 
-#if NETSTANDARD21
+#if NET5PLUS
         /// <summary>
         /// Write all lines to a file
         /// </summary>
@@ -79,7 +79,7 @@ namespace LanguageExt.Sys.Live
         }
 #endif
 
-#if NETSTANDARD21
+#if NET5PLUS
         /// <summary>
         /// Read text from a file
         /// </summary>
@@ -93,7 +93,7 @@ namespace LanguageExt.Sys.Live
             File.ReadAllText(path, encoding).AsValueTask();
 #endif
 
-#if NETSTANDARD21
+#if NET5PLUS
         /// <summary>
         /// Read data from a file
         /// </summary>
@@ -107,7 +107,7 @@ namespace LanguageExt.Sys.Live
             File.ReadAllBytes(path).AsValueTask();
 #endif
         
-#if NETSTANDARD21
+#if NET5PLUS
         /// <summary>
         /// Write text to a file
         /// </summary>
@@ -127,7 +127,7 @@ namespace LanguageExt.Sys.Live
         }
 #endif
         
-#if NETSTANDARD21
+#if NET5PLUS
         /// <summary>
         /// Write data to a file
         /// </summary>

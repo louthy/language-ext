@@ -431,21 +431,6 @@ namespace LanguageExt
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherAsync&lt;L, Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;EitherAsync&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherAsync&lt;L, Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherAsync<L, Arr<A>> Sequence<L, A>(this Arr<EitherAsync<L, A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -855,21 +840,6 @@ namespace LanguageExt
                         (EitherAsync<L, B> b) =>
                             default(ApplEitherAsync<L, A, B, C>).Apply(
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherAsync&lt;L, HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;EitherAsync&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherAsync&lt;L, HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherAsync<L, HashSet<A>> Sequence<L, A>(this HashSet<EitherAsync<L, A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -1283,21 +1253,6 @@ namespace LanguageExt
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherAsync&lt;L, Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;EitherAsync&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherAsync&lt;L, Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherAsync<L, Lst<A>> Sequence<L, A>(this Lst<EitherAsync<L, A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -1707,21 +1662,6 @@ namespace LanguageExt
                         (EitherAsync<L, B> b) =>
                             default(ApplEitherAsync<L, A, B, C>).Apply(
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherAsync&lt;L, Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;EitherAsync&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherAsync&lt;L, Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherAsync<L, Fin<A>> Sequence<L, A>(this Fin<EitherAsync<L, A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -2135,21 +2075,6 @@ namespace LanguageExt
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherAsync&lt;L, Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;EitherAsync&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherAsync&lt;L, Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherAsync<L, Option<A>> Sequence<L, A>(this Option<EitherAsync<L, A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -2559,21 +2484,6 @@ namespace LanguageExt
                         (EitherAsync<L, B> b) =>
                             default(ApplEitherAsync<L, A, B, C>).Apply(
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;EitherAsync&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherAsync&lt;L, OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherAsync<L, OptionUnsafe<A>> Sequence<L, A>(this OptionUnsafe<EitherAsync<L, A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -2987,21 +2897,6 @@ namespace LanguageExt
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherAsync&lt;L, Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, EitherAsync&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherAsync&lt;L, Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherAsync<L, Either<L, A>> Sequence<L, A>(this Either<L, EitherAsync<L, A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -3411,21 +3306,6 @@ namespace LanguageExt
                         (EitherAsync<L, B> b) =>
                             default(ApplEitherAsync<L, A, B, C>).Apply(
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, EitherAsync&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherAsync&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherAsync<L, EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, EitherAsync<L, A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -3839,21 +3719,6 @@ namespace LanguageExt
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherAsync&lt;L, Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;EitherAsync&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherAsync&lt;L, Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherAsync<L, Try<A>> Sequence<L, A>(this Try<EitherAsync<L, A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -4263,21 +4128,6 @@ namespace LanguageExt
                         (EitherAsync<L, B> b) =>
                             default(ApplEitherAsync<L, A, B, C>).Apply(
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherAsync&lt;L, TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;EitherAsync&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherAsync&lt;L, TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherAsync<L, TryOption<A>> Sequence<L, A>(this TryOption<EitherAsync<L, A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -5513,21 +5363,6 @@ namespace LanguageExt
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherAsync&lt;L, Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;EitherAsync&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherAsync&lt;L, Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherAsync<L, Set<A>> Sequence<L, A>(this Set<EitherAsync<L, A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -5937,21 +5772,6 @@ namespace LanguageExt
                         (EitherAsync<L, B> b) =>
                             default(ApplEitherAsync<L, A, B, C>).Apply(
                                 default(MEitherAsync<L, Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, EitherAsync&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, EitherAsync&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherAsync&lt;L, Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherAsync<L, Validation<FAIL, A>> Sequence<FAIL, L, A>(this Validation<FAIL, EitherAsync<L, A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
     }
     /// <summary>
@@ -6373,21 +6193,6 @@ namespace LanguageExt
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;OptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionAsync&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;OptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionAsync&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionAsync<Arr<A>> Sequence< A>(this Arr<OptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -6797,21 +6602,6 @@ namespace LanguageExt
                         (OptionAsync<B> b) =>
                             default(ApplOptionAsync< A, B, C>).Apply(
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;OptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionAsync&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;OptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionAsync&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionAsync<HashSet<A>> Sequence< A>(this HashSet<OptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -7225,21 +7015,6 @@ namespace LanguageExt
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;OptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionAsync&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;OptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionAsync&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionAsync<Lst<A>> Sequence< A>(this Lst<OptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -7649,21 +7424,6 @@ namespace LanguageExt
                         (OptionAsync<B> b) =>
                             default(ApplOptionAsync< A, B, C>).Apply(
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;OptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionAsync&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;OptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionAsync&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionAsync<Fin<A>> Sequence< A>(this Fin<OptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -8077,21 +7837,6 @@ namespace LanguageExt
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;OptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionAsync&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;OptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionAsync&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionAsync<Option<A>> Sequence< A>(this Option<OptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -8501,21 +8246,6 @@ namespace LanguageExt
                         (OptionAsync<B> b) =>
                             default(ApplOptionAsync< A, B, C>).Apply(
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;OptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;OptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionAsync<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<OptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -8929,21 +8659,6 @@ namespace LanguageExt
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, OptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionAsync&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, OptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionAsync&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionAsync<Either<L, A>> Sequence<L, A>(this Either<L, OptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -9353,21 +9068,6 @@ namespace LanguageExt
                         (OptionAsync<B> b) =>
                             default(ApplOptionAsync< A, B, C>).Apply(
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, OptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, OptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionAsync<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, OptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -9781,21 +9481,6 @@ namespace LanguageExt
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;OptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionAsync&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;OptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionAsync&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionAsync<Try<A>> Sequence< A>(this Try<OptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -10205,21 +9890,6 @@ namespace LanguageExt
                         (OptionAsync<B> b) =>
                             default(ApplOptionAsync< A, B, C>).Apply(
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;OptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionAsync&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;OptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionAsync&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionAsync<TryOption<A>> Sequence< A>(this TryOption<OptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -11455,21 +11125,6 @@ namespace LanguageExt
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;OptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionAsync&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;OptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionAsync&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionAsync<Set<A>> Sequence< A>(this Set<OptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -11879,21 +11534,6 @@ namespace LanguageExt
                         (OptionAsync<B> b) =>
                             default(ApplOptionAsync< A, B, C>).Apply(
                                 default(MOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, OptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, OptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionAsync<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, OptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
     }
     /// <summary>
@@ -12315,21 +11955,6 @@ namespace LanguageExt
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;Task&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Task&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;Task&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Task&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Task<Arr<A>> Sequence< A>(this Arr<Task<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -12739,21 +12364,6 @@ namespace LanguageExt
                         (Task<B> b) =>
                             default(ApplTask< A, B, C>).Apply(
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;Task&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Task&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;Task&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Task&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Task<HashSet<A>> Sequence< A>(this HashSet<Task<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -13167,21 +12777,6 @@ namespace LanguageExt
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;Task&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Task&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;Task&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Task&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Task<Lst<A>> Sequence< A>(this Lst<Task<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -13591,21 +13186,6 @@ namespace LanguageExt
                         (Task<B> b) =>
                             default(ApplTask< A, B, C>).Apply(
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;Task&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Task&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;Task&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Task&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Task<Fin<A>> Sequence< A>(this Fin<Task<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -14019,21 +13599,6 @@ namespace LanguageExt
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;Task&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Task&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;Task&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Task&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Task<Option<A>> Sequence< A>(this Option<Task<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -14443,21 +14008,6 @@ namespace LanguageExt
                         (Task<B> b) =>
                             default(ApplTask< A, B, C>).Apply(
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Task&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Task&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;Task&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Task&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Task<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<Task<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -14871,21 +14421,6 @@ namespace LanguageExt
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, Task&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Task&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, Task&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Task&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Task<Either<L, A>> Sequence<L, A>(this Either<L, Task<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -15295,21 +14830,6 @@ namespace LanguageExt
                         (Task<B> b) =>
                             default(ApplTask< A, B, C>).Apply(
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Task&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Task&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, Task&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Task&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Task<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Task<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -15723,21 +15243,6 @@ namespace LanguageExt
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;Task&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Task&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;Task&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Task&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Task<Try<A>> Sequence< A>(this Try<Task<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -16147,21 +15652,6 @@ namespace LanguageExt
                         (Task<B> b) =>
                             default(ApplTask< A, B, C>).Apply(
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;Task&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Task&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;Task&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Task&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Task<TryOption<A>> Sequence< A>(this TryOption<Task<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -17397,21 +16887,6 @@ namespace LanguageExt
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;Task&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Task&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;Task&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Task&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Task<Set<A>> Sequence< A>(this Set<Task<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -17821,21 +17296,6 @@ namespace LanguageExt
                         (Task<B> b) =>
                             default(ApplTask< A, B, C>).Apply(
                                 default(MTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Task&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Task&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, Task&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Task&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static Task<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, Task<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
     }
     /// <summary>
@@ -18257,21 +17717,6 @@ namespace LanguageExt
                                 default(MValueTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;ValueTask&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `ValueTask&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;ValueTask&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`ValueTask&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static ValueTask<Arr<A>> Sequence< A>(this Arr<ValueTask<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -18681,21 +18126,6 @@ namespace LanguageExt
                         (ValueTask<B> b) =>
                             default(ApplValueTask< A, B, C>).Apply(
                                 default(MValueTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;ValueTask&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `ValueTask&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;ValueTask&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`ValueTask&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static ValueTask<HashSet<A>> Sequence< A>(this HashSet<ValueTask<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -19109,21 +18539,6 @@ namespace LanguageExt
                                 default(MValueTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;ValueTask&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `ValueTask&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;ValueTask&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`ValueTask&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static ValueTask<Lst<A>> Sequence< A>(this Lst<ValueTask<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -19533,21 +18948,6 @@ namespace LanguageExt
                         (ValueTask<B> b) =>
                             default(ApplValueTask< A, B, C>).Apply(
                                 default(MValueTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;ValueTask&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `ValueTask&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;ValueTask&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`ValueTask&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static ValueTask<Fin<A>> Sequence< A>(this Fin<ValueTask<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -19961,21 +19361,6 @@ namespace LanguageExt
                                 default(MValueTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;ValueTask&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `ValueTask&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;ValueTask&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`ValueTask&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static ValueTask<Option<A>> Sequence< A>(this Option<ValueTask<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -20385,21 +19770,6 @@ namespace LanguageExt
                         (ValueTask<B> b) =>
                             default(ApplValueTask< A, B, C>).Apply(
                                 default(MValueTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;ValueTask&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;ValueTask&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`ValueTask&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static ValueTask<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<ValueTask<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -20813,21 +20183,6 @@ namespace LanguageExt
                                 default(MValueTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, ValueTask&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `ValueTask&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, ValueTask&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`ValueTask&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static ValueTask<Either<L, A>> Sequence<L, A>(this Either<L, ValueTask<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -21237,21 +20592,6 @@ namespace LanguageExt
                         (ValueTask<B> b) =>
                             default(ApplValueTask< A, B, C>).Apply(
                                 default(MValueTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, ValueTask&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, ValueTask&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`ValueTask&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static ValueTask<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, ValueTask<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -21665,21 +21005,6 @@ namespace LanguageExt
                                 default(MValueTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;ValueTask&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `ValueTask&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;ValueTask&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`ValueTask&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static ValueTask<Try<A>> Sequence< A>(this Try<ValueTask<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -22089,21 +21414,6 @@ namespace LanguageExt
                         (ValueTask<B> b) =>
                             default(ApplValueTask< A, B, C>).Apply(
                                 default(MValueTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;ValueTask&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `ValueTask&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;ValueTask&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`ValueTask&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static ValueTask<TryOption<A>> Sequence< A>(this TryOption<ValueTask<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -23339,21 +22649,6 @@ namespace LanguageExt
                                 default(MValueTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;ValueTask&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `ValueTask&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;ValueTask&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`ValueTask&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static ValueTask<Set<A>> Sequence< A>(this Set<ValueTask<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -23763,21 +23058,6 @@ namespace LanguageExt
                         (ValueTask<B> b) =>
                             default(ApplValueTask< A, B, C>).Apply(
                                 default(MValueTask< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, ValueTask&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, ValueTask&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`ValueTask&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static ValueTask<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, ValueTask<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
     }
     /// <summary>
@@ -24199,21 +23479,6 @@ namespace LanguageExt
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;TryAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryAsync&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;TryAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryAsync&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryAsync<Arr<A>> Sequence< A>(this Arr<TryAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -24623,21 +23888,6 @@ namespace LanguageExt
                         (TryAsync<B> b) =>
                             default(ApplTryAsync< A, B, C>).Apply(
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;TryAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryAsync&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;TryAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryAsync&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryAsync<HashSet<A>> Sequence< A>(this HashSet<TryAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -25051,21 +24301,6 @@ namespace LanguageExt
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;TryAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryAsync&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;TryAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryAsync&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryAsync<Lst<A>> Sequence< A>(this Lst<TryAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -25475,21 +24710,6 @@ namespace LanguageExt
                         (TryAsync<B> b) =>
                             default(ApplTryAsync< A, B, C>).Apply(
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;TryAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryAsync&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;TryAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryAsync&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryAsync<Fin<A>> Sequence< A>(this Fin<TryAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -25903,21 +25123,6 @@ namespace LanguageExt
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;TryAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryAsync&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;TryAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryAsync&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryAsync<Option<A>> Sequence< A>(this Option<TryAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -26327,21 +25532,6 @@ namespace LanguageExt
                         (TryAsync<B> b) =>
                             default(ApplTryAsync< A, B, C>).Apply(
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;TryAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryAsync&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;TryAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryAsync&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryAsync<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<TryAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -26755,21 +25945,6 @@ namespace LanguageExt
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, TryAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryAsync&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, TryAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryAsync&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static TryAsync<Either<L, A>> Sequence<L, A>(this Either<L, TryAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -27179,21 +26354,6 @@ namespace LanguageExt
                         (TryAsync<B> b) =>
                             default(ApplTryAsync< A, B, C>).Apply(
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, TryAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, TryAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static TryAsync<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, TryAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -27607,21 +26767,6 @@ namespace LanguageExt
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;TryAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryAsync&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;TryAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryAsync&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryAsync<Try<A>> Sequence< A>(this Try<TryAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -28031,21 +27176,6 @@ namespace LanguageExt
                         (TryAsync<B> b) =>
                             default(ApplTryAsync< A, B, C>).Apply(
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;TryAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryAsync&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;TryAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryAsync&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryAsync<TryOption<A>> Sequence< A>(this TryOption<TryAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -29281,21 +28411,6 @@ namespace LanguageExt
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;TryAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryAsync&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;TryAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryAsync&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryAsync<Set<A>> Sequence< A>(this Set<TryAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -29705,21 +28820,6 @@ namespace LanguageExt
                         (TryAsync<B> b) =>
                             default(ApplTryAsync< A, B, C>).Apply(
                                 default(MTryAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, TryAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryAsync&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, TryAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryAsync&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static TryAsync<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, TryAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
     }
     /// <summary>
@@ -30141,21 +29241,6 @@ namespace LanguageExt
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOptionAsync&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;TryOptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOptionAsync<Arr<A>> Sequence< A>(this Arr<TryOptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -30565,21 +29650,6 @@ namespace LanguageExt
                         (TryOptionAsync<B> b) =>
                             default(ApplTryOptionAsync< A, B, C>).Apply(
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOptionAsync&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;TryOptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOptionAsync&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOptionAsync<HashSet<A>> Sequence< A>(this HashSet<TryOptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -30993,21 +30063,6 @@ namespace LanguageExt
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOptionAsync&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;TryOptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOptionAsync<Lst<A>> Sequence< A>(this Lst<TryOptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -31417,21 +30472,6 @@ namespace LanguageExt
                         (TryOptionAsync<B> b) =>
                             default(ApplTryOptionAsync< A, B, C>).Apply(
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOptionAsync&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;TryOptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOptionAsync<Fin<A>> Sequence< A>(this Fin<TryOptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -31845,21 +30885,6 @@ namespace LanguageExt
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOptionAsync&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;TryOptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOptionAsync<Option<A>> Sequence< A>(this Option<TryOptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -32269,21 +31294,6 @@ namespace LanguageExt
                         (TryOptionAsync<B> b) =>
                             default(ApplTryOptionAsync< A, B, C>).Apply(
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;TryOptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOptionAsync&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOptionAsync<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<TryOptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -32697,21 +31707,6 @@ namespace LanguageExt
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOptionAsync&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, TryOptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOptionAsync<Either<L, A>> Sequence<L, A>(this Either<L, TryOptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -33121,21 +32116,6 @@ namespace LanguageExt
                         (TryOptionAsync<B> b) =>
                             default(ApplTryOptionAsync< A, B, C>).Apply(
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, TryOptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOptionAsync&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOptionAsync<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, TryOptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -33549,21 +32529,6 @@ namespace LanguageExt
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOptionAsync&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;TryOptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOptionAsync<Try<A>> Sequence< A>(this Try<TryOptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -33973,21 +32938,6 @@ namespace LanguageExt
                         (TryOptionAsync<B> b) =>
                             default(ApplTryOptionAsync< A, B, C>).Apply(
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOptionAsync&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;TryOptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOptionAsync&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOptionAsync<TryOption<A>> Sequence< A>(this TryOption<TryOptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
         /// <summary>
         /// Monadic bind and project operation
@@ -35223,21 +34173,6 @@ namespace LanguageExt
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
 
         /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOptionAsync&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;TryOptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOptionAsync<Set<A>> Sequence< A>(this Set<TryOptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
-
-        /// <summary>
         /// Monadic bind and project operation
         /// </summary>
         /// <typeparam name="A">Inner bound value type</typeparam>
@@ -35647,21 +34582,6 @@ namespace LanguageExt
                         (TryOptionAsync<B> b) =>
                             default(ApplTryOptionAsync< A, B, C>).Apply(
                                 default(MTryOptionAsync< Func<A, Func<B, C>>>).ReturnAsync(curry(fabc).AsTask()), a, b)), fa, fb);
-
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, TryOptionAsync&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, TryOptionAsync&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOptionAsync&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOptionAsync<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, TryOptionAsync<A>> ma) =>
-            ma.Traverse(Prelude.identity);
-
 
     }
 }

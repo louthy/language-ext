@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using LanguageExt;
 using System.Linq;
@@ -65,12 +66,18 @@ namespace LanguageExt
             var rb = await Task.WhenAll(ma.Map(async a => f(await a))).ConfigureAwait(false);
             return new Lst<B>(rb);
         }
-        
+
+        public static Task<Lst<A>> Sequence<A>(this Lst<Task<A>> ma) =>
+            ma.Traverse(identity);
+ 
         public static async Task<Que<B>> Traverse<A, B>(this Que<Task<A>> ma, Func<A, B> f)
         {
             var rb = await Task.WhenAll(ma.Map(async a => f(await a))).ConfigureAwait(false);
             return new Que<B>(rb);
         }
+
+        public static Task<Que<A>> Sequence<A>(this Que<Task<A>> ma) =>
+            ma.Traverse(identity);
 
         [Obsolete("use TraverseSerial or TraverseParallel instead")]
         public static Task<Seq<B>> Traverse<A, B>(this Seq<Task<A>> ma, Func<A, B> f) =>
@@ -116,6 +123,9 @@ namespace LanguageExt
             var rb = await Task.WhenAll(ma.Reverse().Map(async a => f(await a))).ConfigureAwait(false);
             return new Stck<B>(rb);
         }
+        
+        public static Task<Stck<A>> Sequence<A>(this Stck<Task<A>> ma) =>
+            ma.Traverse(identity);
 
         //
         // Async types
@@ -153,7 +163,9 @@ namespace LanguageExt
             if (da.IsBottom) throw new BottomException();
             if (da.IsNone) return TryOptionalAsync<B>(None);
             if (da.IsFaulted) return TryOptionAsyncFail<B>(da.Exception);
+            #nullable disable
             var a = await da.Value.Value.ConfigureAwait(false);
+            #nullable enable
             return TryOptionAsyncSucc(f(a));
         }
 
@@ -211,7 +223,9 @@ namespace LanguageExt
         public static async Task<Option<B>> Traverse<A, B>(this Option<Task<A>> ma, Func<A, B> f)
         {
             if (ma.IsNone) return Option<B>.None;
+            #nullable disable
             return Option<B>.Some(f(await ma.Value.ConfigureAwait(false)));
+            #nullable enable
         }
         
         public static async Task<OptionUnsafe<B>> Traverse<A, B>(this OptionUnsafe<Task<A>> ma, Func<A, B> f)
@@ -234,7 +248,9 @@ namespace LanguageExt
             if (mr.IsBottom) return TryOptionFail<B>(BottomException.Default);
             else if (mr.IsNone) return TryOption<B>(None);
             else if (mr.IsFaulted) return TryOption<B>(mr.Exception);
+            #nullable disable
             return TryOption<B>(f(await mr.Value.Value.ConfigureAwait(false)));
+            #nullable enable
         }
         
         public static async Task<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Task<A>> ma, Func<A, B> f)

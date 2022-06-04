@@ -24,8 +24,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public bool Equals(Seq<A> x, Seq<A> y)
         {
-            if (x == null) return y == null;
-            if (y == null) return false;
             if (x.Count != y.Count) return false;
 
             while (true)

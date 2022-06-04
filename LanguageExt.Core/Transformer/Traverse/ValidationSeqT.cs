@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using LanguageExt;
 using System.Linq;
 using System.Collections.Generic;
@@ -33,26 +34,6 @@ namespace LanguageExt
                 : Validation<Fail, Arr<B>>.Fail(Seq.FromArray(errs.ToArray()));
         }
         
-        public static Validation<Fail, Either<Fail, B>> Traverse<Fail, A, B>(this Either<Fail, Validation<Fail, A>> ma, Func<A, B> f)
-        {
-            if (ma.IsLeft)
-            {
-                return Validation<Fail, Either<Fail, B>>.Fail(Seq1(ma.LeftValue));
-            }
-            else
-            {
-                var mb = (Validation<Fail, A>)ma;
-                if (mb.IsFail)
-                {
-                    return Validation<Fail, Either<Fail, B>>.Fail((Seq<Fail>)mb);
-                }
-                else
-                {
-                    return Validation<Fail, Either<Fail, B>>.Success(f((A)mb));
-                }
-            }
-        }
-        
         public static Validation<Fail, Either<L, B>> Traverse<L, Fail, A, B>(this Either<L, Validation<Fail, A>> ma, Func<A, B> f)
         {
             if (ma.IsLeft)
@@ -69,26 +50,6 @@ namespace LanguageExt
                 else
                 {
                     return Validation<Fail, Either<L, B>>.Success(f((A)mb));
-                }
-            }
-        }
-        
-        public static Validation<Fail, EitherUnsafe<Fail, B>> Traverse<Fail, A, B>(this EitherUnsafe<Fail, Validation<Fail, A>> ma, Func<A, B> f)
-        {
-            if (ma.IsLeft)
-            {
-                return Validation<Fail, EitherUnsafe<Fail, B>>.Fail(Seq1(ma.LeftValue));
-            }
-            else
-            {
-                var mb = (Validation<Fail, A>)ma;
-                if (mb.IsFail)
-                {
-                    return Validation<Fail, EitherUnsafe<Fail, B>>.Fail((Seq<Fail>)mb);
-                }
-                else
-                {
-                    return Validation<Fail, EitherUnsafe<Fail, B>>.Success(f((A)mb));
                 }
             }
         }

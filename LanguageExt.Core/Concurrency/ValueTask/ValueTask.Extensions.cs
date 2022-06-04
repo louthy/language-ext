@@ -286,7 +286,6 @@ namespace LanguageExt
 
         public static async ValueTask<A> Cast<A>(this ValueTask source)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
             await source.ConfigureAwait(false);
             var prop = PropCache<A>.Info;
             return prop != null

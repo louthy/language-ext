@@ -653,7 +653,10 @@ namespace LanguageExt
         /// Map the map the a dictionary
         /// </summary>
         [Pure]
-        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K Key, V Value), KR> keySelector, Func<(K Key, V Value), VR> valueSelector) =>
+        public IDictionary<KR, VR> ToDictionary<KR, VR>(
+            Func<(K Key, V Value), KR> keySelector, 
+            Func<(K Key, V Value), VR> valueSelector) 
+            where KR : notnull =>
             AsEnumerable().ToDictionary(x => keySelector(x), x => valueSelector(x));
 
         /// <summary>
@@ -943,7 +946,7 @@ namespace LanguageExt
         /// Equality of keys and values with `EqDefault<V>` used for values
         /// </summary>
         [Pure]
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is TrackingHashMap<EqK, K, V> hm && Equals(hm);
 
         /// <summary>

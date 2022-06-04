@@ -693,7 +693,10 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K Key, V Value), KR> keySelector, Func<(K Key, V Value), VR> valueSelector) =>
+        public IDictionary<KR, VR> ToDictionary<KR, VR>(
+            Func<(K Key, V Value), KR> keySelector, 
+            Func<(K Key, V Value), VR> valueSelector)
+            where KR : notnull =>
             AsEnumerable().ToDictionary(x => keySelector(x), x => valueSelector(x));
 
         /// <summary>
@@ -1039,7 +1042,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is HashMap<K, V> hm && Equals(hm);
 
         /// <summary>
