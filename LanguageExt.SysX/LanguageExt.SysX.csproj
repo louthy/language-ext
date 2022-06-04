@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>default</LangVersion>
 
-        <PackageVersion>4.1.2</PackageVersion>
+        <PackageVersion>4.2.0</PackageVersion>
         <PackageId>LanguageExt.SysX</PackageId>
         <Title>LanguageExt.SysX</Title>
         <Authors>Paul Louth</Authors>
