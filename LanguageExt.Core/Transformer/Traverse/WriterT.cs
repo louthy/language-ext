@@ -1,3 +1,4 @@
+#nullable enable
 using LanguageExt.TypeClasses;
 using System;
 using System.Collections.Generic;
@@ -8,34 +9,6 @@ namespace LanguageExt
 {
     public static partial class WriterT
     {
-        //
-        // Collections
-        //
-        
-        public static Writer<MonoidW, W, Seq<A>> Sequence<MonoidW, W, A>(this Seq<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma).Map(Prelude.toSeq);
-
-        public static Writer<MonoidW, W, Lst<A>> Sequence<MonoidW, W, A>(this Lst<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma).Map(toList);
-
-        public static Writer<MonoidW, W, Arr<A>> Sequence<MonoidW, W, A>(this Arr<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma).Map(toArray);
-
-        public static Writer<MonoidW, W, A[]> Sequence<MonoidW, W, A>(this Writer<MonoidW, W, A>[] ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma).Map(x => x.ToArray());
-
-        public static Writer<MonoidW, W, Set<A>> Sequence<MonoidW, W, A>(this Set<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma).Map(toSet);
-
-        public static Writer<MonoidW, W, HashSet<A>> Sequence<MonoidW, W, A>(this HashSet<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma).Map(toHashSet);
-
-        public static Writer<MonoidW, W, Stck<A>> Sequence<MonoidW, W, A>(this Stck<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma.Reverse()).Map(toStack);
-
-        public static Writer<MonoidW, W, IEnumerable<A>> Sequence<MonoidW, W, A>(this IEnumerable<Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
-            SequenceFast(ma).Map(Enumerable.AsEnumerable);
-
 
         public static Writer<MonoidW, W, Seq<B>> Traverse<MonoidW, W, A, B>(this Seq<Writer<MonoidW, W, A>> ma, Func<A, B> f) where MonoidW : struct, Monoid<W> =>
             TraverseFast(ma, f).Map(Prelude.toSeq);

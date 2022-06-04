@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using LanguageExt;
 using System.Linq;

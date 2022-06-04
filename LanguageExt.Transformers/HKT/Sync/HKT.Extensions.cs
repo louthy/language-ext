@@ -115,20 +115,6 @@ namespace LanguageExt
         public static Arr<Arr<B>> BindT< A, B>(this Arr<Arr<A>> ma, Func<A, Arr<Arr<B>>> f) =>
             SeqTrans<MArr<Arr<A>>, Arr<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Bind<MArr<Arr<B>>, Arr<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;Arr&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Arr&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Arr<Arr<A>> Sequence< A>(this Arr<Arr<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -443,20 +429,6 @@ namespace LanguageExt
         public static HashSet<Arr<B>> BindT< A, B>(this HashSet<Arr<A>> ma, Func<A, HashSet<Arr<B>>> f) =>
             SeqTrans<MHashSet<Arr<A>>, HashSet<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Bind<MHashSet<Arr<B>>, HashSet<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;Arr&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Arr&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Arr<HashSet<A>> Sequence< A>(this HashSet<Arr<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -771,20 +743,6 @@ namespace LanguageExt
         public static Lst<Arr<B>> BindT< A, B>(this Lst<Arr<A>> ma, Func<A, Lst<Arr<B>>> f) =>
             SeqTrans<MLst<Arr<A>>, Lst<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Bind<MLst<Arr<B>>, Lst<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;Arr&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Arr&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Arr<Lst<A>> Sequence< A>(this Lst<Arr<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1099,20 +1057,6 @@ namespace LanguageExt
         public static Fin<Arr<B>> BindT< A, B>(this Fin<Arr<A>> ma, Func<A, Fin<Arr<B>>> f) =>
             Trans<MFin<Arr<A>>, Fin<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Bind<MFin<Arr<B>>, Fin<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;Arr&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Arr&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Arr<Fin<A>> Sequence< A>(this Fin<Arr<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1427,20 +1371,6 @@ namespace LanguageExt
         public static Option<Arr<B>> BindT< A, B>(this Option<Arr<A>> ma, Func<A, Option<Arr<B>>> f) =>
             Trans<MOption<Arr<A>>, Option<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Bind<MOption<Arr<B>>, Option<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;Arr&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Arr&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Arr<Option<A>> Sequence< A>(this Option<Arr<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -1755,20 +1685,6 @@ namespace LanguageExt
         public static OptionUnsafe<Arr<B>> BindT< A, B>(this OptionUnsafe<Arr<A>> ma, Func<A, OptionUnsafe<Arr<B>>> f) =>
             Trans<MOptionUnsafe<Arr<A>>, OptionUnsafe<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Bind<MOptionUnsafe<Arr<B>>, OptionUnsafe<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Arr&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Arr&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Arr<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<Arr<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2083,20 +1999,6 @@ namespace LanguageExt
         public static Either<L, Arr<B>> BindT<L, A, B>(this Either<L, Arr<A>> ma, Func<A, Either<L, Arr<B>>> f) =>
             Trans<MEither<L, Arr<A>>, Either<L, Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Bind<MEither<L, Arr<B>>, Either<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, Arr&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Arr&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Arr<Either<L, A>> Sequence<L, A>(this Either<L, Arr<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2411,20 +2313,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Arr<B>> BindT<L, A, B>(this EitherUnsafe<L, Arr<A>> ma, Func<A, EitherUnsafe<L, Arr<B>>> f) =>
             Trans<MEitherUnsafe<L, Arr<A>>, EitherUnsafe<L, Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, Arr<B>>, EitherUnsafe<L, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Arr&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Arr&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Arr<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Arr<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -2739,20 +2627,6 @@ namespace LanguageExt
         public static Try<Arr<B>> BindT< A, B>(this Try<Arr<A>> ma, Func<A, Try<Arr<B>>> f) =>
             Trans<MTry<Arr<A>>, Try<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Bind<MTry<Arr<B>>, Try<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;Arr&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Arr&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Arr<Try<A>> Sequence< A>(this Try<Arr<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3067,20 +2941,6 @@ namespace LanguageExt
         public static TryOption<Arr<B>> BindT< A, B>(this TryOption<Arr<A>> ma, Func<A, TryOption<Arr<B>>> f) =>
             Trans<MTryOption<Arr<A>>, TryOption<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Bind<MTryOption<Arr<B>>, TryOption<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;Arr&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Arr&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Arr<TryOption<A>> Sequence< A>(this TryOption<Arr<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3395,20 +3255,6 @@ namespace LanguageExt
         public static IEnumerable<Arr<B>> BindT< A, B>(this IEnumerable<Arr<A>> ma, Func<A, IEnumerable<Arr<B>>> f) =>
             SeqTrans<MEnumerable<Arr<A>>, IEnumerable<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Bind<MEnumerable<Arr<B>>, IEnumerable<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `IEnumerable&lt;Arr&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Arr&lt;IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr&lt;IEnumerable&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Arr<IEnumerable<A>> Sequence< A>(this IEnumerable<Arr<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -3723,20 +3569,6 @@ namespace LanguageExt
         public static Seq<Arr<B>> BindT< A, B>(this Seq<Arr<A>> ma, Func<A, Seq<Arr<B>>> f) =>
             SeqTrans<MSeq<Arr<A>>, Seq<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Bind<MSeq<Arr<B>>, Seq<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Seq&lt;Arr&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Arr&lt;Seq&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Seq&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr&lt;Seq&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Arr<Seq<A>> Sequence< A>(this Seq<Arr<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4051,20 +3883,6 @@ namespace LanguageExt
         public static Set<Arr<B>> BindT< A, B>(this Set<Arr<A>> ma, Func<A, Set<Arr<B>>> f) =>
             SeqTrans<MSet<Arr<A>>, Set<Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Bind<MSet<Arr<B>>, Set<Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;Arr&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Arr&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Arr<Set<A>> Sequence< A>(this Set<Arr<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4379,20 +4197,6 @@ namespace LanguageExt
         public static Validation<FAIL, Arr<B>> BindT<FAIL, A, B>(this Validation<FAIL, Arr<A>> ma, Func<A, Validation<FAIL, Arr<B>>> f) =>
             Trans<MValidation<FAIL, Arr<A>>, Validation<FAIL, Arr<A>>, MArr<A>, Arr<A>, A>
                 .Inst.Bind<MValidation<FAIL, Arr<B>>, Validation<FAIL, Arr<B>>, MArr<B>, Arr<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Arr&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Arr&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, Arr&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Arr&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static Arr<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, Arr<A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -4715,20 +4519,6 @@ namespace LanguageExt
         public static Arr<HashSet<B>> BindT< A, B>(this Arr<HashSet<A>> ma, Func<A, Arr<HashSet<B>>> f) =>
             SeqTrans<MArr<HashSet<A>>, Arr<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MArr<HashSet<B>>, Arr<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `HashSet&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static HashSet<Arr<A>> Sequence< A>(this Arr<HashSet<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5043,20 +4833,6 @@ namespace LanguageExt
         public static HashSet<HashSet<B>> BindT< A, B>(this HashSet<HashSet<A>> ma, Func<A, HashSet<HashSet<B>>> f) =>
             SeqTrans<MHashSet<HashSet<A>>, HashSet<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MHashSet<HashSet<B>>, HashSet<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `HashSet&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static HashSet<HashSet<A>> Sequence< A>(this HashSet<HashSet<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5371,20 +5147,6 @@ namespace LanguageExt
         public static Lst<HashSet<B>> BindT< A, B>(this Lst<HashSet<A>> ma, Func<A, Lst<HashSet<B>>> f) =>
             SeqTrans<MLst<HashSet<A>>, Lst<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MLst<HashSet<B>>, Lst<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `HashSet&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static HashSet<Lst<A>> Sequence< A>(this Lst<HashSet<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -5699,20 +5461,6 @@ namespace LanguageExt
         public static Fin<HashSet<B>> BindT< A, B>(this Fin<HashSet<A>> ma, Func<A, Fin<HashSet<B>>> f) =>
             Trans<MFin<HashSet<A>>, Fin<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MFin<HashSet<B>>, Fin<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `HashSet&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static HashSet<Fin<A>> Sequence< A>(this Fin<HashSet<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6027,20 +5775,6 @@ namespace LanguageExt
         public static Option<HashSet<B>> BindT< A, B>(this Option<HashSet<A>> ma, Func<A, Option<HashSet<B>>> f) =>
             Trans<MOption<HashSet<A>>, Option<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MOption<HashSet<B>>, Option<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `HashSet&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static HashSet<Option<A>> Sequence< A>(this Option<HashSet<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6355,20 +6089,6 @@ namespace LanguageExt
         public static OptionUnsafe<HashSet<B>> BindT< A, B>(this OptionUnsafe<HashSet<A>> ma, Func<A, OptionUnsafe<HashSet<B>>> f) =>
             Trans<MOptionUnsafe<HashSet<A>>, OptionUnsafe<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MOptionUnsafe<HashSet<B>>, OptionUnsafe<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `HashSet&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static HashSet<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<HashSet<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -6683,20 +6403,6 @@ namespace LanguageExt
         public static Either<L, HashSet<B>> BindT<L, A, B>(this Either<L, HashSet<A>> ma, Func<A, Either<L, HashSet<B>>> f) =>
             Trans<MEither<L, HashSet<A>>, Either<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MEither<L, HashSet<B>>, Either<L, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, HashSet&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `HashSet&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static HashSet<Either<L, A>> Sequence<L, A>(this Either<L, HashSet<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7011,20 +6717,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, HashSet<B>> BindT<L, A, B>(this EitherUnsafe<L, HashSet<A>> ma, Func<A, EitherUnsafe<L, HashSet<B>>> f) =>
             Trans<MEitherUnsafe<L, HashSet<A>>, EitherUnsafe<L, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, HashSet<B>>, EitherUnsafe<L, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, HashSet&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `HashSet&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static HashSet<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, HashSet<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7339,20 +7031,6 @@ namespace LanguageExt
         public static Try<HashSet<B>> BindT< A, B>(this Try<HashSet<A>> ma, Func<A, Try<HashSet<B>>> f) =>
             Trans<MTry<HashSet<A>>, Try<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MTry<HashSet<B>>, Try<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `HashSet&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static HashSet<Try<A>> Sequence< A>(this Try<HashSet<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7667,20 +7345,6 @@ namespace LanguageExt
         public static TryOption<HashSet<B>> BindT< A, B>(this TryOption<HashSet<A>> ma, Func<A, TryOption<HashSet<B>>> f) =>
             Trans<MTryOption<HashSet<A>>, TryOption<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MTryOption<HashSet<B>>, TryOption<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `HashSet&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static HashSet<TryOption<A>> Sequence< A>(this TryOption<HashSet<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -7995,20 +7659,6 @@ namespace LanguageExt
         public static IEnumerable<HashSet<B>> BindT< A, B>(this IEnumerable<HashSet<A>> ma, Func<A, IEnumerable<HashSet<B>>> f) =>
             SeqTrans<MEnumerable<HashSet<A>>, IEnumerable<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MEnumerable<HashSet<B>>, IEnumerable<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `IEnumerable&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `HashSet&lt;IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet&lt;IEnumerable&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static HashSet<IEnumerable<A>> Sequence< A>(this IEnumerable<HashSet<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8323,20 +7973,6 @@ namespace LanguageExt
         public static Seq<HashSet<B>> BindT< A, B>(this Seq<HashSet<A>> ma, Func<A, Seq<HashSet<B>>> f) =>
             SeqTrans<MSeq<HashSet<A>>, Seq<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MSeq<HashSet<B>>, Seq<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Seq&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `HashSet&lt;Seq&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Seq&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet&lt;Seq&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static HashSet<Seq<A>> Sequence< A>(this Seq<HashSet<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8651,20 +8287,6 @@ namespace LanguageExt
         public static Set<HashSet<B>> BindT< A, B>(this Set<HashSet<A>> ma, Func<A, Set<HashSet<B>>> f) =>
             SeqTrans<MSet<HashSet<A>>, Set<HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MSet<HashSet<B>>, Set<HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;HashSet&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `HashSet&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static HashSet<Set<A>> Sequence< A>(this Set<HashSet<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -8979,20 +8601,6 @@ namespace LanguageExt
         public static Validation<FAIL, HashSet<B>> BindT<FAIL, A, B>(this Validation<FAIL, HashSet<A>> ma, Func<A, Validation<FAIL, HashSet<B>>> f) =>
             Trans<MValidation<FAIL, HashSet<A>>, Validation<FAIL, HashSet<A>>, MHashSet<A>, HashSet<A>, A>
                 .Inst.Bind<MValidation<FAIL, HashSet<B>>, Validation<FAIL, HashSet<B>>, MHashSet<B>, HashSet<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, HashSet&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `HashSet&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, HashSet&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`HashSet&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static HashSet<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, HashSet<A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9315,20 +8923,6 @@ namespace LanguageExt
         public static Arr<Lst<B>> BindT< A, B>(this Arr<Lst<A>> ma, Func<A, Arr<Lst<B>>> f) =>
             SeqTrans<MArr<Lst<A>>, Arr<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Bind<MArr<Lst<B>>, Arr<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;Lst&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Lst&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Lst<Arr<A>> Sequence< A>(this Arr<Lst<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9643,20 +9237,6 @@ namespace LanguageExt
         public static HashSet<Lst<B>> BindT< A, B>(this HashSet<Lst<A>> ma, Func<A, HashSet<Lst<B>>> f) =>
             SeqTrans<MHashSet<Lst<A>>, HashSet<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Bind<MHashSet<Lst<B>>, HashSet<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;Lst&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Lst&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Lst<HashSet<A>> Sequence< A>(this HashSet<Lst<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -9971,20 +9551,6 @@ namespace LanguageExt
         public static Lst<Lst<B>> BindT< A, B>(this Lst<Lst<A>> ma, Func<A, Lst<Lst<B>>> f) =>
             SeqTrans<MLst<Lst<A>>, Lst<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Bind<MLst<Lst<B>>, Lst<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;Lst&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Lst&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Lst<Lst<A>> Sequence< A>(this Lst<Lst<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10299,20 +9865,6 @@ namespace LanguageExt
         public static Fin<Lst<B>> BindT< A, B>(this Fin<Lst<A>> ma, Func<A, Fin<Lst<B>>> f) =>
             Trans<MFin<Lst<A>>, Fin<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Bind<MFin<Lst<B>>, Fin<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;Lst&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Lst&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Lst<Fin<A>> Sequence< A>(this Fin<Lst<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10627,20 +10179,6 @@ namespace LanguageExt
         public static Option<Lst<B>> BindT< A, B>(this Option<Lst<A>> ma, Func<A, Option<Lst<B>>> f) =>
             Trans<MOption<Lst<A>>, Option<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Bind<MOption<Lst<B>>, Option<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;Lst&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Lst&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Lst<Option<A>> Sequence< A>(this Option<Lst<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -10955,20 +10493,6 @@ namespace LanguageExt
         public static OptionUnsafe<Lst<B>> BindT< A, B>(this OptionUnsafe<Lst<A>> ma, Func<A, OptionUnsafe<Lst<B>>> f) =>
             Trans<MOptionUnsafe<Lst<A>>, OptionUnsafe<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Bind<MOptionUnsafe<Lst<B>>, OptionUnsafe<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Lst&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Lst&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Lst<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<Lst<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -11283,20 +10807,6 @@ namespace LanguageExt
         public static Either<L, Lst<B>> BindT<L, A, B>(this Either<L, Lst<A>> ma, Func<A, Either<L, Lst<B>>> f) =>
             Trans<MEither<L, Lst<A>>, Either<L, Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Bind<MEither<L, Lst<B>>, Either<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, Lst&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Lst&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Lst<Either<L, A>> Sequence<L, A>(this Either<L, Lst<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -11611,20 +11121,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Lst<B>> BindT<L, A, B>(this EitherUnsafe<L, Lst<A>> ma, Func<A, EitherUnsafe<L, Lst<B>>> f) =>
             Trans<MEitherUnsafe<L, Lst<A>>, EitherUnsafe<L, Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, Lst<B>>, EitherUnsafe<L, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Lst&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Lst&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Lst<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Lst<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -11939,20 +11435,6 @@ namespace LanguageExt
         public static Try<Lst<B>> BindT< A, B>(this Try<Lst<A>> ma, Func<A, Try<Lst<B>>> f) =>
             Trans<MTry<Lst<A>>, Try<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Bind<MTry<Lst<B>>, Try<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;Lst&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Lst&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Lst<Try<A>> Sequence< A>(this Try<Lst<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -12267,20 +11749,6 @@ namespace LanguageExt
         public static TryOption<Lst<B>> BindT< A, B>(this TryOption<Lst<A>> ma, Func<A, TryOption<Lst<B>>> f) =>
             Trans<MTryOption<Lst<A>>, TryOption<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Bind<MTryOption<Lst<B>>, TryOption<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;Lst&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Lst&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Lst<TryOption<A>> Sequence< A>(this TryOption<Lst<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -12595,20 +12063,6 @@ namespace LanguageExt
         public static IEnumerable<Lst<B>> BindT< A, B>(this IEnumerable<Lst<A>> ma, Func<A, IEnumerable<Lst<B>>> f) =>
             SeqTrans<MEnumerable<Lst<A>>, IEnumerable<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Bind<MEnumerable<Lst<B>>, IEnumerable<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `IEnumerable&lt;Lst&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Lst&lt;IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst&lt;IEnumerable&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Lst<IEnumerable<A>> Sequence< A>(this IEnumerable<Lst<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -12923,20 +12377,6 @@ namespace LanguageExt
         public static Seq<Lst<B>> BindT< A, B>(this Seq<Lst<A>> ma, Func<A, Seq<Lst<B>>> f) =>
             SeqTrans<MSeq<Lst<A>>, Seq<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Bind<MSeq<Lst<B>>, Seq<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Seq&lt;Lst&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Lst&lt;Seq&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Seq&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst&lt;Seq&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Lst<Seq<A>> Sequence< A>(this Seq<Lst<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -13251,20 +12691,6 @@ namespace LanguageExt
         public static Set<Lst<B>> BindT< A, B>(this Set<Lst<A>> ma, Func<A, Set<Lst<B>>> f) =>
             SeqTrans<MSet<Lst<A>>, Set<Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Bind<MSet<Lst<B>>, Set<Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;Lst&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Lst&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Lst<Set<A>> Sequence< A>(this Set<Lst<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -13579,20 +13005,6 @@ namespace LanguageExt
         public static Validation<FAIL, Lst<B>> BindT<FAIL, A, B>(this Validation<FAIL, Lst<A>> ma, Func<A, Validation<FAIL, Lst<B>>> f) =>
             Trans<MValidation<FAIL, Lst<A>>, Validation<FAIL, Lst<A>>, MLst<A>, Lst<A>, A>
                 .Inst.Bind<MValidation<FAIL, Lst<B>>, Validation<FAIL, Lst<B>>, MLst<B>, Lst<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Lst&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Lst&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, Lst&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Lst&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static Lst<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, Lst<A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -13915,20 +13327,6 @@ namespace LanguageExt
         public static Arr<Fin<B>> BindT< A, B>(this Arr<Fin<A>> ma, Func<A, Arr<Fin<B>>> f) =>
             SeqTrans<MArr<Fin<A>>, Arr<Fin<A>>, MFin<A>, Fin<A>, A>
                 .Inst.Bind<MArr<Fin<B>>, Arr<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;Fin&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Fin&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Fin<Arr<A>> Sequence< A>(this Arr<Fin<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -14243,20 +13641,6 @@ namespace LanguageExt
         public static HashSet<Fin<B>> BindT< A, B>(this HashSet<Fin<A>> ma, Func<A, HashSet<Fin<B>>> f) =>
             SeqTrans<MHashSet<Fin<A>>, HashSet<Fin<A>>, MFin<A>, Fin<A>, A>
                 .Inst.Bind<MHashSet<Fin<B>>, HashSet<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;Fin&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Fin&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Fin<HashSet<A>> Sequence< A>(this HashSet<Fin<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -14571,20 +13955,6 @@ namespace LanguageExt
         public static Lst<Fin<B>> BindT< A, B>(this Lst<Fin<A>> ma, Func<A, Lst<Fin<B>>> f) =>
             SeqTrans<MLst<Fin<A>>, Lst<Fin<A>>, MFin<A>, Fin<A>, A>
                 .Inst.Bind<MLst<Fin<B>>, Lst<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;Fin&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Fin&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Fin<Lst<A>> Sequence< A>(this Lst<Fin<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -14899,20 +14269,6 @@ namespace LanguageExt
         public static Fin<Fin<B>> BindT< A, B>(this Fin<Fin<A>> ma, Func<A, Fin<Fin<B>>> f) =>
             Trans<MFin<Fin<A>>, Fin<Fin<A>>, MFin<A>, Fin<A>, A>
                 .Inst.Bind<MFin<Fin<B>>, Fin<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;Fin&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Fin&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Fin<Fin<A>> Sequence< A>(this Fin<Fin<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -15227,20 +14583,6 @@ namespace LanguageExt
         public static Option<Fin<B>> BindT< A, B>(this Option<Fin<A>> ma, Func<A, Option<Fin<B>>> f) =>
             Trans<MOption<Fin<A>>, Option<Fin<A>>, MFin<A>, Fin<A>, A>
                 .Inst.Bind<MOption<Fin<B>>, Option<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;Fin&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Fin&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Fin&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Fin<Option<A>> Sequence< A>(this Option<Fin<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -15555,20 +14897,6 @@ namespace LanguageExt
         public static OptionUnsafe<Fin<B>> BindT< A, B>(this OptionUnsafe<Fin<A>> ma, Func<A, OptionUnsafe<Fin<B>>> f) =>
             Trans<MOptionUnsafe<Fin<A>>, OptionUnsafe<Fin<A>>, MFin<A>, Fin<A>, A>
                 .Inst.Bind<MOptionUnsafe<Fin<B>>, OptionUnsafe<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Fin&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Fin&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Fin<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<Fin<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -15883,20 +15211,6 @@ namespace LanguageExt
         public static Either<L, Fin<B>> BindT<L, A, B>(this Either<L, Fin<A>> ma, Func<A, Either<L, Fin<B>>> f) =>
             Trans<MEither<L, Fin<A>>, Either<L, Fin<A>>, MFin<A>, Fin<A>, A>
                 .Inst.Bind<MEither<L, Fin<B>>, Either<L, Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, Fin&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Fin&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Fin<Either<L, A>> Sequence<L, A>(this Either<L, Fin<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -16211,20 +15525,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Fin<B>> BindT<L, A, B>(this EitherUnsafe<L, Fin<A>> ma, Func<A, EitherUnsafe<L, Fin<B>>> f) =>
             Trans<MEitherUnsafe<L, Fin<A>>, EitherUnsafe<L, Fin<A>>, MFin<A>, Fin<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, Fin<B>>, EitherUnsafe<L, Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Fin<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Fin<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -16539,20 +15839,6 @@ namespace LanguageExt
         public static Try<Fin<B>> BindT< A, B>(this Try<Fin<A>> ma, Func<A, Try<Fin<B>>> f) =>
             Trans<MTry<Fin<A>>, Try<Fin<A>>, MFin<A>, Fin<A>, A>
                 .Inst.Bind<MTry<Fin<B>>, Try<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;Fin&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Fin&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Fin&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Fin<Try<A>> Sequence< A>(this Try<Fin<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -16867,20 +16153,6 @@ namespace LanguageExt
         public static TryOption<Fin<B>> BindT< A, B>(this TryOption<Fin<A>> ma, Func<A, TryOption<Fin<B>>> f) =>
             Trans<MTryOption<Fin<A>>, TryOption<Fin<A>>, MFin<A>, Fin<A>, A>
                 .Inst.Bind<MTryOption<Fin<B>>, TryOption<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;Fin&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Fin&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Fin<TryOption<A>> Sequence< A>(this TryOption<Fin<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -17195,20 +16467,6 @@ namespace LanguageExt
         public static IEnumerable<Fin<B>> BindT< A, B>(this IEnumerable<Fin<A>> ma, Func<A, IEnumerable<Fin<B>>> f) =>
             SeqTrans<MEnumerable<Fin<A>>, IEnumerable<Fin<A>>, MFin<A>, Fin<A>, A>
                 .Inst.Bind<MEnumerable<Fin<B>>, IEnumerable<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `IEnumerable&lt;Fin&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Fin&lt;IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Fin<IEnumerable<A>> Sequence< A>(this IEnumerable<Fin<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -17523,20 +16781,6 @@ namespace LanguageExt
         public static Seq<Fin<B>> BindT< A, B>(this Seq<Fin<A>> ma, Func<A, Seq<Fin<B>>> f) =>
             SeqTrans<MSeq<Fin<A>>, Seq<Fin<A>>, MFin<A>, Fin<A>, A>
                 .Inst.Bind<MSeq<Fin<B>>, Seq<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Seq&lt;Fin&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Fin&lt;Seq&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Seq&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Fin<Seq<A>> Sequence< A>(this Seq<Fin<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -17851,20 +17095,6 @@ namespace LanguageExt
         public static Set<Fin<B>> BindT< A, B>(this Set<Fin<A>> ma, Func<A, Set<Fin<B>>> f) =>
             SeqTrans<MSet<Fin<A>>, Set<Fin<A>>, MFin<A>, Fin<A>, A>
                 .Inst.Bind<MSet<Fin<B>>, Set<Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;Fin&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Fin&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;Fin&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Fin&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Fin<Set<A>> Sequence< A>(this Set<Fin<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -18179,20 +17409,6 @@ namespace LanguageExt
         public static Validation<FAIL, Fin<B>> BindT<FAIL, A, B>(this Validation<FAIL, Fin<A>> ma, Func<A, Validation<FAIL, Fin<B>>> f) =>
             Trans<MValidation<FAIL, Fin<A>>, Validation<FAIL, Fin<A>>, MFin<A>, Fin<A>, A>
                 .Inst.Bind<MValidation<FAIL, Fin<B>>, Validation<FAIL, Fin<B>>, MFin<B>, Fin<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Fin&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Fin&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, Fin&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static Fin<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, Fin<A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -18515,20 +17731,6 @@ namespace LanguageExt
         public static Arr<Option<B>> BindT< A, B>(this Arr<Option<A>> ma, Func<A, Arr<Option<B>>> f) =>
             SeqTrans<MArr<Option<A>>, Arr<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MArr<Option<B>>, Arr<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;Option&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Option&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Option<Arr<A>> Sequence< A>(this Arr<Option<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -18843,20 +18045,6 @@ namespace LanguageExt
         public static HashSet<Option<B>> BindT< A, B>(this HashSet<Option<A>> ma, Func<A, HashSet<Option<B>>> f) =>
             SeqTrans<MHashSet<Option<A>>, HashSet<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MHashSet<Option<B>>, HashSet<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;Option&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Option&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Option<HashSet<A>> Sequence< A>(this HashSet<Option<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -19171,20 +18359,6 @@ namespace LanguageExt
         public static Lst<Option<B>> BindT< A, B>(this Lst<Option<A>> ma, Func<A, Lst<Option<B>>> f) =>
             SeqTrans<MLst<Option<A>>, Lst<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MLst<Option<B>>, Lst<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;Option&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Option&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Option<Lst<A>> Sequence< A>(this Lst<Option<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -19499,20 +18673,6 @@ namespace LanguageExt
         public static Fin<Option<B>> BindT< A, B>(this Fin<Option<A>> ma, Func<A, Fin<Option<B>>> f) =>
             Trans<MFin<Option<A>>, Fin<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MFin<Option<B>>, Fin<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;Option&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Option&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Option<Fin<A>> Sequence< A>(this Fin<Option<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -19827,20 +18987,6 @@ namespace LanguageExt
         public static Option<Option<B>> BindT< A, B>(this Option<Option<A>> ma, Func<A, Option<Option<B>>> f) =>
             Trans<MOption<Option<A>>, Option<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MOption<Option<B>>, Option<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;Option&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Option&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Option<Option<A>> Sequence< A>(this Option<Option<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -20155,20 +19301,6 @@ namespace LanguageExt
         public static OptionUnsafe<Option<B>> BindT< A, B>(this OptionUnsafe<Option<A>> ma, Func<A, OptionUnsafe<Option<B>>> f) =>
             Trans<MOptionUnsafe<Option<A>>, OptionUnsafe<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MOptionUnsafe<Option<B>>, OptionUnsafe<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Option&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Option&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Option<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<Option<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -20483,20 +19615,6 @@ namespace LanguageExt
         public static Either<L, Option<B>> BindT<L, A, B>(this Either<L, Option<A>> ma, Func<A, Either<L, Option<B>>> f) =>
             Trans<MEither<L, Option<A>>, Either<L, Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MEither<L, Option<B>>, Either<L, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, Option&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Option&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Option<Either<L, A>> Sequence<L, A>(this Either<L, Option<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -20811,20 +19929,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Option<B>> BindT<L, A, B>(this EitherUnsafe<L, Option<A>> ma, Func<A, EitherUnsafe<L, Option<B>>> f) =>
             Trans<MEitherUnsafe<L, Option<A>>, EitherUnsafe<L, Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, Option<B>>, EitherUnsafe<L, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Option&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Option&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Option<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Option<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -21139,20 +20243,6 @@ namespace LanguageExt
         public static Try<Option<B>> BindT< A, B>(this Try<Option<A>> ma, Func<A, Try<Option<B>>> f) =>
             Trans<MTry<Option<A>>, Try<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MTry<Option<B>>, Try<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;Option&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Option&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Option<Try<A>> Sequence< A>(this Try<Option<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -21467,20 +20557,6 @@ namespace LanguageExt
         public static TryOption<Option<B>> BindT< A, B>(this TryOption<Option<A>> ma, Func<A, TryOption<Option<B>>> f) =>
             Trans<MTryOption<Option<A>>, TryOption<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MTryOption<Option<B>>, TryOption<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;Option&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Option&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Option<TryOption<A>> Sequence< A>(this TryOption<Option<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -21795,20 +20871,6 @@ namespace LanguageExt
         public static IEnumerable<Option<B>> BindT< A, B>(this IEnumerable<Option<A>> ma, Func<A, IEnumerable<Option<B>>> f) =>
             SeqTrans<MEnumerable<Option<A>>, IEnumerable<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MEnumerable<Option<B>>, IEnumerable<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `IEnumerable&lt;Option&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Option&lt;IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option&lt;IEnumerable&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Option<IEnumerable<A>> Sequence< A>(this IEnumerable<Option<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -22123,20 +21185,6 @@ namespace LanguageExt
         public static Seq<Option<B>> BindT< A, B>(this Seq<Option<A>> ma, Func<A, Seq<Option<B>>> f) =>
             SeqTrans<MSeq<Option<A>>, Seq<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MSeq<Option<B>>, Seq<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Seq&lt;Option&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Option&lt;Seq&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Seq&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option&lt;Seq&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Option<Seq<A>> Sequence< A>(this Seq<Option<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -22451,20 +21499,6 @@ namespace LanguageExt
         public static Set<Option<B>> BindT< A, B>(this Set<Option<A>> ma, Func<A, Set<Option<B>>> f) =>
             SeqTrans<MSet<Option<A>>, Set<Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MSet<Option<B>>, Set<Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;Option&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Option&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Option<Set<A>> Sequence< A>(this Set<Option<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -22779,20 +21813,6 @@ namespace LanguageExt
         public static Validation<FAIL, Option<B>> BindT<FAIL, A, B>(this Validation<FAIL, Option<A>> ma, Func<A, Validation<FAIL, Option<B>>> f) =>
             Trans<MValidation<FAIL, Option<A>>, Validation<FAIL, Option<A>>, MOption<A>, Option<A>, A>
                 .Inst.Bind<MValidation<FAIL, Option<B>>, Validation<FAIL, Option<B>>, MOption<B>, Option<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Option&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Option&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, Option&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Option&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static Option<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, Option<A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -23115,20 +22135,6 @@ namespace LanguageExt
         public static Arr<OptionUnsafe<B>> BindT< A, B>(this Arr<OptionUnsafe<A>> ma, Func<A, Arr<OptionUnsafe<B>>> f) =>
             SeqTrans<MArr<OptionUnsafe<A>>, Arr<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Bind<MArr<OptionUnsafe<B>>, Arr<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionUnsafe&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionUnsafe<Arr<A>> Sequence< A>(this Arr<OptionUnsafe<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -23443,20 +22449,6 @@ namespace LanguageExt
         public static HashSet<OptionUnsafe<B>> BindT< A, B>(this HashSet<OptionUnsafe<A>> ma, Func<A, HashSet<OptionUnsafe<B>>> f) =>
             SeqTrans<MHashSet<OptionUnsafe<A>>, HashSet<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Bind<MHashSet<OptionUnsafe<B>>, HashSet<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionUnsafe&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionUnsafe<HashSet<A>> Sequence< A>(this HashSet<OptionUnsafe<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -23771,20 +22763,6 @@ namespace LanguageExt
         public static Lst<OptionUnsafe<B>> BindT< A, B>(this Lst<OptionUnsafe<A>> ma, Func<A, Lst<OptionUnsafe<B>>> f) =>
             SeqTrans<MLst<OptionUnsafe<A>>, Lst<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Bind<MLst<OptionUnsafe<B>>, Lst<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionUnsafe&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionUnsafe<Lst<A>> Sequence< A>(this Lst<OptionUnsafe<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -24099,20 +23077,6 @@ namespace LanguageExt
         public static Fin<OptionUnsafe<B>> BindT< A, B>(this Fin<OptionUnsafe<A>> ma, Func<A, Fin<OptionUnsafe<B>>> f) =>
             Trans<MFin<OptionUnsafe<A>>, Fin<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Bind<MFin<OptionUnsafe<B>>, Fin<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionUnsafe&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionUnsafe<Fin<A>> Sequence< A>(this Fin<OptionUnsafe<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -24427,20 +23391,6 @@ namespace LanguageExt
         public static Option<OptionUnsafe<B>> BindT< A, B>(this Option<OptionUnsafe<A>> ma, Func<A, Option<OptionUnsafe<B>>> f) =>
             Trans<MOption<OptionUnsafe<A>>, Option<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Bind<MOption<OptionUnsafe<B>>, Option<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionUnsafe&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionUnsafe<Option<A>> Sequence< A>(this Option<OptionUnsafe<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -24755,20 +23705,6 @@ namespace LanguageExt
         public static OptionUnsafe<OptionUnsafe<B>> BindT< A, B>(this OptionUnsafe<OptionUnsafe<A>> ma, Func<A, OptionUnsafe<OptionUnsafe<B>>> f) =>
             Trans<MOptionUnsafe<OptionUnsafe<A>>, OptionUnsafe<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Bind<MOptionUnsafe<OptionUnsafe<B>>, OptionUnsafe<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionUnsafe&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionUnsafe<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<OptionUnsafe<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -25083,20 +24019,6 @@ namespace LanguageExt
         public static Either<L, OptionUnsafe<B>> BindT<L, A, B>(this Either<L, OptionUnsafe<A>> ma, Func<A, Either<L, OptionUnsafe<B>>> f) =>
             Trans<MEither<L, OptionUnsafe<A>>, Either<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Bind<MEither<L, OptionUnsafe<B>>, Either<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionUnsafe&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionUnsafe<Either<L, A>> Sequence<L, A>(this Either<L, OptionUnsafe<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -25411,20 +24333,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, OptionUnsafe<B>> BindT<L, A, B>(this EitherUnsafe<L, OptionUnsafe<A>> ma, Func<A, EitherUnsafe<L, OptionUnsafe<B>>> f) =>
             Trans<MEitherUnsafe<L, OptionUnsafe<A>>, EitherUnsafe<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, OptionUnsafe<B>>, EitherUnsafe<L, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionUnsafe&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionUnsafe<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, OptionUnsafe<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -25739,20 +24647,6 @@ namespace LanguageExt
         public static Try<OptionUnsafe<B>> BindT< A, B>(this Try<OptionUnsafe<A>> ma, Func<A, Try<OptionUnsafe<B>>> f) =>
             Trans<MTry<OptionUnsafe<A>>, Try<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Bind<MTry<OptionUnsafe<B>>, Try<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionUnsafe&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionUnsafe<Try<A>> Sequence< A>(this Try<OptionUnsafe<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -26067,20 +24961,6 @@ namespace LanguageExt
         public static TryOption<OptionUnsafe<B>> BindT< A, B>(this TryOption<OptionUnsafe<A>> ma, Func<A, TryOption<OptionUnsafe<B>>> f) =>
             Trans<MTryOption<OptionUnsafe<A>>, TryOption<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Bind<MTryOption<OptionUnsafe<B>>, TryOption<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionUnsafe&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionUnsafe<TryOption<A>> Sequence< A>(this TryOption<OptionUnsafe<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -26395,20 +25275,6 @@ namespace LanguageExt
         public static IEnumerable<OptionUnsafe<B>> BindT< A, B>(this IEnumerable<OptionUnsafe<A>> ma, Func<A, IEnumerable<OptionUnsafe<B>>> f) =>
             SeqTrans<MEnumerable<OptionUnsafe<A>>, IEnumerable<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Bind<MEnumerable<OptionUnsafe<B>>, IEnumerable<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `IEnumerable&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionUnsafe&lt;IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe&lt;IEnumerable&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionUnsafe<IEnumerable<A>> Sequence< A>(this IEnumerable<OptionUnsafe<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -26723,20 +25589,6 @@ namespace LanguageExt
         public static Seq<OptionUnsafe<B>> BindT< A, B>(this Seq<OptionUnsafe<A>> ma, Func<A, Seq<OptionUnsafe<B>>> f) =>
             SeqTrans<MSeq<OptionUnsafe<A>>, Seq<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Bind<MSeq<OptionUnsafe<B>>, Seq<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Seq&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionUnsafe&lt;Seq&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Seq&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe&lt;Seq&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionUnsafe<Seq<A>> Sequence< A>(this Seq<OptionUnsafe<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -27051,20 +25903,6 @@ namespace LanguageExt
         public static Set<OptionUnsafe<B>> BindT< A, B>(this Set<OptionUnsafe<A>> ma, Func<A, Set<OptionUnsafe<B>>> f) =>
             SeqTrans<MSet<OptionUnsafe<A>>, Set<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Bind<MSet<OptionUnsafe<B>>, Set<OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionUnsafe&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionUnsafe<Set<A>> Sequence< A>(this Set<OptionUnsafe<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -27379,20 +26217,6 @@ namespace LanguageExt
         public static Validation<FAIL, OptionUnsafe<B>> BindT<FAIL, A, B>(this Validation<FAIL, OptionUnsafe<A>> ma, Func<A, Validation<FAIL, OptionUnsafe<B>>> f) =>
             Trans<MValidation<FAIL, OptionUnsafe<A>>, Validation<FAIL, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, A>
                 .Inst.Bind<MValidation<FAIL, OptionUnsafe<B>>, Validation<FAIL, OptionUnsafe<B>>, MOptionUnsafe<B>, OptionUnsafe<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, OptionUnsafe&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `OptionUnsafe&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, OptionUnsafe&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`OptionUnsafe&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static OptionUnsafe<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -27715,20 +26539,6 @@ namespace LanguageExt
         public static Arr<Either<L, B>> BindT<L, A, B>(this Arr<Either<L, A>> ma, Func<A, Arr<Either<L, B>>> f) =>
             SeqTrans<MArr<Either<L, A>>, Arr<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MArr<Either<L, B>>, Arr<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Either&lt;L, Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either&lt;L, Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Either<L, Arr<A>> Sequence<L, A>(this Arr<Either<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -28043,20 +26853,6 @@ namespace LanguageExt
         public static HashSet<Either<L, B>> BindT<L, A, B>(this HashSet<Either<L, A>> ma, Func<A, HashSet<Either<L, B>>> f) =>
             SeqTrans<MHashSet<Either<L, A>>, HashSet<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MHashSet<Either<L, B>>, HashSet<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Either&lt;L, HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either&lt;L, HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Either<L, HashSet<A>> Sequence<L, A>(this HashSet<Either<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -28371,20 +27167,6 @@ namespace LanguageExt
         public static Lst<Either<L, B>> BindT<L, A, B>(this Lst<Either<L, A>> ma, Func<A, Lst<Either<L, B>>> f) =>
             SeqTrans<MLst<Either<L, A>>, Lst<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MLst<Either<L, B>>, Lst<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Either&lt;L, Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either&lt;L, Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Either<L, Lst<A>> Sequence<L, A>(this Lst<Either<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -28699,20 +27481,6 @@ namespace LanguageExt
         public static Fin<Either<L, B>> BindT<L, A, B>(this Fin<Either<L, A>> ma, Func<A, Fin<Either<L, B>>> f) =>
             Trans<MFin<Either<L, A>>, Fin<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MFin<Either<L, B>>, Fin<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Either&lt;L, Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Either<L, Fin<A>> Sequence<L, A>(this Fin<Either<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -29027,20 +27795,6 @@ namespace LanguageExt
         public static Option<Either<L, B>> BindT<L, A, B>(this Option<Either<L, A>> ma, Func<A, Option<Either<L, B>>> f) =>
             Trans<MOption<Either<L, A>>, Option<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MOption<Either<L, B>>, Option<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Either&lt;L, Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either&lt;L, Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Either<L, Option<A>> Sequence<L, A>(this Option<Either<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -29355,20 +28109,6 @@ namespace LanguageExt
         public static OptionUnsafe<Either<L, B>> BindT<L, A, B>(this OptionUnsafe<Either<L, A>> ma, Func<A, OptionUnsafe<Either<L, B>>> f) =>
             Trans<MOptionUnsafe<Either<L, A>>, OptionUnsafe<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MOptionUnsafe<Either<L, B>>, OptionUnsafe<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Either&lt;L, OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either&lt;L, OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Either<L, OptionUnsafe<A>> Sequence<L, A>(this OptionUnsafe<Either<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -29683,20 +28423,6 @@ namespace LanguageExt
         public static Either<L, Either<L, B>> BindT<L, A, B>(this Either<L, Either<L, A>> ma, Func<A, Either<L, Either<L, B>>> f) =>
             Trans<MEither<L, Either<L, A>>, Either<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MEither<L, Either<L, B>>, Either<L, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, Either&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Either&lt;L, Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either&lt;L, Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Either<L, Either<L, A>> Sequence<L, A>(this Either<L, Either<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -30011,20 +28737,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Either<L, B>> BindT<L, A, B>(this EitherUnsafe<L, Either<L, A>> ma, Func<A, EitherUnsafe<L, Either<L, B>>> f) =>
             Trans<MEitherUnsafe<L, Either<L, A>>, EitherUnsafe<L, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MEitherUnsafe<L, Either<L, B>>, EitherUnsafe<L, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Either&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Either&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Either<L, EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Either<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -30339,20 +29051,6 @@ namespace LanguageExt
         public static Try<Either<L, B>> BindT<L, A, B>(this Try<Either<L, A>> ma, Func<A, Try<Either<L, B>>> f) =>
             Trans<MTry<Either<L, A>>, Try<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MTry<Either<L, B>>, Try<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Either&lt;L, Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either&lt;L, Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Either<L, Try<A>> Sequence<L, A>(this Try<Either<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -30667,20 +29365,6 @@ namespace LanguageExt
         public static TryOption<Either<L, B>> BindT<L, A, B>(this TryOption<Either<L, A>> ma, Func<A, TryOption<Either<L, B>>> f) =>
             Trans<MTryOption<Either<L, A>>, TryOption<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MTryOption<Either<L, B>>, TryOption<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Either&lt;L, TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either&lt;L, TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Either<L, TryOption<A>> Sequence<L, A>(this TryOption<Either<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -30995,20 +29679,6 @@ namespace LanguageExt
         public static IEnumerable<Either<L, B>> BindT<L, A, B>(this IEnumerable<Either<L, A>> ma, Func<A, IEnumerable<Either<L, B>>> f) =>
             SeqTrans<MEnumerable<Either<L, A>>, IEnumerable<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MEnumerable<Either<L, B>>, IEnumerable<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `IEnumerable&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Either&lt;L, IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either&lt;L, IEnumerable&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Either<L, IEnumerable<A>> Sequence<L, A>(this IEnumerable<Either<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -31323,20 +29993,6 @@ namespace LanguageExt
         public static Seq<Either<L, B>> BindT<L, A, B>(this Seq<Either<L, A>> ma, Func<A, Seq<Either<L, B>>> f) =>
             SeqTrans<MSeq<Either<L, A>>, Seq<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MSeq<Either<L, B>>, Seq<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Seq&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Either&lt;L, Seq&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Seq&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either&lt;L, Seq&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Either<L, Seq<A>> Sequence<L, A>(this Seq<Either<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -31651,20 +30307,6 @@ namespace LanguageExt
         public static Set<Either<L, B>> BindT<L, A, B>(this Set<Either<L, A>> ma, Func<A, Set<Either<L, B>>> f) =>
             SeqTrans<MSet<Either<L, A>>, Set<Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MSet<Either<L, B>>, Set<Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;Either&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Either&lt;L, Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either&lt;L, Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Either<L, Set<A>> Sequence<L, A>(this Set<Either<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -31979,20 +30621,6 @@ namespace LanguageExt
         public static Validation<FAIL, Either<L, B>> BindT<FAIL, L, A, B>(this Validation<FAIL, Either<L, A>> ma, Func<A, Validation<FAIL, Either<L, B>>> f) =>
             Trans<MValidation<FAIL, Either<L, A>>, Validation<FAIL, Either<L, A>>, MEither<L, A>, Either<L, A>, A>
                 .Inst.Bind<MValidation<FAIL, Either<L, B>>, Validation<FAIL, Either<L, B>>, MEither<L, B>, Either<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Either&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Either&lt;L, Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, Either&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Either&lt;L, Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static Either<L, Validation<FAIL, A>> Sequence<FAIL, L, A>(this Validation<FAIL, Either<L, A>> ma) =>
-            ma.Traverse<FAIL, L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -32315,20 +30943,6 @@ namespace LanguageExt
         public static Arr<EitherUnsafe<L, B>> BindT<L, A, B>(this Arr<EitherUnsafe<L, A>> ma, Func<A, Arr<EitherUnsafe<L, B>>> f) =>
             SeqTrans<MArr<EitherUnsafe<L, A>>, Arr<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Bind<MArr<EitherUnsafe<L, B>>, Arr<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherUnsafe&lt;L, Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe&lt;L, Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherUnsafe<L, Arr<A>> Sequence<L, A>(this Arr<EitherUnsafe<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -32643,20 +31257,6 @@ namespace LanguageExt
         public static HashSet<EitherUnsafe<L, B>> BindT<L, A, B>(this HashSet<EitherUnsafe<L, A>> ma, Func<A, HashSet<EitherUnsafe<L, B>>> f) =>
             SeqTrans<MHashSet<EitherUnsafe<L, A>>, HashSet<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Bind<MHashSet<EitherUnsafe<L, B>>, HashSet<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherUnsafe&lt;L, HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe&lt;L, HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherUnsafe<L, HashSet<A>> Sequence<L, A>(this HashSet<EitherUnsafe<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -32971,20 +31571,6 @@ namespace LanguageExt
         public static Lst<EitherUnsafe<L, B>> BindT<L, A, B>(this Lst<EitherUnsafe<L, A>> ma, Func<A, Lst<EitherUnsafe<L, B>>> f) =>
             SeqTrans<MLst<EitherUnsafe<L, A>>, Lst<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Bind<MLst<EitherUnsafe<L, B>>, Lst<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherUnsafe&lt;L, Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe&lt;L, Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherUnsafe<L, Lst<A>> Sequence<L, A>(this Lst<EitherUnsafe<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -33299,20 +31885,6 @@ namespace LanguageExt
         public static Fin<EitherUnsafe<L, B>> BindT<L, A, B>(this Fin<EitherUnsafe<L, A>> ma, Func<A, Fin<EitherUnsafe<L, B>>> f) =>
             Trans<MFin<EitherUnsafe<L, A>>, Fin<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Bind<MFin<EitherUnsafe<L, B>>, Fin<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherUnsafe<L, Fin<A>> Sequence<L, A>(this Fin<EitherUnsafe<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -33627,20 +32199,6 @@ namespace LanguageExt
         public static Option<EitherUnsafe<L, B>> BindT<L, A, B>(this Option<EitherUnsafe<L, A>> ma, Func<A, Option<EitherUnsafe<L, B>>> f) =>
             Trans<MOption<EitherUnsafe<L, A>>, Option<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Bind<MOption<EitherUnsafe<L, B>>, Option<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherUnsafe&lt;L, Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe&lt;L, Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherUnsafe<L, Option<A>> Sequence<L, A>(this Option<EitherUnsafe<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -33955,20 +32513,6 @@ namespace LanguageExt
         public static OptionUnsafe<EitherUnsafe<L, B>> BindT<L, A, B>(this OptionUnsafe<EitherUnsafe<L, A>> ma, Func<A, OptionUnsafe<EitherUnsafe<L, B>>> f) =>
             Trans<MOptionUnsafe<EitherUnsafe<L, A>>, OptionUnsafe<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Bind<MOptionUnsafe<EitherUnsafe<L, B>>, OptionUnsafe<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherUnsafe&lt;L, OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe&lt;L, OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherUnsafe<L, OptionUnsafe<A>> Sequence<L, A>(this OptionUnsafe<EitherUnsafe<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -34283,20 +32827,6 @@ namespace LanguageExt
         public static Either<L, EitherUnsafe<L, B>> BindT<L, A, B>(this Either<L, EitherUnsafe<L, A>> ma, Func<A, Either<L, EitherUnsafe<L, B>>> f) =>
             Trans<MEither<L, EitherUnsafe<L, A>>, Either<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Bind<MEither<L, EitherUnsafe<L, B>>, Either<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherUnsafe&lt;L, Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe&lt;L, Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherUnsafe<L, Either<L, A>> Sequence<L, A>(this Either<L, EitherUnsafe<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -34611,20 +33141,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, EitherUnsafe<L, B>> BindT<L, A, B>(this EitherUnsafe<L, EitherUnsafe<L, A>> ma, Func<A, EitherUnsafe<L, EitherUnsafe<L, B>>> f) =>
             Trans<MEitherUnsafe<L, EitherUnsafe<L, A>>, EitherUnsafe<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Bind<MEitherUnsafe<L, EitherUnsafe<L, B>>, EitherUnsafe<L, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherUnsafe&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherUnsafe<L, EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -34939,20 +33455,6 @@ namespace LanguageExt
         public static Try<EitherUnsafe<L, B>> BindT<L, A, B>(this Try<EitherUnsafe<L, A>> ma, Func<A, Try<EitherUnsafe<L, B>>> f) =>
             Trans<MTry<EitherUnsafe<L, A>>, Try<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Bind<MTry<EitherUnsafe<L, B>>, Try<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherUnsafe&lt;L, Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe&lt;L, Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherUnsafe<L, Try<A>> Sequence<L, A>(this Try<EitherUnsafe<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -35267,20 +33769,6 @@ namespace LanguageExt
         public static TryOption<EitherUnsafe<L, B>> BindT<L, A, B>(this TryOption<EitherUnsafe<L, A>> ma, Func<A, TryOption<EitherUnsafe<L, B>>> f) =>
             Trans<MTryOption<EitherUnsafe<L, A>>, TryOption<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Bind<MTryOption<EitherUnsafe<L, B>>, TryOption<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherUnsafe&lt;L, TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe&lt;L, TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherUnsafe<L, TryOption<A>> Sequence<L, A>(this TryOption<EitherUnsafe<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -35595,20 +34083,6 @@ namespace LanguageExt
         public static IEnumerable<EitherUnsafe<L, B>> BindT<L, A, B>(this IEnumerable<EitherUnsafe<L, A>> ma, Func<A, IEnumerable<EitherUnsafe<L, B>>> f) =>
             SeqTrans<MEnumerable<EitherUnsafe<L, A>>, IEnumerable<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Bind<MEnumerable<EitherUnsafe<L, B>>, IEnumerable<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `IEnumerable&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherUnsafe&lt;L, IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe&lt;L, IEnumerable&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherUnsafe<L, IEnumerable<A>> Sequence<L, A>(this IEnumerable<EitherUnsafe<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -35923,20 +34397,6 @@ namespace LanguageExt
         public static Seq<EitherUnsafe<L, B>> BindT<L, A, B>(this Seq<EitherUnsafe<L, A>> ma, Func<A, Seq<EitherUnsafe<L, B>>> f) =>
             SeqTrans<MSeq<EitherUnsafe<L, A>>, Seq<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Bind<MSeq<EitherUnsafe<L, B>>, Seq<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Seq&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherUnsafe&lt;L, Seq&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Seq&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe&lt;L, Seq&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherUnsafe<L, Seq<A>> Sequence<L, A>(this Seq<EitherUnsafe<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -36251,20 +34711,6 @@ namespace LanguageExt
         public static Set<EitherUnsafe<L, B>> BindT<L, A, B>(this Set<EitherUnsafe<L, A>> ma, Func<A, Set<EitherUnsafe<L, B>>> f) =>
             SeqTrans<MSet<EitherUnsafe<L, A>>, Set<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Bind<MSet<EitherUnsafe<L, B>>, Set<EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherUnsafe&lt;L, Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe&lt;L, Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherUnsafe<L, Set<A>> Sequence<L, A>(this Set<EitherUnsafe<L, A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -36579,20 +35025,6 @@ namespace LanguageExt
         public static Validation<FAIL, EitherUnsafe<L, B>> BindT<FAIL, L, A, B>(this Validation<FAIL, EitherUnsafe<L, A>> ma, Func<A, Validation<FAIL, EitherUnsafe<L, B>>> f) =>
             Trans<MValidation<FAIL, EitherUnsafe<L, A>>, Validation<FAIL, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, A>
                 .Inst.Bind<MValidation<FAIL, EitherUnsafe<L, B>>, Validation<FAIL, EitherUnsafe<L, B>>, MEitherUnsafe<L, B>, EitherUnsafe<L, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, EitherUnsafe&lt;L, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `EitherUnsafe&lt;L, Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, EitherUnsafe&lt;L, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`EitherUnsafe&lt;L, Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static EitherUnsafe<L, Validation<FAIL, A>> Sequence<FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> ma) =>
-            ma.Traverse<FAIL, L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -36915,20 +35347,6 @@ namespace LanguageExt
         public static Arr<Try<B>> BindT< A, B>(this Arr<Try<A>> ma, Func<A, Arr<Try<B>>> f) =>
             SeqTrans<MArr<Try<A>>, Arr<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Bind<MArr<Try<B>>, Arr<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;Try&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Try&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Try<Arr<A>> Sequence< A>(this Arr<Try<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -37243,20 +35661,6 @@ namespace LanguageExt
         public static HashSet<Try<B>> BindT< A, B>(this HashSet<Try<A>> ma, Func<A, HashSet<Try<B>>> f) =>
             SeqTrans<MHashSet<Try<A>>, HashSet<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Bind<MHashSet<Try<B>>, HashSet<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;Try&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Try&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Try<HashSet<A>> Sequence< A>(this HashSet<Try<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -37571,20 +35975,6 @@ namespace LanguageExt
         public static Lst<Try<B>> BindT< A, B>(this Lst<Try<A>> ma, Func<A, Lst<Try<B>>> f) =>
             SeqTrans<MLst<Try<A>>, Lst<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Bind<MLst<Try<B>>, Lst<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;Try&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Try&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Try<Lst<A>> Sequence< A>(this Lst<Try<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -37899,20 +36289,6 @@ namespace LanguageExt
         public static Fin<Try<B>> BindT< A, B>(this Fin<Try<A>> ma, Func<A, Fin<Try<B>>> f) =>
             Trans<MFin<Try<A>>, Fin<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Bind<MFin<Try<B>>, Fin<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;Try&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Try&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Try<Fin<A>> Sequence< A>(this Fin<Try<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -38227,20 +36603,6 @@ namespace LanguageExt
         public static Option<Try<B>> BindT< A, B>(this Option<Try<A>> ma, Func<A, Option<Try<B>>> f) =>
             Trans<MOption<Try<A>>, Option<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Bind<MOption<Try<B>>, Option<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;Try&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Try&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Try<Option<A>> Sequence< A>(this Option<Try<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -38555,20 +36917,6 @@ namespace LanguageExt
         public static OptionUnsafe<Try<B>> BindT< A, B>(this OptionUnsafe<Try<A>> ma, Func<A, OptionUnsafe<Try<B>>> f) =>
             Trans<MOptionUnsafe<Try<A>>, OptionUnsafe<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Bind<MOptionUnsafe<Try<B>>, OptionUnsafe<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Try&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Try&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Try<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<Try<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -38883,20 +37231,6 @@ namespace LanguageExt
         public static Either<L, Try<B>> BindT<L, A, B>(this Either<L, Try<A>> ma, Func<A, Either<L, Try<B>>> f) =>
             Trans<MEither<L, Try<A>>, Either<L, Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Bind<MEither<L, Try<B>>, Either<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, Try&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Try&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Try<Either<L, A>> Sequence<L, A>(this Either<L, Try<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -39211,20 +37545,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Try<B>> BindT<L, A, B>(this EitherUnsafe<L, Try<A>> ma, Func<A, EitherUnsafe<L, Try<B>>> f) =>
             Trans<MEitherUnsafe<L, Try<A>>, EitherUnsafe<L, Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, Try<B>>, EitherUnsafe<L, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Try&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Try&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Try<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Try<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -39539,20 +37859,6 @@ namespace LanguageExt
         public static Try<Try<B>> BindT< A, B>(this Try<Try<A>> ma, Func<A, Try<Try<B>>> f) =>
             Trans<MTry<Try<A>>, Try<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Bind<MTry<Try<B>>, Try<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;Try&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Try&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Try<Try<A>> Sequence< A>(this Try<Try<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -39867,20 +38173,6 @@ namespace LanguageExt
         public static TryOption<Try<B>> BindT< A, B>(this TryOption<Try<A>> ma, Func<A, TryOption<Try<B>>> f) =>
             Trans<MTryOption<Try<A>>, TryOption<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Bind<MTryOption<Try<B>>, TryOption<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;Try&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Try&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Try<TryOption<A>> Sequence< A>(this TryOption<Try<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -40195,20 +38487,6 @@ namespace LanguageExt
         public static IEnumerable<Try<B>> BindT< A, B>(this IEnumerable<Try<A>> ma, Func<A, IEnumerable<Try<B>>> f) =>
             SeqTrans<MEnumerable<Try<A>>, IEnumerable<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Bind<MEnumerable<Try<B>>, IEnumerable<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `IEnumerable&lt;Try&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Try&lt;IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try&lt;IEnumerable&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Try<IEnumerable<A>> Sequence< A>(this IEnumerable<Try<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -40523,20 +38801,6 @@ namespace LanguageExt
         public static Seq<Try<B>> BindT< A, B>(this Seq<Try<A>> ma, Func<A, Seq<Try<B>>> f) =>
             SeqTrans<MSeq<Try<A>>, Seq<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Bind<MSeq<Try<B>>, Seq<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Seq&lt;Try&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Try&lt;Seq&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Seq&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try&lt;Seq&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Try<Seq<A>> Sequence< A>(this Seq<Try<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -40851,20 +39115,6 @@ namespace LanguageExt
         public static Set<Try<B>> BindT< A, B>(this Set<Try<A>> ma, Func<A, Set<Try<B>>> f) =>
             SeqTrans<MSet<Try<A>>, Set<Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Bind<MSet<Try<B>>, Set<Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;Try&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Try&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Try<Set<A>> Sequence< A>(this Set<Try<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -41179,20 +39429,6 @@ namespace LanguageExt
         public static Validation<FAIL, Try<B>> BindT<FAIL, A, B>(this Validation<FAIL, Try<A>> ma, Func<A, Validation<FAIL, Try<B>>> f) =>
             Trans<MValidation<FAIL, Try<A>>, Validation<FAIL, Try<A>>, MTry<A>, Try<A>, A>
                 .Inst.Bind<MValidation<FAIL, Try<B>>, Validation<FAIL, Try<B>>, MTry<B>, Try<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Try&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Try&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, Try&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Try&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static Try<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, Try<A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -41515,20 +39751,6 @@ namespace LanguageExt
         public static Arr<TryOption<B>> BindT< A, B>(this Arr<TryOption<A>> ma, Func<A, Arr<TryOption<B>>> f) =>
             SeqTrans<MArr<TryOption<A>>, Arr<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Bind<MArr<TryOption<B>>, Arr<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOption&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOption<Arr<A>> Sequence< A>(this Arr<TryOption<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -41843,20 +40065,6 @@ namespace LanguageExt
         public static HashSet<TryOption<B>> BindT< A, B>(this HashSet<TryOption<A>> ma, Func<A, HashSet<TryOption<B>>> f) =>
             SeqTrans<MHashSet<TryOption<A>>, HashSet<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Bind<MHashSet<TryOption<B>>, HashSet<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOption&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOption<HashSet<A>> Sequence< A>(this HashSet<TryOption<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -42171,20 +40379,6 @@ namespace LanguageExt
         public static Lst<TryOption<B>> BindT< A, B>(this Lst<TryOption<A>> ma, Func<A, Lst<TryOption<B>>> f) =>
             SeqTrans<MLst<TryOption<A>>, Lst<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Bind<MLst<TryOption<B>>, Lst<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOption&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOption<Lst<A>> Sequence< A>(this Lst<TryOption<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -42499,20 +40693,6 @@ namespace LanguageExt
         public static Fin<TryOption<B>> BindT< A, B>(this Fin<TryOption<A>> ma, Func<A, Fin<TryOption<B>>> f) =>
             Trans<MFin<TryOption<A>>, Fin<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Bind<MFin<TryOption<B>>, Fin<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOption&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOption<Fin<A>> Sequence< A>(this Fin<TryOption<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -42827,20 +41007,6 @@ namespace LanguageExt
         public static Option<TryOption<B>> BindT< A, B>(this Option<TryOption<A>> ma, Func<A, Option<TryOption<B>>> f) =>
             Trans<MOption<TryOption<A>>, Option<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Bind<MOption<TryOption<B>>, Option<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOption&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOption<Option<A>> Sequence< A>(this Option<TryOption<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -43155,20 +41321,6 @@ namespace LanguageExt
         public static OptionUnsafe<TryOption<B>> BindT< A, B>(this OptionUnsafe<TryOption<A>> ma, Func<A, OptionUnsafe<TryOption<B>>> f) =>
             Trans<MOptionUnsafe<TryOption<A>>, OptionUnsafe<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Bind<MOptionUnsafe<TryOption<B>>, OptionUnsafe<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOption&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOption<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<TryOption<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -43483,20 +41635,6 @@ namespace LanguageExt
         public static Either<L, TryOption<B>> BindT<L, A, B>(this Either<L, TryOption<A>> ma, Func<A, Either<L, TryOption<B>>> f) =>
             Trans<MEither<L, TryOption<A>>, Either<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Bind<MEither<L, TryOption<B>>, Either<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, TryOption&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOption&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOption<Either<L, A>> Sequence<L, A>(this Either<L, TryOption<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -43811,20 +41949,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, TryOption<B>> BindT<L, A, B>(this EitherUnsafe<L, TryOption<A>> ma, Func<A, EitherUnsafe<L, TryOption<B>>> f) =>
             Trans<MEitherUnsafe<L, TryOption<A>>, EitherUnsafe<L, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, TryOption<B>>, EitherUnsafe<L, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, TryOption&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOption&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOption<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, TryOption<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -44139,20 +42263,6 @@ namespace LanguageExt
         public static Try<TryOption<B>> BindT< A, B>(this Try<TryOption<A>> ma, Func<A, Try<TryOption<B>>> f) =>
             Trans<MTry<TryOption<A>>, Try<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Bind<MTry<TryOption<B>>, Try<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOption&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOption<Try<A>> Sequence< A>(this Try<TryOption<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -44467,20 +42577,6 @@ namespace LanguageExt
         public static TryOption<TryOption<B>> BindT< A, B>(this TryOption<TryOption<A>> ma, Func<A, TryOption<TryOption<B>>> f) =>
             Trans<MTryOption<TryOption<A>>, TryOption<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Bind<MTryOption<TryOption<B>>, TryOption<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOption&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOption<TryOption<A>> Sequence< A>(this TryOption<TryOption<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -44795,20 +42891,6 @@ namespace LanguageExt
         public static IEnumerable<TryOption<B>> BindT< A, B>(this IEnumerable<TryOption<A>> ma, Func<A, IEnumerable<TryOption<B>>> f) =>
             SeqTrans<MEnumerable<TryOption<A>>, IEnumerable<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Bind<MEnumerable<TryOption<B>>, IEnumerable<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `IEnumerable&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOption&lt;IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption&lt;IEnumerable&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOption<IEnumerable<A>> Sequence< A>(this IEnumerable<TryOption<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -45123,20 +43205,6 @@ namespace LanguageExt
         public static Seq<TryOption<B>> BindT< A, B>(this Seq<TryOption<A>> ma, Func<A, Seq<TryOption<B>>> f) =>
             SeqTrans<MSeq<TryOption<A>>, Seq<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Bind<MSeq<TryOption<B>>, Seq<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Seq&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOption&lt;Seq&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Seq&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption&lt;Seq&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOption<Seq<A>> Sequence< A>(this Seq<TryOption<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -45451,20 +43519,6 @@ namespace LanguageExt
         public static Set<TryOption<B>> BindT< A, B>(this Set<TryOption<A>> ma, Func<A, Set<TryOption<B>>> f) =>
             SeqTrans<MSet<TryOption<A>>, Set<TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Bind<MSet<TryOption<B>>, Set<TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;TryOption&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOption&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOption<Set<A>> Sequence< A>(this Set<TryOption<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -45779,20 +43833,6 @@ namespace LanguageExt
         public static Validation<FAIL, TryOption<B>> BindT<FAIL, A, B>(this Validation<FAIL, TryOption<A>> ma, Func<A, Validation<FAIL, TryOption<B>>> f) =>
             Trans<MValidation<FAIL, TryOption<A>>, Validation<FAIL, TryOption<A>>, MTryOption<A>, TryOption<A>, A>
                 .Inst.Bind<MValidation<FAIL, TryOption<B>>, Validation<FAIL, TryOption<B>>, MTryOption<B>, TryOption<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, TryOption&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `TryOption&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, TryOption&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`TryOption&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static TryOption<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, TryOption<A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -46065,20 +44105,6 @@ namespace LanguageExt
         public static Arr<IEnumerable<B>> BindT< A, B>(this Arr<IEnumerable<A>> ma, Func<A, Arr<IEnumerable<B>>> f) =>
             SeqTrans<MArr<IEnumerable<A>>, Arr<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
                 .Inst.Bind<MArr<IEnumerable<B>>, Arr<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `IEnumerable&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static IEnumerable<Arr<A>> Sequence< A>(this Arr<IEnumerable<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -46343,20 +44369,6 @@ namespace LanguageExt
         public static HashSet<IEnumerable<B>> BindT< A, B>(this HashSet<IEnumerable<A>> ma, Func<A, HashSet<IEnumerable<B>>> f) =>
             SeqTrans<MHashSet<IEnumerable<A>>, HashSet<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
                 .Inst.Bind<MHashSet<IEnumerable<B>>, HashSet<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `IEnumerable&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static IEnumerable<HashSet<A>> Sequence< A>(this HashSet<IEnumerable<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -46621,20 +44633,6 @@ namespace LanguageExt
         public static Lst<IEnumerable<B>> BindT< A, B>(this Lst<IEnumerable<A>> ma, Func<A, Lst<IEnumerable<B>>> f) =>
             SeqTrans<MLst<IEnumerable<A>>, Lst<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
                 .Inst.Bind<MLst<IEnumerable<B>>, Lst<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `IEnumerable&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static IEnumerable<Lst<A>> Sequence< A>(this Lst<IEnumerable<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -46899,20 +44897,6 @@ namespace LanguageExt
         public static Fin<IEnumerable<B>> BindT< A, B>(this Fin<IEnumerable<A>> ma, Func<A, Fin<IEnumerable<B>>> f) =>
             Trans<MFin<IEnumerable<A>>, Fin<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
                 .Inst.Bind<MFin<IEnumerable<B>>, Fin<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `IEnumerable&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static IEnumerable<Fin<A>> Sequence< A>(this Fin<IEnumerable<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -47177,20 +45161,6 @@ namespace LanguageExt
         public static Option<IEnumerable<B>> BindT< A, B>(this Option<IEnumerable<A>> ma, Func<A, Option<IEnumerable<B>>> f) =>
             Trans<MOption<IEnumerable<A>>, Option<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
                 .Inst.Bind<MOption<IEnumerable<B>>, Option<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `IEnumerable&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static IEnumerable<Option<A>> Sequence< A>(this Option<IEnumerable<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -47455,20 +45425,6 @@ namespace LanguageExt
         public static OptionUnsafe<IEnumerable<B>> BindT< A, B>(this OptionUnsafe<IEnumerable<A>> ma, Func<A, OptionUnsafe<IEnumerable<B>>> f) =>
             Trans<MOptionUnsafe<IEnumerable<A>>, OptionUnsafe<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
                 .Inst.Bind<MOptionUnsafe<IEnumerable<B>>, OptionUnsafe<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `IEnumerable&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static IEnumerable<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<IEnumerable<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -47733,20 +45689,6 @@ namespace LanguageExt
         public static Either<L, IEnumerable<B>> BindT<L, A, B>(this Either<L, IEnumerable<A>> ma, Func<A, Either<L, IEnumerable<B>>> f) =>
             Trans<MEither<L, IEnumerable<A>>, Either<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
                 .Inst.Bind<MEither<L, IEnumerable<B>>, Either<L, IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, IEnumerable&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `IEnumerable&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static IEnumerable<Either<L, A>> Sequence<L, A>(this Either<L, IEnumerable<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -48011,20 +45953,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, IEnumerable<B>> BindT<L, A, B>(this EitherUnsafe<L, IEnumerable<A>> ma, Func<A, EitherUnsafe<L, IEnumerable<B>>> f) =>
             Trans<MEitherUnsafe<L, IEnumerable<A>>, EitherUnsafe<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, IEnumerable<B>>, EitherUnsafe<L, IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, IEnumerable&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `IEnumerable&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static IEnumerable<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, IEnumerable<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -48289,20 +46217,6 @@ namespace LanguageExt
         public static Try<IEnumerable<B>> BindT< A, B>(this Try<IEnumerable<A>> ma, Func<A, Try<IEnumerable<B>>> f) =>
             Trans<MTry<IEnumerable<A>>, Try<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
                 .Inst.Bind<MTry<IEnumerable<B>>, Try<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `IEnumerable&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static IEnumerable<Try<A>> Sequence< A>(this Try<IEnumerable<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -48567,20 +46481,6 @@ namespace LanguageExt
         public static TryOption<IEnumerable<B>> BindT< A, B>(this TryOption<IEnumerable<A>> ma, Func<A, TryOption<IEnumerable<B>>> f) =>
             Trans<MTryOption<IEnumerable<A>>, TryOption<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
                 .Inst.Bind<MTryOption<IEnumerable<B>>, TryOption<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `IEnumerable&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static IEnumerable<TryOption<A>> Sequence< A>(this TryOption<IEnumerable<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -48845,20 +46745,6 @@ namespace LanguageExt
         public static IEnumerable<IEnumerable<B>> BindT< A, B>(this IEnumerable<IEnumerable<A>> ma, Func<A, IEnumerable<IEnumerable<B>>> f) =>
             SeqTrans<MEnumerable<IEnumerable<A>>, IEnumerable<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
                 .Inst.Bind<MEnumerable<IEnumerable<B>>, IEnumerable<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `IEnumerable&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `IEnumerable&lt;IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable&lt;IEnumerable&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static IEnumerable<IEnumerable<A>> Sequence< A>(this IEnumerable<IEnumerable<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -49123,20 +47009,6 @@ namespace LanguageExt
         public static Seq<IEnumerable<B>> BindT< A, B>(this Seq<IEnumerable<A>> ma, Func<A, Seq<IEnumerable<B>>> f) =>
             SeqTrans<MSeq<IEnumerable<A>>, Seq<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
                 .Inst.Bind<MSeq<IEnumerable<B>>, Seq<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Seq&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `IEnumerable&lt;Seq&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Seq&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable&lt;Seq&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static IEnumerable<Seq<A>> Sequence< A>(this Seq<IEnumerable<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -49401,20 +47273,6 @@ namespace LanguageExt
         public static Set<IEnumerable<B>> BindT< A, B>(this Set<IEnumerable<A>> ma, Func<A, Set<IEnumerable<B>>> f) =>
             SeqTrans<MSet<IEnumerable<A>>, Set<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
                 .Inst.Bind<MSet<IEnumerable<B>>, Set<IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;IEnumerable&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `IEnumerable&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static IEnumerable<Set<A>> Sequence< A>(this Set<IEnumerable<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -49679,20 +47537,6 @@ namespace LanguageExt
         public static Validation<FAIL, IEnumerable<B>> BindT<FAIL, A, B>(this Validation<FAIL, IEnumerable<A>> ma, Func<A, Validation<FAIL, IEnumerable<B>>> f) =>
             Trans<MValidation<FAIL, IEnumerable<A>>, Validation<FAIL, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, A>
                 .Inst.Bind<MValidation<FAIL, IEnumerable<B>>, Validation<FAIL, IEnumerable<B>>, MEnumerable<B>, IEnumerable<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, IEnumerable&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `IEnumerable&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, IEnumerable&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`IEnumerable&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static IEnumerable<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, IEnumerable<A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -50015,20 +47859,6 @@ namespace LanguageExt
         public static Arr<Seq<B>> BindT< A, B>(this Arr<Seq<A>> ma, Func<A, Arr<Seq<B>>> f) =>
             SeqTrans<MArr<Seq<A>>, Arr<Seq<A>>, MSeq<A>, Seq<A>, A>
                 .Inst.Bind<MArr<Seq<B>>, Arr<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;Seq&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Seq&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Seq&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Seq<Arr<A>> Sequence< A>(this Arr<Seq<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -50343,20 +48173,6 @@ namespace LanguageExt
         public static HashSet<Seq<B>> BindT< A, B>(this HashSet<Seq<A>> ma, Func<A, HashSet<Seq<B>>> f) =>
             SeqTrans<MHashSet<Seq<A>>, HashSet<Seq<A>>, MSeq<A>, Seq<A>, A>
                 .Inst.Bind<MHashSet<Seq<B>>, HashSet<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;Seq&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Seq&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Seq&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Seq<HashSet<A>> Sequence< A>(this HashSet<Seq<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -50671,20 +48487,6 @@ namespace LanguageExt
         public static Lst<Seq<B>> BindT< A, B>(this Lst<Seq<A>> ma, Func<A, Lst<Seq<B>>> f) =>
             SeqTrans<MLst<Seq<A>>, Lst<Seq<A>>, MSeq<A>, Seq<A>, A>
                 .Inst.Bind<MLst<Seq<B>>, Lst<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;Seq&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Seq&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Seq&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Seq<Lst<A>> Sequence< A>(this Lst<Seq<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -50999,20 +48801,6 @@ namespace LanguageExt
         public static Fin<Seq<B>> BindT< A, B>(this Fin<Seq<A>> ma, Func<A, Fin<Seq<B>>> f) =>
             Trans<MFin<Seq<A>>, Fin<Seq<A>>, MSeq<A>, Seq<A>, A>
                 .Inst.Bind<MFin<Seq<B>>, Fin<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;Seq&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Seq&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Seq<Fin<A>> Sequence< A>(this Fin<Seq<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -51327,20 +49115,6 @@ namespace LanguageExt
         public static Option<Seq<B>> BindT< A, B>(this Option<Seq<A>> ma, Func<A, Option<Seq<B>>> f) =>
             Trans<MOption<Seq<A>>, Option<Seq<A>>, MSeq<A>, Seq<A>, A>
                 .Inst.Bind<MOption<Seq<B>>, Option<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;Seq&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Seq&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Seq&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Seq<Option<A>> Sequence< A>(this Option<Seq<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -51655,20 +49429,6 @@ namespace LanguageExt
         public static OptionUnsafe<Seq<B>> BindT< A, B>(this OptionUnsafe<Seq<A>> ma, Func<A, OptionUnsafe<Seq<B>>> f) =>
             Trans<MOptionUnsafe<Seq<A>>, OptionUnsafe<Seq<A>>, MSeq<A>, Seq<A>, A>
                 .Inst.Bind<MOptionUnsafe<Seq<B>>, OptionUnsafe<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Seq&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Seq&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Seq&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Seq<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<Seq<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -51983,20 +49743,6 @@ namespace LanguageExt
         public static Either<L, Seq<B>> BindT<L, A, B>(this Either<L, Seq<A>> ma, Func<A, Either<L, Seq<B>>> f) =>
             Trans<MEither<L, Seq<A>>, Either<L, Seq<A>>, MSeq<A>, Seq<A>, A>
                 .Inst.Bind<MEither<L, Seq<B>>, Either<L, Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, Seq&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Seq&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Seq&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Seq<Either<L, A>> Sequence<L, A>(this Either<L, Seq<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -52311,20 +50057,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Seq<B>> BindT<L, A, B>(this EitherUnsafe<L, Seq<A>> ma, Func<A, EitherUnsafe<L, Seq<B>>> f) =>
             Trans<MEitherUnsafe<L, Seq<A>>, EitherUnsafe<L, Seq<A>>, MSeq<A>, Seq<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, Seq<B>>, EitherUnsafe<L, Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Seq&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Seq&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Seq&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Seq<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Seq<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -52639,20 +50371,6 @@ namespace LanguageExt
         public static Try<Seq<B>> BindT< A, B>(this Try<Seq<A>> ma, Func<A, Try<Seq<B>>> f) =>
             Trans<MTry<Seq<A>>, Try<Seq<A>>, MSeq<A>, Seq<A>, A>
                 .Inst.Bind<MTry<Seq<B>>, Try<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;Seq&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Seq&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Seq&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Seq<Try<A>> Sequence< A>(this Try<Seq<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -52967,20 +50685,6 @@ namespace LanguageExt
         public static TryOption<Seq<B>> BindT< A, B>(this TryOption<Seq<A>> ma, Func<A, TryOption<Seq<B>>> f) =>
             Trans<MTryOption<Seq<A>>, TryOption<Seq<A>>, MSeq<A>, Seq<A>, A>
                 .Inst.Bind<MTryOption<Seq<B>>, TryOption<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;Seq&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Seq&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Seq&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Seq<TryOption<A>> Sequence< A>(this TryOption<Seq<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -53295,20 +50999,6 @@ namespace LanguageExt
         public static IEnumerable<Seq<B>> BindT< A, B>(this IEnumerable<Seq<A>> ma, Func<A, IEnumerable<Seq<B>>> f) =>
             SeqTrans<MEnumerable<Seq<A>>, IEnumerable<Seq<A>>, MSeq<A>, Seq<A>, A>
                 .Inst.Bind<MEnumerable<Seq<B>>, IEnumerable<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `IEnumerable&lt;Seq&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Seq&lt;IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Seq&lt;IEnumerable&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Seq<IEnumerable<A>> Sequence< A>(this IEnumerable<Seq<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -53623,20 +51313,6 @@ namespace LanguageExt
         public static Seq<Seq<B>> BindT< A, B>(this Seq<Seq<A>> ma, Func<A, Seq<Seq<B>>> f) =>
             SeqTrans<MSeq<Seq<A>>, Seq<Seq<A>>, MSeq<A>, Seq<A>, A>
                 .Inst.Bind<MSeq<Seq<B>>, Seq<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Seq&lt;Seq&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Seq&lt;Seq&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Seq&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Seq&lt;Seq&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Seq<Seq<A>> Sequence< A>(this Seq<Seq<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -53951,20 +51627,6 @@ namespace LanguageExt
         public static Set<Seq<B>> BindT< A, B>(this Set<Seq<A>> ma, Func<A, Set<Seq<B>>> f) =>
             SeqTrans<MSet<Seq<A>>, Set<Seq<A>>, MSeq<A>, Seq<A>, A>
                 .Inst.Bind<MSet<Seq<B>>, Set<Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;Seq&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Seq&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Seq&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Seq<Set<A>> Sequence< A>(this Set<Seq<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -54279,20 +51941,6 @@ namespace LanguageExt
         public static Validation<FAIL, Seq<B>> BindT<FAIL, A, B>(this Validation<FAIL, Seq<A>> ma, Func<A, Validation<FAIL, Seq<B>>> f) =>
             Trans<MValidation<FAIL, Seq<A>>, Validation<FAIL, Seq<A>>, MSeq<A>, Seq<A>, A>
                 .Inst.Bind<MValidation<FAIL, Seq<B>>, Validation<FAIL, Seq<B>>, MSeq<B>, Seq<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Seq&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Seq&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, Seq&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Seq&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static Seq<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, Seq<A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -54615,20 +52263,6 @@ namespace LanguageExt
         public static Arr<Set<B>> BindT< A, B>(this Arr<Set<A>> ma, Func<A, Arr<Set<B>>> f) =>
             SeqTrans<MArr<Set<A>>, Arr<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MArr<Set<B>>, Arr<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;Set&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Set&lt;Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set&lt;Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Set<Arr<A>> Sequence< A>(this Arr<Set<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -54943,20 +52577,6 @@ namespace LanguageExt
         public static HashSet<Set<B>> BindT< A, B>(this HashSet<Set<A>> ma, Func<A, HashSet<Set<B>>> f) =>
             SeqTrans<MHashSet<Set<A>>, HashSet<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MHashSet<Set<B>>, HashSet<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;Set&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Set&lt;HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set&lt;HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Set<HashSet<A>> Sequence< A>(this HashSet<Set<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -55271,20 +52891,6 @@ namespace LanguageExt
         public static Lst<Set<B>> BindT< A, B>(this Lst<Set<A>> ma, Func<A, Lst<Set<B>>> f) =>
             SeqTrans<MLst<Set<A>>, Lst<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MLst<Set<B>>, Lst<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;Set&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Set&lt;Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set&lt;Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Set<Lst<A>> Sequence< A>(this Lst<Set<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -55599,20 +53205,6 @@ namespace LanguageExt
         public static Fin<Set<B>> BindT< A, B>(this Fin<Set<A>> ma, Func<A, Fin<Set<B>>> f) =>
             Trans<MFin<Set<A>>, Fin<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MFin<Set<B>>, Fin<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;Set&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Set&lt;Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set&lt;Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Set<Fin<A>> Sequence< A>(this Fin<Set<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -55927,20 +53519,6 @@ namespace LanguageExt
         public static Option<Set<B>> BindT< A, B>(this Option<Set<A>> ma, Func<A, Option<Set<B>>> f) =>
             Trans<MOption<Set<A>>, Option<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MOption<Set<B>>, Option<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;Set&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Set&lt;Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set&lt;Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Set<Option<A>> Sequence< A>(this Option<Set<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -56255,20 +53833,6 @@ namespace LanguageExt
         public static OptionUnsafe<Set<B>> BindT< A, B>(this OptionUnsafe<Set<A>> ma, Func<A, OptionUnsafe<Set<B>>> f) =>
             Trans<MOptionUnsafe<Set<A>>, OptionUnsafe<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MOptionUnsafe<Set<B>>, OptionUnsafe<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Set&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Set&lt;OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Set<OptionUnsafe<A>> Sequence< A>(this OptionUnsafe<Set<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -56583,20 +54147,6 @@ namespace LanguageExt
         public static Either<L, Set<B>> BindT<L, A, B>(this Either<L, Set<A>> ma, Func<A, Either<L, Set<B>>> f) =>
             Trans<MEither<L, Set<A>>, Either<L, Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MEither<L, Set<B>>, Either<L, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, Set&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Set&lt;Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set&lt;Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Set<Either<L, A>> Sequence<L, A>(this Either<L, Set<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -56911,20 +54461,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Set<B>> BindT<L, A, B>(this EitherUnsafe<L, Set<A>> ma, Func<A, EitherUnsafe<L, Set<B>>> f) =>
             Trans<MEitherUnsafe<L, Set<A>>, EitherUnsafe<L, Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MEitherUnsafe<L, Set<B>>, EitherUnsafe<L, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Set&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Set&lt;EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Set<EitherUnsafe<L, A>> Sequence<L, A>(this EitherUnsafe<L, Set<A>> ma) =>
-            ma.Traverse<L, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -57239,20 +54775,6 @@ namespace LanguageExt
         public static Try<Set<B>> BindT< A, B>(this Try<Set<A>> ma, Func<A, Try<Set<B>>> f) =>
             Trans<MTry<Set<A>>, Try<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MTry<Set<B>>, Try<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;Set&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Set&lt;Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set&lt;Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Set<Try<A>> Sequence< A>(this Try<Set<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -57567,20 +55089,6 @@ namespace LanguageExt
         public static TryOption<Set<B>> BindT< A, B>(this TryOption<Set<A>> ma, Func<A, TryOption<Set<B>>> f) =>
             Trans<MTryOption<Set<A>>, TryOption<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MTryOption<Set<B>>, TryOption<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;Set&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Set&lt;TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set&lt;TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Set<TryOption<A>> Sequence< A>(this TryOption<Set<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -57895,20 +55403,6 @@ namespace LanguageExt
         public static IEnumerable<Set<B>> BindT< A, B>(this IEnumerable<Set<A>> ma, Func<A, IEnumerable<Set<B>>> f) =>
             SeqTrans<MEnumerable<Set<A>>, IEnumerable<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MEnumerable<Set<B>>, IEnumerable<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `IEnumerable&lt;Set&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Set&lt;IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set&lt;IEnumerable&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Set<IEnumerable<A>> Sequence< A>(this IEnumerable<Set<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -58223,20 +55717,6 @@ namespace LanguageExt
         public static Seq<Set<B>> BindT< A, B>(this Seq<Set<A>> ma, Func<A, Seq<Set<B>>> f) =>
             SeqTrans<MSeq<Set<A>>, Seq<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MSeq<Set<B>>, Seq<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Seq&lt;Set&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Set&lt;Seq&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Seq&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set&lt;Seq&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Set<Seq<A>> Sequence< A>(this Seq<Set<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -58551,20 +56031,6 @@ namespace LanguageExt
         public static Set<Set<B>> BindT< A, B>(this Set<Set<A>> ma, Func<A, Set<Set<B>>> f) =>
             SeqTrans<MSet<Set<A>>, Set<Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MSet<Set<B>>, Set<Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;Set&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Set&lt;Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse< A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set&lt;Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Set<Set<A>> Sequence< A>(this Set<Set<A>> ma) =>
-            ma.Traverse< A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -58879,20 +56345,6 @@ namespace LanguageExt
         public static Validation<FAIL, Set<B>> BindT<FAIL, A, B>(this Validation<FAIL, Set<A>> ma, Func<A, Validation<FAIL, Set<B>>> f) =>
             Trans<MValidation<FAIL, Set<A>>, Validation<FAIL, Set<A>>, MSet<A>, Set<A>, A>
                 .Inst.Bind<MValidation<FAIL, Set<B>>, Validation<FAIL, Set<B>>, MSet<B>, Set<B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Set&lt;A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Set&lt;Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, Set&lt;A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Set&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static Set<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, Set<A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -59215,20 +56667,6 @@ namespace LanguageExt
         public static Arr<Validation<FAIL, B>> BindT<FAIL, A, B>(this Arr<Validation<FAIL, A>> ma, Func<A, Arr<Validation<FAIL, B>>> f) =>
             SeqTrans<MArr<Validation<FAIL, A>>, Arr<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
                 .Inst.Bind<MArr<Validation<FAIL, B>>, Arr<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Arr&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Validation&lt;FAIL, Arr&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Arr&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Validation&lt;FAIL, Arr&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Validation<FAIL, Arr<A>> Sequence<FAIL, A>(this Arr<Validation<FAIL, A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -59543,20 +56981,6 @@ namespace LanguageExt
         public static HashSet<Validation<FAIL, B>> BindT<FAIL, A, B>(this HashSet<Validation<FAIL, A>> ma, Func<A, HashSet<Validation<FAIL, B>>> f) =>
             SeqTrans<MHashSet<Validation<FAIL, A>>, HashSet<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
                 .Inst.Bind<MHashSet<Validation<FAIL, B>>, HashSet<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `HashSet&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Validation&lt;FAIL, HashSet&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `HashSet&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Validation&lt;FAIL, HashSet&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Validation<FAIL, HashSet<A>> Sequence<FAIL, A>(this HashSet<Validation<FAIL, A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -59871,20 +57295,6 @@ namespace LanguageExt
         public static Lst<Validation<FAIL, B>> BindT<FAIL, A, B>(this Lst<Validation<FAIL, A>> ma, Func<A, Lst<Validation<FAIL, B>>> f) =>
             SeqTrans<MLst<Validation<FAIL, A>>, Lst<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
                 .Inst.Bind<MLst<Validation<FAIL, B>>, Lst<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Lst&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Validation&lt;FAIL, Lst&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Lst&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Validation&lt;FAIL, Lst&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Validation<FAIL, Lst<A>> Sequence<FAIL, A>(this Lst<Validation<FAIL, A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -60199,20 +57609,6 @@ namespace LanguageExt
         public static Fin<Validation<FAIL, B>> BindT<FAIL, A, B>(this Fin<Validation<FAIL, A>> ma, Func<A, Fin<Validation<FAIL, B>>> f) =>
             Trans<MFin<Validation<FAIL, A>>, Fin<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
                 .Inst.Bind<MFin<Validation<FAIL, B>>, Fin<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Fin&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Validation&lt;FAIL, Fin&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Fin&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Validation<FAIL, Fin<A>> Sequence<FAIL, A>(this Fin<Validation<FAIL, A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -60527,20 +57923,6 @@ namespace LanguageExt
         public static Option<Validation<FAIL, B>> BindT<FAIL, A, B>(this Option<Validation<FAIL, A>> ma, Func<A, Option<Validation<FAIL, B>>> f) =>
             Trans<MOption<Validation<FAIL, A>>, Option<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
                 .Inst.Bind<MOption<Validation<FAIL, B>>, Option<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Option&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Validation&lt;FAIL, Option&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Option&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Validation&lt;FAIL, Option&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Validation<FAIL, Option<A>> Sequence<FAIL, A>(this Option<Validation<FAIL, A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -60855,20 +58237,6 @@ namespace LanguageExt
         public static OptionUnsafe<Validation<FAIL, B>> BindT<FAIL, A, B>(this OptionUnsafe<Validation<FAIL, A>> ma, Func<A, OptionUnsafe<Validation<FAIL, B>>> f) =>
             Trans<MOptionUnsafe<Validation<FAIL, A>>, OptionUnsafe<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
                 .Inst.Bind<MOptionUnsafe<Validation<FAIL, B>>, OptionUnsafe<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `OptionUnsafe&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Validation&lt;FAIL, OptionUnsafe&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `OptionUnsafe&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Validation&lt;FAIL, OptionUnsafe&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Validation<FAIL, OptionUnsafe<A>> Sequence<FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -61183,20 +58551,6 @@ namespace LanguageExt
         public static Either<L, Validation<FAIL, B>> BindT<L, FAIL, A, B>(this Either<L, Validation<FAIL, A>> ma, Func<A, Either<L, Validation<FAIL, B>>> f) =>
             Trans<MEither<L, Validation<FAIL, A>>, Either<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
                 .Inst.Bind<MEither<L, Validation<FAIL, B>>, Either<L, Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Either&lt;L, Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Validation&lt;FAIL, Either&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Either&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Validation&lt;FAIL, Either&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Validation<FAIL, Either<L, A>> Sequence<L, FAIL, A>(this Either<L, Validation<FAIL, A>> ma) =>
-            ma.Traverse<L, FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -61511,20 +58865,6 @@ namespace LanguageExt
         public static EitherUnsafe<L, Validation<FAIL, B>> BindT<L, FAIL, A, B>(this EitherUnsafe<L, Validation<FAIL, A>> ma, Func<A, EitherUnsafe<L, Validation<FAIL, B>>> f) =>
             Trans<MEitherUnsafe<L, Validation<FAIL, A>>, EitherUnsafe<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
                 .Inst.Bind<MEitherUnsafe<L, Validation<FAIL, B>>, EitherUnsafe<L, Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `EitherUnsafe&lt;L, Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Validation&lt;FAIL, EitherUnsafe&lt;L, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<L, FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `EitherUnsafe&lt;L, Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Validation&lt;FAIL, EitherUnsafe&lt;L, A&gt;&gt;`</returns>
-        [Pure]
-        public static Validation<FAIL, EitherUnsafe<L, A>> Sequence<L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> ma) =>
-            ma.Traverse<L, FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -61839,20 +59179,6 @@ namespace LanguageExt
         public static Try<Validation<FAIL, B>> BindT<FAIL, A, B>(this Try<Validation<FAIL, A>> ma, Func<A, Try<Validation<FAIL, B>>> f) =>
             Trans<MTry<Validation<FAIL, A>>, Try<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
                 .Inst.Bind<MTry<Validation<FAIL, B>>, Try<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Try&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Validation&lt;FAIL, Try&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Try&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Validation&lt;FAIL, Try&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Validation<FAIL, Try<A>> Sequence<FAIL, A>(this Try<Validation<FAIL, A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -62167,20 +59493,6 @@ namespace LanguageExt
         public static TryOption<Validation<FAIL, B>> BindT<FAIL, A, B>(this TryOption<Validation<FAIL, A>> ma, Func<A, TryOption<Validation<FAIL, B>>> f) =>
             Trans<MTryOption<Validation<FAIL, A>>, TryOption<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
                 .Inst.Bind<MTryOption<Validation<FAIL, B>>, TryOption<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `TryOption&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Validation&lt;FAIL, TryOption&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `TryOption&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Validation&lt;FAIL, TryOption&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Validation<FAIL, TryOption<A>> Sequence<FAIL, A>(this TryOption<Validation<FAIL, A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -62495,20 +59807,6 @@ namespace LanguageExt
         public static IEnumerable<Validation<FAIL, B>> BindT<FAIL, A, B>(this IEnumerable<Validation<FAIL, A>> ma, Func<A, IEnumerable<Validation<FAIL, B>>> f) =>
             SeqTrans<MEnumerable<Validation<FAIL, A>>, IEnumerable<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
                 .Inst.Bind<MEnumerable<Validation<FAIL, B>>, IEnumerable<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `IEnumerable&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Validation&lt;FAIL, IEnumerable&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `IEnumerable&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Validation&lt;FAIL, IEnumerable&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Validation<FAIL, IEnumerable<A>> Sequence<FAIL, A>(this IEnumerable<Validation<FAIL, A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -62823,20 +60121,6 @@ namespace LanguageExt
         public static Seq<Validation<FAIL, B>> BindT<FAIL, A, B>(this Seq<Validation<FAIL, A>> ma, Func<A, Seq<Validation<FAIL, B>>> f) =>
             SeqTrans<MSeq<Validation<FAIL, A>>, Seq<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
                 .Inst.Bind<MSeq<Validation<FAIL, B>>, Seq<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Seq&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Validation&lt;FAIL, Seq&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Seq&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Validation&lt;FAIL, Seq&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Validation<FAIL, Seq<A>> Sequence<FAIL, A>(this Seq<Validation<FAIL, A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -63151,20 +60435,6 @@ namespace LanguageExt
         public static Set<Validation<FAIL, B>> BindT<FAIL, A, B>(this Set<Validation<FAIL, A>> ma, Func<A, Set<Validation<FAIL, B>>> f) =>
             SeqTrans<MSet<Validation<FAIL, A>>, Set<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
                 .Inst.Bind<MSet<Validation<FAIL, B>>, Set<Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Set&lt;Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Validation&lt;FAIL, Set&lt;A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Set&lt;Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Validation&lt;FAIL, Set&lt;A&gt;&gt;`</returns>
-        [Pure]
-        public static Validation<FAIL, Set<A>> Sequence<FAIL, A>(this Set<Validation<FAIL, A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads
@@ -63479,20 +60749,6 @@ namespace LanguageExt
         public static Validation<FAIL, Validation<FAIL, B>> BindT<FAIL, A, B>(this Validation<FAIL, Validation<FAIL, A>> ma, Func<A, Validation<FAIL, Validation<FAIL, B>>> f) =>
             Trans<MValidation<FAIL, Validation<FAIL, A>>, Validation<FAIL, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, A>
                 .Inst.Bind<MValidation<FAIL, Validation<FAIL, B>>, Validation<FAIL, Validation<FAIL, B>>, MValidation<FAIL, B>, Validation<FAIL, B>, B>(ma, f);
-                
-        /// <summary>
-        /// Sequence operation.  Takes a value of type `Validation&lt;FAIL, Validation&lt;FAIL, A&gt;&gt;`, traverses the inner
-        /// values of type `A`, and returns `Validation&lt;FAIL, Validation&lt;FAIL, A&gt;&gt;`.  So it 'flips' the types
-        /// whilst maintaining the rules of the inner and outer types.  This is the
-        /// same as calling `ma.Traverse<FAIL, A, A>(identity)`.
-        /// </summary>
-        /// <typeparam name="A">Inner bound value type</typeparam>
-        /// <param name="ma">The `Validation&lt;FAIL, Validation&lt;FAIL, A&gt;&gt;` to perform the operation on</param>
-        /// <param name="f">The mapping function to apply</param>
-        /// <returns>`Validation&lt;FAIL, Validation&lt;FAIL, A&gt;&gt;`</returns>
-        [Pure]
-        public static Validation<FAIL, Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> ma) =>
-            ma.Traverse<FAIL, A, A>(identity);                
 
         /// <summary>
         /// Functor map operation.  This maps the bound value(s) of the nested monads

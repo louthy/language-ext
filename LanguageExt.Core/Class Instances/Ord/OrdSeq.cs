@@ -40,10 +40,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public int Compare(Seq<A> x, Seq<A> y)
         {
-            if (ReferenceEquals(x, y)) return 0;
-            if (ReferenceEquals(x, null)) return -1;
-            if (ReferenceEquals(y, null)) return 1;
-
             using var enumx = x.GetEnumerator();
             using var enumy = y.GetEnumerator();
 

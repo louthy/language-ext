@@ -681,6 +681,10 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
+        public static Eff<A> MapFail<A>(this Eff<A> ma, Func<Error, Error> f) =>
+            ma.BiMap(identity, f);
+
+        [Pure, MethodImpl(Opt.Default)]
         public static Eff<B> BiMap<A, B>(this Eff<A> ma, Func<A, B> Succ, Func<Error, Error> Fail) =>
             new(() => ma.Run().Case switch
             {

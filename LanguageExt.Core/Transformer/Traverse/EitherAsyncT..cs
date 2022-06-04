@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using LanguageExt;
 using System.Linq;
@@ -48,13 +49,13 @@ namespace LanguageExt
         public static EitherAsync<L, IEnumerable<B>> TraverseSerial<L, A, B>(this IEnumerable<EitherAsync<L, A>> ma, Func<A, B> f)
         {
             return new EitherAsync<L, IEnumerable<B>>(Go(ma, f));
-            async Task<EitherData<L, IEnumerable<B>>> Go(IEnumerable<EitherAsync<L, A>> ma, Func<A, B> f)
+            async Task<EitherData<L, IEnumerable<B>>?> Go(IEnumerable<EitherAsync<L, A>> ma, Func<A, B> f)
             {
                 var rb = new List<B>();
                 foreach (var a in ma)
                 {
                     var mb = await a;
-                    if (mb.IsBottom) return default(EitherData<L, IEnumerable<B>>);
+                    if (mb.IsBottom) return EitherData<L, IEnumerable<B>>.Bottom;
                     if (mb.IsLeft) return EitherData.Left<L, IEnumerable<B>>(mb.LeftValue);
                     rb.Add(f(mb.RightValue));
                 }
@@ -129,7 +130,7 @@ namespace LanguageExt
                 foreach (var a in ma)
                 {
                     var mb = await a;
-                    if (mb.IsBottom) return default(EitherData<L, Seq<B>>);
+                    if (mb.IsBottom) return EitherData.Bottom<L, Seq<B>>();
                     if (mb.IsLeft) return EitherData.Left<L, Seq<B>>(mb.LeftValue);
                     rb[ix] = f(mb.RightValue);
                     ix++;

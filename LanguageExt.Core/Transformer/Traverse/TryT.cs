@@ -1,8 +1,6 @@
-﻿using System;
-using LanguageExt;
-using System.Linq;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
-using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -115,7 +113,9 @@ namespace LanguageExt
         public static Try<Option<B>> Traverse<A, B>(this Option<Try<A>> ma, Func<A, B> f) => () =>
         {
             if (ma.IsNone) return new Result<Option<B>>(Option<B>.None);
+            #nullable disable
             var mr = ma.Value();
+            #nullable enable
             if (mr.IsBottom) return new Result<Option<B>>(BottomException.Default);
             if (mr.IsFaulted) return new Result<Option<B>>(mr.Exception);
             return new Result<Option<B>>(Option<B>.Some(f(mr.Value)));
@@ -211,7 +211,7 @@ namespace LanguageExt
             var mr = mb.Value.Try();
             if (mr.IsBottom) return Result<Try<B>>.Bottom;
             if (mr.IsFaulted) return new Result<Try<B>>(mr.Exception);
-            return new Result<Try<B>>(Try<B>(f(mr.Value)));
+            return new Result<Try<B>>(Try(f(mr.Value)));
         };
         
         public static Try<TryOption<B>> Traverse<A, B>(this TryOption<Try<A>> ma, Func<A, B> f) => () =>
@@ -223,7 +223,7 @@ namespace LanguageExt
             var mr = mb.Value.Value.Try();
             if (mr.IsBottom) return Result<TryOption<B>>.Bottom;
             if (mr.IsFaulted) return new Result<TryOption<B>>(mr.Exception);
-            return new Result<TryOption<B>>(TryOption<B>(f(mr.Value)));
+            return new Result<TryOption<B>>(TryOption(f(mr.Value)));
         };
         
         public static Try<Validation<Fail, B>> Traverse<Fail, A, B>(this Validation<Fail, Try<A>> ma, Func<A, B> f) => () =>

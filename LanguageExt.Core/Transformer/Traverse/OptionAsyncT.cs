@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using LanguageExt;
 using System.Linq;
@@ -53,7 +54,7 @@ namespace LanguageExt
                 foreach (var a in ma)
                 {
                     var (isSome, b) = await a.Data;
-                    if (!isSome) return (false, default);
+                    if (!isSome) return (false, System.Array.Empty<B>());
                     rb.Add(f(b));
                 }
                 return (true, rb);
@@ -68,9 +69,9 @@ namespace LanguageExt
             return new OptionAsync<IEnumerable<B>>(Go(ma, f));
             async Task<(bool, IEnumerable<B>)> Go(IEnumerable<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, Prelude.identity).ConfigureAwait(false);
+                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, identity).ConfigureAwait(false);
                 return rb.Exists(d => !d.IsSome)
-                    ? (false, default)
+                    ? (false, System.Array.Empty<B>())
                     : (true, rb.Map(d => d.Value));
             }
         }
@@ -224,10 +225,10 @@ namespace LanguageExt
             async Task<(bool, TryAsync<B>)> Go(TryAsync<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var resultA = await ma.Try().ConfigureAwait(false);
-                if (resultA.IsBottom) return (false, default);
+                if (resultA.IsBottom) return (false, TryAsyncFail<B>(BottomException.Default));
                 if (resultA.IsFaulted) return (true, TryAsyncFail<B>(resultA.Exception));
                 var (isSome, value) = await resultA.Value.Data.ConfigureAwait(false);
-                if (!isSome) return (false, default);
+                if (!isSome) return (false, TryAsyncFail<B>(BottomException.Default));
                 return (true, TryAsync<B>(f(value)));
             }
         }
@@ -238,11 +239,11 @@ namespace LanguageExt
             async Task<(bool, TryOptionAsync<B>)> Go(TryOptionAsync<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var resultA = await ma.Try().ConfigureAwait(false);
-                if (resultA.IsBottom) return (false, default);
+                if (resultA.IsBottom) return (false, TryOptionAsyncFail<B>(BottomException.Default));
                 if (resultA.IsNone) return (true, TryOptionalAsync<B>(None));
                 if (resultA.IsFaulted) return (true, TryOptionAsyncFail<B>(resultA.Exception));
                 var (isSome, value) = await resultA.Value.Value.Data.ConfigureAwait(false);
-                if (!isSome) return (false, default);
+                if (!isSome) return (false, TryOptionAsyncFail<B>(BottomException.Default));
                 return (true, TryOptionAsync<B>(f(value)));
             }
         }
@@ -254,7 +255,7 @@ namespace LanguageExt
             {
                 var result = await ma.ConfigureAwait(false);
                 var (isSome, value) = await result.Data.ConfigureAwait(false);
-                if (!isSome) return (false, default);
+                if (!isSome) return (false, Task.FromException<B>(BottomException.Default));
                 return (true, f(value).AsTask());
             }
         }
@@ -371,10 +372,10 @@ namespace LanguageExt
                 async Task<(bool, Try<B>)> Go(Try<OptionAsync<A>> ma, Func<A, B> f)
                 {
                     var ra = ma.Try();
-                    if(ra.IsBottom) return (false, default);
+                    if(ra.IsBottom) return (false, TryFail<B>(BottomException.Default));
                     if (ra.IsFaulted) return (true, TryFail<B>(ra.Exception));
                     var (isSome, value) = await ra.Value.Data.ConfigureAwait(false);
-                    if(!isSome) return (false, default);
+                    if(!isSome) return (false, TryFail<B>(BottomException.Default));
                     return (true, Try<B>(f(value)));
                 }
             }
@@ -392,11 +393,11 @@ namespace LanguageExt
                 async Task<(bool, TryOption<B>)> Go(TryOption<OptionAsync<A>> ma, Func<A, B> f)
                 {
                     var ra = ma.Try();
-                    if (ra.IsBottom) return (false, default);
+                    if (ra.IsBottom) return (false, TryOptionFail<B>(BottomException.Default));
                     if (ra.IsNone) return (true, TryOptional<B>(None));
                     if (ra.IsFaulted) return (true, TryOptionFail<B>(ra.Exception));
                     var (isSome, value) = await ra.Value.Value.Data.ConfigureAwait(false);
-                    if (!isSome) return (false, default);
+                    if (!isSome) return (false, TryOptionFail<B>(BottomException.Default));
                     return (true, TryOption<B>(f(value)));
                 }
             }

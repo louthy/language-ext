@@ -89,10 +89,10 @@ namespace LanguageExt
 
         Option(SerializationInfo info, StreamingContext context)
         {
-            isSome = (bool)info.GetValue("IsSome", typeof(bool));
+            isSome = info.GetValue("IsSome", typeof(bool)) is true;
             if(isSome)
             {
-                Value = (A)info.GetValue("Value", typeof(A));
+                Value = info.GetValue("Value", typeof(A)) is A x ? x : throw new InvalidCastException();
             }
             else
             {
@@ -345,7 +345,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is Option<A> opt && Equals(opt);
 
         /// <summary>
@@ -361,7 +361,7 @@ namespace LanguageExt
                 : 0;
         
         [Pure]
-        public int CompareTo(object obj) =>
+        public int CompareTo(object? obj) =>
             obj is Option<A> t ? CompareTo(t) : 1;
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using LanguageExt;
 using System.Linq;
 using System.Collections.Generic;
@@ -16,7 +17,9 @@ namespace LanguageExt
             foreach (var xs in ma)
             {
                 if (xs.IsNone) return None;
+                #nullable disable
                 res[ix] = f(xs.Value);
+                #nullable enable
                 ix++;
             }
 
@@ -35,7 +38,9 @@ namespace LanguageExt
             }
             else
             {
+                #nullable disable
                 return Option<Either<L, B>>.Some(f(ma.RightValue.Value));
+                #nullable enable
             }
         }
         
@@ -51,7 +56,9 @@ namespace LanguageExt
             }
             else
             {
+                #nullable disable
                 return Option<EitherUnsafe<L, B>>.Some(f(ma.RightValue.Value));
+                #nullable enable
             }
         }
 
@@ -62,16 +69,20 @@ namespace LanguageExt
             foreach (var xs in ma)
             {
                 if (xs.IsNone) return None;
+                #nullable disable
                 res[ix] = f(xs.Value);
+                #nullable enable
                 ix++;
             }
             return Option<HashSet<B>>.Some(new HashSet<B>(res));            
         }
 
         public static Option<Identity<B>> Traverse<A, B>(this Identity<Option<A>> ma, Func<A, B> f) =>
+            #nullable disable
             ma.Value.IsSome
                 ? Option<Identity<B>>.Some(new Identity<B>(f(ma.Value.Value)))
                 : Option<Identity<B>>.None;
+            #nullable enable
         
         public static Option<Lst<B>> Traverse<A, B>(this Lst<Option<A>> ma, Func<A, B> f)
         {
@@ -80,7 +91,9 @@ namespace LanguageExt
             foreach (var xs in ma)
             {
                 if (xs.IsNone) return None;
+                #nullable disable
                 res[ix] = f(xs.Value);
+                #nullable enable
                 ix++;
             }
             return Option<Lst<B>>.Some(new Lst<B>(res));                
@@ -90,7 +103,7 @@ namespace LanguageExt
         {
             if (ma.IsFail)
             {
-                return Some<Fin<B>>(ma.Cast<B>());
+                return Some(ma.Cast<B>());
             }
             else if (ma.Value.IsNone)
             {
@@ -98,7 +111,9 @@ namespace LanguageExt
             }
             else
             {
+                #nullable disable
                 return Some(FinSucc(f(ma.Value.Value)));
+                #nullable enable
             }
         }
 
@@ -114,7 +129,9 @@ namespace LanguageExt
             }
             else
             {
+                #nullable disable
                 return Some(Some(f(ma.Value.Value)));
+                #nullable enable
             }
         }
         
@@ -130,7 +147,9 @@ namespace LanguageExt
             }
             else
             {
+                #nullable disable
                 return Some(SomeUnsafe(f(ma.Value.Value)));
+                #nullable enable
             }
         }
         
@@ -141,7 +160,9 @@ namespace LanguageExt
             foreach (var xs in ma)
             {
                 if (xs.IsNone) return None;
+                #nullable disable
                 res[ix] = f(xs.Value);
+                #nullable enable
                 ix++;
             }
             return Option<Que<B>>.Some(new Que<B>(res));                
@@ -154,7 +175,9 @@ namespace LanguageExt
             foreach (var xs in ma)
             {
                 if (xs.IsNone) return None;
+                #nullable disable
                 res[ix] = f(xs.Value);
+                #nullable enable
                 ix++;
             }
             return Option<Seq<B>>.Some(Seq.FromArray<B>(res));                
@@ -166,7 +189,9 @@ namespace LanguageExt
             foreach (var xs in ma)
             {
                 if (xs.IsNone) return None;
+                #nullable disable
                 res.Add(f(xs.Value));
+                #nullable enable
             }
             return Option<IEnumerable<B>>.Some(Seq.FromArray<B>(res.ToArray()));                
         }
@@ -178,7 +203,9 @@ namespace LanguageExt
             foreach (var xs in ma)
             {
                 if (xs.IsNone) return None;
+                #nullable disable
                 res[ix] = f(xs.Value);
+                #nullable enable
                 ix++;
             }
             return Option<Set<B>>.Some(new Set<B>(res));                
@@ -191,7 +218,9 @@ namespace LanguageExt
             foreach (var xs in ma)
             {
                 if (xs.IsNone) return None;
+                #nullable disable
                 res[ix] = f(xs.Value);
+                #nullable enable
                 ix--;
             }
             return Option<Stck<B>>.Some(new Stck<B>(res));                
@@ -215,7 +244,9 @@ namespace LanguageExt
             }
             else
             {
+                #nullable disable
                 return Some(Try(f(tres.Value.Value)));
+                #nullable enable
             }
         }
         
@@ -241,7 +272,9 @@ namespace LanguageExt
             }
             else
             {
+                #nullable disable
                 return Some(TryOption(f(tres.Value.Value.Value)));
+                #nullable enable
             }
         }
         
@@ -257,7 +290,9 @@ namespace LanguageExt
             }
             else
             {
+                #nullable disable
                 return Some(Validation<Fail, B>.Success(f(ma.SuccessValue.Value)));
+                #nullable enable
             }
         }
 
@@ -275,7 +310,9 @@ namespace LanguageExt
             }
             else
             {
+                #nullable disable
                 return Some(Validation<MonoidFail, Fail, B>.Success(f(ma.SuccessValue.Value)));
+                #nullable enable
             }
         }
                 
@@ -297,7 +334,9 @@ namespace LanguageExt
             }
             else
             {
+                #nullable disable
                 return Some(SuccessEff(f(tres.Value.Value)));
+                #nullable enable
             }
         }
     }

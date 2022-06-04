@@ -1340,7 +1340,10 @@ namespace LanguageExt
         /// Map the map the a dictionary
         /// </summary>
         [Pure]
-        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K Key, V Value), KR> keySelector, Func<(K Key, V Value), VR> valueSelector) =>
+        public IDictionary<KR, VR> ToDictionary<KR, VR>(
+            Func<(K Key, V Value), KR> keySelector, 
+            Func<(K Key, V Value), VR> valueSelector) 
+            where KR : notnull =>
             AsEnumerable().ToDictionary(keySelector, valueSelector);
 
         /// <summary>
@@ -1926,15 +1929,15 @@ namespace LanguageExt
         /// Equality of keys and values with `EqDefault<V>` used for values
         /// </summary>
         [Pure]
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is AtomHashMap<K, V> hm && Equals(hm);
 
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values
         /// </summary>
         [Pure]
-        public bool Equals(AtomHashMap<EqK, K, V> other) =>
-            Items.Equals(other.Items);
+        public bool Equals(AtomHashMap<EqK, K, V>? other) =>
+            other is not null && Items.Equals(other.Items);
 
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values

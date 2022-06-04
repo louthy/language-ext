@@ -1,5 +1,5 @@
-﻿using System;
-using LanguageExt;
+﻿#nullable enable
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using LanguageExt.TypeClasses;
