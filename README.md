@@ -170,10 +170,10 @@ it can be accessed by prefixing with `Prelude.`_
 
 Location | Feature | Description
 ---------|---------|------------
-`Core` | `Aff<A>` | [An asynchronous effect: an IO monad basically](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
-`Core` | `Eff<A>` | [A synchronous effect: an IO monad basically](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
-`Core` | `Aff<RT, A>` | [An asynchronous effect with injectable runtime: a unit testable IO monad basically](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
-`Core` | `Eff<RT, A>` | [A synchronous effect with injectable runtime: a unit testable IO monad basically](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
+`Core` | `Aff<A>` | [An asynchronous effect: an IO monad](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
+`Core` | `Eff<A>` | [A synchronous effect: an IO monad](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
+`Core` | `Aff<RT, A>` | [An asynchronous effect with injectable runtime: a unit testable IO monad](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
+`Core` | `Eff<RT, A>` | [A synchronous effect with injectable runtime: a unit testable IO monad](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
 `Core` | Pipes | [A clean and powerful stream processing system that lets you build and connect reusable streaming components](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects)
 
 ### Atomic concurrency and collections 
