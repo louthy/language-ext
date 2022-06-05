@@ -66,7 +66,7 @@ https://twitter.com/paullouth
 Nu-get package | Description
 ---------------|-------------
 [LanguageExt.Core](https://www.nuget.org/packages/LanguageExt.Core) | All of the core types and functional 'prelude'. __This is all that's needed to get started__.
-[LanguageExt.Transformers](https://www.nuget.org/packages/LanguageExt.Transformers) | For every combination of monadic type `M<N<A>>` (i.e. `Seq<Option<A>>`), this package provides the following extension methods: `ApplyT`, `AppendT`, `BindT`, `CompareT`, `CountT`, `EqualsT`, `ExistsT`, `ForAllT`, `FoldT`, `FoldBackT`, `FilterT`, `IterT`, `MapT`, `PlusT`, `ProductT`, `SubtractT`, `DivideT`, `SumT`, 
+[LanguageExt.Transformers](https://www.nuget.org/packages/LanguageExt.Transformers) | For every combination of monadic type `M<N<A>>` (i.e. `Seq<Option<A>>`), this package provides the following extension methods: `ApplyT`, `AppendT`, `BindT`, `CompareT`, `CountT`, `EqualsT`, `ExistsT`, `ForAllT`, `FoldT`, `FoldBackT`, `FilterT`, `IterT`, `MapT`, `PlusT`, `ProductT`, `SubtractT`, `DivideT`, and `SumT`.  Which makes it much easier to work with those nested types (no need to manually unpack the bound values)
 [LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop package. Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
 [LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
 [LanguageExt.Rx](https://www.nuget.org/packages/LanguageExt.Rx) | Reactive Extensions support for various types within the Core
