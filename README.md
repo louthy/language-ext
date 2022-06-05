@@ -291,10 +291,12 @@ Location | Feature | Description
 This library started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
 
 ## Poor tuple support
+
+> NOTE: Since writing this, the csharplang team have improved tuple support in C#
+
 I've been crying out for proper tuple support for ages. When this library was created we were no closer (C# 6). 
 The standard way of creating them is ugly `Tuple.Create(foo,bar)` compared to functional languages where the syntax is often 
-`(foo,bar)` and to consume them you must work with the standard properties of `Item1`...`ItemN`. Luckily now in C# 7
-we can use: `(foo,bar)`. But for those that can't:
+`(foo,bar)` and to consume them you must work with the standard properties of `Item1`...`ItemN`. 
 
 ```C#
     var ab = Tuple("a","b");
@@ -315,7 +317,7 @@ Or, you can use a more functional approach:
 ```
 This allows the tuple properties to have names, and it also allows for fluent handling of functions that return tuples.
 
-If you are using C#7 then you'll know that the new `Tuple` type is `ValueTuple`. Just like with `Tuple`, language-ext 
+If you are using C#7+ then you'll know that the new `Tuple` type is `ValueTuple`. Just like with `Tuple`, language-ext 
 adds many extensions to the standard BCL `ValueTuple`. 
 
 For example:
@@ -333,6 +335,9 @@ For example:
 ```
 
 ## Null reference problem
+
+> NOTE: Since writing this, the csharplang team have improved null support in C#
+
 `null` must be [the biggest mistake](https://www.infoq.com/presentations/Null-References-The-Billion-Dollar-Mistake-Tony-Hoare/) in the whole of computer language history. I realise the original designers 
 of C# had to make pragmatic decisions, it's a shame this one slipped through though. So, what to do about the 
 "null problem"?
@@ -350,6 +355,7 @@ Functional languages use what's known as an _option type_. In F# it's called `Op
 `Maybe`. In the next section we'll see how it's used.
 
 ## Option
+
 `Option<T>` works in a very similar way to `Nullable<T>`, except it works with all types rather than just value 
 types. It's a `struct` and therefore can't be `null`. An instance can be created by either calling `Some(value)`, 
 which represents a positive "I have a value" response, or `None`, which is the equivalent of returning `null`.
@@ -589,50 +595,46 @@ To take this much further, all of the monads in this library implement a standar
 ```
 This makes them into what would be known in Haskell as a Type Class (although more of a catch-all type-class than a set of well-defined type-classes). 
 
+* [Option and alternative-value-monads reference](https://louthy.github.io/language-ext/LanguageExt.Core/Monads/Alternative%20Value%20Monads/index.html)
 
-* [Option and alternative-value-monads reference](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/index.html)
+__Monad transformer extensions__
 
-__Monad transformers__
+> For this section you will need the `LanguageExt.Transformers` nu-get package
 
-Monad transformers allow for nested monadic types. Imagine functionality for working with `Seq<Option<A>>` or a `Option<Task<A>>`, etc.
+Monad transformers extensions allow for behaviours that work with nested monadic types. Imagine functionality for working with `Seq<Option<A>>` or a `Option<Task<A>>`, etc. without having to unpack the values bound within.
 
-One problem with C# is it can't do higher order polymorphism (imagine saying `Monad<M<T>>` where the `M` is polymorphic like the `T`). There is a kind of cheat way to do it in C# through extension methods, but it still doesn't get you a single type called `Monad<M<T>>` 
-(which is discussed later in the section on Ad-hoc Polymorphism), so it has limitations in that you can't write generic functions over higher-kinds. However it makes some of the problems of dealing with nested monadic types easier.
+One problem with C# is it can't do higher order polymorphism (imagine saying `M<T> where M : Monad` where the `M` is polymorphic like the `T`, and can be constrianed). There is a kind of cheat way to do it in C# through extension methods, but it still doesn't get you something that fits the pattern `M<T> where M : Monad`.  So there are limitations in that you can't write generic functions over higher-kinds, but with a bit of cunning we can generate code to deal with every pairing of monadic types.
 
-For example, below is a list of optional integers: `Lst<Option<int>>` (see lists later). We want to double all of the `Some` values, leave the 
+> There's discussion later in the section on Ad-hoc Polymorphism of a more general approach, but it's a little too complicated use
+
+As an example, below is a list of optional integers: `Lst<Option<int>>` (see lists later). We want to double all of the `Some` values, leave the 
 `None` alone and keep everything in the list:
 
 ```C#
     using LanguageExt;
     using static LanguageExt.Prelude;
-    using LanguageExt.ClassInstances;    // Required for TInt on Sum (see ad-hoc polymorphism later)
 
     var list = List(Some(1), None, Some(2), None, Some(3));
 
-    var presum = list.SumT<TInt, int>();                                // 6
-
     list = list.MapT(x => x * 2);
-
-    var postsum = list.SumT<TInt, int>();
 ```
-Notice the use of `MapT` instead of `Map` (and `SumT` instead of `Sum`). If we used `Map` (equivalent to `Select` in `LINQ`), it would look like this:
+Notice the use of `MapT` instead of `Map`. If we used `Map` (equivalent to `Select` in `LINQ`), it would look like this:
 ```C#
     var list  = List(Some(1), None, Some(2), None, Some(3));
     
-    var presum = list.Map(x => x.Sum()).Sum();
-    
-    list = list.Map( x => x.Map( v => v * 2 ) );
-    
-    var postsum = list.Map(x => x.Sum()).Sum();
+    list = list.Map(x => x.Map( v => v * 2));
 ```
 As you can see, the intention is much clearer in the first example, which is the point of functional programming most of the time. It's about declaring intent rather than the mechanics of delivery.
 
-To make this work we need extension methods for `List<Option<T>>` that define `MapT` and `SumT` [for the one  example above]. We also need one for 
-every pair of monads in this library (for one level of nesting `A<B<T>>`), and for every function from the "standard functional set" listed above. That's 13 monads * 13 monads * 14 functions. That's a lot of extension methods. Because of this, there's T4 template that generates 'monad transformers' that allows for nested monads.
+To make this work we need extension methods for `List<Option<T>>` that define `MapT` and `SumT` [for the one example above]. We also need one for 
+every pair of monads in this library (for one level of nesting `A<B<T>>`), and for every function from the "standard functional set" listed above. That's 32 monads * 32 monads * 20 functions. That's a lot of extension methods (20,480!). Because of this, there's T4 template that generates 'monad transformers' that allows for nested monads.
 
 This is super powerful, and means that most of the time you can leave your `Option<T>` or any of the monads in this library wrapped and rarely need to extract the value. You usually only need to extract the value to pass to the BCL or third-party libraries. Even then you could keep them wrapped and use `Iter` or `IterT`.
 
 ## if( arg == null ) throw new ArgumentNullException("arg")
+
+> NOTE: Since writing this, the csharplang team have improved required arguments in C#
+
 Another horrible side-effect of `null` is having to bullet-proof every function that takes reference arguments. This is truly tedious. Instead use this:
 ```C#
     public void Foo( Some<string> arg )
@@ -696,6 +698,8 @@ _NOTE: Since writing this library I have come to the opinion that `Some<T>` isn'
 * [Some and alternative-value monads reference](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Alternative%20Value%20Monads/index.html)
 
 ## Lack of lambda and expression inference 
+
+> NOTE: Since writing this, the csharplang team have improved lamdba inference in C#
 
 One really annoying thing about the `var` type inference in C# is that it can't handle inline lambdas. For example this won't compile, even though it's obvious it's a `Func<int,int,int>`.
 ```C#
