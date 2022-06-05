@@ -235,7 +235,11 @@ public readonly partial struct Schedule
 
     [Pure]
     private static int RoundBetween(int value, int min, int max) =>
-        value > max ? max : value < min ? min : value;
+        value > max
+            ? max
+            : value < min
+                ? min
+                : value;
 
     /// <summary>
     /// Cron-like schedule that recurs every specified `second` of each minute.

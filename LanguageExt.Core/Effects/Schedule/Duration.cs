@@ -88,7 +88,7 @@ public readonly struct Duration :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >(Duration a, Duration b) =>
-        a.CompareTo(b) == 1;
+        a.CompareTo(b) > 0;
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -98,7 +98,7 @@ public readonly struct Duration :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(Duration a, Duration b) =>
-        a.CompareTo(b) == -1;
+        a.CompareTo(b) < 0;
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
