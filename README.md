@@ -71,6 +71,7 @@ Nu-get package | Description
 [LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
 [LanguageExt.Rx](https://www.nuget.org/packages/LanguageExt.Rx) | Reactive Extensions support for various types within the Core
 [LanguageExt.Sys](https://www.nuget.org/packages/LanguageExt.Sys) | Provides an [`Aff` and `Eff`](https://github.com/louthy/language-ext/wiki/How-to-deal-with-side-effects) wrapper around the .NET System namespace making common IO operations pure and unit-testable
+[LanguageExt.SysX](https://www.nuget.org/packages/LanguageExt.SysX) | As above, but provides .NET5+ specific features
 [LanguageExt.CodeGen](https://www.nuget.org/packages/LanguageExt.CodeGen) | [Used to generate records, unions, lenses, and `With` functions automagically](https://github.com/louthy/language-ext/wiki/Code-generation). 
 
 ## Code-gen setup
