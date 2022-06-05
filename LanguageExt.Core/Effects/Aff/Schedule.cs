@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
@@ -27,12 +29,10 @@ namespace LanguageExt
         public static Aff<RT, S> Fold<S>(Aff<RT, A> ma, Schedule schedule, S state, Func<S, A, S> fold) =>
             schedule.Run(ma, state, fold, static x => x.IsSucc);
 
-        public static Aff<RT, S> FoldWhile<S>(
-            Aff<RT, A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+        public static Aff<RT, S> FoldWhile<S>(Aff<RT, A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
             schedule.Run(ma, state, fold, x => x.Case is A a && pred(a));
 
-        public static Aff<RT, S> FoldUntil<S>(
-            Aff<RT, A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+        public static Aff<RT, S> FoldUntil<S>(Aff<RT, A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
             schedule.Run(ma, state, fold, x => x.Case is A a && !pred(a));
     }
 
@@ -59,12 +59,10 @@ namespace LanguageExt
         public static Aff<S> Fold<S>(Aff<A> ma, Schedule schedule, S state, Func<S, A, S> fold) =>
             schedule.Run(ma, state, fold, static x => x.IsSucc);
 
-        public static Aff<S> FoldWhile<S>(
-            Aff<A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+        public static Aff<S> FoldWhile<S>(Aff<A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
             schedule.Run(ma, state, fold, x => x.Case is A a && pred(a));
 
-        public static Aff<S> FoldUntil<S>(
-            Aff<A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+        public static Aff<S> FoldUntil<S>(Aff<A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
             schedule.Run(ma, state, fold, x => x.Case is A a && !pred(a));
     }
 }

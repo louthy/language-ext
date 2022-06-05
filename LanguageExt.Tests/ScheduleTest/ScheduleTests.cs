@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using FluentAssertions;
@@ -19,7 +21,7 @@ namespace LanguageExt.Tests.ScheduleTest
                 .Should()
                 .HaveCount(10)
                 .And
-                .OnlyContain(x => x == PositiveDuration.Zero);
+                .OnlyContain(x => x == Duration.Zero);
         }
 
         [Fact]
@@ -39,7 +41,7 @@ namespace LanguageExt.Tests.ScheduleTest
             result
                 .AsEnumerable()
                 .Should()
-                .ContainSingle(x => x == PositiveDuration.Zero);
+                .ContainSingle(x => x == Duration.Zero);
         }
 
         [Fact]
@@ -58,7 +60,7 @@ namespace LanguageExt.Tests.ScheduleTest
             var result = Schedule.FromDurations(
                 Range(1, 5)
                     .Where(x => x % 2 == 0)
-                    .Select<int, PositiveDuration>(x => x * seconds));
+                    .Select<int, Duration>(x => x * seconds));
             result
                 .AsEnumerable()
                 .Should()
@@ -74,7 +76,7 @@ namespace LanguageExt.Tests.ScheduleTest
                 .Should()
                 .HaveCount(5)
                 .And
-                .Contain(x => x == PositiveDuration.Zero);
+                .Contain(x => x == Duration.Zero);
         }
 
         [Fact]
@@ -142,7 +144,7 @@ namespace LanguageExt.Tests.ScheduleTest
                 .AsEnumerable()
                 .Take(5)
                 .Should()
-                .Equal(1 * sec, 1 * sec, 2 * sec, 3 * sec, 5 * sec);
+                .Equal(1 * sec, 2 * sec, 3 * sec, 5 * sec, 8 * sec);
         }
 
         [Fact]
@@ -219,7 +221,7 @@ namespace LanguageExt.Tests.ScheduleTest
         }
 
         [Pure]
-        private static Seq<DateTime> FromDuration(PositiveDuration duration)
+        private static Seq<DateTime> FromDuration(Duration duration)
         {
             var now = DateTime.Now;
             return Range(0, (int)((TimeSpan)duration).TotalSeconds)
@@ -228,7 +230,7 @@ namespace LanguageExt.Tests.ScheduleTest
         }
 
         [Pure]
-        private static Seq<DateTime> FromDurations(Seq<PositiveDuration> durations)
+        private static Seq<DateTime> FromDurations(Seq<Duration> durations)
             => durations.Fold(Seq1(DateTime.Now), (times, duration) =>
             {
                 var last = times.Head();
@@ -256,7 +258,7 @@ namespace LanguageExt.Tests.ScheduleTest
         [Fact]
         public static void FixedTest()
         {
-            var results = Schedule.Fixed(5 * sec, FromDates(FromDurations(Seq<PositiveDuration>(
+            var results = Schedule.Fixed(5 * sec, FromDates(FromDurations(Seq<Duration>(
                 6 * sec,
                 1 * sec,
                 4 * sec
@@ -271,7 +273,7 @@ namespace LanguageExt.Tests.ScheduleTest
         [Fact]
         public static void WindowedTest()
         {
-            var results = Schedule.Windowed(5 * sec, FromDates(FromDurations(Seq<PositiveDuration>(
+            var results = Schedule.Windowed(5 * sec, FromDates(FromDurations(Seq<Duration>(
                 6 * sec,
                 1 * sec,
                 7 * sec
@@ -348,33 +350,6 @@ namespace LanguageExt.Tests.ScheduleTest
         private const int Seed = 98192732;
 
         [Fact]
-        public static void AwsDecorrelatedTest()
-        {
-            var results = Schedule.AwsDecorrelated(retry: 10, seed: Seed).AsEnumerable().ToSeq();
-            results
-                .Should()
-                .HaveCount(10)
-                .And
-                .Subject
-                .Zip(results.Skip(1))
-                .Should()
-                .Contain(x => x.Item1 < x.Item2);
-        }
-
-        [Fact]
-        public static void PollyDecorrelatedTest()
-        {
-            var results = Schedule.PollyDecorrelated(retry: 10, seed: Seed).AsEnumerable().ToSeq();
-            results.Should()
-                .HaveCount(10)
-                .And
-                .Subject
-                .Zip(results.Skip(1))
-                .Should()
-                .Contain(x => x.Item1 < x.Item2);
-        }
-
-        [Fact]
         public static void JitterTest1()
         {
             var noJitter = (
@@ -412,6 +387,16 @@ namespace LanguageExt.Tests.ScheduleTest
                 .Contain(x => x.Item1 > x.Item2)
                 .And
                 .Contain(x => x.Item1 - x.Item2 <= x.Item2 * 1.5);
+        }
+
+        [Fact]
+        public static void DecorrelatedTest()
+        {
+            var schedule = Schedule.Linear(10 * sec) | Schedule.Decorrelate(seed: Seed);
+            var result = schedule.Take(5).ToSeq();
+            result.Zip(result.Skip(1))
+                .Should()
+                .Contain(x => x.Left > x.Right);
         }
 
         [Fact]

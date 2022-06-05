@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -8,10 +10,8 @@ namespace LanguageExt
     /// </summary>
     internal static class SingletonRandom
     {
-        private static readonly Random Random = new();
-
-        private static readonly Func<int, Random> Provider =
-            memo((int seed) => new Random(seed));
+        static readonly Random Random = new();
+        static readonly Func<int, Random> Provider = memo((int seed) => new Random(seed));
 
         /// <summary>
         /// Returns a random floating-point number that is greater than or equal to 0.0,

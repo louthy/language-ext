@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using LanguageExt.Common;
 
@@ -26,12 +28,10 @@ namespace LanguageExt
         public static Eff<RT, S> Fold<S>(Eff<RT, A> ma, Schedule schedule, S state, Func<S, A, S> fold) =>
             schedule.Run(ma, state, fold, static x => x.IsSucc);
 
-        public static Eff<RT, S> FoldWhile<S>(
-            Eff<RT, A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+        public static Eff<RT, S> FoldWhile<S>(Eff<RT, A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
             schedule.Run(ma, state, fold, x => x.Case is A a && pred(a));
 
-        public static Eff<RT, S> FoldUntil<S>(
-            Eff<RT, A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+        public static Eff<RT, S> FoldUntil<S>(Eff<RT, A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
             schedule.Run(ma, state, fold, x => x.Case is A a && !pred(a));
     }
 
@@ -58,12 +58,10 @@ namespace LanguageExt
         public static Eff<S> Fold<S>(Eff<A> ma, Schedule schedule, S state, Func<S, A, S> fold) =>
             schedule.Run(ma, state, fold, static x => x.IsSucc);
 
-        public static Eff<S> FoldWhile<S>(
-            Eff<A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+        public static Eff<S> FoldWhile<S>(Eff<A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
             schedule.Run(ma, state, fold, x => x.Case is A a && pred(a));
 
-        public static Eff<S> FoldUntil<S>(
-            Eff<A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
+        public static Eff<S> FoldUntil<S>(Eff<A> ma, Schedule schedule, S state, Func<S, A, S> fold, Func<A, bool> pred) =>
             schedule.Run(ma, state, fold, x => x.Case is A a && !pred(a));
     }
 }

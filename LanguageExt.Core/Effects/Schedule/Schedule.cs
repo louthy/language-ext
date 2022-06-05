@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿#nullable enable
+
+using System.Collections;
 using System.Collections.Generic;
 
 namespace LanguageExt;
@@ -24,25 +26,42 @@ namespace LanguageExt;
 /// 
 ///     var s = Schedule.Recurs(5) | Schedule.Exponential(10) | Schedule.Spaced(2000)
 /// </example>
-public readonly partial struct Schedule : IEnumerable<PositiveDuration>
+public readonly partial struct Schedule : IEnumerable<Duration>
 {
-    private readonly IEnumerable<PositiveDuration> _enumerable;
-    internal Schedule(IEnumerable<PositiveDuration> enumerable) => _enumerable = enumerable;
-    public IEnumerable<PositiveDuration> AsEnumerable() => _enumerable;
+    readonly IEnumerable<Duration> Durations;
 
-    public static Schedule operator |(Schedule a, Schedule b) => a.Union(b);
-    public static Schedule operator |(Schedule a, ScheduleTransformer b) => b(a);
-    public static Schedule operator |(ScheduleTransformer a, Schedule b) => a(b);
+    internal Schedule(IEnumerable<Duration> durations) =>
+        Durations = durations;
 
-    public static Schedule operator &(Schedule a, Schedule b) => a.Intersect(b);
-    public static Schedule operator &(Schedule a, ScheduleTransformer b) => b(a);
-    public static Schedule operator &(ScheduleTransformer a, Schedule b) => a(b);
+    public static Schedule operator |(Schedule a, Schedule b) =>
+        a.Union(b);
 
-    public static Schedule operator +(Schedule a, Schedule b) => a.AsEnumerable().Append(b.AsEnumerable()).ToSchedule();
+    public static Schedule operator |(Schedule a, ScheduleTransformer b) =>
+        b(a);
 
-    public IEnumerator<PositiveDuration> GetEnumerator() => _enumerable.GetEnumerator();
+    public static Schedule operator |(ScheduleTransformer a, Schedule b) =>
+        a(b);
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public static Schedule operator &(Schedule a, Schedule b) =>
+        a.Intersect(b);
+
+    public static Schedule operator &(Schedule a, ScheduleTransformer b) =>
+        b(a);
+
+    public static Schedule operator &(ScheduleTransformer a, Schedule b) =>
+        a(b);
+
+    public static Schedule operator +(Schedule a, Schedule b) =>
+        a.AsEnumerable().Append(b.AsEnumerable()).ToSchedule();
+
+    public IEnumerable<Duration> AsEnumerable() =>
+        Durations;
+
+    public IEnumerator<Duration> GetEnumerator() =>
+        Durations.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() =>
+        GetEnumerator();
 }
 
 /// <summary>
