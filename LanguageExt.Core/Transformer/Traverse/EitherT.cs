@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using LanguageExt;
 using System.Linq;
 using System.Collections.Generic;

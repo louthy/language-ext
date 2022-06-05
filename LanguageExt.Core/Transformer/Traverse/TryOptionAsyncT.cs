@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using LanguageExt;
 using System.Linq;
@@ -26,9 +27,11 @@ namespace LanguageExt
             async Task<OptionalResult<Arr<B>>> Go(Arr<TryOptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => d.IsFaulted) ? rb.Filter(b => b.IsFaulted).Map(b => new OptionalResult<Arr<B>>(b.Exception)).Head()
                      : rb.Exists(d => d.IsNone) ? OptionalResult<Arr<B>>.None
                      : new OptionalResult<Arr<B>>(new Arr<B>(rb.Map(d => d.Value.Value)));
+                #nullable enable
             }
         }
 
@@ -38,10 +41,12 @@ namespace LanguageExt
             async Task<OptionalResult<HashSet<B>>> Go(HashSet<TryOptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new OptionalResult<HashSet<B>>(b.Exception)).Head()
                     : rb.Exists(d => d.IsNone) ? OptionalResult<HashSet<B>>.None
                     : new OptionalResult<HashSet<B>>(new HashSet<B>(rb.Map(d => d.Value.Value)));
+                #nullable enable
             }
         }
         
@@ -60,7 +65,9 @@ namespace LanguageExt
                     var mb = await a.Try().ConfigureAwait(false);
                     if (mb.IsFaulted) return new OptionalResult<IEnumerable<B>>(mb.Exception);
                     if (mb.IsNone) return OptionalResult<IEnumerable<B>>.None;
+                    #nullable disable
                     rb.Add(f(mb.Value.Value));
+                    #nullable enable
                 }
                 return new OptionalResult<IEnumerable<B>>(rb);
             };
@@ -75,9 +82,11 @@ namespace LanguageExt
             async Task<OptionalResult<IEnumerable<B>>> Go(IEnumerable<TryOptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => d.IsFaulted) ? rb.Filter(b => b.IsFaulted).Map(b => new OptionalResult<IEnumerable<B>>(b.Exception)).Head()
                     : rb.Exists(d => d.IsNone) ? OptionalResult<IEnumerable<B>>.None
                     : new OptionalResult<IEnumerable<B>>(rb.Map(d => d.Value.Value).ToArray());
+                #nullable enable
             }
         }
         
@@ -100,9 +109,11 @@ namespace LanguageExt
             async Task<OptionalResult<Lst<B>>> Go(Lst<TryOptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => d.IsFaulted) ? rb.Filter(b => b.IsFaulted).Map(b => new OptionalResult<Lst<B>>(b.Exception)).Head()
                     : rb.Exists(d => d.IsNone) ? OptionalResult<Lst<B>>.None
                     : new OptionalResult<Lst<B>>(new Lst<B>(rb.Map(d => d.Value.Value)));
+                #nullable enable
             }
         }
 
@@ -112,9 +123,11 @@ namespace LanguageExt
             async Task<OptionalResult<Que<B>>> Go(Que<TryOptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => d.IsFaulted) ? rb.Filter(b => b.IsFaulted).Map(b => new OptionalResult<Que<B>>(b.Exception)).Head()
                     : rb.Exists(d => d.IsNone) ? OptionalResult<Que<B>>.None
                     : new OptionalResult<Que<B>>(new Que<B>(rb.Map(d => d.Value.Value)));
+                #nullable enable
             }
         }
         
@@ -133,7 +146,9 @@ namespace LanguageExt
                     var mb = await a.Try().ConfigureAwait(false);
                     if (mb.IsFaulted) return new OptionalResult<Seq<B>>(mb.Exception);
                     if(mb.IsNone) return OptionalResult<Seq<B>>.None;
+                    #nullable disable
                     rb.Add(f(mb.Value.Value));
+                    #nullable enable
                 }
                 return new OptionalResult<Seq<B>>(Seq.FromArray(rb.ToArray()));
             };
@@ -148,9 +163,11 @@ namespace LanguageExt
             async Task<OptionalResult<Seq<B>>> Go(Seq<TryOptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => d.IsFaulted) ? rb.Filter(b => b.IsFaulted).Map(b => new OptionalResult<Seq<B>>(b.Exception)).Head()
                     : rb.Exists(d => d.IsNone) ? OptionalResult<Seq<B>>.None
                     : new OptionalResult<Seq<B>>(Seq.FromArray(rb.Map(d => d.Value.Value).ToArray()));
+                #nullable enable
             }
         }
         
@@ -173,9 +190,11 @@ namespace LanguageExt
             async Task<OptionalResult<Set<B>>> Go(Set<TryOptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => d.IsFaulted) ? rb.Filter(b => b.IsFaulted).Map(b => new OptionalResult<Set<B>>(b.Exception)).Head()
                     : rb.Exists(d => d.IsNone) ? OptionalResult<Set<B>>.None
                     : new OptionalResult<Set<B>>(new Set<B>(rb.Map(d => d.Value.Value)));
+                #nullable enable
             }
         }
 
@@ -185,9 +204,11 @@ namespace LanguageExt
             async Task<OptionalResult<Stck<B>>> Go(Stck<TryOptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await Task.WhenAll(ma.Reverse().Map(a => a.Map(f).Try())).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => d.IsFaulted) ? rb.Filter(b => b.IsFaulted).Map(b => new OptionalResult<Stck<B>>(b.Exception)).Head()
                     : rb.Exists(d => d.IsNone) ? OptionalResult<Stck<B>>.None
                     : new OptionalResult<Stck<B>>(new Stck<B>(rb.Map(d => d.Value.Value)));
+                #nullable enable
             }
         }
         
@@ -206,7 +227,9 @@ namespace LanguageExt
                 var rb = await da.Right.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<EitherAsync<L, B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<EitherAsync<L, B>>.None;
+                #nullable disable
                 return new OptionalResult<EitherAsync<L, B>>(EitherAsync<L, B>.Right(f(rb.Value.Value)));
+                #nullable enable
             }
         }
 
@@ -220,7 +243,9 @@ namespace LanguageExt
                 var rb = await value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<OptionAsync<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<OptionAsync<B>>.None;
+                #nullable disable
                 return new OptionalResult<OptionAsync<B>>(OptionAsync<B>.Some(f(rb.Value.Value)));
+                #nullable enable
             }
         }
         
@@ -234,7 +259,9 @@ namespace LanguageExt
                 var rb = await ra.Value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<TryAsync<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<TryAsync<B>>.None;
+                #nullable disable
                 return new OptionalResult<TryAsync<B>>(TryAsync<B>(f(rb.Value.Value)));
+                #nullable enable
             }
         }
         
@@ -249,7 +276,9 @@ namespace LanguageExt
                 var rb = await ra.Value.Value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<TryOptionAsync<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<TryOptionAsync<B>>.None;
+                #nullable disable
                 return new OptionalResult<TryOptionAsync<B>>(TryOptionAsync<B>(f(rb.Value.Value)));
+                #nullable enable 
             }
         }
 
@@ -262,7 +291,9 @@ namespace LanguageExt
                 var rb = await ra.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<Task<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<Task<B>>.None;
+                #nullable disable
                 return new OptionalResult<Task<B>>(f(rb.Value.Value).AsTask());
+                #nullable enable
             }
         }
 
@@ -275,7 +306,9 @@ namespace LanguageExt
                 var rb = await ra.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<ValueTask<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<ValueTask<B>>.None;
+                #nullable disable
                 return new OptionalResult<ValueTask<B>>(f(rb.Value.Value).AsValueTask());
+                #nullable enable
             }
         }
         
@@ -289,7 +322,9 @@ namespace LanguageExt
                 var rb = await ra.Value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<Aff<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<Aff<B>>.None;
+                #nullable disable
                 return new OptionalResult<Aff<B>>(SuccessAff<B>(f(rb.Value.Value)));
+                #nullable enable
             }
         }
 
@@ -307,7 +342,9 @@ namespace LanguageExt
                 var rb = await ma.RightValue.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new OptionalResult<Either<L, B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<Either<L, B>>.None;
+                #nullable disable
                 return OptionalResult<Either<L, B>>.Some(f(rb.Value.Value));
+                #nullable enable
             }
         }
 
@@ -321,7 +358,9 @@ namespace LanguageExt
                 var rb = await ma.RightValue.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new OptionalResult<EitherUnsafe<L, B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<EitherUnsafe<L, B>>.None;
+                #nullable disable
                 return OptionalResult<EitherUnsafe<L, B>>.Some(f(rb.Value.Value));
+                #nullable enable
             }
         }
 
@@ -334,7 +373,9 @@ namespace LanguageExt
                 var rb = await ma.Value.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new OptionalResult<Identity<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<Identity<B>>.None;
+                #nullable disable
                 return OptionalResult<Identity<B>>.Some(new Identity<B>(f(rb.Value.Value)));
+                #nullable enable
             }
         }
 
@@ -347,7 +388,9 @@ namespace LanguageExt
                 var rb = await ma.Value.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new OptionalResult<Fin<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<Fin<B>>.None;
+                #nullable disable
                 return OptionalResult<Fin<B>>.Some(FinSucc(f(rb.Value.Value)));
+                #nullable enable
             }
         }
 
@@ -360,7 +403,9 @@ namespace LanguageExt
                 var rb = await ma.Value.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new OptionalResult<Option<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<Option<B>>.None;
+                #nullable disable
                 return OptionalResult<Option<B>>.Some(Some(f(rb.Value.Value)));
+                #nullable enable
             }
         }
         
@@ -373,7 +418,9 @@ namespace LanguageExt
                 var rb = await ma.Value.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new OptionalResult<OptionUnsafe<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<OptionUnsafe<B>>.None;
+                #nullable disable
                 return OptionalResult<OptionUnsafe<B>>.Some(OptionUnsafe<B>.Some(f(rb.Value.Value)));
+                #nullable enable
             }
         }
         
@@ -387,7 +434,9 @@ namespace LanguageExt
                 var rb = await ra.Value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<Try<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<Try<B>>.None;
+                #nullable disable
                 return OptionalResult<Try<B>>.Some(Try<B>(f(rb.Value.Value)));
+                #nullable enable
             }
         }
         
@@ -403,7 +452,9 @@ namespace LanguageExt
                 var rb = await ra.Value.Value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<TryOption<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<TryOption<B>>.None;
+                #nullable disable
                 return OptionalResult<TryOption<B>>.Some(TryOption<B>(f(rb.Value.Value)));
+                #nullable enable
             }
         }
         
@@ -416,7 +467,9 @@ namespace LanguageExt
                 var rb = await ma.SuccessValue.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new OptionalResult<Validation<Fail, B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<Validation<Fail, B>>.None;
+                #nullable disable
                 return OptionalResult<Validation<Fail, B>>.Some(f(rb.Value.Value));
+                #nullable enable
             }
         }
         
@@ -430,7 +483,9 @@ namespace LanguageExt
                 var rb = await ma.SuccessValue.Try().ConfigureAwait(false);
                 if(rb.IsFaulted) return new OptionalResult<Validation<MonoidFail, Fail, B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<Validation<MonoidFail, Fail, B>>.None;
+                #nullable disable
                 return OptionalResult<Validation<MonoidFail, Fail, B>>.Some(f(rb.Value.Value));
+                #nullable enable
             }
         }
         
@@ -444,7 +499,9 @@ namespace LanguageExt
                 var rb = await ra.Value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new OptionalResult<Eff<B>>(rb.Exception);
                 if(rb.IsNone) return OptionalResult<Eff<B>>.None;
+                #nullable disable
                 return OptionalResult<Eff<B>>.Some(SuccessEff<B>(f(rb.Value.Value)));
+                #nullable enable
             }
         }
     }

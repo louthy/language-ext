@@ -33,9 +33,7 @@ namespace LanguageExt
     /// <typeparam name="A">Bound value</typeparam>
     [AsyncMethodBuilder(typeof(OptionAsyncMethodBuilder<>))]
     public readonly struct OptionAsync<A> :
-#if NETSTANDARD21
         IAsyncEnumerable<A>,
-#endif
         IOptionalAsync
     {
         internal readonly Task<(bool IsSome, A Value)> data;
@@ -1405,7 +1403,6 @@ namespace LanguageExt
         public OptionAsync<Func<B, Func<C, D>>> ParMap<B, C, D>(Func<A, B, C, D> func) =>
             Map(curry(func));
 
-#if NETSTANDARD21
         /// <summary>
         /// Enumerate asynchronously
         /// </summary>
@@ -1418,6 +1415,5 @@ namespace LanguageExt
                 yield return value;
             }
         }
-#endif
     }
 }

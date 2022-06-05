@@ -1070,7 +1070,7 @@ namespace LanguageExt
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo(object obj) => obj switch 
+        public int CompareTo(object? obj) => obj switch 
         {
             AtomSeq<A>     s => CompareTo(s),
             Seq<A>         s => CompareTo(s),
@@ -1150,7 +1150,7 @@ namespace LanguageExt
         /// Equality test
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Equals(object obj) => obj switch 
+        public override bool Equals(object? obj) => obj switch 
         {
             AtomSeq<A>     s => Equals(s),
             Seq<A>         s => Equals(s),
@@ -1171,8 +1171,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(AtomSeq<A> rhs) =>
-            Equals<EqDefault<A>>(rhs);
+        public bool Equals(AtomSeq<A>? rhs) =>
+            rhs is not null && Equals<EqDefault<A>>(rhs);
 
         /// <summary>
         /// Equality test
@@ -1436,8 +1436,10 @@ namespace LanguageExt
         /// Compare to another sequence
         /// </summary>
         [Pure]
-        public int CompareTo(AtomSeq<A> rhs) =>
-            CompareTo<OrdDefault<A>>(rhs);
+        public int CompareTo(AtomSeq<A>? rhs) =>
+            rhs is null 
+                ? 1
+                : CompareTo<OrdDefault<A>>(rhs);
 
         /// <summary>
         /// Compare to another sequence

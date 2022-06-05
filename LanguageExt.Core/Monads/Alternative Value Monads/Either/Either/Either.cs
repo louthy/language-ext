@@ -1038,11 +1038,11 @@ namespace LanguageExt
             typeof(L);
 
         [Pure]
-        internal static Either<L, R> Right(R value) =>
+        public static Either<L, R> Right(R value) =>
             new Either<L, R>(value);
 
         [Pure]
-        internal static Either<L, R> Left(L value) =>
+        public static Either<L, R> Left(L value) =>
             new Either<L, R>(value);
 
         [Pure]

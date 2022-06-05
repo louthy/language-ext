@@ -34,9 +34,7 @@ namespace LanguageExt
     [Serializable]
     //[AsyncMethodBuilder(typeof(EitherAsyncBuilder<,>))]
     public readonly struct EitherAsync<L, R> :
-#if NETSTANDARD21
         IAsyncEnumerable<R>,
-#endif
         IEitherAsync
     {
         public readonly static EitherAsync<L, R> Bottom = new EitherAsync<L, R>();
@@ -1900,7 +1898,6 @@ namespace LanguageExt
             Bind(a => bind(a).Bind(b => EitherAsync<L, V>.Right(project(a, b))));
 
 
-#if NETSTANDARD21
         /// <summary>
         /// Enumerate asynchronously
         /// </summary>
@@ -1913,7 +1910,6 @@ namespace LanguageExt
                 yield return data.Right;
             }
         }
-#endif
     }
 
     /// <summary>

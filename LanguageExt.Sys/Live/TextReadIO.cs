@@ -28,7 +28,7 @@ namespace LanguageExt.Sys.Live
         public async ValueTask<string> ReadToEnd(TextReader reader) =>
             await reader.ReadToEndAsync().ConfigureAwait(false);        
 
-#if NETSTANDARD21
+#if NET5PLUS
         /// <summary>
         /// Read chars from the stream into the buffer
         /// Returns the number of chars read

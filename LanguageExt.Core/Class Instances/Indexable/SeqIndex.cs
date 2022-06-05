@@ -13,7 +13,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Option<A> TryGet(Seq<A> ma, int key) =>
-            ma == null || key < 0 || key >= ma.Count
+            key < 0 || key >= ma.Count
                 ? None
                 : Some(ma[key]);
     }

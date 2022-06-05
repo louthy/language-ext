@@ -372,7 +372,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is VersionHashMap<ConflictV, K, V> hm && Equals(hm);
 
         /// <summary>
@@ -380,8 +380,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(VersionHashMap<ConflictV, K, V> other) =>
-            Items.Equals(other.Items);
+        public bool Equals(VersionHashMap<ConflictV, K, V>? other) =>
+            other is not null && Items.Equals(other.Items);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -647,7 +647,10 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K Key, V Value), KR> keySelector, Func<(K Key, V Value), VR> valueSelector) =>
+        public IDictionary<KR, VR> ToDictionary<KR, VR>(
+            Func<(K Key, V Value), KR> keySelector, 
+            Func<(K Key, V Value), VR> valueSelector)
+            where KR : notnull =>
             Value.AsEnumerable().ToDictionary(keySelector, valueSelector);
 
         #region IEnumerable interface
@@ -995,7 +998,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is HashMap<EqK, K, V> hm && Equals(hm);
 
         /// <summary>
