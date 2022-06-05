@@ -82,32 +82,22 @@ public static partial class Prelude
         EffMaybe(() =>
         {
             Fin<A> result;
-
-            // run with fold
             void RunAndFold()
             {
                 result = effect.Run();
                 state = result.IsSucc ? fold(state, result.value) : state;
             }
-
+            bool Continue() => pred(result);
             Fin<S> FinalResult() => result.IsSucc ? state : FinFail<S>(result.Error);
 
-            bool Continue() => pred(result);
-
-            // first run of the effect
             RunAndFold();
-
-            // we can bail early if the condition is not true
             if (!Continue()) return FinalResult();
 
             var wait = new AutoResetEvent(false);
-
-            // move into the schedule
             using var enumerator = schedule.GetEnumerator();
             while (enumerator.MoveNext() && Continue())
             {
                 if (enumerator.Current != Duration.Zero) wait.WaitOne((int)enumerator.Current);
-                // run again
                 RunAndFold();
             }
 
@@ -123,32 +113,22 @@ public static partial class Prelude
         EffMaybe<RT, S>(env =>
         {
             Fin<A> result;
-
-            // run with fold
             void RunAndFold()
             {
                 result = effect.Run(env);
                 state = result.IsSucc ? fold(state, result.value) : state;
             }
-
+            bool Continue() => pred(result);
             Fin<S> FinalResult() => result.IsSucc ? state : FinFail<S>(result.Error);
 
-            bool Continue() => pred(result);
-
-            // first run of the effect
             RunAndFold();
-
-            // we can bail early if the condition is not true
             if (!Continue()) return FinalResult();
 
             var wait = new AutoResetEvent(false);
-
-            // move into the schedule
             using var enumerator = schedule.GetEnumerator();
             while (enumerator.MoveNext() && Continue())
             {
                 if (enumerator.Current != Duration.Zero) wait.WaitOne((int)enumerator.Current);
-                // run again
                 RunAndFold();
             }
 
@@ -164,32 +144,23 @@ public static partial class Prelude
         AffMaybe(async () =>
         {
             Fin<A> result;
-
-            // run with fold
             async ValueTask<Fin<A>> RunAndFold()
             {
                 result = await effect.Run().ConfigureAwait(false);
                 state = result.IsSucc ? fold(state, result.value) : state;
                 return result;
             }
-
+            bool Continue() => pred(result);
             Fin<S> FinalResult() => result.IsSucc ? state : FinFail<S>(result.Error);
 
-            bool Continue() => pred(result);
-
-            // first run of the effect
             result = await RunAndFold().ConfigureAwait(false);
-
-            // we can bail early if the condition is not true
             if (!Continue()) return FinalResult();
 
-            // move into the schedule
             using var enumerator = schedule.GetEnumerator();
             while (enumerator.MoveNext() && Continue())
             {
                 if (enumerator.Current != Duration.Zero)
                     await Task.Delay((int)enumerator.Current).ConfigureAwait(false);
-                // run again
                 result = await RunAndFold().ConfigureAwait(false);
             }
 
@@ -205,32 +176,23 @@ public static partial class Prelude
         AffMaybe<RT, S>(async env =>
         {
             Fin<A> result;
-
-            // run with fold
             async ValueTask<Fin<A>> RunAndFold()
             {
                 result = await effect.Run(env).ConfigureAwait(false);
                 state = result.IsSucc ? fold(state, result.value) : state;
                 return result;
             }
-
+            bool Continue() => pred(result);
             Fin<S> FinalResult() => result.IsSucc ? state : FinFail<S>(result.Error);
 
-            bool Continue() => pred(result);
-
-            // first run of the effect
             result = await RunAndFold().ConfigureAwait(false);
-
-            // we can bail early if the condition is not true
             if (!Continue()) return FinalResult();
 
-            // move into the schedule
             using var enumerator = schedule.GetEnumerator();
             while (enumerator.MoveNext() && Continue())
             {
                 if (enumerator.Current != Duration.Zero)
                     await Task.Delay((int)enumerator.Current).ConfigureAwait(false);
-                // run again
                 result = await RunAndFold().ConfigureAwait(false);
             }
 

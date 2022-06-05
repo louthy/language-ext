@@ -221,7 +221,7 @@ namespace LanguageExt.Tests.ScheduleTest
         }
 
         [Pure]
-        private static Seq<DateTime> FromDuration(Duration duration)
+        static Seq<DateTime> FromDuration(Duration duration)
         {
             var now = DateTime.Now;
             return Range(0, (int)((TimeSpan)duration).TotalSeconds)
@@ -230,20 +230,21 @@ namespace LanguageExt.Tests.ScheduleTest
         }
 
         [Pure]
-        private static Seq<DateTime> FromDurations(Seq<Duration> durations)
-            => durations.Fold(Seq1(DateTime.Now), (times, duration) =>
+        static Seq<DateTime> FromDurations(Seq<Duration> durations) =>
+            durations.Fold(Seq1(DateTime.Now), (times, duration) =>
             {
                 var last = times.Head();
                 return times.Add(last + (TimeSpan)duration);
             });
 
         [Pure]
-        private static Func<DateTime> FromDates(Seq<DateTime> dates) => () =>
-        {
-            var date = dates.HeadOrNone().IfNone(() => DateTime.Now);
-            dates = dates.Tail;
-            return date;
-        };
+        static Func<DateTime> FromDates(Seq<DateTime> dates) =>
+            () =>
+            {
+                var date = dates.HeadOrNone().IfNone(() => DateTime.Now);
+                dates = dates.Tail;
+                return date;
+            };
 
         [Fact]
         public static void UpToTest()
@@ -347,7 +348,7 @@ namespace LanguageExt.Tests.ScheduleTest
                 .Equal(4 * days, 2 * days, 5 * days, 7 * days);
         }
 
-        private const int Seed = 98192732;
+        const int Seed = 98192732;
 
         [Fact]
         public static void JitterTest1()
@@ -426,6 +427,35 @@ namespace LanguageExt.Tests.ScheduleTest
                 .Equal(1 * sec, 5 * sec, 20 * sec,
                     1 * sec, 5 * sec, 20 * sec,
                     1 * sec, 5 * sec, 20 * sec);
+        }
+
+        [Fact]
+        public static void IntersperseTest()
+        {
+            var results =
+                Schedule.FromDurations(1 * sec, 5 * sec, 20 * sec)
+                | Schedule.Intersperse(2 * sec);
+            results
+                .AsEnumerable()
+                .Should()
+                .HaveCount(6)
+                .And
+                .Equal(1 * sec, 2 * sec, 5 * sec, 2 * sec, 20 * sec, 2 * sec);
+        }
+
+        [Fact]
+        public static void InterleaveTest()
+        {
+            var schedule1 = Schedule.FromDurations(1 * sec, 5 * sec, 20 * sec);
+            var schedule2 = Schedule.FromDurations(2 * sec, 7 * sec, 25 * sec);
+
+            var results = schedule1.Interleave(schedule2);
+            results
+                .AsEnumerable()
+                .Should()
+                .HaveCount(6)
+                .And
+                .Equal(1 * sec, 2 * sec, 5 * sec, 7 * sec, 20 * sec, 25 * sec);
         }
     }
 }

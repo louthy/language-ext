@@ -16,7 +16,7 @@ public readonly partial struct Schedule
     /// Identity or noop schedule result transformer.
     /// </summary>
     public static readonly ScheduleTransformer Identity =
-        x => x;
+        _ => _;
 
     [Pure]
     private static Durations InternalForever()
@@ -444,4 +444,20 @@ public readonly partial struct Schedule
 
             return Loop().ToSchedule();
         };
+
+    /// <summary>
+    /// Intersperse the provided duration(s) between each duration in the schedule.
+    /// </summary>
+    /// <param name="duration">schedule to intersperse</param>
+    [Pure]
+    public static ScheduleTransformer Intersperse(Schedule schedule) =>
+        s => s.AsEnumerable().SelectMany(schedule.Prepend).ToSchedule();
+
+    /// <summary>
+    /// Intersperse the provided duration(s) between each duration in the schedule.
+    /// </summary>
+    /// <param name="durations">1 or more durations to intersperse</param>
+    [Pure]
+    public static ScheduleTransformer Intersperse(params Duration[] durations) =>
+        Intersperse(FromDurations(durations));
 }
