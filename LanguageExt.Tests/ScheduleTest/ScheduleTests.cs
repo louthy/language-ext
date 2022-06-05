@@ -70,7 +70,7 @@ namespace LanguageExt.Tests.ScheduleTest
         [Fact]
         public static void RecursTest()
         {
-            var results = Schedule.Recurs(5);
+            var results = Schedule.Recurs(5) | Schedule.Forever;
             results
                 .AsEnumerable()
                 .Should()
@@ -142,9 +142,9 @@ namespace LanguageExt.Tests.ScheduleTest
             var results = Schedule.Fibonacci(1 * sec);
             results
                 .AsEnumerable()
-                .Take(5)
+                .Take(6)
                 .Should()
-                .Equal(1 * sec, 2 * sec, 3 * sec, 5 * sec, 8 * sec);
+                .Equal(1 * sec, 1 * sec, 2 * sec, 3 * sec, 5 * sec, 8 * sec);
         }
 
         [Fact]

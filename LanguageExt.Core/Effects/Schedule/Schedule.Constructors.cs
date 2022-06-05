@@ -63,8 +63,8 @@ public readonly partial struct Schedule
     /// </summary>
     /// <param name="times">number of times</param>
     [Pure]
-    public static Schedule Recurs(int times) =>
-        Forever.AsEnumerable().Take(times).ToSchedule();
+    public static ScheduleTransformer Recurs(int times) =>
+        s => s.Take(times).ToSchedule();
 
     /// <summary>
     /// Schedule that recurs continuously with the given spacing.
@@ -119,6 +119,7 @@ public readonly partial struct Schedule
 
         Durations Loop()
         {
+            yield return accumulator;
             while (true)
             {
                 var current = accumulator;

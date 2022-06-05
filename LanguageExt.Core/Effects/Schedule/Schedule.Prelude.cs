@@ -18,7 +18,7 @@ public static partial class Prelude
     /// <param name="enumerable">enumeration of positive durations</param>
     /// <returns>schedule</returns>
     [Pure]
-    public static Schedule ToSchedule(this IEnumerable<Duration> enumerable) => 
+    public static Schedule ToSchedule(this IEnumerable<Duration> enumerable) =>
         new(enumerable);
 
     /// <summary>
@@ -29,9 +29,7 @@ public static partial class Prelude
     /// <returns>max of schedule a and b to the length of the shortest schedule</returns>
     [Pure]
     public static Schedule Intersect(this Schedule a, Schedule b) =>
-        a.AsEnumerable().Zip(b.AsEnumerable())
-            .Select(t => (Duration)Math.Max(t.Item1, t.Item2))
-            .ToSchedule();
+        a.AsEnumerable().Zip(b.AsEnumerable()).Select(t => (Duration)Math.Max(t.Item1, t.Item2)).ToSchedule();
 
     /// <summary>
     /// Union of 2 schedules. As long as any are running it returns the min duration of both or a or b. 
