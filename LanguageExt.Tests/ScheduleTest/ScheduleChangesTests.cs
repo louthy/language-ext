@@ -160,9 +160,9 @@ public class ScheduleChangesTests
         var result1 = Schedule.Spaced(30) & Schedule.Fibonacci(10) | Schedule.Recurs(5);
         var result2 = OldSchedule.Spaced(30) & OldSchedule.Fibonacci(10) | OldSchedule.Recurs(5);
 
-        // this is correct, fib schedule is 10,10,20,30,50 and the max of the with 30x5 is 30x4,50
+        // this is correct, fib schedule is 10,10,20,30,50 and the max of the spaced 30x5 is 30x4,50
         result1.Should().Equal(30, 30, 30, 30, 50);
-        // this is not correct, the schedule is influenced by the new max starting value, they are not independent.
+        // this is not correct, the schedule is influenced by the new max starting value introduced by the spaced 30, they are not independent.
         result2.Should().Equal(30, 30, 60, 90, 150);
     }
 }
