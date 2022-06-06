@@ -414,6 +414,22 @@ namespace LanguageExt.Tests.ScheduleTest
         }
 
         [Fact]
+        public static void RepeatForeverTest()
+        {
+            var results =
+                Schedule.FromDurations(1 * sec, 5 * sec, 20 * sec)
+                | Schedule.RepeatForever();
+            results
+                .AsEnumerable()
+                .Take(12)
+                .Should()
+                .Equal(1 * sec, 5 * sec, 20 * sec,
+                    1 * sec, 5 * sec, 20 * sec,
+                    1 * sec, 5 * sec, 20 * sec,
+                    1 * sec, 5 * sec, 20 * sec);
+        }
+
+        [Fact]
         public static void RepeatTest()
         {
             var results =
@@ -456,6 +472,27 @@ namespace LanguageExt.Tests.ScheduleTest
                 .HaveCount(6)
                 .And
                 .Equal(1 * sec, 2 * sec, 5 * sec, 7 * sec, 20 * sec, 25 * sec);
+        }
+
+        [Fact]
+        public static void RandomDurationTest()
+        {
+            var schedule1 =
+                Schedule.Linear(Duration.Random(10 * ms, 50 * ms))
+                | Schedule.Decorrelate()
+                | Schedule.Recurs(5);
+            var schedule2 =
+                Schedule.Linear(Duration.Random(10 * ms, 50 * ms))
+                | Schedule.Decorrelate()
+                | Schedule.Recurs(5);
+            var schedule3 =
+                Schedule.Linear(Duration.Random(10 * ms, 50 * ms))
+                | Schedule.Decorrelate()
+                | Schedule.Recurs(5);
+
+            schedule1.Should().HaveCount(5);
+            schedule2.Should().HaveCount(5);
+            schedule3.Should().HaveCount(5);
         }
     }
 }

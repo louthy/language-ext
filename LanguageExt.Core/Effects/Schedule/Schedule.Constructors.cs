@@ -19,7 +19,7 @@ public readonly partial struct Schedule
         _ => _;
 
     [Pure]
-    private static Durations InternalForever()
+    static Durations InternalForever()
     {
         while (true) yield return Duration.Zero;
     }
@@ -53,14 +53,18 @@ public readonly partial struct Schedule
     /// <summary>
     /// Schedule that recurs for the specified durations.
     /// </summary>
+    /// <remarks>
+    /// This allows for any custom schedule to be created, its the same as ToSchedule().
+    /// </remarks>
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule FromDurations(Durations durations) =>
         durations.ToSchedule();
 
     /// <summary>
-    /// Schedule that recurs the specified number of times.
+    /// Schedule transformer that limits the schedule to run the specified number of times.
     /// </summary>
+    /// <remarks>Same as schedule.Take(times).ToSchedule()</remarks>
     /// <param name="times">number of times</param>
     [Pure]
     public static ScheduleTransformer Recurs(int times) =>
@@ -132,7 +136,7 @@ public readonly partial struct Schedule
         return Loop().ToSchedule();
     }
 
-    private static readonly Func<DateTime> LiveNowFn =
+    static readonly Func<DateTime> LiveNowFn =
         () => DateTime.Now;
 
     /// <summary>
@@ -155,7 +159,7 @@ public readonly partial struct Schedule
     }
 
     [Pure]
-    private static Duration SecondsToIntervalStart(DateTime startTime, DateTime currentTime, Duration interval) =>
+    static Duration SecondsToIntervalStart(DateTime startTime, DateTime currentTime, Duration interval) =>
         interval - (currentTime - startTime).TotalMilliseconds % interval;
 
     /// <summary>
@@ -196,10 +200,10 @@ public readonly partial struct Schedule
     }
 
     ///<summary>
-    /// A schedule that divides the timeline to `interval`-long windows, and sleeps
+    /// A schedule that divides the timeline into `interval`-long windows, and sleeps
     /// until the nearest window boundary every time it recurs.
     ///
-    /// For example, `Windowed(10*seconds)` would produce a schedule as follows:
+    /// For example, `Windowed(10 * seconds)` would produce a schedule as follows:
     /// <pre>
     ///      10s        10s        10s       10s
     /// |----------|----------|----------|----------|
@@ -227,14 +231,14 @@ public readonly partial struct Schedule
     }
 
     [Pure]
-    private static int DurationToIntervalStart(int intervalStart, int currentIntervalPosition, int intervalWidth)
+    static int DurationToIntervalStart(int intervalStart, int currentIntervalPosition, int intervalWidth)
     {
         var steps = intervalStart - currentIntervalPosition;
         return steps > 0 ? steps : steps + intervalWidth;
     }
 
     [Pure]
-    private static int RoundBetween(int value, int min, int max) =>
+    static int RoundBetween(int value, int min, int max) =>
         value > max
             ? max
             : value < min
@@ -382,9 +386,9 @@ public readonly partial struct Schedule
     /// Transforms the schedule by decorrelating each of the durations both up and down in a jittered way.
     /// </summary>
     /// <remarks>
-    /// Given a linear schedule starting at 100. (100,200,300...)
+    /// Given a linear schedule starting at 100. (100, 200, 300...)
     /// Adding decorrlation to it might produce a result like this, (103.2342, 97.123, 202.3213, 197.321...)
-    /// The overall backoff takes twice as long but should not be correlated when occurring in parallel.
+    /// The overall schedule runs twice as long but should be less correlated when used in parallel.
     /// </remarks>
     /// <param name="factor">jitter factor based on the returned delay</param>
     /// <param name="seed">optional seed</param>
@@ -417,12 +421,31 @@ public readonly partial struct Schedule
     public static ScheduleTransformer ResetAfter(Duration max) =>
         s =>
         {
-            var iteratedSchedule = (s | MaxCumulativeDelay(max)).AsEnumerable().ToSeq();
+            var cachedSchedule = (s | MaxCumulativeDelay(max)).AsEnumerable().ToSeq();
 
             Durations Loop()
             {
                 while (true)
-                    foreach (var duration in iteratedSchedule)
+                    foreach (var duration in cachedSchedule)
+                        yield return duration;
+            }
+
+            return Loop().ToSchedule();
+        };
+
+    /// <summary>
+    /// Repeats the schedule forever.
+    /// </summary>
+    [Pure]
+    public static ScheduleTransformer RepeatForever() =>
+        s =>
+        {
+            var cachedSchedule = s.ToSeq();
+
+            Durations Loop()
+            {
+                while (true)
+                    foreach (var duration in cachedSchedule)
                         yield return duration;
             }
 
@@ -437,12 +460,12 @@ public readonly partial struct Schedule
     public static ScheduleTransformer Repeat(int times) =>
         s =>
         {
-            var iteratedSchedule = s.ToSeq();
+            var cachedSchedule = s.ToSeq();
 
             Durations Loop()
             {
                 for (var i = 0; i < times; i++)
-                    foreach (var duration in iteratedSchedule)
+                    foreach (var duration in cachedSchedule)
                         yield return duration;
             }
 
