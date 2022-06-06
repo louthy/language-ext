@@ -54,7 +54,7 @@ public readonly partial struct Schedule
     /// Schedule that recurs for the specified durations.
     /// </summary>
     /// <remarks>
-    /// This allows for any custom schedule to be created, its the same as ToSchedule().
+    /// This allows for any custom schedule to be created, its the same as `ToSchedule()`.
     /// </remarks>
     /// <param name="durations">durations to apply</param>
     [Pure]

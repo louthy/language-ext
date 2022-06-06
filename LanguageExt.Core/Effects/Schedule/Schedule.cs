@@ -13,9 +13,9 @@ namespace LanguageExt;
 /// of schedulers and then union them using `|` or intersect them using `&amp;`.  Union will take the minimum of the two
 /// schedules to the length of the longest, intersect will take the maximum of the two schedules to the length of the shortest.
 ///
-/// Any IEnumerable&lt;Duration&gt; can be converted to a Schedule using ToSchedule() or Schedule.FromDurations(...).
-/// Schedule also implements IEnumerable&lt;Duration&gt; so can make use of any transformation on IEnumerable.
-/// A Schedule is a struct so an AsEnumerable() method is also provided to avoid boxing.
+/// Any `IEnumerable&lt;Duration&gt;` can be converted to a Schedule using `ToSchedule()` or `Schedule.FromDurations(...)`.
+/// Schedule also implements `IEnumerable&lt;Duration&gt;` so can make use of any transformation on IEnumerable.
+/// A Schedule is a struct so an `AsEnumerable()` method is also provided to avoid boxing.
 /// </remarks>
 /// <example>
 /// This example creates a schedule that repeats 5 times, with an exponential delay between each stage, starting
