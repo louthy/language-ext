@@ -18,6 +18,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       </PackageReference>
+      <PackageReference Include="FluentAssertions" Version="6.7.0" />
       <PackageReference Include="System.Reactive" Version="[3,)" />
       <PackageReference Include="Newtonsoft.Json" Version="[10.0.3,)" />
     <PackageReference Include="Nito.AsyncEx" Version="[5.0.0,)" />
