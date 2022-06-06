@@ -15,7 +15,7 @@ public readonly partial struct Schedule
     /// <summary>
     /// Identity or noop schedule result transformer.
     /// </summary>
-    public static readonly Schedule Identity =
+    public static readonly ScheduleTransformer Identity =
         Transform(identity);
 
     /// <summary>
