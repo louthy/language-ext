@@ -125,7 +125,7 @@ public class ScheduleChangesTests
     [Fact]
     public static void SpacedTest()
     {
-        var result1 = Schedule.Spaced(100).Take(5);
+        var result1 = Schedule.spaced(100).Take(5);
         var result2 = OldSchedule.Spaced(100).Take(5);
         result1.Should().Equal(result2);
     }
@@ -133,7 +133,7 @@ public class ScheduleChangesTests
     [Fact]
     public static void ExponentialTest()
     {
-        var result1 = Schedule.Exponential(100).Take(5);
+        var result1 = Schedule.exponential(100).Take(5);
         var result2 = OldSchedule.Exponential(100).Take(5);
         result1.Should().Equal(result2);
     }
@@ -141,7 +141,7 @@ public class ScheduleChangesTests
     [Fact]
     public static void FibonacciTest()
     {
-        var result1 = Schedule.Fibonacci(100).Take(5).ToSeq();
+        var result1 = Schedule.fibonacci(100).Take(5).ToSeq();
         var result2 = OldSchedule.Fibonacci(100).Take(5).ToSeq();
         result1.Should().Equal(result2);
     }
@@ -149,7 +149,7 @@ public class ScheduleChangesTests
     [Fact]
     public static void UnionTest()
     {
-        var result1 = Schedule.Spaced(50) | Schedule.Exponential(10) | Schedule.Recurs(5);
+        var result1 = Schedule.spaced(50) | Schedule.exponential(10) | Schedule.recurs(5);
         var result2 = OldSchedule.Spaced(50) | OldSchedule.Exponential(10) | OldSchedule.Recurs(5);
         result1.Should().Equal(result2);
     }
@@ -157,7 +157,7 @@ public class ScheduleChangesTests
     [Fact]
     public static void IntersectTest()
     {
-        var result1 = Schedule.Spaced(30) & Schedule.Fibonacci(10) | Schedule.Recurs(5);
+        var result1 = Schedule.spaced(30) & Schedule.fibonacci(10) | Schedule.recurs(5);
         var result2 = OldSchedule.Spaced(30) & OldSchedule.Fibonacci(10) | OldSchedule.Recurs(5);
 
         // this is correct, fib schedule is 10,10,20,30,50 and the max of the spaced 30x5 is 30x4,50

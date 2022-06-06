@@ -30,8 +30,8 @@ namespace EffectsExamples
         public static Aff<RT, Unit> main()
         {
             // Create two queues.  Queues are Producers that have an Enqueue function
-            var queue1 = Proxy.Queue<RT, string>();
-            var queue2 = Proxy.Queue<RT, string>();
+            var queue1 = Queue<RT, string>();
+            var queue2 = Queue<RT, string>();
 
             // Compose the queues with a pipe that prepends some text to what they produce
             var queues = Seq(queue1 | prepend("Queue 1: "), queue2 | prepend("Queue 2: "));

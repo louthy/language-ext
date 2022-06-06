@@ -17,12 +17,20 @@ public readonly struct Duration :
 {
     readonly double Milliseconds;
 
+    /// <summary>
+    /// Duration constructor
+    /// </summary>
+    /// <param name="milliseconds">Magnitude of the duration.  Must be zero or a positive value</param>
+    /// <exception cref="ArgumentException">Throws if `milliseconds` is less than `0`</exception>
     public Duration(double milliseconds)
     {
-        if (milliseconds < 0) throw new ArgumentException("milliseconds must be a positive number.");
+        if (milliseconds < 0) throw new ArgumentException($"{nameof(milliseconds)} must be a positive number.");
         Milliseconds = milliseconds;
     }
 
+    /// <summary>
+    /// Zero magnitude duration (instant)
+    /// </summary>
     public static Duration Zero =>
         new(0);
 
@@ -31,7 +39,7 @@ public readonly struct Duration :
     /// </summary>
     /// <remarks>
     /// This can be used to seed a schedule in parallel.
-    /// Providing another method of decorrelation.
+    /// Providing another method of de-correlation.
     ///
     /// For example, this is a linear schedule that,
     ///
@@ -39,13 +47,13 @@ public readonly struct Duration :
     /// - includes a 10% jitter, added and removed in sequence from each duration
     /// - recurring 5 times
     ///
-    ///     Schedule.Linear(Duration.Random(10 * ms, 50 * ms)) | Schedule.Decorrelate() | Schedule.Recurs(5)
+    ///     Schedule.Linear(Duration.Random(10*ms, 50*ms)) | Schedule.Decorrelate() | Schedule.Recurs(5)
     ///
     /// Three runs result in,
     ///
-    ///     (25 * ms, 23 * ms, 50 * ms, 47 * ms, 72 * ms)
-    ///     (13 * ms, 11 * ms, 25 * ms, 23 * ms, 40 * ms)
-    ///     (28 * ms, 25 * ms, 56 * ms, 53 * ms, 87 * ms)
+    ///     (25ms, 23ms, 50ms, 47ms, 72ms)
+    ///     (13ms, 11ms, 25ms, 23ms, 40ms)
+    ///     (28ms, 25ms, 56ms, 53ms, 87ms)
     ///
     /// </remarks>
     /// <param name="min">min duration</param>
@@ -53,7 +61,7 @@ public readonly struct Duration :
     /// <param name="seed">optional seed</param>
     /// <returns>random duration between min and max duration</returns>
     [Pure]
-    public static Duration Random(Duration min, Duration max, Option<int> seed = default)
+    public static Duration random(Duration min, Duration max, Option<int> seed = default)
         => new(SingletonRandom.Uniform(min, max, seed));
 
     [Pure]

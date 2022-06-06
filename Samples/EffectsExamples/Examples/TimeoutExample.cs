@@ -32,6 +32,6 @@ namespace EffectsExamples
              from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
              select unit)
            .ToAff()
-           .Repeat(Schedule.Fibonacci(1 * second));
+           .Repeat(Schedule.fibonacci(1 * second));
     }
 }

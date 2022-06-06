@@ -30,7 +30,7 @@ namespace EffectsExamples
             select unit;
 
         static Eff<RT, Unit> askUser =>
-            repeat(Schedule.Spaced(1*second) | Schedule.Recurs(3),
+            repeat(Schedule.spaced(1*second) | Schedule.recurs(3),
                    from ln in Console<RT>.readLine
                    from _1 in guard(notEmpty(ln), UserExited)
                    from _2 in guardnot(ln == "sys", () => throw new SystemException())

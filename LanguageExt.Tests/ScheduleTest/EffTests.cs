@@ -8,7 +8,7 @@ namespace LanguageExt.Tests.ScheduleTest;
 
 public static class EffTests
 {
-    static Schedule TestSchedule() => Schedule.Fixed(1 * ms) | Schedule.NoDelayOnFirst | Schedule.Recurs(5);
+    static Schedule TestSchedule() => Schedule.fix(1 * ms) | Schedule.NoDelayOnFirst | Schedule.recurs(5);
 
     [Fact]
     public static void BailBeforeScheduleTest1()

@@ -20,10 +20,10 @@ namespace EffectsExamples
         HasCancel<RT>, 
         HasConsole<RT>
     {
-        readonly static Error Failed = ("I asked you to say hello, and you can't even do that?!");
+        static readonly Error Failed = ("I asked you to say hello, and you can't even do that?!");
         
         public static Eff<RT, Unit> main =>
-            retry(Schedule.Recurs(5),
+            retry(Schedule.recurs(5),
                   from _ in Console<RT>.writeLine("Say hello")
                   from t in Console<RT>.readLine
                   from e in guard(t == "hello", Failed)  
