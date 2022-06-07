@@ -69,7 +69,7 @@ public class Program
         // await ObsAffTests.Test();
         // await AsyncTests();
         //testing.Run(Runtime.New());
-
+        ScheduleTests.Run();
         IssueTests.Run();
     }
 

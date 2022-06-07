@@ -73,13 +73,6 @@ public static partial class Prelude
         s.Skip(amount);
 
     /// <summary>
-    /// Take the first duration from the schedule
-    /// </summary>
-    [Pure]
-    public static Option<Duration> head(Schedule s) =>
-        s.Head;
-
-    /// <summary>
     /// Take all but the first duration from the schedule
     /// </summary>
     [Pure]

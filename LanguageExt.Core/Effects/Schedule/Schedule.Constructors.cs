@@ -1,7 +1,6 @@
 ﻿#nullable enable
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
@@ -10,7 +9,7 @@ namespace LanguageExt;
 
 using Durations = IEnumerable<Duration>;
 
-public readonly partial struct Schedule
+public abstract partial record Schedule
 {
     /// <summary>
     /// Identity or noop schedule result transformer.
@@ -27,7 +26,7 @@ public readonly partial struct Schedule
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(Durations durations) =>
-        new(durations);
+        new SchItems(durations);
 
     /// <summary>
     /// `Schedule` constructor that recurs for the specified durations.
@@ -38,7 +37,7 @@ public readonly partial struct Schedule
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(params Duration[] durations) =>
-        durations.ToSchedule();
+        new SchItems(durations);
     
     /// <summary>
     /// `ScheduleTransformer` constructor which provides mapping capabilities for `Schedule` instances. 
@@ -53,13 +52,13 @@ public readonly partial struct Schedule
     /// Schedule that runs forever.
     /// </summary>
     public static readonly Schedule Forever =
-        InternalForever().ToSchedule();
+        SchForever.Default;
     
     /// <summary>
     /// Schedule that never runs.
     /// </summary>
     public static readonly Schedule Never =
-        Enumerable.Empty<Duration>().ToSchedule();
+        SchNever.Default;
 
     /// <summary>
     /// Schedule that runs once.
@@ -70,26 +69,14 @@ public readonly partial struct Schedule
     /// <summary>
     /// A schedule transformer that will enforce the first retry has no delay.
     /// </summary>
-    [Pure]
-    public static ScheduleTransformer NoDelayOnFirst =>
+    public static ScheduleTransformer NoDelayOnFirst =
         Transform(s => s.Tail.Prepend(Duration.Zero));
 
     /// <summary>
     /// Repeats the schedule forever.
     /// </summary>
-    [Pure]
-    public static ScheduleTransformer RepeatForever =>
-        Transform(s =>
-        {
-            Durations Loop()
-            {
-                while (true)
-                    foreach (var duration in s.AsEnumerable())
-                        yield return duration;
-            }
-
-            return Loop().ToSchedule();
-        });
+    public static ScheduleTransformer RepeatForever =
+        Transform(s => new SchRepeatForever(s));
 
     /// <summary>
     /// Schedule transformer that limits the schedule to run the specified number of times.
@@ -114,23 +101,8 @@ public readonly partial struct Schedule
     /// <param name="seed">seed</param>
     /// <param name="factor">optional factor to apply, default 1</param>
     [Pure]
-    public static Schedule linear(Duration seed, double factor = 1)
-    {
-        Duration delayToAdd = seed * factor;
-        var accumulator = seed;
-
-        Durations Loop()
-        {
-            yield return accumulator;
-            while (true)
-            {
-                accumulator += delayToAdd;
-                yield return accumulator;
-            }
-        }
-
-        return Loop().ToSchedule();
-    }
+    public static Schedule linear(Duration seed, double factor = 1) =>
+        new SchLinear(seed, factor);
 
     /// <summary>
     /// Schedule that recurs continuously using a exponential backoff.
@@ -146,27 +118,10 @@ public readonly partial struct Schedule
     /// </summary>
     /// <param name="seed">seed</param>
     [Pure]
-    public static Schedule fibonacci(Duration seed)
-    {
-        var last = Duration.Zero;
-        var accumulator = seed;
+    public static Schedule fibonacci(Duration seed) =>
+        new SchFibonacci(seed);
 
-        Durations Loop()
-        {
-            yield return accumulator;
-            while (true)
-            {
-                var current = accumulator;
-                accumulator += last;
-                last = current;
-                yield return accumulator;
-            }
-        }
-
-        return Loop().ToSchedule();
-    }
-
-    static readonly Func<DateTime> LiveNowFn =
+    internal static readonly Func<DateTime> LiveNowFn =
         () => DateTime.Now;
 
     /// <summary>
@@ -175,21 +130,11 @@ public readonly partial struct Schedule
     /// <param name="max">max duration to run the schedule for</param>
     /// <param name="currentTimeFn">current time function</param>
     [Pure]
-    public static Schedule upto(Duration max, Func<DateTime>? currentTimeFn = null)
-    {
-        var now = currentTimeFn ?? LiveNowFn;
-
-        Durations Loop()
-        {
-            var startTime = now();
-            while (now() - startTime < max) yield return Duration.Zero;
-        }
-
-        return Loop().ToSchedule();
-    }
+    public static Schedule upto(Duration max, Func<DateTime>? currentTimeFn = null) =>
+        new SchUpTo(max, currentTimeFn);
 
     [Pure]
-    static Duration secondsToIntervalStart(DateTime startTime, DateTime currentTime, Duration interval) =>
+    internal static Duration secondsToIntervalStart(DateTime startTime, DateTime currentTime, Duration interval) =>
         interval - (currentTime - startTime).TotalMilliseconds % interval;
 
     /// <summary>
@@ -206,29 +151,8 @@ public readonly partial struct Schedule
     /// <param name="interval">schedule interval</param>
     /// <param name="currentTimeFn">current time function</param>
     [Pure]
-    public static Schedule fix(Duration interval, Func<DateTime>? currentTimeFn = null)
-    {
-        var now = currentTimeFn ?? LiveNowFn;
-
-        Durations Loop()
-        {
-            var startTime = now();
-            var lastRunTime = startTime;
-            while (true)
-            {
-                var currentTime = now();
-                var runningBehind = currentTime > lastRunTime + (TimeSpan)interval;
-                var boundary = interval == Duration.Zero
-                    ? interval
-                    : secondsToIntervalStart(startTime, currentTime, interval);
-                var sleepTime = boundary == Duration.Zero ? interval : boundary;
-                lastRunTime = runningBehind ? currentTime : currentTime + (TimeSpan)sleepTime;
-                yield return runningBehind ? Duration.Zero : sleepTime;
-            }
-        }
-
-        return Loop().ToSchedule();
-    }
+    public static Schedule fix(Duration interval, Func<DateTime>? currentTimeFn = null) =>
+        new SchFixed(interval, currentTimeFn);
 
     ///<summary>
     /// A schedule that divides the timeline into `interval`-long windows, and sleeps
@@ -244,32 +168,18 @@ public readonly partial struct Schedule
     /// <param name="interval">schedule interval</param>
     /// <param name="currentTimeFn">current time function</param>
     [Pure]
-    public static Schedule windowed(Duration interval, Func<DateTime>? currentTimeFn = null)
-    {
-        var now = currentTimeFn ?? LiveNowFn;
-
-        Durations Loop()
-        {
-            var startTime = now();
-            while (true)
-            {
-                var currentTime = now();
-                yield return secondsToIntervalStart(startTime, currentTime, interval);
-            }
-        }
-
-        return Loop().ToSchedule();
-    }
+    public static Schedule windowed(Duration interval, Func<DateTime>? currentTimeFn = null) =>
+        new SchWindowed(interval, currentTimeFn);
 
     [Pure]
-    static int durationToIntervalStart(int intervalStart, int currentIntervalPosition, int intervalWidth)
+    internal static int durationToIntervalStart(int intervalStart, int currentIntervalPosition, int intervalWidth)
     {
         var steps = intervalStart - currentIntervalPosition;
         return steps > 0 ? steps : steps + intervalWidth;
     }
 
     [Pure]
-    static int RoundBetween(int value, int min, int max) =>
+    internal static int roundBetween(int value, int min, int max) =>
         value > max
             ? max
             : value < min
@@ -282,18 +192,8 @@ public readonly partial struct Schedule
     /// <param name="second">second of the minute, will be rounded to fit between 0 and 59</param>
     /// <param name="currentTimeFn">current time function</param>
     [Pure]
-    public static Schedule secondOfMinute(int second, Func<DateTime>? currentTimeFn = null)
-    {
-        var now = currentTimeFn ?? LiveNowFn;
-
-        Durations Loop()
-        {
-            while (true)
-                yield return durationToIntervalStart(RoundBetween(second, 0, 59), now().Second, 60) * seconds;
-        }
-
-        return Loop().ToSchedule();
-    }
+    public static Schedule secondOfMinute(int second, Func<DateTime>? currentTimeFn = null) =>
+        new SchSecondOfMinute(second, currentTimeFn);
 
     /// <summary>
     /// Cron-like schedule that recurs every specified `minute` of each hour.
@@ -301,18 +201,8 @@ public readonly partial struct Schedule
     /// <param name="minute">minute of the hour, will be rounded to fit between 0 and 59</param>
     /// <param name="currentTimeFn">current time function</param>
     [Pure]
-    public static Schedule minuteOfHour(int minute, Func<DateTime>? currentTimeFn = null)
-    {
-        var now = currentTimeFn ?? LiveNowFn;
-
-        Durations Loop()
-        {
-            while (true)
-                yield return durationToIntervalStart(RoundBetween(minute, 0, 59), now().Minute, 60) * minutes;
-        }
-
-        return Loop().ToSchedule();
-    }
+    public static Schedule minuteOfHour(int minute, Func<DateTime>? currentTimeFn = null) =>
+        new SchMinuteOfHour(minute, currentTimeFn);
 
     /// <summary>
     /// Cron-like schedule that recurs every specified `hour` of each day.
@@ -320,18 +210,8 @@ public readonly partial struct Schedule
     /// <param name="hour">hour of the day, will be rounded to fit between 0 and 23</param>
     /// <param name="currentTimeFn">current time function</param>
     [Pure]
-    public static Schedule hourOfDay(int hour, Func<DateTime>? currentTimeFn = null)
-    {
-        var now = currentTimeFn ?? LiveNowFn;
-
-        Durations Loop()
-        {
-            while (true)
-                yield return durationToIntervalStart(RoundBetween(hour, 0, 23), now().Hour, 24) * hours;
-        }
-
-        return Loop().ToSchedule();
-    }
+    public static Schedule hourOfDay(int hour, Func<DateTime>? currentTimeFn = null) =>
+        new SchHourOfDay(hour, currentTimeFn);
 
     /// <summary>
     /// Cron-like schedule that recurs every specified `day` of each week.
@@ -339,18 +219,8 @@ public readonly partial struct Schedule
     /// <param name="day">day of the week</param>
     /// <param name="currentTimeFn">current time function</param>
     [Pure]
-    public static Schedule dayOfWeek(DayOfWeek day, Func<DateTime>? currentTimeFn = null)
-    {
-        var now = currentTimeFn ?? LiveNowFn;
-
-        Durations Loop()
-        {
-            while (true)
-                yield return durationToIntervalStart((int)day + 1, (int)now().DayOfWeek + 1, 7) * days;
-        }
-
-        return Loop().ToSchedule();
-    }
+    public static Schedule dayOfWeek(DayOfWeek day, Func<DateTime>? currentTimeFn = null) =>
+        new SchDayOfWeek(day, currentTimeFn);
 
     /// <summary>
     /// A schedule transformer that limits the returned delays to max delay.
@@ -358,30 +228,15 @@ public readonly partial struct Schedule
     /// <param name="max">max delay to return</param>
     [Pure]
     public static ScheduleTransformer maxDelay(Duration max) =>
-        Transform(s => s.Map(x => x > max ? max : x));
+        Transform(s => new SchMaxDelay(s, max));
 
     /// <summary>
     /// Limits the schedule to the max cumulative delay.
     /// </summary>
     /// <param name="max">max delay to stop schedule at</param>
     [Pure]
-    public static ScheduleTransformer maxCumulativeDelay(Duration max) =>
-        Transform(s =>
-        {
-            var totalAppliedDelay = Duration.Zero;
-
-            Durations Loop()
-            {
-                foreach (var duration in s.AsEnumerable())
-                {
-                    if (totalAppliedDelay >= max) yield break;
-                    totalAppliedDelay += duration;
-                    yield return duration;
-                }
-            }
-
-            return Loop().ToSchedule();
-        });
+    public static ScheduleTransformer maxCumulativeDelay(Duration max) => 
+        Transform(s => new SchMaxCumulativeDelay(s, max));
 
     /// <summary>
     /// A schedule transformer that adds a random jitter to any returned delay.
@@ -391,7 +246,7 @@ public readonly partial struct Schedule
     /// <param name="seed">optional seed</param>
     [Pure]
     public static ScheduleTransformer jitter(Duration minRandom, Duration maxRandom, Option<int> seed = default) =>
-        Transform(s => s.Map(x => x + SingletonRandom.Uniform(minRandom, maxRandom, seed)));
+        Transform(s => new SchJitter1(s, minRandom, maxRandom, seed));
 
     /// <summary>
     /// A schedule transformer that adds a random jitter to any returned delay.
@@ -400,7 +255,7 @@ public readonly partial struct Schedule
     /// <param name="seed">optional seed</param>
     [Pure]
     public static ScheduleTransformer jitter(double factor = 0.5, Option<int> seed = default) =>
-        Transform(s => s.Map(x => x + SingletonRandom.Uniform(0, x * factor, seed)));
+        Transform(s => new SchJitter2(s, factor, seed));
 
     /// <summary>
     /// Transforms the schedule by de-correlating each of the durations both up and down in a jittered way.
@@ -414,24 +269,7 @@ public readonly partial struct Schedule
     /// <param name="seed">optional seed</param>
     [Pure]
     public static ScheduleTransformer decorrelate(double factor = 0.1, Option<int> seed = default) =>
-        Transform(s =>
-        {
-            Durations Loop()
-            {
-                using var enumerator = s.AsEnumerable().GetEnumerator();
-
-                while (enumerator.MoveNext())
-                {
-                    double currentMilliseconds = enumerator.Current;
-                    var rand1 = SingletonRandom.Uniform(0, currentMilliseconds * factor, seed);
-                    var rand2 = SingletonRandom.Uniform(0, currentMilliseconds * factor, seed);
-                    yield return currentMilliseconds + rand1;
-                    yield return currentMilliseconds - rand2;
-                }
-            }
-
-            return Loop().ToSchedule();
-        });
+        Transform(s => new SchDecorrelate(s, factor, seed));
 
     /// <summary>
     /// Resets the schedule after a provided cumulative max duration.
@@ -439,19 +277,7 @@ public readonly partial struct Schedule
     /// <param name="max">max delay to reset the schedule at</param>
     [Pure]
     public static ScheduleTransformer resetAfter(Duration max) =>
-        Transform(s =>
-        {
-            var cachedSchedule = (s | maxCumulativeDelay(max)).AsEnumerable().ToSeq();
-
-            Durations Loop()
-            {
-                while (true)
-                    foreach (var duration in cachedSchedule)
-                        yield return duration;
-            }
-
-            return Loop().ToSchedule();
-        });
+        Transform(s => new SchResetAfter(s, max));
 
     /// <summary>
     /// Repeats the schedule n number of times.
@@ -459,17 +285,7 @@ public readonly partial struct Schedule
     /// <param name="times">number of times to repeat the schedule</param>
     [Pure]
     public static ScheduleTransformer repeat(int times) =>
-        Transform(s =>
-        {
-            Durations Loop()
-            {
-                for (var i = 0; i < times; i++)
-                    foreach (var duration in s.AsEnumerable())
-                        yield return duration;
-            }
-
-            return Loop().ToSchedule();
-        });
+        Transform(s => new SchRepeat(s, times));
 
     /// <summary>
     /// Intersperse the provided duration(s) between each duration in the schedule.
@@ -486,13 +302,6 @@ public readonly partial struct Schedule
     [Pure]
     public static ScheduleTransformer intersperse(params Duration[] durations) =>
         intersperse(TimeSeries(durations));
-    
-    [Pure]
-    static Durations InternalForever()
-    {
-        while (true) yield return Duration.Zero;
-    }
-    
     
     [Obsolete("`Spaced` has been renamed to `spaced`")]
     public static Schedule Spaced(Duration space) => spaced(space);

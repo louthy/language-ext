@@ -16,7 +16,7 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var result = Schedule.Forever;
             result
-                .AsEnumerable()
+                .Run()
                 .Take(10)
                 .Should()
                 .HaveCount(10)
@@ -29,7 +29,7 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var result = Schedule.Never;
             result
-                .AsEnumerable()
+                .Run()
                 .Should()
                 .BeEmpty();
         }
@@ -39,7 +39,7 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var result = Schedule.Once;
             result
-                .AsEnumerable()
+                .Run()
                 .Should()
                 .ContainSingle(x => x == Duration.Zero);
         }
@@ -49,7 +49,7 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var result = Schedule.TimeSeries(1 * sec, 2 * sec, 3 * sec);
             result
-                .AsEnumerable()
+                .Run()
                 .Should()
                 .Equal(1 * sec, 2 * sec, 3 * sec);
         }
@@ -62,7 +62,7 @@ namespace LanguageExt.Tests.ScheduleTest
                     .Where(x => x % 2 == 0)
                     .Select<int, Duration>(x => x * seconds));
             result
-                .AsEnumerable()
+                .Run()
                 .Should()
                 .Equal(2 * sec, 4 * sec);
         }
@@ -72,7 +72,7 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var results = Schedule.recurs(5) | Schedule.Forever;
             results
-                .AsEnumerable()
+                .Run()
                 .Should()
                 .HaveCount(5)
                 .And
@@ -84,7 +84,7 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var results = Schedule.spaced(5 * sec);
             results
-                .AsEnumerable()
+                .Run()
                 .Take(5)
                 .Should()
                 .HaveCount(5)
@@ -97,7 +97,7 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var results = Schedule.linear(1 * sec);
             results
-                .AsEnumerable()
+                .Run()
                 .Take(5)
                 .Should()
                 .Equal(1 * sec, 2 * sec, 3 * sec, 4 * sec, 5 * sec);
@@ -108,7 +108,7 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var results = Schedule.linear(100 * ms, 2);
             results
-                .AsEnumerable()
+                .Run()
                 .Take(5)
                 .Should()
                 .Equal(100, 300, 500, 700, 900);
@@ -119,7 +119,7 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var results = Schedule.exponential(1 * sec);
             results
-                .AsEnumerable()
+                .Run()
                 .Take(5)
                 .Should()
                 .Equal(1 * sec, 2 * sec, 4 * sec, 8 * sec, 16 * sec);
@@ -130,7 +130,7 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var results = Schedule.exponential(1 * sec, 3);
             results
-                .AsEnumerable()
+                .Run()
                 .Take(5)
                 .Should()
                 .Equal(1 * sec, 3 * sec, 9 * sec, 27 * sec, 81 * sec);
@@ -141,7 +141,7 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var results = Schedule.fibonacci(1 * sec);
             results
-                .AsEnumerable()
+                .Run()
                 .Take(6)
                 .Should()
                 .Equal(1 * sec, 1 * sec, 2 * sec, 3 * sec, 5 * sec, 8 * sec);
@@ -153,7 +153,7 @@ namespace LanguageExt.Tests.ScheduleTest
             var transformer = Schedule.NoDelayOnFirst;
             var results = transformer.Apply(Schedule.spaced(10 * sec));
             results
-                .AsEnumerable()
+                .Run()
                 .Take(5)
                 .Should()
                 .Equal(0 * sec, 10 * sec, 10 * sec, 10 * sec, 10 * sec);
@@ -165,7 +165,7 @@ namespace LanguageExt.Tests.ScheduleTest
             var transformer = Schedule.maxDelay(25 * sec);
             var results = transformer.Apply(Schedule.linear(10 * sec));
             results
-                .AsEnumerable()
+                .Run()
                 .Take(5)
                 .Max()
                 .Should().Be(25 * sec);
@@ -177,7 +177,7 @@ namespace LanguageExt.Tests.ScheduleTest
             var transformer = Schedule.maxCumulativeDelay(40 * sec);
             var results = transformer.Apply(Schedule.linear(10 * sec));
             results
-                .AsEnumerable()
+                .Run()
                 .ToSeq()
                 .Should()
                 .HaveCount(3)
@@ -191,7 +191,7 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var results = Schedule.spaced(5 * sec).Union(Schedule.exponential(1 * sec));
             results
-                .AsEnumerable()
+                .Run()
                 .Take(5)
                 .Should()
                 .Equal(1 * sec, 2 * sec, 4 * sec, 5 * sec, 5 * sec);
@@ -202,7 +202,7 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var results = Schedule.spaced(5 * sec).Intersect(Schedule.exponential(1 * sec));
             results
-                .AsEnumerable()
+                .Run()
                 .Take(5)
                 .Should()
                 .Equal(5 * sec, 5 * sec, 5 * sec, 8 * sec, 16 * sec);
@@ -215,7 +215,7 @@ namespace LanguageExt.Tests.ScheduleTest
                 Schedule.TimeSeries(1 * sec, 2 * sec, 3 * sec) +
                 Schedule.TimeSeries(4 * sec, 5 * sec, 6 * sec);
             results
-                .AsEnumerable()
+                .Run()
                 .Should()
                 .Equal(1 * sec, 2 * sec, 3 * sec, 4 * sec, 5 * sec, 6 * sec);
         }
@@ -251,7 +251,7 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var results = Schedule.upto(5 * sec, FromDates(FromDuration(2 * min)));
             results
-                .AsEnumerable()
+                .Run()
                 .Should()
                 .Equal(0, 0, 0, 0);
         }
@@ -265,7 +265,7 @@ namespace LanguageExt.Tests.ScheduleTest
                 4 * sec
             ))));
             results
-                .AsEnumerable()
+                .Run()
                 .Take(3)
                 .Should()
                 .Equal(0, 4 * sec, 1 * sec);
@@ -280,7 +280,7 @@ namespace LanguageExt.Tests.ScheduleTest
                 7 * sec
             ))));
             results
-                .AsEnumerable()
+                .Run()
                 .Take(3)
                 .Should()
                 .Equal(4 * sec, 4 * sec, 3 * sec);
@@ -295,7 +295,7 @@ namespace LanguageExt.Tests.ScheduleTest
                 new DateTime(2022, 1, 1, 1, 1, 47)
             )));
             results
-                .AsEnumerable()
+                .Run()
                 .Take(3)
                 .Should()
                 .Equal(37 * sec, 2 * sec, 16 * sec);
@@ -310,7 +310,7 @@ namespace LanguageExt.Tests.ScheduleTest
                 new DateTime(2022, 1, 1, 1, 47, 0)
             )));
             results
-                .AsEnumerable()
+                .Run()
                 .Take(3)
                 .Should()
                 .Equal(37 * min, 2 * min, 16 * min);
@@ -326,7 +326,7 @@ namespace LanguageExt.Tests.ScheduleTest
                 new DateTime(2022, 1, 1, 3, 0, 0)
             )));
             results
-                .AsEnumerable()
+                .Run()
                 .Take(4)
                 .Should()
                 .Equal(2 * hours, 23 * hours, 21 * hour, 24 * hours);
@@ -342,7 +342,7 @@ namespace LanguageExt.Tests.ScheduleTest
                 new DateTime(2022, 1, 5, 0, 0, 0) // Wednesday
             )));
             results
-                .AsEnumerable()
+                .Run()
                 .Take(4)
                 .Should()
                 .Equal(4 * days, 2 * days, 5 * days, 7 * days);
@@ -355,11 +355,11 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var noJitter = (
                 Schedule.linear(10 * seconds)
-                & Schedule.recurs(5)).AsEnumerable().ToSeq();
+                & Schedule.recurs(5)).Run().ToSeq();
             var withJitter = (
                 Schedule.linear(10 * seconds)
                 & Schedule.recurs(5)
-                & Schedule.jitter(1 * ms, 10 * ms)).AsEnumerable().ToSeq();
+                & Schedule.jitter(1 * ms, 10 * ms)).Run().ToSeq();
             withJitter.Should()
                 .HaveCount(5)
                 .And
@@ -375,11 +375,11 @@ namespace LanguageExt.Tests.ScheduleTest
         {
             var noJitter = (
                 Schedule.linear(10 * seconds)
-                & Schedule.recurs(5)).AsEnumerable().ToSeq();
+                & Schedule.recurs(5)).Run().ToSeq();
             var withJitter = (
                 Schedule.linear(10 * seconds)
                 & Schedule.recurs(5)
-                & Schedule.jitter(1.5)).AsEnumerable().ToSeq();
+                & Schedule.jitter(1.5)).Run().ToSeq();
             withJitter.Should()
                 .HaveCount(5)
                 .And
@@ -394,7 +394,7 @@ namespace LanguageExt.Tests.ScheduleTest
         public static void DecorrelatedTest()
         {
             var schedule = Schedule.linear(10 * sec) | Schedule.decorrelate(seed: Seed);
-            var result = schedule.Take(5).ToSeq();
+            var result = schedule.Take(5).Run().ToSeq();
             result.Zip(result.Skip(1))
                 .Should()
                 .Contain(x => x.Left > x.Right);
@@ -407,7 +407,7 @@ namespace LanguageExt.Tests.ScheduleTest
                 Schedule.linear(10 * sec)
                 | Schedule.resetAfter(25 * sec);
             results
-                .AsEnumerable()
+                .Run()
                 .Take(4)
                 .Should()
                 .Equal(10 * sec, 20 * sec, 10 * sec, 20 * sec);
@@ -419,7 +419,7 @@ namespace LanguageExt.Tests.ScheduleTest
             var results = Schedule.TimeSeries(1 * sec, 5 * sec, 20 * sec) | Schedule.RepeatForever;
             
             results
-                .AsEnumerable()
+                .Run()
                 .Take(12)
                 .Should()
                 .Equal(1 * sec, 5 * sec, 20 * sec,
@@ -434,7 +434,7 @@ namespace LanguageExt.Tests.ScheduleTest
             var results = Schedule.TimeSeries(1 * sec, 5 * sec, 20 * sec) | Schedule.repeat(3);
             
             results
-                .AsEnumerable()
+                .Run()
                 .Should()
                 .HaveCount(9)
                 .And
@@ -449,7 +449,7 @@ namespace LanguageExt.Tests.ScheduleTest
             var results = Schedule.TimeSeries(1 * sec, 5 * sec, 20 * sec) | Schedule.intersperse(2 * sec);
             
             results
-                .AsEnumerable()
+                .Run()
                 .Should()
                 .HaveCount(6)
                 .And
@@ -464,7 +464,7 @@ namespace LanguageExt.Tests.ScheduleTest
 
             var results = schedule1.Interleave(schedule2);
             results
-                .AsEnumerable()
+                .Run()
                 .Should()
                 .HaveCount(6)
                 .And
@@ -487,9 +487,9 @@ namespace LanguageExt.Tests.ScheduleTest
                     | Schedule.decorrelate()
                     | Schedule.recurs(5);
 
-            schedule1.Should().HaveCount(5);
-            schedule2.Should().HaveCount(5);
-            schedule3.Should().HaveCount(5);
+            schedule1.Run().Should().HaveCount(5);
+            schedule2.Run().Should().HaveCount(5);
+            schedule3.Run().Should().HaveCount(5);
         }
     }
 }

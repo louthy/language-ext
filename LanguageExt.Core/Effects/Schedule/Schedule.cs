@@ -1,10 +1,8 @@
 ﻿#nullable enable
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,13 +42,8 @@ namespace LanguageExt;
 /// 
 ///     var s = Schedule.Recurs(5) | Schedule.Exponential(10*ms) & Schedule.Spaced(300*ms)
 /// </example>
-public readonly partial struct Schedule : IEnumerable<Duration>
+public abstract partial record Schedule
 {
-    readonly IEnumerable<Duration> Durations;
-
-    Schedule(IEnumerable<Duration> durations) =>
-        Durations = durations;
-
     [Pure]
     public static Schedule operator |(Schedule a, Schedule b) =>
         a.Union(b);
@@ -80,21 +73,20 @@ public readonly partial struct Schedule : IEnumerable<Duration>
         a.Append(b);
 
     /// <summary>
-    /// Access the underlying time-series of durations
+    /// Realise the underlying time-series of durations
     /// </summary>
     /// <returns>The underlying time-series of durations</returns>
     [Pure]
-    public IEnumerable<Duration> AsEnumerable() =>
-        Durations;
+    public abstract IEnumerable<Duration> Run();
 
-    [Pure]
-    public IEnumerator<Duration> GetEnumerator() => 
-        Durations.GetEnumerator();
+    //[Pure]
+    //public IEnumerator<Duration> GetEnumerator() => 
+    //    Ops.AsEnumerable().GetEnumerator();
 
-    [Pure]
-    IEnumerator IEnumerable.GetEnumerator() => 
-        Durations.GetEnumerator();
-    
+    //[Pure]
+    //IEnumerator IEnumerable.GetEnumerator() => 
+    //    Ops.AsEnumerable().GetEnumerator();
+
     /// <summary>
     /// Intersection of two schedules. As long as they are both running it returns the max duration.
     /// </summary>
@@ -102,10 +94,7 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     /// <returns>Max of schedule `this` and `b` to the length of the shortest schedule</returns>
     [Pure]
     public Schedule Intersect(Schedule b) =>
-        AsEnumerable()
-            .Zip(b.AsEnumerable())
-            .Select(static t => (Duration)Math.Max(t.Item1, t.Item2))
-            .ToSchedule();
+        new SchIntersect(this, b);
 
     /// <summary>
     /// Union of two schedules. As long as any are running it returns the min duration of both or a or b. 
@@ -113,32 +102,8 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     /// <param name="b">Schedule `b`</param>
     /// <returns>Min of schedule `this` and `b` or `this` or `b` to the length of the longest schedule</returns>
     [Pure]
-    public Schedule Union(Schedule b)
-    {
-        return new(Loop(Durations, b.Durations));
-        
-        IEnumerable<Duration> Loop(IEnumerable<Duration> sa, IEnumerable<Duration> sb)
-        {
-            using var aEnumerator = sa.GetEnumerator();
-            using var bEnumerator = sb.GetEnumerator();
-
-            var hasA = aEnumerator.MoveNext();
-            var hasB = bEnumerator.MoveNext();
-
-            while (hasA || hasB)
-            {
-                yield return hasA switch
-                {
-                    true when hasB => Math.Min(aEnumerator.Current, bEnumerator.Current),
-                    true => aEnumerator.Current,
-                    _ => bEnumerator.Current
-                };
-
-                hasA = hasA && aEnumerator.MoveNext();
-                hasB = hasB && bEnumerator.MoveNext();
-            }
-        }
-    }
+    public Schedule Union(Schedule b) =>
+        new SchUnion(this, b);
 
     /// <summary>
     /// Interleave two schedules together
@@ -147,10 +112,7 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     /// <returns>Returns the two schedules interleaved together</returns>
     [Pure]
     public Schedule Interleave(Schedule b) =>
-        AsEnumerable()
-            .Zip(b.AsEnumerable(), static (d1, d2) => new[] {d1, d2})
-            .SelectMany(x => x)
-            .ToSchedule();
+        new SchInterleave(this, b);
 
     /// <summary>
     /// Append two schedules together
@@ -159,7 +121,7 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     /// <returns>Returns the two schedules appended</returns>
     [Pure]
     public Schedule Append(Schedule b) =>
-        new(Durations.Append(b.Durations));
+        new SchAppend(this, b);
 
     /// <summary>
     /// Take `amount` durations from the `Schedule`
@@ -169,7 +131,7 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     /// <returns>Schedule with `amount` or less durations</returns>
     [Pure]
     public Schedule Take(int amount) =>
-        new(Durations.Take(amount));
+        new SchTake(this, amount);
 
     /// <summary>
     /// Skip `amount` durations from the `Schedule`
@@ -179,19 +141,14 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     /// <returns>Schedule with `amount` durations skipped</returns>
     [Pure]
     public Schedule Skip(int amount) =>
-        new(Durations.Skip(amount));
-
-    /// <summary>
-    /// Take the first duration from the schedule
-    /// </summary>
-    [Pure]
-    public Option<Duration> Head => Durations.HeadOrNone();
+        new SchSkip(this, amount);
 
     /// <summary>
     /// Take all but the first duration from the schedule
     /// </summary>
     [Pure]
-    public Schedule Tail => new (Durations.Tail());
+    public Schedule Tail => 
+        new SchTail(this);
     
     /// <summary>
     /// Prepend a duration in-front of the rest of the scheduled durations
@@ -200,7 +157,7 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     /// <returns>Schedule with the duration prepended</returns>
     [Pure] 
     public Schedule Prepend(Duration value) =>
-        new (Durations.Prepend(value));
+        new SchCons(value, this);
     
     /// <summary>
     /// Functor map operation for Schedule
@@ -209,7 +166,7 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     /// <returns>Mapped schedule</returns>
     [Pure]
     public Schedule Map(Func<Duration, Duration> f) =>
-        new(Durations.Select(f));
+        new SchMap(this, f);
     
     /// <summary>
     /// Functor map operation for Schedule
@@ -218,7 +175,7 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     /// <returns>Mapped schedule</returns>
     [Pure]
     public Schedule Map(Func<Duration, int, Duration> f) =>
-        new(Durations.Select(f));
+        new SchMapIndex(this, f);
 
     /// <summary>
     /// Functor map operation for Schedule
@@ -227,7 +184,7 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     /// <returns>Mapped schedule</returns>
     [Pure]
     public Schedule Select(Func<Duration, Duration> f) =>
-        new(Durations.Select(f));
+        new SchMap(this, f);
 
     /// <summary>
     /// Functor map operation for Schedule
@@ -236,7 +193,7 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     /// <returns>Mapped schedule</returns>
     [Pure]
     public Schedule Select(Func<Duration, int, Duration> f) =>
-        new(Durations.Select(f));
+        new SchMapIndex(this, f);
 
     /// <summary>
     /// Monad bind operation for Schedule
@@ -245,7 +202,7 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     /// <returns>Chained schedule</returns>
     [Pure]
     public Schedule Bind(Func<Duration, Schedule> f) =>
-        new(Durations.SelectMany(d => f(d).AsEnumerable()));
+        new SchBind(this, f);
 
     /// <summary>
     /// Monad bind operation for Schedule
@@ -254,7 +211,7 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     /// <returns>Chained schedule</returns>
     [Pure]
     public Schedule SelectMany(Func<Duration, Schedule> f) =>
-        new(Durations.SelectMany(d => f(d).AsEnumerable()));
+        new SchBind(this, f);
 
     /// <summary>
     /// Monad bind and project operation for Schedule
@@ -265,12 +222,12 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     /// <returns>Chained schedule</returns>
     [Pure]
     public Schedule SelectMany(Func<Duration, Schedule> bind, Func<Duration, Duration, Duration> project) =>
-        Bind(x => bind(x).Map(y => project(x, y)));
+        new SchBind2(this, bind, project);
 
     [Pure]
     internal Eff<S> Run<A, S>(Eff<A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
     {
-        var durations = AsEnumerable();
+        var durations = Run();
         return EffMaybe(() =>
         {
             Fin<A> result;
@@ -308,7 +265,7 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     internal Eff<RT, S> Run<RT, A, S>(Eff<RT, A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
         where RT : struct
     {
-        var durations = AsEnumerable();
+        var durations = Run();
         return EffMaybe<RT, S>(env =>
         {
             Fin<A> result;
@@ -346,7 +303,7 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     [Pure]
     internal Aff<S> Run<A, S>(Aff<A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
     {
-        var durations = AsEnumerable();
+        var durations = Run();
         return AffMaybe(async () =>
         {
             Fin<A> result;
@@ -385,7 +342,7 @@ public readonly partial struct Schedule : IEnumerable<Duration>
     internal Aff<RT, S> Run<RT, A, S>(Aff<RT, A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
         where RT : struct, HasCancel<RT>
     {
-        var durations = AsEnumerable();
+        var durations = Run();
         return AffMaybe<RT, S>(async env =>
         {
             Fin<A> result;

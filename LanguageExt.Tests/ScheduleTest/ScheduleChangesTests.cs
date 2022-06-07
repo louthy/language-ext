@@ -111,7 +111,7 @@ public class ScheduleChangesTests
     {
         var result1 = Schedule.Once;
         var result2 = OldSchedule.Once;
-        result1.Should().Equal(result2);
+        result1.Run().Should().Equal(result2);
     }
 
     [Fact]
@@ -119,7 +119,7 @@ public class ScheduleChangesTests
     {
         var result1 = Schedule.Forever.Take(5);
         var result2 = OldSchedule.Forever.Take(5);
-        result1.Should().Equal(result2);
+        result1.Run().Should().Equal(result2);
     }
 
     [Fact]
@@ -127,7 +127,7 @@ public class ScheduleChangesTests
     {
         var result1 = Schedule.spaced(100).Take(5);
         var result2 = OldSchedule.Spaced(100).Take(5);
-        result1.Should().Equal(result2);
+        result1.Run().Should().Equal(result2);
     }
 
     [Fact]
@@ -135,13 +135,13 @@ public class ScheduleChangesTests
     {
         var result1 = Schedule.exponential(100).Take(5);
         var result2 = OldSchedule.Exponential(100).Take(5);
-        result1.Should().Equal(result2);
+        result1.Run().Should().Equal(result2);
     }
 
     [Fact]
     public static void FibonacciTest()
     {
-        var result1 = Schedule.fibonacci(100).Take(5).ToSeq();
+        var result1 = Schedule.fibonacci(100).Take(5).Run().ToSeq();
         var result2 = OldSchedule.Fibonacci(100).Take(5).ToSeq();
         result1.Should().Equal(result2);
     }
@@ -151,7 +151,7 @@ public class ScheduleChangesTests
     {
         var result1 = Schedule.spaced(50) | Schedule.exponential(10) | Schedule.recurs(5);
         var result2 = OldSchedule.Spaced(50) | OldSchedule.Exponential(10) | OldSchedule.Recurs(5);
-        result1.Should().Equal(result2);
+        result1.Run().Should().Equal(result2);
     }
 
     [Fact]
@@ -161,7 +161,7 @@ public class ScheduleChangesTests
         var result2 = OldSchedule.Spaced(30) & OldSchedule.Fibonacci(10) | OldSchedule.Recurs(5);
 
         // this is correct, fib schedule is 10,10,20,30,50 and the max of the spaced 30x5 is 30x4,50
-        result1.Should().Equal(30, 30, 30, 30, 50);
+        result1.Run().Should().Equal(30, 30, 30, 30, 50);
         // this is not correct, the schedule is influenced by the new max starting value introduced by the spaced 30, they are not independent.
         result2.Should().Equal(30, 30, 60, 90, 150);
     }
