@@ -50,7 +50,7 @@ internal record SchBind2(Schedule Schedule, Func<Duration, Schedule> BindF, Func
 {
     public override IEnumerable<Duration> Run() =>
         Schedule.Run().Bind(x => BindF(x).Run().Map(y => Project(x, y)));
-}    
+}
 
 /// <summary>
 /// Tail of sequence

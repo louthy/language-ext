@@ -79,14 +79,6 @@ public abstract partial record Schedule
     [Pure]
     public abstract IEnumerable<Duration> Run();
 
-    //[Pure]
-    //public IEnumerator<Duration> GetEnumerator() => 
-    //    Ops.AsEnumerable().GetEnumerator();
-
-    //[Pure]
-    //IEnumerator IEnumerable.GetEnumerator() => 
-    //    Ops.AsEnumerable().GetEnumerator();
-
     /// <summary>
     /// Intersection of two schedules. As long as they are both running it returns the max duration.
     /// </summary>
@@ -165,7 +157,7 @@ public abstract partial record Schedule
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped schedule</returns>
     [Pure]
-    public Schedule Map(Func<Duration, Duration> f) =>
+    internal Schedule Map(Func<Duration, Duration> f) =>
         new SchMap(this, f);
     
     /// <summary>
@@ -174,7 +166,7 @@ public abstract partial record Schedule
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped schedule</returns>
     [Pure]
-    public Schedule Map(Func<Duration, int, Duration> f) =>
+    internal Schedule Map(Func<Duration, int, Duration> f) =>
         new SchMapIndex(this, f);
 
     /// <summary>
@@ -183,7 +175,7 @@ public abstract partial record Schedule
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped schedule</returns>
     [Pure]
-    public Schedule Select(Func<Duration, Duration> f) =>
+    internal Schedule Select(Func<Duration, Duration> f) =>
         new SchMap(this, f);
 
     /// <summary>
@@ -192,7 +184,7 @@ public abstract partial record Schedule
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped schedule</returns>
     [Pure]
-    public Schedule Select(Func<Duration, int, Duration> f) =>
+    internal Schedule Select(Func<Duration, int, Duration> f) =>
         new SchMapIndex(this, f);
 
     /// <summary>
@@ -201,7 +193,7 @@ public abstract partial record Schedule
     /// <param name="f">Bind function</param>
     /// <returns>Chained schedule</returns>
     [Pure]
-    public Schedule Bind(Func<Duration, Schedule> f) =>
+    internal Schedule Bind(Func<Duration, Schedule> f) =>
         new SchBind(this, f);
 
     /// <summary>
@@ -210,7 +202,7 @@ public abstract partial record Schedule
     /// <param name="f">Bind function</param>
     /// <returns>Chained schedule</returns>
     [Pure]
-    public Schedule SelectMany(Func<Duration, Schedule> f) =>
+    internal Schedule SelectMany(Func<Duration, Schedule> f) =>
         new SchBind(this, f);
 
     /// <summary>
@@ -221,7 +213,7 @@ public abstract partial record Schedule
     /// <param name="project">Project function</param>
     /// <returns>Chained schedule</returns>
     [Pure]
-    public Schedule SelectMany(Func<Duration, Schedule> bind, Func<Duration, Duration, Duration> project) =>
+    internal Schedule SelectMany(Func<Duration, Schedule> bind, Func<Duration, Duration, Duration> project) =>
         new SchBind2(this, bind, project);
 
     [Pure]

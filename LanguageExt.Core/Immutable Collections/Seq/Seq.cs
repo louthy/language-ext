@@ -1247,7 +1247,7 @@ namespace LanguageExt
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Strict() => 
-            new Seq<A>(Value.Strict());
+            new (Value.Strict());
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -19,7 +19,7 @@ namespace LanguageExt
         public static readonly HashSet<A> Empty = new HashSet<A>(TrieSet<EqDefault<A>, A>.Empty);
 
         readonly TrieSet<EqDefault<A>, A> value;
-        TrieSet<EqDefault<A>, A> Value => value ?? TrieSet<EqDefault<A>, A>.Empty;
+        internal TrieSet<EqDefault<A>, A> Value => value ?? TrieSet<EqDefault<A>, A>.Empty;
 
         internal HashSet(TrieSet<EqDefault<A>, A> value)
         {

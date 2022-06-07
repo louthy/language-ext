@@ -9,7 +9,7 @@ namespace LanguageExt.Tests.ScheduleTest;
 
 public static class AffTests
 {
-    static Schedule TestSchedule() => Schedule.fix(1 * ms) | Schedule.NoDelayOnFirst | Schedule.recurs(5);
+    static Schedule TestSchedule() => Schedule.fixedInterval(1 * ms) | Schedule.NoDelayOnFirst | Schedule.recurs(5);
 
     [Fact]
     public static async Task BailBeforeScheduleTest1()

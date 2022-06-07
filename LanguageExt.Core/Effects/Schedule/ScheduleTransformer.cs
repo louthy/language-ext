@@ -22,7 +22,7 @@ public readonly struct ScheduleTransformer
     /// <param name="schedule">`Schedule` to run through the transformer</param>
     /// <returns>`Schedule` that has been run through the transformer</returns>
     public Schedule Apply(Schedule schedule) =>
-        Map?.Invoke(schedule) ?? throw new BottomException();
+        Map?.Invoke(schedule) ?? schedule;
 
     /// <summary>
     /// Compose the two transformers into one

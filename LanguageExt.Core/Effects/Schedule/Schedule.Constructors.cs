@@ -25,7 +25,7 @@ public abstract partial record Schedule
     /// </remarks>
     /// <param name="durations">durations to apply</param>
     [Pure]
-    public static Schedule TimeSeries(Durations durations) =>
+    public static Schedule TimeSeries(params Duration[] durations) =>
         new SchItems(durations);
 
     /// <summary>
@@ -36,8 +36,52 @@ public abstract partial record Schedule
     /// </remarks>
     /// <param name="durations">durations to apply</param>
     [Pure]
-    public static Schedule TimeSeries(params Duration[] durations) =>
-        new SchItems(durations);
+    public static Schedule TimeSeries(Arr<Duration> durations) =>
+        new SchItems(durations.Value);
+
+    /// <summary>
+    /// `Schedule` constructor that recurs for the specified durations.
+    /// </summary>
+    /// <remarks>
+    /// This allows for any custom schedule to be created, its the same as `ToSchedule()`.
+    /// </remarks>
+    /// <param name="durations">durations to apply</param>
+    [Pure]
+    public static Schedule TimeSeries(Seq<Duration> durations) =>
+        new SchItems(durations.Value);
+
+    /// <summary>
+    /// `Schedule` constructor that recurs for the specified durations.
+    /// </summary>
+    /// <remarks>
+    /// This allows for any custom schedule to be created, its the same as `ToSchedule()`.
+    /// </remarks>
+    /// <param name="durations">durations to apply</param>
+    [Pure]
+    public static Schedule TimeSeries(Lst<Duration> durations) =>
+        new SchItems(durations.Value);
+
+    /// <summary>
+    /// `Schedule` constructor that recurs for the specified durations.
+    /// </summary>
+    /// <remarks>
+    /// This allows for any custom schedule to be created, its the same as `ToSchedule()`.
+    /// </remarks>
+    /// <param name="durations">durations to apply</param>
+    [Pure]
+    public static Schedule TimeSeries(Set<Duration> durations) =>
+        new SchItems(durations.Value);
+
+    /// <summary>
+    /// `Schedule` constructor that recurs for the specified durations.
+    /// </summary>
+    /// <remarks>
+    /// This allows for any custom schedule to be created, its the same as `ToSchedule()`.
+    /// </remarks>
+    /// <param name="durations">durations to apply</param>
+    [Pure]
+    public static Schedule TimeSeries(HashSet<Duration> durations) =>
+        new SchItems(durations.Value);
     
     /// <summary>
     /// `ScheduleTransformer` constructor which provides mapping capabilities for `Schedule` instances. 
@@ -69,13 +113,13 @@ public abstract partial record Schedule
     /// <summary>
     /// A schedule transformer that will enforce the first retry has no delay.
     /// </summary>
-    public static ScheduleTransformer NoDelayOnFirst =
+    public static readonly ScheduleTransformer NoDelayOnFirst =
         Transform(s => s.Tail.Prepend(Duration.Zero));
 
     /// <summary>
     /// Repeats the schedule forever.
     /// </summary>
-    public static ScheduleTransformer RepeatForever =
+    public static readonly ScheduleTransformer RepeatForever =
         Transform(s => new SchRepeatForever(s));
 
     /// <summary>
@@ -151,7 +195,7 @@ public abstract partial record Schedule
     /// <param name="interval">schedule interval</param>
     /// <param name="currentTimeFn">current time function</param>
     [Pure]
-    public static Schedule fix(Duration interval, Func<DateTime>? currentTimeFn = null) =>
+    public static Schedule fixedInterval(Duration interval, Func<DateTime>? currentTimeFn = null) =>
         new SchFixed(interval, currentTimeFn);
 
     ///<summary>

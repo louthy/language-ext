@@ -58,9 +58,9 @@ namespace LanguageExt.Tests.ScheduleTest
         public static void FromDurationsTest2()
         {
             var result = Schedule.TimeSeries(
-                Range(1, 5)
-                    .Where(x => x % 2 == 0)
-                    .Select<int, Duration>(x => x * seconds));
+                Seq(1, 2, 3, 4, 5)
+                    .Filter(x => x % 2 == 0)
+                    .Map<Duration>(x => x * seconds));
             result
                 .Run()
                 .Should()
@@ -259,7 +259,7 @@ namespace LanguageExt.Tests.ScheduleTest
         [Fact]
         public static void FixedTest()
         {
-            var results = Schedule.fix(5 * sec, FromDates(FromDurations(Seq<Duration>(
+            var results = Schedule.fixedInterval(5 * sec, FromDates(FromDurations(Seq<Duration>(
                 6 * sec,
                 1 * sec,
                 4 * sec
