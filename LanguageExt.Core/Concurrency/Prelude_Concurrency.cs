@@ -16,41 +16,41 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>
         /// 
-        /// Transactions (within a `sync`) should be easy to understand if you’ve ever used database 
+        /// Transactions (within a `sync(() => ...)`) should be easy to understand if you’ve ever used database 
         /// transactions - they ensure that all actions on Refs are atomic, consistent, and isolated. 
         /// 
-        /// * Atomic - means that every change to Refs made within a transaction occurs or none do. 
-        /// * Consistent - means that each new value can be checked with a validator function before allowing 
+        /// - Atomic - means that every change to Refs made within a transaction occurs or none do. 
+        /// - Consistent - means that each new value can be checked with a validator function before allowing 
         /// the transaction to commit. 
-        /// * Isolated - means that no transaction sees the effects of any other transaction while it is 
+        /// - Isolated - means that no transaction sees the effects of any other transaction while it is 
         /// running. 
         /// 
         /// Another feature common to STMs is that, should a transaction have a conflict while running, 
-        /// it is automatically retried.  The language-ext STM uses multiversion concurrency control for 
+        /// it is automatically retried.  The language-ext STM uses multi-version concurrency control for 
         /// snapshot and serialisable isolation.
         /// 
         /// In practice, this means:
         ///
-        /// All reads of Refs will see a consistent snapshot of the 'Ref world' as of the starting point 
+        /// All reads of Refs will see a consistent snapshot of the _Ref world_ as of the starting point 
         /// of the transaction (its 'read point'). The transaction will see any changes it has made. 
         /// This is called the in-transaction-value.
         ///
         /// All changes made to Refs during a transaction will appear to occur at a single point in the 
-        /// 'Ref world' timeline (its 'write point').
+        /// _Ref world_ timeline (its 'write point').
         ///
         /// No changes will have been made by any other transactions to any Refs that have been modified 
         /// by this transaction.
         ///
-        /// Readers will never block writers, or other readers.
+        /// - Readers will never block writers, or other readers.
         ///
-        /// Writers will never block readers.
+        /// - Writers will never block readers.
         ///
         /// I/O and other activities with side-effects should be avoided in transactions, since transactions 
         /// will be retried. 
         ///
         /// If a constraint on the validity of a value of a Ref that is being changed depends upon the 
         /// simultaneous value of a Ref that is not being changed, that second Ref can be protected from 
-        /// modification by running the `sync` transaction with Isolation.Serialisable.
+        /// modification by running the `sync` transaction with `Isolation.Serialisable`.
         ///
         /// The language-ext STM is designed to work with the persistent collections (`Map`, `HashMap`, 
         /// `Seq`, `Lst`, `Set, `HashSet` etc.), and it is strongly recommended that you use the language-ext 
@@ -59,7 +59,7 @@ namespace LanguageExt
         /// have free copies (just use the original, it can’t be changed), and 'modifications' share structure 
         /// efficiently. In any case:
         ///
-        /// The values placed in Refs must be, or be considered, **immutable** Otherwise, Clojure can’t help you.
+        /// The values placed in Refs must be, or be considered, **immutable**. Otherwise, this library can’t help you.
         /// </remarks>
         /// <remarks>
         /// See the [concurrency section](https://github.com/louthy/language-ext/wiki/Concurrency) of the wiki for more info.
