@@ -318,41 +318,40 @@ namespace LanguageExt
         /// </summary>
         public static async ValueTask<Unit> WindowIter<A>(this IEnumerable<ValueTask<A>> ma, int windowSize, Action<A> f)
         {
-            object sync = new object();
-            using (var iter = ma.GetEnumerator())
+            var sync = new object();
+            using var iter = ma.GetEnumerator();
+
+            (bool Success, ValueTask<A> Task) GetNext()
             {
-                (bool Success, ValueTask<A> Task) GetNext()
+                lock (sync)
                 {
-                    lock (sync)
-                    {
-                        return iter.MoveNext()
-                            ? (true, iter.Current)
-                            : default;
-                    }
+                    return iter.MoveNext()
+                        ? (true, iter.Current)
+                        : default;
                 }
-
-                var tasks = new List<ValueTask<Unit>>();
-                for (var i = 0; i < windowSize; i++)
-                {
-                    var (s, outerTask) = GetNext();
-                    if (!s) break;
-
-                    tasks.Add(outerTask.Bind(async oa => {
-                        f(oa);
-
-                        while (true)
-                        {
-                            var next = GetNext();
-                            if (!next.Success) return unit;
-                            var a = await next.Task.ConfigureAwait(false);
-                            f(a);
-                        }
-                    }));
-                }
-
-                await Task.WhenAll(tasks.Map(t => t.AsTask())).ConfigureAwait(false);
-                return unit;
             }
+
+            var tasks = new List<ValueTask<Unit>>();
+            for (var i = 0; i < windowSize; i++)
+            {
+                var (s, outerTask) = GetNext();
+                if (!s) break;
+
+                tasks.Add(outerTask.Bind(async oa => {
+                    f(oa);
+
+                    while (true)
+                    {
+                        var next = GetNext();
+                        if (!next.Success) return unit;
+                        var a = await next.Task.ConfigureAwait(false);
+                        f(a);
+                    }
+                }));
+            }
+
+            await Task.WhenAll(tasks.Map(t => t.AsTask())).ConfigureAwait(false);
+            return unit;
         }
 
         /// <summary>
@@ -374,87 +373,85 @@ namespace LanguageExt
         /// </summary>
         internal static async ValueTask<IList<B>> WindowMap<A, B>(this IEnumerable<ValueTask<A>> ma, int windowSize, Func<A, B> f)
         {
-            object sync = new object();
-            using (var iter = ma.GetEnumerator())
+            var sync = new object();
+            using var iter = ma.GetEnumerator();
+
+            (bool Success, ValueTask<A> Task) GetNext()
             {
-
-                (bool Success, ValueTask<A> Task) GetNext()
+                lock (sync)
                 {
-                    lock (sync)
+                    return iter.MoveNext()
+                        ? (true, iter.Current)
+                        : default;
+                }
+            }
+
+            var tasks = new List<ValueTask<Unit>>();
+            var results = new List<B>[windowSize];
+            var errors = new List<AggregateException>[windowSize];
+
+            for (var i = 0; i < windowSize; i++)
+            {
+                results[i] = new List<B>();
+                errors[i] = new List<AggregateException>();
+            }
+
+            for (var i = 0; i < windowSize; i++)
+            {
+                var (s, outerTask) = GetNext();
+                if (!s) break;
+
+                var ix = i;
+                tasks.Add(outerTask.Bind(async oa => {
+                    results[ix].Add(f(oa));
+
+                    while (true)
                     {
-                        return iter.MoveNext()
-                            ? (true, iter.Current)
-                            : default;
-                    }
-                }
-
-                var tasks = new List<ValueTask<Unit>>();
-                var results = new List<B>[windowSize];
-                var errors = new List<AggregateException>[windowSize];
-
-                for (var i = 0; i < windowSize; i++)
-                {
-                    results[i] = new List<B>();
-                    errors[i] = new List<AggregateException>();
-                }
-
-                for (var i = 0; i < windowSize; i++)
-                {
-                    var (s, outerTask) = GetNext();
-                    if (!s) break;
-
-                    var ix = i;
-                    tasks.Add(outerTask.Bind(async oa => {
-                        results[ix].Add(f(oa));
-
-                        while (true)
+                        try
                         {
-                            try
+                            var next = GetNext();
+                            if (!next.Success) return unit;
+                            var a = await next.Task.ConfigureAwait(false);
+                            if (next.Task.IsFaulted)
                             {
-                                var next = GetNext();
-                                if (!next.Success) return unit;
-                                var a = await next.Task.ConfigureAwait(false);
-                                if (next.Task.IsFaulted)
-                                {
-                                    errors[ix].Add(next.Task.AsTask().Exception);
-                                    return unit;
-                                }
-                                else
-                                {
-                                    results[ix].Add(f(a));
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                errors[ix].Add(new AggregateException(e));
+                                errors[ix].Add(next.Task.AsTask().Exception);
                                 return unit;
                             }
+                            else
+                            {
+                                results[ix].Add(f(a));
+                            }
                         }
-                    }));
-                }
-
-                await Task.WhenAll(tasks.Map(t => t.AsTask())).ConfigureAwait(false);
-
-                // Move all errors into one list
-                for (var i = 1; i < windowSize; i++)
-                {
-                    errors[0].AddRange(errors[i]);
-                }
-
-                if (errors[0].Count > 0)
-                {
-                    // Throw an aggregate of all exceptions
-                    throw new AggregateException(errors[0].SelectMany(e => e.InnerExceptions));
-                }
-
-                // Move all results into one list
-                for (var i = 1; i < windowSize; i++)
-                {
-                    results[0].AddRange(results[i]);
-                }
-
-                return results[0];
+                        catch (Exception e)
+                        {
+                            errors[ix].Add(new AggregateException(e));
+                            return unit;
+                        }
+                    }
+                }));
             }
+
+            await Task.WhenAll(tasks.Map(t => t.AsTask())).ConfigureAwait(false);
+
+            // Move all errors into one list
+            for (var i = 1; i < windowSize; i++)
+            {
+                errors[0].AddRange(errors[i]);
+            }
+
+            if (errors[0].Count > 0)
+            {
+                // Throw an aggregate of all exceptions
+                throw new AggregateException(errors[0].SelectMany(e => e.InnerExceptions));
+            }
+
+            // Move all results into one list
+            for (var i = 1; i < windowSize; i++)
+            {
+                results[0].AddRange(results[i]);
+            }
+
+            return results[0];
         }
     }
 }

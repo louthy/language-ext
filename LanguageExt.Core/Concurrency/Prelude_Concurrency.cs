@@ -19,10 +19,10 @@ namespace LanguageExt
         /// Transactions (within a `sync(() => ...)`) should be easy to understand if you’ve ever used database 
         /// transactions - they ensure that all actions on Refs are atomic, consistent, and isolated. 
         /// 
-        /// - Atomic - means that every change to Refs made within a transaction occurs or none do. 
-        /// - Consistent - means that each new value can be checked with a validator function before allowing 
+        ///  * **Atomic** - means that every change to Refs made within a transaction occurs or none do. 
+        ///  * **Consistent** - means that each new value can be checked with a validator function before allowing 
         /// the transaction to commit. 
-        /// - Isolated - means that no transaction sees the effects of any other transaction while it is 
+        ///  * **Isolated** - means that no transaction sees the effects of any other transaction while it is 
         /// running. 
         /// 
         /// Another feature common to STMs is that, should a transaction have a conflict while running, 
@@ -41,9 +41,9 @@ namespace LanguageExt
         /// No changes will have been made by any other transactions to any Refs that have been modified 
         /// by this transaction.
         ///
-        /// - Readers will never block writers, or other readers.
+        ///  * Readers will never block writers, or other readers.
         ///
-        /// - Writers will never block readers.
+        ///  * Writers will never block readers.
         ///
         /// I/O and other activities with side-effects should be avoided in transactions, since transactions 
         /// will be retried. 
