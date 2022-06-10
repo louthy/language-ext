@@ -35,6 +35,15 @@ internal record SchMapIndex(Schedule Schedule, Func<Duration, int, Duration> F) 
 }
 
 /// <summary>
+/// Filter
+/// </summary>
+internal record SchFilter(Schedule Schedule, Func<Duration, bool> Pred) : Schedule 
+{
+    public override IEnumerable<Duration> Run() =>
+        Schedule.Run().Filter(Pred);
+}
+
+/// <summary>
 /// Functor bind
 /// </summary>
 internal record SchBind(Schedule Schedule, Func<Duration, Schedule> BindF) : Schedule
@@ -359,10 +368,8 @@ internal record SchResetAfter(Schedule Schedule, Duration Max) : Schedule
 {
     public override IEnumerable<Duration> Run()
     {
-        var cachedSchedule = (Schedule | maxCumulativeDelay(Max));
-
         while (true)
-            foreach (var duration in cachedSchedule.Run())
+            foreach (var duration in (Schedule | maxCumulativeDelay(Max)).Run())
                 yield return duration;
     }
 }

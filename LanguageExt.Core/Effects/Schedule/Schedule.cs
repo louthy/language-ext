@@ -18,29 +18,25 @@ namespace LanguageExt;
 /// Used heavily by `repeat`, `retry`, and `fold` with the `Aff` and `Eff` types.  Use the static methods to create parts
 /// of schedulers and then union them using `|` or intersect them using `&`.  Union will take the minimum of the two
 /// schedules to the length of the longest, intersect will take the maximum of the two schedules to the length of the shortest.
-///
-/// Any `IEnumerable<Duration>` can be converted to a `Schedule` using `ToSchedule()` or `Schedule.FromDurations(...)`.
-/// `Schedule` also implements `IEnumerable<Duration>` so can make use of any transformation on `IEnumerable`.
-/// A `Schedule` is a struct so an `AsEnumerable()` method is also provided to avoid boxing.
 /// </remarks>
 /// <example>
 /// This example creates a schedule that repeats 5 times, with an exponential delay between each stage, starting
 /// at 10 milliseconds:
 /// 
-///     var s = Schedule.Recurs(5) | Schedule.Exponential(10*ms)
+///     var s = Schedule.recurs(5) | Schedule.exponential(10*ms)
 /// 
 /// </example>
 /// <example>
 /// This example creates a schedule that repeats 5 times, with an exponential delay between each stage, starting
 /// at 10 milliseconds and with a maximum delay of 2000 milliseconds:
 /// 
-///     var s = Schedule.Recurs(5) | Schedule.Exponential(10*ms) | Schedule.Spaced(2000*ms)
+///     var s = Schedule.recurs(5) | Schedule.exponential(10*ms) | Schedule.spaced(2000*ms)
 /// </example>
 /// <example>
 /// This example creates a schedule that repeats 5 times, with an exponential delay between each stage, starting
 /// at 10 milliseconds and with a minimum delay of 300 milliseconds:
 /// 
-///     var s = Schedule.Recurs(5) | Schedule.Exponential(10*ms) & Schedule.Spaced(300*ms)
+///     var s = Schedule.recurs(5) | Schedule.exponential(10*ms) & Schedule.spaced(300*ms)
 /// </example>
 public abstract partial record Schedule
 {
@@ -80,7 +76,7 @@ public abstract partial record Schedule
     public abstract IEnumerable<Duration> Run();
 
     /// <summary>
-    /// Intersection of two schedules. As long as they are both running it returns the max duration.
+    /// Intersection of two schedules. As long as they are both running it returns the max duration
     /// </summary>
     /// <param name="b">Schedule `b`</param>
     /// <returns>Max of schedule `this` and `b` to the length of the shortest schedule</returns>
@@ -89,7 +85,7 @@ public abstract partial record Schedule
         new SchIntersect(this, b);
 
     /// <summary>
-    /// Union of two schedules. As long as any are running it returns the min duration of both or a or b. 
+    /// Union of two schedules. As long as any are running it returns the min duration of both or a or b
     /// </summary>
     /// <param name="b">Schedule `b`</param>
     /// <returns>Min of schedule `this` and `b` or `this` or `b` to the length of the longest schedule</returns>
@@ -157,7 +153,7 @@ public abstract partial record Schedule
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped schedule</returns>
     [Pure]
-    internal Schedule Map(Func<Duration, Duration> f) =>
+    public Schedule Map(Func<Duration, Duration> f) =>
         new SchMap(this, f);
     
     /// <summary>
@@ -166,8 +162,26 @@ public abstract partial record Schedule
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped schedule</returns>
     [Pure]
-    internal Schedule Map(Func<Duration, int, Duration> f) =>
+    public Schedule Map(Func<Duration, int, Duration> f) =>
         new SchMapIndex(this, f);
+    
+    /// <summary>
+    /// Filter operation for Schedule
+    /// </summary>
+    /// <param name="pred">predicate</param>
+    /// <returns>Filtered schedule</returns>
+    [Pure]
+    public Schedule Filter(Func<Duration, bool> pred) =>
+        new SchFilter(this, pred);
+    
+    /// <summary>
+    /// Filter operation for Schedule
+    /// </summary>
+    /// <param name="pred">predicate</param>
+    /// <returns>Filtered schedule</returns>
+    [Pure]
+    public Schedule Where(Func<Duration, bool> pred) =>
+        new SchFilter(this, pred);
 
     /// <summary>
     /// Functor map operation for Schedule
@@ -175,7 +189,7 @@ public abstract partial record Schedule
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped schedule</returns>
     [Pure]
-    internal Schedule Select(Func<Duration, Duration> f) =>
+    public Schedule Select(Func<Duration, Duration> f) =>
         new SchMap(this, f);
 
     /// <summary>
@@ -184,7 +198,7 @@ public abstract partial record Schedule
     /// <param name="f">Mapping function</param>
     /// <returns>Mapped schedule</returns>
     [Pure]
-    internal Schedule Select(Func<Duration, int, Duration> f) =>
+    public Schedule Select(Func<Duration, int, Duration> f) =>
         new SchMapIndex(this, f);
 
     /// <summary>
@@ -193,7 +207,7 @@ public abstract partial record Schedule
     /// <param name="f">Bind function</param>
     /// <returns>Chained schedule</returns>
     [Pure]
-    internal Schedule Bind(Func<Duration, Schedule> f) =>
+    public Schedule Bind(Func<Duration, Schedule> f) =>
         new SchBind(this, f);
 
     /// <summary>
@@ -202,7 +216,7 @@ public abstract partial record Schedule
     /// <param name="f">Bind function</param>
     /// <returns>Chained schedule</returns>
     [Pure]
-    internal Schedule SelectMany(Func<Duration, Schedule> f) =>
+    public Schedule SelectMany(Func<Duration, Schedule> f) =>
         new SchBind(this, f);
 
     /// <summary>
@@ -213,7 +227,7 @@ public abstract partial record Schedule
     /// <param name="project">Project function</param>
     /// <returns>Chained schedule</returns>
     [Pure]
-    internal Schedule SelectMany(Func<Duration, Schedule> bind, Func<Duration, Duration, Duration> project) =>
+    public Schedule SelectMany(Func<Duration, Schedule> bind, Func<Duration, Duration, Duration> project) =>
         new SchBind2(this, bind, project);
 
     [Pure]

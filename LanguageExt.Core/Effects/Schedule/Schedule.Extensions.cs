@@ -7,49 +7,49 @@ namespace LanguageExt;
 public static class ScheduleExtensions
 {
     /// <summary>
-    /// Converts an `Seq` of positive durations to a schedule. 
+    /// Converts a `Seq` of positive durations to a schedule
     /// </summary>
-    /// <param name="enumerable">Enumeration of positive durations</param>
+    /// <param name="seq">Seq of positive durations</param>
     /// <returns>schedule</returns>
     [Pure]
-    public static Schedule ToSchedule(this Seq<Duration> enumerable) =>
-        Schedule.TimeSeries(enumerable);
+    public static Schedule ToSchedule(this Seq<Duration> seq) =>
+        Schedule.TimeSeries(seq);
     
     /// <summary>
-    /// Converts an `Arr` of positive durations to a schedule. 
+    /// Converts a `Arr` of positive durations to a schedule
     /// </summary>
-    /// <param name="enumerable">Enumeration of positive durations</param>
+    /// <param name="array">array of positive durations</param>
     /// <returns>schedule</returns>
     [Pure]
-    public static Schedule ToSchedule(this Arr<Duration> enumerable) =>
-        Schedule.TimeSeries(enumerable);
+    public static Schedule ToSchedule(this Arr<Duration> array) =>
+        Schedule.TimeSeries(array);
     
     /// <summary>
-    /// Converts an `Lst` of positive durations to a schedule. 
+    /// Converts a `Lst` of positive durations to a schedule 
     /// </summary>
-    /// <param name="enumerable">Enumeration of positive durations</param>
+    /// <param name="list">list of positive durations</param>
     /// <returns>schedule</returns>
     [Pure]
-    public static Schedule ToSchedule(this Lst<Duration> enumerable) =>
-        Schedule.TimeSeries(enumerable);
+    public static Schedule ToSchedule(this Lst<Duration> list) =>
+        Schedule.TimeSeries(list);
     
     /// <summary>
-    /// Converts an `Set` of positive durations to a schedule. 
+    /// Converts a `Set` of positive durations to a schedule
     /// </summary>
-    /// <param name="enumerable">Enumeration of positive durations</param>
+    /// <param name="set">set of positive durations</param>
     /// <returns>schedule</returns>
     [Pure]
-    public static Schedule ToSchedule(this Set<Duration> enumerable) =>
-        Schedule.TimeSeries(enumerable);
+    public static Schedule ToSchedule(this Set<Duration> set) =>
+        Schedule.TimeSeries(set);
     
     /// <summary>
-    /// Converts an `HashSet` of positive durations to a schedule. 
+    /// Converts a `HashSet` of positive durations to a schedule
     /// </summary>
-    /// <param name="enumerable">Enumeration of positive durations</param>
+    /// <param name="hashSet">hashset of positive durations</param>
     /// <returns>schedule</returns>
     [Pure]
-    public static Schedule ToSchedule(this HashSet<Duration> enumerable) =>
-        Schedule.TimeSeries(enumerable);
+    public static Schedule ToSchedule(this HashSet<Duration> hashSet) =>
+        Schedule.TimeSeries(hashSet);
 
     /// <summary>
     /// Prepend a duration to the schedule

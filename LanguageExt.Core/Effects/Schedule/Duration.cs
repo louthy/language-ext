@@ -47,7 +47,7 @@ public readonly struct Duration :
     /// - includes a 10% jitter, added and removed in sequence from each duration
     /// - recurring 5 times
     ///
-    ///     Schedule.Linear(Duration.Random(10*ms, 50*ms)) | Schedule.Decorrelate() | Schedule.Recurs(5)
+    ///     Schedule.linear(Duration.Random(10*ms, 50*ms)) | Schedule.decorrelate() | Schedule.recurs(5)
     ///
     /// Three runs result in,
     ///

@@ -491,5 +491,58 @@ namespace LanguageExt.Tests.ScheduleTest
             schedule2.Run().Should().HaveCount(5);
             schedule3.Run().Should().HaveCount(5);
         }
+
+        [Fact]
+        public static void MapTest()
+        {
+            var schedule = Schedule.linear(1 * ms).Map((x, i) => x % 2 == 0 ? x + i : x - i).Take(4);
+            schedule.Run().Should().Equal(1 * ms, 3 * ms, 1 * ms, 7 * ms);
+        }
+
+        [Fact]
+        public static void FilterTest()
+        {
+            var schedule = Schedule.linear(1 * ms).Filter(x => x % 2 == 0).Take(4);
+            schedule.Run().Should().Equal(2 * ms, 4 * ms, 6 * ms, 8 * ms);
+        }
+
+        [Fact]
+        public static void BindTest1()
+        {
+            var schedule =
+                Schedule
+                    .linear(1 * ms)
+                    .Filter(x => x % 2 == 0)
+                    .Take(2)
+                    .Bind(even =>
+                        Schedule
+                            .linear(1 * ms)
+                            .Filter(x => x % 2 != 0)
+                            .Take(2)
+                            .Bind(odd => Schedule.TimeSeries(even, odd)));
+
+            schedule.Run().Should().Equal(
+                2 * ms, 1 * ms,
+                2 * ms, 3 * ms,
+                4 * ms, 1 * ms,
+                4 * ms, 3 * ms);
+        }
+
+        [Fact]
+        public static void BindTest2()
+        {
+            var schedule =
+                from even in Schedule
+                    .linear(1 * ms)
+                    .Filter(x => x % 2 == 0)
+                    .Take(2)
+                from odd in Schedule
+                    .linear(1 * ms)
+                    .Filter(x => x % 2 != 0)
+                    .Take(2)
+                select Math.Pow(even, odd);
+
+            schedule.Run().Should().Equal(2 * ms, 8 * ms, 4 * ms, 64 * ms);
+        }
     }
 }
