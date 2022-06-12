@@ -265,7 +265,7 @@ public abstract partial record Schedule
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Eff<A> Run<A>(Eff<A> effect, Func<Fin<A>, bool> pred) =>
-        Run(effect, default(A), static (_, __) => _, pred)!;
+        Run(effect, default(A), static (_, result) => result, pred)!;
 
     [Pure]
     internal Eff<RT, S> Run<RT, A, S>(Eff<RT, A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
@@ -304,7 +304,7 @@ public abstract partial record Schedule
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Eff<RT, A> Run<RT, A>(Eff<RT, A> effect, Func<Fin<A>, bool> pred) 
         where RT : struct =>
-            Run(effect, default(A), static (_, __) => _, pred)!;
+            Run(effect, default(A), static (_, result) => result, pred)!;
 
     [Pure]
     internal Aff<S> Run<A, S>(Aff<A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
@@ -342,7 +342,7 @@ public abstract partial record Schedule
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Aff<A> Run<A>(Aff<A> effect, Func<Fin<A>, bool> pred) =>
-        Run(effect, default(A), static (_, __) => _, pred)!;
+        Run(effect, default(A), static (_, result) => result, pred)!;
 
     [Pure]
     internal Aff<RT, S> Run<RT, A, S>(Aff<RT, A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
@@ -360,7 +360,7 @@ public abstract partial record Schedule
                 return result;
             }
 
-            bool Continue() => pred(result);
+            bool Continue() => pred(result) && !env.CancellationToken.IsCancellationRequested;
             Fin<S> FinalResult() => result.IsSucc ? state : FinFail<S>(result.Error);
 
             result = await RunAndFold().ConfigureAwait(false);
@@ -382,5 +382,5 @@ public abstract partial record Schedule
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Aff<RT, A> Run<RT, A>(Aff<RT, A> effect, Func<Fin<A>, bool> pred) 
         where RT : struct, HasCancel<RT> =>
-            Run(effect, default(A), static (_, __) => _, pred)!;
+            Run(effect, default(A), static (_, result) => result, pred)!;
 }
