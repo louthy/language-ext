@@ -168,10 +168,10 @@ public abstract partial record Schedule
     /// If the action run between updates takes longer than the interval, then the
     /// action will be run immediately, but re-runs will not "pile up".
     ///
-    /// <pre>
+    /// 
     ///     |-----interval-----|-----interval-----|-----interval-----|
     ///     |---------action--------||action|-----|action|-----------|
-    /// </pre>
+    /// 
     /// </summary>
     /// <param name="interval">schedule interval</param>
     /// <param name="currentTimeFn">current time function</param>
@@ -184,11 +184,11 @@ public abstract partial record Schedule
     /// until the nearest window boundary every time it recurs.
     ///
     /// For example, `Windowed(10 * seconds)` would produce a schedule as follows:
-    /// <pre>
+    /// 
     ///          10s        10s        10s       10s
     ///     |----------|----------|----------|----------|
     ///     |action------|sleep---|act|-sleep|action----|
-    /// </pre>
+    /// 
     /// </summary>
     /// <param name="interval">schedule interval</param>
     /// <param name="currentTimeFn">current time function</param>

@@ -7,7 +7,7 @@
         <DefineConstants>CONTRACTS_FULL</DefineConstants>
     </PropertyGroup>
     <PropertyGroup>
-        <PackageVersion>4.2.2</PackageVersion>
+        <PackageVersion>4.2.3</PackageVersion>
         <PackageId>LanguageExt.Transformers</PackageId>
         <Title>LanguageExt.Transformers</Title>
         <Authors>Paul Louth</Authors>
