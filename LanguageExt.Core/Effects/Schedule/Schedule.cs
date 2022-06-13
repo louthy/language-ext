@@ -370,7 +370,7 @@ public abstract partial record Schedule
             while (enumerator.MoveNext() && Continue())
             {
                 if (enumerator.Current != Duration.Zero)
-                    await Task.Delay((int)enumerator.Current).ConfigureAwait(false);
+                    await Task.Delay((int)enumerator.Current, env.CancellationToken).ConfigureAwait(false);
                 result = await RunAndFold().ConfigureAwait(false);
             }
 
