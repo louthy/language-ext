@@ -3,7 +3,7 @@
 namespace LanguageExt;
 
 /// <summary>
-/// Transforms a schedule into another schedule.
+/// Transforms a schedule into another schedule
 /// </summary>
 public readonly struct ScheduleTransformer
 {
@@ -29,7 +29,7 @@ public readonly struct ScheduleTransformer
     /// </summary>
     /// <param name="f">First transformer to run in the composition</param>
     /// <param name="g">Second transformer to run in the composition</param>
-    /// <returns></returns>
+    /// <returns>composition of the 2 transformers</returns>
     public static ScheduleTransformer operator +(ScheduleTransformer f, ScheduleTransformer g) =>
         new(x => g.Apply(f.Apply(x)));
 

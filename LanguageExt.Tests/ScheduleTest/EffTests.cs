@@ -15,8 +15,9 @@ public static class EffTests
     {
         const int counter = 0;
         var effect = FailEff<int>("Failed");
-        effect.Repeat(TestSchedule()).Run();
+        var result = effect.Repeat(TestSchedule()).Run();
         counter.Should().Be(0);
+        result.Case.Should().Be(Error.New("Failed"));
     }
 
     [Fact]
@@ -24,8 +25,9 @@ public static class EffTests
     {
         const int counter = 0;
         var effect = FailEff<Runtime, int>("Failed");
-        effect.Repeat(TestSchedule()).Run(Runtime.New());
+        var result = effect.Repeat(TestSchedule()).Run(Runtime.New());
         counter.Should().Be(0);
+        result.Case.Should().Be(Error.New("Failed"));
     }
 
     [Fact]
@@ -33,8 +35,9 @@ public static class EffTests
     {
         var counter = 0;
         var effect = EffMaybe<int>(() => ++counter);
-        effect.Repeat(TestSchedule()).RunUnit();
+        var result = effect.Repeat(TestSchedule()).Run();
         counter.Should().Be(6);
+        result.Case.Should().Be(6);
     }
 
     [Fact]
@@ -42,8 +45,9 @@ public static class EffTests
     {
         var counter = 0;
         var effect = EffMaybe<Runtime, int>(_ => ++counter);
-        effect.Repeat(TestSchedule()).RunUnit(Runtime.New());
+        var result = effect.Repeat(TestSchedule()).Run(Runtime.New());
         counter.Should().Be(6);
+        result.Case.Should().Be(6);
     }
 
     [Fact]
@@ -55,8 +59,9 @@ public static class EffTests
             ++counter;
             return Error.New("Failed");
         });
-        effect.Retry(TestSchedule()).Run();
+        var result = effect.Retry(TestSchedule()).Run();
         counter.Should().Be(6);
+        result.Case.Should().Be(Error.New("Failed"));
     }
 
     [Fact]
@@ -68,8 +73,9 @@ public static class EffTests
             ++counter;
             return Error.New("Failed");
         });
-        effect.Retry(TestSchedule()).Run(Runtime.New());
+        var result = effect.Retry(TestSchedule()).Run(Runtime.New());
         counter.Should().Be(6);
+        result.Case.Should().Be(Error.New("Failed"));
     }
 
     [Fact]
@@ -77,8 +83,9 @@ public static class EffTests
     {
         var counter = 0;
         var effect = EffMaybe<int>(() => ++counter);
-        effect.RepeatWhile(TestSchedule(), static i => i < 3).RunUnit();
+        var result = effect.RepeatWhile(TestSchedule(), static i => i < 3).Run();
         counter.Should().Be(3);
+        result.Case.Should().Be(3);
     }
 
     [Fact]
@@ -86,8 +93,9 @@ public static class EffTests
     {
         var counter = 0;
         var effect = EffMaybe<Runtime, int>(_ => ++counter);
-        effect.RepeatWhile(TestSchedule(), static i => i < 3).RunUnit(Runtime.New());
+        var result = effect.RepeatWhile(TestSchedule(), static i => i < 3).Run(Runtime.New());
         counter.Should().Be(3);
+        result.Case.Should().Be(3);
     }
 
     [Fact]
@@ -99,8 +107,9 @@ public static class EffTests
             ++counter;
             return Error.New(counter.ToString());
         });
-        effect.RetryWhile(TestSchedule(), static e => (int)parseInt(e.Message) < 3).Run();
+        var result = effect.RetryWhile(TestSchedule(), static e => (int)parseInt(e.Message) < 3).Run();
         counter.Should().Be(3);
+        result.Case.Should().Be(Error.New("3"));
     }
 
     [Fact]
@@ -112,8 +121,9 @@ public static class EffTests
             ++counter;
             return Error.New(counter.ToString());
         });
-        effect.RetryWhile(TestSchedule(), static e => (int)parseInt(e.Message) < 3).Run(Runtime.New());
+        var result = effect.RetryWhile(TestSchedule(), static e => (int)parseInt(e.Message) < 3).Run(Runtime.New());
         counter.Should().Be(3);
+        result.Case.Should().Be(Error.New("3"));
     }
 
     [Fact]
@@ -121,8 +131,9 @@ public static class EffTests
     {
         var counter = 0;
         var effect = EffMaybe<int>(() => ++counter);
-        effect.RepeatUntil(static i => i == 10).RunUnit();
+        var result = effect.RepeatUntil(static i => i == 10).Run();
         counter.Should().Be(10);
+        result.Case.Should().Be(10);
     }
 
     [Fact]
@@ -130,8 +141,9 @@ public static class EffTests
     {
         var counter = 0;
         var effect = EffMaybe<Runtime, int>(_ => ++counter);
-        effect.RepeatUntil(static i => i == 10).RunUnit(Runtime.New());
+        var result = effect.RepeatUntil(static i => i == 10).Run(Runtime.New());
         counter.Should().Be(10);
+        result.Case.Should().Be(10);
     }
 
     [Fact]
@@ -143,8 +155,9 @@ public static class EffTests
             ++counter;
             return Error.New(counter.ToString());
         });
-        effect.RetryUntil(static e => (int)parseInt(e.Message) == 10).Run();
+        var result = effect.RetryUntil(static e => (int)parseInt(e.Message) == 10).Run();
         counter.Should().Be(10);
+        result.Case.Should().Be(Error.New("10"));
     }
 
     [Fact]
@@ -156,8 +169,9 @@ public static class EffTests
             ++counter;
             return Error.New(counter.ToString());
         });
-        effect.RetryUntil(static e => (int)parseInt(e.Message) == 10).Run(Runtime.New());
+        var result = effect.RetryUntil(static e => (int)parseInt(e.Message) == 10).Run(Runtime.New());
         counter.Should().Be(10);
+        result.Case.Should().Be(Error.New("10"));
     }
 
     [Fact]
@@ -166,6 +180,7 @@ public static class EffTests
         var counter = 0;
         var effect = EffMaybe<int>(() => ++counter);
         var result = effect.Fold(TestSchedule(), 1, (i, j) => i + j).Run().ThrowIfFail();
+        counter.Should().Be(6);
         result.Should().Be(22);
     }
 
@@ -175,6 +190,7 @@ public static class EffTests
         var counter = 0;
         var effect = EffMaybe<Runtime, int>(_ => ++counter);
         var result = effect.Fold(TestSchedule(), 1, (i, j) => i + j).Run(Runtime.New()).ThrowIfFail();
+        counter.Should().Be(6);
         result.Should().Be(22);
     }
 
@@ -184,6 +200,7 @@ public static class EffTests
         var counter = 0;
         var effect = EffMaybe<int>(() => ++counter);
         var result = effect.FoldWhile(TestSchedule(), 1, (i, j) => i + j, i => i < 3).Run().ThrowIfFail();
+        counter.Should().Be(3);
         result.Should().Be(7);
     }
 
@@ -193,6 +210,7 @@ public static class EffTests
         var counter = 0;
         var effect = EffMaybe<Runtime, int>(_ => ++counter);
         var result = effect.FoldWhile(TestSchedule(), 1, (i, j) => i + j, i => i < 3).Run(Runtime.New()).ThrowIfFail();
+        counter.Should().Be(3);
         result.Should().Be(7);
     }
 
@@ -202,6 +220,7 @@ public static class EffTests
         var counter = 0;
         var effect = EffMaybe<int>(() => ++counter);
         var result = effect.FoldUntil(TestSchedule(), 1, (i, j) => i + j, i => i > 4).Run().ThrowIfFail();
+        counter.Should().Be(5);
         result.Should().Be(16);
     }
 
@@ -211,6 +230,7 @@ public static class EffTests
         var counter = 0;
         var effect = EffMaybe<Runtime, int>(_ => ++counter);
         var result = effect.FoldUntil(TestSchedule(), 1, (i, j) => i + j, i => i > 4).Run(Runtime.New()).ThrowIfFail();
+        counter.Should().Be(5);
         result.Should().Be(16);
     }
 }

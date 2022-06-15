@@ -1,19 +1,14 @@
 ﻿#nullable enable
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using LanguageExt.Effects.Traits;
 
 namespace LanguageExt;
 
 public static partial class Prelude
 {
     /// <summary>
-    /// Intersection of two schedules. As long as they are both running it returns the max duration.
+    /// Intersection of two schedules. As long as they are both running it returns the max duration
     /// </summary>
     /// <param name="a">Schedule `a`</param>
     /// <param name="b">Schedule `b`</param>
@@ -23,7 +18,7 @@ public static partial class Prelude
         a.Intersect(b);
 
     /// <summary>
-    /// Union of two schedules. As long as any are running it returns the min duration of both or a or b. 
+    /// Union of two schedules. As long as any are running it returns the min duration of both or a or b
     /// </summary>
     /// <param name="a">Schedule `a`</param>
     /// <param name="b">Schedule `b`</param>
@@ -88,6 +83,16 @@ public static partial class Prelude
     [Pure]
     public static Schedule map(Schedule s, Func<Duration, Duration> f) =>
         s.Map(f);
+    
+    /// <summary>
+    /// Filter operation for Schedule
+    /// </summary>
+    /// <param name="s">Schedule</param>
+    /// <param name="pred">predicate</param>
+    /// <returns>Filtered schedule</returns>
+    [Pure]
+    public static Schedule filter(Schedule s, Func<Duration, bool> pred) =>
+        s.Filter(pred);
 
     /// <summary>
     /// Monad bind operation for Schedule

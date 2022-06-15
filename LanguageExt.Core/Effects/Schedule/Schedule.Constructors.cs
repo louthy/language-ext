@@ -12,79 +12,61 @@ using Durations = IEnumerable<Duration>;
 public abstract partial record Schedule
 {
     /// <summary>
-    /// Identity or noop schedule result transformer.
+    /// Identity or no-op schedule result transformer
     /// </summary>
     public static readonly ScheduleTransformer Identity =
         Transform(identity);
 
     /// <summary>
-    /// `Schedule` constructor that recurs for the specified durations.
+    /// `Schedule` constructor that recurs for the specified durations
     /// </summary>
-    /// <remarks>
-    /// This allows for any custom schedule to be created, its the same as `ToSchedule()`.
-    /// </remarks>
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(params Duration[] durations) =>
         new SchItems(durations);
 
     /// <summary>
-    /// `Schedule` constructor that recurs for the specified durations.
+    /// `Schedule` constructor that recurs for the specified durations
     /// </summary>
-    /// <remarks>
-    /// This allows for any custom schedule to be created, its the same as `ToSchedule()`.
-    /// </remarks>
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(Arr<Duration> durations) =>
         new SchItems(durations.Value);
 
     /// <summary>
-    /// `Schedule` constructor that recurs for the specified durations.
+    /// `Schedule` constructor that recurs for the specified durations
     /// </summary>
-    /// <remarks>
-    /// This allows for any custom schedule to be created, its the same as `ToSchedule()`.
-    /// </remarks>
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(Seq<Duration> durations) =>
         new SchItems(durations.Value);
 
     /// <summary>
-    /// `Schedule` constructor that recurs for the specified durations.
+    /// `Schedule` constructor that recurs for the specified durations
     /// </summary>
-    /// <remarks>
-    /// This allows for any custom schedule to be created, its the same as `ToSchedule()`.
-    /// </remarks>
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(Lst<Duration> durations) =>
         new SchItems(durations.Value);
 
     /// <summary>
-    /// `Schedule` constructor that recurs for the specified durations.
+    /// `Schedule` constructor that recurs for the specified durations
     /// </summary>
-    /// <remarks>
-    /// This allows for any custom schedule to be created, its the same as `ToSchedule()`.
-    /// </remarks>
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(Set<Duration> durations) =>
         new SchItems(durations.Value);
 
     /// <summary>
-    /// `Schedule` constructor that recurs for the specified durations.
+    /// `Schedule` constructor that recurs for the specified durations
     /// </summary>
-    /// <remarks>
-    /// This allows for any custom schedule to be created, its the same as `ToSchedule()`.
-    /// </remarks>
     /// <param name="durations">durations to apply</param>
     [Pure]
     public static Schedule TimeSeries(HashSet<Duration> durations) =>
         new SchItems(durations.Value);
     
     /// <summary>
-    /// `ScheduleTransformer` constructor which provides mapping capabilities for `Schedule` instances. 
+    /// `ScheduleTransformer` constructor which provides mapping capabilities for `Schedule` instances
     /// </summary>
     /// <param name="transform">Transformation function</param>
     /// <returns>`ScheduleTransformer`</returns>
@@ -93,46 +75,45 @@ public abstract partial record Schedule
         new(transform);
 
     /// <summary>
-    /// Schedule that runs forever.
+    /// Schedule that runs forever
     /// </summary>
     public static readonly Schedule Forever =
         SchForever.Default;
     
     /// <summary>
-    /// Schedule that never runs.
+    /// Schedule that never runs
     /// </summary>
     public static readonly Schedule Never =
         SchNever.Default;
 
     /// <summary>
-    /// Schedule that runs once.
+    /// Schedule that runs once
     /// </summary>
     public static readonly Schedule Once =
         Forever.Take(1);
 
     /// <summary>
-    /// A schedule transformer that will enforce the first retry has no delay.
+    /// A schedule transformer that will enforce the first retry has no delay
     /// </summary>
     public static readonly ScheduleTransformer NoDelayOnFirst =
         Transform(s => s.Tail.Prepend(Duration.Zero));
 
     /// <summary>
-    /// Repeats the schedule forever.
+    /// Repeats the schedule forever
     /// </summary>
     public static readonly ScheduleTransformer RepeatForever =
         Transform(s => new SchRepeatForever(s));
 
     /// <summary>
-    /// Schedule transformer that limits the schedule to run the specified number of times.
+    /// Schedule transformer that limits the schedule to run the specified number of times
     /// </summary>
-    /// <remarks>Same as schedule.Take(times).ToSchedule()</remarks>
     /// <param name="times">number of times</param>
     [Pure]
     public static ScheduleTransformer recurs(int times) =>
         Transform(s => s.Take(times));
 
     /// <summary>
-    /// Schedule that recurs continuously with the given spacing.
+    /// Schedule that recurs continuously with the given spacing
     /// </summary>
     /// <param name="space">space</param>
     [Pure]
@@ -140,7 +121,7 @@ public abstract partial record Schedule
         Forever.Map(_ => space);
 
     /// <summary>
-    /// Schedule that recurs continuously using a linear backoff.
+    /// Schedule that recurs continuously using a linear backoff
     /// </summary>
     /// <param name="seed">seed</param>
     /// <param name="factor">optional factor to apply, default 1</param>
@@ -149,7 +130,7 @@ public abstract partial record Schedule
         new SchLinear(seed, factor);
 
     /// <summary>
-    /// Schedule that recurs continuously using a exponential backoff.
+    /// Schedule that recurs continuously using a exponential backoff
     /// </summary>
     /// <param name="seed">seed</param>
     /// <param name="factor">optional factor to apply, default 2</param>
@@ -158,7 +139,7 @@ public abstract partial record Schedule
         Forever.Map((_, i) => seed * Math.Pow(factor, i));
 
     /// <summary>
-    /// Schedule that recurs continuously using a fibonacci based backoff.
+    /// Schedule that recurs continuously using a fibonacci based backoff
     /// </summary>
     /// <param name="seed">seed</param>
     [Pure]
@@ -169,7 +150,7 @@ public abstract partial record Schedule
         () => DateTime.Now;
 
     /// <summary>
-    /// Schedule that runs for a given duration.
+    /// Schedule that runs for a given duration
     /// </summary>
     /// <param name="max">max duration to run the schedule for</param>
     /// <param name="currentTimeFn">current time function</param>
@@ -231,7 +212,7 @@ public abstract partial record Schedule
                 : value;
 
     /// <summary>
-    /// Cron-like schedule that recurs every specified `second` of each minute.
+    /// Cron-like schedule that recurs every specified `second` of each minute
     /// </summary>
     /// <param name="second">second of the minute, will be rounded to fit between 0 and 59</param>
     /// <param name="currentTimeFn">current time function</param>
@@ -240,7 +221,7 @@ public abstract partial record Schedule
         new SchSecondOfMinute(second, currentTimeFn);
 
     /// <summary>
-    /// Cron-like schedule that recurs every specified `minute` of each hour.
+    /// Cron-like schedule that recurs every specified `minute` of each hour
     /// </summary>
     /// <param name="minute">minute of the hour, will be rounded to fit between 0 and 59</param>
     /// <param name="currentTimeFn">current time function</param>
@@ -249,7 +230,7 @@ public abstract partial record Schedule
         new SchMinuteOfHour(minute, currentTimeFn);
 
     /// <summary>
-    /// Cron-like schedule that recurs every specified `hour` of each day.
+    /// Cron-like schedule that recurs every specified `hour` of each day
     /// </summary>
     /// <param name="hour">hour of the day, will be rounded to fit between 0 and 23</param>
     /// <param name="currentTimeFn">current time function</param>
@@ -258,7 +239,7 @@ public abstract partial record Schedule
         new SchHourOfDay(hour, currentTimeFn);
 
     /// <summary>
-    /// Cron-like schedule that recurs every specified `day` of each week.
+    /// Cron-like schedule that recurs every specified `day` of each week
     /// </summary>
     /// <param name="day">day of the week</param>
     /// <param name="currentTimeFn">current time function</param>
@@ -267,7 +248,7 @@ public abstract partial record Schedule
         new SchDayOfWeek(day, currentTimeFn);
 
     /// <summary>
-    /// A schedule transformer that limits the returned delays to max delay.
+    /// A schedule transformer that limits the returned delays to max delay
     /// </summary>
     /// <param name="max">max delay to return</param>
     [Pure]
@@ -275,7 +256,7 @@ public abstract partial record Schedule
         Transform(s => new SchMaxDelay(s, max));
 
     /// <summary>
-    /// Limits the schedule to the max cumulative delay.
+    /// Limits the schedule to the max cumulative delay
     /// </summary>
     /// <param name="max">max delay to stop schedule at</param>
     [Pure]
@@ -283,7 +264,7 @@ public abstract partial record Schedule
         Transform(s => new SchMaxCumulativeDelay(s, max));
 
     /// <summary>
-    /// A schedule transformer that adds a random jitter to any returned delay.
+    /// A schedule transformer that adds a random jitter to any returned delay
     /// </summary>
     /// <param name="minRandom">min random milliseconds</param>
     /// <param name="maxRandom">max random milliseconds</param>
@@ -293,7 +274,7 @@ public abstract partial record Schedule
         Transform(s => new SchJitter1(s, minRandom, maxRandom, seed));
 
     /// <summary>
-    /// A schedule transformer that adds a random jitter to any returned delay.
+    /// A schedule transformer that adds a random jitter to any returned delay
     /// </summary>
     /// <param name="factor">jitter factor based on the returned delay</param>
     /// <param name="seed">optional seed</param>
@@ -302,7 +283,7 @@ public abstract partial record Schedule
         Transform(s => new SchJitter2(s, factor, seed));
 
     /// <summary>
-    /// Transforms the schedule by de-correlating each of the durations both up and down in a jittered way.
+    /// Transforms the schedule by de-correlating each of the durations both up and down in a jittered way
     /// </summary>
     /// <remarks>
     /// Given a linear schedule starting at 100. (100, 200, 300...)
@@ -316,7 +297,7 @@ public abstract partial record Schedule
         Transform(s => new SchDecorrelate(s, factor, seed));
 
     /// <summary>
-    /// Resets the schedule after a provided cumulative max duration.
+    /// Resets the schedule after a provided cumulative max duration
     /// </summary>
     /// <param name="max">max delay to reset the schedule at</param>
     [Pure]
@@ -324,7 +305,7 @@ public abstract partial record Schedule
         Transform(s => new SchResetAfter(s, max));
 
     /// <summary>
-    /// Repeats the schedule n number of times.
+    /// Repeats the schedule n number of times
     /// </summary>
     /// <param name="times">number of times to repeat the schedule</param>
     [Pure]
@@ -332,7 +313,7 @@ public abstract partial record Schedule
         Transform(s => new SchRepeat(s, times));
 
     /// <summary>
-    /// Intersperse the provided duration(s) between each duration in the schedule.
+    /// Intersperse the provided duration(s) between each duration in the schedule
     /// </summary>
     /// <param name="duration">schedule to intersperse</param>
     [Pure]
@@ -340,7 +321,7 @@ public abstract partial record Schedule
         Transform(s => s.Bind(schedule.Prepend));
 
     /// <summary>
-    /// Intersperse the provided duration(s) between each duration in the schedule.
+    /// Intersperse the provided duration(s) between each duration in the schedule
     /// </summary>
     /// <param name="durations">1 or more durations to intersperse</param>
     [Pure]
