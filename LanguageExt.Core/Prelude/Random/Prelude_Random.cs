@@ -36,6 +36,7 @@ namespace LanguageExt
             rnd.GetBytes(bytes);
             bytes[wordTop] &= 0x7f;
             var value = BitConverter.ToInt32(bytes, 0) % max;
+            ArrayPool<byte>.Shared.Return(bytes);
             return value;
         }
 
