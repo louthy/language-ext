@@ -64,7 +64,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(string x) =>
-            default(HashableString).GetHashCode(x);
+            default(HashableStringInvariantCulture).GetHashCode(x);
             
         [Pure]
         public Task<bool> EqualsAsync(string x, string y) =>
@@ -99,7 +99,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>The hash code of x</returns>
         [Pure]
         public int GetHashCode(string x) =>
-            default(HashableString).GetHashCode(x);
+            default(HashableStringInvariantCultureIgnoreCase).GetHashCode(x);
             
         [Pure]
         public Task<bool> EqualsAsync(string x, string y) =>

@@ -31,6 +31,59 @@ namespace LanguageExt.ClassInstances
         public Task<int> GetHashCodeAsync(string x) =>
             GetHashCode(x).AsTask();    
     }
+    
+    /// <summary>
+    /// String hashing (invariant culture)
+    /// </summary>
+    public struct HashableStringInvariantCulture : Hashable<string>
+    {
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetHashCode(string x) =>
+            StringComparer.InvariantCulture.GetHashCode(x);
+         
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();    
+    }
+    
+        
+    /// <summary>
+    /// String hashing (invariant culture, ignore case)
+    /// </summary>
+    public struct HashableStringInvariantCultureIgnoreCase : Hashable<string>
+    {
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetHashCode(string x) =>
+            x.IsNull() ? 0 : StringComparer.InvariantCultureIgnoreCase.GetHashCode(x);
+         
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<int> GetHashCodeAsync(string x) =>
+            GetHashCode(x).AsTask();    
+    }
 
     /// <summary>
     /// String equality (ordinal, ignore case)
@@ -45,7 +98,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetHashCode(string x) =>
-            StringComparer.OrdinalIgnoreCase.GetHashCode(x);
+            x.IsNull() ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(x);
         
         /// <summary>
         /// Get hash code of the value
@@ -71,7 +124,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetHashCode(string x) =>
-            StringComparer.Ordinal.GetHashCode(x);
+            x.IsNull() ? 0 : StringComparer.Ordinal.GetHashCode(x);
         
         /// <summary>
         /// Get hash code of the value
@@ -97,7 +150,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetHashCode(string x) =>
-            StringComparer.CurrentCultureIgnoreCase.GetHashCode(x);
+            x.IsNull() ? 0 : StringComparer.CurrentCultureIgnoreCase.GetHashCode(x);
         
         /// <summary>
         /// Get hash code of the value
@@ -123,7 +176,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetHashCode(string x) =>
-            StringComparer.CurrentCulture.GetHashCode(x);
+            x.IsNull() ? 0 : StringComparer.CurrentCulture.GetHashCode(x);
         
         /// <summary>
         /// Get hash code of the value

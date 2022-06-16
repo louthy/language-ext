@@ -33,14 +33,15 @@ namespace LanguageExt.ClassInstances
         /// <param name="a">The left hand side of the equality operation</param>
         /// <param name="b">The right hand side of the equality operation</param>
         /// <returns>True if a and b are equal</returns>
-        public bool Equals(string a, string b) { return a == b; }
+        public bool Equals(string a, string b) =>
+            default(EqString).Equals(a, b);
 
         /// <summary>
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
         public int GetHashCode(string x) =>
-            x?.GetHashCode() ??0;
+            default(HashableString).GetHashCode(x);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -85,14 +86,14 @@ namespace LanguageExt.ClassInstances
         /// <param name="b">The right hand side of the equality operation</param>
         /// <returns>True if a and b are equal</returns>
         public bool Equals(string a, string b) =>
-            StringComparer.OrdinalIgnoreCase.Equals(a, b);
+            default(EqStringOrdinalIgnoreCase).Equals(a, b);
 
         /// <summary>
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
         public int GetHashCode(string x) =>
-            x.IsNull() ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(x);
+            default(HashableStringOrdinalIgnoreCase).GetHashCode(x);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -137,14 +138,14 @@ namespace LanguageExt.ClassInstances
         /// <param name="b">The right hand side of the equality operation</param>
         /// <returns>True if a and b are equal</returns>
         public bool Equals(string a, string b) =>
-            StringComparer.Ordinal.Equals(a, b);
+            default(EqStringOrdinal).Equals(a, b);
 
         /// <summary>
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
         public int GetHashCode(string x) =>
-            x.IsNull() ? 0 : StringComparer.Ordinal.GetHashCode(x);
+            default(HashableStringOrdinal).GetHashCode(x);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -189,14 +190,14 @@ namespace LanguageExt.ClassInstances
         /// <param name="b">The right hand side of the equality operation</param>
         /// <returns>True if a and b are equal</returns>
         public bool Equals(string a, string b) =>
-            StringComparer.CurrentCultureIgnoreCase.Equals(a, b);
+            default(EqStringCurrentCultureIgnoreCase).Equals(a, b);
 
         /// <summary>
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
         public int GetHashCode(string x) =>
-            x.IsNull() ? 0 : StringComparer.CurrentCultureIgnoreCase.GetHashCode(x);
+            default(HashableStringCurrentCultureIgnoreCase).GetHashCode(x);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -241,14 +242,14 @@ namespace LanguageExt.ClassInstances
         /// <param name="b">The right hand side of the equality operation</param>
         /// <returns>True if a and b are equal</returns>
         public bool Equals(string a, string b) =>
-            StringComparer.CurrentCulture.Equals(a, b);
+            default(EqStringCurrentCulture).Equals(a, b);
 
         /// <summary>
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
         public int GetHashCode(string x) =>
-            x.IsNull() ? 0 : StringComparer.CurrentCulture.GetHashCode(x);
+            default(HashableStringCurrentCulture).GetHashCode(x);
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
