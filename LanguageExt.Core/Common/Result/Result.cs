@@ -184,6 +184,18 @@ namespace LanguageExt.Common
                 : new Result<B>(await f(Value));
 
         [Pure]
+        public Result<B> Bind<B>(Func<A, Result<B>> f) =>
+           IsFaulted
+               ? new Result<B>(Exception)
+               : f(Value);
+
+        [Pure]
+        public async Task<Result<B>> BindAsync<B>(Func<A, Task<Result<B>>> f) =>
+            IsFaulted
+                ? new Result<B>(Exception)
+                : (await f(Value));
+
+        [Pure]
         public int CompareTo(Result<A> other) =>
             default(OrdResult<A>).Compare(this, other);
 
