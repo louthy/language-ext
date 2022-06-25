@@ -135,18 +135,18 @@ public abstract partial record Schedule
     /// Take all but the first duration from the schedule
     /// </summary>
     [Pure]
-    public Schedule Tail => 
+    public Schedule Tail =>
         new SchTail(this);
-    
+
     /// <summary>
     /// Prepend a duration in-front of the rest of the scheduled durations
     /// </summary>
     /// <param name="value">Duration to prepend</param>
     /// <returns>Schedule with the duration prepended</returns>
-    [Pure] 
+    [Pure]
     public Schedule Prepend(Duration value) =>
         new SchCons(value, this);
-    
+
     /// <summary>
     /// Functor map operation for Schedule
     /// </summary>
@@ -155,7 +155,7 @@ public abstract partial record Schedule
     [Pure]
     public Schedule Map(Func<Duration, Duration> f) =>
         new SchMap(this, f);
-    
+
     /// <summary>
     /// Functor map operation for Schedule
     /// </summary>
@@ -164,7 +164,7 @@ public abstract partial record Schedule
     [Pure]
     public Schedule Map(Func<Duration, int, Duration> f) =>
         new SchMapIndex(this, f);
-    
+
     /// <summary>
     /// Filter operation for Schedule
     /// </summary>
@@ -173,7 +173,7 @@ public abstract partial record Schedule
     [Pure]
     public Schedule Filter(Func<Duration, bool> pred) =>
         new SchFilter(this, pred);
-    
+
     /// <summary>
     /// Filter operation for Schedule
     /// </summary>
@@ -231,34 +231,37 @@ public abstract partial record Schedule
         new SchBind2(this, bind, project);
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Fin<S> FinalResult<A, S>(Fin<A> effectResult, S state) =>
+        effectResult.IsSucc ? state : FinFail<S>(effectResult.Error);
+
+    [Pure]
     internal Eff<S> Run<A, S>(Eff<A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
     {
         var durations = Run();
         return EffMaybe(() =>
         {
-            Fin<A> result;
-
-            void RunAndFold()
+            static (Fin<A> EffectResult, S State) RunAndFold(Eff<A> effect, S state, Func<S, A, S> fold)
             {
-                result = effect.Run();
-                state = result.IsSucc ? fold(state, result.value) : state;
+                var newResult = effect.Run();
+                var newState = newResult.IsSucc ? fold(state, newResult.value) : state;
+                return (newResult, newState);
             }
 
-            bool Continue() => pred(result);
-            Fin<S> FinalResult() => result.IsSucc ? state : FinFail<S>(result.Error);
+            var results = RunAndFold(effect, state, fold);
 
-            RunAndFold();
-            if (!Continue()) return FinalResult();
+            if (!pred(results.EffectResult))
+                return FinalResult(results.EffectResult, results.State);
 
             var wait = new AutoResetEvent(false);
             using var enumerator = durations.GetEnumerator();
-            while (enumerator.MoveNext() && Continue())
+            while (enumerator.MoveNext() && pred(results.EffectResult))
             {
                 if (enumerator.Current != Duration.Zero) wait.WaitOne((int)enumerator.Current);
-                RunAndFold();
+                results = RunAndFold(effect, results.State, fold);
             }
 
-            return FinalResult();
+            return FinalResult(results.EffectResult, results.State);
         });
     }
 
@@ -274,37 +277,34 @@ public abstract partial record Schedule
         var durations = Run();
         return EffMaybe<RT, S>(env =>
         {
-            Fin<A> result;
-
-            void RunAndFold()
+            static (Fin<A> EffectResult, S State) RunAndFold(RT env, Eff<RT, A> effect, S state, Func<S, A, S> fold)
             {
-                result = effect.Run(env);
-                state = result.IsSucc ? fold(state, result.value) : state;
+                var newResult = effect.Run(env);
+                var newState = newResult.IsSucc ? fold(state, newResult.value) : state;
+                return (newResult, newState);
             }
 
-            bool Continue() => pred(result);
-            Fin<S> FinalResult() => result.IsSucc ? state : FinFail<S>(result.Error);
+            var results = RunAndFold(env, effect, state, fold);
 
-            RunAndFold();
-            if (!Continue()) return FinalResult();
+            if (!pred(results.EffectResult))
+                return FinalResult(results.EffectResult, results.State);
 
             var wait = new AutoResetEvent(false);
             using var enumerator = durations.GetEnumerator();
-            while (enumerator.MoveNext() && Continue())
+            while (enumerator.MoveNext() && pred(results.EffectResult))
             {
                 if (enumerator.Current != Duration.Zero) wait.WaitOne((int)enumerator.Current);
-                RunAndFold();
+                results = RunAndFold(env, effect, results.State, fold);
             }
 
-            return FinalResult();
+            return FinalResult(results.EffectResult, results.State);
         });
     }
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal Eff<RT, A> Run<RT, A>(Eff<RT, A> effect, Func<Fin<A>, bool> pred) 
-        where RT : struct =>
-            Run(effect, default(A), static (_, result) => result, pred)!;
+    internal Eff<RT, A> Run<RT, A>(Eff<RT, A> effect, Func<Fin<A>, bool> pred) where RT : struct =>
+        Run(effect, default(A), static (_, result) => result, pred)!;
 
     [Pure]
     internal Aff<S> Run<A, S>(Aff<A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
@@ -312,30 +312,30 @@ public abstract partial record Schedule
         var durations = Run();
         return AffMaybe(async () =>
         {
-            Fin<A> result;
-
-            async ValueTask<Fin<A>> RunAndFold()
+            static async ValueTask<(Fin<A> EffectResult, S State)> RunAndFold(
+                Aff<A> effect,
+                S state,
+                Func<S, A, S> fold)
             {
-                result = await effect.Run().ConfigureAwait(false);
-                state = result.IsSucc ? fold(state, result.value) : state;
-                return result;
+                var newResult = await effect.Run().ConfigureAwait(false);
+                var newState = newResult.IsSucc ? fold(state, newResult.value) : state;
+                return (newResult, newState);
             }
 
-            bool Continue() => pred(result);
-            Fin<S> FinalResult() => result.IsSucc ? state : FinFail<S>(result.Error);
+            var results = await RunAndFold(effect, state, fold).ConfigureAwait(false);
 
-            result = await RunAndFold().ConfigureAwait(false);
-            if (!Continue()) return FinalResult();
+            if (!pred(results.EffectResult))
+                return FinalResult(results.EffectResult, results.State);
 
             using var enumerator = durations.GetEnumerator();
-            while (enumerator.MoveNext() && Continue())
+            while (enumerator.MoveNext() && pred(results.EffectResult))
             {
                 if (enumerator.Current != Duration.Zero)
                     await Task.Delay((int)enumerator.Current).ConfigureAwait(false);
-                result = await RunAndFold().ConfigureAwait(false);
+                results = await RunAndFold(effect, results.State, fold).ConfigureAwait(false);
             }
 
-            return FinalResult();
+            return FinalResult(results.EffectResult, results.State);
         });
     }
 
@@ -351,36 +351,39 @@ public abstract partial record Schedule
         var durations = Run();
         return AffMaybe<RT, S>(async env =>
         {
-            Fin<A> result;
-
-            async ValueTask<Fin<A>> RunAndFold()
+            static async ValueTask<(Fin<A> EffectResult, S State)> RunAndFold(
+                RT env,
+                Aff<RT, A> effect,
+                S state,
+                Func<S, A, S> fold)
             {
-                result = await effect.Run(env).ConfigureAwait(false);
-                state = result.IsSucc ? fold(state, result.value) : state;
-                return result;
+                var newResult = await effect.Run(env).ConfigureAwait(false);
+                var newState = newResult.IsSucc ? fold(state, newResult.value) : state;
+                return (newResult, newState);
             }
 
-            bool Continue() => pred(result) && !env.CancellationToken.IsCancellationRequested;
-            Fin<S> FinalResult() => result.IsSucc ? state : FinFail<S>(result.Error);
+            bool Continue(Fin<A> effectResult) =>
+                pred(effectResult) && !env.CancellationToken.IsCancellationRequested;
 
-            result = await RunAndFold().ConfigureAwait(false);
-            if (!Continue()) return FinalResult();
+            var results = await RunAndFold(env, effect, state, fold).ConfigureAwait(false);
+
+            if (!Continue(results.EffectResult))
+                return FinalResult(results.EffectResult, results.State);
 
             using var enumerator = durations.GetEnumerator();
-            while (enumerator.MoveNext() && Continue())
+            while (enumerator.MoveNext() && Continue(results.EffectResult))
             {
                 if (enumerator.Current != Duration.Zero)
-                    await Task.Delay((int)enumerator.Current, env.CancellationToken).ConfigureAwait(false);
-                result = await RunAndFold().ConfigureAwait(false);
+                    await Task.Delay((int)enumerator.Current).ConfigureAwait(false);
+                results = await RunAndFold(env, effect, results.State, fold).ConfigureAwait(false);
             }
 
-            return FinalResult();
+            return FinalResult(results.EffectResult, results.State);
         });
     }
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal Aff<RT, A> Run<RT, A>(Aff<RT, A> effect, Func<Fin<A>, bool> pred) 
-        where RT : struct, HasCancel<RT> =>
-            Run(effect, default(A), static (_, result) => result, pred)!;
+    internal Aff<RT, A> Run<RT, A>(Aff<RT, A> effect, Func<Fin<A>, bool> pred) where RT : struct, HasCancel<RT> =>
+        Run(effect, default(A), static (_, result) => result, pred)!;
 }
