@@ -109,9 +109,9 @@ namespace LanguageExt
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
         public Aff<A> SwapAff(Func<A, Aff<A>> f) =>
-            AffMaybe(async () =>
+            AffMaybe(async token =>
             {
-                var fv = await f(Value).Run().ConfigureAwait(false);
+                var fv = await f(Value).Run(token).ConfigureAwait(false);
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;
@@ -195,9 +195,9 @@ namespace LanguageExt
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
         public Aff<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, Aff<A>> f) =>
-            AffMaybe(async () =>
+            AffMaybe(async token =>
             {
-                var fv = await f(x, y, Value).Run().ConfigureAwait(false);
+                var fv = await f(x, y, Value).Run(token).ConfigureAwait(false);
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;
@@ -281,9 +281,9 @@ namespace LanguageExt
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
         public Aff<A> SwapAff<X>(X x, Func<X, A, Aff<A>> f) =>
-            AffMaybe(async () =>
+            AffMaybe(async token =>
             {
-                var fv = await f(x, Value).Run().ConfigureAwait(false);
+                var fv = await f(x, Value).Run(token).ConfigureAwait(false);
                 if (fv.IsFail) return fv;
                 Value = fv.Value;
                 return fv;

@@ -3,6 +3,7 @@ using System;
 using LanguageExt;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.DataTypes.Serialisation;
 using LanguageExt.TypeClasses;
@@ -287,7 +288,7 @@ namespace LanguageExt
             return new EitherAsync<L, Aff<B>>(Go(ma, f));
             async Task<EitherData<L, Aff<B>>> Go(Aff<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var result = await ma.Run().ConfigureAwait(false);
+                var result = await ma.Run(CancellationToken.None).ConfigureAwait(false);
                 if (result.IsBottom) return EitherData<L, Aff<B>>.Bottom;
                 if (result.IsFail) return EitherData.Right<L, Aff<B>>(FailAff<B>(result.Error));
                 var db = await result.Value.Data.ConfigureAwait(false);

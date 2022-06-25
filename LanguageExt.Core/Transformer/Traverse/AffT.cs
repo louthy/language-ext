@@ -393,7 +393,7 @@ namespace LanguageExt
             return AffMaybe<RT, Aff<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<Aff<B>>> Go(RT env, Aff<Aff<RT, A>> ma, Func<A, B> f)
             {
-                var ra = await ma.Run().ConfigureAwait(false);
+                var ra = await ma.Run(env.CancellationToken).ConfigureAwait(false);
                 if (ra.IsFail) return FinSucc<Aff<B>>(FailAff<B>(ra.Error));
                 var rb = await ra.Value.Run(env).ConfigureAwait(false);
                 if (rb.IsFail) return FinFail<Aff<B>>(rb.Error);

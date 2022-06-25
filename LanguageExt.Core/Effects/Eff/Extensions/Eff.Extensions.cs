@@ -268,7 +268,7 @@ namespace LanguageExt
                     var res = ma.Run(env);
                     return res.IsSucc
                                ? res
-                               : await alternative.Run().ConfigureAwait(false);
+                               : await alternative.Run(env.CancellationToken).ConfigureAwait(false);
                 });
         
         [Pure, MethodImpl(Opt.Default)]
@@ -279,7 +279,7 @@ namespace LanguageExt
                     var res = ma.Run(env);
                     return res.IsSucc
                                ? res
-                               : await alternative(res.Error).Run().ConfigureAwait(false);
+                               : await alternative(res.Error).Run(env.CancellationToken).ConfigureAwait(false);
                 });
         
         [Pure, MethodImpl(Opt.Default)]
@@ -364,7 +364,7 @@ namespace LanguageExt
                     var res = ma.Run(env);
                     if (res.IsSucc)
                     {
-                        ignore(await f(res.Value).Run().ConfigureAwait(false));
+                        ignore(await f(res.Value).Run(env.CancellationToken).ConfigureAwait(false));
                     }
                     return unit;
                 });
@@ -448,7 +448,7 @@ namespace LanguageExt
                     var res = ma.Run(env);
                     if (res.IsSucc)
                     {
-                        var ures = await f(res.Value).Run().ConfigureAwait(false);
+                        var ures = await f(res.Value).Run(env.CancellationToken).ConfigureAwait(false);
                         return ures.IsFail
                                    ? Fin<A>.Fail(ures.Error)
                                    : res;
@@ -512,7 +512,7 @@ namespace LanguageExt
                 var fa = ma.Run(env);
                 if (fa.IsFail) return FinFail<B>(fa.Error);
                 var mb = f(fa.Value);
-                return await mb.Run().ConfigureAwait(false);
+                return await mb.Run(env.CancellationToken).ConfigureAwait(false);
             });
 
         [Pure, MethodImpl(Opt.Default)]
@@ -563,7 +563,7 @@ namespace LanguageExt
             {
                 var ma = mma.Run(rt);
                 if (ma.IsFail) return ma.Error;
-                return await ma.Value.Run().ConfigureAwait(false);
+                return await ma.Value.Run(rt.CancellationToken).ConfigureAwait(false);
             });
 
         //
@@ -977,23 +977,23 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> IfFailAff<A>(this Eff<A> ma, Aff<A> alternative) =>
             AffMaybe<A>(
-                async () =>
+                async token =>
                 {
                     var res = ma.Run();
                     return res.IsSucc
                                ? res
-                               : await alternative.Run().ConfigureAwait(false);
+                               : await alternative.Run(token).ConfigureAwait(false);
                 });
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> IfFailAff<A>(this Eff<A> ma, Func<Error, Aff<A>> alternative) =>
             AffMaybe<A>(
-                async () =>
+                async token =>
                 {
                     var res = ma.Run();
                     return res.IsSucc
                                ? res
-                               : await alternative(res.Error).Run().ConfigureAwait(false);
+                               : await alternative(res.Error).Run(token).ConfigureAwait(false);
                 });
         
         [Pure, MethodImpl(Opt.Default)]
@@ -1073,12 +1073,12 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<Unit> Iter<A>(this Eff<A> ma, Func<A, Aff<Unit>> f) =>
             Aff<Unit>(
-                async () =>
+                async token =>
                 {
                     var res = ma.Run();
                     if (res.IsSucc)
                     {
-                        ignore(await f(res.Value).Run().ConfigureAwait(false));
+                        ignore(await f(res.Value).Run(token).ConfigureAwait(false));
                     }
                     return unit;
                 });
@@ -1157,12 +1157,12 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> Do<A>(this Eff<A> ma, Func<A, Aff<Unit>> f) =>
             AffMaybe<A>(
-                async () =>
+                async token =>
                 {
                     var res = ma.Run();
                     if (res.IsSucc)
                     {
-                        var ures = await f(res.Value).Run().ConfigureAwait(false);
+                        var ures = await f(res.Value).Run(token).ConfigureAwait(false);
                         return ures.IsFail
                                    ? Fin<A>.Fail(ures.Error)
                                    : res;
@@ -1220,12 +1220,12 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<B> Bind<A, B>(this Eff<A> ma, Func<A, Aff<B>> f) =>
-            new(async () =>
+            new(async token =>
             {
                 var fa = ma.Run();
                 if (fa.IsFail) return FinFail<B>(fa.Error);
                 var mb = f(fa.Value);
-                return await mb.Run().ConfigureAwait(false);
+                return await mb.Run(token).ConfigureAwait(false);
             });
 
         [Pure, MethodImpl(Opt.Default)]
@@ -1287,11 +1287,11 @@ namespace LanguageExt
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> Flatten<A>(this Eff<Aff<A>> mma) =>
-            new (async () =>
+            new (async token =>
             {
                 var ma = mma.Run();
                 if (ma.IsFail) return ma.Error;
-                return await ma.Value.Run().ConfigureAwait(false);
+                return await ma.Value.Run(token).ConfigureAwait(false);
             });
         
         [Pure, MethodImpl(Opt.Default)]

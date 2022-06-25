@@ -18,13 +18,13 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static Aff<R> use<H, R>(Aff<H> Acq, Func<H, Aff<R>> Use) where H : IDisposable =>
-            AffMaybe<R>(async () =>
+            AffMaybe<R>(async token =>
                         {
-                            var h = await Acq.Run().ConfigureAwait(false);
+                            var h = await Acq.Run(token).ConfigureAwait(false);
                             if (h.IsFail) return h.Cast<R>();
                             try
                             {
-                                return await Use(h.Value).Run().ConfigureAwait(false);
+                                return await Use(h.Value).Run(token).ConfigureAwait(false);
                             }
                             finally
                             {
@@ -42,7 +42,7 @@ namespace LanguageExt
             where H : IDisposable =>
             AffMaybe<RT, R>(async env =>
                              {
-                                 var h = await Acq.Run().ConfigureAwait(false);
+                                 var h = await Acq.Run(env.CancellationToken).ConfigureAwait(false);
                                  if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
@@ -60,9 +60,9 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static Aff<R> use<H, R>(Aff<H> Acq, Func<H, Eff<R>> Use) where H : IDisposable =>
-            AffMaybe(async () =>
+            AffMaybe(async token =>
                      {
-                         var h = await Acq.Run().ConfigureAwait(false);
+                         var h = await Acq.Run(token).ConfigureAwait(false);
                          if (h.IsFail) return h.Cast<R>();
                          try
                          {
@@ -84,7 +84,7 @@ namespace LanguageExt
             where H : IDisposable =>
             AffMaybe<RT, R>(async env =>
                              {
-                                 var h = await Acq.Run().ConfigureAwait(false);
+                                 var h = await Acq.Run(env.CancellationToken).ConfigureAwait(false);
                                  if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
@@ -111,7 +111,7 @@ namespace LanguageExt
                                  if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     return await Use(h.Value).Run().ConfigureAwait(false);
+                                     return await Use(h.Value).Run(env.CancellationToken).ConfigureAwait(false);
                                  }
                                  finally
                                  {

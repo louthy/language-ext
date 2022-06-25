@@ -1,9 +1,7 @@
 #nullable enable
 using System;
-using LanguageExt;
-using System.Linq;
 using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -174,7 +172,7 @@ namespace LanguageExt
                 
         public static async ValueTask<Aff<B>> Traverse<A, B>(this Aff<ValueTask<A>> ma, Func<A, B> f)
         {
-            var da = await ma.Run().ConfigureAwait(false);
+            var da = await ma.Run(CancellationToken.None).ConfigureAwait(false);
             if (da.IsBottom) throw new BottomException();
             if (da.IsFail) return FailAff<B>(da.Error);
             var a = await da.Value.ConfigureAwait(false);

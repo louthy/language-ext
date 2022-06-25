@@ -122,6 +122,13 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> Effect(Func<ValueTask<A>> f) =>
             new (async () => FinSucc(await f().ConfigureAwait(false)));
+        
+        /// <summary>
+        /// Lift an asynchronous effect into the Aff monad
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public static Aff<A> Effect(Func<CancellationToken, ValueTask<A>> f) =>
+            new (async token => FinSucc(await f(token).ConfigureAwait(false)));
 
         /// <summary>
         /// Lift an asynchronous effect into the Aff monad
@@ -164,19 +171,19 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> operator |(Aff<A> ma, Aff<A> mb) =>
-            new(async () =>
+            new(async token =>
             {
-                var ra = await ma.Run().ConfigureAwait(false);
+                var ra = await ma.Run(token).ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
-                    : await mb.Run().ConfigureAwait(false);
+                    : await mb.Run(token).ConfigureAwait(false);
             });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> operator |(Aff<A> ma, Eff<A> mb) =>
-            new(async () =>
+            new(async token =>
             {
-                var ra = await ma.Run().ConfigureAwait(false);
+                var ra = await ma.Run(token).ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
                     : mb.Run();
@@ -184,19 +191,19 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> operator |(Eff<A> ma, Aff<A> mb) =>
-            new(async () =>
+            new(async token =>
             {
                 var ra = ma.Run();
                 return ra.IsSucc
                     ? ra
-                    : await mb.Run().ConfigureAwait(false);
+                    : await mb.Run(token).ConfigureAwait(false);
             });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> operator |(Aff<A> ma, EffCatch<A> mb) =>
-            new(async () =>
+            new(async token =>
             {
-                var ra = await ma.Run().ConfigureAwait(false);
+                var ra = await ma.Run(token).ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
                     : mb.Run(ra.Error);
@@ -204,9 +211,9 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> operator |(Aff<A> ma, AffCatch<A> mb) =>
-            new(async () =>
+            new(async token =>
             {
-                var ra = await ma.Run().ConfigureAwait(false);
+                var ra = await ma.Run(token).ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
                     : await mb.Run(ra.Error).ConfigureAwait(false);
@@ -214,9 +221,9 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> operator |(Aff<A> ma, CatchValue<A> value) =>
-            new(async () =>
+            new(async token =>
             {
-                var ra = await ma.Run().ConfigureAwait(false);
+                var ra = await ma.Run(token).ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
                     : value.Match(ra.Error)
@@ -226,9 +233,9 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> operator |(Aff<A> ma, CatchError value) =>
-            new(async () =>
+            new(async token =>
             {
-                var ra = await ma.Run().ConfigureAwait(false);
+                var ra = await ma.Run(token).ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
                     : value.Match(ra.Error)
@@ -272,29 +279,29 @@ namespace LanguageExt
         public Aff<RT, A> WithRuntime<RT>() where RT : struct, HasCancel<RT>
         {
             var self = this;
-            return Aff<RT, A>.EffectMaybe(_ => self.Run());
+            return Aff<RT, A>.EffectMaybe(rt => self.Run(rt.CancellationToken));
         }
 
         [Pure, MethodImpl(Opt.Default)]
-        public async ValueTask<S> Fold<S>(S state, Func<S, A, S> f)
+        public async ValueTask<S> Fold<S>(S state, Func<S, A, S> f, CancellationToken token = default)
         {
-            var r = await Run().ConfigureAwait(false);
+            var r = await Run(token).ConfigureAwait(false);
             return r.IsSucc
                 ? f(state, r.Value)
                 : state;
         }
 
         [Pure, MethodImpl(Opt.Default)]
-        public async ValueTask<bool> Exists(Func<A, bool> f)
+        public async ValueTask<bool> Exists(Func<A, bool> f, CancellationToken token = default)
         {
-            var r = await Run().ConfigureAwait(false);
+            var r = await Run(token).ConfigureAwait(false);
             return r.IsSucc && f(r.Value);
         }
 
         [Pure, MethodImpl(Opt.Default)]
-        public async ValueTask<bool> ForAll(Func<A, bool> f)
+        public async ValueTask<bool> ForAll(Func<A, bool> f, CancellationToken token = default)
         {
-            var r = await Run().ConfigureAwait(false);
+            var r = await Run(token).ConfigureAwait(false);
             return r.IsFail || (r.IsSucc && f(r.Value));
         }
 

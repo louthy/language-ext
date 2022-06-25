@@ -210,14 +210,14 @@ namespace LanguageExt
                 var ra = await ma.Run(env).ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
-                    : await mb.Run().ConfigureAwait(false);
+                    : await mb.Run(env.CancellationToken).ConfigureAwait(false);
             });
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> operator |(Aff<A> ma, Aff<RT, A> mb) =>
             new(async env =>
             {
-                var ra = await ma.Run().ConfigureAwait(false);
+                var ra = await ma.Run(env.CancellationToken).ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
                     : await mb.Run(env).ConfigureAwait(false);
@@ -331,7 +331,7 @@ namespace LanguageExt
         /// Implicit conversion from pure Aff
         /// </summary>
         public static implicit operator Aff<RT, A>(Aff<A> ma) =>
-            EffectMaybe(_ => ma.Run());
+            EffectMaybe(rt => ma.Run(rt.CancellationToken));
 
         /// <summary>
         /// Implicit conversion from pure Eff

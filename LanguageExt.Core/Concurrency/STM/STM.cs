@@ -226,7 +226,7 @@ namespace LanguageExt
         /// Runs the transaction
         /// </summary>
         static Aff<R> RunTransaction<R>(Aff<R> op, Isolation isolation) =>
-            AffMaybe(async () =>
+            AffMaybe(async token =>
             {
                 SpinWait sw = default;
                 while (true)
@@ -237,7 +237,7 @@ namespace LanguageExt
                     try
                     {
                         // Try to do the operations of the transaction
-                        var res = await op.Run().ConfigureAwait(false);
+                        var res = await op.Run(token).ConfigureAwait(false);
                         return res.IsFail 
                                    ? res 
                                    : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);

@@ -58,6 +58,16 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Asynchronous IO monad that captures the effect</returns>
         [Pure, MethodImpl(Opt.Default)]
+        public static Aff<A> Aff<A>(Func<CancellationToken, ValueTask<A>> f) =>
+            LanguageExt.Aff<A>.Effect(f);
+        
+        /// <summary>
+        /// Construct an effect that will either succeed or have an exceptional failure
+        /// </summary>
+        /// <param name="f">Function to capture the effect</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>Asynchronous IO monad that captures the effect</returns>
+        [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> Aff<A>(Func<ValueTask<A>> f) =>
             LanguageExt.Aff<A>.Effect(f);
 

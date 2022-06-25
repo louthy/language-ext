@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using LanguageExt.Thunks;
 using LanguageExt.Common;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace LanguageExt
         { }
 
         public ValueTask<Fin<A>> Run(Error error) =>
-            fail(error).Run();
+            fail(error).Run(CancellationToken.None);
 
         public static AffCatch<A> operator |(CatchValue<A> ma, AffCatch<A> mb) =>
             new AffCatch<A>(e => ma.Match(e) ? SuccessEff(ma.Value(e)) : mb.fail(e));
@@ -105,7 +106,7 @@ namespace LanguageExt
         public static Aff<RT, A> operator |(Aff<A> ma, AffCatch<RT, A> mb) =>
             new(async env =>
             {
-                var ra = await ma.Run().ConfigureAwait(false);
+                var ra = await ma.Run(env.CancellationToken).ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
                     : await mb.Run(env, ra.Error).ConfigureAwait(false);

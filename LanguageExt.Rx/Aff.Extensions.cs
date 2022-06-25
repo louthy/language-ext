@@ -15,12 +15,11 @@ namespace LanguageExt
         /// which allows subsequent operations to be composed.</remarks>
         /// <param name="ma">Observable to consume</param>
         /// <param name="next">Next function to call</param>
-        /// <param name="token">Cancellation token</param>
         /// <typeparam name="A">Bound type</typeparam>
         /// <returns>Aff of unit</returns>
-        public static Aff<Unit> Consume<A>(this IObservable<A> ma, Func<A, Aff<Unit>> next, CancellationToken token = default) =>
+        public static Aff<Unit> Consume<A>(this IObservable<A> ma, Func<A, Aff<Unit>> next) =>
             AffMaybe<Unit>(
-                async () =>
+                async token =>
                 {
                     A   nextValue = default;
                     var wait      = new AutoResetEvent(false);
@@ -35,7 +34,7 @@ namespace LanguageExt
                     while (token == default || !token.IsCancellationRequested)
                     {
                         wait.WaitOne();
-                        var res = await next(nextValue).Run();
+                        var res = await next(nextValue).Run(token);
                         if (res.IsFail) return FinFail<Unit>((Error)res);
                     }
 
@@ -86,11 +85,10 @@ namespace LanguageExt
         /// <param name="ma">Observable to fold</param>
         /// <param name="next">Next function to call</param>
         /// <typeparam name="A">Bound type</typeparam>
-        /// <param name="token">Cancellation token</param>
         /// <returns>Aff of S</returns>
-        public static Aff<S> Fold<S, A>(this IObservable<A> ma, S state, Func<S, A, Aff<S>> next, CancellationToken token = default) =>
+        public static Aff<S> Fold<S, A>(this IObservable<A> ma, S state, Func<S, A, Aff<S>> next) =>
             AffMaybe<S>(
-                async () =>
+                async token =>
                 {
                     A   nextValue = default;
                     var wait      = new AutoResetEvent(false);
@@ -105,7 +103,7 @@ namespace LanguageExt
                     while (token == default || !token.IsCancellationRequested)
                     {
                         wait.WaitOne();
-                        var res = await next(state, nextValue).Run();
+                        var res = await next(state, nextValue).Run(token);
                         if (res.IsFail) return FinFail<S>((Error)res);
                         state = (S)res;
                     }

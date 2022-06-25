@@ -18,13 +18,13 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static Aff<R> use<H, R>(Eff<H> Acq, Func<H, Aff<R>> Use) where H : IDisposable =>
-            AffMaybe(async () =>
+            AffMaybe(async token =>
                      {
                          var h = Acq.Run();
                          if (h.IsFail) return h.Cast<R>();
                          try
                          {
-                             return await Use(h.Value).Run().ConfigureAwait(false);
+                             return await Use(h.Value).Run(token).ConfigureAwait(false);
                          }
                          finally
                          {
@@ -111,7 +111,7 @@ namespace LanguageExt
                                  if (h.IsFail) return h.Cast<R>();
                                  try
                                  {
-                                     return await Use(h.Value).Run().ConfigureAwait(false);
+                                     return await Use(h.Value).Run(env.CancellationToken).ConfigureAwait(false);
                                  }
                                  finally
                                  {

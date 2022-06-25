@@ -219,7 +219,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public Aff<A> SwapAff(Func<A, Aff<A>> f) =>
-            AffMaybe<A>(async () =>
+            AffMaybe<A>(async token =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -227,7 +227,7 @@ namespace LanguageExt
                 while (true)
                 {
                     var current = value;
-                    var newValueFinA = await f(Box<A>.GetValue(value)).Run().ConfigureAwait(false);
+                    var newValueFinA = await f(Box<A>.GetValue(value)).Run(token).ConfigureAwait(false);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -477,7 +477,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public Aff<A> SwapAff<X>(X x, Func<X, A, Aff<A>> f) =>
-            AffMaybe<A>(async () =>
+            AffMaybe<A>(async token =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -485,7 +485,7 @@ namespace LanguageExt
                 while (true)
                 {
                     var current = value;
-                    var newValueFinA = await f(x, Box<A>.GetValue(value)).Run().ConfigureAwait(false);
+                    var newValueFinA = await f(x, Box<A>.GetValue(value)).Run(token).ConfigureAwait(false);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;
@@ -741,7 +741,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public Aff<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, Aff<A>> f) =>
-            AffMaybe<A>(async () =>
+            AffMaybe<A>(async token =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -749,7 +749,7 @@ namespace LanguageExt
                 while (true)
                 {
                     var current = value;
-                    var newValueFinA = await f(x, y, Box<A>.GetValue(value)).Run().ConfigureAwait(false);
+                    var newValueFinA = await f(x, y, Box<A>.GetValue(value)).Run(token).ConfigureAwait(false);
                     if (newValueFinA.IsFail)
                     {
                         return newValueFinA;

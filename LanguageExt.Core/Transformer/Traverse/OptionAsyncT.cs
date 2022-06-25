@@ -3,6 +3,7 @@ using System;
 using LanguageExt;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.DataTypes.Serialisation;
 using LanguageExt.TypeClasses;
@@ -277,7 +278,7 @@ namespace LanguageExt
             return new OptionAsync<Aff<B>>(Go(ma, f));
             async Task<(bool, Aff<B>)> Go(Aff<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var resultA = await ma.Run().ConfigureAwait(false);
+                var resultA = await ma.Run(CancellationToken.None).ConfigureAwait(false);
                 if (resultA.IsBottom) return (false, default);
                 if (resultA.IsFail) return (true, FailAff<B>(resultA.Error));
                 var (isSome, value) = await resultA.Value.Data.ConfigureAwait(false);
