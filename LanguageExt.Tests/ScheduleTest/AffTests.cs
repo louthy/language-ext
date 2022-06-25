@@ -249,9 +249,22 @@ public static class AffTests
         counter.Should().Be(5);
         result.Should().Be(16);
     }
+    
+    [Fact(DisplayName = "Schedule Run against Aff<T> can be cancelled")]
+    public static async Task CancelTest1()
+    {
+        var counter = 0;
+        var cts = new CancellationTokenSource();
+        var effect = AffMaybe<int>(async () => await (++counter).AsValueTask()).Repeat(Schedule.Forever);
+        cts.Cancel();
+        var result = await effect.Run(cts.Token);
+        counter.Should().Be(1);
+        result.IsSucc.Should().BeTrue();
+        result.Case.Should().Be(1);
+    }
 
-    [Fact]
-    public static async Task CancelTest()
+    [Fact(DisplayName = "Schedule Run against Aff<RT,T> can be cancelled")]
+    public static async Task CancelTest2()
     {
         var counter = 0;
         var cts = new CancellationTokenSource();

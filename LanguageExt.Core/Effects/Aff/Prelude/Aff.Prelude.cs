@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -7,7 +6,6 @@ using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Pipes;
-using LanguageExt.Thunks;
 
 namespace LanguageExt
 {
@@ -31,6 +29,16 @@ namespace LanguageExt
         /// <returns>Asynchronous IO monad that captures the effect</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> AffMaybe<A>(Func<ValueTask<Fin<A>>> f) =>
+            LanguageExt.Aff<A>.EffectMaybe(f);
+        
+        /// <summary>
+        /// Construct an effect that will either succeed, have an exceptional, or unexceptional failure
+        /// </summary>
+        /// <param name="f">Function to capture the effect</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>Asynchronous IO monad that captures the effect</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static Aff<A> AffMaybe<A>(Func<CancellationToken,ValueTask<Fin<A>>> f) =>
             LanguageExt.Aff<A>.EffectMaybe(f);
 
         /// <summary>
@@ -145,7 +153,7 @@ namespace LanguageExt
         /// <summary>
         /// Launch the async computation without awaiting the result
         /// </summary>
-        public static Eff<Unit> fork<A>(Aff<A> ma) =>
+        public static Eff<Eff<Unit>> fork<A>(Aff<A> ma) =>
             ma.Fork();
 
         /// <summary>

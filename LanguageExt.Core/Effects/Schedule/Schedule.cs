@@ -310,29 +310,33 @@ public abstract partial record Schedule
     internal Aff<S> Run<A, S>(Aff<A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
     {
         var durations = Run();
-        return AffMaybe(async () =>
+        return AffMaybe(async token =>
         {
             static async ValueTask<(Fin<A> EffectResult, S State)> RunAndFold(
                 Aff<A> effect,
                 S state,
-                Func<S, A, S> fold)
+                Func<S, A, S> fold,
+                CancellationToken token)
             {
-                var newResult = await effect.Run().ConfigureAwait(false);
+                var newResult = await effect.Run(token).ConfigureAwait(false);
                 var newState = newResult.IsSucc ? fold(state, newResult.value) : state;
                 return (newResult, newState);
             }
 
-            var results = await RunAndFold(effect, state, fold).ConfigureAwait(false);
+            bool Continue(Fin<A> effectResult) =>
+                pred(effectResult) && !token.IsCancellationRequested;
+            
+            var results = await RunAndFold(effect, state, fold, token).ConfigureAwait(false);
 
-            if (!pred(results.EffectResult))
+            if (!Continue(results.EffectResult))
                 return FinalResult(results.EffectResult, results.State);
 
             using var enumerator = durations.GetEnumerator();
-            while (enumerator.MoveNext() && pred(results.EffectResult))
+            while (enumerator.MoveNext() && Continue(results.EffectResult))
             {
                 if (enumerator.Current != Duration.Zero)
-                    await Task.Delay((int)enumerator.Current).ConfigureAwait(false);
-                results = await RunAndFold(effect, results.State, fold).ConfigureAwait(false);
+                    await Task.Delay((int)enumerator.Current, token).ConfigureAwait(false);
+                results = await RunAndFold(effect, results.State, fold, token).ConfigureAwait(false);
             }
 
             return FinalResult(results.EffectResult, results.State);

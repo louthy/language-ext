@@ -3,6 +3,7 @@ using System;
 using LanguageExt;
 using LanguageExt.Common;
 using System.Threading.Tasks;
+using FluentAssertions;
 using static LanguageExt.Prelude;
 
 namespace AffTests
@@ -75,6 +76,28 @@ namespace AffTests
         {
             await Task.Delay(1);
             throw new Exception("Error!");
+        }
+
+        [Fact(DisplayName = "Fork against Aff<T> can be cancelled")]
+        public static void CancelForkTest()
+        {
+            var counter = Atom(0);
+            Aff<int> EffectToFork() =>
+                AffMaybe<int>(async () =>
+                {
+                    swap(counter, i => i + 1);
+                    return await counter.Value.AsValueTask();
+                }).Repeat(Schedule.Forever);
+
+            var daemonEffect = EffectToFork().Fork();
+            
+            // start the effect
+            var cancelEffect = daemonEffect.Run().ThrowIfFail();
+
+            // cancel the running effect
+            cancelEffect.RunUnit();
+            
+            counter.Value.Should().BeGreaterThan(0);
         }
     }
 }

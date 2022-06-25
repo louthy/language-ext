@@ -17,25 +17,34 @@ namespace LanguageExt
     {
         internal const MethodImplOptions mops = MethodImplOptions.AggressiveInlining;
 
-        internal Func<ValueTask<Fin<A>>> Thunk => thunk ?? (() => FinFail<A>(Errors.Bottom).AsValueTask());
-        readonly Func<ValueTask<Fin<A>>> thunk;
+        internal Func<CancellationToken, ValueTask<Fin<A>>> Thunk => thunk ?? (_ => FinFail<A>(Errors.Bottom).AsValueTask());
+        readonly Func<CancellationToken, ValueTask<Fin<A>>> thunk;
 
         /// <summary>
         /// Constructor
         /// </summary>
         [MethodImpl(Opt.Default)]
-        internal Aff(Func<ValueTask<Fin<A>>> thunk) =>
+        internal Aff(Func<ValueTask<Fin<A>>> thunk) :
+            this(_ => thunk?.Invoke() ?? throw new ArgumentNullException(nameof(thunk)))
+        {
+        }
+        
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        [MethodImpl(Opt.Default)]
+        internal Aff(Func<CancellationToken, ValueTask<Fin<A>>> thunk) =>
             this.thunk = thunk ?? throw new ArgumentNullException(nameof(thunk));
 
         /// <summary>
         /// Invoke the effect
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
-        public async ValueTask<Fin<A>> Run()
+        public async ValueTask<Fin<A>> Run(CancellationToken token = default)
         {
             try
             {
-                return await Thunk().ConfigureAwait(false);
+                return await Thunk(token).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -50,8 +59,8 @@ namespace LanguageExt
         /// Throws on error
         /// </remarks>
         [Pure, MethodImpl(Opt.Default)]
-        public async ValueTask<Unit> RunUnit() =>
-            (await Thunk().ConfigureAwait(false)).Case switch
+        public async ValueTask<Unit> RunUnit(CancellationToken token = default) =>
+            (await Thunk(token).ConfigureAwait(false)).Case switch
             {
                 A       => unit,
                 Error e => e.Throw(),
@@ -67,10 +76,10 @@ namespace LanguageExt
             var thnk = Thunk;
             Fin<A> mr = default;
 
-            return new Aff<A>(async () =>
+            return new Aff<A>(async token =>
             {
                 if (mr.IsSucc) return mr;
-                mr = await thnk().ConfigureAwait(false);
+                mr = await thnk(token).ConfigureAwait(false);
                 return mr;
             });
         }
@@ -80,10 +89,20 @@ namespace LanguageExt
         /// </summary>
         /// <returns></returns>
         [MethodImpl(Opt.Default)]
-        public Eff<Unit> Fork()
+        public Eff<Eff<Unit>> Fork()
         {
             var t = Thunk;
-            return Eff(() => ignore(t()));
+            return Eff(() =>
+            {
+                var cts = new CancellationTokenSource();
+                var task = Task.Run(async () => await t(cts.Token), cts.Token);
+                return Eff(() =>
+                {
+                     cts.Cancel();
+                     task.Result.ThrowIfFail();
+                     return unit;
+                });
+            });
         }
 
         /// <summary>
@@ -109,6 +128,13 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> EffectMaybe(Func<ValueTask<Fin<A>>> f) =>
+            new (f);
+        
+        /// <summary>
+        /// Lift an asynchronous effect into the Aff monad
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public static Aff<A> EffectMaybe(Func<CancellationToken, ValueTask<Fin<A>>> f) =>
             new (f);
 
         /// <summary>
@@ -223,11 +249,11 @@ namespace LanguageExt
         {
             var t = Thunk;
             return AffMaybe(
-                async () =>
+                async token =>
                 {
                     using var toksrc    = new CancellationTokenSource();
                     var  delay     = Task.Delay(timeoutDelay, toksrc.Token);
-                    var  task      = t().AsTask();
+                    var  task      = t(token).AsTask();
                     var  completed = await Task.WhenAny(delay, task).ConfigureAwait(false);
                     
                     if (completed == delay)
