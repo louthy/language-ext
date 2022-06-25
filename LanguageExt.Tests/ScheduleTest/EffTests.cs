@@ -1,6 +1,11 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using FluentAssertions;
 using LanguageExt.Common;
+using LanguageExt.Sys;
 using LanguageExt.Sys.Test;
+using LanguageExt.Sys.Traits;
 using Xunit;
 using static LanguageExt.Prelude;
 
@@ -232,5 +237,60 @@ public static class EffTests
         var result = effect.FoldUntil(TestSchedule(), 1, (i, j) => i + j, i => i > 4).Run(Runtime.New()).ThrowIfFail();
         counter.Should().Be(5);
         result.Should().Be(16);
+    }
+
+    [Fact(DisplayName = "Schedule Run against Eff<T> should not capture state")]
+    public static void ShouldNotCaptureState1Test()
+    {
+        var content = Encoding.ASCII.GetBytes("test\0test\0test\0");
+        var memStream = new MemoryStream(100);
+        memStream.Write(content, 0, content.Length);
+        memStream.Seek(0, SeekOrigin.Begin);
+
+        Eff<Unit> AddToBuffer(ICollection<string> buffer, string value) =>
+            Eff(() => { buffer.Add(value); return unit; });
+
+        Eff<Unit> CreateEffect(ICollection<string> buffer) =>
+            repeat(
+                from ln in (
+                    from data in Eff(memStream.ReadByte)
+                    from _ in guard(data != -1, Errors.Cancelled)
+                    select data).FoldUntil(string.Empty, (s, ch) => s + (char)ch, ch => ch == '\0')
+                from _0 in AddToBuffer(buffer,ln)
+                select unit)
+            | @catch(exception => AddToBuffer(buffer,exception.Message));
+
+        var buffer = new List<string>();
+        var effect = CreateEffect(buffer);
+
+        effect.RunUnit();
+
+        buffer.Should().Equal("test\0", "test\0", "test\0", "cancelled");
+    }
+
+    [Fact(DisplayName = "Schedule Run against Eff<RT,T> should not capture state")]
+    public static void ShouldNotCaptureState2Test()
+    {
+        var content = Encoding.ASCII.GetBytes("test\0test\0test\0");
+        var memStream = new MemoryStream(100);
+        memStream.Write(content, 0, content.Length);
+        memStream.Seek(0, SeekOrigin.Begin);
+
+        Eff<RT, Unit> CreateEffect<RT>() where RT : struct, HasConsole<RT> =>
+            repeat(
+                from ln in (
+                    from data in Eff(memStream.ReadByte)
+                    from _ in guard(data != -1, Errors.Cancelled)
+                    select data).FoldUntil(string.Empty, (s, ch) => s + (char)ch, ch => ch == '\0')
+                from _0 in Console<RT>.writeLine(ln)
+                select unit)
+            | @catch(exception => Console<RT>.writeLine(exception.Message));
+
+        var runtime = Runtime.New();
+        var effect = CreateEffect<Runtime>();
+
+        effect.RunUnit(runtime);
+
+        runtime.Env.Console.Should().Equal("test\0", "test\0", "test\0", "cancelled");
     }
 }
