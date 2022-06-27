@@ -14,12 +14,13 @@ namespace LanguageExt
 {
     /// <summary>
     /// Atoms provide a way to manage shared, synchronous, independent state without 
-    /// locks.  `AtomSeq` wraps the language-ext `AtomSeq`, and makes sure all operations are atomic and thread-safe
+    /// locks.  `AtomSeq` wraps the language-ext `Seq`, and makes sure all operations are atomic and thread-safe
     /// without resorting to locking
     /// </summary>
     /// <remarks>
     /// See the [concurrency section](https://github.com/louthy/language-ext/wiki/Concurrency) of the wiki for more info.
     /// </remarks>
+    /// <typeparam name="A">Item value type</typeparam>
     public class AtomSeq<A> : 
         IComparable<AtomSeq<A>>, 
         IEquatable<AtomSeq<A>>, 
@@ -57,7 +58,7 @@ namespace LanguageExt
         /// <remarks>This is effectively a zero cost operation, not even a single allocation</remarks>
         [Pure]
         public Seq<A> ToSeq() =>
-            new Seq<A>(items);
+            new (items);
 
         /// <summary>
         /// Reference version for use in pattern-matching
