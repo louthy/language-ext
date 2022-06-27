@@ -22,7 +22,7 @@ namespace AffTests
             var result = fin.Match(_ => "Success!", error => error.Message);
 
             // Assert
-            Assert.True(result.IndexOf("MapFail Aff", StringComparison.Ordinal) > 0); 
+            Assert.True(result.IndexOf("MapFail Aff", StringComparison.Ordinal) > 0);
         }
 
         [Fact] // Fails
@@ -37,7 +37,7 @@ namespace AffTests
             var result = fin.Match(_ => "Success!", error => error.Message);
 
             // Assert
-            Assert.True(result.IndexOf("MapFail Aff", StringComparison.Ordinal) > 0); 
+            Assert.True(result.IndexOf("MapFail Aff", StringComparison.Ordinal) > 0);
         }
 
         [Fact] // Fails
@@ -52,7 +52,7 @@ namespace AffTests
             var result = fin.Match(_ => "Success!", error => error.Message);
 
             // Assert
-            Assert.True(result.IndexOf("MapFail Aff", StringComparison.Ordinal) > 0); 
+            Assert.True(result.IndexOf("MapFail Aff", StringComparison.Ordinal) > 0);
         }
 
         [Fact] // Succeeds
@@ -69,7 +69,7 @@ namespace AffTests
             var result = fin.Match(_ => "Success!", error => error.Message);
 
             // Assert
-            Assert.True(result.IndexOf("MapFail Aff", StringComparison.Ordinal) > 0); 
+            Assert.True(result.IndexOf("MapFail Aff", StringComparison.Ordinal) > 0);
         }
 
         private static async Task<Unit> FailingTask()
@@ -82,22 +82,67 @@ namespace AffTests
         public static void CancelForkTest()
         {
             var counter = Atom(0);
+
             Aff<int> EffectToFork() =>
-                AffMaybe<int>(async () =>
-                {
-                    swap(counter, i => i + 1);
-                    return await counter.Value.AsValueTask();
-                }).Repeat(Schedule.Forever);
+                AffMaybe<int>(
+                        async () =>
+                        {
+                            swap(counter, i => i + 1);
+                            return await counter.Value.AsValueTask();
+                        })
+                    .Repeat(Schedule.Forever);
 
             var daemonEffect = EffectToFork().Fork();
-            
+
             // start the effect
             var cancelEffect = daemonEffect.Run().ThrowIfFail();
 
             // cancel the running effect
             cancelEffect.RunUnit();
-            
+
             counter.Value.Should().BeGreaterThan(0);
+        }
+
+        [Fact(DisplayName = "An Aff can be folded and always returns an S")]
+        public static async Task FoldTest()
+        {
+            var effect = Aff(async () => await 2.AsValueTask());
+            var result = await effect.Fold(2, (i, j) => i + j).Run();
+            result.ThrowIfFail().Should().Be(4);
+
+            effect = FailAff<int>("Some error");
+            result = await effect.Fold(2, (i, j) => i + j).Run();
+            result.ThrowIfFail().Should().Be(2);
+        }
+
+        [Fact(DisplayName = "Exists against an Aff always returns a boolean")]
+        public static async Task ExistsTest()
+        {
+            var effect = Aff(async () => await 2.AsValueTask());
+            var result = await effect.Exists(i => i == 2).Run();
+            result.ThrowIfFail().Should().BeTrue();
+
+            result = await effect.Exists(i => i != 2).Run();
+            result.ThrowIfFail().Should().BeFalse();
+
+            effect = FailAff<int>("Some error");
+            result = await effect.Exists(i => i == 2).Run();
+            result.ThrowIfFail().Should().BeFalse();
+        }
+
+        [Fact(DisplayName = "ForAll against an Aff always returns a boolean")]
+        public static async Task ForAllTest()
+        {
+            var effect = Aff(async () => await 2.AsValueTask());
+            var result = await effect.ForAll(i => i == 2).Run();
+            result.ThrowIfFail().Should().BeTrue();
+
+            result = await effect.ForAll(i => i != 2).Run();
+            result.ThrowIfFail().Should().BeFalse();
+
+            effect = FailAff<int>("Some error");
+            result = await effect.ForAll(i => i == 2).Run();
+            result.ThrowIfFail().Should().BeTrue();
         }
     }
 }

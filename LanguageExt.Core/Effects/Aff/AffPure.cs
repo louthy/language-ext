@@ -283,27 +283,16 @@ namespace LanguageExt
         }
 
         [Pure, MethodImpl(Opt.Default)]
-        public async ValueTask<S> Fold<S>(S state, Func<S, A, S> f, CancellationToken token = default)
-        {
-            var r = await Run(token).ConfigureAwait(false);
-            return r.IsSucc
-                ? f(state, r.Value)
-                : state;
-        }
+        public Aff<S> Fold<S>(S state, Func<S, A, S> f) =>
+            this.Map(a => f(state, a)).IfFail(state);
 
         [Pure, MethodImpl(Opt.Default)]
-        public async ValueTask<bool> Exists(Func<A, bool> f, CancellationToken token = default)
-        {
-            var r = await Run(token).ConfigureAwait(false);
-            return r.IsSucc && f(r.Value);
-        }
+        public Aff<bool> Exists(Func<A, bool> f) =>
+            this.Map(f).IfFail(false);
 
         [Pure, MethodImpl(Opt.Default)]
-        public async ValueTask<bool> ForAll(Func<A, bool> f, CancellationToken token = default)
-        {
-            var r = await Run(token).ConfigureAwait(false);
-            return r.IsFail || (r.IsSucc && f(r.Value));
-        }
+        public Aff<bool> ForAll(Func<A, bool> f) =>
+            this.Map(f).IfFail(true);
 
         /// <summary>
         /// Implicit conversion from pure Eff
