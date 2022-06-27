@@ -70,7 +70,7 @@ public class Program
         // await AsyncTests();
         //testing.Run(Runtime.New());
         ScheduleTests.Run();
-        IssueTests.Run();
+        var _ = QueueExample<Runtime>.Issue1065().RunUnit(new Runtime()).Result;
     }
 
     public static async Task PipesTest()

@@ -1,129 +1,34 @@
-﻿using System;
-using System.Diagnostics;
-using System.Reflection;
-using System.Threading.Tasks;
+﻿using System.IO;
+using System.Text;
 using LanguageExt;
+using LanguageExt.Common;
+using LanguageExt.Effects.Traits;
 using LanguageExt.Sys;
-using LanguageExt.SysX.Diag;
-using LanguageExt.SysX.Live;
+using LanguageExt.Sys.Traits;
 using static LanguageExt.Prelude;
 
-namespace TestBed
+public class QueueExample<RT>
+    where RT : struct,
+    HasCancel<RT>,
+    HasConsole<RT>,
+    HasDirectory<RT>,
+    HasFile<RT>
 {
-    public class IssueTests
+    public static Aff<RT, Unit> Issue1065()
     {
-        public static void Run()
-        {
-            Issue1028_Alt().Wait();
-            Issue1028();
-        }
+        var content = Encoding.ASCII.GetBytes("test\0test\0test\0");
+        var memStream = new MemoryStream(100);
+        memStream.Write(content, 0, content.Length);
+        memStream.Seek(0, SeekOrigin.Begin);
 
-        public static async Task RunAlwaysNull()
-        {
-            using var listener = new ActivityListener
-            {
-                ShouldListenTo = _ => true,
-                Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-                ActivityStarted = activity => Console.WriteLine($"{activity.ParentId}:{activity.Id} - Start"),
-                ActivityStopped = activity => Console.WriteLine($"{activity.ParentId}:{activity.Id} - Stop")
-            };
-
-            ActivitySource.AddActivityListener(listener);
-            var activitySource = new ActivitySource("what?!");
-            
-            await Start(activitySource);
-            Console.WriteLine(Activity.Current);
-        }
-
-        public static async Task<Activity?> Start(ActivitySource src)
-        {
-            await Task.Delay(1);
-            return src.StartActivity("example");
-        }
-
-        public static void Issue1028()
-        {
-            Console.WriteLine(Assembly.GetExecutingAssembly().GetName().Name);
-
-            using var listener = new ActivityListener
-            {
-                ShouldListenTo = _ => true,
-                Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-                ActivityStarted = activity => Console.WriteLine($"{activity.ParentId}:{activity.Id} - Start"),
-                ActivityStopped = activity => Console.WriteLine($"{activity.ParentId}:{activity.Id} - Stop")
-            };
-            ActivitySource.AddActivityListener(listener);
-
-            var q = Activity<Runtime>.span("outer",
-                        from n in Activity<Runtime>.operationName 
-                        from _ in Console<Runtime>.writeLine(n.IfNone("[not set]"))
-                        from rs in Activity<Runtime>.span("inner",
-                            from n in Activity<Runtime>.operationName 
-                            from _ in Console<Runtime>.writeLine(n.IfNone("[not set]"))
-                            select unit)
-                        select rs);
-
-            var r = q.Run(Runtime.New());
-        }
-        
-        public static async Task Issue1028_Alt()
-        {
-            Console.WriteLine(Assembly.GetExecutingAssembly().GetName().Name);
-
-            using var listener = new ActivityListener
-            {
-                ShouldListenTo = _ => true,
-                Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-                ActivityStarted = activity => Console.WriteLine($"{activity.ParentId}:{activity.Id} - Start"),
-                ActivityStopped = activity => Console.WriteLine($"{activity.ParentId}:{activity.Id} - Stop")
-            };
-            ActivitySource.AddActivityListener(listener);
-            var src = new ActivitySource("what?!");
-
-            var q = span("outer", src,
-                from d in delay(1)
-                from n in operationName 
-                from _ in writeLine(n)
-                from rs in span<Unit>("inner", src,
-                    from n in operationName 
-                    from _ in writeLine(n)
-                    select unit)
-                select rs);
-
-            var r = await q.Run();
-        }
-
-        public static Aff<A> span<A>(string name, ActivitySource? src, Aff<A> ma) =>
-            AffMaybe(async () =>
-            {
-                var act = Activity.Current is null
-                    ? src?.StartActivity(name)
-                    : src?.StartActivity(name, ActivityKind.Internal, Activity.Current.Context);
-                
-                using (act)
-                {
-                    return await ma.Run().ConfigureAwait(false);
-                }
-            });
-
-        public static Eff<Activity?> current =>
-            Eff(() => Activity.Current);
-
-        public static Eff<string?> operationName =>
-            current.Map(a => a?.OperationName);
-
-        public static Aff<Unit> delay(int ms) =>
-            Aff(async () =>
-            {
-                await Task.Delay(ms);
-                return unit;
-            });
-
-        public static Eff<Unit> writeLine(string line) =>
-            Eff(() =>
-            {
-                Console.WriteLine(line);
-                return unit;
-            });
+        return repeat(
+                   from _51 in SuccessEff(unit)
+                   from ln in (
+                       from data in Eff(memStream.ReadByte)
+                       from _ in guard(data != -1, Errors.Cancelled)
+                       select data).FoldUntil(string.Empty, (s, ch) => s + (char)ch, ch => ch == '\0')
+                   from _52 in Console<RT>.writeLine(ln)
+                   select unit)
+               | @catch(exception => Console<RT>.writeLine(exception.Message));
     }
 }
