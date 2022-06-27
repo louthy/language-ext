@@ -87,14 +87,26 @@ namespace LanguageExt
         /// <summary>
         /// Launch the async computation without awaiting the result
         /// </summary>
-        /// <returns></returns>
+        /// <remarks>
+        /// If the parent token has `Cancel` called on it, then it will also cancel the forked child
+        /// expression.
+        ///
+        /// The current threaded cancellation token can be extracted by calling `cancelToken()` which can then be
+        /// passed to `Fork`.
+        ///
+        /// `Fork` returns an `Eff<Unit>` as its bound result value.  If you run it, it will cancel the
+        /// forked child expression.
+        /// </remarks>
+        /// <param name="parentToken">optional parent token, will be linked to the child cancellation token source</param>
+        /// <returns>Returns an `Eff<Unit>` as its bound value.  If it runs, it will cancel the
+        /// forked child expression</returns>
         [MethodImpl(Opt.Default)]
-        public Eff<Eff<Unit>> Fork()
+        public Eff<Eff<Unit>> Fork(CancellationToken parentToken = default)
         {
             var t = Thunk;
             return Eff(() =>
             {
-                var cts = new CancellationTokenSource();
+                var cts = CancellationTokenSource.CreateLinkedTokenSource(parentToken);
                 var task = Task.Run(async () => await t(cts.Token), cts.Token);
                 return Eff(() =>
                 {

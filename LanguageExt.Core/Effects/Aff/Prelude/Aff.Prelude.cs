@@ -110,7 +110,7 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, A> FailAff<RT, A>(Error error) where RT : struct, HasCancel<RT> =>
             LanguageExt.Aff<RT, A>.Fail(error);
-
+        
         /// <summary>
         /// Create a new local context for the environment by mapping the outer environment and then
         /// using the result as a new context when running the IO monad provided
@@ -159,12 +159,27 @@ namespace LanguageExt
         /// forked child expression</returns>
         public static Eff<RT, Eff<Unit>> fork<RT, A>(Effect<RT, A> ma) where RT : struct, HasCancel<RT> =>
             ma.RunEffect().Fork();
-
+            
         /// <summary>
         /// Launch the async computation without awaiting the result
         /// </summary>
-        public static Eff<Eff<Unit>> fork<A>(Aff<A> ma) =>
-            ma.Fork();
+        /// <remarks>
+        /// If the parent token has `Cancel` called on it, then it will also cancel the forked child
+        /// expression.
+        ///
+        /// The current threaded cancellation token can be extracted by calling `cancelToken()` which can then be
+        /// passed to `fork`.
+        ///
+        /// `Fork` returns an `Eff<Unit>` as its bound result value.  If you run it, it will cancel the
+        /// forked child expression.
+        /// </remarks>
+        /// <param name="ma">effect</param>
+        /// <param name="parentToken">optional parent token, will be linked to the child cancellation token source</param>
+        /// <typeparam name="A">A</typeparam>
+        /// <returns>Returns an `Eff<Unit>` as its bound value.  If it runs, it will cancel the
+        /// forked child expression</returns>
+        public static Eff<Eff<Unit>> fork<A>(Aff<A> ma, CancellationToken parentToken = default) =>
+            ma.Fork(parentToken);
 
         /// <summary>
         /// Create a new cancellation context and run the provided Aff in that context
@@ -219,6 +234,13 @@ namespace LanguageExt
                                     }
                                 });
 
+        /// <summary>
+        /// Extracts the cancellation token threading through the Aff
+        /// </summary>
+        [Pure]
+        public static Aff<CancellationToken> cancelToken() =>
+            Aff(token => token.AsValueTask());
+            
         /// <summary>
         /// Cancellation token
         /// </summary>

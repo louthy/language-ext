@@ -1,5 +1,6 @@
 using Xunit;
 using System;
+using System.Threading;
 using LanguageExt;
 using LanguageExt.Common;
 using System.Threading.Tasks;
@@ -101,6 +102,39 @@ namespace AffTests
             cancelEffect.RunUnit();
 
             counter.Value.Should().BeGreaterThan(0);
+        }
+
+        [Fact(DisplayName = "Fork against Aff<T> can be cancelled by the parent that spawned it")]
+        public static async Task CancelForkFromParentTest()
+        {
+            var counter = Atom(0);
+            var counter2 = Atom(0);
+
+            Aff<int> EffectToFork(Atom<int> atom) =>
+                AffMaybe<int>(
+                        async () =>
+                        {
+                            swap(atom, i => i + 1);
+                            return await atom.Value.AsValueTask();
+                        })
+                    .Repeat(Schedule.Forever);
+
+            var parentEffect =
+                from ct in cancelToken()
+                from _1 in EffectToFork(counter).Fork(ct)
+                from _2 in fork(EffectToFork(counter2), ct)
+                select _1;
+
+            // start the effect
+            var cts = new CancellationTokenSource();
+            var result = await parentEffect.Run(cts.Token);
+
+            // cancel the running effect
+            cts.Cancel();
+
+            result.IsSucc.Should().BeTrue();
+            counter.Value.Should().BeGreaterThan(0);
+            counter2.Value.Should().BeGreaterThan(0);
         }
 
         [Fact(DisplayName = "An Aff can be folded and always returns an S")]
