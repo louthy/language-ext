@@ -12,7 +12,7 @@
 
         <PackageReference Include="CodeGeneration.Roslyn.BuildTime" Version="$(RoslynCodeGenVersion)" PrivateAssets="all" />
         <ProjectReference Include="..\..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" PrivateAssets="all" />
-        <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
         <PackageReference Include="System.Reactive" Version="[3.0.0,)" />
         <PackageReference Include="System.ValueTuple" Version="4.5.0" />
         <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
