@@ -2,9 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
-using System.Text;
-using System.Threading.Tasks;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
@@ -22,7 +19,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Pure<A> Pure<A>(A value) =>
-            new Pure<A>(value);
+            new (value);
 
         /// <summary>
         /// Wait for a value to flow from upstream (whilst in a `Pipe` or a `Consumer`)
@@ -41,30 +38,13 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Create a queue
         /// </summary>
-        /// <remarks>A `Queue` is a `Producer` with an `Enqueue`, `EnqueueError`, and a `Done` to cancel the operation</remarks>
+        /// <remarks>A `Queue` is a `Producer` with an `Enqueue`, and a `Done` to cancel the operation</remarks>
         [Pure, MethodImpl(Proxy.mops)]
         public static Queue<RT, A, Unit> Queue<RT, A>() where RT : struct, HasCancel<RT>
         {
-            var s = new Subj<A>();
-            var p = Producer.observe<RT, A>(s);
-
-            return new Queue<RT, A, Unit>(
-                p,
-                x =>
-                {
-                    s.OnNext(x);
-                    return unit;
-                },
-                e =>
-                {
-                    s.OnError(e);
-                    return unit;
-                },
-                () =>
-                {
-                    s.OnCompleted();
-                    return unit;
-                });
+            var c = new Channel<A>();
+            var p = Producer.enumerate<RT, A>(c);
+            return new Queue<RT, A, Unit>(p, c);
         }
 
         /// <summary>
@@ -76,7 +56,7 @@ namespace LanguageExt.Pipes
         /// <returns>`Producer`</returns>
         [Pure, MethodImpl(Proxy.mops)]
         public static Producer<X, Unit> enumerate<X>(IEnumerable<X> xs) =>
-            enumerate2<X>(xs).Bind(yield);
+            enumerate2(xs).Bind(yield);
         
         /// <summary>
         /// Create a `Producer` from an `IEnumerable`.  This will **not** automatically `yield` each value

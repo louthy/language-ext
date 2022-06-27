@@ -18,21 +18,21 @@ namespace LanguageExt.Pipes
             Type = type;
     }
 
-    internal class EnumerateEnumerable<A> : EnumerateData<A>
+    internal sealed class EnumerateEnumerable<A> : EnumerateData<A>
     {
         public readonly IEnumerable<A> Values;
         public EnumerateEnumerable(IEnumerable<A> values) : base(EnumerateDataType.Enumerable) =>
             Values = values;
     }
 
-    internal class EnumerateAsyncEnumerable<A> : EnumerateData<A>
+    internal sealed class EnumerateAsyncEnumerable<A> : EnumerateData<A>
     {
         public readonly IAsyncEnumerable<A> Values;
         public EnumerateAsyncEnumerable(IAsyncEnumerable<A> values) : base(EnumerateDataType.AsyncEnumerable) =>
             Values = values;
     }
 
-    internal class EnumerateObservable<A> : EnumerateData<A>
+    internal sealed class EnumerateObservable<A> : EnumerateData<A>
     {
         public readonly IObservable<A> Values;
         public EnumerateObservable(IObservable<A> values) : base(EnumerateDataType.Observable) =>

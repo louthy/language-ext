@@ -10,36 +10,31 @@ using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Pipes
 {
-    public class Queue<RT, OUT, A> : Producer<RT, OUT, A> where RT : struct, HasCancel<RT>
+    public class Queue<RT, OUT, A> : Producer<RT, OUT, A> 
+        where RT : struct, HasCancel<RT>
     {
+        /// <summary>
+        /// Single queue channel
+        /// </summary>
+        readonly Channel<OUT> channel;
+
         /// <summary>
         /// Enqueue an item 
         /// </summary>
-        public readonly Func<OUT, Unit> Enqueue;
+        public Unit Enqueue(OUT value) =>
+            channel.Post(value);
 
         /// <summary>
         /// Enqueue an item 
         /// </summary>
         public Eff<RT, Unit> EnqueueEff(OUT value) =>
             Prelude.SuccessEff(Enqueue(value));
-        
-        /// <summary>
-        /// Enqueue an error
-        /// </summary>
-        /// <remarks>This will mark the Queue as done and will cancel any Effect that it is in</remarks>
-        public readonly Func<Error, Unit> EnqueueError;
 
-        /// <summary>
-        /// Enqueue an error
-        /// </summary>
-        /// <remarks>This will mark the Queue as done and will cancel any Effect that it is in</remarks>
-        public Eff<RT, Unit> EnqueueErrorEff(Error value) =>
-            Prelude.SuccessEff(EnqueueError(value));
-        
         /// <summary>
         /// Mark the Queue as done and cancel any Effect that it is in
         /// </summary>
-        public readonly Func<Unit> Done;
+        public Unit Done() =>
+            channel.Stop();
 
         /// <summary>
         /// Mark the Queue as done and cancel any Effect that it is in
@@ -47,8 +42,8 @@ namespace LanguageExt.Pipes
         public Eff<RT, Unit> DoneEff =>
             Prelude.SuccessEff(Done());
         
-        internal Queue(Proxy<RT, Void, Unit, Unit, OUT, A> value, Func<OUT, Unit> enqueue, Func<Error, Unit> enqueueError, Func<Unit> done) : base(value) =>
-            (Enqueue, EnqueueError, Done) = (enqueue, enqueueError, done);
+        internal Queue(Proxy<RT, Void, Unit, Unit, OUT, A> value, Channel<OUT> channel) : base(value) =>
+            this.channel = channel;
         
         [Pure]
         public override Proxy<RT, Void, Unit, Unit, OUT, A> ToProxy() =>
@@ -108,6 +103,6 @@ namespace LanguageExt.Pipes
 
         [Pure]
         public static Producer<RT, OUT, A> operator +(Queue<RT, OUT, A> ma, Queue<RT, OUT, A> mb) =>
-            Producer.merge<RT, OUT, A>(ma, mb);        
+            Producer.merge(ma, mb);
     }
 }
