@@ -338,6 +338,9 @@ public record Expected(string Message, int Code, Option<Error> Inner = default) 
     public override Option<Error> Inner { get; } = 
         Inner;
     
+    public override string ToString() => 
+        Message;
+
     /// <summary>
     /// Generates a new `ErrorException` that contains the `Code`, `Message`, and `Inner` of this `Error`.
     /// </summary>
@@ -406,6 +409,9 @@ public record Exceptional(string Message, int Code) : Error
 
     [DataMember]
     public override int Code { get; } = Code;
+
+    public override string ToString() => 
+        Message;
 
     /// <summary>
     /// Returns the inner exception as an `Error` (if one exists), `None` otherwise
@@ -477,6 +483,9 @@ public sealed record BottomError() : Exceptional(BottomException.Default)
     
     public override string Message => 
         Errors.BottomText;
+
+    public override string ToString() => 
+        Message;
     
     /// <summary>
     /// Gets the Exception
@@ -537,7 +546,10 @@ public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Erro
 
     public override string Message { get; } =
         Errors.ToFullArrayString();
-    
+
+    public override string ToString() => 
+        Errors.ToFullArrayString();
+
     /// <summary>
     /// Gets the `Exception`
     /// </summary>

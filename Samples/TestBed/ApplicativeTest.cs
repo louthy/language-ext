@@ -1,6 +1,4 @@
-﻿using LanguageExt.Common;
-
-namespace TestBed;
+﻿namespace TestBed;
 
 using System;
 using System.Diagnostics;
@@ -18,29 +16,22 @@ public static class ApplicativeTest
         });
 
     static Aff<int> parse(string str) =>
-        from x in parseInt(str).ToEff(Error.New($"parse error: expected int, got: '{str}'"))
-        from _ in delay(10000)
+        from x in parseInt(str).ToAff()
+        from _ in delay(1000)
         select x;
 
-    static Aff<int> add(string sa, string sb, string sc, string sd, string se, string sf) =>
-        SuccessAff(curry<int, int, int, int, int, int, int>(addPure)) 
-            .Apply(parse(sa))
-            .Apply(parse(sb))
-            .Apply(parse(sc))
-            .Apply(parse(sd))
-            .Apply(parse(se))
-            .Apply(parse(sf));
-
-    static int addPure(int a, int b, int c, int d, int e, int f) =>
-        a + b + c + d + e + f;
+    static Aff<int> add(string sx, string sy) =>
+        SuccessAff((int x, int y) => x + y) 
+            .Apply(parse(sx))
+            .Apply(parse(sy));
 
     public static async Task Test()
     {
-        await report(add("1", "2", "3", "4", "5", "6"));
-        await report(add("a", "b", "c", "d", "e", "f"));
+        await Report(add("100", "200"));
+        await Report(add("zzz", "yyy"));
     }
 
-    static async Task report<A>(Aff<A> ma)
+    static async Task Report<A>(Aff<A> ma)
     {
         var sw = Stopwatch.StartNew();
         var r = await ma.Run();
