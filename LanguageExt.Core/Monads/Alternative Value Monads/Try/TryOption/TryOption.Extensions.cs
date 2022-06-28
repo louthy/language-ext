@@ -321,7 +321,7 @@ public static class TryOptionExtensions
     public static Eff<A> ToEff<A>(this TryOption<A> ma) =>
         Prelude.EffMaybe(() =>
             ma.Match(Some: Fin<A>.Succ,
-                     None: () => Fin<A>.Fail(Error.New("None")),
+                     None: () => Fin<A>.Fail(Errors.None),
                      Fail: e => Fin<A>.Fail(e)));
     
     /// <summary>

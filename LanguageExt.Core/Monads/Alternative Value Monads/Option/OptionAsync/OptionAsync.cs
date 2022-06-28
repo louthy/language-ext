@@ -485,7 +485,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Aff<A> ToAff() =>
-            ToAff(Error.New("None"));
+            ToAff(Errors.None);
 
         /// <summary>
         /// Convert the structure to an Aff

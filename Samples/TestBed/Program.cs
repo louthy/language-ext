@@ -72,30 +72,7 @@ public class Program
         //testing.Run(Runtime.New());
         //var _ = QueueExample<Runtime>.Issue1065().RunUnit(new Runtime()).Result;
         //ScheduleTests.Run();
-
-        Aff<Unit> delay(int milliseconds) =>
-            Aff(async () =>
-            {
-                await Task.Delay(milliseconds);
-                return unit;
-            });
-
-        Aff<A> delayed<A>(A x) =>
-            from _ in delay(1000)
-            select x;
-
-        var effect = SuccessAff((string sx, string sy) => 
-                                    from x in parseInt(sx)
-                                    from y in parseInt(sy)
-                                    select x + y)
-                        .Apply(delayed("100"))
-                        .Apply(delayed("200"));
-
-        var sw = Stopwatch.StartNew();
-        var r = effect.Run().GetAwaiter().GetResult();
-        sw.Stop();
-        
-        Console.Write($"Result: {r} in {sw.ElapsedMilliseconds}ms");        
+        ApplicativeTest.Test().GetAwaiter().GetResult();
     }
 
     public static async Task PipesTest()
