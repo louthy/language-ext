@@ -379,14 +379,9 @@ public sealed class ManyExceptions : ErrorException
 [Serializable]
 public class BottomException : ExceptionalException
 {
-    public static readonly BottomException Default;
+    public static readonly BottomException Default = new ();
 
-    static BottomException()
-    {
-        Default = new();
-    }
-    
-    public BottomException() : base(Errors.BottomText, Errors.BottomCode)
+    public BottomException() : base(Default)
     {
     }
     
