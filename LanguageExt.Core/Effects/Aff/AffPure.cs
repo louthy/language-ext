@@ -118,6 +118,25 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Launch the async computation without awaiting the result
+        /// </summary>
+        /// <remarks>
+        /// If the parent token has `Cancel` called on it, then it will also cancel the forked child
+        /// expression.
+        ///
+        /// `Fork` returns an `Eff<Unit>` as its bound result value.  If you run it, it will cancel the
+        /// forked child expression.
+        /// </remarks>
+        /// <returns>Returns an `Eff<Unit>` as its bound value.  If it runs, it will cancel the
+        /// forked child expression</returns>
+        [MethodImpl(Opt.Default)]
+        public Aff<Eff<Unit>> ForkWithLinkedCancel()
+        {
+            var self = this;
+            return cancelToken().Bind(token => self.Fork(token));
+        }
+
+        /// <summary>
         /// Custom awaiter so Aff can be used with async/await 
         /// </summary>
         ///

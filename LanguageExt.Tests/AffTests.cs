@@ -109,6 +109,8 @@ namespace AffTests
         {
             var counter = Atom(0);
             var counter2 = Atom(0);
+            var counter3 = Atom(0);
+            var counter4 = Atom(0);
 
             Aff<int> EffectToFork(Atom<int> atom) =>
                 AffMaybe<int>(
@@ -123,6 +125,8 @@ namespace AffTests
                 from ct in cancelToken()
                 from _1 in EffectToFork(counter).Fork(ct)
                 from _2 in fork(EffectToFork(counter2), ct)
+                from _3 in EffectToFork(counter3).ForkWithLinkedCancel()
+                from _4 in forkWithLinkedCancel(EffectToFork(counter4))
                 select _1;
 
             // start the effect
@@ -135,6 +139,8 @@ namespace AffTests
             result.IsSucc.Should().BeTrue();
             counter.Value.Should().BeGreaterThan(0);
             counter2.Value.Should().BeGreaterThan(0);
+            counter3.Value.Should().BeGreaterThan(0);
+            counter4.Value.Should().BeGreaterThan(0);
         }
 
         [Fact(DisplayName = "An Aff can be folded and always returns an S")]

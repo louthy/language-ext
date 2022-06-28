@@ -180,6 +180,23 @@ namespace LanguageExt
         /// forked child expression</returns>
         public static Eff<Eff<Unit>> fork<A>(Aff<A> ma, CancellationToken parentToken = default) =>
             ma.Fork(parentToken);
+        
+        /// <summary>
+        /// Launch the async computation without awaiting the result
+        /// </summary>
+        /// <remarks>
+        /// If the parent token has `Cancel` called on it, then it will also cancel the forked child
+        /// expression.
+        ///
+        /// `Fork` returns an `Eff<Unit>` as its bound result value.  If you run it, it will cancel the
+        /// forked child expression.
+        /// </remarks>
+        /// <param name="ma">effect</param>
+        /// <typeparam name="A">A</typeparam>
+        /// <returns>Returns an `Eff<Unit>` as its bound value.  If it runs, it will cancel the
+        /// forked child expression</returns>
+        public static Aff<Eff<Unit>> forkWithLinkedCancel<A>(Aff<A> ma) =>
+            ma.ForkWithLinkedCancel();
 
         /// <summary>
         /// Create a new cancellation context and run the provided Aff in that context
