@@ -13,6 +13,7 @@ using LanguageExt.ClassInstances;
 using System.Runtime.Serialization;
 using LanguageExt.DataTypes.Serialisation;
 using System.Collections;
+using LanguageExt.Common;
 
 namespace LanguageExt
 {
@@ -672,7 +673,7 @@ namespace LanguageExt
         [Pure]
         private U CheckInitialised<U>(U value) =>
             State == EitherStatus.IsBottom
-                ? raise<U>(new BottomException("EitherUnsafe"))
+                ? raise<U>(BottomException.Default)
                 : value;
 
         [Pure]

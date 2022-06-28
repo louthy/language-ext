@@ -38,7 +38,7 @@ namespace LanguageExt.Common
     /// </remarks>
     public readonly struct Result<A> : IEquatable<Result<A>>, IComparable<Result<A>>
     {
-        public readonly static Result<A> Bottom = default(Result<A>);
+        public static readonly Result<A> Bottom = default(Result<A>);
 
         internal readonly ResultState State;
         internal readonly A Value;

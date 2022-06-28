@@ -4,6 +4,7 @@ using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 using System;
 using System.Net.Http;
+using LanguageExt.Common;
 
 namespace LanguageExt.Tests
 {

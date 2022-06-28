@@ -11,6 +11,7 @@ using LanguageExt.ClassInstances;
 using System.Runtime.Serialization;
 using LanguageExt.DataTypes.Serialisation;
 using System.Collections;
+using LanguageExt.Common;
 
 namespace LanguageExt
 {

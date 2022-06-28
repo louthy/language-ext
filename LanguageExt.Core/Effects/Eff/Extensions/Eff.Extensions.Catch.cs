@@ -10,49 +10,49 @@ namespace LanguageExt
         /// Catch an error if the error matches the argument provided 
         /// </summary>
         public static Eff<RT, A> Catch<RT, A>(this Eff<RT, A> ma, Error error, Func<Error, Eff<RT, A>> Fail) where RT : struct, HasCancel<RT> =>
-            ma | matchError(e => e == error, Fail);
+            ma | matchError(e => e.Is(error), Fail);
         
         /// <summary>
         /// Catch an error if the error matches the argument provided 
         /// </summary>
         public static Eff<RT, A> Catch<RT, A>(this Eff<A> ma, Error error, Func<Error, Eff<RT, A>> Fail) where RT : struct, HasCancel<RT> =>
-            ma | matchError(e => e == error, Fail);
+            ma | matchError(e => e.Is(error), Fail);
         
         /// <summary>
         /// Catch an error if the error matches the argument provided 
         /// </summary>
         public static Eff<RT, A> Catch<RT, A>(this Eff<RT, A> ma, Error error, Func<Error, Eff<A>> Fail) where RT : struct, HasCancel<RT> =>
-            ma | matchError(e => e == error, Fail);
+            ma | matchError(e => e.Is(error), Fail);
         
         /// <summary>
         /// Catch an error if the error matches the argument provided 
         /// </summary>
         public static Eff<A> Catch<A>(this Eff<A> ma, Error error, Func<Error, Eff<A>> Fail) =>
-            ma | matchError(e => e == error, Fail);
+            ma | matchError(e => e.Is(error), Fail);
         
         /// <summary>
         /// Catch an error if the error matches the argument provided 
         /// </summary>
         public static Eff<RT, A> Catch<RT, A>(this Eff<RT, A> ma, Error error, Eff<RT, A> Fail) where RT : struct, HasCancel<RT> =>
-            ma | matchError(e => e == error, _ => Fail);
+            ma | matchError(e => e.Is(error), _ => Fail);
         
         /// <summary>
         /// Catch an error if the error matches the argument provided 
         /// </summary>
         public static Eff<RT, A> Catch<RT, A>(this Eff<A> ma, Error error, Eff<RT, A> Fail) where RT : struct, HasCancel<RT> =>
-            ma | matchError(e => e == error, _ => Fail);
+            ma | matchError(e => e.Is(error), _ => Fail);
         
         /// <summary>
         /// Catch an error if the error matches the argument provided 
         /// </summary>
         public static Eff<RT, A> Catch<RT, A>(this Eff<RT, A> ma, Error error, Eff<A> Fail) where RT : struct, HasCancel<RT>  =>
-            ma | matchError(e => e == error, _ => Fail);
+            ma | matchError(e => e.Is(error), _ => Fail);
         
         /// <summary>
         /// Catch an error if the error matches the argument provided 
         /// </summary>
         public static Eff<A> Catch<A>(this Eff<A> ma, Error error, Eff<A> Fail) =>
-            ma | matchError(e => e == error, _ => Fail);
+            ma | matchError(e => e.Is(error), _ => Fail);
 
         
         /// <summary>

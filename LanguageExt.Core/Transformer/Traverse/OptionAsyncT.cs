@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using LanguageExt.DataTypes.Serialisation;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt

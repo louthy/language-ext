@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 using Xunit;
 using LanguageExt.ClassInstances;
 using System.Diagnostics;
+using LanguageExt.Common;
 
 namespace LanguageExt.Tests
 {

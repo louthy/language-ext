@@ -3,6 +3,7 @@ using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.DataTypes.Serialisation;
 
 namespace LanguageExt.ClassInstances
