@@ -8,7 +8,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <PackageVersion>4.3.2-beta</PackageVersion>
+        <PackageVersion>4.3.0-beta</PackageVersion>
         <PackageId>LanguageExt.Parsec</PackageId>
         <Title>LanguageExt.Parsec</Title>
         <Authors>Paul Louth</Authors>
@@ -43,7 +43,6 @@
         <None Remove="obj\**" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[6.0.0,)" />
         <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
     </ItemGroup>
     <ItemGroup>

@@ -8,7 +8,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <PackageVersion>4.3.2-beta</PackageVersion>
+        <PackageVersion>4.3.0-beta</PackageVersion>
         <PackageId>LanguageExt.Rx</PackageId>
         <Title>LanguageExt.Rx</Title>
         <Authors>Paul Louth</Authors>
@@ -61,7 +61,6 @@
         <None Remove="ValidationSeq.Extensions.cs" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[6.0.0,)" />
         <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
         <PackageReference Include="System.Reactive" Version="[3.0.0,)" />
     </ItemGroup>

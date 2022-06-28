@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>default</LangVersion>
 
-        <PackageVersion>4.3.2-beta</PackageVersion>
+        <PackageVersion>4.3.0-beta</PackageVersion>
         <PackageId>LanguageExt.Sys</PackageId>
         <Title>LanguageExt.Sys</Title>
         <Authors>Paul Louth</Authors>
@@ -42,9 +42,6 @@
         <Compile Remove="obj\**" />
         <EmbeddedResource Remove="obj\**" />
         <None Remove="obj\**" />
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[6.0.0,)" />
     </ItemGroup>
 
 
