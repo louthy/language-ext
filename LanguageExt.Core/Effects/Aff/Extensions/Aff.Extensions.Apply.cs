@@ -16,10 +16,10 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                return errs;
             }
             else
             {
@@ -34,11 +34,11 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail|| b.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                return errs;
             }
             else
             {
@@ -53,51 +53,14 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                return errs;
             }
             else
             {
                 return FinSucc((B b) => f.Value(a.Value, b));
-            }
-        });
-        
-    public static Aff<C> Apply<A, B, C>(this Aff<Func<A, Func<B, C>>> mf, Aff<A> ma, Aff<B> mb) =>
-        AffMaybe<C>(async () =>
-        {
-            var (f, a, b) = await WaitAsync.WaitAll(mf.Run(), ma.Run(), mb.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail|| b.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value)(b.Value);
-            }
-        });
-        
-    public static Aff<Func<B, C>> Apply<A, B, C>(this Aff<Func<A, Func<B, C>>> mf, Aff<A> ma) =>
-        AffMaybe<Func<B, C>>(async () =>
-        {
-            var (f, a) = await WaitAsync.WaitAll(mf.Run(), ma.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value);
             }
         });
 
@@ -109,12 +72,12 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                if(c.IsFail) errs += c.Error;
+                return errs;
             }
             else
             {
@@ -129,11 +92,11 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail || b.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                return errs;
             }
             else
             {
@@ -158,63 +121,6 @@ public static partial class AffExtensions
                 return FinSucc((B b, C c) => f.Value(a.Value, b, c));
             }
         });
-        
-    public static Aff<D> Apply<A, B, C, D>(this Aff<Func<A, Func<B, Func<C, D>>>> mf, Aff<A> ma, Aff<B> mb, Aff<C> mc) =>
-        AffMaybe<D>(async () =>
-        {
-            var (f, a, b, c) = await WaitAsync.WaitAll(mf.Run(), ma.Run(), mb.Run(), mc.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value)(b.Value)(c.Value);
-            }
-        });
-        
-    public static Aff<Func<C, D>> Apply<A, B, C, D>(this Aff<Func<A, Func<B, Func<C, D>>>> mf, Aff<A> ma, Aff<B> mb) =>
-        AffMaybe<Func<C, D>>(async () =>
-        {
-            var (f, a, b) = await WaitAsync.WaitAll(mf.Run(), ma.Run(), mb.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value)(b.Value);
-            }
-        });
-        
-    public static Aff<Func<B, Func<C, D>>> Apply<A, B, C, D>(this Aff<Func<A, Func<B, Func<C, D>>>> mf, Aff<A> ma) =>
-        AffMaybe<Func<B, Func<C, D>>>(async () =>
-        {
-            var (f, a) = await WaitAsync.WaitAll(mf.Run(), ma.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value);
-            }
-        });
             
     public static Aff<E> Apply<A, B, C, D, E>(this Aff<Func<A, B, C, D, E>> mf, Aff<A> ma, Aff<B> mb, Aff<C> mc, Aff<D> md) =>
         AffMaybe<E>(async () =>
@@ -223,13 +129,13 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail || b.IsFail || c.IsFail || d.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                if(d.IsFail) errs = errs.Add(d.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                if(c.IsFail) errs += c.Error;
+                if(d.IsFail) errs += d.Error;
+                return errs;
             }
             else
             {
@@ -244,12 +150,12 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                if(c.IsFail) errs += c.Error;
+                return errs;
             }
             else
             {
@@ -264,11 +170,11 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail || b.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                return errs;
             }
             else
             {
@@ -283,92 +189,14 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                return errs;
             }
             else
             {
                 return FinSucc((B b, C c, D d) => f.Value(a.Value, b, c, d));
-            }
-        });
-
-    public static Aff<E> Apply<A, B, C, D, E>(this Aff<Func<A, Func<B, Func<C, Func<D, E>>>>> mf, Aff<A> ma, Aff<B> mb, Aff<C> mc, Aff<D> md) =>
-        AffMaybe<E>(async () =>
-        {
-            var (f, a, b, c, d) = await WaitAsync.WaitAll(mf.Run(), ma.Run(), mb.Run(), mc.Run(), md.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail || d.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                if(d.IsFail) errs = errs.Add(d.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value)(b.Value)(c.Value)(d.Value);
-            }
-        });
-        
-    public static Aff<Func<D, E>> Apply<A, B, C, D, E>(this Aff<Func<A, Func<B, Func<C, Func<D, E>>>>> mf, Aff<A> ma, Aff<B> mb, Aff<C> mc) =>
-        AffMaybe<Func<D, E>>(async () =>
-        {
-            var (f, a, b, c) = await WaitAsync.WaitAll(mf.Run(), ma.Run(), mb.Run(), mc.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value)(b.Value)(c.Value);
-            }
-        });
-        
-    public static Aff<Func<C, Func<D, E>>> Apply<A, B, C, D, E>(this Aff<Func<A, Func<B, Func<C, Func<D, E>>>>> mf, Aff<A> ma, Aff<B> mb) =>
-        AffMaybe<Func<C, Func<D, E>>>(async () =>
-        {
-            var (f, a, b) = await WaitAsync.WaitAll(mf.Run(), ma.Run(), mb.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value)(b.Value);
-            }
-        });
-        
-    public static Aff<Func<B, Func<C, Func<D, E>>>> Apply<A, B, C, D, E>(this Aff<Func<A, Func<B, Func<C, Func<D, E>>>>> mf, Aff<A> ma) =>
-        AffMaybe<Func<B, Func<C, Func<D, E>>>>(async () =>
-        {
-            var (f, a) = await WaitAsync.WaitAll(mf.Run(), ma.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value);
             }
         });
 
@@ -382,10 +210,10 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                return errs;
             }
             else
             {
@@ -400,11 +228,11 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail|| b.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                return errs;
             }
             else
             {
@@ -419,54 +247,16 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                return errs;
             }
             else
             {
                 return FinSucc((B b) => f.Value(a.Value, b));
             }
         });
-        
-    public static Aff<RT, C> Apply<RT, A, B, C>(this Aff<RT, Func<A, Func<B, C>>> mf, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, C>(async rt =>
-        {
-            var (f, a, b) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail|| b.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value)(b.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<B, C>> Apply<RT, A, B, C>(this Aff<RT, Func<A, Func<B, C>>> mf, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<B, C>>(async rt =>
-        {
-            var (f, a) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value);
-            }
-        });
-
         
     public static Aff<RT, D> Apply<RT, A, B, C, D>(this Aff<RT, Func<A, B, C, D>> mf, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : struct, HasCancel<RT> =>
         AffMaybe<RT, D>(async rt =>
@@ -475,12 +265,12 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                if(c.IsFail) errs += c.Error;
+                return errs;
             }
             else
             {
@@ -495,11 +285,11 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail || b.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                return errs;
             }
             else
             {
@@ -514,71 +304,14 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                return errs;
             }
             else
             {
                 return FinSucc((B b, C c) => f.Value(a.Value, b, c));
-            }
-        });
-        
-    public static Aff<RT, D> Apply<RT, A, B, C, D>(this Aff<RT, Func<A, Func<B, Func<C, D>>>> mf, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, D>(async rt =>
-        {
-            var (f, a, b, c) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt), mc.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value)(b.Value)(c.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<C, D>> Apply<RT, A, B, C, D>(this Aff<RT, Func<A, Func<B, Func<C, D>>>> mf, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<C, D>>(async rt =>
-        {
-            var (f, a, b) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value)(b.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<B, Func<C, D>>> Apply<RT, A, B, C, D>(this Aff<RT, Func<A, Func<B, Func<C, D>>>> mf, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<B, Func<C, D>>>(async rt =>
-        {
-            var (f, a) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value);
             }
         });
             
@@ -589,13 +322,13 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail || b.IsFail || c.IsFail || d.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                if(d.IsFail) errs = errs.Add(d.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                if(c.IsFail) errs += c.Error;
+                if(d.IsFail) errs += d.Error;
+                return errs;
             }
             else
             {
@@ -610,12 +343,12 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                if(c.IsFail) errs += c.Error;
+                return errs;
             }
             else
             {
@@ -630,11 +363,11 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail || b.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                return errs;
             }
             else
             {
@@ -649,95 +382,16 @@ public static partial class AffExtensions
 
             if (f.IsFail || a.IsFail)
             {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(f.IsFail) errs += f.Error;
+                if(a.IsFail) errs += a.Error;
+                return errs;
             }
             else
             {
                 return FinSucc((B b, C c, D d) => f.Value(a.Value, b, c, d));
             }
         });
-
-    public static Aff<RT, E> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, Func<B, Func<C, Func<D, E>>>>> mf, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc, Aff<RT, D> md) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, E>(async rt =>
-        {
-            var (f, a, b, c, d) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt), mc.Run(rt), md.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail || d.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                if(d.IsFail) errs = errs.Add(d.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value)(b.Value)(c.Value)(d.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<D, E>> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, Func<B, Func<C, Func<D, E>>>>> mf, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<D, E>>(async rt =>
-        {
-            var (f, a, b, c) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt), mc.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value)(b.Value)(c.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<C, Func<D, E>>> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, Func<B, Func<C, Func<D, E>>>>> mf, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<C, Func<D, E>>>(async rt =>
-        {
-            var (f, a, b) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value)(b.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<B, Func<C, Func<D, E>>>> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, Func<B, Func<C, Func<D, E>>>>> mf, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<B, Func<C, Func<D, E>>>>(async rt =>
-        {
-            var (f, a) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f.Value(a.Value);
-            }
-        });
-
     
     // ------------ Non Aff functions ----------------------------------------------------------------------------------
     
@@ -763,10 +417,10 @@ public static partial class AffExtensions
 
             if (a.IsFail|| b.IsFail)
             {
-                var errs = Seq<Error>();
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                return errs;
             }
             else
             {
@@ -789,40 +443,6 @@ public static partial class AffExtensions
             }
         });
         
-    public static Aff<RT, C> Apply<RT, A, B, C>(this Func<A, Func<B, C>> f, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, C>(async rt =>
-        {
-            var (a, b) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
-
-            if (a.IsFail|| b.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f(a.Value)(b.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<B, C>> Apply<RT, A, B, C>(this Func<A, Func<B, C>> f, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<B, C>>(async rt =>
-        {
-            var a = await ma.Run(rt).ConfigureAwait(false);
-
-            if (a.IsFail)
-            {
-                return a.Error;
-            }
-            else
-            {
-                return f(a.Value);
-            }
-        });
-
-        
     public static Aff<RT, D> Apply<RT, A, B, C, D>(this Func<A, B, C, D> f, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : struct, HasCancel<RT> =>
         AffMaybe<RT, D>(async rt =>
         {
@@ -830,11 +450,11 @@ public static partial class AffExtensions
 
             if (a.IsFail || b.IsFail || c.IsFail)
             {
-                var errs = Seq<Error>();
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                if(c.IsFail) errs += c.Error;
+                return errs;
             }
             else
             {
@@ -849,10 +469,10 @@ public static partial class AffExtensions
             
             if (a.IsFail || b.IsFail)
             {
-                var errs = Seq<Error>();
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                return errs;
             }
             else
             {
@@ -874,58 +494,6 @@ public static partial class AffExtensions
                 return FinSucc((B b, C c) => f(a.Value, b, c));
             }
         });
-        
-    public static Aff<RT, D> Apply<RT, A, B, C, D>(this Func<A, Func<B, Func<C, D>>> f, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, D>(async rt =>
-        {
-            var (a, b, c) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt), mc.Run(rt)).ConfigureAwait(false);
-            
-            if (a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f(a.Value)(b.Value)(c.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<C, D>> Apply<RT, A, B, C, D>(this Func<A, Func<B, Func<C, D>>> f, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<C, D>>(async rt =>
-        {
-            var (a, b) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
-            
-            if (a.IsFail || b.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f(a.Value)(b.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<B, Func<C, D>>> Apply<RT, A, B, C, D>(this Func<A, Func<B, Func<C, D>>> f, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<B, Func<C, D>>>(async rt =>
-        {
-            var a = await ma.Run(rt).ConfigureAwait(false);
-
-            if (a.IsFail)
-            {
-                return a.Error;
-            }
-            else
-            {
-                return f(a.Value);
-            }
-        });
             
     public static Aff<RT, E> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc, Aff<RT, D> md) where RT : struct, HasCancel<RT> =>
         AffMaybe<RT, E>(async rt =>
@@ -934,12 +502,12 @@ public static partial class AffExtensions
             
             if (a.IsFail || b.IsFail || c.IsFail || d.IsFail)
             {
-                var errs = Seq<Error>();
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                if(d.IsFail) errs = errs.Add(d.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                if(c.IsFail) errs += c.Error;
+                if(d.IsFail) errs += d.Error;
+                return errs;
             }
             else
             {
@@ -954,11 +522,11 @@ public static partial class AffExtensions
             
             if (a.IsFail || b.IsFail || c.IsFail)
             {
-                var errs = Seq<Error>();
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                if(c.IsFail) errs += c.Error;
+                return errs;
             }
             else
             {
@@ -973,10 +541,10 @@ public static partial class AffExtensions
 
             if (a.IsFail || b.IsFail)
             {
-                var errs = Seq<Error>();
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
+                var errs = Errors.None;
+                if(a.IsFail) errs += a.Error;
+                if(b.IsFail) errs += b.Error;
+                return errs;
             }
             else
             {
@@ -991,85 +559,11 @@ public static partial class AffExtensions
 
             if (a.IsFail)
             {
-                var errs = Seq<Error>();
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return FinSucc((B b, C c, D d) => f(a.Value, b, c, d));
-            }
-        });
-
-    public static Aff<RT, E> Apply<RT, A, B, C, D, E>(this Func<A, Func<B, Func<C, Func<D, E>>>> f, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc, Aff<RT, D> md) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, E>(async rt =>
-        {
-            var (a, b, c, d) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt), mc.Run(rt), md.Run(rt)).ConfigureAwait(false);
-            
-            if (a.IsFail || b.IsFail || c.IsFail || d.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                if(d.IsFail) errs = errs.Add(d.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f(a.Value)(b.Value)(c.Value)(d.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<D, E>> Apply<RT, A, B, C, D, E>(this Func<A, Func<B, Func<C, Func<D, E>>>> f, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<D, E>>(async rt =>
-        {
-            var (a, b, c) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt), mc.Run(rt)).ConfigureAwait(false);
-            
-            if (a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                if(c.IsFail) errs = errs.Add(c.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f(a.Value)(b.Value)(c.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<C, Func<D, E>>> Apply<RT, A, B, C, D, E>(this Func<A, Func<B, Func<C, Func<D, E>>>> f, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<C, Func<D, E>>>(async rt =>
-        {
-            var (a, b) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
-            
-            if (a.IsFail || b.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(a.IsFail) errs = errs.Add(a.Error);
-                if(b.IsFail) errs = errs.Add(b.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return f(a.Value)(b.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<B, Func<C, Func<D, E>>>> Apply<RT, A, B, C, D, E>(this Func<A, Func<B, Func<C, Func<D, E>>>> f, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<B, Func<C, Func<D, E>>>>(async rt =>
-        {
-            var a = await ma.Run(rt).ConfigureAwait(false);
-
-            if (a.IsFail)
-            {
                 return a.Error;
             }
             else
             {
-                return f(a.Value);
+                return FinSucc((B b, C c, D d) => f(a.Value, b, c, d));
             }
         });
 }
