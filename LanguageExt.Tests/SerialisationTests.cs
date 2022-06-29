@@ -195,9 +195,13 @@ namespace LanguageExt.Tests
         [Fact]
         public void ErrorSerialisationTest()
         {
+            var settings = new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects
+            };
             var error = Error.New("Test");
-            var json = JsonConvert.SerializeObject(error);
-            var error1 = JsonConvert.DeserializeObject<Error>(json);
+            var json = JsonConvert.SerializeObject(error, settings);
+            var error1 = JsonConvert.DeserializeObject<Error>(json, settings);
 
             Assert.True(error == error1);
         }

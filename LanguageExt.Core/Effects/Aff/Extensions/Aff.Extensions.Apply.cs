@@ -201,7 +201,7 @@ public static partial class AffExtensions
         });
 
     
-    // ------------ Aff<RT, A> ----------------------------------------------------------------------------------
+    // ------------ Aff<RT, A> -----------------------------------------------------------------------------------------
     
     public static Aff<RT, B> Apply<RT, A, B>(this Aff<RT, Func<A, B>> mf, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
         AffMaybe<RT, B>(async rt =>

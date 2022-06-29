@@ -6,7 +6,7 @@ namespace LanguageExt;
 
 public static partial class EffExtensions
 {
-    // ------------ Eff<A> ----------------------------------------------------------------------------------
+    // ------------ Eff<A> ---------------------------------------------------------------------------------------------
     
     public static Eff<B> Apply<A, B>(this Eff<Func<A, B>> mf, Eff<A> ma) =>
         EffMaybe<B>(() =>
@@ -198,7 +198,7 @@ public static partial class EffExtensions
             }
         });
     
-    // ------------ Eff<RT, A> ----------------------------------------------------------------------------------
+    // ------------ Eff<RT, A> -----------------------------------------------------------------------------------------
     
     public static Eff<RT, B> Apply<RT, A, B>(this Eff<RT, Func<A, B>> mf, Eff<RT, A> ma) where RT : struct =>
         EffMaybe<RT, B>(rt =>
