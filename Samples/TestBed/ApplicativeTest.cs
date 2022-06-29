@@ -18,12 +18,12 @@ public static class ApplicativeTest
         });
 
     static Aff<int> parse(string str) =>
-        from x in parseInt(str).ToAff(Error.New($"parse error: expected int, got: {str}"))
+        from x in parseInt(str).ToEff(Error.New($"parse error: expected int, got: '{str}'"))
         from _ in delay(1000)
         select x;
 
     static Aff<int> add(string sa, string sb, string sc, string sd, string se, string sf) =>
-        SuccessAff(curry<int, int, int, int, int, int, int>(addF)) 
+        SuccessAff(curry<int, int, int, int, int, int, int>(addPure)) 
             .Apply(parse(sa))
             .Apply(parse(sb))
             .Apply(parse(sc))
@@ -31,7 +31,7 @@ public static class ApplicativeTest
             .Apply(parse(se))
             .Apply(parse(sf));
 
-    static int addF(int a, int b, int c, int d, int e, int f) =>
+    static int addPure(int a, int b, int c, int d, int e, int f) =>
         a + b + c + d + e + f;
 
     public static async Task Test()
