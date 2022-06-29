@@ -19,7 +19,7 @@ public static class ApplicativeTest
 
     static Aff<int> parse(string str) =>
         from x in parseInt(str).ToEff(Error.New($"parse error: expected int, got: '{str}'"))
-        from _ in delay(1000)
+        from _ in delay(10000)
         select x;
 
     static Aff<int> add(string sa, string sb, string sc, string sd, string se, string sf) =>
