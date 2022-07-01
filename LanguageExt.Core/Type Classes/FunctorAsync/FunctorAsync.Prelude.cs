@@ -22,7 +22,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public static FB mapAsync<FunctorAB, FA, FB, A, B>(FA ma, Func<A, B> f)
-            where FunctorAB : FunctorAsync<FA, FB, A, B> =>
+            where FunctorAB : struct, FunctorAsync<FA, FB, A, B> =>
                 default(FunctorAB).Map(ma, f);
 
         /// <summary>
@@ -37,8 +37,8 @@ namespace LanguageExt
         /// <param name="f">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
-        public static FB mapAsync<FunctorAB, FA, FB, A, B>(FA ma, Func<A, Task<B>> f)
-            where FunctorAB : FunctorAsync<FA, FB, A, B> =>
+        public static FB mapAsync<FunctorAB, FA, FB, A, B>(FA ma, Func<A, ValueTask<B>> f)
+            where FunctorAB : struct, FunctorAsync<FA, FB, A, B> =>
                 default(FunctorAB).MapAsync(ma, f);
     }
 }

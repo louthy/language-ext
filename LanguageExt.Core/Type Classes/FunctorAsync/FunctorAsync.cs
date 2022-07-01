@@ -22,6 +22,6 @@ namespace LanguageExt.TypeClasses
         /// <param name="f">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
-        FB MapAsync(FA ma, Func<A, Task<B>> f);
+        FB MapAsync(FA ma, Func<A, ValueTask<B>> f);
     }
 }

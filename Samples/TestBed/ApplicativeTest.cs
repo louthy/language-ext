@@ -23,7 +23,7 @@ public static class ApplicativeTest
         select x;
 
     static Aff<int> add(string sa, string sb, string sc, string sd, string se, string sf) =>
-        SuccessAff(curry<int, int, int, int, int, int, int>(addPure)) 
+        SuccessAff<Func<int, int, int, int, int, int, int>>(addPure)
             .Apply(parse(sa))
             .Apply(parse(sb))
             .Apply(parse(sc))

@@ -13,7 +13,6 @@ namespace LanguageExt.ClassInstances
         OptionalAsync<OptionAsync<A>, A>,
         OptionalUnsafeAsync<OptionAsync<A>, A>,
         MonadAsync<OptionAsync<A>, A>,
-        FoldableAsync<OptionAsync<A>, A>,
         BiFoldableAsync<OptionAsync<A>, A, Unit>
     {
         public static readonly MOptionAsync<A> Inst = default(MOptionAsync<A>);
@@ -55,12 +54,12 @@ namespace LanguageExt.ClassInstances
             OptionAsync<A>.None;
 
         [Pure]
-        public Task<bool> IsNone(OptionAsync<A> opt) =>
-            opt.IsNone;
+        public async Task<bool> IsNone(OptionAsync<A> opt) =>
+            await opt.IsNone.ConfigureAwait(false);
 
         [Pure]
-        public Task<bool> IsSome(OptionAsync<A> opt) =>
-            opt.IsSome;
+        public async Task<bool> IsSome(OptionAsync<A> opt) =>
+            await opt.IsSome.ConfigureAwait(false);
 
         [Pure]
         public async Task<B> Match<B>(OptionAsync<A> opt, Func<A, B> Some, Func<B> None)
@@ -206,12 +205,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionAsync<A> RunAsync(Func<Unit, Task<OptionAsync<A>>> ma)
         {
-            async Task<(bool IsSome, A Value)> Do(Func<Unit, Task<OptionAsync<A>>> mma)
-            {
-                var a = await mma(unit).ConfigureAwait(false);
-                return await a.Data.ConfigureAwait(false);
-            }
-            return new OptionAsync<A>(Do(ma));
+            return new(AffMaybe(Go));
+            async ValueTask<Fin<A>> Go() =>
+                await (await ma(unit).ConfigureAwait(false)).Effect.Run().ConfigureAwait(false);
         }
 
         [Pure]
@@ -223,14 +219,8 @@ namespace LanguageExt.ClassInstances
             Plus(x, y);
 
         [Pure]
-        public Func<Unit, Task<S>> Fold<S>(OptionAsync<A> ma, S state, Func<S, A, S> f) => async _ => 
-        {
-            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
-            f = f ?? throw new ArgumentNullException(nameof(f));
-            return Check.NullReturn(await ma.IsSome.ConfigureAwait(false)
-                ? f(state, await ma.Value.ConfigureAwait(false))
-                : state);
-        };
+        public Func<Unit, Task<S>> Fold<S>(OptionAsync<A> ma, S state, Func<S, A, S> f) => async _ =>
+            await ma.Effect.Fold(state, f);
 
         [Pure]
         public Func<Unit, Task<S>> FoldAsync<S>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> f) => async _ =>
@@ -318,12 +308,6 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public OptionAsync<A> Apply(Func<A, A, A> f, OptionAsync<A> fa, OptionAsync<A> fb) =>
-            default(MOptionAsync<A>).RunAsync( async _ =>
-            {
-                var somes = await Task.WhenAll(fa.IsSome, fb.IsSome).ConfigureAwait(false);
-                if (!somes[0] || !somes[1]) return OptionAsync<A>.None;
-                var values = await Task.WhenAll(fa.Value, fb.Value).ConfigureAwait(false);
-                return f(values[0], values[1]);
-            });
+            f.Apply(fa).Apply(fb);
     }
 }

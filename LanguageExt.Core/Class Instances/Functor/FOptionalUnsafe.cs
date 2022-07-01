@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
@@ -26,3 +27,4 @@ namespace LanguageExt.ClassInstances
                 None: () => default(OptionalB).None);
     }
 }
+*/

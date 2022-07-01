@@ -110,13 +110,13 @@ namespace LanguageExt
         /// <summary>
         /// Custom awaiter that turns an EitherAsync into an Either
         /// </summary>
-        public TaskAwaiter<Either<L, R>> GetAwaiter() =>
-            Data.Map(d => d.State switch
-            {
-                EitherStatus.IsRight => Either<L, R>.Right(d.Right),
-                EitherStatus.IsLeft  => Either<L, R>.Left(d.Left),
-                _                    => Either<L, R>.Bottom
-            }).GetAwaiter();
+        //public TaskAwaiter<Either<L, R>> GetAwaiter() =>
+        //    Data.Map(d => d.State switch
+        //    {
+        //        EitherStatus.IsRight => Either<L, R>.Right(d.Right),
+        //        EitherStatus.IsLeft  => Either<L, R>.Left(d.Left),
+        //        _                    => Either<L, R>.Bottom
+        //    }).GetAwaiter();
 
         /// <summary>
         /// Implicit conversion operator from R to Either R L

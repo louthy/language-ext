@@ -6,6 +6,7 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.DataTypes.Serialisation;
 
 namespace LanguageExt
@@ -88,15 +89,11 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static OptionAsync<B> toOptionAsync<CHOICE, CH, A, B>(CH ma)
-            where CHOICE : struct, ChoiceAsync<CH, A, B>
-        {
-            async Task<(bool IsSome, B Value)> Do(CH mma) =>
-                await default(CHOICE).Match(mma,
-                    Left: _ => (false, default),
-                    Right: x => (true, x)).ConfigureAwait(false);
-
-            return new OptionAsync<B>(Do(ma));
-        }
+            where CHOICE : struct, ChoiceAsync<CH, A, B> =>
+            new(AffMaybe(async () =>
+                await default(CHOICE).Match(ma,
+                    Left: _ => FinFail<B>(Errors.None),
+                    Right: FinSucc).ConfigureAwait(false)));
 
         [Pure]
         public static Task<R> matchAsync<CHOICE, CH, A, B, R>(CH ma, Func<A, Task<R>> LeftAsync, Func<B, R> Right)
@@ -279,7 +276,7 @@ namespace LanguageExt
         public static async Task<IEnumerable<A>> leftsAsync<CHOICE, CH, A, B>(IEnumerable<CH> ma)
             where CHOICE : struct, ChoiceAsync<CH, A, B>
         {
-            var res = await Task.WhenAll(ma.Map(item =>
+            var res = await WaitAsync.All(ma.Map(item =>
                 default(CHOICE).Match(
                     item,
                     Left: x => (true, x),
@@ -314,7 +311,7 @@ namespace LanguageExt
         public static async Task<IEnumerable<B>> rightsAsync<CHOICE, CH, A, B>(IEnumerable<CH> ma)
             where CHOICE : struct, ChoiceAsync<CH, A, B>
         {
-            var res = await Task.WhenAll(ma.Map(item =>
+            var res = await WaitAsync.All(ma.Map(item =>
                 default(CHOICE).Match(
                     item,
                     Left: x => (false, default(B)),
@@ -351,7 +348,7 @@ namespace LanguageExt
         public static async Task<(IEnumerable<A> Lefts, IEnumerable<B> Rights)> partitionAsync<CHOICE, CH, A, B>(IEnumerable<CH> ma)
             where CHOICE : struct, ChoiceAsync<CH, A, B>
         {
-            var res = await Task.WhenAll(ma.Map(item =>
+            var res = await WaitAsync.All(ma.Map(item =>
                 default(CHOICE).Match(
                     item,
                     Left: x => (1, x, default(B)),

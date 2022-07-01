@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#nullable enable
+using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
 using LanguageExt.ClassInstances;
-using LanguageExt.Common;
 
 namespace LanguageExt
 {
@@ -71,9 +69,9 @@ namespace LanguageExt
         [Pure]
         public static Func<Exception, Option<R>> with<T, R>(Func<T, R> map)
             where T : Exception =>
-            (Exception input) =>
-                input is T
-                    ? Some(map((T)input))
+            input =>
+                input is T exception
+                    ? Some(map(exception))
                     : None;
 
         /// <summary>
@@ -81,7 +79,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Func<T, Option<R>> otherwise<T, R>(Func<T, R> map) =>
-            (T input) => Some(map(input));
+            input => Some(map(input));
 
         /// <summary>
         /// Pattern matching for values
@@ -127,11 +125,34 @@ namespace LanguageExt
         [Pure]
         public static A identity<A>(A x) => 
             x;
-
+        
+        /// <summary>
+        /// The `flip` of `constant`
+        /// </summary>
+        /// <remarks>
+        /// This is known as `false` in lambda calculus and `kite` in combinator birds
+        /// </remarks>
+        [Pure]
+        public static B kite<A, B>(A _, B y) =>
+            y;
+        
+        /// <summary>
+        /// The `flip` of `constant`
+        /// </summary>
+        /// <remarks>
+        /// This is known as `false` in lambda calculus and `kite` in combinator birds
+        /// </remarks>
+        [Pure]
+        public static Func<B, B> kite<A, B>(A _) =>
+            identity;
+        
         /// <summary>
         /// Constant function
         /// Always returns the first argument
         /// </summary>
+        /// <remarks>
+        /// This is known as `true` in lambda calculus and `kestrel` in combinator birds
+        /// </remarks>
         [Pure]
         public static Func<B, A> constant<A, B>(A x) =>
             _ => x;
@@ -140,6 +161,9 @@ namespace LanguageExt
         /// Constant function
         /// Always returns the first argument
         /// </summary>
+        /// <remarks>
+        /// This is known as `true` in lambda calculus and `kestrel` in combinator birds
+        /// </remarks>
         [Pure]
         public static A constant<A, B>(A x, B _) =>
             x;
@@ -148,6 +172,9 @@ namespace LanguageExt
         /// Constant function
         /// Always returns the first argument
         /// </summary>
+        /// <remarks>
+        /// This is known as `true` in lambda calculus and `kestrel` in combinator birds
+        /// </remarks>
         [Pure]
         public static Func<A, A> constantA<A>(A x) =>
             _ => x;
@@ -156,6 +183,9 @@ namespace LanguageExt
         /// Constant function
         /// Always returns the first argument
         /// </summary>
+        /// <remarks>
+        /// This is known as `true` in lambda calculus and `kestrel` in combinator birds
+        /// </remarks>
         [Pure]
         public static A constantA<A>(A x, A _) =>
             x;

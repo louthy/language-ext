@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.DataTypes.Serialisation;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -371,8 +372,12 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public int CompareTo(Fin<A> other) =>
+            CompareTo<OrdDefault<A>>(other);
+       
+        [Pure, MethodImpl(Opt.Default)]
+        public int CompareTo<OrdA>(Fin<A> other) where OrdA : struct, Ord<A> =>
             IsSucc && other.IsSucc
-                ? default(OrdDefault<A>).Compare(value, other.value)
+                ? default(OrdA).Compare(value, other.value)
                 : !IsSucc && !other.IsSucc
                     ? 0
                     : IsSucc && !other.IsSucc
@@ -381,7 +386,12 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public bool Equals(Fin<A> other) =>
-            (IsSucc && other.IsSucc && default(EqDefault<A>).Equals(value, other.value)) || (IsSucc == false && other.IsSucc == false);
+            Equals<EqDefault<A>>(other);
+
+        [Pure, MethodImpl(Opt.Default)]
+        public bool Equals<EqA>(Fin<A> other) where EqA : struct, Eq<A> =>
+            (IsSucc && other.IsSucc && default(EqA).Equals(value, other.value)) || 
+             (IsSucc == false && other.IsSucc == false);
 
         [Pure, MethodImpl(Opt.Default)]
         public IEnumerator<Fin<A>> GetEnumerator()

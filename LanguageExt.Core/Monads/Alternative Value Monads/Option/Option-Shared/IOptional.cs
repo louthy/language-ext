@@ -27,17 +27,17 @@ namespace LanguageExt
 
     public interface IOptionalAsync
     {
-        Task<bool> IsSome
+        ValueTask<bool> IsSome
         {
             get;
         }
 
-        Task<bool> IsNone
+        ValueTask<bool> IsNone
         {
             get;
         }
 
-        Task<R> MatchUntyped<R>(Func<object, R> Some, Func<R> None);
+        ValueTask<R?> MatchUntyped<R>(Func<object?, R?> Some, Func<R?> None);
 
         Type GetUnderlyingType();
     }

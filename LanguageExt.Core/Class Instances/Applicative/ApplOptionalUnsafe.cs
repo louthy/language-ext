@@ -1,11 +1,14 @@
-﻿using System;
+﻿/*
+#nullable enable
+
+using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct ApplOptionalUnsafe<OptionalA, OptionalB, OA, OB, A, B> :
+    public readonly struct ApplOptionalUnsafe<OptionalA, OptionalB, OA, OB, A, B> :
         Functor<OA, OB, A, B>,
         BiFunctor<OA, OB, A, Unit, B>
         where OptionalA : struct, OptionalUnsafe<OA, A>
@@ -22,7 +25,7 @@ namespace LanguageExt.ClassInstances
             FOptionalUnsafe<OptionalA, OptionalB, OA, OB, A, B>.Inst.Map(ma, f);
     }
 
-    public struct ApplOptionalUnsafe<OptionFAB, OptionFA, OptionFB, FAB, FA, FB, A, B> : 
+    public readonly struct ApplOptionalUnsafe<OptionFAB, OptionFA, OptionFB, FAB, FA, FB, A, B> : 
         Applicative<FAB, FA, FB, A, B>
             where OptionFAB : struct, OptionalUnsafe<FAB, Func<A, B>>
             where OptionFA : struct, OptionalUnsafe<FA, A>
@@ -87,3 +90,4 @@ namespace LanguageExt.ClassInstances
             default(OptionFA).Optional(x);
     }
 }
+*/

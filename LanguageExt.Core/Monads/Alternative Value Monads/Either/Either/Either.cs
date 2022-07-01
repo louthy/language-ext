@@ -584,12 +584,12 @@ namespace LanguageExt
         /// <param name="Left">Map the left value to the Eff Error</param>
         /// <returns>Eff monad</returns>
         [Pure]
-        public Eff<R> ToEff(Func<L, Common.Error> Left) =>
+        public Eff<R> ToEff(Func<L, Error> Left) =>
             State switch
             {
-                EitherStatus.IsRight => SuccessEff<R>(RightValue),
+                EitherStatus.IsRight => SuccessEff(RightValue),
                 EitherStatus.IsLeft  => FailEff<R>(Left(LeftValue)),
-                _                    => default // bottom
+                _                    => Eff<R>.Fail(Errors.Bottom)
             };
 
         /// <summary>
@@ -598,12 +598,12 @@ namespace LanguageExt
         /// <param name="Left">Map the left value to the Eff Error</param>
         /// <returns>Aff monad</returns>
         [Pure]
-        public Aff<R> ToAff(Func<L, Common.Error> Left) =>
+        public Aff<R> ToAff(Func<L, Error> Left) =>
             State switch
             {
-                EitherStatus.IsRight => SuccessAff<R>(RightValue),
+                EitherStatus.IsRight => SuccessAff(RightValue),
                 EitherStatus.IsLeft  => FailAff<R>(Left(LeftValue)),
-                _                    => default // bottom
+                _                    => Aff<R>.Fail(Errors.Bottom)
             };
 
         /// <summary>
@@ -611,7 +611,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public EitherAsync<L, R> ToAsync() =>
-            new EitherAsync<L, R>(this.Head().AsTask());
+            new (this.Head().AsTask());
 
         /// <summary>
         /// Convert the Either to an EitherUnsafe
@@ -856,14 +856,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static bool operator ==(EitherLeft<L>  lhs, Either<L, R> rhs) =>
-            lhs.Equals(rhs);
+            Left<L, R>(lhs).Equals(rhs);
 
         /// <summary>
         /// Equality operator override
         /// </summary>
         [Pure]
         public static bool operator ==(EitherRight<R> lhs, Either<L, R>  rhs) =>
-            lhs.Equals(rhs);
+            Right<L, R>(lhs).Equals(rhs);
 
         /// <summary>
         /// Equality operator override
@@ -1230,27 +1230,12 @@ namespace LanguageExt
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
         /// <typeparam name="Ret">Mapped Either type</typeparam>
-        /// <param name="self">Either to map</param>
-        /// <param name="mapper">Map function</param>
+        /// <param name="Left">Map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public Either<Ret, R> MapLeft<Ret>(Func<L, Ret> mapper) =>
-            FEitherBi<L, R, Ret, R>.Inst.BiMap(this, mapper, identity);
-
-        /// <summary>
-        /// Bi-maps the value in the Either into a Right state
-        /// </summary>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <typeparam name="LRet">Left return</typeparam>
-        /// <typeparam name="RRet">Right return</typeparam>
-        /// <param name="self">Either to map</param>
-        /// <param name="Right">Right map function</param>
-        /// <param name="Left">Left map function</param>
-        /// <returns>Mapped Either</returns>
-        [Pure]
-        public Either<L, Ret> BiMap<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
-            FEither<L, R, Ret>.Inst.BiMap(this, Left, Right);
+        public Either<Ret, R> MapLeft<Ret>(Func<L, Ret> Left) =>
+            Match(Left: l => Either<Ret, R>.Left(Left(l)),
+                  Right: identity);
 
         /// <summary>
         /// Bi-maps the value in the Either if it's in a Right state
@@ -1265,7 +1250,8 @@ namespace LanguageExt
         /// <returns>Mapped Either</returns>
         [Pure]
         public Either<L2, R2> BiMap<L2, R2>(Func<R, R2> Right, Func<L, L2> Left) =>
-            FEitherBi<L, R, L2, R2>.Inst.BiMap(this, Left, Right);
+            Match(Left: l => Either<L2, R2>.Left(Left(l)),
+                  Right: r => Either<L2, R2>.Right(Right(r)));
 
         /// <summary>
         /// Monadic bind

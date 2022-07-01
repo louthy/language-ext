@@ -1,16 +1,11 @@
 using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.ComponentModel;
 using LanguageExt.Common;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Pipes;
-using LanguageExt.Thunks;
 
 namespace LanguageExt
 {
@@ -26,13 +21,9 @@ namespace LanguageExt
         public static Aff<RT, (A, B)> Sequence<RT, A, B>(this (Aff<RT, A>, Aff<RT, B>) ms) where RT : struct, HasCancel<RT> => 
             AffMaybe<RT,(A, B)>(async env =>
             {
-                var t1 = ms.Item1.Run(env).AsTask();
-                var t2 = ms.Item2.Run(env).AsTask();
-                
-                var tasks = new Task[] {t1, t2};
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-                return from r1 in t1.Result
-                       from r2 in t2.Result
+                var (f1, f2) = await WaitAsync.All(ms.Item1.Run(env), ms.Item2.Run(env)).ConfigureAwait(false);
+                return from r1 in f1
+                       from r2 in f2
                        select (r1, r2);
             });
 
@@ -42,15 +33,14 @@ namespace LanguageExt
         public static Aff<RT, (A, B, C)> Sequence<RT, A, B, C>(this (Aff<RT, A>, Aff<RT, B>, Aff<RT, C>) ms) where RT : struct, HasCancel<RT> => 
             AffMaybe<RT,(A, B, C)>(async env =>
             {
-                var t1 = ms.Item1.Run(env).AsTask();
-                var t2 = ms.Item2.Run(env).AsTask();
-                var t3 = ms.Item3.Run(env).AsTask();
+                var (f1, f2, f3) = await WaitAsync.All(
+                    ms.Item1.Run(env).AsTask(), 
+                    ms.Item2.Run(env).AsTask(), 
+                    ms.Item3.Run(env).AsTask()).ConfigureAwait(false);
                 
-                var tasks = new Task[] {t1, t2, t3};
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-                return from r1 in t1.Result
-                       from r2 in t2.Result
-                       from r3 in t3.Result
+                return from r1 in f1
+                       from r2 in f2
+                       from r3 in f3
                        select (r1, r2, r3);
             });
 
@@ -60,17 +50,16 @@ namespace LanguageExt
         public static Aff<RT, (A, B, C, D)> Sequence<RT, A, B, C, D>(this (Aff<RT, A>, Aff<RT, B>, Aff<RT, C>, Aff<RT, D>) ms) where RT : struct, HasCancel<RT> => 
             AffMaybe<RT,(A, B, C, D)>(async env =>
             {
-                var t1 = ms.Item1.Run(env).AsTask();
-                var t2 = ms.Item2.Run(env).AsTask();
-                var t3 = ms.Item3.Run(env).AsTask();
-                var t4 = ms.Item4.Run(env).AsTask();
+                var (f1, f2, f3, f4) = await WaitAsync.All(
+                    ms.Item1.Run(env).AsTask(), 
+                    ms.Item2.Run(env).AsTask(), 
+                    ms.Item3.Run(env).AsTask(), 
+                    ms.Item4.Run(env).AsTask()).ConfigureAwait(false);
                 
-                var tasks = new Task[] {t1, t2, t3, t4};
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-                return from r1 in t1.Result
-                       from r2 in t2.Result
-                       from r3 in t3.Result
-                       from r4 in t4.Result
+                return from r1 in f1
+                       from r2 in f2
+                       from r3 in f3
+                       from r4 in f4
                        select (r1, r2, r3, r4);
             });
 
@@ -80,19 +69,18 @@ namespace LanguageExt
         public static Aff<RT, (A, B, C, D, E)> Sequence<RT, A, B, C, D, E>(this (Aff<RT, A>, Aff<RT, B>, Aff<RT, C>, Aff<RT, D>, Aff<RT, E>) ms) where RT : struct, HasCancel<RT> => 
             AffMaybe<RT,(A, B, C, D, E)>(async env =>
             {
-                var t1 = ms.Item1.Run(env).AsTask();
-                var t2 = ms.Item2.Run(env).AsTask();
-                var t3 = ms.Item3.Run(env).AsTask();
-                var t4 = ms.Item4.Run(env).AsTask();
-                var t5 = ms.Item5.Run(env).AsTask();
+                var (f1, f2, f3, f4, f5) = await WaitAsync.All(
+                    ms.Item1.Run(env).AsTask(), 
+                    ms.Item2.Run(env).AsTask(), 
+                    ms.Item3.Run(env).AsTask(), 
+                    ms.Item4.Run(env).AsTask(), 
+                    ms.Item5.Run(env).AsTask()).ConfigureAwait(false);
                 
-                var tasks = new Task[] {t1, t2, t3, t4, t5};
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-                return from r1 in t1.Result
-                       from r2 in t2.Result
-                       from r3 in t3.Result
-                       from r4 in t4.Result
-                       from r5 in t5.Result
+                return from r1 in f1
+                       from r2 in f2
+                       from r3 in f3
+                       from r4 in f4
+                       from r5 in f5
                        select (r1, r2, r3, r4, r5);
             });
 
@@ -684,149 +672,32 @@ namespace LanguageExt
         //
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<RT, A> ma, Aff<RT, B> mb)
-            where RT : struct, HasCancel<RT> =>
-            new (async e =>
-            {
-                var ta = ma.Run(e).AsTask();
-                var tb = mb.Run(e).AsTask();
-                await Task.WhenAll(ta, tb).ConfigureAwait(false);
-                if (ta.CompletedSuccessfully() && tb.CompletedSuccessfully())
-                {
-                    return ta.Result.IsSucc && tb.Result.IsSucc
-                        ? Fin<(A, B)>.Succ((ta.Result.Value, tb.Result.Value))
-                        : ta.Result.IsFail
-                            ? Fin<(A, B)>.Fail(ta.Result.Error)
-                            : Fin<(A, B)>.Fail(tb.Result.Error);
-                }
-                else
-                {
-                    return (ta.IsCanceled || tb.IsCanceled)
-                        ? Fin<(A, B)>.Fail(Errors.Cancelled)
-                        : ta.IsFaulted
-                            ? Fin<(A, B)>.Fail(Error.New(ta.Exception))
-                            : Fin<(A, B)>.Fail(Error.New(tb.Exception));
-                }
-            });
+        public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
+            SuccessAff<RT, Func<A, B, (A, B)>>((a, b) => (a, b)).Apply(ma).Apply(mb);
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<RT, A> ma, Aff<B> mb) where RT : struct, HasCancel<RT> =>
-            new (async e =>
-            {
-                var ta = ma.Run(e).AsTask();
-                var tb = mb.Run().AsTask();
-                await Task.WhenAll(ta, tb).ConfigureAwait(false);
-                if (ta.CompletedSuccessfully() && tb.CompletedSuccessfully())
-                {
-                    return ta.Result.IsSucc && tb.Result.IsSucc
-                        ? Fin<(A, B)>.Succ((ta.Result.Value, tb.Result.Value))
-                        : ta.Result.IsFail
-                            ? Fin<(A, B)>.Fail(ta.Result.Error)
-                            : Fin<(A, B)>.Fail(tb.Result.Error);
-                }
-                else
-                {
-                    return (ta.IsCanceled || tb.IsCanceled)
-                        ? Fin<(A, B)>.Fail(Errors.Cancelled)
-                        : ta.IsFaulted
-                            ? Fin<(A, B)>.Fail(Error.New(ta.Exception))
-                            : Fin<(A, B)>.Fail(Error.New(tb.Exception));
-                }
-            });
+            SuccessAff<RT, Func<A, B, (A, B)>>((a, b) => (a, b)).Apply(ma).Apply(mb);
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-            new (async e =>
-            {
-                var ta = ma.Run().AsTask();
-                var tb = mb.Run(e).AsTask();
-                await Task.WhenAll(ta, tb).ConfigureAwait(false);
-                if (ta.CompletedSuccessfully() && tb.CompletedSuccessfully())
-                {
-                    return ta.Result.IsSucc && tb.Result.IsSucc
-                        ? Fin<(A, B)>.Succ((ta.Result.Value, tb.Result.Value))
-                        : ta.Result.IsFail
-                            ? Fin<(A, B)>.Fail(ta.Result.Error)
-                            : Fin<(A, B)>.Fail(tb.Result.Error);
-                }
-                else
-                {
-                    return (ta.IsCanceled || tb.IsCanceled)
-                        ? Fin<(A, B)>.Fail(Errors.Cancelled)
-                        : ta.IsFaulted
-                            ? Fin<(A, B)>.Fail(Error.New(ta.Exception))
-                            : Fin<(A, B)>.Fail(Error.New(tb.Exception));
-                }
-            });
+            SuccessAff<RT, Func<A, B, (A, B)>>((a, b) => (a, b)).Apply(ma).Apply(mb);
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<RT, A> ma, Eff<B> mb) where RT : struct, HasCancel<RT> =>
-            new (async e =>
-            {
-                var ta = ma.Run(e).AsTask();
-                var ra = await ta.ConfigureAwait(false);
-                if (!ta.CompletedSuccessfully())
-                {
-                    return Fin<(A, B)>.Fail(ra.Error);
-                }
-
-                var rb = mb.Run();
-                if (rb.IsFail) return Fin<(A, B)>.Fail(rb.Error);
-
-                return Fin<(A, B)>.Succ((ra.Value, rb.Value));
-            });
+            SuccessAff<RT, Func<A, B, (A, B)>>((a, b) => (a, b)).Apply(ma).Apply(mb);
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, (A, B)> Zip<RT, A, B>(this Eff<A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-            new (async e =>
-            {
-                var ra = ma.Run();
-                if (ra.IsFail) return Fin<(A, B)>.Fail(ra.Error);
-
-                var tb = mb.Run(e).AsTask();
-                var rb = await tb.ConfigureAwait(false);
-                if (!tb.CompletedSuccessfully())
-                {
-                    return Fin<(A, B)>.Fail(rb.Error);
-                }
-
-                return Fin<(A, B)>.Succ((ra.Value, rb.Value));
-            });
-
+            SuccessAff<RT, Func<A, B, (A, B)>>((a, b) => (a, b)).Apply(ma).Apply(mb);
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<RT, A> ma, Eff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-            new (async e =>
-            {
-                var ta = ma.Run(e).AsTask();
-                var ra = await ta.ConfigureAwait(false);
-                if (!ta.CompletedSuccessfully())
-                {
-                    return Fin<(A, B)>.Fail(ra.Error);
-                }
-
-                var rb = mb.Run(e);
-                if (rb.IsFail) return Fin<(A, B)>.Fail(rb.Error);
-
-                return Fin<(A, B)>.Succ((ra.Value, rb.Value));
-            });
+            SuccessAff<RT, Func<A, B, (A, B)>>((a, b) => (a, b)).Apply(ma).Apply(mb);
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, (A, B)> Zip<RT, A, B>(this Eff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-            new (async e =>
-            {
-                var ra = ma.Run(e);
-                if (ra.IsFail) return Fin<(A, B)>.Fail(ra.Error);
-
-                var tb = mb.Run(e).AsTask();
-                var rb = await tb.ConfigureAwait(false);
-                if (!tb.CompletedSuccessfully())
-                {
-                    return Fin<(A, B)>.Fail(rb.Error);
-                }
-
-                return Fin<(A, B)>.Succ((ra.Value, rb.Value));
-            });
+            SuccessAff<RT, Func<A, B, (A, B)>>((a, b) => (a, b)).Apply(ma).Apply(mb);
     }
     
     
@@ -839,16 +710,12 @@ namespace LanguageExt
         /// <summary>
         /// Run the two effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
         /// </summary>
-        public static Aff<(A, B)> Sequence<A, B>(this (Aff<A>, Aff< B>) ms) => 
+        public static Aff<(A, B)> Sequence<A, B>(this (Aff<A>, Aff<B>) ms) => 
             AffMaybe<(A, B)>(async () =>
             {
-                var t1 = ms.Item1.Run().AsTask();
-                var t2 = ms.Item2.Run().AsTask();
-                
-                var tasks = new Task[] {t1, t2};
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-                return from r1 in t1.Result
-                       from r2 in t2.Result
+                var (f1, f2) = await WaitAsync.All(ms.Item1.Run(), ms.Item2.Run()).ConfigureAwait(false);
+                return from r1 in f1
+                       from r2 in f2
                        select (r1, r2);
             });
 
@@ -858,35 +725,33 @@ namespace LanguageExt
         public static Aff<(A, B, C)> Sequence<A, B, C>(this (Aff<A>, Aff<B>, Aff<C>) ms) => 
             AffMaybe<(A, B, C)>(async () =>
             {
-                var t1 = ms.Item1.Run().AsTask();
-                var t2 = ms.Item2.Run().AsTask();
-                var t3 = ms.Item3.Run().AsTask();
+                var (f1, f2, f3) = await WaitAsync.All(
+                    ms.Item1.Run().AsTask(), 
+                    ms.Item2.Run().AsTask(), 
+                    ms.Item3.Run().AsTask()).ConfigureAwait(false);
                 
-                var tasks = new Task[] {t1, t2, t3};
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-                return from r1 in t1.Result
-                       from r2 in t2.Result
-                       from r3 in t3.Result
+                return from r1 in f1
+                       from r2 in f2
+                       from r3 in f3
                        select (r1, r2, r3);
             });
 
         /// <summary>
         /// Run the four effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
         /// </summary>
-        public static Aff<(A, B, C, D)> Sequence<A, B, C, D>(this (Aff<A>, Aff<B>, Aff<C>, Aff< D>) ms) => 
+        public static Aff<(A, B, C, D)> Sequence<A, B, C, D>(this (Aff<A>, Aff<B>, Aff<C>, Aff<D>) ms) => 
             AffMaybe<(A, B, C, D)>(async () =>
             {
-                var t1 = ms.Item1.Run().AsTask();
-                var t2 = ms.Item2.Run().AsTask();
-                var t3 = ms.Item3.Run().AsTask();
-                var t4 = ms.Item4.Run().AsTask();
+                var (f1, f2, f3, f4) = await WaitAsync.All(
+                    ms.Item1.Run().AsTask(), 
+                    ms.Item2.Run().AsTask(), 
+                    ms.Item3.Run().AsTask(), 
+                    ms.Item4.Run().AsTask()).ConfigureAwait(false);
                 
-                var tasks = new Task[] {t1, t2, t3, t4};
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-                return from r1 in t1.Result
-                       from r2 in t2.Result
-                       from r3 in t3.Result
-                       from r4 in t4.Result
+                return from r1 in f1
+                       from r2 in f2
+                       from r3 in f3
+                       from r4 in f4
                        select (r1, r2, r3, r4);
             });
 
@@ -896,21 +761,21 @@ namespace LanguageExt
         public static Aff<(A, B, C, D, E)> Sequence<A, B, C, D, E>(this (Aff<A>, Aff<B>, Aff<C>, Aff<D>, Aff<E>) ms) => 
             AffMaybe<(A, B, C, D, E)>(async () =>
             {
-                var t1 = ms.Item1.Run().AsTask();
-                var t2 = ms.Item2.Run().AsTask();
-                var t3 = ms.Item3.Run().AsTask();
-                var t4 = ms.Item4.Run().AsTask();
-                var t5 = ms.Item5.Run().AsTask();
+                var (f1, f2, f3, f4, f5) = await WaitAsync.All(
+                    ms.Item1.Run().AsTask(), 
+                    ms.Item2.Run().AsTask(), 
+                    ms.Item3.Run().AsTask(), 
+                    ms.Item4.Run().AsTask(), 
+                    ms.Item5.Run().AsTask()).ConfigureAwait(false);
                 
-                var tasks = new Task[] {t1, t2, t3, t4, t5};
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-                return from r1 in t1.Result
-                       from r2 in t2.Result
-                       from r3 in t3.Result
-                       from r4 in t4.Result
-                       from r5 in t5.Result
+                return from r1 in f1
+                       from r2 in f2
+                       from r3 in f3
+                       from r4 in f4
+                       from r5 in f5
                        select (r1, r2, r3, r4, r5);
             });
+
         
         //
         // Map
@@ -1010,7 +875,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<B> MatchAff<A, B>(this Aff<A> ma, Aff<B> Succ, Func<Error, B> Fail) =>
-            AffMaybe<B>(async () =>
+            AffMaybe(async () =>
             {
                 var r = await ma.Run().ConfigureAwait(false);
                 return r.IsSucc
@@ -1020,7 +885,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<B> MatchAff<A, B>(this Aff<A> ma, Func<A, Aff<B>> Succ, Func<Error, B> Fail) =>
-            AffMaybe<B>(async () =>
+            AffMaybe(async () =>
                         {
                             var r = await ma.Run().ConfigureAwait(false);
                             return r.IsSucc
@@ -1050,7 +915,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<B> MatchAff<A, B>(this Aff<A> ma, Aff<B> Succ, Aff<B> Fail) =>
-            AffMaybe<B>(async () =>
+            AffMaybe(async () =>
             {
                 var r = await ma.Run().ConfigureAwait(false);
                 return r.IsSucc
@@ -1060,7 +925,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<B> MatchAff<A, B>(this Aff<A> ma, Func<A, Aff<B>> Succ, Func<Error, Aff<B>> Fail) =>
-            AffMaybe<B>(async () =>
+            AffMaybe(async () =>
                         {
                             var r = await ma.Run().ConfigureAwait(false);
                             return r.IsSucc
@@ -1070,7 +935,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<B> Match<A, B>(this Aff<A> ma, B Succ, Func<Error, B> Fail) =>
-            Aff<B>(async () =>
+            Aff(async () =>
             {
                 var r = await ma.Run().ConfigureAwait(false);
                 return r.IsSucc
@@ -1080,7 +945,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<B> Match<A, B>(this Aff<A> ma, Func<A, B> Succ, B Fail) =>
-            Aff<B>(async () =>
+            Aff(async () =>
             {
                 var r = await ma.Run().ConfigureAwait(false);
                 return r.IsSucc
@@ -1090,7 +955,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<B> Match<A, B>(this Aff<A> ma, B Succ, B Fail) =>
-            Aff<B>(async () =>
+            Aff(async () =>
             {
                 var r = await ma.Run().ConfigureAwait(false);
                 return r.IsSucc
@@ -1104,7 +969,7 @@ namespace LanguageExt
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> IfFail<A>(this Aff<A> ma, Func<Error, A> f) =>
-            AffMaybe<A>(
+            AffMaybe(
                 async () =>
                 {
                     var res = await ma.Run().ConfigureAwait(false);
@@ -1115,7 +980,7 @@ namespace LanguageExt
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> IfFail<A>(this Aff<A> ma, A alternative) =>
-            AffMaybe<A>(
+            AffMaybe(
                 async () =>
                 {
                     var res = await ma.Run().ConfigureAwait(false);
@@ -1192,7 +1057,7 @@ namespace LanguageExt
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> IfFailAff<A>(this Aff<A> ma, Eff<A> alternative) =>
-            AffMaybe<A>(
+            AffMaybe(
                 async () =>
                 {
                     var res = await ma.Run().ConfigureAwait(false);
@@ -1203,7 +1068,7 @@ namespace LanguageExt
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> IfFailAff<A>(this Aff<A> ma, Func<Error, Eff<A>> alternative) =>
-            AffMaybe<A>(
+            AffMaybe(
                 async () =>
                 {
                     var res = await ma.Run().ConfigureAwait(false);
@@ -1218,7 +1083,7 @@ namespace LanguageExt
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<Unit> Iter<A>(this Aff<A> ma, Func<A, Unit> f) =>
-            Aff<Unit>(
+            Aff(
                 async () =>
                 {
                     var res = await ma.Run().ConfigureAwait(false);
@@ -1244,7 +1109,7 @@ namespace LanguageExt
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<Unit> Iter<A>(this Aff<A> ma, Func<A, Aff<Unit>> f) =>
-            Aff<Unit>(
+            Aff(
                 async () =>
                 {
                     var res = await ma.Run().ConfigureAwait(false);
@@ -1270,7 +1135,7 @@ namespace LanguageExt
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<Unit> Iter<A>(this Aff<A> ma, Func<A, Eff<Unit>> f) =>
-            Aff<Unit>(
+            Aff(
                 async () =>
                 {
                     var res = await ma.Run().ConfigureAwait(false);
@@ -1283,7 +1148,7 @@ namespace LanguageExt
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> Do<A>(this Aff<A> ma, Func<A, Unit> f) =>
-            AffMaybe<A>(
+            AffMaybe(
                 async () =>
                 {
                     var res = await ma.Run().ConfigureAwait(false);
@@ -1328,7 +1193,7 @@ namespace LanguageExt
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> Do<A>(this Aff<A> ma, Func<A, Aff<Unit>> f) =>
-            AffMaybe<A>(
+            AffMaybe(
                 async () =>
                 {
                     var res = await ma.Run().ConfigureAwait(false);
@@ -1344,7 +1209,7 @@ namespace LanguageExt
         
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<A> Do<A>(this Aff<A> ma, Func<A, Eff<Unit>> f) =>
-            AffMaybe<A>(
+            AffMaybe(
                 async () =>
                 {
                     var res = await ma.Run().ConfigureAwait(false);
@@ -1398,6 +1263,16 @@ namespace LanguageExt
                 var fa = await ma.Run().ConfigureAwait(false);
                 if (fa.IsFail) return FinFail<B>(fa.Error);
                 var mb = f(fa.Value);
+                return await mb.Run().ConfigureAwait(false);
+            });
+
+        [Pure, MethodImpl(Opt.Default)]
+        public static Aff<B> BindAsync<A, B>(this Aff<A> ma, Func<A, ValueTask<Aff<B>>> f) =>
+            new (async () =>
+            {
+                var fa = await ma.Run().ConfigureAwait(false);
+                if (fa.IsFail) return FinFail<B>(fa.Error);
+                var mb = await f(fa.Value).ConfigureAwait(false);
                 return await mb.Run().ConfigureAwait(false);
             });
 
@@ -1537,62 +1412,15 @@ namespace LanguageExt
         //
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<(A, B)> Zip<A, B>(Aff<A> ma, Aff<B> mb) =>
-            new (async () =>
-            {
-                var ta = ma.Run().AsTask();
-                var tb = mb.Run().AsTask();
-                await Task.WhenAll(ta, tb).ConfigureAwait(false);
-                if (ta.CompletedSuccessfully() && tb.CompletedSuccessfully())
-                {
-                    return ta.Result.IsSucc && tb.Result.IsSucc
-                        ? Fin<(A, B)>.Succ((ta.Result.Value, tb.Result.Value))
-                        : ta.Result.IsFail
-                            ? Fin<(A, B)>.Fail(ta.Result.Error)
-                            : Fin<(A, B)>.Fail(tb.Result.Error);
-                }
-                else
-                {
-                    return (ta.IsCanceled || tb.IsCanceled)
-                        ? Fin<(A, B)>.Fail(Errors.Cancelled)
-                        : ta.IsFaulted
-                            ? Fin<(A, B)>.Fail(Error.New(ta.Exception))
-                            : Fin<(A, B)>.Fail(Error.New(tb.Exception));
-                }
-            });
+        public static Aff<(A, B)> Zip<A, B>(this Aff<A> ma, Aff<B> mb) =>
+            SuccessAff<Func<A, B, (A, B)>>((a, b) => (a, b)).Apply(ma).Apply(mb);
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<(A, B)> Zip<A, B>(Aff<A> ma, Eff<B> mb) =>
-            new (async () =>
-            {
-                var ta = ma.Run().AsTask();
-                var ra = await ta.ConfigureAwait(false);
-                if (!ta.CompletedSuccessfully())
-                {
-                    return Fin<(A, B)>.Fail(ra.Error);
-                }
-
-                var rb = mb.Run();
-                if(rb.IsFail) return Fin<(A, B)>.Fail(rb.Error);
-
-                return Fin<(A, B)>.Succ((ra.Value, rb.Value));
-            });  
+        public static Aff<(A, B)> Zip<A, B>(this Aff<A> ma, Eff<B> mb) =>
+            SuccessAff<Func<A, B, (A, B)>>((a, b) => (a, b)).Apply(ma).Apply(mb);
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<(A, B)> Zip<A, B>(Eff<A> ma, Aff<B> mb) =>
-            new (async () =>
-            {
-                var ra = ma.Run();
-                if(ra.IsFail) return Fin<(A, B)>.Fail(ra.Error);
-                
-                var tb = mb.Run().AsTask();
-                var rb = await tb.ConfigureAwait(false);
-                if (!tb.CompletedSuccessfully())
-                {
-                    return Fin<(A, B)>.Fail(rb.Error);
-                }
-
-                return Fin<(A, B)>.Succ((ra.Value, rb.Value));
-            });         
+        public static Aff<(A, B)> Zip<A, B>(this Eff<A> ma, Aff<B> mb) =>
+            SuccessAff<Func<A, B, (A, B)>>((a, b) => (a, b)).Apply(ma).Apply(mb);
     }    
 }

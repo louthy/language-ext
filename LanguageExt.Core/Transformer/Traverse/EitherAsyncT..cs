@@ -23,7 +23,7 @@ namespace LanguageExt
             return new EitherAsync<L, Arr<B>>(Go(ma, f));
             async Task<EitherData<L, Arr<B>>> Go(Arr<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
+                var rb = await WaitAsync.All(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
                 return rb.Exists(d => d.State == EitherStatus.IsLeft)
                     ? rb.Filter(d => d.State == EitherStatus.IsLeft).Map(d => EitherData.Left<L,Arr<B>>(d.Left)).Head()
                     : EitherData.Right<L, Arr<B>>(new Arr<B>(rb.Map(d => d.Right)));
@@ -35,7 +35,7 @@ namespace LanguageExt
             return new EitherAsync<L, HashSet<B>>(Go(ma, f));
             async Task<EitherData<L, HashSet<B>>> Go(HashSet<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
+                var rb = await WaitAsync.All(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
                 return rb.Exists(d => d.State == EitherStatus.IsLeft)
                     ? rb.Filter(d => d.State == EitherStatus.IsLeft).Map(d => EitherData.Left<L,HashSet<B>>(d.Left)).Head()
                     : EitherData.Right<L, HashSet<B>>(new HashSet<B>(rb.Map(d => d.Right)));
@@ -54,10 +54,10 @@ namespace LanguageExt
                 var rb = new List<B>();
                 foreach (var a in ma)
                 {
-                    var mb = await a;
-                    if (mb.IsBottom) return EitherData<L, IEnumerable<B>>.Bottom;
-                    if (mb.IsLeft) return EitherData.Left<L, IEnumerable<B>>(mb.LeftValue);
-                    rb.Add(f(mb.RightValue));
+                    var mb = await a.Data.ConfigureAwait(false);
+                    if (mb.State == EitherStatus.IsBottom) return EitherData<L, IEnumerable<B>>.Bottom;
+                    if (mb.State == EitherStatus.IsLeft) return EitherData.Left<L, IEnumerable<B>>(mb.Left);
+                    rb.Add(f(mb.Right));
                 }
 
                 return EitherData.Right<L, IEnumerable<B>>(rb);
@@ -97,7 +97,7 @@ namespace LanguageExt
             return new EitherAsync<L, Lst<B>>(Go(ma, f));
             async Task<EitherData<L, Lst<B>>> Go(Lst<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
+                var rb = await WaitAsync.All(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
                 return rb.Exists(d => d.State == EitherStatus.IsLeft)
                     ? rb.Filter(d => d.State == EitherStatus.IsLeft).Map(d => EitherData.Left<L,Lst<B>>(d.Left)).Head()
                     : EitherData.Right<L, Lst<B>>(new Lst<B>(rb.Map(d => d.Right)));
@@ -109,7 +109,7 @@ namespace LanguageExt
             return new EitherAsync<L, Que<B>>(Go(ma, f));
             async Task<EitherData<L, Que<B>>> Go(Que<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
+                var rb = await WaitAsync.All(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
                 return rb.Exists(d => d.State == EitherStatus.IsLeft)
                     ? rb.Filter(d => d.State == EitherStatus.IsLeft).Map(d => EitherData.Left<L,Que<B>>(d.Left)).Head()
                     : EitherData.Right<L, Que<B>>(new Que<B>(rb.Map(d => d.Right)));
@@ -129,10 +129,10 @@ namespace LanguageExt
                 var ix = 0;
                 foreach (var a in ma)
                 {
-                    var mb = await a;
-                    if (mb.IsBottom) return EitherData.Bottom<L, Seq<B>>();
-                    if (mb.IsLeft) return EitherData.Left<L, Seq<B>>(mb.LeftValue);
-                    rb[ix] = f(mb.RightValue);
+                    var mb = await a.Data.ConfigureAwait(false);
+                    if (mb.State == EitherStatus.IsBottom) return EitherData.Bottom<L, Seq<B>>();
+                    if (mb.State == EitherStatus.IsLeft) return EitherData.Left<L, Seq<B>>(mb.Left);
+                    rb[ix] = f(mb.Right);
                     ix++;
                 }
 
@@ -173,7 +173,7 @@ namespace LanguageExt
             return new EitherAsync<L, Set<B>>(Go(ma, f));
             async Task<EitherData<L, Set<B>>> Go(Set<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
+                var rb = await WaitAsync.All(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
                 return rb.Exists(d => d.State == EitherStatus.IsLeft)
                     ? rb.Filter(d => d.State == EitherStatus.IsLeft).Map(d => EitherData.Left<L,Set<B>>(d.Left)).Head()
                     : EitherData.Right<L, Set<B>>(new Set<B>(rb.Map(d => d.Right)));
@@ -185,7 +185,7 @@ namespace LanguageExt
             return new EitherAsync<L, Stck<B>>(Go(ma, f));
             async Task<EitherData<L, Stck<B>>> Go(Stck<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Reverse().Map(a => a.Map(f).Data)).ConfigureAwait(false);
+                var rb = await WaitAsync.All(ma.Reverse().Map(a => a.Map(f).Data)).ConfigureAwait(false);
                 return rb.Exists(d => d.State == EitherStatus.IsLeft)
                     ? rb.Filter(d => d.State == EitherStatus.IsLeft).Map(d => EitherData.Left<L,Stck<B>>(d.Left)).Head()
                     : EitherData.Right<L, Stck<B>>(new Stck<B>(rb.Map(d => d.Right)));
@@ -216,7 +216,7 @@ namespace LanguageExt
             return new EitherAsync<L, OptionAsync<B>>(Go(ma, f));
             async Task<EitherData<L, OptionAsync<B>>> Go(OptionAsync<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var (isSome, value) = await ma.Data.ConfigureAwait(false);
+                var (isSome, value) = await ma.GetData().ConfigureAwait(false);
                 if (!isSome) return EitherData.Right<L, OptionAsync<B>>(OptionAsync<B>.None);
                 var db = await value.Data.ConfigureAwait(false);
                 if (db.State == EitherStatus.IsBottom) return EitherData<L, OptionAsync<B>>.Bottom;

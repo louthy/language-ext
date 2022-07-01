@@ -178,7 +178,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public async ValueTask<A> Apply(Func<A, A, A> f, ValueTask<A> fa, ValueTask<A> fb) 
         {
-            await Task.WhenAll(fa.AsTask(), fb.AsTask()).ConfigureAwait(false);
+            await WaitAsync.All(fa.AsTask(), fb.AsTask()).ConfigureAwait(false);
             return f(fa.Result, fb.Result);
         }
 

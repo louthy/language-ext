@@ -30,7 +30,7 @@ namespace LanguageExt.ClassInstances
             {
                 var resA = ma.ToEither();
                 var resB = mb.ToEither();
-                await Task.WhenAll(resA, resB).ConfigureAwait(false);
+                await WaitAsync.All(resA, resB).ConfigureAwait(false);
                 if (resA.IsCompleted && !resA.IsFaulted && !resA.IsCanceled && resA.Result.IsLeft) return resA.Result.Head();
                 if (resB.IsCompleted && !resB.IsFaulted && !resB.IsCanceled && resB.Result.IsLeft) return resB.Result.Head();
                 if(resA.Result.IsRight && resB.Result.IsRight)

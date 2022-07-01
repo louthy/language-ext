@@ -290,7 +290,16 @@ public abstract record Error
     /// Throw the error as an exception
     /// </summary>
     public Unit Throw() =>
-        ToException().Rethrow();        
+        ToException().Rethrow();
+
+    /// <summary>
+    /// Throw the error as an exception
+    /// </summary>
+    public B Throw<B>()
+    {
+        ToException().Rethrow();
+        throw new NotSupportedException(); // Shouldn't get here, we're just stopping warnings
+    }
 }
 
 /// <summary>

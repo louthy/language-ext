@@ -12,7 +12,6 @@ namespace LanguageExt.ClassInstances
         OptionalAsync<TryAsync<A>, A>,
         OptionalUnsafeAsync<TryAsync<A>, A>,
         MonadAsync<TryAsync<A>, A>,
-        FoldableAsync<TryAsync<A>, A>,
         BiFoldableAsync<TryAsync<A>, A, Unit>
     {
         public static readonly MTryFirstAsync<A> Inst = default(MTryFirstAsync<A>);
@@ -388,16 +387,7 @@ namespace LanguageExt.ClassInstances
                 NoneAsync: () => NoneAsync(state, unit));
 
         [Pure]
-        public TryAsync<A> Apply(Func<A, A, A> f, TryAsync<A> fa, TryAsync<A> fb) => async () =>
-        {
-            // Run in parallel
-            var resA = fa.Try();
-            var resB = fb.Try();
-            var completed = await Task.WhenAll(resA, resB).ConfigureAwait(false);
-
-            return !completed[0].IsFaulted && !completed[1].IsFaulted
-                ? f(completed[0].Value, completed[1].Value)
-                : throw new AggregateException(Seq(completed[0].Exception, completed[1].Exception).Where(e => e != null));
-        };
+        public TryAsync<A> Apply(Func<A, A, A> f, TryAsync<A> fa, TryAsync<A> fb) => 
+            f.Apply(fa).Apply(fb);
     }
 }

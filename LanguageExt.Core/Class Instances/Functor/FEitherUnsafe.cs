@@ -1,40 +1,33 @@
-﻿using LanguageExt.TypeClasses;
+﻿#nullable enable
+
 using System;
+using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct FEitherUnsafe<L, R, R2> :
-        Functor<EitherUnsafe<L, R>, EitherUnsafe<L, R2>, R, R2>,
-        BiFunctor<EitherUnsafe<L, R>, EitherUnsafe<L, R2>, L, R, R2>
+    public readonly struct FEitherUnsafe<L, A, B> : 
+        Functor<EitherUnsafe<L, A>, EitherUnsafe<L, B>, A, B>,
+        BiFunctor<EitherUnsafe<L, A>, EitherUnsafe<L, B>, L, A, L, B>
     {
-        public static readonly FEitherUnsafe<L, R, R2> Inst = default(FEitherUnsafe<L, R, R2>);
+        public static readonly FEitherUnsafe<L, A, B> Inst = default;
 
         [Pure]
-        public EitherUnsafe<L, R2> BiMap(EitherUnsafe<L, R> ma, Func<L, R2> fa, Func<R, R2> fb) =>
-            default(MEitherUnsafe<L, R>).MatchUnsafe(ma,
-                Left: a => EitherUnsafe<L, R2>.Right(Check.NullReturn(fa(a))),
-                Right: b => EitherUnsafe<L, R2>.Right(Check.NullReturn(fb(b))),
-                Bottom: () => EitherUnsafe<L, R2>.Bottom);
+        public EitherUnsafe<L, B> BiMap(EitherUnsafe<L, A> ma, Func<L, L> Left, Func<A, B> Right) => 
+            ma switch
+            {
+                {IsRight : true} r => EitherUnsafe<L, B>.Right(Right(r.RightValue)),
+                {IsLeft : true} l  => EitherUnsafe<L, B>.Left(Left(l.LeftValue)),
+                _                  => EitherUnsafe<L, B>.Bottom
+            };
 
         [Pure]
-        public EitherUnsafe<L, R2> Map(EitherUnsafe<L, R> ma, Func<R, R2> f) =>
-            default(MEitherUnsafe<L, R>).MatchUnsafe(ma,
-                Left: EitherUnsafe<L, R2>.Left,
-                Right: b => EitherUnsafe<L, R2>.Right(f(b)),
-                Bottom: () => EitherUnsafe<L, R2>.Bottom);
-    }
-
-    public struct FEitherUnsafeBi<L, R, L2, R2> :
-        BiFunctor<EitherUnsafe<L, R>, EitherUnsafe<L2, R2>, L, R, L2, R2>
-    {
-        public static readonly FEitherUnsafeBi<L, R, L2, R2> Inst = default(FEitherUnsafeBi<L, R, L2, R2>);
-
-        [Pure]
-        public EitherUnsafe<L2, R2> BiMap(EitherUnsafe<L, R> ma, Func<L, L2> fa, Func<R, R2> fb) =>
-            default(MEitherUnsafe<L, R>).MatchUnsafe(ma,
-                Left: a => EitherUnsafe<L2, R2>.Left(Check.NullReturn(fa(a))),
-                Right: b => EitherUnsafe<L2, R2>.Right(Check.NullReturn(fb(b))),
-                Bottom: () => EitherUnsafe<L2, R2>.Bottom);
+        public EitherUnsafe<L, B> Map(EitherUnsafe<L, A> ma, Func<A, B> f) =>
+            ma switch
+            {
+                {IsRight : true} r => EitherUnsafe<L, B>.Right(f(r.RightValue)),
+                {IsLeft : true} l  => EitherUnsafe<L, B>.Left(l.LeftValue),
+                _                  => EitherUnsafe<L, B>.Bottom
+            };
     }
 }

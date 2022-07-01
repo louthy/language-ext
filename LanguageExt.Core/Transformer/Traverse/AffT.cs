@@ -324,7 +324,7 @@ namespace LanguageExt
             return AffMaybe<RT, OptionAsync<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<OptionAsync<B>>> Go(RT env, OptionAsync<Aff<RT, A>> ma, Func<A, B> f)
             {
-                var (isSome, value) = await ma.Data.ConfigureAwait(false);
+                var (isSome, value) = await ma.GetData().ConfigureAwait(false);
                 if (!isSome) return FinSucc<OptionAsync<B>>(OptionAsync<B>.None);
                 var rb = await value.Run(env).ConfigureAwait(false);
                 if (rb.IsFail) return FinFail<OptionAsync<B>>(rb.Error);

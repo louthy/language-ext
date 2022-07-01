@@ -1,566 +1,648 @@
-﻿using System;
-using LanguageExt.Common;
+﻿#nullable enable
+using System;
 using static LanguageExt.Prelude;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt;
 
+/// <summary>
+/// Extension methods for `Eff`
+/// </summary>
 public static partial class EffExtensions
 {
-    // ------------ Eff<A> ---------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Applicative action
+    /// </summary>
+    /// <remarks>
+    /// Applicative action 'runs' the first item then returns the result of the second (if neither fail). 
+    /// </remarks>
+    /// <param name="fa">Bound first argument</param>
+    /// <param name="fb">Bound second argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<B> Action<A, B>(this Eff<A> fa, Eff<B> fb) =>
+        default(ApplEff<A, B>).Action(fa, fb);
     
-    public static Eff<B> Apply<A, B>(this Eff<Func<A, B>> mf, Eff<A> ma) =>
-        EffMaybe<B>(() =>
-        {
-            var (f, a) = (mf.Run(), ma.Run());
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value);
-            }
-        });
-        
-    public static Eff<C> Apply<A, B, C>(this Eff<Func<A, B, C>> mf, Eff<A> ma, Eff<B> mb) =>
-        EffMaybe<C>(() =>
-        {
-            var (f, a, b) = (mf.Run(), ma.Run(), mb.Run());
-
-            if (f.IsFail || a.IsFail|| b.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value, b.Value);
-            }
-        });
-        
-    public static Eff<Func<B, C>> Apply<A, B, C>(this Eff<Func<A, B, C>> mf, Eff<A> ma) =>
-        EffMaybe(() =>
-        {
-            var (f, a) = (mf.Run(), ma.Run());
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((B b) => f.Value(a.Value, b));
-            }
-        });
-        
-    public static Eff<D> Apply<A, B, C, D>(this Eff<Func<A, B, C, D>> mf, Eff<A> ma, Eff<B> mb, Eff<C> mc) =>
-        EffMaybe<D>(() =>
-        {
-            var (f, a, b, c) = (mf.Run(), ma.Run(), mb.Run(), mc.Run());
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value, b.Value, c.Value);
-            }
-        });
-        
-    public static Eff<Func<C, D>> Apply<A, B, C, D>(this Eff<Func<A, B, C, D>> mf, Eff<A> ma, Eff<B> mb) =>
-        EffMaybe(() =>
-        {
-            var (f, a, b) = (mf.Run(), ma.Run(), mb.Run());
-
-            if (f.IsFail || a.IsFail || b.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((C c) => f.Value(a.Value, b.Value, c));
-            }
-        });
-        
-    public static Eff<Func<B, C, D>> Apply<A, B, C, D>(this Eff<Func<A, B, C, D>> mf, Eff<A> ma) =>
-        EffMaybe(() =>
-        {
-            var (f, a) = (mf.Run(), ma.Run());
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((B b, C c) => f.Value(a.Value, b, c));
-            }
-        });
-        
-    public static Eff<E> Apply<A, B, C, D, E>(this Eff<Func<A, B, C, D, E>> mf, Eff<A> ma, Eff<B> mb, Eff<C> mc, Eff<D> md) =>
-        EffMaybe<E>(() =>
-        {
-            var (f, a, b, c, d) = (mf.Run(), ma.Run(), mb.Run(), mc.Run(), md.Run());
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail || d.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                if(d.IsFail) errs += d.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value, b.Value, c.Value, d.Value);
-            }
-        });
-             
-    public static Eff<Func<D, E>> Apply<A, B, C, D, E>(this Eff<Func<A, B, C, D, E>> mf, Eff<A> ma, Eff<B> mb, Eff<C> mc) =>
-        EffMaybe(() =>
-        {
-            var (f, a, b, c) = (mf.Run(), ma.Run(), mb.Run(), mc.Run());
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((D d) => f.Value(a.Value, b.Value, c.Value, d));
-            }
-        });
-             
-    public static Eff<Func<C, D, E>> Apply<A, B, C, D, E>(this Eff<Func<A, B, C, D, E>> mf, Eff<A> ma, Eff<B> mb) =>
-        EffMaybe(() =>
-        {
-            var (f, a, b) = (mf.Run(), ma.Run(), mb.Run());
-
-            if (f.IsFail || a.IsFail || b.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((C c, D d) => f.Value(a.Value, b.Value, c, d));
-            }
-        });
-             
-    public static Eff<Func<B, C, D, E>> Apply<A, B, C, D, E>(this Eff<Func<A, B, C, D, E>> mf, Eff<A> ma) =>
-        EffMaybe(() =>
-        {
-            var (f, a) = (mf.Run(), ma.Run());
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((B b, C c, D d) => f.Value(a.Value, b, c, d));
-            }
-        });
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<B> Apply<A, B>(this Eff<Func<A, B>> ff, Eff<A> fx) =>
+        default(ApplEff<A, B>).Apply(ff, fx);
     
-    // ------------ Eff<RT, A> -----------------------------------------------------------------------------------------
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<B> Apply<A, B>(this Func<A, B> ff, Eff<A> fx) =>
+        default(ApplEff<A, B>).Apply(SuccessEff(ff), fx);
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<Func<B, C>> Apply<A, B, C>(this Eff<Func<A, B, C>> ff, Eff<A> fx) =>
+        ff.Map(curry).Apply(fx);
     
-    public static Eff<RT, B> Apply<RT, A, B>(this Eff<RT, Func<A, B>> mf, Eff<RT, A> ma) where RT : struct =>
-        EffMaybe<RT, B>(rt =>
-        {
-            var (f, a) = (mf.Run(rt), ma.Run(rt));
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> ff, Eff<A> fx) =>
+        curry(ff).Apply(fx);
 
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value);
-            }
-        });
-        
-    public static Eff<RT, C> Apply<RT, A, B, C>(this Eff<RT, Func<A, B, C>> mf, Eff<RT, A> ma, Eff<RT, B> mb) where RT : struct =>
-        EffMaybe<RT, C>(rt =>
-        {
-            var (f, a, b) = (mf.Run(rt), ma.Run(rt), mb.Run(rt));
-
-            if (f.IsFail || a.IsFail|| b.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value, b.Value);
-            }
-        });
-        
-    public static Eff<RT, Func<B, C>> Apply<RT, A, B, C>(this Eff<RT, Func<A, B, C>> mf, Eff<RT, A> ma) where RT : struct  =>
-        EffMaybe<RT, Func<B, C>>(rt =>
-        {
-            var (f, a) = (mf.Run(rt), ma.Run(rt));
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((B b) => f.Value(a.Value, b));
-            }
-        });
-        
-    public static Eff<RT, D> Apply<RT, A, B, C, D>(this Eff<RT, Func<A, B, C, D>> mf, Eff<RT, A> ma, Eff<RT, B> mb, Eff<RT, C> mc)  where RT : struct =>
-        EffMaybe<RT, D>(rt =>
-        {
-            var (f, a, b, c) = (mf.Run(rt), ma.Run(rt), mb.Run(rt), mc.Run(rt));
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value, b.Value, c.Value);
-            }
-        });
-        
-    public static Eff<RT, Func<C, D>> Apply<RT, A, B, C, D>(this Eff<RT, Func<A, B, C, D>> mf, Eff<RT, A> ma, Eff<RT, B> mb) where RT : struct  =>
-        EffMaybe<RT, Func<C, D>>(rt =>
-        {
-            var (f, a, b) = (mf.Run(rt), ma.Run(rt), mb.Run(rt));
-
-            if (f.IsFail || a.IsFail || b.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((C c) => f.Value(a.Value, b.Value, c));
-            }
-        });
-        
-    public static Eff<RT, Func<B, C, D>> Apply<RT, A, B, C, D>(this Eff<RT, Func<A, B, C, D>> mf, Eff<RT, A> ma)  where RT : struct =>
-        EffMaybe<RT, Func<B, C, D>>(rt =>
-        {
-            var (f, a) = (mf.Run(rt), ma.Run(rt));
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((B b, C c) => f.Value(a.Value, b, c));
-            }
-        });
-            
-    public static Eff<RT, E> Apply<RT, A, B, C, D, E>(this Eff<RT, Func<A, B, C, D, E>> mf, Eff<RT, A> ma, Eff<RT, B> mb, Eff<RT, C> mc, Eff<RT, D> md) where RT : struct  =>
-        EffMaybe<RT, E>(rt =>
-        {
-            var (f, a, b, c, d) = (mf.Run(rt), ma.Run(rt), mb.Run(rt), mc.Run(rt), md.Run(rt));
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail || d.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                if(d.IsFail) errs += d.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value, b.Value, c.Value, d.Value);
-            }
-        });
-             
-    public static Eff<RT, Func<D, E>> Apply<RT, A, B, C, D, E>(this Eff<RT, Func<A, B, C, D, E>> mf, Eff<RT, A> ma, Eff<RT, B> mb, Eff<RT, C> mc) where RT : struct  =>
-        EffMaybe<RT, Func<D, E>>(rt =>
-        {
-            var (f, a, b, c) = (mf.Run(rt), ma.Run(rt), mb.Run(rt), mc.Run(rt));
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((D d) => f.Value(a.Value, b.Value, c.Value, d));
-            }
-        });
-             
-    public static Eff<RT, Func<C, D, E>> Apply<RT, A, B, C, D, E>(this Eff<RT, Func<A, B, C, D, E>> mf, Eff<RT, A> ma, Eff<RT, B> mb) where RT : struct  =>
-        EffMaybe<RT, Func<C, D, E>>(rt =>
-        {
-            var (f, a, b) = (mf.Run(rt), ma.Run(rt), mb.Run(rt));
-
-            if (f.IsFail || a.IsFail || b.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((C c, D d) => f.Value(a.Value, b.Value, c, d));
-            }
-        });
-             
-    public static Eff<RT, Func<B, C, D, E>> Apply<RT, A, B, C, D, E>(this Eff<RT, Func<A, B, C, D, E>> mf, Eff<RT, A> ma) where RT : struct  =>
-        EffMaybe<RT, Func<B, C, D, E>>(rt =>
-        {
-            var (f, a) = (mf.Run(rt), ma.Run(rt));
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((B b, C c, D d) => f.Value(a.Value, b, c, d));
-            }
-        });
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<Func<B, Func<C, D>>> Apply<A, B, C, D>(this Eff<Func<A, B, C, D>> ff, Eff<A> fx) =>
+        ff.Map(curry).Apply(fx);
     
-    // ------------ Non Eff functions ----------------------------------------------------------------------------------
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<Func<B, Func<C, D>>> Apply<A, B, C, D>(this Func<A, B, C, D> ff, Eff<A> fx) =>
+        curry(ff).Apply(fx);
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<Func<B, Func<C, Func<D, E>>>> Apply<A, B, C, D, E>(
+        this Eff<Func<A, B, C, D, E>> ff, 
+        Eff<A> fx) =>
+        ff.Map(curry).Apply(fx);
     
-    public static Eff<RT, B> Apply<RT, A, B>(this Func<A, B> f, Eff<RT, A> ma) where RT : struct  =>
-        EffMaybe<RT, B>(rt =>
-        {
-            var a = ma.Run(rt);
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<Func<B, Func<C, Func<D, E>>>> Apply<A, B, C, D, E>(
+        this Func<A, B, C, D, E> ff, 
+        Eff<A> fx) =>
+        curry(ff).Apply(fx);    
 
-            if (a.IsFail)
-            {
-                return a.Error;
-            }
-            else
-            {
-                return f(a.Value);
-            }
-        });
-        
-    public static Eff<RT, C> Apply<RT, A, B, C>(this Func<A, B, C> f, Eff<RT, A> ma, Eff<RT, B> mb)  where RT : struct =>
-        EffMaybe<RT, C>(rt =>
-        {
-            var (a, b) = (ma.Run(rt), mb.Run(rt));
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<Func<B, Func<C, Func<D, Func<E, F>>>>> Apply<A, B, C, D, E, F>(
+        this Eff<Func<A, B, C, D, E, F>> ff, 
+        Eff<A> fx) =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<Func<B, Func<C, Func<D, Func<E, F>>>>> Apply<A, B, C, D, E, F>(
+        this Func<A, B, C, D, E, F> ff, 
+        Eff<A> fx) =>
+        curry(ff).Apply(fx);
 
-            if (a.IsFail|| b.IsFail)
-            {
-                var errs = Errors.None;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return f(a.Value, b.Value);
-            }
-        });
-        
-    public static Eff<RT, Func<B, C>> Apply<RT, A, B, C>(this Func<A, B, C> f, Eff<RT, A> ma) where RT : struct  =>
-        EffMaybe<RT, Func<B, C>>(rt =>
-        {
-            var a = ma.Run(rt);
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> Apply<A, B, C, D, E, F, G>(
+        this Eff<Func<A, B, C, D, E, F, G>> ff, 
+        Eff<A> fx) =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> Apply<A, B, C, D, E, F, G>(
+        this Func<A, B, C, D, E, F, G> ff, 
+        Eff<A> fx) =>
+        curry(ff).Apply(fx);    
 
-            if (a.IsFail)
-            {
-                return a.Error;
-            }
-            else
-            {
-                return FinSucc((B b) => f(a.Value, b));
-            }
-        });
-        
-    public static Eff<RT, D> Apply<RT, A, B, C, D>(this Func<A, B, C, D> f, Eff<RT, A> ma, Eff<RT, B> mb, Eff<RT, C> mc) where RT : struct  =>
-        EffMaybe<RT, D>(rt =>
-        {
-            var (a, b, c) = (ma.Run(rt), mb.Run(rt), mc.Run(rt));
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> Apply<A, B, C, D, E, F, G, H>(
+        this Eff<Func<A, B, C, D, E, F, G, H>> ff, 
+        Eff<A> fx) =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> Apply<A, B, C, D, E, F, G, H>(
+        this Func<A, B, C, D, E, F, G, H> ff, 
+        Eff<A> fx) =>
+        curry(ff).Apply(fx);    
 
-            if (a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Errors.None;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                return errs;
-            }
-            else
-            {
-                return f(a.Value, b.Value, c.Value);
-            }
-        });
-        
-    public static Eff<RT, Func<C, D>> Apply<RT, A, B, C, D>(this Func<A, B, C, D> f, Eff<RT, A> ma, Eff<RT, B> mb) where RT : struct  =>
-        EffMaybe<RT, Func<C, D>>(rt =>
-        {
-            var (a, b) = (ma.Run(rt), mb.Run(rt));
-            
-            if (a.IsFail || b.IsFail)
-            {
-                var errs = Errors.None;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((C c) => f(a.Value, b.Value, c));
-            }
-        });
-        
-    public static Eff<RT, Func<B, C, D>> Apply<RT, A, B, C, D>(this Func<A, B, C, D> f, Eff<RT, A> ma) where RT : struct  =>
-        EffMaybe<RT, Func<B, C, D>>(rt =>
-        {
-            var a = ma.Run(rt);
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Intermediate bound value type</typeparam>
+    /// <typeparam name="I">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> Apply<A, B, C, D, E, F, G, H, I>(
+        this Eff<Func<A, B, C, D, E, F, G, H, I>> ff, 
+        Eff<A> fx) =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Intermediate bound value type</typeparam>
+    /// <typeparam name="I">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> Apply<A, B, C, D, E, F, G, H, I>(
+        this Func<A, B, C, D, E, F, G, H, I> ff, 
+        Eff<A> fx) =>
+        curry(ff).Apply(fx);
+    
+    /// <summary>
+    /// Applicative action
+    /// </summary>
+    /// <remarks>
+    /// Applicative action 'runs' the first item then returns the result of the second (if neither fail). 
+    /// </remarks>
+    /// <param name="fa">Bound first argument</param>
+    /// <param name="fb">Bound second argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, B> Action<RT, A, B>(this Eff<RT, A> fa, Eff<RT, B> fb)
+        where RT : struct =>
+        default(ApplEff<RT, A, B>).Action(fa, fb);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, B> Apply<RT, A, B>(this Eff<RT, Func<A, B>> ff, Eff<RT, A> fx)
+        where RT : struct =>
+        default(ApplEff<RT, A, B>).Apply(ff, fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, B> Apply<RT, A, B>(this Func<A, B> ff, Eff<RT, A> fx)
+        where RT : struct =>
+        default(ApplEff<RT, A, B>).Apply(SuccessEff(ff), fx);
 
-            if (a.IsFail)
-            {
-                return a.Error;
-            }
-            else
-            {
-                return FinSucc((B b, C c) => f(a.Value, b, c));
-            }
-        });
-            
-    public static Eff<RT, E> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Eff<RT, A> ma, Eff<RT, B> mb, Eff<RT, C> mc, Eff<RT, D> md) where RT : struct  =>
-        EffMaybe<RT, E>(rt =>
-        {
-            var (a, b, c, d) = (ma.Run(rt), mb.Run(rt), mc.Run(rt), md.Run(rt));
-            
-            if (a.IsFail || b.IsFail || c.IsFail || d.IsFail)
-            {
-                var errs = Errors.None;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                if(d.IsFail) errs += d.Error;
-                return errs;
-            }
-            else
-            {
-                return f(a.Value, b.Value, c.Value, d.Value);
-            }
-        });
-             
-    public static Eff<RT, Func<D, E>> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Eff<RT, A> ma, Eff<RT, B> mb, Eff<RT, C> mc) where RT : struct  =>
-        EffMaybe<RT, Func<D, E>>(rt =>
-        {
-            var (a, b, c) = (ma.Run(rt), mb.Run(rt), mc.Run(rt));
-            
-            if (a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Errors.None;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((D d) => f(a.Value, b.Value, c.Value, d));
-            }
-        });
-             
-    public static Eff<RT, Func<C, D, E>> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Eff<RT, A> ma, Eff<RT, B> mb) where RT : struct  =>
-        EffMaybe<RT, Func<C, D, E>>(rt =>
-        {
-            var (a, b) = (ma.Run(rt), mb.Run(rt));
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, Func<B, C>> Apply<RT, A, B, C>(this Eff<RT, Func<A, B, C>> ff, Eff<RT, A> fx)
+        where RT : struct =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, Func<B, C>> Apply<RT, A, B, C>(this Func<A, B, C> ff, Eff<RT, A> fx)
+        where RT : struct =>
+        curry(ff).Apply(fx);
 
-            if (a.IsFail || b.IsFail)
-            {
-                var errs = Errors.None;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((C c, D d) => f(a.Value, b.Value, c, d));
-            }
-        });
-             
-    public static Eff<RT, Func<B, C, D, E>> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Eff<RT, A> ma) where RT : struct  =>
-        EffMaybe<RT, Func<B, C, D, E>>(rt =>
-        {
-            var a = ma.Run(rt);
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, Func<B, Func<C, D>>> Apply<RT, A, B, C, D>(this Eff<RT, Func<A, B, C, D>> ff, Eff<RT, A> fx)
+        where RT : struct =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, Func<B, Func<C, D>>> Apply<RT, A, B, C, D>(this Func<A, B, C, D> ff, Eff<RT, A> fx)
+        where RT : struct =>
+        curry(ff).Apply(fx);
 
-            if (a.IsFail)
-            {
-                return a.Error;
-            }
-            else
-            {
-                return FinSucc((B b, C c, D d) => f(a.Value, b, c, d));
-            }
-        });
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, Func<B, Func<C, Func<D, E>>>> Apply<RT, A, B, C, D, E>(
+        this Eff<RT, Func<A, B, C, D, E>> ff, 
+        Eff<RT, A> fx) where RT : struct =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, Func<B, Func<C, Func<D, E>>>> Apply<RT, A, B, C, D, E>(
+        this Func<A, B, C, D, E> ff, 
+        Eff<RT, A> fx) where RT : struct =>
+        curry(ff).Apply(fx);    
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, Func<B, Func<C, Func<D, Func<E, F>>>>> Apply<RT, A, B, C, D, E, F>(
+        this Eff<RT, Func<A, B, C, D, E, F>> ff, 
+        Eff<RT, A> fx) where RT : struct =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, Func<B, Func<C, Func<D, Func<E, F>>>>> Apply<RT, A, B, C, D, E, F>(
+        this Func<A, B, C, D, E, F> ff, 
+        Eff<RT, A> fx) where RT : struct =>
+        curry(ff).Apply(fx);
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> Apply<RT, A, B, C, D, E, F, G>(
+        this Eff<RT, Func<A, B, C, D, E, F, G>> ff, 
+        Eff<RT, A> fx) where RT : struct =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> Apply<RT, A, B, C, D, E, F, G>(
+        this Func<A, B, C, D, E, F, G> ff, 
+        Eff<RT, A> fx) where RT : struct =>
+        curry(ff).Apply(fx);    
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> Apply<RT, A, B, C, D, E, F, G, H>(
+        this Eff<RT, Func<A, B, C, D, E, F, G, H>> ff, 
+        Eff<RT, A> fx) where RT : struct =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> Apply<RT, A, B, C, D, E, F, G, H>(
+        this Func<A, B, C, D, E, F, G, H> ff, 
+        Eff<RT, A> fx) where RT : struct =>
+        curry(ff).Apply(fx);    
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Intermediate bound value type</typeparam>
+    /// <typeparam name="I">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> Apply<RT, A, B, C, D, E, F, G, H, I>(
+        this Eff<RT, Func<A, B, C, D, E, F, G, H, I>> ff, 
+        Eff<RT, A> fx) where RT : struct =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Intermediate bound value type</typeparam>
+    /// <typeparam name="I">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Eff<RT, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> Apply<RT, A, B, C, D, E, F, G, H, I>(
+        this Func<A, B, C, D, E, F, G, H, I> ff, 
+        Eff<RT, A> fx) where RT : struct =>
+        curry(ff).Apply(fx);
 }
+

@@ -17,21 +17,10 @@ namespace LanguageExt.ClassInstances
             default(HashableTask<A>).GetHashCode(x);
 
         [Pure]
-        public async Task<bool> EqualsAsync(Task<A> x, Task<A> y)
-        {
-            try
-            {
-                var ts = await Task.WhenAll(x, y).ConfigureAwait(false);
-                return default(EqDefault<A>).Equals(ts[0], ts[1]);
-            }
-            catch (Exception)
-            {
-                if (x.IsFaulted && y.IsFaulted) return true;
-                if (x.IsFaulted || y.IsFaulted) return false;
-                if (x.IsCanceled && y.IsCanceled) return true;
-                return false;
-            }
-        }
+        public Task<bool> EqualsAsync(Task<A> x, Task<A> y) =>
+            Task.FromResult<Func<A, A, bool>>(default(EqDefault<A>).Equals)
+                .Apply(x)
+                .Apply(y);
 
         [Pure]
         public Task<int> GetHashCodeAsync(Task<A> x) =>

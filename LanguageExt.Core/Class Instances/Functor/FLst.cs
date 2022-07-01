@@ -1,6 +1,9 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt.ClassInstances
 {
@@ -10,6 +13,7 @@ namespace LanguageExt.ClassInstances
         public static readonly FLst<A, B> Inst = default(FLst<A, B>);
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Lst<B> Map(Lst<A> ma, Func<A, B> f) =>
             ma.Map(f);
     }

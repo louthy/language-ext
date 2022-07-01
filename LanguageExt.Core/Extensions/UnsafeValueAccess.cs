@@ -29,10 +29,10 @@ namespace LanguageExt.UnsafeValueAccess
                 ? option.Value
                 : default(A);
 
-        public static Task<A> ValueUnsafe<A>(this OptionAsync<A> option) =>
+        public static ValueTask<A> ValueUnsafe<A>(this OptionAsync<A> option) =>
             option.Value;
 
-        public static Task<A> Value<A>(this OptionAsync<A> option) where A : struct =>
+        public static ValueTask<A> Value<A>(this OptionAsync<A> option) where A : struct =>
             option.Value;
 
         public static R Value<L, R>(this Either<L, R> either) where R : struct =>

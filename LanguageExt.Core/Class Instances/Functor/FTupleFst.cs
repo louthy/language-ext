@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
@@ -11,11 +13,11 @@ namespace LanguageExt.ClassInstances
     /// <typeparam name="A">First item type</typeparam>
     /// <typeparam name="B">Second item type</typeparam>
     /// <typeparam name="R">Target type</typeparam>
-    public struct FTupleFst<A, B, R> :
+    public readonly struct FTupleFst<A, B, R> :
         Functor<Tuple<A, B>, Tuple<R, B>, A, R>,
         Functor<ValueTuple<A, B>, ValueTuple<R, B>, A, R>
     {
-        public static readonly FTupleFst<A, B, R> Inst = default(FTupleFst<A, B, R>);
+        public static readonly FTupleFst<A, B, R> Inst = default;
 
         /// <summary>
         /// Maps the third item in a tuple 3

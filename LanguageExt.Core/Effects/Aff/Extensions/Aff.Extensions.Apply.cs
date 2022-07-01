@@ -1,569 +1,645 @@
-﻿using System;
-using LanguageExt.Common;
+﻿#nullable enable
+using System;
+using LanguageExt.ClassInstances;
 using LanguageExt.Effects.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public static partial class AffExtensions
+public static partial class Prelude
 {
-    // ------------ Aff<A> ----------------------------------------------------------------------------------
+    /// <summary>
+    /// Applicative action
+    /// </summary>
+    /// <remarks>
+    /// Applicative action 'runs' the first item then returns the result of the second (if neither fail). 
+    /// </remarks>
+    /// <param name="fa">Bound first argument</param>
+    /// <param name="fb">Bound second argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<B> action<A, B>(Aff<A> fa, Aff<B> fb) =>
+        default(ApplAff<A, B>).Action(fa, fb);
     
-    public static Aff<B> Apply<A, B>(this Aff<Func<A, B>> mf, Aff<A> ma) =>
-        AffMaybe<B>(async () =>
-        {
-            var (f, a) = await WaitAsync.WaitAll(mf.Run(), ma.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value);
-            }
-        });
-        
-    public static Aff<C> Apply<A, B, C>(this Aff<Func<A, B, C>> mf, Aff<A> ma, Aff<B> mb) =>
-        AffMaybe<C>(async () =>
-        {
-            var (f, a, b) = await WaitAsync.WaitAll(mf.Run(), ma.Run(), mb.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail|| b.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value, b.Value);
-            }
-        });
-        
-    public static Aff<Func<B, C>> Apply<A, B, C>(this Aff<Func<A, B, C>> mf, Aff<A> ma) =>
-        AffMaybe(async () =>
-        {
-            var (f, a) = await WaitAsync.WaitAll(mf.Run(), ma.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((B b) => f.Value(a.Value, b));
-            }
-        });
-
-        
-    public static Aff<D> Apply<A, B, C, D>(this Aff<Func<A, B, C, D>> mf, Aff<A> ma, Aff<B> mb, Aff<C> mc) =>
-        AffMaybe<D>(async () =>
-        {
-            var (f, a, b, c) = await WaitAsync.WaitAll(mf.Run(), ma.Run(), mb.Run(), mc.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value, b.Value, c.Value);
-            }
-        });
-        
-    public static Aff<Func<C, D>> Apply<A, B, C, D>(this Aff<Func<A, B, C, D>> mf, Aff<A> ma, Aff<B> mb) =>
-        AffMaybe(async () =>
-        {
-            var (f, a, b) = await WaitAsync.WaitAll(mf.Run(), ma.Run(), mb.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((C c) => f.Value(a.Value, b.Value, c));
-            }
-        });
-        
-    public static Aff<Func<B, C, D>> Apply<A, B, C, D>(this Aff<Func<A, B, C, D>> mf, Aff<A> ma) =>
-        AffMaybe(async () =>
-        {
-            var (f, a) = await WaitAsync.WaitAll(mf.Run(), ma.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Seq<Error>();
-                if(f.IsFail) errs = errs.Add(f.Error);
-                if(a.IsFail) errs = errs.Add(a.Error);
-                return Error.Many(errs);
-            }
-            else
-            {
-                return FinSucc((B b, C c) => f.Value(a.Value, b, c));
-            }
-        });
-            
-    public static Aff<E> Apply<A, B, C, D, E>(this Aff<Func<A, B, C, D, E>> mf, Aff<A> ma, Aff<B> mb, Aff<C> mc, Aff<D> md) =>
-        AffMaybe<E>(async () =>
-        {
-            var (f, a, b, c, d) = await WaitAsync.WaitAll(mf.Run(), ma.Run(), mb.Run(), mc.Run(), md.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail || d.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                if(d.IsFail) errs += d.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value, b.Value, c.Value, d.Value);
-            }
-        });
-             
-    public static Aff<Func<D, E>> Apply<A, B, C, D, E>(this Aff<Func<A, B, C, D, E>> mf, Aff<A> ma, Aff<B> mb, Aff<C> mc) =>
-        AffMaybe(async () =>
-        {
-            var (f, a, b, c) = await WaitAsync.WaitAll(mf.Run(), ma.Run(), mb.Run(), mc.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((D d) => f.Value(a.Value, b.Value, c.Value, d));
-            }
-        });
-             
-    public static Aff<Func<C, D, E>> Apply<A, B, C, D, E>(this Aff<Func<A, B, C, D, E>> mf, Aff<A> ma, Aff<B> mb) =>
-        AffMaybe(async () =>
-        {
-            var (f, a, b) = await WaitAsync.WaitAll(mf.Run(), ma.Run(), mb.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((C c, D d) => f.Value(a.Value, b.Value, c, d));
-            }
-        });
-             
-    public static Aff<Func<B, C, D, E>> Apply<A, B, C, D, E>(this Aff<Func<A, B, C, D, E>> mf, Aff<A> ma) =>
-        AffMaybe(async () =>
-        {
-            var (f, a) = await WaitAsync.WaitAll(mf.Run(), ma.Run()).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((B b, C c, D d) => f.Value(a.Value, b, c, d));
-            }
-        });
-
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<B> apply<A, B>(Aff<Func<A, B>> ff, Aff<A> fx) =>
+        default(ApplAff<A, B>).Apply(ff, fx);
     
-    // ------------ Aff<RT, A> -----------------------------------------------------------------------------------------
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<B> apply<A, B>(Func<A, B> ff, Aff<A> fx) =>
+        default(ApplAff<A, B>).Apply(SuccessAff(ff), fx);
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<Func<B, C>> apply<A, B, C>(Aff<Func<A, B, C>> ff, Aff<A> fx) =>
+        ff.Map(curry).Apply(fx);
     
-    public static Aff<RT, B> Apply<RT, A, B>(this Aff<RT, Func<A, B>> mf, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, B>(async rt =>
-        {
-            var (f, a) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt)).ConfigureAwait(false);
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<Func<B, C>> apply<A, B, C>(Func<A, B, C> ff, Aff<A> fx) =>
+        curry(ff).Apply(fx);
 
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value);
-            }
-        });
-        
-    public static Aff<RT, C> Apply<RT, A, B, C>(this Aff<RT, Func<A, B, C>> mf, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, C>(async rt =>
-        {
-            var (f, a, b) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail|| b.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value, b.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<B, C>> Apply<RT, A, B, C>(this Aff<RT, Func<A, B, C>> mf, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<B, C>>(async rt =>
-        {
-            var (f, a) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((B b) => f.Value(a.Value, b));
-            }
-        });
-        
-    public static Aff<RT, D> Apply<RT, A, B, C, D>(this Aff<RT, Func<A, B, C, D>> mf, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, D>(async rt =>
-        {
-            var (f, a, b, c) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt), mc.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value, b.Value, c.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<C, D>> Apply<RT, A, B, C, D>(this Aff<RT, Func<A, B, C, D>> mf, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<C, D>>(async rt =>
-        {
-            var (f, a, b) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((C c) => f.Value(a.Value, b.Value, c));
-            }
-        });
-        
-    public static Aff<RT, Func<B, C, D>> Apply<RT, A, B, C, D>(this Aff<RT, Func<A, B, C, D>> mf, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<B, C, D>>(async rt =>
-        {
-            var (f, a) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((B b, C c) => f.Value(a.Value, b, c));
-            }
-        });
-            
-    public static Aff<RT, E> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, B, C, D, E>> mf, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc, Aff<RT, D> md) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, E>(async rt =>
-        {
-            var (f, a, b, c, d) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt), mc.Run(rt), md.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail || d.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                if(d.IsFail) errs += d.Error;
-                return errs;
-            }
-            else
-            {
-                return f.Value(a.Value, b.Value, c.Value, d.Value);
-            }
-        });
-             
-    public static Aff<RT, Func<D, E>> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, B, C, D, E>> mf, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<D, E>>(async rt =>
-        {
-            var (f, a, b, c) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt), mc.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((D d) => f.Value(a.Value, b.Value, c.Value, d));
-            }
-        });
-             
-    public static Aff<RT, Func<C, D, E>> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, B, C, D, E>> mf, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<C, D, E>>(async rt =>
-        {
-            var (f, a, b) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail || b.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((C c, D d) => f.Value(a.Value, b.Value, c, d));
-            }
-        });
-             
-    public static Aff<RT, Func<B, C, D, E>> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, B, C, D, E>> mf, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<B, C, D, E>>(async rt =>
-        {
-            var (f, a) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt)).ConfigureAwait(false);
-
-            if (f.IsFail || a.IsFail)
-            {
-                var errs = Errors.None;
-                if(f.IsFail) errs += f.Error;
-                if(a.IsFail) errs += a.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((B b, C c, D d) => f.Value(a.Value, b, c, d));
-            }
-        });
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<Func<B, Func<C, D>>> apply<A, B, C, D>(Aff<Func<A, B, C, D>> ff, Aff<A> fx) =>
+        ff.Map(curry).Apply(fx);
     
-    // ------------ Non Aff functions ----------------------------------------------------------------------------------
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<Func<B, Func<C, D>>> apply<A, B, C, D>(Func<A, B, C, D> ff, Aff<A> fx) =>
+        curry(ff).Apply(fx);
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<Func<B, Func<C, Func<D, E>>>> apply<A, B, C, D, E>(
+        Aff<Func<A, B, C, D, E>> ff, 
+        Aff<A> fx) =>
+        ff.Map(curry).Apply(fx);
     
-    public static Aff<RT, B> Apply<RT, A, B>(this Func<A, B> f, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, B>(async rt =>
-        {
-            var a = await ma.Run(rt).ConfigureAwait(false);
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<Func<B, Func<C, Func<D, E>>>> apply<A, B, C, D, E>(
+        Func<A, B, C, D, E> ff, 
+        Aff<A> fx) =>
+        curry(ff).Apply(fx);    
 
-            if (a.IsFail)
-            {
-                return a.Error;
-            }
-            else
-            {
-                return f(a.Value);
-            }
-        });
-        
-    public static Aff<RT, C> Apply<RT, A, B, C>(this Func<A, B, C> f, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, C>(async rt =>
-        {
-            var (a, b) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<Func<B, Func<C, Func<D, Func<E, F>>>>> apply<A, B, C, D, E, F>(
+        Aff<Func<A, B, C, D, E, F>> ff, 
+        Aff<A> fx) =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<Func<B, Func<C, Func<D, Func<E, F>>>>> apply<A, B, C, D, E, F>(
+        Func<A, B, C, D, E, F> ff, 
+        Aff<A> fx) =>
+        curry(ff).Apply(fx);
 
-            if (a.IsFail|| b.IsFail)
-            {
-                var errs = Errors.None;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return f(a.Value, b.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<B, C>> Apply<RT, A, B, C>(this Func<A, B, C> f, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<B, C>>(async rt =>
-        {
-            var a = await ma.Run(rt).ConfigureAwait(false);
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> apply<A, B, C, D, E, F, G>(
+        Aff<Func<A, B, C, D, E, F, G>> ff, 
+        Aff<A> fx) =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> apply<A, B, C, D, E, F, G>(
+        Func<A, B, C, D, E, F, G> ff, 
+        Aff<A> fx) =>
+        curry(ff).Apply(fx);    
 
-            if (a.IsFail)
-            {
-                return a.Error;
-            }
-            else
-            {
-                return FinSucc((B b) => f(a.Value, b));
-            }
-        });
-        
-    public static Aff<RT, D> Apply<RT, A, B, C, D>(this Func<A, B, C, D> f, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, D>(async rt =>
-        {
-            var (a, b, c) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt), mc.Run(rt)).ConfigureAwait(false);
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> apply<A, B, C, D, E, F, G, H>(
+        Aff<Func<A, B, C, D, E, F, G, H>> ff, 
+        Aff<A> fx) =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> apply<A, B, C, D, E, F, G, H>(
+        Func<A, B, C, D, E, F, G, H> ff, 
+        Aff<A> fx) =>
+        curry(ff).Apply(fx);    
 
-            if (a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Errors.None;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                return errs;
-            }
-            else
-            {
-                return f(a.Value, b.Value, c.Value);
-            }
-        });
-        
-    public static Aff<RT, Func<C, D>> Apply<RT, A, B, C, D>(this Func<A, B, C, D> f, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<C, D>>(async rt =>
-        {
-            var (a, b) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
-            
-            if (a.IsFail || b.IsFail)
-            {
-                var errs = Errors.None;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((C c) => f(a.Value, b.Value, c));
-            }
-        });
-        
-    public static Aff<RT, Func<B, C, D>> Apply<RT, A, B, C, D>(this Func<A, B, C, D> f, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<B, C, D>>(async rt =>
-        {
-            var a = await ma.Run(rt).ConfigureAwait(false);
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Intermediate bound value type</typeparam>
+    /// <typeparam name="I">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> apply<A, B, C, D, E, F, G, H, I>(
+        Aff<Func<A, B, C, D, E, F, G, H, I>> ff, 
+        Aff<A> fx) =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Intermediate bound value type</typeparam>
+    /// <typeparam name="I">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> apply<A, B, C, D, E, F, G, H, I>(
+        Func<A, B, C, D, E, F, G, H, I> ff, 
+        Aff<A> fx) =>
+        curry(ff).Apply(fx);
+    
+    /// <summary>
+    /// Applicative action
+    /// </summary>
+    /// <remarks>
+    /// Applicative action 'runs' the first item then returns the result of the second (if neither fail). 
+    /// </remarks>
+    /// <param name="fa">Bound first argument</param>
+    /// <param name="fb">Bound second argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, B> action<RT, A, B>(Aff<RT, A> fa, Aff<RT, B> fb)
+        where RT : struct, HasCancel<RT> =>
+        default(ApplAff<RT, A, B>).Action(fa, fb);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, B> apply<RT, A, B>(Aff<RT, Func<A, B>> ff, Aff<RT, A> fx)
+        where RT : struct, HasCancel<RT> =>
+        default(ApplAff<RT, A, B>).Apply(ff, fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, B> apply<RT, A, B>(Func<A, B> ff, Aff<RT, A> fx)
+        where RT : struct, HasCancel<RT> =>
+        default(ApplAff<RT, A, B>).Apply(SuccessAff(ff), fx);
 
-            if (a.IsFail)
-            {
-                return a.Error;
-            }
-            else
-            {
-                return FinSucc((B b, C c) => f(a.Value, b, c));
-            }
-        });
-            
-    public static Aff<RT, E> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc, Aff<RT, D> md) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, E>(async rt =>
-        {
-            var (a, b, c, d) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt), mc.Run(rt), md.Run(rt)).ConfigureAwait(false);
-            
-            if (a.IsFail || b.IsFail || c.IsFail || d.IsFail)
-            {
-                var errs = Errors.None;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                if(d.IsFail) errs += d.Error;
-                return errs;
-            }
-            else
-            {
-                return f(a.Value, b.Value, c.Value, d.Value);
-            }
-        });
-             
-    public static Aff<RT, Func<D, E>> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<D, E>>(async rt =>
-        {
-            var (a, b, c) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt), mc.Run(rt)).ConfigureAwait(false);
-            
-            if (a.IsFail || b.IsFail || c.IsFail)
-            {
-                var errs = Errors.None;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                if(c.IsFail) errs += c.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((D d) => f(a.Value, b.Value, c.Value, d));
-            }
-        });
-             
-    public static Aff<RT, Func<C, D, E>> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<C, D, E>>(async rt =>
-        {
-            var (a, b) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, Func<B, C>> apply<RT, A, B, C>(Aff<RT, Func<A, B, C>> ff, Aff<RT, A> fx)
+        where RT : struct, HasCancel<RT> =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, Func<B, C>> apply<RT, A, B, C>(Func<A, B, C> ff, Aff<RT, A> fx)
+        where RT : struct, HasCancel<RT> =>
+        curry(ff).Apply(fx);
 
-            if (a.IsFail || b.IsFail)
-            {
-                var errs = Errors.None;
-                if(a.IsFail) errs += a.Error;
-                if(b.IsFail) errs += b.Error;
-                return errs;
-            }
-            else
-            {
-                return FinSucc((C c, D d) => f(a.Value, b.Value, c, d));
-            }
-        });
-             
-    public static Aff<RT, Func<B, C, D, E>> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-        AffMaybe<RT, Func<B, C, D, E>>(async rt =>
-        {
-            var a = await ma.Run(rt).ConfigureAwait(false);
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, Func<B, Func<C, D>>> apply<RT, A, B, C, D>(Aff<RT, Func<A, B, C, D>> ff, Aff<RT, A> fx)
+        where RT : struct, HasCancel<RT> =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, Func<B, Func<C, D>>> apply<RT, A, B, C, D>(Func<A, B, C, D> ff, Aff<RT, A> fx)
+        where RT : struct, HasCancel<RT> =>
+        curry(ff).Apply(fx);
 
-            if (a.IsFail)
-            {
-                return a.Error;
-            }
-            else
-            {
-                return FinSucc((B b, C c, D d) => f(a.Value, b, c, d));
-            }
-        });
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, Func<B, Func<C, Func<D, E>>>> apply<RT, A, B, C, D, E>(
+        Aff<RT, Func<A, B, C, D, E>> ff, 
+        Aff<RT, A> fx) where RT : struct, HasCancel<RT> =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, Func<B, Func<C, Func<D, E>>>> apply<RT, A, B, C, D, E>(
+        Func<A, B, C, D, E> ff, 
+        Aff<RT, A> fx) where RT : struct, HasCancel<RT> =>
+        curry(ff).Apply(fx);    
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, Func<B, Func<C, Func<D, Func<E, F>>>>> apply<RT, A, B, C, D, E, F>(
+        Aff<RT, Func<A, B, C, D, E, F>> ff, 
+        Aff<RT, A> fx) where RT : struct, HasCancel<RT> =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, Func<B, Func<C, Func<D, Func<E, F>>>>> apply<RT, A, B, C, D, E, F>(
+        Func<A, B, C, D, E, F> ff, 
+        Aff<RT, A> fx) where RT : struct, HasCancel<RT> =>
+        curry(ff).Apply(fx);
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> apply<RT, A, B, C, D, E, F, G>(
+        Aff<RT, Func<A, B, C, D, E, F, G>> ff, 
+        Aff<RT, A> fx) where RT : struct, HasCancel<RT> =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> apply<RT, A, B, C, D, E, F, G>(
+        Func<A, B, C, D, E, F, G> ff, 
+        Aff<RT, A> fx) where RT : struct, HasCancel<RT> =>
+        curry(ff).Apply(fx);    
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> apply<RT, A, B, C, D, E, F, G, H>(
+        Aff<RT, Func<A, B, C, D, E, F, G, H>> ff, 
+        Aff<RT, A> fx) where RT : struct, HasCancel<RT> =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> apply<RT, A, B, C, D, E, F, G, H>(
+        Func<A, B, C, D, E, F, G, H> ff, 
+        Aff<RT, A> fx) where RT : struct, HasCancel<RT> =>
+        curry(ff).Apply(fx);    
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Intermediate bound value type</typeparam>
+    /// <typeparam name="I">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> apply<RT, A, B, C, D, E, F, G, H, I>(
+        Aff<RT, Func<A, B, C, D, E, F, G, H, I>> ff, 
+        Aff<RT, A> fx) where RT : struct, HasCancel<RT> =>
+        ff.Map(curry).Apply(fx);
+    
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Applies the bound function to the bound argument, returning a bound result. 
+    /// </remarks>
+    /// <param name="ff">Bound function</param>
+    /// <param name="fx">Bound argument</param>
+    /// <typeparam name="A">Input bound value type</typeparam>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Intermediate bound value type</typeparam>
+    /// <typeparam name="D">Intermediate bound value type</typeparam>
+    /// <typeparam name="E">Intermediate bound value type</typeparam>
+    /// <typeparam name="F">Intermediate bound value type</typeparam>
+    /// <typeparam name="G">Intermediate bound value type</typeparam>
+    /// <typeparam name="H">Intermediate bound value type</typeparam>
+    /// <typeparam name="I">Output bound value type</typeparam>
+    /// <returns>Bound result of the application of the function to the argument</returns>
+    public static Aff<RT, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> Apply<RT, A, B, C, D, E, F, G, H, I>(
+        Func<A, B, C, D, E, F, G, H, I> ff, 
+        Aff<RT, A> fx) where RT : struct, HasCancel<RT> =>
+        curry(ff).Apply(fx);
 }
+

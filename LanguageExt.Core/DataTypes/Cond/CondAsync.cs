@@ -199,7 +199,8 @@ namespace LanguageExt
                         }
                         return None;
                     })
-                .ToOption();
+                .ToOption()
+                .ToRef();
 
         /// <summary>
         /// A conditional computation where the input value must match all of the predicates
@@ -226,7 +227,8 @@ namespace LanguageExt
                         }
                         return Optional(input);
                     })
-                .ToOption();
+                .ToOption()
+                .ToRef();
 
         /// <summary>
         /// Builds a delegate that runs the conditional computation, taking an input

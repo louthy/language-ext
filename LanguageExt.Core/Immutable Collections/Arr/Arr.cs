@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,9 +20,7 @@ namespace LanguageExt
     /// <typeparam name="A">Value type</typeparam>
     [Serializable]
     public struct Arr<A> :
-        IEnumerable<A>,
         IReadOnlyList<A>,
-        IReadOnlyCollection<A>,
         IEquatable<Arr<A>>,
         IComparable<Arr<A>>,
         IComparable
@@ -29,7 +28,7 @@ namespace LanguageExt
         /// <summary>
         /// Empty array
         /// </summary>
-        public static readonly Arr<A> Empty = new Arr<A>(new A[0] { });
+        public static readonly Arr<A> Empty = new (System.Array.Empty<A>());
         readonly A[] value;
         int hashCode;
 
@@ -61,7 +60,7 @@ namespace LanguageExt
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Arr<A>(A[] xs) =>
-            new Arr<A>(xs);
+            new (xs);
 
         /// <summary>
         /// Head lens
@@ -78,7 +77,9 @@ namespace LanguageExt
         [Pure]
         public static Lens<Arr<A>, Option<A>> headOrNone => Lens<Arr<A>, Option<A>>.New(
             Get: la => la.Count == 0 ? None : Some(la[0]),
+            #nullable disable
             Set: a => la => la.Count == 0 || a.IsNone ? la : la.SetItem(0, a.Value)
+            #nullable enable
             );
 
         /// <summary>
@@ -96,7 +97,9 @@ namespace LanguageExt
         [Pure]
         public static Lens<Arr<A>, Option<A>> lastOrNone => Lens<Arr<A>, Option<A>>.New(
             Get: la => la.Count == 0 ? None : Some(la[la.Count - 1]),
+            #nullable disable
             Set: a => la => la.Count == 0 || a.IsNone ? la : la.SetItem(la.Count - 1, a.Value)
+            #nullable enable
             );
 
         /// <summary>
@@ -116,7 +119,9 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Lens<Arr<A>, Option<A>> itemOrNone(int index) => Lens<Arr<A>, Option<A>>.New(
             Get: la => la.Count < index - 1 ? None : Some(la[index]),
+            #nullable disable
             Set: a => la => la.Count < index - 1 || a.IsSome ? la : la.SetItem(index, a.Value)
+            #nullable enable
             );
 
         /// <summary>
@@ -160,7 +165,7 @@ namespace LanguageExt
         ///
         /// </remarks>
         [Pure]
-        public object Case =>
+        public object? Case =>
             IsEmpty
                 ? null
                 : Count == 1
@@ -270,7 +275,7 @@ namespace LanguageExt
         /// Find the index of an item
         /// </summary>
         [Pure]
-        public int IndexOf(A item, int index = 0, int count = -1, IEqualityComparer<A> equalityComparer = null)
+        public int IndexOf(A item, int index = 0, int count = -1, IEqualityComparer<A>? equalityComparer = null)
         {
             var eq = equalityComparer ?? EqualityComparer<A>.Default;
 
@@ -286,7 +291,7 @@ namespace LanguageExt
         /// Find the index of an item
         /// </summary>
         [Pure]
-        public int LastIndexOf(A item, int index = -1, int count = -1, IEqualityComparer<A> equalityComparer = null)
+        public int LastIndexOf(A item, int index = -1, int count = -1, IEqualityComparer<A>? equalityComparer = null)
         {
             var eq = equalityComparer ?? EqualityComparer<A>.Default;
 
@@ -344,7 +349,7 @@ namespace LanguageExt
             if (index < 0 || index > Count) throw new IndexOutOfRangeException(nameof(index));
             if (arr.Length == 0)
             {
-                return new Arr<A>(new A[1] { value });
+                return new Arr<A>(new [] { value });
             }
 
             A[] xs = new A[arr.Length + 1];
@@ -365,7 +370,7 @@ namespace LanguageExt
         /// Insert range of values at specified index
         /// </summary>
         [Pure]
-        public Arr<A> InsertRange(int index, IEnumerable<A> items)
+        public Arr<A> InsertRange(int index, IEnumerable<A>? items)
         {
             items = items ?? Enumerable.Empty<A>();
             var arr = Value;
@@ -437,13 +442,13 @@ namespace LanguageExt
         /// Remove all items that match a predicate
         /// </summary>
         [Pure]
-        public Arr<A> RemoveAll(Predicate<A> pred)
+        public Arr<A> RemoveAll(Predicate<A>? pred)
         {
             var self = Value;
-            pred = pred ?? (_ => true);
+            pred ??= _ => true;
             if (IsEmpty) return this;
 
-            List<int> removeIndices = null;
+            List<int>? removeIndices = null;
             for (int i = 0; i < self.Length; i++)
             {
                 if (pred(self[i]))
@@ -721,6 +726,5 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Arr<A>(SeqEmpty _) =>
             Empty;
-
     }
 }

@@ -19,13 +19,13 @@ namespace LanguageExt
  
         public static async ValueTask<Arr<B>> Traverse<A, B>(this Arr<ValueTask<A>> ma, Func<A, B> f)
         {
-            var rb = await Task.WhenAll(ma.Map(async a => f(await a.ConfigureAwait(false)))).ConfigureAwait(false);
+            var rb = await WaitAsync.All(ma.Map(async a => f(await a.ConfigureAwait(false)))).ConfigureAwait(false);
             return new Arr<B>(rb);
         }
         
         public static async ValueTask<HashSet<B>> Traverse<A, B>(this HashSet<ValueTask<A>> ma, Func<A, B> f)
         {
-            var rb = await Task.WhenAll(ma.Map(async a => f(await a.ConfigureAwait(false)))).ConfigureAwait(false);
+            var rb = await WaitAsync.All(ma.Map(async a => f(await a.ConfigureAwait(false)))).ConfigureAwait(false);
             return new HashSet<B>(rb);
         }
         
@@ -64,13 +64,13 @@ namespace LanguageExt
  
         public static async ValueTask<Lst<B>> Traverse<A, B>(this Lst<ValueTask<A>> ma, Func<A, B> f)
         {
-            var rb = await Task.WhenAll(ma.Map(async a => f(await a.ConfigureAwait(false)))).ConfigureAwait(false);
+            var rb = await WaitAsync.All(ma.Map(async a => f(await a.ConfigureAwait(false)))).ConfigureAwait(false);
             return new Lst<B>(rb);
         }
         
         public static async ValueTask<Que<B>> Traverse<A, B>(this Que<ValueTask<A>> ma, Func<A, B> f)
         {
-            var rb = await Task.WhenAll(ma.Map(async a => f(await a.ConfigureAwait(false)))).ConfigureAwait(false);
+            var rb = await WaitAsync.All(ma.Map(async a => f(await a.ConfigureAwait(false)))).ConfigureAwait(false);
             return new Que<B>(rb);
         }
 
@@ -109,13 +109,13 @@ namespace LanguageExt
 
         public static async ValueTask<Set<B>> Traverse<A, B>(this Set<ValueTask<A>> ma, Func<A, B> f)
         {
-            var rb = await Task.WhenAll(ma.Map(async a => f(await a.ConfigureAwait(false)))).ConfigureAwait(false);
+            var rb = await WaitAsync.All(ma.Map(async a => f(await a.ConfigureAwait(false)))).ConfigureAwait(false);
             return new Set<B>(rb);
         }
 
         public static async ValueTask<Stck<B>> Traverse<A, B>(this Stck<ValueTask<A>> ma, Func<A, B> f)
         {
-            var rb = await Task.WhenAll(ma.Reverse().Map(async a => f(await a.ConfigureAwait(false)))).ConfigureAwait(false);
+            var rb = await WaitAsync.All(ma.Reverse().Map(async a => f(await a.ConfigureAwait(false)))).ConfigureAwait(false);
             return new Stck<B>(rb);
         }
 
@@ -134,7 +134,7 @@ namespace LanguageExt
 
         public static async ValueTask<OptionAsync<B>> Traverse<A, B>(this OptionAsync<ValueTask<A>> ma, Func<A, B> f)
         {
-            var (s, v) = await ma.Data.ConfigureAwait(false);
+            var (s, v) = await ma.GetData().ConfigureAwait(false);
             if (!s) return OptionAsync<B>.None;
             var a = await v.ConfigureAwait(false);
             return OptionAsync<B>.Some(f(a));

@@ -25,8 +25,8 @@ namespace LanguageExt.ClassInstances
     {
         public async Task<int> CompareAsync(OptionAsync<A> x, OptionAsync<A> y)
         {
-            var (sx, dx) = await x.Data.ConfigureAwait(false);
-            var (sy, dy) = await y.Data.ConfigureAwait(false);
+            var (sx, dx) = await x.GetData().ConfigureAwait(false);
+            var (sy, dy) = await y.GetData().ConfigureAwait(false);
             if (!sx && !sy) return 0;
             if (sx && !sy) return 1;
             if (!sx && sy) return -1;

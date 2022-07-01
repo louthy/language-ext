@@ -825,7 +825,7 @@ namespace LanguageExt
         /// <param name="Fail">Fail map function</param>
         /// <returns>Mapped Validation</returns>
         [Pure]
-        public Validation<MonoidFail, FAIL, Ret> BiMap<Ret>(Func<SUCCESS, Ret> Success, Func<FAIL, Ret> Fail) =>
+        public Validation<MonoidFail, FAIL, Ret> BiMap<Ret>(Func<SUCCESS, Ret> Success, Func<FAIL, FAIL> Fail) =>
             FValidation<MonoidFail, FAIL, SUCCESS, Ret>.Inst.BiMap(this, Fail, Success);
 
         /// <summary>
@@ -836,21 +836,8 @@ namespace LanguageExt
         /// <param name="Fail">Fail map function</param>
         /// <returns>Mapped Validation</returns>
         [Pure]
-        public Validation<MonoidRet, Ret, SUCCESS> MapFail<MonoidRet, Ret>(Func<FAIL, Ret> Fail) where MonoidRet : struct, Monoid<Ret>, Eq<Ret> =>
-            FValidationBi<MonoidFail, FAIL, SUCCESS, MonoidRet, Ret, SUCCESS>.Inst.BiMap(this, Fail, identity);
-
-        /// <summary>
-        /// Bi-maps the value in the Validation
-        /// </summary>
-        /// <typeparam name="MonoidFail2">Monad of Fail</typeparam>
-        /// <typeparam name="FAIL2">Fail return</typeparam>
-        /// <typeparam name="SUCCESS2">Success return</typeparam>
-        /// <param name="Success">Success map function</param>
-        /// <param name="Fail">Fail map function</param>
-        /// <returns>Mapped Validation</returns>
-        [Pure]
-        public Validation<MonoidFail2, FAIL2, SUCCESS2> BiMap<MonoidFail2, FAIL2, SUCCESS2>(Func<SUCCESS, SUCCESS2> Success, Func<FAIL, FAIL2> Fail) where MonoidFail2 : struct, Monoid<FAIL2>, Eq<FAIL2> =>
-            FValidationBi<MonoidFail, FAIL, SUCCESS, MonoidFail2, FAIL2, SUCCESS2>.Inst.BiMap(this, Fail, Success);
+        public Validation<MonoidFail, FAIL, SUCCESS> MapFail<MonoidRet>(Func<FAIL, FAIL> Fail) =>
+            FValidation<MonoidFail, FAIL, SUCCESS, SUCCESS>.Inst.BiMap(this, Fail, identity);
 
         /// <summary>
         /// Maps the value in the Validation if it's in a Success state

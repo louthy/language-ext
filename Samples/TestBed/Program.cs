@@ -64,6 +64,8 @@ public class Program
         //                                                                                                    //
         ///////////////////////////////////////////v////////////////////////////////////////////////////////////
 
+        Console.WriteLine(BindAsyncFailure().GetAwaiter().GetResult());
+        
         //AtomHashMapTests.Test();
         //await AtomHashMapPerf.Test();
         // await PipesTest();
@@ -72,8 +74,19 @@ public class Program
         //testing.Run(Runtime.New());
         //var _ = QueueExample<Runtime>.Issue1065().RunUnit(new Runtime()).Result;
         //ScheduleTests.Run();
-        ApplicativeTest.Test().GetAwaiter().GetResult();
+        //ApplicativeTest.Test().RunSynchronously();
     }
+    
+    static OptionAsync<string> BindAsyncFailure() =>
+        ProblematicBindAsync();
+
+    static OptionAsync<string> ProblematicBindAsync() =>
+        from thing in SomeAsync("foo")
+        from bar   in GetBarAsync()
+        select bar;
+    
+    static OptionAsync<string> GetBarAsync() =>
+        SomeAsync("bar");
 
     public static async Task PipesTest()
     {

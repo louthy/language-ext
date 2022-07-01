@@ -1,36 +1,63 @@
-﻿using LanguageExt.TypeClasses;
+﻿#nullable enable
+
+using LanguageExt.TypeClasses;
 using System;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
+using LanguageExt.DataTypes.Serialisation;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct FEitherAsync<L, R, R2> :
-        FunctorAsync<EitherAsync<L, R>, EitherAsync<L, R2>, R, R2>,
-        BiFunctorAsync<EitherAsync<L, R>, EitherAsync<L, R2>, L, R, R2>
+    public readonly struct FEitherAsync<L, A, B> :
+        FunctorAsync<EitherAsync<L, A>, EitherAsync<L, B>, A, B>,
+        BiFunctorAsync<EitherAsync<L, A>, EitherAsync<L, B>, L, A, L, B>
     {
         [Pure]
-        public EitherAsync<L, R2> BiMapAsync(EitherAsync<L, R> ma, Func<L, R2> fa, Func<R, R2> fb) =>
-            ma.BiMap<R2>(fb, fa);
+        public EitherAsync<L, B> BiMapAsync(EitherAsync<L, A> ma, Func<L, ValueTask<L>> fa, Func<A, ValueTask<B>> fb)
+        {
+            return new EitherAsync<L, B>(Go());
+            async Task<EitherData<L, B>> Go()
+            {
+                var r = await ma.Data.ConfigureAwait(false);
+                return r.State switch
+                {
+                    EitherStatus.IsRight => EitherData.Right<L, B>(await fb(r.Right).ConfigureAwait(false)),
+                    EitherStatus.IsLeft  => EitherData.Left<L, B>(await fa(r.Left).ConfigureAwait(false)),
+                    _ => EitherData<L, B>.Bottom
+                };
+            }
+        }
+        
+        [Pure]
+        public EitherAsync<L, B> MapAsync(EitherAsync<L, A> ma, Func<A, ValueTask<B>> f)
+        {
+            return new EitherAsync<L, B>(Go());
+            async Task<EitherData<L, B>> Go()
+            {
+                var r = await ma.Data.ConfigureAwait(false);
+                return r.State switch
+                {
+                    EitherStatus.IsRight => EitherData.Right<L, B>(await f(r.Right).ConfigureAwait(false)),
+                    EitherStatus.IsLeft  => EitherData.Left<L, B>(r.Left),
+                    _ => EitherData<L, B>.Bottom
+                };
+            }
+        }
 
         [Pure]
-        public EitherAsync<L, R2> BiMapAsync(EitherAsync<L, R> ma, Func<L, Task<R2>> fa, Func<R, R2> fb) =>
-            ma.BiMapAsync<R2>(fb, fa);
-
-        [Pure]
-        public EitherAsync<L, R2> BiMapAsync(EitherAsync<L, R> ma, Func<L, R2> fa, Func<R, Task<R2>> fb) =>
-            ma.BiMapAsync<R2>(fb, fa);
-
-        [Pure]
-        public EitherAsync<L, R2> BiMapAsync(EitherAsync<L, R> ma, Func<L, Task<R2>> fa, Func<R, Task<R2>> fb) =>
-            ma.BiMapAsync<R2>(fb, fa);
-
-        [Pure]
-        public EitherAsync<L, R2> Map(EitherAsync<L, R> ma, Func<R, R2> f) =>
-            ma.Map(f);
-
-        [Pure]
-        public EitherAsync<L, R2> MapAsync(EitherAsync<L, R> ma, Func<R, Task<R2>> f) =>
-            ma.MapAsync(f);
+        public EitherAsync<L, B> Map(EitherAsync<L, A> ma, Func<A, B> f) 
+        {
+            return new EitherAsync<L, B>(Go());
+            async Task<EitherData<L, B>> Go()
+            {
+                var r = await ma.Data.ConfigureAwait(false);
+                return r.State switch
+                {
+                    EitherStatus.IsRight => EitherData.Right<L, B>(f(r.Right)),
+                    EitherStatus.IsLeft  => EitherData.Left<L, B>(r.Left),
+                    _ => EitherData<L, B>.Bottom
+                };
+            }
+        }
     }
 }

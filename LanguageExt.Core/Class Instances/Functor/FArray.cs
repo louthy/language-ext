@@ -1,21 +1,23 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct FArray<A, B> :
+    public readonly struct FArray<A, B> :
         Functor<A[], B[], A, B>
     {
-        public static readonly FArray<A, B> Inst = default(FArray<A, B>);
+        public static readonly FArray<A, B> Inst = default;
 
         [Pure]
         public B[] Map(A[] ma, Func<A, B> f)
         {
             var bs = new B[ma.Length];
             using var iter = ma.AsEnumerable().GetEnumerator();
-            for (int i = 0; iter.MoveNext(); i++)
+            for (var i = 0; iter.MoveNext(); i++)
             {
                 bs[i] = f(iter.Current);
             }

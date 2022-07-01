@@ -1,12 +1,14 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    internal static class WaitAsync
+    public static class WaitAsync
     {
-        public static async ValueTask<(A A, B B)> WaitAll<A, B>(ValueTask<A> va, ValueTask<B> vb)
+        public static async ValueTask<(A A, B B)> All<A, B>(ValueTask<A> va, ValueTask<B> vb)
         {
             var ta = va.AsTask();
             var tb = vb.AsTask();
@@ -14,7 +16,7 @@ namespace LanguageExt
             return (ta.Result, tb.Result);
         }
         
-        public static async ValueTask<(A A, B B, C C)> WaitAll<A, B, C>(ValueTask<A> va, ValueTask<B> vb, ValueTask<C> vc)
+        public static async ValueTask<(A A, B B, C C)> All<A, B, C>(ValueTask<A> va, ValueTask<B> vb, ValueTask<C> vc)
         {
             var ta = va.AsTask();
             var tb = vb.AsTask();
@@ -23,7 +25,7 @@ namespace LanguageExt
             return (ta.Result, tb.Result, tc.Result);
         }
         
-        public static async ValueTask<(A A, B B, C C, D D)> WaitAll<A, B, C, D>(ValueTask<A> va, ValueTask<B> vb, ValueTask<C> vc, ValueTask<D> vd)
+        public static async ValueTask<(A A, B B, C C, D D)> All<A, B, C, D>(ValueTask<A> va, ValueTask<B> vb, ValueTask<C> vc, ValueTask<D> vd)
         {
             var ta = va.AsTask();
             var tb = vb.AsTask();
@@ -33,7 +35,7 @@ namespace LanguageExt
             return (ta.Result, tb.Result, tc.Result, td.Result);
         }
         
-        public static async ValueTask<(A A, B B, C C, D D, E E)> WaitAll<A, B, C, D, E>(ValueTask<A> va, ValueTask<B> vb, ValueTask<C> vc, ValueTask<D> vd, ValueTask<E> ve)
+        public static async ValueTask<(A A, B B, C C, D D, E E)> All<A, B, C, D, E>(ValueTask<A> va, ValueTask<B> vb, ValueTask<C> vc, ValueTask<D> vd, ValueTask<E> ve)
         {
             var ta = va.AsTask();
             var tb = vb.AsTask();
@@ -44,7 +46,7 @@ namespace LanguageExt
             return (ta.Result, tb.Result, tc.Result, td.Result, te.Result);
         }
         
-        public static async ValueTask<(A A, B B, C C, D D, E E, F F)> WaitAll<A, B, C, D, E, F>(ValueTask<A> va, ValueTask<B> vb, ValueTask<C> vc, ValueTask<D> vd, ValueTask<E> ve, ValueTask<F> vf)
+        public static async ValueTask<(A A, B B, C C, D D, E E, F F)> All<A, B, C, D, E, F>(ValueTask<A> va, ValueTask<B> vb, ValueTask<C> vc, ValueTask<D> vd, ValueTask<E> ve, ValueTask<F> vf)
         {
             var ta = va.AsTask();
             var tb = vb.AsTask();
@@ -55,6 +57,69 @@ namespace LanguageExt
             await Task.WhenAll(ta, tb, tc, td, te, tf).ConfigureAwait(false);
             return (ta.Result, tb.Result, tc.Result, td.Result, te.Result, tf.Result);
         }
+        
+        public static async Task<(A A, B B)> All<A, B>(Task<A> ta, Task<B> tb)
+        {
+            await Task.WhenAll(ta, tb).ConfigureAwait(false);
+            return (ta.Result, tb.Result);
+        }
+        
+        public static async Task<(A A, B B, C C)> All<A, B, C>(Task<A> ta, Task<B> tb, Task<C> tc)
+        {
+            await Task.WhenAll(ta, tb, tc).ConfigureAwait(false);
+            return (ta.Result, tb.Result, tc.Result);
+        }
+        
+        public static async Task<(A A, B B, C C, D D)> All<A, B, C, D>(Task<A> ta, Task<B> tb, Task<C> tc, Task<D> td)
+        {
+            await Task.WhenAll(ta, tb, tc, td).ConfigureAwait(false);
+            return (ta.Result, tb.Result, tc.Result, td.Result);
+        }
+        
+        public static async Task<(A A, B B, C C, D D, E E)> All<A, B, C, D, E>(Task<A> ta, Task<B> tb, Task<C> tc, Task<D> td, Task<E> te)
+        {
+            await Task.WhenAll(ta, tb, tc, td, te).ConfigureAwait(false);
+            return (ta.Result, tb.Result, tc.Result, td.Result, te.Result);
+        }
+        
+        public static async Task<(A A, B B, C C, D D, E E, F F)> All<A, B, C, D, E, F>(Task<A> ta, Task<B> tb, Task<C> tc, Task<D> td, Task<E> te, Task<F> tf)
+        {
+            await Task.WhenAll(ta, tb, tc, td, te, tf).ConfigureAwait(false);
+            return (ta.Result, tb.Result, tc.Result, td.Result, te.Result, tf.Result);
+        }
+
+
+        public static async ValueTask<A[]> All<A>(params ValueTask<A>[] vts)
+        {
+            var ts = vts.Map(static t => t.AsTask()).ToArray();
+            await Task.WhenAll(ts).ConfigureAwait(false);
+            return ts.Map(t => t.Result).ToArray();
+        }
+
+        public static async ValueTask<Seq<A>> All<A>(Seq<ValueTask<A>> vts)
+        {
+            var ts = vts.Map(static t => t.AsTask());
+            await Task.WhenAll(ts).ConfigureAwait(false);
+            return ts.Map(t => t.Result).ToSeq();
+        }
+
+        public static ValueTask<IEnumerable<A>> All<A>(IEnumerable<ValueTask<A>> vts) =>
+            All(vts.ToArray()).Map(static ts => (IEnumerable<A>)ts);
+
+        public static async Task<A[]> All<A>(params Task<A>[] ts)
+        {
+            await Task.WhenAll(ts).ConfigureAwait(false);
+            return ts.Map(t => t.Result).ToArray();
+        }
+
+        public static async Task<Seq<A>> All<A>(Seq<Task<A>> ts)
+        {
+            await Task.WhenAll(ts).ConfigureAwait(false);
+            return ts.Map(t => t.Result).ToSeq();
+        }
+
+        public static Task<IEnumerable<A>> All<A>(IEnumerable<Task<A>> vts) =>
+            All(vts.ToArray()).Map(static ts => (IEnumerable<A>)ts);        
         
         public static async Task<bool> WaitOneAsync(this WaitHandle handle, int millisecondsTimeout, CancellationToken cancellationToken)
         {

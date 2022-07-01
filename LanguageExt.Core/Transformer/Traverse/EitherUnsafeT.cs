@@ -417,7 +417,7 @@ namespace LanguageExt
             }
             else if (tres.IsFail)
             {
-                return RightUnsafe(FailEff<B>(tres.Error));
+                return RightUnsafe<L, Eff<B>>(FailEff<B>(tres.Error));
             }
             else if (tres.Value.IsLeft)
             {

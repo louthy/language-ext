@@ -157,7 +157,7 @@ namespace LanguageExt
         /// <param name="f">Mapping operation</param>
         /// <returns>Mapped MonadAsync</returns>
         [Pure]
-        public static MB liftMAsync<MONAD, FUNCTOR, MA, MB, A, B>(MA ma, Func<A, Task<B>> f)
+        public static MB liftMAsync<MONAD, FUNCTOR, MA, MB, A, B>(MA ma, Func<A, ValueTask<B>> f)
             where FUNCTOR : struct, FunctorAsync<MA, MB, A, B>
             where MONAD : struct, MonadAsync<MA, A> =>
             default(FUNCTOR).MapAsync(ma, f);

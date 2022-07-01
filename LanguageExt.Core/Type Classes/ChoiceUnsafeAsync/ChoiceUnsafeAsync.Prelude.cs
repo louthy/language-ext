@@ -248,7 +248,7 @@ namespace LanguageExt
         public static async Task<IEnumerable<A>> leftsUnsafeAsync<CHOICE, CH, A, B>(IEnumerable<CH> ma)
             where CHOICE : struct, ChoiceUnsafeAsync<CH, A, B>
         {
-            var res = await Task.WhenAll(ma.Map(item =>
+            var res = await WaitAsync.All(ma.Map(item =>
                 default(CHOICE).MatchUnsafe(
                     item,
                     Left: x => (true, x),
@@ -283,7 +283,7 @@ namespace LanguageExt
         public static async Task<IEnumerable<B>> rightsUnsafeAsync<CHOICE, CH, A, B>(IEnumerable<CH> ma)
             where CHOICE : struct, ChoiceUnsafeAsync<CH, A, B>
         {
-            var res = await Task.WhenAll(ma.Map(item =>
+            var res = await WaitAsync.All(ma.Map(item =>
                 default(CHOICE).MatchUnsafe(
                     item,
                     Left: x => (false, default(B)),
@@ -320,7 +320,7 @@ namespace LanguageExt
         public static async Task<(IEnumerable<A> Lefts, IEnumerable<B> Rights)> partitionUnsafeAsync<CHOICE, CH, A, B>(IEnumerable<CH> ma)
             where CHOICE : struct, ChoiceUnsafeAsync<CH, A, B>
         {
-            var res = await Task.WhenAll(ma.Map(item =>
+            var res = await WaitAsync.All(ma.Map(item =>
                 default(CHOICE).MatchUnsafe(
                     item,
                     Left: x => (1, x, default(B)),

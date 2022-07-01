@@ -26,7 +26,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Arr<B>>> Go(Arr<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
+                var rb = await WaitAsync.All(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<Arr<B>>(b.Exception)).Head()
                     : new Result<Arr<B>>(new Arr<B>(rb.Map(d => d.Value)));
@@ -38,7 +38,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<HashSet<B>>> Go(HashSet<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
+                var rb = await WaitAsync.All(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<HashSet<B>>(b.Exception)).Head()
                     : new Result<HashSet<B>>(new HashSet<B>(rb.Map(d => d.Value)));
@@ -98,7 +98,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Lst<B>>> Go(Lst<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
+                var rb = await WaitAsync.All(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<Lst<B>>(b.Exception)).Head()
                     : new Result<Lst<B>>(new Lst<B>(rb.Map(d => d.Value)));
@@ -110,7 +110,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Que<B>>> Go(Que<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
+                var rb = await WaitAsync.All(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<Que<B>>(b.Exception)).Head()
                     : new Result<Que<B>>(new Que<B>(rb.Map(d => d.Value)));
@@ -170,7 +170,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Set<B>>> Go(Set<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
+                var rb = await WaitAsync.All(ma.Map(a => a.Map(f).Try())).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<Set<B>>(b.Exception)).Head()
                     : new Result<Set<B>>(new Set<B>(rb.Map(d => d.Value)));
@@ -182,7 +182,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Stck<B>>> Go(Stck<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await Task.WhenAll(ma.Reverse().Map(a => a.Map(f).Try())).ConfigureAwait(false);
+                var rb = await WaitAsync.All(ma.Reverse().Map(a => a.Map(f).Try())).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<Stck<B>>(b.Exception)).Head()
                     : new Result<Stck<B>>(new Stck<B>(rb.Map(d => d.Value)));
@@ -212,7 +212,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<OptionAsync<B>>> Go(OptionAsync<TryAsync<A>> ma, Func<A, B> f)
             {
-                var (isSome, value) = await ma.Data.ConfigureAwait(false);
+                var (isSome, value) = await ma.GetData().ConfigureAwait(false);
                 if (!isSome) return new Result<OptionAsync<B>>(OptionAsync<B>.None);
                 var rb = await value.Try().ConfigureAwait(false);
                 if (rb.IsFaulted) return new Result<OptionAsync<B>>(rb.Exception);

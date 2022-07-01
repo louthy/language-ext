@@ -168,7 +168,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public async Task<A> Apply(Func<A, A, A> f, Task<A> fa, Task<A> fb) 
         {
-            await Task.WhenAll(fa, fb).ConfigureAwait(false);
+            await WaitAsync.All(fa, fb).ConfigureAwait(false);
             return f(fa.Result, fb.Result);
         }
 

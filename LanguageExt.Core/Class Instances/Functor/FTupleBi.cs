@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
@@ -12,11 +14,11 @@ namespace LanguageExt.ClassInstances
     /// <typeparam name="B">Second item source type</typeparam>
     /// <typeparam name="U">First item source target type</typeparam>
     /// <typeparam name="V">Second item source target type</typeparam>
-    public struct FTupleBi<A, B, U, V> :
+    public readonly struct FTupleBi<A, B, U, V> :
         BiFunctor<Tuple<A, B>, Tuple<U, V>, A, B, U, V>,
         BiFunctor<ValueTuple<A, B>, ValueTuple<U, V>, A, B, U, V>
     {
-        public static readonly FTupleBi<A, B, U, V> Inst = default(FTupleBi<A, B, U, V>);
+        public static readonly FTupleBi<A, B, U, V> Inst = default;
 
         /// <summary>
         /// Maps both items in the tuple
@@ -27,7 +29,7 @@ namespace LanguageExt.ClassInstances
         /// <returns>Target tuple</returns>
         [Pure]
         public ValueTuple<U, V> BiMap(ValueTuple<A, B> ma, Func<A, U> fa, Func<B, V> fb) =>
-            VTuple(fa(ma.Item1), fb(ma.Item2));
+            (fa(ma.Item1), fb(ma.Item2));
 
         /// <summary>
         /// Maps both items in the tuple

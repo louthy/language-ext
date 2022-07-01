@@ -1,22 +1,27 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using LanguageExt.TypeClasses;
-using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct FTryOption<A, B> : 
+    public readonly struct FTryOption<A, B> :
         Functor<TryOption<A>, TryOption<B>, A, B>,
-        BiFunctor<TryOption<A>, TryOption<B>, A, Unit, B>
+        BiFunctor<TryOption<A>, TryOption<B>, Error, A, Error, B>
     {
-        public static readonly FTryOption<A, B> Inst = default(FTryOption<A, B>);
+        public static readonly FTryOption<A, B> Inst = default;
 
         [Pure]
-        public TryOption<B> BiMap(TryOption<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
-            FOptional<MTryOption<A>, MTryOption<B>, TryOption<A>, TryOption<B>, A, B>.Inst.BiMap(ma, fa, fb);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TryOption<B> Map(TryOption<A> ma, Func<A, B> f) => 
+            ma.Map(f);
 
         [Pure]
-        public TryOption<B> Map(TryOption<A> ma, Func<A, B> f) =>
-            FOptional<MTryOption<A>, MTryOption<B>, TryOption<A>, TryOption<B>, A, B>.Inst.Map(ma, f);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public TryOption<B> BiMap(TryOption<A> ma, Func<Error, Error> fa, Func<A, B> fb) => 
+            ma.BiMap(fb, fa);
     }
 }

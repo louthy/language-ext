@@ -1,26 +1,25 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct FOption<A, B> : 
-        Functor<Option<A>, Option<B>, A, B>,
-        BiFunctor<Option<A>, Option<B>, A, Unit, B>
+    public readonly struct FOption<A, B> : 
+        Functor<Option<A>, Option<B>, A, B>
     {
-        public static readonly FOption<A, B> Inst = default(FOption<A, B>);
+        public static readonly FOption<A, B> Inst = default;
 
         [Pure]
-        public Option<B> BiMap(Option<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
-            ma.IsSome
-                ? Some(fa(ma.Value))
-                : Some(fb(unit));
-
-        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Option<B> Map(Option<A> ma, Func<A, B> f) =>
-            ma.IsSome
-                ? Some(f(ma.Value))
-                : None;
+            ma switch
+            {
+                {IsSome: true, Value: not null} a => f(a.Value),
+                _ => None
+            };
     }
 }

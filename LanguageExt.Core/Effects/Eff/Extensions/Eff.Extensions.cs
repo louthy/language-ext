@@ -627,37 +627,20 @@ namespace LanguageExt
         //
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Eff<RT, (A, B)> Zip<RT, A, B>(Eff<RT, A> ma, Eff<RT, B> mb) where RT : struct =>
-            new(e =>
-            {
-                var ta = ma.Run(e);
-                if (ta.IsFail) return ta.Cast<(A, B)>();
-                var tb = mb.Run(e);
-                if (tb.IsFail) return tb.Cast<(A, B)>();
-                return Fin<(A, B)>.Succ((ta.Value, tb.Value));
-            });
+        public static Eff<RT, (A, B)> Zip<RT, A, B>(this Eff<RT, A> ma, Eff<RT, B> mb) where RT : struct =>
+            SuccessEff<RT, Func<A, B, (A, B)>>((a, b) => (a, b)).Apply(ma).Apply(mb);
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Eff<RT, (A, B)> Zip<RT, A, B>(Eff<A> ma, Eff<RT, B> mb) where RT : struct =>
-            new(e =>
-            {
-                var ta = ma.Run();
-                if (ta.IsFail) return ta.Cast<(A, B)>();
-                var tb = mb.Run(e);
-                if (tb.IsFail) return tb.Cast<(A, B)>();
-                return Fin<(A, B)>.Succ((ta.Value, tb.Value));
-            });
+        public static Eff<RT, (A, B)> Zip<RT, A, B>(this Eff<A> ma, Eff<RT, B> mb) where RT : struct =>
+            SuccessEff<RT, Func<A, B, (A, B)>>((a, b) => (a, b)).Apply(ma).Apply(mb);
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Eff<RT, (A, B)> Zip<RT, A, B>(Eff<RT, A> ma, Eff<B> mb) where RT : struct =>
-            new(e =>
-            {
-                var ta = ma.Run(e);
-                if (ta.IsFail) return ta.Cast<(A, B)>();
-                var tb = mb.Run();
-                if (tb.IsFail) return tb.Cast<(A, B)>();
-                return Fin<(A, B)>.Succ((ta.Value, tb.Value));
-            });           
+        public static Eff<(A, B)> Zip<RT, A, B>(this Eff<A> ma, Eff<B> mb) where RT : struct =>
+            SuccessEff<Func<A, B, (A, B)>>((a, b) => (a, b)).Apply(ma).Apply(mb);
+
+        [Pure, MethodImpl(Opt.Default)]
+        public static Eff<RT, (A, B)> Zip<RT, A, B>(this Eff<RT, A> ma, Eff<B> mb) where RT : struct =>
+            SuccessEff<RT, Func<A, B, (A, B)>>((a, b) => (a, b)).Apply(ma).Apply(mb);
     }    
 
     
@@ -1358,20 +1341,5 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public static Eff<A> Where<A>(this Eff<A> ma, Func<A, bool> f) =>
             Filter(ma, f);
-
-        //
-        // Zip
-        //
-
-        [Pure, MethodImpl(Opt.Default)]
-        public static Eff<(A, B)> Zip<A, B>(Eff<A> ma, Eff<B> mb) =>
-            new(() =>
-            {
-                var ta = ma.Run();
-                if (ta.IsFail) return ta.Cast<(A, B)>();
-                var tb = mb.Run();
-                if (tb.IsFail) return tb.Cast<(A, B)>();
-                return Fin<(A, B)>.Succ((ta.Value, tb.Value));
-            });
     }
 }

@@ -271,21 +271,21 @@ public static class ValueTuple2Extensions
     /// </summary>
     [Pure]
     public static EitherAsync<L, (C, D)> Traverse<L, A, B, C, D>(this (EitherAsync<L, A> ma, EitherAsync<L, B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
-        apply((a, b) => f((a, b)), tuple.ma, tuple.mb);
+        apply(apply((A a, B b) => f((a, b)), tuple.ma), tuple.mb);
 
     /// <summary>
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
     /// </summary>
     [Pure]
     public static EitherAsync<L, (C, D)> Traverse<L, A, B, C, D>(this (EitherAsync<L, A> ma, EitherAsync<L, B> mb) tuple, Func<A, B, (C c, D d)> f) =>
-        apply((a, b) => f(a, b), tuple.ma, tuple.mb);
+        apply(apply((A a, B b) => f(a, b), tuple.ma), tuple.mb);
 
     /// <summary>
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
     /// </summary>
     [Pure]
     public static EitherAsync<L, (A, B)> Sequence<L, A, B>(this (EitherAsync<L, A> ma, EitherAsync<L, B> mb) tuple) =>
-        apply((a, b) => (a, b), tuple.ma, tuple.mb);
+        apply(apply((A a, B b) => (a, b), tuple.ma), tuple.mb);
 
     /// <summary>
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
@@ -516,21 +516,21 @@ public static class ValueTuple2Extensions
     /// </summary>
     [Pure]
     public static Task<(C, D)> Traverse<A, B, C, D>(this (Task<A> ma, Task<B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
-        apply((a, b) => f((a, b)), tuple.ma, tuple.mb);
+        apply(apply((A a, B b) => f((a, b)), tuple.ma), tuple.mb);
 
     /// <summary>
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
     /// </summary>
     [Pure]
     public static Task<(C, D)> Traverse<A, B, C, D>(this (Task<A> ma, Task<B> mb) tuple, Func<A, B, (C c, D d)> f) =>
-        apply((a, b) => f(a, b), tuple.ma, tuple.mb);
+        apply(apply((A a, B b) => f(a, b), tuple.ma), tuple.mb);
 
     /// <summary>
     /// Flip the tuads from inside the tuple to outside and apply a transformation function
     /// </summary>
     [Pure]
     public static Task<(A, B)> Sequence<A, B>(this (Task<A> ma, Task<B> mb) tuple) =>
-        apply((a, b) => (a, b), tuple.ma, tuple.mb);
+        apply(apply((A a, B b) => (a, b), tuple.ma), tuple.mb);
 
     /// <summary>
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function

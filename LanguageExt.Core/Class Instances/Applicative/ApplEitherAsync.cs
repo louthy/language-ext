@@ -1,75 +1,72 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using LanguageExt.DataTypes.Serialisation;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct ApplEitherAsync<L, A, B> :
-        FunctorAsync<EitherAsync<L, A>, EitherAsync<L, B>, A, B>,
-        BiFunctorAsync<EitherAsync<L, A>, EitherAsync<L, B>, L, A, B>,
+    public readonly struct ApplEitherAsync<L, A, B> :
+        BiFunctorAsync<EitherAsync<L, A>, EitherAsync<L, B>, L, A, L, B>,
         ApplicativeAsync<EitherAsync<L, Func<A, B>>, EitherAsync<L, A>, EitherAsync<L, B>, A, B>
     {
-        public static ApplEitherAsync<L, A, B> Inst = default(ApplEitherAsync<L, A, B>);
+        public static ApplEitherAsync<L, A, B> Inst = default;
 
         [Pure]
-        public EitherAsync<L, B> Action(EitherAsync<L, A> fa, EitherAsync<L, B> fb) =>
-            from a in fa
-            from b in fb
-            select b;
+        public EitherAsync<L, B> Action(EitherAsync<L, A> fa, EitherAsync<L, B> fb)
+        {
+            return new EitherAsync<L, B>(Go());
+            async Task<EitherData<L, B>> Go()
+            {
+                var (ta, tb) = await WaitAsync.All(fa.Data, fb.Data);
+                return (ta.State, tb.State) switch
+                {
+                    (EitherStatus.IsRight, EitherStatus.IsRight) => tb,
+                    (EitherStatus.IsLeft, _) => EitherData.Left<L, B>(ta.Left),
+                    (_, EitherStatus.IsLeft) => tb,
+                    _ => EitherData<L, B>.Bottom
+                };
+            }
+        }
 
         [Pure]
-        public EitherAsync<L, B> Apply(EitherAsync<L, Func<A, B>> fab, EitherAsync<L, A> fa) =>
-            from f in fab
-            from a in fa
-            select f(a);
+        public EitherAsync<L, B> Apply(EitherAsync<L, Func<A, B>> fab, EitherAsync<L, A> fa)
+        {
+            return new EitherAsync<L, B>(Go());
+            async Task<EitherData<L, B>> Go()
+            {
+                var (ta, tb) = await WaitAsync.All(fab.Data, fa.Data);
+                return (ta.State, tb.State) switch
+                {
+                    (EitherStatus.IsRight, EitherStatus.IsRight) => EitherData.Right<L, B>(ta.Right(tb.Right)),
+                    (EitherStatus.IsLeft, _) => EitherData.Left<L, B>(ta.Left),
+                    (_, EitherStatus.IsLeft) => EitherData.Left<L, B>(tb.Left),
+                    _ => EitherData<L, B>.Bottom
+                };
+            }
+        }
 
         [Pure]
-        public EitherAsync<L, B> BiMapAsync(EitherAsync<L, A> ma, Func<L, B> fa, Func<A, B> fb) =>
-            default(FEitherAsync<L, A, B>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public EitherAsync<L, B> BiMapAsync(EitherAsync<L, A> ma, Func<L, Task<B>> fa, Func<A, B> fb) =>
-            default(FEitherAsync<L, A, B>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public EitherAsync<L, B> BiMapAsync(EitherAsync<L, A> ma, Func<L, B> fa, Func<A, Task<B>> fb) =>
-            default(FEitherAsync<L, A, B>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public EitherAsync<L, B> BiMapAsync(EitherAsync<L, A> ma, Func<L, Task<B>> fa, Func<A, Task<B>> fb) =>
-            default(FEitherAsync<L, A, B>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public EitherAsync<L, B> Map(EitherAsync<L, A> ma, Func<A, B> f) =>
-            ma.Map(f);
-
-        [Pure]
-        public EitherAsync<L, B> MapAsync(EitherAsync<L, A> ma, Func<A, Task<B>> f) =>
-            ma.MapAsync(f);
-
-        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public EitherAsync<L, A> PureAsync(Task<A> x) =>
             EitherAsync<L, A>.RightAsync(x);
-    }
 
-    public struct ApplEitherAsync<L, A, B, C> :
-        ApplicativeAsync<EitherAsync<L, Func<A, Func<B, C>>>, EitherAsync<L, Func<B, C>>, EitherAsync<L, A>, EitherAsync<L, B>, EitherAsync<L, C>, A, B, C>
-    {
-        public static ApplEitherAsync<L, A, B, C> Inst = default(ApplEitherAsync<L, A, B, C>);
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public EitherAsync<L, B> BiMapAsync(EitherAsync<L, A> ma, Func<L, ValueTask<L>> fa, Func<A, ValueTask<B>> fb) =>
+            default(FEitherAsync<L, A, B>).BiMapAsync(ma, fa, fb);
 
-        public EitherAsync<L, Func<B, C>> Apply(EitherAsync<L, Func<A, Func<B, C>>> fabc, EitherAsync<L, A> fa) =>
-            from f in fabc
-            from a in fa
-            select f(a);
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public EitherAsync<L, B> Map(EitherAsync<L, A> ma, Func<A, B> f) => 
+            default(FEitherAsync<L, A, B>).Map(ma, f);
 
-        public EitherAsync<L, C> Apply(EitherAsync<L, Func<A, Func<B, C>>> fabc, EitherAsync<L, A> fa, EitherAsync<L, B> fb) =>
-            from f in fabc
-            from a in fa
-            from b in fb
-            select f(a)(b);
-
-        public EitherAsync<L, A> PureAsync(Task<A> x) =>
-            EitherAsync<L, A>.RightAsync(x);
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public EitherAsync<L, B> MapAsync(EitherAsync<L, A> ma, Func<A, ValueTask<B>> f) =>
+            default(FEitherAsync<L, A, B>).MapAsync(ma, f);
     }
 }

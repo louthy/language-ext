@@ -420,7 +420,7 @@ namespace LanguageExt.Pipes
                 // When all tasks are done, we're done
                 // We should NOT be awaiting this 
                 #pragma warning disable CS4014             
-                Task.WhenAll(mmt.ToArray())
+                WaitAsync.All(mmt.ToArray())
                     .Iter(_ =>
                           {
                               running = false;

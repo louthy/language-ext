@@ -30,14 +30,14 @@ namespace TestBed
             // Test a regular hash-map protected with locks
 
             sw1.Start();
-            await Task.WhenAll(Range(0, parallelism).SequenceParallel(x => Task.Run<Unit>(() => sumItemsLocking(x))));
+            await WaitAsync.All(Range(0, parallelism).SequenceParallel(x => Task.Run<Unit>(() => sumItemsLocking(x))));
             sw1.Stop();
             
 
             // Test a lock-free atomic hash-map
 
             sw2.Start();
-            await Task.WhenAll(Range(0, parallelism).SequenceParallel(x => Task.Run<Unit>(() => sumItemsAtomic(x))));
+            await WaitAsync.All(Range(0, parallelism).SequenceParallel(x => Task.Run<Unit>(() => sumItemsAtomic(x))));
             sw2.Stop();
 
             // Show results
