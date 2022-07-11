@@ -807,7 +807,7 @@ namespace LanguageExt
             RightAsEnumerable();
 
         /// <summary>
-        /// Convert either to sequence of 0 or 1 right values
+        /// Convert either to sequence of 0 or 1 left values
         /// </summary>
         [Pure]
         public Task<Seq<L>> LeftToSeq() =>
