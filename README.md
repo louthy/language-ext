@@ -12,6 +12,8 @@ in the direction of declarative and functional code rather than imperative.
 __Author on twitter:__ 
 https://twitter.com/paullouth
 
+__Paul Louth [discussing FP for the GitHub ReadME project](https://github.com/readme/featured/functional-programming)__
+
 ## Contents
 
 * [Reference](#reference)
