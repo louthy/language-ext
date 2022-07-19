@@ -110,7 +110,7 @@ namespace LanguageExt.Pipes
                                                     await foreach (var f in me.MakeEffectsAsync().ConfigureAwait(false))
                                                     {
                                                         if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
-                                                        lastResult = await f.RunEffect<RT, R>(disps).Run(env).ConfigureAwait(false);
+                                                        lastResult = await f.RunEffect(disps).Run(env).ConfigureAwait(false);
                                                         if (lastResult.IsFail) return lastResult.Error;
                                                     }
 
@@ -120,7 +120,7 @@ namespace LanguageExt.Pipes
                                                     foreach (var f in me.MakeEffects())
                                                     {
                                                         if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
-                                                        lastResult = await f.RunEffect<RT, R>(disps).Run(env).ConfigureAwait(false);
+                                                        lastResult = await f.RunEffect(disps).Run(env).ConfigureAwait(false);
                                                         if (lastResult.IsFail) return lastResult.Error;
                                                     }
 
@@ -131,7 +131,7 @@ namespace LanguageExt.Pipes
                                                     var    lastTask = unit.AsValueTask();
                                                     Fin<R> last     = Errors.Cancelled;
 
-                                                    using (var sub = me.Subscribe(onNext: fx => lastTask = fx.RunEffect<RT, R>(disps).Run(env).Iter(r => last = r),
+                                                    using (var sub = me.Subscribe(onNext: fx => lastTask = fx.RunEffect(disps).Run(env).Iter(r => last = r),
                                                                                   onError: err =>
                                                                                            {
                                                                                                last = err;

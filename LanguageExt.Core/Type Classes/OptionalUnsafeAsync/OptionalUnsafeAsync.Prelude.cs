@@ -4,6 +4,7 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 
 namespace LanguageExt
 {

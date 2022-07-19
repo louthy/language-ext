@@ -1154,7 +1154,7 @@ public static class TryOptionAsyncExtensions
     public static Aff<A> ToAff<A>(this TryOptionAsync<A> ma) =>
         Prelude.AffMaybe(async () => await
             ma.Match(Some: Fin<A>.Succ,
-                     None: () => Fin<A>.Fail(Error.New("None")),
+                     None: () => Fin<A>.Fail(Errors.None),
                      Fail: e => Fin<A>.Fail(e)));
     
     /// <summary>

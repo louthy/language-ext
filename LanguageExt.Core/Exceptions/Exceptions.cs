@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.Common;
 
 namespace LanguageExt
 {
@@ -190,33 +191,6 @@ namespace LanguageExt
         /// Ctor
         /// </summary>
         public EitherIsNotLeftException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-    }
-
-    /// <summary>
-    /// Value is bottom
-    /// </summary>
-    [Serializable]
-    public class BottomException : Exception
-    {
-        public static readonly BottomException Default = new BottomException();
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        public BottomException(string type = "Value")
-            :
-            base($"{type} is in a bottom state and therefore not valid.  This can happen when the value was filtered and the predicate " +
-                 "returned false and there was no valid state the value could be in.  If you are going to use the type in a filter " +
-                 "you should check if the IsBottom flag is set before use.  This can also happen if the struct wasn't initialised properly and then used.")
-        {
-        }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        public BottomException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }

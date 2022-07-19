@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using LanguageExt;
 using System.Text;
@@ -69,8 +70,9 @@ public class Program
         // await ObsAffTests.Test();
         // await AsyncTests();
         //testing.Run(Runtime.New());
-        ScheduleTests.Run();
-        var _ = QueueExample<Runtime>.Issue1065().RunUnit(new Runtime()).Result;
+        //var _ = QueueExample<Runtime>.Issue1065().RunUnit(new Runtime()).Result;
+        //ScheduleTests.Run();
+        ApplicativeTest.Test().GetAwaiter().GetResult();
     }
 
     public static async Task PipesTest()

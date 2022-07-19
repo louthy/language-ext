@@ -23,31 +23,31 @@ namespace LanguageExt
             fail(error).Run(CancellationToken.None);
 
         public static AffCatch<A> operator |(CatchValue<A> ma, AffCatch<A> mb) =>
-            new AffCatch<A>(e => ma.Match(e) ? SuccessEff(ma.Value(e)) : mb.fail(e));
+            new (e => ma.Match(e) ? SuccessEff(ma.Value(e)) : mb.fail(e));
 
         public static AffCatch<A> operator |(CatchError ma, AffCatch<A> mb) =>
-            new AffCatch<A>(e => ma.Match(e) ? FailEff<A>(ma.Value(e)) : mb.fail(e));
+            new (e => ma.Match(e) ? FailEff<A>(ma.Value(e)) : mb.fail(e));
 
         public static AffCatch<A> operator |(AffCatch<A> ma, CatchValue<A> mb) =>
-            new AffCatch<A>(e => ma.fail(e).MatchAff(Succ: SuccessAff,
-                                                     Fail: e => mb.Match(e) 
-                                                                    ? SuccessAff(mb.Value(e)) 
-                                                                    : FailAff<A>(e)));
+            new (e => ma.fail(e).MatchAff(Succ: SuccessAff,
+                                          Fail: e => mb.Match(e) 
+                                                       ? SuccessAff(mb.Value(e)) 
+                                                       : FailAff<A>(e)));
 
         public static AffCatch<A> operator |(AffCatch<A> ma, CatchError mb) =>
-            new AffCatch<A>(e => ma.fail(e).MatchAff(Succ: SuccessAff,
-                                                     Fail: e => mb.Match(e) 
-                                                                    ? FailAff<A>(mb.Value(e)) 
-                                                                    : FailAff<A>(e)));
+            new (e => ma.fail(e).MatchAff(Succ: SuccessAff,
+                                          Fail: e => mb.Match(e) 
+                                                        ? FailAff<A>(mb.Value(e)) 
+                                                        : FailAff<A>(e)));
 
         public static AffCatch<A> operator |(AffCatch<A> ma, AffCatch<A> mb) =>
-            new AffCatch<A>(e => ma.fail(e) | mb.fail(e));
+            new (e => ma.fail(e) | mb.fail(e));
 
         public static AffCatch<A> operator |(AffCatch<A> ma, EffCatch<A> mb) =>
-            new AffCatch<A>(e => ma.fail(e) | mb.fail(e));
+            new (e => ma.fail(e) | mb.fail(e));
 
         public static AffCatch<A> operator |(EffCatch<A> ma, AffCatch<A> mb) =>
-            new AffCatch<A>(e => ma.fail(e) | mb.fail(e));
+            new (e => ma.fail(e) | mb.fail(e));
     }
 
     public readonly struct AffCatch<RT, A> where RT : struct, HasCancel<RT>
@@ -65,43 +65,43 @@ namespace LanguageExt
             fail(error).Run(env);
 
         public static AffCatch<RT, A> operator |(CatchValue<A> ma, AffCatch<RT, A> mb) =>
-            new AffCatch<RT, A>(e => ma.Match(e) ? SuccessEff(ma.Value(e)) : mb.fail(e));
+            new (e => ma.Match(e) ? SuccessEff(ma.Value(e)) : mb.fail(e));
 
         public static AffCatch<RT, A> operator |(CatchError ma, AffCatch<RT, A> mb) =>
-            new AffCatch<RT, A>(e => ma.Match(e) ? FailEff<A>(ma.Value(e)) : mb.fail(e));
+            new (e => ma.Match(e) ? FailEff<A>(ma.Value(e)) : mb.fail(e));
 
         public static AffCatch<RT, A> operator |(AffCatch<RT, A> ma, CatchValue<A> mb) =>
-            new AffCatch<RT, A>(e => ma.fail(e).MatchAff(Succ: SuccessAff<RT, A>,
-                                                         Fail: e => mb.Match(e) 
-                                                                        ? SuccessAff<RT, A>(mb.Value(e))
-                                                                        : FailAff<RT, A>(e)));
+            new (e => ma.fail(e).MatchAff(Succ: SuccessAff<RT, A>,
+                                          Fail: e => mb.Match(e) 
+                                                       ? SuccessAff<RT, A>(mb.Value(e))
+                                                       : FailAff<RT, A>(e)));
 
         public static AffCatch<RT, A> operator |(AffCatch<RT, A> ma, CatchError mb) =>
-            new AffCatch<RT, A>(e => ma.fail(e).MatchAff(Succ: SuccessAff<RT, A>,
-                                                         Fail: e => mb.Match(e) 
-                                                                        ? FailAff<RT, A>(mb.Value(e))
-                                                                        : FailAff<RT, A>(e)));
+            new (e => ma.fail(e).MatchAff(Succ: SuccessAff<RT, A>,
+                                          Fail: e => mb.Match(e) 
+                                                       ? FailAff<RT, A>(mb.Value(e))
+                                                       : FailAff<RT, A>(e)));
 
         public static AffCatch<RT, A> operator |(AffCatch<RT, A> ma, AffCatch<RT, A> mb) =>
-            new AffCatch<RT, A>(e => ma.fail(e) | mb.fail(e));
+            new (e => ma.fail(e) | mb.fail(e));
 
         public static AffCatch<RT, A> operator |(AffCatch<RT, A> ma, EffCatch<RT, A> mb) =>
-            new AffCatch<RT, A>(e => ma.fail(e) | mb.fail(e));
+            new (e => ma.fail(e) | mb.fail(e));
 
         public static AffCatch<RT, A> operator |(AffCatch<RT, A> ma, EffCatch<A> mb) =>
-            new AffCatch<RT, A>(e => ma.fail(e) | mb.fail(e));
+            new (e => ma.fail(e) | mb.fail(e));
 
         public static AffCatch<RT, A> operator |(EffCatch<RT, A> ma, AffCatch<RT, A> mb) =>
-            new AffCatch<RT, A>(e => ma.fail(e) | mb.fail(e));
+            new (e => ma.fail(e) | mb.fail(e));
 
         public static AffCatch<RT, A> operator |(EffCatch<A> ma, AffCatch<RT, A> mb) =>
-            new AffCatch<RT, A>(e => ma.fail(e) | mb.fail(e));
+            new (e => ma.fail(e) | mb.fail(e));
 
         public static AffCatch<RT, A> operator |(AffCatch<A> ma, AffCatch<RT, A> mb) =>
-            new AffCatch<RT, A>(e => ma.fail(e) | mb.fail(e));
+            new (e => ma.fail(e) | mb.fail(e));
 
         public static AffCatch<RT, A> operator |(AffCatch<RT, A> ma, AffCatch<A> mb) =>
-            new AffCatch<RT, A>(e => ma.fail(e) | mb.fail(e));
+            new (e => ma.fail(e) | mb.fail(e));
 
         public static Aff<RT, A> operator |(Aff<A> ma, AffCatch<RT, A> mb) =>
             new(async env =>

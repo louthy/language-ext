@@ -8,6 +8,7 @@ using LanguageExt.DataTypes.Serialisation;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using LanguageExt.Common;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt

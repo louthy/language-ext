@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 using System.Threading.Tasks;
 using LanguageExt.DataTypes.Serialisation;
 using System.Collections.Generic;
+using LanguageExt.Common;
 
 namespace LanguageExt
 {

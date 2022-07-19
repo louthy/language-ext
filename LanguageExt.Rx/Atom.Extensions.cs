@@ -78,7 +78,7 @@ namespace LanguageExt
         /// <summary>
         /// Observe changes to the `AtomHashMap`
         /// </summary>
-        /// <remarks>This publishes the changes to individual key-values within the `AtomHashMap`</param>
+        /// <remarks>This publishes the changes to individual key-values within the `AtomHashMap`</remarks>
         /// <typeparam name="A">Value type</typeparam>
         /// <returns>Observable `(K, Change<V>)`</returns>
         [Pure]
@@ -92,7 +92,7 @@ namespace LanguageExt
         /// <summary>
         /// Observe changes to the `AtomHashMap`
         /// </summary>
-        /// <remarks>This publishes the changes to individual key-values within the `AtomHashMap`</param>
+        /// <remarks>This publishes the changes to individual key-values within the `AtomHashMap`</remarks>
         /// <typeparam name="A">Value type</typeparam>
         /// <returns>Observable `(K, Change<V>)`</returns>
         [Pure]
