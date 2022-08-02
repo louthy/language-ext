@@ -44,6 +44,7 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="FSharp.Core" Version="[4.1.12,)" />
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[6.0.0,)" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
