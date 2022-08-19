@@ -9,7 +9,7 @@ namespace LanguageExt
     public static class FSharp
     {
         /// <summary>
-        /// Convert a F# Option into a LanguageExt Option 
+        /// Convert an F# Option into a LanguageExt Option 
         /// </summary>
         public static Option<T> fs<T>(FSharpOption<T> fsOption) =>
             FSharpOption<T>.get_IsSome(fsOption)
@@ -37,7 +37,7 @@ namespace LanguageExt
             List.createRange(fsList);
 
         /// <summary>
-        /// Convert an LanguageExt List (Lst T) into an F# List
+        /// Convert a LanguageExt List (Lst T) into an F# List
         /// </summary>
         public static FSharpList<T> fs<T>(Lst<T> list) =>
             ListModule.OfSeq(list);
@@ -61,6 +61,30 @@ namespace LanguageExt
         public static void fs(Unit unit)
         {
         }
+
+        /// <summary>
+        /// Convert an F# Result into a LanguageExt Either
+        /// </summary>
+        public static Either<TError, T> fs<T, TError>(FSharpResult<T, TError> result) =>
+            result.IsOk
+                ? Either<TError, T>.Right(result.ResultValue)
+                : Either<TError, T>.Left(result.ErrorValue);
+
+        /// <summary>
+        /// Convert a LanguageExt Either into an F# Result
+        /// </summary>
+        public static FSharpResult<R, L> fs<L, R>(Either<L, R> either) =>
+            match(either,
+                r => FSharpResult<R, L>.NewOk(r),
+                l => FSharpResult<R, L>.NewError(l));
+
+        /// <summary>
+        /// Convert a LanguageExt EitherUnsafe into an F# Result
+        /// </summary>
+        public static FSharpResult<R, L> fs<L, R>(EitherUnsafe<L, R> either) =>
+            matchUnsafe(either,
+                r => FSharpResult<R, L>.NewOk(r),
+                l => FSharpResult<R, L>.NewError(l));
 
 
         /// <summary>
@@ -88,9 +112,26 @@ namespace LanguageExt
             MapModule.OfSeq(map.AsEnumerable().Map(item => Tuple(item.Key, item.Value)));
 
         /// <summary>
-        /// Convert an LanguageExt List (Lst A) into an F# List
+        /// Convert a LanguageExt List (Lst A) into an F# List
         /// </summary>
         public static FSharpList<A> ToFSharp<A>(this Lst<A> list) =>
             ListModule.OfSeq(list);
+
+        /// <summary>
+        /// Convert a LanguageExt Either into an F# Result
+        /// </summary>
+        public static FSharpResult<R, L> ToFSharp<L, R>(this Either<L, R> either) =>
+            match(either,
+                r => FSharpResult<R, L>.NewOk(r),
+                l => FSharpResult<R, L>.NewError(l));
+
+        /// <summary>
+        /// Convert a LanguageExt EitherUnsafe into an F# Result
+        /// </summary>
+        public static FSharpResult<R, L> ToFSharp<L, R>(this EitherUnsafe<L, R> either) =>
+            matchUnsafe(either,
+                r => FSharpResult<R, L>.NewOk(r),
+                l => FSharpResult<R, L>.NewError(l));
+
     }
 }
