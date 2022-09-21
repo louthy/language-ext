@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
