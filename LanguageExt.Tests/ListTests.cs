@@ -579,5 +579,45 @@ namespace LanguageExt.Tests
             var output4 = foldBackUntil(input, 0, (s, x) => s + x, predstate: s => s >= 90);
             Assert.Equal(90, output4);
         }
+
+        [Fact]
+        public void itemLensGetShouldGetExistingValue()
+        {
+            var expected = "3";
+            var list = List("0","1", "2", "3", "4", "5");
+            var actual = Lst<string>.item(3).Get(list);
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void itemLensGetShouldThrowExceptionForNonExistingValue()
+        {
+            Assert.Throws<IndexOutOfRangeException>(() =>
+            {
+                var list = List("0", "1", "2", "3", "4", "5");
+                var actual = Lst<string>.item(10).Get(list);
+            });
+        }
+
+        [Fact]
+        public void itemOrNoneLensGetShouldGetExistingValue()
+        {
+            var expected = "3";
+            var list = List("0", "1", "2", "3", "4", "5");
+            var actual = Lst<string>.itemOrNone(3).Get(list);
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void itemOrNoneLensGetShouldReturnNoneForNonExistingValue()
+        {
+            var expected = Option<string>.None;
+            var list = List("0", "1", "2", "3", "4", "5");
+            var actual = Lst<string>.itemOrNone(10).Get(list);
+
+            Assert.Equal(expected, actual);
+        }
     }
 }

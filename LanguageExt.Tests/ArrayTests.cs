@@ -134,5 +134,46 @@ namespace LanguageExt.Tests
             Assert.False(Array<int>(1, 2).Equals(Array<int>(1, 2, 3)));
             Assert.False(Array<int>(1, 2, 3).Equals(Array<int>(1, 2)));
         }
+
+
+        [Fact]
+        public void itemLensGetShouldGetExistingValue()
+        {
+            var expected = "3";
+            var array = Array("0", "1", "2", "3", "4", "5");
+            var actual = Arr<string>.item(3).Get(array);
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void itemLensGetShouldThrowExceptionForNonExistingValue()
+        {
+            Assert.Throws<IndexOutOfRangeException>(() =>
+            {
+                var array = Array("0", "1", "2", "3", "4", "5");
+                var actual = Arr<string>.item(10).Get(array);
+            });
+        }
+
+        [Fact]
+        public void itemOrNoneLensGetShouldGetExistingValue()
+        {
+            var expected = "3";
+            var array = Array("0", "1", "2", "3", "4", "5");
+            var actual = Arr<string>.itemOrNone(3).Get(array);
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void itemOrNoneLensGetShouldReturnNoneForNonExistingValue()
+        {
+            var expected = Option<string>.None;
+            var array = Array("0", "1", "2", "3", "4", "5");
+            var actual = Arr<string>.itemOrNone(10).Get(array);
+
+            Assert.Equal(expected, actual);
+        }
     }
 }
