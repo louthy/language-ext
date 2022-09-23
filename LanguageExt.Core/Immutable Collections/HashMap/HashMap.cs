@@ -57,7 +57,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Lens<HashMap<K, V>, Option<V>> itemOrNone(K key) => Lens<HashMap<K, V>, Option<V>>.New(
-            Get: la => la[key],
+            Get: la => la.Find(key),
             Set: a => la => a.Match(Some: x => la.AddOrUpdate(key, x), None: () => la.Remove(key))
             );
 
