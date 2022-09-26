@@ -1,7 +1,6 @@
-﻿using System;
-using Xunit;
+﻿using Xunit;
 
-namespace LanguageExt.Tests
+namespace LanguageExt.Tests.FSharp
 {
     public class FSharpTests
     {
@@ -12,7 +11,7 @@ namespace LanguageExt.Tests
     {
         var result = Microsoft.FSharp.Core.FSharpResult<int, string>.NewError(error);
         
-        var either = FSharp.fs(result);
+        var either = LanguageExt.FSharp.fs(result);
 
         Prelude.match(either,
             r => Assert.False(true, "Shouldn't get here"),
@@ -25,7 +24,7 @@ namespace LanguageExt.Tests
         var result = Microsoft.FSharp.Core.FSharpResult<int, string>.NewError(null);
         
         Assert.Throws<ValueIsNullException>(
-            () => FSharp.fs(result)
+            () => LanguageExt.FSharp.fs(result)
         );
     }
     
@@ -34,7 +33,7 @@ namespace LanguageExt.Tests
     {
         var result = Microsoft.FSharp.Core.FSharpResult<int, string>.NewOk(123);
         
-        var either = FSharp.fs(result);
+        var either = LanguageExt.FSharp.fs(result);
         
         Prelude.match(either,
             r => Assert.True(r == 123),
@@ -46,7 +45,7 @@ namespace LanguageExt.Tests
     {
         var either = Either<string, int>.Left("Error");
         
-        var result = FSharp.fs(either);
+        var result = LanguageExt.FSharp.fs(either);
         
         Assert.True(result.IsError);
         Assert.True(result.ErrorValue == "Error");
@@ -57,7 +56,7 @@ namespace LanguageExt.Tests
     {
         var either = Either<string, int>.Right(123);
         
-        var result = FSharp.fs(either);
+        var result = LanguageExt.FSharp.fs(either);
         
         Assert.True(result.IsOk);
         Assert.True(result.ResultValue == 123);
@@ -70,7 +69,7 @@ namespace LanguageExt.Tests
     {
         var either = EitherUnsafe<string, int>.Left(error);
         
-        var result = FSharp.fs(either);
+        var result = LanguageExt.FSharp.fs(either);
         
         Assert.True(result.IsError);
         Assert.True(result.ErrorValue == error);
@@ -81,7 +80,7 @@ namespace LanguageExt.Tests
     {
         var either = EitherUnsafe<string, int>.Right(123);
         
-        var result = FSharp.fs(either);
+        var result = LanguageExt.FSharp.fs(either);
         
         Assert.True(result.IsOk);
         Assert.True(result.ResultValue == 123);
