@@ -96,7 +96,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Lens<TrackingHashMap<K, V>, Option<V>> itemOrNone(K key) => Lens<TrackingHashMap<K, V>, Option<V>>.New(
-            Get: la => la[key],
+            Get: la => la.Find(key),
             Set: a => la => a.Match(Some: x => la.AddOrUpdate(key, x), None: () => la.Remove(key))
             );
 
