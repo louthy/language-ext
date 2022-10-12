@@ -466,7 +466,7 @@ public static class SeqExtensions
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
     public static Seq<T> Distinct<EQ, T>(this Seq<T> list) where EQ : struct, Eq<T> =>
-        toSeq(Enumerable.Distinct(list, new EqCompare<T>((x, y) => default(EQ).Equals(x, y))));
+        toSeq(Enumerable.Distinct(list, new EqCompare<T>(static (x, y) => default(EQ).Equals(x, y), static x => default(EQ).GetHashCode(x))));
 
     /// <summary>
     /// Return a new sequence with all duplicate values removed

@@ -790,7 +790,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<T> distinct<EQ, T>(Seq<T> list) where EQ : struct, Eq<T> =>
-            toSeq(list.Distinct(new EqCompare<T>((x, y) => default(EQ).Equals(x, y))));
+            toSeq(list.Distinct(new EqCompare<T>(static (x, y) => default(EQ).Equals(x, y), static x => default(EQ).GetHashCode(x))));
 
         /// <summary>
         /// Return a new sequence with all duplicate values removed
@@ -801,7 +801,9 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Seq<T> distinct<T, K>(Seq<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
-             toSeq(list.Distinct(new EqCompare<T>((a, b) => compare.IfNone(default(EqDefault<K>).Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0)));
+             toSeq(list.Distinct(new EqCompare<T>(
+                 (a, b) => compare.IfNone(default(EqDefault<K>).Equals)(keySelector(a), keySelector(b)), 
+                 a => compare.Match(Some: _  => 0, None: () => default(EqDefault<K>).GetHashCode(keySelector(a))))));
 
         /// <summary>
         /// Returns a new sequence with the first 'count' items from the sequence provided
