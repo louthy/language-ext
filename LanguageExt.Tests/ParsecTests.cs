@@ -784,6 +784,27 @@ namespace LanguageExt.Tests
             Assert.Equal(exprectedResult, actualResult);
         }
 
+        [Fact]
+        public void EofTest()
+        {
+            Assert.Equal(unit, parse(eof, "").ToEither());
+            Assert.Equal("error at (line 1, column 1): unexpected 'x', expecting end of input", parse(eof, "x").ToEither());
+        }
+
+        [Fact]
+        public void NotFollowedByEofTest()
+        {
+            Assert.Equal("error at (line 1, column 1): unexpected end of input", parse(notFollowedBy(eof), "").ToEither());
+        }
+
+        [Fact]
+        public void NotFollowedByPositionTest()
+        {
+            Assert.Equal("error at (line 1, column 1): unexpected 'x'", parse(notFollowedBy(ch('x')), "x").ToEither());
+            Assert.Equal("error at (line 1, column 2): unexpected 'y'", parse(from x in ch('x') from noY in notFollowedBy(ch('y')) select x, "xyz").ToEither());
+            Assert.Equal("error at (line 1, column 2): unexpected \"Text\"", parse(from x in ch('x') from noText in notFollowedBy(str("Text")) select x, "xText").ToEither());
+        }
+
         public abstract class Expr
         {
             public abstract int Eval();
