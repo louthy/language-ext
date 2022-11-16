@@ -98,8 +98,8 @@ namespace LanguageExt
         /// </summary>
         public override int GetHashCode() =>
             IsSucc
-                ? FNV32.OffsetBasis
-                : Value.GetHashCode();
+                ? Value.GetHashCode()
+                : FNV32.OffsetBasis;
 
         [Pure, MethodImpl(Opt.Default)]
         public static implicit operator Fin<A>(A value) =>
