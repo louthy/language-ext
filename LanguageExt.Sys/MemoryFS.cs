@@ -500,7 +500,6 @@ namespace LanguageExt.Sys
             {
                 stream.Flush();
                 if (canWrite) fs.PutFile(path, stream.ToArray(), true, DateTime.UtcNow);
-                else throw new IOException("File is read-only");
             }
 
             public override int Read(byte[] buffer, int offset, int count) =>
