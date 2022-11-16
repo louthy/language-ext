@@ -466,7 +466,7 @@ public static class SeqExtensions
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
     public static Seq<T> Distinct<EQ, T>(this Seq<T> list) where EQ : struct, Eq<T> =>
-        toSeq(Enumerable.Distinct(list, new EqCompare<T>((x, y) => default(EQ).Equals(x, y))));
+        toSeq(Enumerable.Distinct(list, new EqCompare<T>(static (x, y) => default(EQ).Equals(x, y), static x => default(EQ).GetHashCode(x))));
 
     /// <summary>
     /// Return a new sequence with all duplicate values removed
@@ -476,7 +476,10 @@ public static class SeqExtensions
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
     public static Seq<T> Distinct<T, K>(this Seq<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
-        toSeq(Enumerable.Distinct(list, new EqCompare<T>((a, b) => compare.IfNone(default(EqDefault<K>).Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0)));
+        toSeq(Enumerable.Distinct(list, 
+            new EqCompare<T>(
+                (a, b) => compare.IfNone(default(EqDefault<K>).Equals)(keySelector(a), keySelector(b)), 
+                a => compare.Match(Some: _  => 0, None: () => default(EqDefault<K>).GetHashCode(keySelector(a))))));
 
     /// <summary>
     /// Apply a sequence of values to a sequence of functions
