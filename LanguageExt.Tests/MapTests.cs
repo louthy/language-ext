@@ -567,14 +567,13 @@ namespace LanguageExt.Tests
         [Fact]
         public void MapWithUnicodeCharsEquality()
         {
-            // fails from net5.0 on when default OrdString is used instead of OrdStringOrdinal 
             // https://docs.microsoft.com/en-us/dotnet/standard/base-types/string-comparison-net-5-plus
+            // from net5.0 on the following maps will have only 1 element because string.Compare by default (i.e. OrdString) returns 0 for some keys which are not equal 
             var m1 = Map<OrdString, string, int>(("", 4)).TryAdd("\u0005", 4);
             var m2 = Map<OrdString, string, int>(("\u0005", 4)).TryAdd("", 4);
         
-            Assert.Equal(1, m1.Count);
-            Assert.Equal(1, m2.Count);
-            Assert.Equal(0,  default(OrdString).Compare(m1.Keys.Head(), m2.Keys.Head()));
+            Assert.Equal(m1.Count, m2.Count);
+            Assert.All( m1.Keys.Zip(m2.Keys), _ => Assert.Equal(0, default(OrdString).Compare(_.Item1, _.Item2)));
             Assert.Equal(m1, m2);
         }
         
