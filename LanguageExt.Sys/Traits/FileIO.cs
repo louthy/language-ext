@@ -79,27 +79,22 @@ namespace LanguageExt.Sys.Traits
         /// <summary>
         /// Open a file-stream
         /// </summary>
-        FileStream OpenRead(string path);
+        Stream OpenRead(string path);
 
         /// <summary>
         /// Open a file-stream
         /// </summary>
-        FileStream Open(string path, FileMode mode);
+        Stream Open(string path, FileMode mode);
 
         /// <summary>
         /// Open a file-stream
         /// </summary>
-        FileStream Open(string path, FileMode mode, FileAccess access);
+        Stream Open(string path, FileMode mode, FileAccess access);
 
         /// <summary>
         /// Open a file-stream
         /// </summary>
-        FileStream Open(string path, FileMode mode, FileAccess access, FileShare share);
-
-        /// <summary>
-        /// Open a file-stream
-        /// </summary>
-        FileStream OpenWrite(string path);
+        Stream OpenWrite(string path);
     }
     
     /// <summary>

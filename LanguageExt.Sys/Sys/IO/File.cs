@@ -168,15 +168,6 @@ namespace LanguageExt.Sys.IO
         /// Open a file-stream
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
-        public static Producer<RT, Stream, Unit> open(string path, FileMode mode, FileAccess access, FileShare share) =>
-            from s in Proxy.use(openInternal(path, mode, access, share))
-            from _ in Proxy.yield(s as Stream)
-            select unit;
-        
-        /// <summary>
-        /// Open a file-stream
-        /// </summary>
-        [Pure, MethodImpl(AffOpt.mops)]
         public static Producer<RT, Stream, Unit> openWrite(string path) =>
             from s in Proxy.use(openWriteInternal(path))
             from _ in Proxy.yield(s as Stream)
@@ -187,35 +178,28 @@ namespace LanguageExt.Sys.IO
         /// <summary>
         /// Open a file-stream
         /// </summary>
-        static Eff<RT, FileStream> openReadInternal(string path) =>
+        static Eff<RT, Stream> openReadInternal(string path) =>
             default(RT).FileEff.Map(e => e.OpenRead(path));
 
         /// <summary>
         /// Open a file-stream
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
-        static Eff<RT, FileStream> openInternal(string path, FileMode mode) =>
+        static Eff<RT, Stream> openInternal(string path, FileMode mode) =>
             default(RT).FileEff.Map(e => e.Open(path, mode));
         
         /// <summary>
         /// Open a file-stream
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
-        static Eff<RT, FileStream> openInternal(string path, FileMode mode, FileAccess access) =>
-            default(RT).FileEff.Map(e => e.Open(path, mode, access));
-
-        /// <summary>
-        /// Open a file-stream
-        /// </summary>
-        [Pure, MethodImpl(AffOpt.mops)]
-        static Eff<RT, FileStream> openInternal(string path, FileMode mode, FileAccess access, FileShare share) =>
+        static Eff<RT, Stream> openInternal(string path, FileMode mode, FileAccess access) =>
             default(RT).FileEff.Map(e => e.Open(path, mode, access));
         
         /// <summary>
         /// Open a file-stream
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]
-        static Eff<RT, FileStream> openWriteInternal(string path) =>
+        static Eff<RT, Stream> openWriteInternal(string path) =>
             default(RT).FileEff.Map(e => e.OpenWrite(path));    
 
         /// <summary>
