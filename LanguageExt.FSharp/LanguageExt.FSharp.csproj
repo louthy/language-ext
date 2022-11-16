@@ -8,7 +8,7 @@
     </PropertyGroup>
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <PackageVersion>4.3.2-beta</PackageVersion>
+        <PackageVersion>4.4.0</PackageVersion>
         <PackageId>LanguageExt.FSharp</PackageId>
         <Title>LanguageExt.FSharp</Title>
         <Authors>Paul Louth</Authors>
@@ -44,7 +44,6 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="FSharp.Core" Version="[4.1.12,)" />
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[6.0.0,)" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
