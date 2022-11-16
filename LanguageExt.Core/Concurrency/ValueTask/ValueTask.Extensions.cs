@@ -278,20 +278,12 @@ namespace LanguageExt
         [Pure]
         public static ValueTask<A> Plus<A>(this ValueTask<A> ma, ValueTask<A> mb) =>
             default(MValueTask<A>).Plus(ma, mb);
-
-        class PropCache<T>
-        {
-            public static PropertyInfo Info = typeof(T).GetTypeInfo().DeclaredProperties.Where(p => p.Name == "Result").FirstOrDefault();
-        }
-
-        public static async ValueTask<A> Cast<A>(this ValueTask source)
-        {
-            await source.ConfigureAwait(false);
-            var prop = PropCache<A>.Info;
-            return prop != null
-                ? (A) prop.GetValue(source)
-                : default(A);
-        }
+        
+        /// <summary>
+        /// Cast a ValueTask to a ValueTask<A> (may throw if underlying value doesn't exist)
+        /// </summary>
+        public static ValueTask<A> Cast<A>(this ValueTask source) => 
+            new(source.AsTask().Cast<A>());
 
         public static async ValueTask<Unit> ToUnit(this ValueTask source)
         {

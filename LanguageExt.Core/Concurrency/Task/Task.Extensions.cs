@@ -279,19 +279,18 @@ namespace LanguageExt
         public static Task<A> PlusFirst<A>(this Task<A> ma, Task<A> mb) =>
             default(MTaskFirst<A>).Plus(ma, mb);
 
-        class PropCache<T>
-        {
-            public static PropertyInfo Info = typeof(T).GetTypeInfo().DeclaredProperties.Where(p => p.Name == "Result").FirstOrDefault();
-        }
-
         public static async Task<A> Cast<A>(this Task source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             await source.ConfigureAwait(false);
-            var prop = PropCache<A>.Info;
-            return prop != null
-                ? (A) prop.GetValue(source)
-                : default(A);
+            
+            return source.GetType() switch
+            {
+                var taskTy when taskTy.IsGenericType && 
+                                taskTy.GenericTypeArguments.Length == 1 &&
+                                taskTy.GenericTypeArguments[0] == typeof(A) => (A)((dynamic)source).Result,
+                _ => default!
+            };            
         }
 
         public static async Task<Unit> ToUnit(this Task source)
