@@ -562,11 +562,21 @@ namespace LanguageExt.Sys
             {
                 var self = includeSelf && searchPattern.IsMatch(Name)
                                ? new [] {(parent.Add(Name), this)}
-                               : new (Seq<string>, FolderEntry)[0];
+                               : Array.Empty<(Seq<string>, FolderEntry)>();
 
-                var children = option == SearchOption.AllDirectories
-                                   ? Entries.Values.Choose(e => e is FolderEntry f ? Some(f.EnumerateFolders(parent.Add(Name), searchPattern, option, true)) : None).Bind(identity)
-                                   : new (Seq<string>, FolderEntry)[0];
+                var children = option switch
+                {
+                    SearchOption.AllDirectories => Entries.Values.Choose(e =>
+                        e is FolderEntry f
+                            ? Some(f.EnumerateFolders(parent.Add(Name), searchPattern, option, true))
+                            : None).Bind(identity),
+                    SearchOption.TopDirectoryOnly => Entries.Values.Choose(e =>
+                        e is FolderEntry f &&
+                        searchPattern.IsMatch(f.Name)
+                            ? Some((parent.Add(f.Name), f))
+                            : None),
+                    _ => Array.Empty<(Seq<string>, FolderEntry)>()
+                };
 
                 return self.Concat(children);
             }
@@ -575,9 +585,21 @@ namespace LanguageExt.Sys
             {
                 var files = Files.Bind(f => f.EnumerateFiles(parent.Add(Name), searchPattern, option));
 
-                var children = option == SearchOption.AllDirectories
-                                   ? Entries.Values.Choose(e => e is FolderEntry f ? Some(f.EnumerateFiles(parent.Add(Name), searchPattern, option)) : None).Bind(identity)
-                                   : new (Seq<string>, FileEntry) [0];
+                var children = option switch
+                {
+                    SearchOption.AllDirectories =>
+                        Entries.Values.Choose(e =>
+                                e is FolderEntry f
+                                    ? Some(f.EnumerateFiles(parent.Add(Name), searchPattern, option))
+                                    : None)
+                            .Bind(identity),
+                    SearchOption.TopDirectoryOnly => Entries.Values.Choose(e =>
+                        e is FileEntry f &&
+                        searchPattern.IsMatch(f.Name)
+                            ? Some((parent.Add(f.Name), f))
+                            : None),
+                    _ => Array.Empty<(Seq<string>, FileEntry)>()
+                };
 
                 return files.Concat(children);
             }
@@ -586,13 +608,24 @@ namespace LanguageExt.Sys
             {
                 var self = includeSelf && searchPattern.IsMatch(Name)
                                ? new [] {(parent.Add(Name), (Entry)this)}
-                               : new (Seq<string>, Entry)[0];
+                               : Array.Empty<(Seq<string>, Entry)>();
 
                 var files = Files.Bind(f => f.EnumerateEntries(parent.Add(Name), searchPattern, option, true));
 
-                var children = option == SearchOption.AllDirectories
-                                   ? Entries.Values.Choose(e => e is FolderEntry f ? Some(f.EnumerateEntries(parent.Add(Name), searchPattern, option, true)) : None).Bind(identity)
-                                   : new (Seq<string>, Entry) [0];
+                var children =
+                    option switch
+                    {
+                        SearchOption.AllDirectories => Entries.Values.Choose(e =>
+                            e is FolderEntry f
+                                ? Some(f.EnumerateEntries(parent.Add(Name), searchPattern, option, true))
+                                : None).Bind(identity),
+                        SearchOption.TopDirectoryOnly => Entries.Values.Choose(e =>
+                            searchPattern.IsMatch(e.Name)
+                                ? Some((parent.Add(e.Name), e))
+                                : None),
+                        _ => Array.Empty<(Seq<string>, Entry)>()
+                    };
+
 
                 return self.Concat(files).Concat(children);
             }
