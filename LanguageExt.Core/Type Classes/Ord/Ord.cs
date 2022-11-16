@@ -22,7 +22,7 @@ namespace LanguageExt.TypeClasses
         [Pure]
         int Compare(A x, A y);
     }
-        
+
     public static class OrdExt
     {
         class OrdComparer<A> : IComparer<A>
@@ -36,7 +36,11 @@ namespace LanguageExt.TypeClasses
                 ord.Compare(x, y);
         }
 
+        [System.Obsolete("'ToComparable' has been renamed to 'ToComparer', please use that instead")]
         public static IComparer<A> ToComparable<A>(this Ord<A> self) =>
+            new OrdComparer<A>(self);
+
+        public static IComparer<A> ToComparer<A>(this Ord<A> self) =>
             new OrdComparer<A>(self);
     }
 }
