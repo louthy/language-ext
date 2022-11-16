@@ -14,7 +14,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.HashSetT.Sync
         {
             var ma = Fail<Error, HashSet<int>>(Error.New("alt"));
             var mb = ma.Sequence();
-            var mc = HashSet(Fail<Error, int>(new Exception("alt")));
+            var mc = HashSet(Fail<Error, int>(Error.New("alt")));
 
             Assert.True(mb == mc);
         }

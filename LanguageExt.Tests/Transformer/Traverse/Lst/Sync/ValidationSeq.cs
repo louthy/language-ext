@@ -12,7 +12,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.Lst.Sync
         {
             var ma = Fail<Error, Lst<int>>(Error.New("alt"));
             var mb = ma.Sequence();
-            var mc = List(Fail<Error, int>(new Exception("alt")));
+            var mc = List(Fail<Error, int>(Error.New("alt")));
 
             Assert.True(mb == mc);
         }

@@ -12,7 +12,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.ArrT.Sync
         {
             var ma = LeftUnsafe<Error, Arr<int>>(Error.New("alt"));
             var mb = ma.Sequence();
-            var mc = Array(LeftUnsafe<Error, int>(new Exception("alt")));
+            var mc = Array(LeftUnsafe<Error, int>(Error.New("alt")));
 
             Assert.True(mb == mc);
         }
