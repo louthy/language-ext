@@ -9,8 +9,10 @@ in the direction of declarative and functional code rather than imperative.
 
 [![GitHub Discussions](https://raw.githubusercontent.com/louthy/language-ext/main/Images/discussions.svg)](https://github.com/louthy/language-ext/discussions)
 
-__Author on twitter:__ 
-https://twitter.com/paullouth
+__Author on...__
+* __twitter:__ https://twitter.com/paullouth
+* __mastodon:__ @louthy@mastodon.org.uk
+
 
 __Paul Louth [discussing FP for the GitHub ReadME project](https://github.com/readme/featured/functional-programming)__
 
