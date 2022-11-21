@@ -16,12 +16,12 @@ namespace LanguageExt
         public bool IsCompleted =>
             awaiter.IsCompleted;
 
-        public A GetResult()
+        public Option<A> GetResult()
         {
             var (isSome, value) = awaiter.GetResult();
             return isSome
                 ? value
-                : throw new ValueIsNoneException();
+                : Option<A>.None;
         }
 
         public void OnCompleted(Action completion) =>

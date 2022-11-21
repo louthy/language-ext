@@ -300,10 +300,14 @@ namespace LanguageExt.Tests
             Assert.True(result);
         }
 
-        [Fact]
-        public async void AwaitAsync_IsNone()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async void AwaitAsync(bool isSome)
         {
-            await GetValue(false);
+            var result = await GetValue(isSome);
+            
+            Assert.Equal(isSome, result.IsSome);
         }
 
         // Not valuable any more 
