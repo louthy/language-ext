@@ -300,6 +300,12 @@ namespace LanguageExt.Tests
             Assert.True(result);
         }
 
+        [Fact]
+        public async void AwaitAsync_IsNone()
+        {
+            await GetValue(false);
+        }
+
         // Not valuable any more 
         //[Fact]
         //public async void SequenceFlip()
