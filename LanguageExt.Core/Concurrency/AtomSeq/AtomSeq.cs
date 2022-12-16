@@ -32,7 +32,7 @@ namespace LanguageExt
         /// <summary>
         /// Empty sequence
         /// </summary>
-        public static readonly Seq<A> Empty = new Seq<A>(SeqEmptyInternal<A>.Default);
+        public static AtomSeq<A> Empty => new (SeqEmptyInternal<A>.Default);
 
         /// <summary>
         /// Internal representation of the sequence (SeqStrict|SeqLazy|SeqEmptyInternal)
