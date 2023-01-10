@@ -186,6 +186,18 @@ namespace LanguageExt.Tests
                 Assert.True(m.Count == max);
             }
         }
+        
+        [Fact]
+        public void SetOrdSumTest()
+        {
+            var m1 = Set<OrdStringOrdinalIgnoreCase, string>("one", "two");
+            var m2 = Set<OrdStringOrdinalIgnoreCase, string>("three");
+
+            var sum = m1 + m2;
+            
+            Assert.Equal(sum, m1.AddRange(m2));
+            Assert.Equal(m2, sum.Clear() + m2);
+        }
 
         [Fact]
         public void SetUnionTest1()
