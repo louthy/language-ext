@@ -20,7 +20,6 @@ namespace LanguageExt.Parsec
         public PString(string value, int index, int endIndex, Pos pos, Pos defPos, Sidedness side, Option<object> userState)
         {
             Value     = value ?? throw new ArgumentNullException(nameof(value));
-            Value     = value;
             Index     = index;
             EndIndex  = endIndex;
             Pos       = pos;
