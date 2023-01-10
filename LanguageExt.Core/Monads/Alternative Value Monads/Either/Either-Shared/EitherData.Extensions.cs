@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+using System;
+using System.Threading.Tasks;
 
 namespace LanguageExt.DataTypes.Serialisation
 {
@@ -15,5 +17,11 @@ namespace LanguageExt.DataTypes.Serialisation
 
         public static EitherAsync<L, R> ToEitherAsync<L, R>(this EitherData<L, R> input) =>
             input.ToEither().ToAsync();
+
+        public static async Task<EitherAsync<L, R>> ToEitherAsync<L, R>(this Task<EitherData<L, R>> input) =>
+            (await input).ToEitherAsync();
+
+        public static async Task<EitherAsync<L, R>> ToEitherAsync<L, R>(this ValueTask<EitherData<L, R>> input) =>
+            (await input).ToEitherAsync();
     }
 }
