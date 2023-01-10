@@ -714,12 +714,12 @@ namespace LanguageExt
             lhs.CompareTo(rhs) >= 0;
 
         [Pure]
-        public static Map<K, V> operator +(Map<OrdK, K, V> lhs, Map<OrdK, K, V> rhs) =>
-            new Map<K, V>(lhs.Value + rhs.Value);
+        public static Map<OrdK, K, V> operator +(Map<OrdK, K, V> lhs, Map<OrdK, K, V> rhs) =>
+            new Map<OrdK, K, V>(lhs.Value + rhs.Value);
 
         [Pure]
-        public static Map<K, V> operator -(Map<OrdK, K, V> lhs, Map<OrdK, K, V> rhs) =>
-            new Map<K, V>(lhs.Value - rhs.Value);
+        public static Map<OrdK, K, V> operator -(Map<OrdK, K, V> lhs, Map<OrdK, K, V> rhs) =>
+            new Map<OrdK, K, V>(lhs.Value - rhs.Value);
 
         /// <summary>
         /// Equality of keys and values with `EqDefault<V>` used for values

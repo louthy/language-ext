@@ -222,6 +222,19 @@ namespace LanguageExt.Tests
                 Assert.True(m.Count == max);
             }
         }
+        
+        [Fact]
+        public void MapOrdSumTest()
+        {
+            var m1 = Map<OrdStringOrdinalIgnoreCase, string, int>(("one", 1), ("two",2));
+            var m2 = Map<OrdStringOrdinalIgnoreCase, string, int>(("three", 3));
+
+            var sum = m1 + m2;
+            
+            Assert.Equal(sum, m1.AddRange(m2));
+            Assert.Equal(m2, sum.Clear() + m2);
+        }
+
 
         [Fact]
         public void MapOptionTest()
