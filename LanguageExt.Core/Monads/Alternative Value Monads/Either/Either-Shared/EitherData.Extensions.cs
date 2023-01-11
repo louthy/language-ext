@@ -20,10 +20,10 @@ namespace LanguageExt.DataTypes.Serialisation
             input.ToEither().ToAsync();
 
         public static async Task<EitherAsync<L, R>> ToEitherAsync<L, R>(this Task<EitherData<L, R>> input) =>
-            (await input).ToEitherAsync();
+            (await input.ConfigureAwait(false)).ToEitherAsync();
 
         public static async Task<EitherAsync<L, R>> ToEitherAsync<L, R>(this ValueTask<EitherData<L, R>> input) =>
-            (await input).ToEitherAsync();
+            (await input.ConfigureAwait(false)).ToEitherAsync();
 
         public static EitherUnsafe<L, R> ToEitherUnsafe<L, R>(this EitherData<L, R> input) =>
             input.State switch
@@ -56,9 +56,9 @@ namespace LanguageExt.DataTypes.Serialisation
             input.ToTry().ToAsync();
 
         public static async Task<TryAsync<A>> ToTryAsync<E, A>(this Task<EitherData<E, A>> input) where E : Exception =>
-            (await input).ToTryAsync();
+            (await input.ConfigureAwait(false)).ToTryAsync();
 
         public static async Task<TryAsync<A>> ToTryAsync<E, A>(this ValueTask<EitherData<E, A>> input) where E : Exception =>
-            (await input).ToTryAsync();
+            (await input.ConfigureAwait(false)).ToTryAsync();
     }
 }
