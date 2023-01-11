@@ -176,7 +176,7 @@ namespace LanguageExt
         /// Inch
         /// </summary>
         /// <example>
-        ///     Length x = 7*inch;
+        ///     Length x = 7*inches;
         /// </example>
         public static readonly Length inches = 1.Inches();
 
@@ -192,7 +192,7 @@ namespace LanguageExt
         /// Feet
         /// </summary>
         /// <example>
-        ///     Length x = 7*ft;
+        ///     Length x = 7*foot;
         /// </example>
         public static readonly Length foot = 1.Feet();
 
@@ -200,7 +200,7 @@ namespace LanguageExt
         /// Feet
         /// </summary>
         /// <example>
-        ///     Length x = 7*ft;
+        ///     Length x = 7*feet;
         /// </example>
         public static readonly Length feet = 1.Feet();
 
@@ -216,7 +216,7 @@ namespace LanguageExt
         /// Yard
         /// </summary>
         /// <example>
-        ///     Length x = 7*yd;
+        ///     Length x = 7*yard;
         /// </example>
         public static readonly Length yard = 1.Yards();
 
@@ -224,7 +224,7 @@ namespace LanguageExt
         /// Yard
         /// </summary>
         /// <example>
-        ///     Length x = 7*yd;
+        ///     Length x = 7*yards;
         /// </example>
         public static readonly Length yards = 1.Yards();
 
@@ -240,9 +240,17 @@ namespace LanguageExt
         /// Mile
         /// </summary>
         /// <example>
-        ///     Length x = 7*mile;
+        ///     Length x = 7*miles;
         /// </example>
         public static readonly Length miles = 1.Miles();
+
+        /// <summary>
+        /// NauticalMile
+        /// </summary>
+        /// <example>
+        ///     Length x = 7*nauticalMile;
+        /// </example>
+        public static readonly Length nauticalMile = 1.NauticalMiles();
 
         /// <summary>
         /// Millimetre squared
