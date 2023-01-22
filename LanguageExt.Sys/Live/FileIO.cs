@@ -25,6 +25,13 @@ namespace LanguageExt.Sys.Live
             return default;
         }
 
+        /// <inheritdoc/>
+        public Unit Move(string fromPath, string toPath)
+        {
+            File.Move(fromPath, toPath);
+            return default;
+        }
+
 #if NET5PLUS
         /// <summary>
         /// Append lines to the end of a file

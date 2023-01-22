@@ -17,6 +17,12 @@ namespace LanguageExt.Sys.Traits
         Unit Copy(string fromPath, string toPath, bool overwrite = false);
 
         /// <summary>
+        /// Move file from one place to another
+        /// </summary>
+        /// <exception cref="IOException">The <paramref name="toPath"/> exists or <paramref name="fromPath"/> was not found.</exception>
+        Unit Move(string fromPath, string toPath);
+
+        /// <summary>
         /// Append lines to the end of a file
         /// </summary>
         ValueTask<Unit> AppendAllLines(string path, IEnumerable<string> lines, Encoding encoding, CancellationToken token);
