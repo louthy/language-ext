@@ -428,8 +428,7 @@ namespace LanguageExt.Pipes
                           });
                 #pragma warning restore CS4014                
 
-                // Keep processing until we're cancelled or all of the Producers have stopped producing 
-                while (running && !env.CancellationToken.IsCancellationRequested)
+                do
                 {
                     await wait.WaitOneAsync(env.CancellationToken).ConfigureAwait(false);
                     while (queue.TryDequeue(out var item))
@@ -437,6 +436,8 @@ namespace LanguageExt.Pipes
                         yield return item;
                     }
                 }
+                // Keep processing until we're cancelled or all of the Producers have stopped producing
+                while (running && !env.CancellationToken.IsCancellationRequested);
             }
         }
         
