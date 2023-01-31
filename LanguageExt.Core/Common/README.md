@@ -63,7 +63,7 @@ Or more simply:
     Error.New("error one") + Error.New("error two")
 
 You can extend the set of error types (perhaps for passing through extra data) by creating a new 
-record inherits `Excpetional` or `Expected`:   
+record inherits `Exceptional` or `Expected`:   
 
     public record BespokeError(bool MyData) 
         : Expected("Something bespoke", 100, None); 
