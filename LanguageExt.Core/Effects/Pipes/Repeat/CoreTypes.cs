@@ -42,27 +42,27 @@ namespace LanguageExt.Pipes
 
         [Pure]
         public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body) =>
-            new Repeat<RT, UOut, UIn, C1, C, A>(Inner.For(body));
+            ReplaceRespond(body);
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
             new Repeat<RT, UOut, UIn, DIn, DOut, S>(Inner.Action(r));
 
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
-            new Repeat<RT, UOutA, AUInA, DIn, DOut, A>(Inner.ComposeRight(fb1));
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
+            new Repeat<RT, UOutA, AUInA, DIn, DOut, A>(Inner.PairEachRequestWithRespond(fb1));
 
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
-            new Repeat<RT, UOutA, AUInA, DIn, DOut, A>(Inner.ComposeRight(lhs));
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+            new Repeat<RT, UOutA, AUInA, DIn, DOut, A>(Inner.ReplaceRequest(lhs));
 
         [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
-            new Repeat<RT, UOut, UIn, DInC, DOutC, A>(Inner.ComposeLeft(rhs));
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
+            new Repeat<RT, UOut, UIn, DInC, DOutC, A>(Inner.PairEachRespondWithRequest(rhs));
 
         [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
-            new Repeat<RT, UOut, UIn, DInC, DOutC, A>(Inner.ComposeLeft(rhs));
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+            new Repeat<RT, UOut, UIn, DInC, DOutC, A>(Inner.ReplaceRespond(rhs));
 
         [Pure]
         public override Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect() =>

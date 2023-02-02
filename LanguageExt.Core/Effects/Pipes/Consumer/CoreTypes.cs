@@ -133,32 +133,32 @@ namespace LanguageExt.Pipes
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, Unit, Void, A> ComposeRight<UOutA, AUInA>(Func<Unit, Proxy<RT, UOutA, AUInA, Unit, IN, A>> lhs) =>
-            Value.ComposeRight(lhs);
+        public override Proxy<RT, UOutA, AUInA, Unit, Void, A> PairEachRequestWithRespond<UOutA, AUInA>(Func<Unit, Proxy<RT, UOutA, AUInA, Unit, IN, A>> lhs) =>
+            Value.PairEachRequestWithRespond(lhs);
 
         /// <summary>
         /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, Unit, Void, A> ComposeRight<UOutA, AUInA>(Func<Unit, Proxy<RT, UOutA, AUInA, Unit, Void, IN>> lhs) =>
-            Value.ComposeRight(lhs);
+        public override Proxy<RT, UOutA, AUInA, Unit, Void, A> ReplaceRequest<UOutA, AUInA>(Func<Unit, Proxy<RT, UOutA, AUInA, Unit, Void, IN>> lhs) =>
+            Value.ReplaceRequest(lhs);
 
         /// <summary>
         /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
-        public override Proxy<RT, Unit, IN, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<Void, Proxy<RT, Unit, Void, DInC, DOutC, A>> rhs) =>
-            Value.ComposeLeft(rhs);
+        public override Proxy<RT, Unit, IN, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(Func<Void, Proxy<RT, Unit, Void, DInC, DOutC, A>> rhs) =>
+            Value.PairEachRespondWithRequest(rhs);
 
         /// <summary>
         /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
-        public override Proxy<RT, Unit, IN, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<Void, Proxy<RT, Unit, IN, DInC, DOutC, Unit>> rhs) =>
-            Value.ComposeLeft(rhs);
+        public override Proxy<RT, Unit, IN, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(Func<Void, Proxy<RT, Unit, IN, DInC, DOutC, Unit>> rhs) =>
+            Value.ReplaceRespond(rhs);
         
         /// <summary>
         /// Reverse the arrows of the `Proxy` to find its dual.  

@@ -1,11 +1,5 @@
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Pipes
@@ -39,27 +33,51 @@ namespace LanguageExt.Pipes
 
         [Pure]
         public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body) =>
-            new Request<RT, UOut, UIn, C1, C, A>(Value, x => Next(x).For(body));
+            ReplaceRespond(body);
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
             new Request<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Action(r));
+        
+        /*
+            (f >\\ p) replaces each 'request' in `this` with `lhs`.
 
+            Point-ful version of (\>\)
+        */
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
-            fb1(Value).ComposeLeft(Next);
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(
+            Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+            lhs(Value).Bind(b => Next(b).ReplaceRequest(lhs));
 
-        [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
-            lhs(Value).Bind(b => Next(b).ComposeRight(lhs));
+        /*
+            (p //> f) replaces each 'respond' in `this` with `rhs`
 
+            Point-ful version of />/
+        */
         [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
-            new Request<RT, UOut, UIn, DInC, DOutC, A>(Value, a => Next(a).ComposeLeft(rhs));
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(
+            Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+            new Request<RT, UOut, UIn, DInC, DOutC, A>(Value, x => Next(x).ReplaceRespond(rhs));
 
+        /*
+           (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
+
+           Point-ful version of ('>+>')
+        */
         [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
-            new Request<RT, UOut, UIn, DInC, DOutC, A>(Value, x => Next(x).ComposeLeft(rhs));
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(
+            Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> lhs) =>
+            lhs(Value).PairEachRespondWithRequest(Next);
+
+        /*
+            (p >>~ f) pairs each 'respond' in `this` with a 'request' in `rhs`.
+
+            Point-ful version of ('>~>')
+        */
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(
+            Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
+            new Request<RT, UOut, UIn, DInC, DOutC, A>(Value, a => Next(a).PairEachRespondWithRequest(rhs));
 
         [Pure]
         public override Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect() =>
@@ -115,27 +133,49 @@ namespace LanguageExt.Pipes
 
         [Pure]
         public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body) =>
-            body(Value).Bind(b1 => Next(b1).For(body));
+            ReplaceRespond(body);
             
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
             new Respond<RT, UOut, UIn, DIn, DOut, S>(Value, b1 => Next(b1).Action(r));
 
-        [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
-            new Respond<RT, UOutA, AUInA, DIn, DOut, A>(Value, c1 => Next(c1).ComposeRight(fb1));
+        /*
+            (f >\\ p) replaces each 'request' in `this` with `lhs`.
 
+            Point-ful version of (\>\)
+        */
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ComposeRight<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
-            new Respond<RT, UOutA, AUInA, DIn, DOut, A>(Value, x1 => Next(x1).ComposeRight(lhs));
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+            new Respond<RT, UOutA, AUInA, DIn, DOut, A>(Value, x1 => Next(x1).ReplaceRequest(lhs));
 
-        [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
-            rhs(Value).ComposeRight(Next);
+        /*
+            (p //> f) replaces each 'respond' in `this` with `rhs`
 
+            Point-ful version of />/
+        */
         [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
-            rhs(Value).Bind(b1 => Next(b1).ComposeLeft(rhs));
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(
+            Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+            rhs(Value).Bind(b1 => Next(b1).ReplaceRespond(rhs));
+
+        /*
+           (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
+
+           Point-ful version of ('>+>')
+        */
+        [Pure]
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(
+            Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
+            new Respond<RT, UOutA, AUInA, DIn, DOut, A>(Value, c1 => Next(c1).PairEachRequestWithRespond(fb1));
+
+        /*
+            (p >>~ f) pairs each 'respond' in `this` with a 'request' in `rhs`.
+
+            Point-ful version of ('>~>')
+        */
+        [Pure]
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
+            rhs(Value).PairEachRequestWithRespond(Next);
 
         [Pure]
         public override Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect() =>

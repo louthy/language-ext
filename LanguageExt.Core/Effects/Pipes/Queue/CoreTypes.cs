@@ -70,20 +70,20 @@ namespace LanguageExt.Pipes
             Value.Action(r);
 
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, Unit, OUT, A> ComposeRight<UOutA, AUInA>(Func<Void, Proxy<RT, UOutA, AUInA, Void, Unit, A>> lhs) =>
-            Value.ComposeRight(lhs);
+        public override Proxy<RT, UOutA, AUInA, Unit, OUT, A> PairEachRequestWithRespond<UOutA, AUInA>(Func<Void, Proxy<RT, UOutA, AUInA, Void, Unit, A>> lhs) =>
+            Value.PairEachRequestWithRespond(lhs);
 
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, Unit, OUT, A> ComposeRight<UOutA, AUInA>(Func<Void, Proxy<RT, UOutA, AUInA, Unit, OUT, Unit>> lhs) =>
-            Value.ComposeRight(lhs);
+        public override Proxy<RT, UOutA, AUInA, Unit, OUT, A> ReplaceRequest<UOutA, AUInA>(Func<Void, Proxy<RT, UOutA, AUInA, Unit, OUT, Unit>> lhs) =>
+            Value.ReplaceRequest(lhs);
 
         [Pure]
-        public override Proxy<RT, Void, Unit, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<OUT, Proxy<RT, Unit, OUT, DInC, DOutC, A>> rhs) =>
-            Value.ComposeLeft(rhs);
+        public override Proxy<RT, Void, Unit, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(Func<OUT, Proxy<RT, Unit, OUT, DInC, DOutC, A>> rhs) =>
+            Value.PairEachRespondWithRequest(rhs);
 
         [Pure]
-        public override Proxy<RT, Void, Unit, DInC, DOutC, A> ComposeLeft<DInC, DOutC>(Func<OUT, Proxy<RT, Void, Unit, DInC, DOutC, Unit>> rhs) =>
-            Value.ComposeLeft(rhs);
+        public override Proxy<RT, Void, Unit, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(Func<OUT, Proxy<RT, Void, Unit, DInC, DOutC, Unit>> rhs) =>
+            Value.ReplaceRespond(rhs);
 
         [Pure]
         public override Proxy<RT, OUT, Unit, Unit, Void, A> Reflect() =>
