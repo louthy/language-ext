@@ -81,7 +81,6 @@ namespace LanguageExt.Pipes
         public static Producer<RT, X, X> enumerate2<RT, X>(IEnumerable<X> xs)
             where RT : struct, HasCancel<RT> =>
             new Enumerate<RT, Void, Unit, Unit, X, X, X>(xs, Pure<RT, X, X>).ToProducer();
-
         
         [Pure, MethodImpl(mops)]
         public static Producer<RT, X, Unit> enumerate<RT, X>(IAsyncEnumerable<X> xs)

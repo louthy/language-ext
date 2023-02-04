@@ -13,7 +13,7 @@ namespace LanguageExt.Pipes
         public abstract ConsumerLift<RT, IN, A> ToConsumerLift<IN>();
         public abstract Pipe<RT, IN, OUT, A> ToPipe<IN, OUT>();
 
-        public static implicit operator Lift<RT, A>(Pipes.Pure<A> ma) =>
+        public static implicit operator Lift<RT, A>(Pure<A> ma) =>
             new Pure(ma.Value);
         
         public class Pure : Lift<RT, A>

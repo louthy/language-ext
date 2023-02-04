@@ -101,7 +101,7 @@ namespace LanguageExt.Pipes
         /// <returns>`Producer`</returns>
         [Pure, MethodImpl(mops)]
         public static Producer<X, Unit> enumerate<X>(IAsyncEnumerable<X> xs) =>
-            enumerate2<X>(xs).Bind(yield);
+            enumerate2(xs).Bind(yield);
         
         /// <summary>
         /// Create a `Producer` from an `IAsyncEnumerable`.  This will **not** automatically `yield` each value
