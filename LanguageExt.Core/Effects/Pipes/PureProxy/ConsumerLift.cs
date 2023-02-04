@@ -39,6 +39,11 @@ namespace LanguageExt.Pipes
         
         public static implicit operator ConsumerLift<RT, IN, A>(Pipes.Pure<A> ma) =>
             new ConsumerLift<RT, IN, A>.Pure(ma.Value);
+        
+        public static ConsumerLift<RT, IN, A> operator &(
+            ConsumerLift<RT, IN, A> lhs,
+            ConsumerLift<RT, IN, A> rhs) =>
+            lhs.Bind(_ => rhs);
 
         public class Pure : ConsumerLift<RT, IN, A> 
         {

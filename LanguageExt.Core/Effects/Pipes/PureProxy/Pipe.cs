@@ -42,6 +42,11 @@ namespace LanguageExt.Pipes
 
         public static implicit operator Pipe<IN, OUT, A>(Pipes.Pure<A> ma) =>
             new Pipe<IN, OUT, A>.Pure(ma.Value);
+        
+        public static Pipe<IN, OUT, A> operator &(
+            Pipe<IN, OUT, A> lhs,
+            Pipe<IN, OUT, A> rhs) =>
+            lhs.Bind(_ => rhs);
 
         public class Pure : Pipe<IN, OUT, A> 
         {

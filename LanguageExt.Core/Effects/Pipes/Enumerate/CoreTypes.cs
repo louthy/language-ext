@@ -10,18 +10,21 @@ using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Pipes
 {
-    public abstract class Enumerate<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+    internal abstract class Enumerate<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>
+        where RT : struct, HasCancel<RT>
     {
         internal abstract EnumerateDataType Type { get; }
         internal abstract IEnumerable<Proxy<RT, UOut, UIn, DIn, DOut, A>> MakeEffects();
         internal abstract IAsyncEnumerable<Proxy<RT, UOut, UIn, DIn, DOut, A>> MakeEffectsAsync();
+
         internal abstract IDisposable Subscribe(
-            Action<Proxy<RT, UOut, UIn, DIn, DOut, A>> onNext, 
-            Action<Error> onError = null, 
+            Action<Proxy<RT, UOut, UIn, DIn, DOut, A>> onNext,
+            Action<Error> onError = null,
             Action onCompleted = null);
     }
 
-    public class Enumerate<RT, UOut, UIn, DIn, DOut, X, A> : Enumerate<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+    internal class Enumerate<RT, UOut, UIn, DIn, DOut, X, A> : Enumerate<RT, UOut, UIn, DIn, DOut, A>
+        where RT : struct, HasCancel<RT>
     {
         internal readonly EnumerateData<X> Items;
         public readonly Func<X, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next;
@@ -41,7 +44,7 @@ namespace LanguageExt.Pipes
         [Pure]
         internal override EnumerateDataType Type =>
             Items.Type;
-        
+
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
 
@@ -61,26 +64,33 @@ namespace LanguageExt.Pipes
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
             new Enumerate<RT, UOut, UIn, DIn, DOut, X, S>(Items, x => Next(x).Action(r));
 
+        /// <remarks>
+        /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
+        /// </remarks>
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(
+            Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
             new Enumerate<RT, UOutA, AUInA, DIn, DOut, X, A>(Items, c1 => Next(c1).PairEachRequestWithRespond(fb1));
 
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(
+            Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
             new Enumerate<RT, UOutA, AUInA, DIn, DOut, X, A>(Items, c1 => Next(c1).ReplaceRequest(lhs));
 
         [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(
+            Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
             new Enumerate<RT, UOut, UIn, DInC, DOutC, X, A>(Items, c1 => Next(c1).PairEachRespondWithRequest(rhs));
 
         [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(
+            Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
             new Enumerate<RT, UOut, UIn, DInC, DOutC, X, A>(Items, c1 => Next(c1).ReplaceRespond(rhs));
 
         [Pure]
         public override Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect() =>
             new Enumerate<RT, DOut, DIn, UIn, UOut, X, A>(Items, x => Next(x).Reflect());
-        
+
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
             new M<RT, UOut, UIn, DIn, DOut, A>(Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>>.Success(this));
@@ -118,7 +128,8 @@ namespace LanguageExt.Pipes
             Action<Error> onError = null,
             Action onCompleted = null) =>
             Type == EnumerateDataType.Observable
-                ? ((EnumerateObservable<X>)Items).Values.Subscribe(new Observerable(onCompleted, onError, x => onNext(Next(x))))
+                ? ((EnumerateObservable<X>)Items).Values.Subscribe(new Observerable(onCompleted, onError,
+                    x => onNext(Next(x))))
                 : null;
 
         class Observerable : IObserver<X>
@@ -126,12 +137,12 @@ namespace LanguageExt.Pipes
             readonly Action onCompleted;
             readonly Action<Error> onError;
             readonly Action<X> onNext;
-            
+
             public Observerable(Action onCompleted, Action<Error> onError, Action<X> onNext)
             {
                 this.onCompleted = onCompleted;
-                this.onError     = onError;
-                this.onNext      = onNext;
+                this.onError = onError;
+                this.onNext = onNext;
             }
 
             public void OnCompleted() =>

@@ -31,8 +31,9 @@ namespace LanguageExt.Pipes
     /// </remarks>
     public static class Effect
     {
+        /*
         [Pure]
-        internal static Aff<RT, R> RunEffect_Original<RT, R>(
+        internal static Aff<RT, R> RunEffect<RT, R>(
             this Proxy<RT, Void, Unit, Unit, Void, R> ma, 
             ConcurrentDictionary<object, IDisposable> disps) 
             where RT : struct, HasCancel<RT> 
@@ -53,6 +54,7 @@ namespace LanguageExt.Pipes
                     _                                                 => throw new NotSupportedException()
                 };
         }        
+        */
 
         [Pure]
         public static Aff<RT, Unit> RunEffectUnit<RT>(this Proxy<RT, Void, Unit, Unit, Void, Unit> ma) where RT : struct, HasCancel<RT> =>
@@ -163,7 +165,7 @@ namespace LanguageExt.Pipes
                         switch (p.ToProxy())
                         {
                             case Pure<RT, Void, Unit, Unit, Void, R> (var r):
-                                return FinSucc<R>(r);
+                                return FinSucc(r);
 
                             case M<RT, Void, Unit, Unit, Void, R> (var m):
                                 var fp = await m.Run(env).ConfigureAwait(false);

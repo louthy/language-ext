@@ -37,6 +37,11 @@ namespace LanguageExt.Pipes
         public static implicit operator ProducerLift<RT, OUT, A>(Pipes.Pure<A> ma) =>
             new ProducerLift<RT, OUT, A>.Pure(ma.Value);
 
+        public static ProducerLift<RT, OUT, A> operator &(
+            ProducerLift<RT, OUT, A> lhs,
+            ProducerLift<RT, OUT, A> rhs) =>
+            lhs.Bind(_ => rhs);
+
         public class Pure : ProducerLift<RT, OUT, A> 
         {
             public readonly A Value;

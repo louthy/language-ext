@@ -97,25 +97,32 @@ namespace LanguageExt.Pipes
         /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
-        public abstract Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> lhs);
+        /// <remarks>
+        /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
+        /// </remarks>
+        public abstract Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(
+            Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> lhs);
 
         /// <summary>
         /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
-        public abstract Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs);
+        public abstract Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(
+            Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs);
 
         /// <summary>
         /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
-        public abstract Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs);
+        public abstract Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(
+            Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs);
 
         /// <summary>
         /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
-        public abstract Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(Func<DOut, Proxy<RT,  UOut, UIn, DInC, DOutC, DIn>> rhs);
+        public abstract Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(
+            Func<DOut, Proxy<RT,  UOut, UIn, DInC, DOutC, DIn>> rhs);
 
         /// <summary>
         /// Reverse the arrows of the `Proxy` to find its dual.  
@@ -133,7 +140,7 @@ namespace LanguageExt.Pipes
         /// use observe if you stick to the safe API.        
         /// </summary>
         public abstract Proxy<RT, UOut, UIn, DIn, DOut, A> Observe();
-        
+
         /// <summary>
         /// Monadic bind operation, enables usage in LINQ expressions
         /// </summary>
@@ -152,7 +159,9 @@ namespace LanguageExt.Pipes
         /// <typeparam name="C">The new bound value type</typeparam>
         /// <returns>The result of the bind and mapping composition</returns>
         [Pure]
-        public Proxy<RT, UOut, UIn, DIn, DOut, C> SelectMany<B, C>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f, Func<A, B, C> project) =>
+        public Proxy<RT, UOut, UIn, DIn, DOut, C> SelectMany<B, C>(
+            Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f, 
+            Func<A, B, C> project) =>
             Bind(a => f(a).Map(b => project(a, b)));
 
         /// <summary>
@@ -179,7 +188,8 @@ namespace LanguageExt.Pipes
     /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
     ///
     /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-    public class Pure<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+    public class Pure<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> 
+        where RT : struct, HasCancel<RT>
     {
         public readonly A Value;
 
@@ -238,8 +248,12 @@ namespace LanguageExt.Pipes
         /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
+        /// <remarks>
+        /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
+        /// </remarks>
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(
+            Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> _) =>
             new Pure<RT, UOutA, AUInA, DIn, DOut, A>(Value);
 
         /// <summary>
@@ -247,15 +261,17 @@ namespace LanguageExt.Pipes
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
-            new Pure<RT, UOutA, AUInA, DIn, DOut, A>(Value);
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(
+            Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> _) =>
+            new Pure<RT, UOutA, AUInA, DIn, DOut, A>(Value).ToProxy();
                 
         /// <summary>
         /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(
+            Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> _) =>
             new Pure<RT, UOut, UIn, DInC, DOutC, A>(Value);
 
         /// <summary>
@@ -263,7 +279,8 @@ namespace LanguageExt.Pipes
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(
+            Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> _) =>
             new Pure<RT, UOut, UIn, DInC, DOutC, A>(Value);
 
         /// <summary>
@@ -368,7 +385,8 @@ namespace LanguageExt.Pipes
         /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `fb1`.
         /// </remarks>
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(
+            Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
             new M<RT, UOutA, AUInA, DIn, DOut, A>(Value.Map(p1 => p1.PairEachRequestWithRespond(fb1)));
 
         /// <summary>
@@ -376,7 +394,8 @@ namespace LanguageExt.Pipes
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(
+            Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
             new M<RT, UOutA, AUInA, DIn, DOut, A>(Value.Map(x => x.ReplaceRequest(lhs)));
 
         /// <summary>
@@ -384,7 +403,8 @@ namespace LanguageExt.Pipes
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(
+            Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
             new M<RT, UOut, UIn, DInC, DOutC, A>(Value.Map(p1 => p1.PairEachRespondWithRequest(rhs)));
 
         /// <summary>
@@ -392,7 +412,8 @@ namespace LanguageExt.Pipes
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
         [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(
+            Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
             new M<RT, UOut, UIn, DInC, DOutC, A>(Value.Map(x => x.ReplaceRespond(rhs)));
 
         /// <summary>

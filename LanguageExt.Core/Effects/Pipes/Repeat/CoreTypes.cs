@@ -48,6 +48,9 @@ namespace LanguageExt.Pipes
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
             new Repeat<RT, UOut, UIn, DIn, DOut, S>(Inner.Action(r));
 
+        /// <remarks>
+        /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
+        /// </remarks>
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
             new Repeat<RT, UOutA, AUInA, DIn, DOut, A>(Inner.PairEachRequestWithRespond(fb1));

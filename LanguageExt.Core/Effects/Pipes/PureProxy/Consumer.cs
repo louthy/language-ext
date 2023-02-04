@@ -46,6 +46,11 @@ namespace LanguageExt.Pipes
        
         public static implicit operator Consumer<IN, A>(Pipes.Pure<A> ma) =>
             new Consumer<IN, A>.Pure(ma.Value);
+        
+        public static Consumer<IN, A> operator &(
+            Consumer<IN, A> lhs,
+            Consumer<IN, A> rhs) =>
+            lhs.Bind(_ => rhs);
 
         public class Pure : Consumer<IN, A> 
         {

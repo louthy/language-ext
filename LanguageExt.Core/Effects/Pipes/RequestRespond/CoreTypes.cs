@@ -59,11 +59,9 @@ namespace LanguageExt.Pipes
             Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
             new Request<RT, UOut, UIn, DInC, DOutC, A>(Value, x => Next(x).ReplaceRespond(rhs));
 
-        /*
-           (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
-
-           Point-ful version of ('>+>')
-        */
+        /// <remarks>
+        /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
+        /// </remarks>
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(
             Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> lhs) =>
@@ -112,7 +110,8 @@ namespace LanguageExt.Pipes
     /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
     ///
     /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-    public class Respond<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+    public class Respond<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> 
+        where RT : struct, HasCancel<RT>
     {
         public readonly DOut Value;
         public readonly Func<DIn, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next;
@@ -163,6 +162,9 @@ namespace LanguageExt.Pipes
 
            Point-ful version of ('>+>')
         */
+        /// <remarks>
+        /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
+        /// </remarks>
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(
             Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
@@ -174,7 +176,8 @@ namespace LanguageExt.Pipes
             Point-ful version of ('>~>')
         */
         [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(
+            Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
             rhs(Value).PairEachRequestWithRespond(Next);
 
         [Pure]

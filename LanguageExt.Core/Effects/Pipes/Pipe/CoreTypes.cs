@@ -113,6 +113,9 @@ namespace LanguageExt.Pipes
         /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
         /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
         /// </summary>
+        /// <remarks>
+        /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
+        /// </remarks>
         [Pure]
         public override Proxy<RT, UOutA, AUInA, Unit, OUT, A> PairEachRequestWithRespond<UOutA, AUInA>(Func<Unit, Proxy<RT, UOutA, AUInA, Unit, IN, A>> lhs) =>
             Value.PairEachRequestWithRespond(lhs);
@@ -307,5 +310,14 @@ namespace LanguageExt.Pipes
         [Pure]
         public Pipe<RT, IN, OUT, C> SelectMany<B, C>(Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) => 
             Value.Bind(a => f(a).Map(b => project(a, b))).ToPipe();
+
+        /// <summary>
+        /// Chain one pipe's set of awaits and yields after another
+        /// </summary>
+        [Pure]
+        public static Pipe<RT, IN, OUT, A> operator &(
+            Pipe<RT, IN, OUT, A> lhs,
+            Pipe<RT, IN, OUT, A> rhs) =>
+            lhs.Bind(_ => rhs);
     }
 }

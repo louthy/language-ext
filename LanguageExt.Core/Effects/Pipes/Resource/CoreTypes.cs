@@ -78,6 +78,9 @@ namespace LanguageExt.Pipes
         public override Proxy<RT, UOut, UIn, DIn, DOut, B> Action<B>(Proxy<RT, UOut, UIn, DIn, DOut, B> rhs) =>
             new Use<RT, UOut, UIn, DIn, DOut, X, B>(Acquire, Release, x => Next(x).Action(rhs));
 
+        /// <remarks>
+        /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
+        /// </remarks>
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> lhs) =>
             new Use<RT, UOutA, AUInA, DIn, DOut, X, A>(Acquire, Release, x => Next(x).PairEachRequestWithRespond(lhs));
@@ -151,7 +154,8 @@ namespace LanguageExt.Pipes
     /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
     ///
     /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-    public abstract class Release<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+    public abstract class Release<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> 
+        where RT : struct, HasCancel<RT>
     {
         internal abstract Proxy<RT, UOut, UIn, DIn, DOut, A> Run(ConcurrentDictionary<object, IDisposable> disps);
     }
@@ -200,20 +204,27 @@ namespace LanguageExt.Pipes
         public override Proxy<RT, UOut, UIn, DIn, DOut, B> Action<B>(Proxy<RT, UOut, UIn, DIn, DOut, B> rhs) =>
             new Release<RT, UOut, UIn, DIn, DOut, X, B>(Value, x => Next(x).Action(rhs));
 
+        /// <remarks>
+        /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
+        /// </remarks>
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> lhs) =>
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(
+            Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> lhs) =>
             new Release<RT, UOutA, AUInA, DIn, DOut, X, A>(Value, x => Next(x).PairEachRequestWithRespond(lhs));
         
         [Pure]
-        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+        public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(
+            Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
             new Release<RT, UOutA, AUInA, DIn, DOut, X, A>(Value, x => Next(x).ReplaceRequest(lhs));
 
         [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(
+            Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
             new Release<RT, UOut, UIn, DInC, DOutC, X, A>(Value, x => Next(x).PairEachRespondWithRequest(rhs));
 
         [Pure]
-        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+        public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(
+            Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
             new Release<RT, UOut, UIn, DInC, DOutC, X, A>(Value, x => Next(x).ReplaceRespond(rhs));
 
         [Pure]
@@ -232,13 +243,15 @@ namespace LanguageExt.Pipes
         [Pure]
         internal override Proxy<RT, UOut, UIn, DIn, DOut, A> Run(ConcurrentDictionary<object, IDisposable> disps) =>
             new M<RT, UOut, UIn, DIn, DOut, A>(
-                Prelude.Eff<RT, Unit>(_ =>
-                                      {
-                                          if (disps.TryRemove(Value, out var d))
-                                          {
-                                              d.Dispose();
-                                          }
-                                          return Prelude.unit;
-                                      }).Map(Next));
+                Prelude.Eff<RT, Unit>(
+                    _ =>
+                    {
+                        if (disps.TryRemove(Value, out var d))
+                        {
+                            d.Dispose();
+                        }
+
+                        return Prelude.unit;
+                    }).Map(Next));
     }    
 }
