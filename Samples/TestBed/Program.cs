@@ -8,16 +8,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using LanguageExt;
 using System.Text;
 using LanguageExt.Sys;
 using LanguageExt.Pipes;
 using LanguageExt.Sys.IO;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Threading;
 using LanguageExt.Sys.Live;
 using System.Threading.Tasks;
 using LanguageExt.Common;
@@ -36,7 +32,7 @@ public static class Ext
     static Producer<RT, A, Unit> ToProducer<RT, A>(this IAsyncQueue<A> q) 
         where RT : struct, HasCancel<RT>
     {
-        return Proxy.enumerate(go());
+        return yieldAll(go());
 
         async IAsyncEnumerable<A> go()
         {
@@ -104,7 +100,7 @@ public class Program
                       }
             select unit;
 
-        var clientServer = incrementer | oneTwoThree;
+        //var clientServer = incrementer | oneTwoThree;
 
         var file1 = File<Runtime>.openRead("i:\\defaults.xml")
                   | Stream<Runtime>.read(240)
@@ -131,18 +127,18 @@ public class Program
                                 .FoldUntil("", (word, ch) => word + ch, char.IsWhiteSpace)
                       | repeat(writeLine);
 
-        var effect1  = enumerate(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
-        var effect1a = enumerate(Some("Paul")) | sayHello | writeLine;
+        var effect1  = yieldAll(Seq("Paul", "James", "Gavin")) | sayHello | writeLine;
+        var effect1a = yieldAll(Some("Paul")) | sayHello | writeLine;
 
         var time    = Observable.Interval(TimeSpan.FromSeconds(1));
-        var effect2 = observe(time) | now | toLongTimeString | writeLine;
+        var effect2 = yieldAll(time) | now | toLongTimeString | writeLine;
 
         var echo = readLine | writeLine;
 
         var timeOneStep  = Observable.Interval(TimeSpan.FromSeconds(1)).Select(_ => "whole");
         var timeHalfStep = Observable.Interval(TimeSpan.FromSeconds(.5)).Select(_ => "half");
-        var channel1     = Producer.observe<Runtime, string>(timeOneStep);
-        var channel2     = Producer.observe<Runtime, string>(timeHalfStep);
+        var channel1     = Producer.yieldAll<Runtime, string>(timeOneStep);
+        var channel2     = Producer.yieldAll<Runtime, string>(timeHalfStep);
         var channel      = (channel1 + channel2) | writeLine;
 
         var result = (await queueing //.RunEffect()
@@ -152,7 +148,7 @@ public class Program
     }
 
     static Effect<Runtime, Unit> fizzBuzz =>
-        enumerate(Range(1, 20)) | process | writeLine;
+        yieldAll(Range(1, 20)) | process | writeLine;
 
     static Pipe<Runtime, int, string, Unit> process =>
         from n in awaiting<int>()
@@ -266,18 +262,18 @@ public class Program
         select unit;
 
 
-    static Server<Runtime, int, int, Unit> incrementer(int question) =>
+    /*static Server<Runtime, int, int, Unit> incrementer(int question) =>
         from _1 in Server.lift<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Server received: {question}"))
         from _2 in Server.lift<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Server responded: {question + 1}"))
         from nq in Server.respond<Runtime, int, int>(question + 1)
         select unit;
 
     static Client<Runtime, int, int, Unit> oneTwoThree =>
-        from qn in Client.enumerate<Runtime, int, int, int>(Seq(1, 2, 3))
+        from qn in Client.yieldAll<Runtime, int, int, int>(Seq(1, 2, 3))
         from _1 in Client.lift<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Client requested: {qn}"))
         from an in Client.request<Runtime, int, int>(qn)
         from _2 in Client.lift<Runtime, int, int, Unit>(Console<Runtime>.writeLine($"Client received: {an}"))
-        select unit;
+        select unit;*/
 
 
     static Pipe<Runtime, string, string, Unit> pipeMap =>

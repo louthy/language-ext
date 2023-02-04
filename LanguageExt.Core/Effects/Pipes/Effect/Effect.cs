@@ -100,13 +100,13 @@ namespace LanguageExt.Pipes
                 });
 
         static Aff<RT, R> EnumerateCase<RT, R>(
-            Enumerate<RT, Void, Unit, Unit, Void, R> me, 
+            Enumerate<RT, Void, Unit, Unit, Void, R> me,
             ConcurrentDictionary<object, IDisposable> disps)
             where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, R>(
                 async env =>
                 {
-                    Fin<R> lastResult = Errors.SequenceEmpty;
+                    Fin<Unit> lastResult = Errors.SequenceEmpty;
 
                     switch (me.Type)
                     {
@@ -117,7 +117,8 @@ namespace LanguageExt.Pipes
                                 lastResult = await f.RunEffect(disps).Run(env).ConfigureAwait(false);
                                 if (lastResult.IsFail) return lastResult.Error;
                             }
-                            return lastResult;
+
+                            return await me.Next(default).RunEffect(disps).Run(env).ConfigureAwait(false);
 
                         case EnumerateDataType.Enumerable:
                             foreach (var f in me.MakeEffects())
@@ -126,15 +127,17 @@ namespace LanguageExt.Pipes
                                 lastResult = await f.RunEffect(disps).Run(env).ConfigureAwait(false);
                                 if (lastResult.IsFail) return lastResult.Error;
                             }
-                            return lastResult;
+
+                            return await me.Next(default).RunEffect(disps).Run(env).ConfigureAwait(false);
 
                         case EnumerateDataType.Observable:
                             var wait = new AutoResetEvent(false);
                             var lastTask = unit.AsValueTask();
-                            Fin<R> last = Errors.Cancelled;
+                            Fin<Unit> last = Errors.Cancelled;
 
                             using (var sub = me.Subscribe(
-                                       onNext: fx => lastTask = fx.RunEffect(disps).Run(env).Iter(r => last = r),
+                                       onNext: fx =>
+                                           lastTask = fx.RunEffect(disps).Run(env).Iter(r => last = r),
                                        onError: err =>
                                        {
                                            last = err;
@@ -144,7 +147,7 @@ namespace LanguageExt.Pipes
                             {
                                 await wait.WaitOneAsync(env.CancellationToken).ConfigureAwait(false);
                                 await lastTask.ConfigureAwait(false);
-                                return last;
+                                return await me.Next(default).RunEffect(disps).Run(env).ConfigureAwait(false);
                             }
 
                         default:
@@ -187,8 +190,10 @@ namespace LanguageExt.Pipes
 
                                 return Errors.Cancelled;
 
+
                             case Enumerate<RT, Void, Unit, Unit, Void, R> me:
-                                Fin<R> lastResult = Errors.SequenceEmpty;
+                            {
+                                Fin<Unit> lastResult = Errors.SequenceEmpty;
 
                                 switch (me.Type)
                                 {
@@ -200,7 +205,8 @@ namespace LanguageExt.Pipes
                                             if (lastResult.IsFail) return lastResult.Error;
                                         }
 
-                                        return lastResult;
+                                        p = me.Next(default);
+                                        break;
 
                                     case EnumerateDataType.Enumerable:
                                         foreach (var f in me.MakeEffects())
@@ -209,13 +215,13 @@ namespace LanguageExt.Pipes
                                             lastResult = await f.RunEffect(disps).Run(env).ConfigureAwait(false);
                                             if (lastResult.IsFail) return lastResult.Error;
                                         }
-
-                                        return lastResult;
+                                        p = me.Next(default);
+                                        break;
 
                                     case EnumerateDataType.Observable:
                                         var wait = new AutoResetEvent(false);
                                         var lastTask = unit.AsValueTask();
-                                        Fin<R> last = Errors.Cancelled;
+                                        Fin<Unit> last = Errors.Cancelled;
 
                                         using (var sub = me.Subscribe(
                                                    onNext: fx =>
@@ -229,12 +235,15 @@ namespace LanguageExt.Pipes
                                         {
                                             await wait.WaitOneAsync(env.CancellationToken).ConfigureAwait(false);
                                             await lastTask.ConfigureAwait(false);
-                                            return last;
+                                            p = me.Next(default);
+                                            break;
                                         }
 
                                     default:
                                         throw new NotSupportedException();
                                 }
+                            } 
+                            break;
 
                             case Use<RT, Void, Unit, Unit, Void, R> mu:
                                 p = mu.Run(disps);

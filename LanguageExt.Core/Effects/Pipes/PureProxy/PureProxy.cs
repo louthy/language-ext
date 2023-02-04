@@ -7,10 +7,7 @@
 
 using System;
 using LanguageExt.Effects.Traits;
-using static LanguageExt.Prelude;
 using System.Collections.Generic;
-using static LanguageExt.Pipes.Proxy;
-using System.Runtime.CompilerServices;
 
 namespace LanguageExt.Pipes
 {
@@ -34,8 +31,8 @@ namespace LanguageExt.Pipes
         public static ConsumerLift<RT, IN, A> ConsumerLiftPure<RT, IN, A>(A value) where RT : struct, HasCancel<RT> =>
             new ConsumerLift<RT, IN, A>.Pure(value);
 
-        public static Enumerate<A> EnumeratePure<A>(A value) =>
-            new Enumerate<A>.Pure(value);
+        public static Enumerate<OUT, A> EnumeratePure<OUT, A>(A value) =>
+            new Enumerate<OUT, A>.Pure(value);
 
         public static Consumer<IN, IN> ConsumerAwait<IN>() =>
             new Consumer<IN, IN>.Await(ConsumerPure<IN, IN>);
@@ -46,20 +43,14 @@ namespace LanguageExt.Pipes
         public static Producer<OUT, Unit> ProducerYield<OUT>(OUT value) =>
             new Producer<OUT, Unit>.Yield(value, ProducerPure<OUT, Unit>);
 
-        public static Producer<OUT, X> ProducerEnumerate<OUT, X>(IEnumerable<X> xs) =>
-            new Producer<OUT, X>.Enumerate<X>(xs, ProducerPure<OUT, X>);
+        public static Producer<OUT, Unit> ProducerEnumerate<OUT>(IEnumerable<OUT> xs) =>
+            new Producer<OUT, Unit>.Enumerate(xs, ProducerPure<OUT, Unit>);
 
-        public static Producer<OUT, X> ProducerEnumerate<OUT, X>(IAsyncEnumerable<X> xs) =>
-            new Producer<OUT, X>.Enumerate<X>(xs, ProducerPure<OUT, X>);
+        public static Producer<OUT, Unit> ProducerEnumerate<OUT>(IAsyncEnumerable<OUT> xs) =>
+            new Producer<OUT, Unit>.Enumerate(xs, ProducerPure<OUT, Unit>);
 
-        public static Producer<OUT, X> ProducerObserve<OUT, X>(IObservable<X> xs) =>
-            new Producer<OUT, X>.Enumerate<X>(xs, ProducerPure<OUT, X>);
-
-        public static Producer<X, X> ProducerEnumerate<X>(IEnumerable<X> xs) =>
-            new Producer<X, X>.Enumerate<X>(xs, ProducerPure<X, X>);
-
-        public static Producer<X, X> ProducerEnumerate<X>(IAsyncEnumerable<X> xs) =>
-            new Producer<X, X>.Enumerate<X>(xs, ProducerPure<X, X>);
+        public static Producer<OUT, Unit> ProducerObserve<OUT>(IObservable<OUT> xs) =>
+            new Producer<OUT, Unit>.Enumerate(xs, ProducerPure<OUT, Unit>);
 
         public static Pipe<IN, OUT, Unit> PipeYield<IN, OUT>(OUT value) =>
             new Pipe<IN, OUT, Unit>.Yield(value, PipePure<IN, OUT, Unit>);

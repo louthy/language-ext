@@ -16,8 +16,7 @@ namespace LanguageExt.Sys.IO
         public static Pipe<RT, Stream, SeqLoan<byte>, Unit> read(int chunkSize)
         {
             return from fs in Proxy.awaiting<Stream>()
-                   from bt in Proxy.enumerate2(chunks(fs, chunkSize))
-                   from un in Proxy.yield(bt)
+                   from _  in Proxy.yieldAll(chunks(fs, chunkSize))
                    select unit;
 
             static async IAsyncEnumerable<SeqLoan<byte>> chunks(Stream fs, int chunkSize)

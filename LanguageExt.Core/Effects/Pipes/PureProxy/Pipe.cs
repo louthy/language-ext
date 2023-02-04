@@ -7,10 +7,7 @@
 
 using System;
 using LanguageExt.Effects.Traits;
-using static LanguageExt.Prelude;
 using System.Collections.Generic;
-using static LanguageExt.Pipes.Proxy;
-using System.Runtime.CompilerServices;
 
 namespace LanguageExt.Pipes
 {
@@ -40,8 +37,8 @@ namespace LanguageExt.Pipes
         public Pipe<IN, OUT, C> SelectMany<B, C>(Func<A, Producer<OUT, B>> f, Func<A, B, C> project) =>
             SelectMany(a => f(a).Select(b => project(a, b)));
 
-        public static implicit operator Pipe<IN, OUT, A>(Pipes.Pure<A> ma) =>
-            new Pipe<IN, OUT, A>.Pure(ma.Value);
+        public static implicit operator Pipe<IN, OUT, A>(Pure<A> ma) =>
+            new Pure(ma.Value);
         
         public static Pipe<IN, OUT, A> operator &(
             Pipe<IN, OUT, A> lhs,
@@ -134,28 +131,28 @@ namespace LanguageExt.Pipes
                 new Pipe<IN, OUT, B>.Yield(Value, x => Next(x).SelectMany(f));
         }
 
-        public class Enumerate<X> : Pipe<IN, OUT, A>
+        public class Enumerate : Pipe<IN, OUT, A>
         {
-            internal readonly EnumerateData<X> Values;
-            public readonly Func<X, Pipe<IN, OUT, A>> Next;
+            internal readonly EnumerateData<OUT> Values;
+            public readonly Func<Unit, Pipe<IN, OUT, A>> Next;
             
-            internal Enumerate(EnumerateData<X> values, Func<X, Pipe<IN, OUT, A>> next) =>
+            internal Enumerate(EnumerateData<OUT> values, Func<Unit, Pipe<IN, OUT, A>> next) =>
                 (Values, Next) = (values, next);
 
-            internal Enumerate(IEnumerable<X> values, Func<X, Pipe<IN, OUT, A>> next) =>
-                (Values, Next) = (new EnumerateEnumerable<X>(values), next);
+            internal Enumerate(IEnumerable<OUT> values, Func<Unit, Pipe<IN, OUT, A>> next) =>
+                (Values, Next) = (new EnumerateEnumerable<OUT>(values), next);
 
-            internal Enumerate(IAsyncEnumerable<X> values, Func<X, Pipe<IN, OUT, A>> next) =>
-                (Values, Next) = (new EnumerateAsyncEnumerable<X>(values), next);
+            internal Enumerate(IAsyncEnumerable<OUT> values, Func<Unit, Pipe<IN, OUT, A>> next) =>
+                (Values, Next) = (new EnumerateAsyncEnumerable<OUT>(values), next);
 
-            internal Enumerate(IObservable<X> values, Func<X, Pipe<IN, OUT, A>> next) =>
-                (Values, Next) = (new EnumerateObservable<X>(values), next);
+            internal Enumerate(IObservable<OUT> values, Func<Unit, Pipe<IN, OUT, A>> next) =>
+                (Values, Next) = (new EnumerateObservable<OUT>(values), next);
 
             public override Pipe<IN, OUT, B> Select<B>(Func<A, B> f) =>
-                new Pipe<IN, OUT, B>.Enumerate<X>(Values, x => Next(x).Select(f));
+                new Pipe<IN, OUT, B>.Enumerate(Values, x => Next(x).Select(f));
 
             public override Pipe<IN, OUT, B> SelectMany<B>(Func<A, Pipe<IN, OUT, B>> f) =>
-                new Pipe<IN, OUT, B>.Enumerate<X>(Values, x => Next(x).SelectMany(f));
+                new Pipe<IN, OUT, B>.Enumerate(Values, x => Next(x).SelectMany(f));
 
             public override Pipe<RT, IN, OUT, B> SelectMany<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) =>
                 from x in Interpret<RT>()
@@ -163,15 +160,15 @@ namespace LanguageExt.Pipes
                 select r;
 
             public override Pipe<RT, IN, OUT, A> Interpret<RT>() =>
-                from x in Pipe.enumerate<RT, IN, OUT, X>(Values)
+                from x in Pipe.yieldAll<RT, IN, OUT>(Values)
                 from r in Next(x)
                 select r;
 
             public override Pipe<IN, OUT, B> SelectMany<B>(Func<A, Consumer<IN, B>> f) =>
-                new Pipe<IN, OUT, B>.Enumerate<X>(Values, x => Next(x).SelectMany(f));
+                new Pipe<IN, OUT, B>.Enumerate(Values, x => Next(x).SelectMany(f));
 
             public override Pipe<IN, OUT, B> SelectMany<B>(Func<A, Producer<OUT, B>> f) =>
-                new Pipe<IN, OUT, B>.Enumerate<X>(Values, x => Next(x).SelectMany(f));
+                new Pipe<IN, OUT, B>.Enumerate(Values, x => Next(x).SelectMany(f));
         }
 
         public class Release<X> : Pipe<IN, OUT, A>

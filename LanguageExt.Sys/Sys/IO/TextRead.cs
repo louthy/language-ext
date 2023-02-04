@@ -25,8 +25,7 @@ namespace LanguageExt.Sys.IO
             get
             {
                 return from tr in awaiting<TextReader>()
-                       from ln in enumerate2(go(tr))
-                       from __ in yield(ln)
+                       from _  in yieldAll(go(tr))
                        select unit;
 
                 static async IAsyncEnumerable<string> go(TextReader reader)
@@ -50,8 +49,7 @@ namespace LanguageExt.Sys.IO
             get
             {
                 return from tr in awaiting<TextReader>()
-                       from ln in enumerate2(go(tr))
-                       from __ in yield(ln)
+                       from _  in yieldAll(go(tr))
                        select unit;
 
                 static async IAsyncEnumerable<char> go(TextReader reader)
@@ -84,8 +82,7 @@ namespace LanguageExt.Sys.IO
         public static Pipe<RT, TextReader, SeqLoan<char>, Unit> readChars(int charCount)
         {
             return from tr in awaiting<TextReader>()
-                   from cs in enumerate2(go(tr, charCount))
-                   from __ in yield(cs)
+                   from _  in yieldAll(go(tr, charCount))
                    select unit;
 
             static async IAsyncEnumerable<SeqLoan<char>> go(TextReader reader, int count)
@@ -108,8 +105,7 @@ namespace LanguageExt.Sys.IO
         public static Pipe<RT, TextReader, string, Unit> read(int charCount)
         {
             return from tr in awaiting<TextReader>()
-                   from cs in enumerate2(go(tr, charCount))
-                   from __ in yield(cs)
+                   from _  in yieldAll(go(tr, charCount))
                    select unit;
 
             static async IAsyncEnumerable<string> go(TextReader reader, int count)

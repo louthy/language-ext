@@ -7,10 +7,7 @@
 
 using System;
 using LanguageExt.Effects.Traits;
-using static LanguageExt.Prelude;
 using System.Collections.Generic;
-using static LanguageExt.Pipes.Proxy;
-using System.Runtime.CompilerServices;
 
 namespace LanguageExt.Pipes
 {
@@ -72,41 +69,41 @@ namespace LanguageExt.Pipes
                 new ProducerLift<RT, OUT, A>.Pure(Value);
         }
 
-        public class Enumerate<X> : Producer<OUT, A> 
+        public class Enumerate : Producer<OUT, A> 
         {
-            internal readonly EnumerateData<X> Values;
-            public readonly Func<X, Producer<OUT, A> > Next;
+            internal readonly EnumerateData<OUT> Values;
+            public readonly Func<Unit, Producer<OUT, A> > Next;
             
-            internal Enumerate(EnumerateData<X> values, Func<X, Producer<OUT, A> > next) =>
+            internal Enumerate(EnumerateData<OUT> values, Func<Unit, Producer<OUT, A> > next) =>
                 (Values, Next) = (values, next);
 
-            public Enumerate(IEnumerable<X> values, Func<X, Producer<OUT, A> > next) =>
-                (Values, Next) = (new EnumerateEnumerable<X>(values), next);
+            public Enumerate(IEnumerable<OUT> values, Func<Unit, Producer<OUT, A> > next) =>
+                (Values, Next) = (new EnumerateEnumerable<OUT>(values), next);
 
-            public Enumerate(IAsyncEnumerable<X> values, Func<X, Producer<OUT, A> > next) =>
-                (Values, Next) = (new EnumerateAsyncEnumerable<X>(values), next);
+            public Enumerate(IAsyncEnumerable<OUT> values, Func<Unit, Producer<OUT, A> > next) =>
+                (Values, Next) = (new EnumerateAsyncEnumerable<OUT>(values), next);
 
-            public Enumerate(IObservable<X> values, Func<X, Producer<OUT, A> > next) =>
-                (Values, Next) = (new EnumerateObservable<X>(values), next);
+            public Enumerate(IObservable<OUT> values, Func<Unit, Producer<OUT, A> > next) =>
+                (Values, Next) = (new EnumerateObservable<OUT>(values), next);
 
             public override Producer<OUT, B> Select<B>(Func<A, B> f) =>
-                new Producer<OUT, B>.Enumerate<X>(Values, n => Next(n).Select(f));
+                new Producer<OUT, B>.Enumerate(Values, n => Next(n).Select(f));
 
             public override Producer<OUT, B> SelectMany<B>(Func<A, Producer<OUT, B>> f) =>
-                new Producer<OUT, B>.Enumerate<X>(Values, n => Next(n).SelectMany(f));
+                new Producer<OUT, B>.Enumerate(Values, n => Next(n).SelectMany(f));
 
             public override Producer<RT, OUT, B> SelectMany<RT, B>(Func<A, Producer<RT, OUT, B>> f) =>
                 Interpret<RT>().Bind(f).ToProducer();
 
             public override Producer<RT, OUT, A> Interpret<RT>() =>
-                Producer.enumerate<RT, OUT, X>(Values)
+                Producer.yieldAll<RT, OUT>(Values)
                         .Bind(x => Next(x).Interpret<RT>()).ToProducer();
 
             public override Pipe<IN, OUT, A> ToPipe<IN>() =>
-                new Pipe<IN, OUT, A>.Enumerate<X>(Values, x => Next(x).ToPipe<IN>());
+                new Pipe<IN, OUT, A>.Enumerate(Values, x => Next(x).ToPipe<IN>());
 
             public override ProducerLift<RT, OUT, A> ToProducerLift<RT>() =>
-                new ProducerLift<RT, OUT, A>.Enumerate<X>(Values, x => Next(x).ToProducerLift<RT>());
+                new ProducerLift<RT, OUT, A>.Enumerate(Values, x => Next(x).ToProducerLift<RT>());
         }
         
         public class Yield : Producer<OUT, A>

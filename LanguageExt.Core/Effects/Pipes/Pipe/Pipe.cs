@@ -29,7 +29,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Monad return / pure
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, B, R> Pure<RT, A, B, R>(R value) where RT : struct, HasCancel<RT> =>
             new Pure<RT, Unit, A, Unit, B, R>(value).ToPipe();
         
@@ -39,7 +39,7 @@ namespace LanguageExt.Pipes
         /// <remarks>
         /// This is the version of `await` that works for pipes.  In consumers, use `Consumer.await`
         /// </remarks>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, Y, A> awaiting<RT, A, Y>() where RT : struct, HasCancel<RT> =>
             request<RT, Unit, A, Unit, Y>(unit).ToPipe();
         
@@ -49,44 +49,68 @@ namespace LanguageExt.Pipes
         /// <remarks>
         /// This is the version of `yield` that works for pipes.  In producers, use `Producer.yield`
         /// </remarks>
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Pipe<RT, X, A, Unit> yield<RT, X, A>(A value) where RT : struct, HasCancel<RT> =>
-            respond<RT, Unit, X, Unit, A>(value).ToPipe();
+        [Pure, MethodImpl(mops)]
+        public static Pipe<RT, IN, OUT, Unit> yield<RT, IN, OUT>(OUT value) where RT : struct, HasCancel<RT> =>
+            respond<RT, Unit, IN, Unit, OUT>(value).ToPipe();
+
+        [Pure, MethodImpl(mops)]
+        internal static Pipe<RT, IN, OUT, Unit> yieldAll<RT, IN, OUT>(EnumerateData<OUT> xs)
+            where RT : struct, HasCancel<RT> =>
+            new Enumerate<RT, Unit, IN, Unit, OUT, OUT, Unit>(
+                xs, 
+                yield<RT, IN, OUT>,
+                Pure<RT, IN, OUT, Unit>).ToPipe();
+
+        [Pure, MethodImpl(mops)]
+        internal static Pipe<RT, IN, OUT, Unit> yieldAll<RT, IN, OUT>(IEnumerable<OUT> xs)
+            where RT : struct, HasCancel<RT> =>
+            yieldAll<RT, IN, OUT>(new EnumerateEnumerable<OUT>(xs));
         
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
+        public static Pipe<RT, IN, OUT, Unit> yieldAll<RT, IN, OUT>(IAsyncEnumerable<OUT> xs)
+            where RT : struct, HasCancel<RT> =>
+            yieldAll<RT, IN, OUT>(new EnumerateAsyncEnumerable<OUT>(xs));
+        
+        [Pure, MethodImpl(mops)]
+        public static Pipe<RT, IN, OUT, Unit> yieldAll<RT, IN, OUT>(IObservable<OUT> xs)
+            where RT : struct, HasCancel<RT> =>
+            yieldAll<RT, IN, OUT>(new EnumerateObservable<OUT>(xs));        
+        
+        /*
+        [Pure, MethodImpl(mops)]
         internal static Pipe<RT, IN, OUT, X> enumerate<RT, IN, OUT, X>(EnumerateData<X> xs)
             where RT : struct, HasCancel<RT> =>
             new Enumerate<RT, Unit, IN, Unit, OUT, X, X>(xs, Pipe.Pure<RT, IN, OUT, X>).ToPipe();
         
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, X, X> enumerate<RT, IN, X>(IEnumerable<X> xs)
             where RT : struct, HasCancel<RT> =>
             new Enumerate<RT, Unit, IN, Unit, X, X, X>(xs, Pipe.Pure<RT, IN, X, X>).ToPipe();
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, OUT, X> enumerate<RT, IN, OUT, X>(IEnumerable<X> xs)
             where RT : struct, HasCancel<RT> =>
             new Enumerate<RT, Unit, IN, Unit, OUT, X, X>(xs, Pipe.Pure<RT, IN, OUT, X>).ToPipe();
         
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, X, X> enumerate<RT, IN, X>(IAsyncEnumerable<X> xs)
             where RT : struct, HasCancel<RT> =>
             new Enumerate<RT, Unit, IN, Unit, X, X, X>(xs, Pipe.Pure<RT, IN, X, X>).ToPipe();
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, OUT, X> enumerate<RT, IN, OUT, X>(IAsyncEnumerable<X> xs)
             where RT : struct, HasCancel<RT> =>
             new Enumerate<RT, Unit, IN, Unit, OUT, X, X>(xs, Pipe.Pure<RT, IN, OUT, X>).ToPipe();
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, X, X> observe<RT, IN, X>(IObservable<X> xs)
             where RT : struct, HasCancel<RT> =>
             new Enumerate<RT, Unit, IN, Unit, X, X, X>(xs, Pipe.Pure<RT, IN, X, X>).ToPipe();
 
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, OUT, X> observe<RT, IN, OUT, X>(IObservable<X> xs)
             where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Unit, IN, Unit, OUT, X, X>(xs, Pipe.Pure<RT, IN, OUT, X>).ToPipe();
+            new Enumerate<RT, Unit, IN, Unit, OUT, X, X>(xs, Pipe.Pure<RT, IN, OUT, X>).ToPipe();*/
 
         /// <summary>
         /// Only forwards values that satisfy the predicate.
@@ -118,7 +142,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, B, R> mapM<RT, A, B, R>(Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
                  .ForEach<RT, A, A, B, R>(a => Pipe.lift<RT, A, B, B>(f(a))
@@ -128,7 +152,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, A, Unit> mapM<RT, A>(Func<A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
                 .ForEach<RT, A, A, A, Unit>(a => Pipe.lift<RT, A, A, A>(f(a))
@@ -138,7 +162,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, B, R> mapM<RT, A, B, R>(Func<A, Aff<B>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
                  .ForEach<RT, A, A, B, R>(a => Pipe.lift<RT, A, B, B>(f(a))
@@ -148,7 +172,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, B, R> mapM<RT, A, B, R>(Func<A, Eff<RT, B>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
                 .ForEach<RT, A, A, B, R>(a => Pipe.lift<RT, A, B, B>(f(a))
@@ -158,7 +182,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, A, Unit> mapM<RT, A>(Func<A, Eff<RT, A>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, Unit>()
                 .ForEach<RT, A, A, A, Unit>(a => Pipe.lift<RT, A, A, A>(f(a))
@@ -168,7 +192,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, B, R> mapM<RT, A, B, R>(Func<A, Eff<B>> f) where RT : struct, HasCancel<RT> =>
             Proxy.cat<RT, A, R>()
                 .ForEach<RT, A, A, B, R>(a => Pipe.lift<RT, A, B, B>(f(a))
@@ -178,35 +202,35 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Lift the IO monad into the Pipe monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, B, R> lift<RT, A, B, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
             lift<RT, Unit, A, Unit, B, R>(ma).ToPipe(); 
  
         /// <summary>
         /// Lift the IO monad into the Pipe monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, B, R> lift<RT, A, B, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
             lift<RT, Unit, A, Unit, B, R>(ma).ToPipe(); 
  
         /// <summary>
         /// Lift the IO monad into the Pipe monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, B, R> lift<RT, A, B, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
             lift<RT, Unit, A, Unit, B, R>(ma).ToPipe(); 
  
         /// <summary>
         /// Lift the IO monad into the Pipe monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, B, R> lift<RT, A, B, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
             lift<RT, Unit, A, Unit, B, R>(ma).ToPipe(); 
         
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, OUT, R> use<RT, IN, OUT, R>(Aff<R> ma) 
             where RT : struct, HasCancel<RT>
             where R : IDisposable =>
@@ -215,7 +239,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, OUT, R> use<RT, IN, OUT, R>(Eff<R> ma) 
             where RT : struct, HasCancel<RT>
             where R : IDisposable =>
@@ -224,7 +248,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, OUT, R> use<RT, IN, OUT, R>(Aff<RT, R> ma) 
             where RT : struct, HasCancel<RT> 
             where R : IDisposable =>
@@ -233,7 +257,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, OUT, R> use<RT, IN, OUT, R>(Eff<RT, R> ma) 
             where RT : struct, HasCancel<RT> 
             where R : IDisposable =>
@@ -243,7 +267,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, OUT, R> use<RT, IN, OUT, R>(Aff<R> ma, Func<R, Unit> dispose) 
             where RT : struct, HasCancel<RT> =>
             use<RT, Unit, IN, Unit, OUT, R>(ma, dispose).ToPipe();
@@ -251,7 +275,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, OUT, R> use<RT, IN, OUT, R>(Eff<R> ma, Func<R, Unit> dispose) 
             where RT : struct, HasCancel<RT> =>
             use<RT, Unit, IN, Unit, OUT, R>(ma, dispose).ToPipe();
@@ -259,7 +283,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, OUT, R> use<RT, IN, OUT, R>(Aff<RT, R> ma, Func<R, Unit> dispose) 
             where RT : struct, HasCancel<RT> =>
             use<RT, Unit, IN, Unit, OUT, R>(ma, dispose).ToPipe();
@@ -267,7 +291,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, OUT, R> use<RT, IN, OUT, R>(Eff<RT, R> ma, Func<R, Unit> dispose) 
             where RT : struct, HasCancel<RT> =>
             use<RT, Unit, IN, Unit, OUT, R>(ma, dispose).ToPipe();      
@@ -275,7 +299,7 @@ namespace LanguageExt.Pipes
         /// <summary>
         /// Release a previously used resource
         /// </summary>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, OUT, Unit> release<RT, IN, OUT, R>(R dispose) 
             where RT : struct, HasCancel<RT> =>
             Proxy.release<RT, Unit, IN, Unit, OUT, R>(dispose).ToPipe();
@@ -287,7 +311,7 @@ namespace LanguageExt.Pipes
         /// <param name="Fold">Fold operation</param>
         /// <param name="WhileState">Predicate</param>
         /// <returns>A pipe that folds</returns>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, OUT, Unit> foldWhile<RT, IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<OUT, bool> WhileState) 
             where RT : struct, HasCancel<RT> =>
             foldUntil<RT, IN, OUT>(Initial, Fold, x => !WhileState(x));
@@ -328,7 +352,7 @@ namespace LanguageExt.Pipes
         /// <param name="Fold">Fold operation</param>
         /// <param name="WhileValue">Predicate</param>
         /// <returns>A pipe that folds</returns>
-        [Pure, MethodImpl(Proxy.mops)]
+        [Pure, MethodImpl(mops)]
         public static Pipe<RT, IN, OUT, Unit> foldWhile<RT, IN, OUT>(OUT Initial, Func<OUT, IN, OUT> Fold, Func<IN, bool> WhileValue) 
             where RT : struct, HasCancel<RT> =>
             foldUntil<RT, IN, OUT>(Initial, Fold, x => !WhileValue(x));

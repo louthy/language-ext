@@ -1,3 +1,6 @@
+// TODO: Restore this once you've fixed up the enumerate/yieldAll
+
+/*
 using LanguageExt;
 using LanguageExt.Sys;
 using LanguageExt.Pipes;
@@ -48,3 +51,4 @@ namespace EffectsExamples
             select unit;
     }
 }
+*/

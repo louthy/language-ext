@@ -43,7 +43,7 @@ namespace LanguageExt.Pipes
         public static Queue<RT, A, Unit> Queue<RT, A>() where RT : struct, HasCancel<RT>
         {
             var c = new Channel<A>();
-            var p = Producer.enumerate<RT, A>(c);
+            var p = Producer.yieldAll<RT, A>(c);
             return new Queue<RT, A, Unit>(p, c);
         }
 
@@ -55,42 +55,8 @@ namespace LanguageExt.Pipes
         /// <typeparam name="X">Type of the value to `yield`</typeparam>
         /// <returns>`Producer`</returns>
         [Pure, MethodImpl(mops)]
-        public static Producer<X, Unit> enumerate<X>(IEnumerable<X> xs) =>
-            enumerate2(xs).Bind(yield);
-        
-        /// <summary>
-        /// Create a `Producer` from an `IEnumerable`.  This will **not** automatically `yield` each value
-        /// of the `IEnumerable` down stream, it will return each of the values in the `IEnumerable` as the
-        /// bound value, so you can first transform it (for example), before yielding down stream.
-        /// </summary>
-        /// <example>
-        ///
-        ///     from text  in enumerate(list)
-        ///     from value in parseInt(text).Case switch
-        ///                   {
-        ///                       int x => yield(x),
-        ///                       _     => Pure(unit)
-        ///                   }
-        ///     select unit;
-        /// 
-        /// <param name="xs">Items to `yield`</param>
-        /// <typeparam name="X">Type of the value to `yield`</typeparam>
-        /// <returns>`Producer`</returns>
-        [Pure, MethodImpl(mops)]
-        public static Producer<OUT, X> enumerate<OUT, X>(IEnumerable<X> xs) =>
-            PureProxy.ProducerEnumerate<OUT, X>(xs);
-
-        /// <summary>
-        /// Create a `Producer` from an `IEnumerable`.  This will **not** automatically `yield` each value
-        /// of the `IEnumerable` down stream, it will return each of the values in the `IEnumerable` as the
-        /// bound value, so you can first transform it (for example), before yielding down stream.
-        /// </summary>
-        /// <example>
-        /// <typeparam name="X">Type of the value to `yield`</typeparam>
-        /// <returns>`Producer`</returns>
-        [Pure, MethodImpl(mops)]
-        public static Producer<X, X> enumerate2<X>(IEnumerable<X> xs) =>
-            PureProxy.ProducerEnumerate<X, X>(xs);
+        public static Producer<X, Unit> yieldAll<X>(IEnumerable<X> xs) =>
+            PureProxy.ProducerEnumerate(xs);
 
         /// <summary>
         /// Create a `Producer` from an `IAsyncEnumerable`.  This will automatically `yield` each value of the
@@ -100,52 +66,8 @@ namespace LanguageExt.Pipes
         /// <typeparam name="X">Type of the value to `yield`</typeparam>
         /// <returns>`Producer`</returns>
         [Pure, MethodImpl(mops)]
-        public static Producer<X, Unit> enumerate<X>(IAsyncEnumerable<X> xs) =>
-            enumerate2(xs).Bind(yield);
-        
-        /// <summary>
-        /// Create a `Producer` from an `IAsyncEnumerable`.  This will **not** automatically `yield` each value
-        /// of the `IEnumerable` down stream, it will return each of the values in the `IAsyncEnumerable` as the
-        /// bound value, so you can first transform it (for example), before yielding down stream.
-        /// </summary>
-        /// <example>
-        ///
-        ///     from text  in enumerate(list)
-        ///     from value in parseInt(text).Case switch
-        ///                   {
-        ///                       int x => yield(x),
-        ///                       _     => Pure(unit)
-        ///                   }
-        ///     select unit;
-        /// 
-        /// <param name="xs">Items to `yield`</param>
-        /// <typeparam name="X">Type of the value to `yield`</typeparam>
-        /// <returns>`Producer`</returns>
-        [Pure, MethodImpl(mops)]
-        public static Producer<OUT, X> enumerate<OUT, X>(IAsyncEnumerable<X> xs) =>
-            PureProxy.ProducerEnumerate<OUT, X>(xs);
-
-        /// <summary>
-        /// Create a `Producer` from an `IAsyncEnumerable`.  This will **not** automatically `yield` each value
-        /// of the `IEnumerable` down stream, it will return each of the values in the `IAsyncEnumerable` as the
-        /// bound value, so you can first transform it (for example), before yielding down stream.
-        /// </summary>
-        /// <example>
-        ///
-        ///     from text  in enumerate(list)
-        ///     from value in parseInt(text).Case switch
-        ///                   {
-        ///                       int x => yield(x),
-        ///                       _     => Pure(unit)
-        ///                   }
-        ///     select unit;
-        /// 
-        /// <param name="xs">Items to `yield`</param>
-        /// <typeparam name="X">Type of the value to `yield`</typeparam>
-        /// <returns>`Producer`</returns>
-        [Pure, MethodImpl(mops)]
-        public static Producer<X, X> enumerate2<X>(IAsyncEnumerable<X> xs) =>
-            PureProxy.ProducerEnumerate<X, X>(xs);
+        public static Producer<X, Unit> yieldAll<X>(IAsyncEnumerable<X> xs) =>
+            PureProxy.ProducerEnumerate(xs);
 
         /// <summary>
         /// Create a `Producer` from an `IObservable`.  This will automatically `yield` each value of the
@@ -155,52 +77,8 @@ namespace LanguageExt.Pipes
         /// <typeparam name="X">Type of the value to `yield`</typeparam>
         /// <returns>`Producer`</returns>
         [Pure, MethodImpl(mops)]
-        public static Producer<X, Unit> observe<X>(IObservable<X> xs) =>
-            observeX(xs).Bind(yield);
-
-        /// <summary>
-        /// Create a `Producer` from an `IObservable`.  This will **not** automatically `yield` each value
-        /// of the `IObservable` down stream, it will return each of the values in the `IObservable` as the
-        /// bound value, so you can first transform it (for example), before yielding down stream.
-        /// </summary>
-        /// <example>
-        ///
-        ///     from text  in enumerate(list)
-        ///     from value in parseInt(text).Case switch
-        ///                   {
-        ///                       int x => yield(x),
-        ///                       _     => Pure(unit)
-        ///                   }
-        ///     select unit;
-        /// 
-        /// <param name="xs">Items to `yield`</param>
-        /// <typeparam name="X">Type of the value to `yield`</typeparam>
-        /// <returns>`Producer`</returns>
-        [Pure, MethodImpl(mops)]
-        public static Producer<OUT, X> observe<OUT, X>(IObservable<X> xs) =>
-            PureProxy.ProducerObserve<OUT, X>(xs);
-
-        /// <summary>
-        /// Create a `Producer` from an `IObservable`.  This will **not** automatically `yield` each value
-        /// of the `IObservable` down stream, it will return each of the values in the `IObservable` as the
-        /// bound value, so you can first transform it (for example), before yielding down stream.
-        /// </summary>
-        /// <example>
-        ///
-        ///     from text  in enumerate(list)
-        ///     from value in parseInt(text).Case switch
-        ///                   {
-        ///                       int x => yield(x),
-        ///                       _     => Pure(unit)
-        ///                   }
-        ///     select unit;
-        /// 
-        /// <param name="xs">Items to `yield`</param>
-        /// <typeparam name="X">Type of the value to `yield`</typeparam>
-        /// <returns>`Producer`</returns>
-        [Pure, MethodImpl(mops)]
-        public static Producer<X, X> observeX<X>(IObservable<X> xs) =>
-            PureProxy.ProducerObserve<X, X>(xs);
+        public static Producer<X, Unit> yieldAll<X>(IObservable<X> xs) =>
+            PureProxy.ProducerObserve(xs);
 
         /// <summary>
         /// Lift the `Eff` monad into the monad transformer 

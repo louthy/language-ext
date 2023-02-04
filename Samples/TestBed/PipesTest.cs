@@ -10,19 +10,19 @@ namespace TestBed;
 public static class PipesTestBed
 {
     public static Effect<Runtime, Unit> effect => 
-        producer | repeat(consumer);
+        repeat(producer) | consumer;
 
     static Producer<Runtime, int, Unit> producer =>
         from _1 in Console<Runtime>.writeLine("before")
-        from _2 in Producer.enumerateR<Runtime, int>(Range(1, 10))
+        from _2 in yieldAll(Range(1, 10))
         from _3 in Console<Runtime>.writeLine("after")
         select unit;
     
     static Consumer<Runtime, int, Unit> consumer =>
         from i in awaiting<int>()
         from _ in Console<Runtime>.writeLine(i.ToString())
-        from r in consumer
         select unit;
+    
     /*
     public static Effect<Runtime, Unit> effect =>
         beforeAndAfter | consumer;

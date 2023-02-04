@@ -70,6 +70,7 @@ namespace LanguageExt.Pipes
         public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
             new M<RT, Void, Unit, REQ, RES, R>(ma.Map(Proxy.Pure<RT, Void, Unit, REQ, RES, R>).ToAff()).ToServer();    
 
+        /*
         [Pure, MethodImpl(Proxy.mops)]
         public static Server<RT, REQ, RES, X> enumerate<RT, REQ, RES, X>(IEnumerable<X> xs)
             where RT : struct, HasCancel<RT> =>
@@ -84,6 +85,7 @@ namespace LanguageExt.Pipes
         public static Server<RT, REQ, RES, X> observe<RT, REQ, RES, X>(IObservable<X> xs)
             where RT : struct, HasCancel<RT> =>
             new Enumerate<RT, Void, Unit, REQ, RES, X, X>(xs, Pure<RT, REQ, RES, X>).ToServer();
+            */
         
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer

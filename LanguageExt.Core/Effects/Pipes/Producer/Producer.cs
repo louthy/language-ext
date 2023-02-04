@@ -49,69 +49,64 @@ namespace LanguageExt.Pipes
             respond<RT, Void, Unit, Unit, OUT>(value).ToProducer();
 
         [Pure, MethodImpl(mops)]
-        public static Producer<RT, X, Unit> enumerateR<RT, X>(IEnumerable<X> xs)
+        internal static Producer<RT, X, Unit> yieldAll<RT, X>(EnumerateData<X> xs)
             where RT : struct, HasCancel<RT> =>
-            enumerateR<RT, X>(xs.GetEnumerator());
+            new Enumerate<RT, Void, Unit, Unit, X, X, Unit>(
+                xs, 
+                yield<RT, X>,
+                Pure<RT, X, Unit>).ToProducer();
+
+        [Pure, MethodImpl(mops)]
+        public static Producer<RT, X, Unit> yieldAll<RT, X>(IEnumerable<X> xs)
+            where RT : struct, HasCancel<RT> =>
+            yieldAll<RT, X>(new EnumerateEnumerable<X>(xs));
         
         [Pure, MethodImpl(mops)]
-        static Producer<RT, X, Unit> enumerateR<RT, X>(IEnumerator<X> iter)
+        public static Producer<RT, X, Unit> yieldAll<RT, X>(IAsyncEnumerable<X> xs)
             where RT : struct, HasCancel<RT> =>
-            iter.MoveNext()
-                ? from _ in yield<RT, X>(iter.Current)
-                  from r in enumerateR<RT, X>(iter)
-                  select default(Unit)
-                : Pure<RT, X, Unit>(unit);    
-
+            yieldAll<RT, X>(new EnumerateAsyncEnumerable<X>(xs));
+        
+        [Pure, MethodImpl(mops)]
+        public static Producer<RT, X, Unit> yieldAll<RT, X>(IObservable<X> xs)
+            where RT : struct, HasCancel<RT> =>
+            yieldAll<RT, X>(new EnumerateObservable<X>(xs));
+        
+        /*
         [Pure, MethodImpl(mops)]
         internal static Producer<RT, OUT, X> enumerate<RT, OUT, X>(EnumerateData<X> xs)
             where RT : struct, HasCancel<RT> =>
             new Enumerate<RT, Void, Unit, Unit, OUT, X, X>(xs, Pure<RT, OUT, X>).ToProducer();
         
         [Pure, MethodImpl(mops)]
-        public static Producer<RT, X, Unit> enumerate<RT, X>(IEnumerable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            enumerate<RT, X, X>(xs).Bind(yield<RT, X>);
-        
-        [Pure, MethodImpl(mops)]
         public static Producer<RT, OUT, X> enumerate<RT, OUT, X>(IEnumerable<X> xs)
             where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Void, Unit, Unit, OUT, X, X>(xs, Pure<RT, OUT, X>).ToProducer();
+            enumerate<RT, OUT, X>(new EnumerateEnumerable<X>(xs));
         
         [Pure, MethodImpl(mops)]
         public static Producer<RT, X, X> enumerate2<RT, X>(IEnumerable<X> xs)
             where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Void, Unit, Unit, X, X, X>(xs, Pure<RT, X, X>).ToProducer();
-        
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, X, Unit> enumerate<RT, X>(IAsyncEnumerable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            enumerate<RT, X, X>(xs).Bind(yield<RT, X>);
+            enumerate<RT, X, X>(new EnumerateEnumerable<X>(xs));
 
         [Pure, MethodImpl(mops)]
         public static Producer<RT, OUT, X> enumerate<RT, OUT, X>(IAsyncEnumerable<X> xs)
             where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Void, Unit, Unit, OUT, X, X>(xs, Pure<RT, OUT, X>).ToProducer();
+            enumerate<RT, OUT, X>(new EnumerateAsyncEnumerable<X>(xs));
 
         [Pure, MethodImpl(mops)]
         public static Producer<RT, X, X> enumerate2<RT, X>(IAsyncEnumerable<X> xs)
             where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Void, Unit, Unit, X, X, X>(xs, Pure<RT, X, X>).ToProducer();
-
-        
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, X, Unit> observe<RT, X>(IObservable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            observe<RT, X, X>(xs).Bind(yield<RT, X>);
+            enumerate<RT, X, X>(new EnumerateAsyncEnumerable<X>(xs));
 
         [Pure, MethodImpl(mops)]
         public static Producer<RT, OUT, X> observe<RT, OUT, X>(IObservable<X> xs)
             where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Void, Unit, Unit, OUT, X, X>(xs, Pure<RT, OUT, X>).ToProducer();
+            enumerate<RT, OUT, X>(new EnumerateObservable<X>(xs));
      
         [Pure, MethodImpl(mops)]
         public static Producer<RT, X, X> observe2<RT, X>(IObservable<X> xs)
             where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Void, Unit, Unit, X, X, X>(xs, Pure<RT, X, X>).ToProducer();
+            enumerate<RT, X, X>(new EnumerateObservable<X>(xs));
+            */
 
         
         /// <summary>
@@ -400,8 +395,7 @@ namespace LanguageExt.Pipes
         public static Producer<RT, OUT, A> merge<RT, OUT, A>(Seq<Producer<RT, OUT, A>> ms) where RT : struct, HasCancel<RT>
         {
             return from e in lift<RT, OUT, RT>(runtime<RT>())
-                   from x in enumerate2<RT, OUT>(go(e))
-                   from _ in yield<RT, OUT>(x)
+                   from x in yieldAll<RT, OUT>(go(e))
                    select default(A);
             
             async IAsyncEnumerable<OUT> go(RT env)

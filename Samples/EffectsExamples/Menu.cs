@@ -71,10 +71,10 @@ namespace EffectsExamples
                 ('5', CancelExample<RT>.main, "Cancel example", "Accepts key presses and echos them to the console until Enter is pressed.\nWhen Enter is pressed it calls `cancel<RT>()` to trigger the cancellation token"),
                 ('6', RetryExample<RT>.main, "Retry example", "Asks you to say hello.\nIf you don't type 'hello' then an error will be raised and it will retry."),
                 ('7', QueueExample<RT>.main(), "Queue effect example", "Creates two queues.  Queues are Producers that have an Enqueue function.\nThe two producers are merged into a single producer and piped to a writeLine consumer to create an Effect\nThe effect is forked to run without awaiting the result\nAnother effect is created that listens to input from the user and pipes it to queue 1 or 2 depending on if the text starts with a '1' or a '2'.\nIf the text starts with anything else, the effect is cancelled.\nThen the fork is cancelled."),
-                ('8', ClientServer<RT>.main, "Client / server effect example", "Simple request/response example.  The client sends 3 values to the server and it increments them"),
-                ('9', FoldTest<RT>.main, "Pipe word folding example", "Folds keys from the keyboard into words, when a whitespace is encountered the folded word is yielded\ndown the pipe"),
-                ('a', TextFileLineStreamExample<RT>.main, "Text file line streaming example", "Streams the contents of a text file, one line at a time"), 
-                ('b', TextFileChunkStreamExample<RT>.main, "Text file chunk streaming example", "Streams the contents of a text file in chunks of 80 characters") 
+                ('8', FoldTest<RT>.main, "Pipe word folding example", "Folds keys from the keyboard into words, when a whitespace is encountered the folded word is yielded\ndown the pipe"),
+                ('9', TextFileLineStreamExample<RT>.main, "Text file line streaming example", "Streams the contents of a text file, one line at a time"), 
+                ('a', TextFileChunkStreamExample<RT>.main, "Text file chunk streaming example", "Streams the contents of a text file in chunks of 80 characters") 
+                //('8', ClientServer<RT>.main, "Client / server effect example", "Simple request/response example.  The client sends 3 values to the server and it increments them"),
             );
     }
 }

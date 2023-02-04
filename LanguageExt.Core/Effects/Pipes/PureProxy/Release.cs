@@ -18,7 +18,7 @@ namespace LanguageExt.Pipes
     {
         public abstract Release<B> Select<B>(Func<A, B> f);
         public abstract Release<B> SelectMany<B>(Func<A, Release<B>> f);
-        public abstract Enumerate<B> SelectMany<B>(Func<A, Enumerate<B>> f);
+        public abstract Enumerate<OUT, B> SelectMany<OUT, B>(Func<A, Enumerate<OUT, B>> f);
         public abstract Consumer<IN, B> SelectMany<IN, B>(Func<A, Consumer<IN, B>> f);
         public abstract Consumer<RT, IN, B> SelectMany<RT, IN, B>(Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasCancel<RT>;
         public abstract ConsumerLift<RT, IN, B> SelectMany<RT, IN, B>(Func<A, ConsumerLift<RT, IN, B>> f) where RT : struct, HasCancel<RT>;
@@ -27,7 +27,7 @@ namespace LanguageExt.Pipes
         public abstract Pipe<IN, OUT, B> SelectMany<IN, OUT, B>(Func<A, Pipe<IN, OUT, B>> f);
         public abstract Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasCancel<RT>;
 
-        public abstract Enumerate<A> ToEnumerate();
+        public abstract Enumerate<OUT, A> ToEnumerate<OUT>();
         public abstract Consumer<IN, A> ToConsumer<IN>();
         public abstract Producer<OUT, A> ToProducer<OUT>();
         public abstract Pipe<IN, OUT, A> ToPipe<IN, OUT>();
@@ -39,8 +39,8 @@ namespace LanguageExt.Pipes
         public abstract Client<RT, REQ, RES, A> InterpretClient<RT, REQ, RES>() where RT : struct, HasCancel<RT>;
         public abstract Server<RT, REQ, RES, A> InterpretServer<RT, REQ, RES>() where RT : struct, HasCancel<RT>;
             
-        public static implicit operator Release<A>(Pipes.Pure<A> ma) =>
-            new Release<A>.Pure(ma.Value);
+        public static implicit operator Release<A>(Pure<A> ma) =>
+            new Pure(ma.Value);
 
         public Release<B> Map<B>(Func<A, B> f) =>
             Select(f);
@@ -48,7 +48,7 @@ namespace LanguageExt.Pipes
         public Release<B> Bind<B>(Func<A, Release<B>> f) =>
             SelectMany(f);
         
-        public Enumerate<B> Bind<B>(Func<A, Enumerate<B>> f) =>
+        public Enumerate<OUT, B> Bind<OUT, B>(Func<A, Enumerate<OUT, B>> f) =>
             SelectMany(f);
         
         public Consumer<IN, B> Bind<IN, B>(Func<A, Consumer<IN, B>> f) =>
@@ -72,7 +72,7 @@ namespace LanguageExt.Pipes
         public Release<C> SelectMany<B, C>(Func<A, Release<B>> f, Func<A, B, C> project) =>
             SelectMany(a => f(a).Select(b => project(a, b)));    
         
-        public Enumerate<C> SelectMany<B, C>(Func<A, Enumerate<B>> f, Func<A, B, C> project) =>
+        public Enumerate<OUT, C> SelectMany<OUT, B, C>(Func<A, Enumerate<OUT, B>> f, Func<A, B, C> project) =>
             SelectMany(a => f(a).Select(b => project(a, b)));    
         
         public Consumer<IN, C> SelectMany<IN, B, C>(Func<A, Consumer<IN, B>> f, Func<A, B, C> project) =>
@@ -106,7 +106,7 @@ namespace LanguageExt.Pipes
             public override Release<B> SelectMany<B>(Func<A, Release<B>> f) =>
                 f(Value);
 
-            public override Enumerate<B> SelectMany<B>(Func<A, Enumerate<B>> f) =>
+            public override Enumerate<OUT, B> SelectMany<OUT, B>(Func<A, Enumerate<OUT, B>> f) =>
                 f(Value);
 
             public override Consumer<IN, B> SelectMany<IN, B>(Func<A, Consumer<IN, B>> f) =>
@@ -130,8 +130,8 @@ namespace LanguageExt.Pipes
             public override Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) =>
                 f(Value);
 
-            public override Enumerate<A> ToEnumerate() =>
-                new Enumerate<A>.Pure(Value);
+            public override Enumerate<OUT, A> ToEnumerate<OUT>() =>
+                new Enumerate<OUT, A>.Pure(Value);
 
             public override Consumer<IN, A> ToConsumer<IN>() =>
                 new Consumer<IN, A>.Pure(Value);
@@ -178,8 +178,8 @@ namespace LanguageExt.Pipes
             public override Release<B> SelectMany<B>(Func<A, Release<B>> f) =>
                 new Release<B>.Do<X>(Value, x => Next(x).Bind(f));
 
-            public override Enumerate<B> SelectMany<B>(Func<A, Enumerate<B>> f) =>
-                new Enumerate<B>.Release<X>(Value, x => Next(x).Bind(f));
+            public override Enumerate<OUT, B> SelectMany<OUT, B>(Func<A, Enumerate<OUT, B>> f) =>
+                new Enumerate<OUT, B>.Release<X>(Value, x => Next(x).Bind(f));
 
             public override Consumer<IN, B> SelectMany<IN, B>(Func<A, Consumer<IN, B>> f) =>
                 new Consumer<IN, B>.Release<X>(Value, x => Next(x).Bind(f));
@@ -202,8 +202,8 @@ namespace LanguageExt.Pipes
             public override Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) =>
                 Pipe.release<RT, IN, OUT, X>(Value).Bind(x => Next(x).Bind(f)).ToPipe();
 
-            public override Enumerate<A> ToEnumerate() =>
-                new Enumerate<A>.Release<X>(Value, x => Next(x).ToEnumerate());
+            public override Enumerate<OUT, A> ToEnumerate<OUT>() =>
+                new Enumerate<OUT, A>.Release<X>(Value, x => Next(x).ToEnumerate<OUT>());
 
             public override Consumer<IN, A> ToConsumer<IN>() =>
                 new Consumer<IN, A>.Release<X>(Value, x => Next(x).ToConsumer<IN>());
