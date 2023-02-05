@@ -140,7 +140,7 @@ namespace LanguageExt
         [Pure]
         public static OptionAsync<T> SomeAsync<T>(T? value) where T : struct =>
             value.HasValue
-                ? default(MOptionAsync<T>).ReturnAsync(_ => value.Value.AsTask())
+                ? OptionAsync<T>.SomeAsync(value.Value.AsTask())
                 : raise<OptionAsync<T>>(new ValueIsNullException());
 
         /// <summary>

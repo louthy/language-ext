@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using static LanguageExt.OptionalAsync;
@@ -31,17 +32,16 @@ namespace LanguageExt
     ///     
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
-    [AsyncMethodBuilder(typeof(OptionAsyncMethodBuilder<>))]
     public readonly struct OptionAsync<A> :
         IAsyncEnumerable<A>,
         IOptionalAsync
     {
-        internal readonly Task<(bool IsSome, A Value)> data;
+        internal readonly Task<(bool IsSome, A? Value)> data;
 
         /// <summary>
         /// None
         /// </summary>
-        public static readonly OptionAsync<A> None = new OptionAsync<A>((false, default(A)).AsTask());
+        public static readonly OptionAsync<A> None = new ((false, default(A)).AsTask());
 
         /// <summary>
         /// Construct an OptionAsync of A in a Some state
@@ -52,7 +52,7 @@ namespace LanguageExt
         public static OptionAsync<A> Some(A value) =>
             isnull(value)
                 ? throw new ValueIsNullException()
-                : new OptionAsync<A>((true, value).AsTask());
+                : new OptionAsync<A>((true, (A?)value).AsTask());
 
         /// <summary>
         /// Construct an OptionAsync of A in a Some state
@@ -61,9 +61,9 @@ namespace LanguageExt
         /// <returns>OptionAsync of A</returns>
         [Pure]
         public static OptionAsync<A> SomeAsync(Task<A> value) =>
-            new OptionAsync<A>(value.Map(v => isnull(v)
+            new(value.Map(v => v is null
                 ? throw new ValueIsNullException()
-                : (true, v)));
+                : (true, (A?)v)));
 
         /// <summary>
         /// Construct an OptionAsync of A in a Some state
@@ -71,8 +71,8 @@ namespace LanguageExt
         /// <param name="value">Value to bind, must be non-null</param>
         /// <returns>OptionAsync of A</returns>
         [Pure]
-        public static OptionAsync<A> Optional(A value) =>
-             new OptionAsync<A>((notnull(value), value).AsTask());
+        public static OptionAsync<A> Optional(A? value) =>
+             new ((notnull(value), value).AsTask());
 
         /// <summary>
         /// Construct an OptionAsync of A in a Some state
@@ -80,33 +80,41 @@ namespace LanguageExt
         /// <param name="value">Value to bind, must be non-null</param>
         /// <returns>OptionAsync of A</returns>
         [Pure]
-        public static OptionAsync<A> OptionalAsync(Task<A> value) =>
-            new OptionAsync<A>(value.Map(v => isnull(v)
-                ? (false, default(A))
-                : (true, v)));
+        public static OptionAsync<A> OptionalAsync(Task<A?> value)
+        {
+            return value is null
+                ? throw new ArgumentNullException(nameof(value))
+                : new OptionAsync<A>(Go());
+            
+            async Task<(bool, A?)> Go()
+            {
+                var x = await value;
+                return (x is not null, x);
+            }
+        }
 
         /// <summary>
         /// Data accessor
         /// </summary>
-        internal Task<(bool IsSome, A Value)> Data => 
+        internal Task<(bool IsSome, A? Value)> Data => 
             data ?? None.data;
 
         /// <summary>
         /// Takes the value-type OptionV<A>
         /// </summary>
-        internal OptionAsync(Task<(bool IsSome, A Value)> data) =>
+        internal OptionAsync(Task<(bool IsSome, A? Value)> data) =>
             this.data = data;
 
         /// <summary>
         /// Ctor that facilitates serialisation
         /// </summary>
         /// <param name="option">None or Some A.</param>
-        public OptionAsync(IEnumerable<A> option)
+        public OptionAsync(IEnumerable<A?> option)
         {
             var first = option.Take(1).ToArray();
-            this.data = first.Length == 0
+            data = first.Length == 0
                 ? (false, default(A)).AsTask()
-                : (true, first[0]).AsTask();
+                : (first[0] is not null, first[0]).AsTask();
         }
 
         /// <summary>
@@ -119,15 +127,15 @@ namespace LanguageExt
         ///
         /// </remarks>
         [Pure]
-        public ValueTask<object> Case =>
+        public ValueTask<object?> Case =>
             GetCase();
 
         [Pure]
-        async ValueTask<object> GetCase()
+        async ValueTask<object?> GetCase()
         {
             var (isSome, value) = await data.ConfigureAwait(false);
             return isSome
-                ? (object)value
+                ? value
                 : null;
         }
 
@@ -136,7 +144,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="a">Unit value</param>
         [Pure]
-        public static implicit operator OptionAsync<A>(A a) =>
+        public static implicit operator OptionAsync<A>(A? a) =>
             Optional(a);
 
         /// <summary>
@@ -144,7 +152,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="a">Unit value</param>
         [Pure]
-        public static implicit operator OptionAsync<A>(Task<A> a) =>
+        public static implicit operator OptionAsync<A>(Task<A?> a) =>
             OptionalAsync(a);
 
         /// <summary>
@@ -153,7 +161,7 @@ namespace LanguageExt
         /// <param name="a">None value</param>
         [Pure]
         public static implicit operator OptionAsync<A>(OptionNone a) =>
-            default;
+            None;
 
         /// <summary>
         /// Coalescing operator
@@ -174,8 +182,10 @@ namespace LanguageExt
             var a = await Data.ConfigureAwait(false);
             var b = await rhs.Data.ConfigureAwait(false);
             if(a.IsSome != b.IsSome) return false; 
-            if(!a.IsSome && !b.IsSome) return true; 
+            if(!a.IsSome) return true; 
+            #nullable disable
             return await default(EqA).EqualsAsync(a.Value, b.Value).ConfigureAwait(false);
+            #nullable enable
         }
 
         /// <summary>
@@ -218,7 +228,9 @@ namespace LanguageExt
             var b = await rhs.Data.ConfigureAwait(false);
             var c = default(OrdBool).Compare(a.IsSome, b.IsSome);
             if (c != 0) return c;
+            #nullable disable
             return default(OrdA).Compare(a.Value, b.Value);
+            #nullable enable
         }
 
         /// <summary>
@@ -314,14 +326,9 @@ namespace LanguageExt
         /// <summary>
         /// Helper accessor for the bound value
         /// </summary>
-        internal Task<A> Value =>
+        [Pure]
+        public Task<A?> Value =>
             Data.Map(a => a.Value);
-
-        /// <summary>
-        /// Custom awaiter so OptionAsync can be used with async/await 
-        /// </summary>
-        public OptionAsyncAwaiter<A> GetAwaiter() =>
-            new OptionAsyncAwaiter<A>(this);
         
         /// <summary>
         /// Impure iteration of the bound value in the structure
@@ -340,8 +347,10 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionAsync<B> Select<B>(Func<A, B> f) =>
-            default(MOptionAsync<A>)
-                .Bind<MOptionAsync<B>, OptionAsync<B>, B>(this, x => OptionAsync<B>.Some(f(x)));
+            new (Data.Map(p =>
+                p.IsSome && p.Value is not null 
+                    ? (true, f(p.Value))
+                    : (false, default)));
 
         /// <summary>
         /// Projection from one value to another 
@@ -351,8 +360,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionAsync<B> Map<B>(Func<A, B> f) =>
-            default(MOptionAsync<A>)
-                .Bind<MOptionAsync<B>, OptionAsync<B>, B>(this, x => OptionAsync<B>.Some(f(x)));
+            Select(f);
 
         /// <summary>
         /// Projection from one value to another 
@@ -362,22 +370,30 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionAsync<B> MapAsync<B>(Func<A, Task<B>> f) =>
-            default(MOptionAsync<A>)
-                .BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(this, async x => OptionAsync<B>.Some(await f(x).ConfigureAwait(false)));
+            new (Data.MapAsync(async p =>
+                p.IsSome && p.Value is not null 
+                    ? (true, await f(p.Value).ConfigureAwait(false))
+                    : (false, default)));
 
         /// <summary>
         /// Monad bind operation
         /// </summary>
         [Pure]
         public OptionAsync<B> Bind<B>(Func<A, OptionAsync<B>> f) =>
-            default(MOptionAsync<A>).Bind<MOptionAsync<B>, OptionAsync<B>, B>(this, f);
+            new (Data.MapAsync(async p =>
+                p.IsSome && p.Value is not null 
+                    ? await f(p.Value).Data.ConfigureAwait(false)
+                    : (false, default)));
 
         /// <summary>
         /// Monad bind operation
         /// </summary>
         [Pure]
         public OptionAsync<B> BindAsync<B>(Func<A, Task<OptionAsync<B>>> f) =>
-            default(MOptionAsync<A>).BindAsync<MOptionAsync<B>, OptionAsync<B>, B>(this, f);
+            new (Data.MapAsync(async p =>
+                p.IsSome && p.Value is not null 
+                    ? await (await f(p.Value).ConfigureAwait(false)).Data.ConfigureAwait(false)
+                    : (false, default)));
 
         /// <summary>
         /// Monad bind operation
@@ -386,9 +402,7 @@ namespace LanguageExt
         public OptionAsync<C> SelectMany<B, C>(
             Func<A, OptionAsync<B>> bind,
             Func<A, B, C> project) =>
-            default(MOptionAsync<A>).Bind<MOptionAsync<C>, OptionAsync<C>, C>(this,    a =>
-            default(MOptionAsync<B>).Bind<MOptionAsync<C>, OptionAsync<C>, C>(bind(a), b =>
-            default(MOptionAsync<C>).ReturnAsync(project(a, b).AsTask())));
+            Bind(a => bind(a).Map(b => project(a, b)));
 
         /// <summary>
         /// Match operation with an untyped value for Some. This can be
@@ -503,7 +517,7 @@ namespace LanguageExt
             {
                 var d = await ldata;
                 
-                return d.IsSome
+                return d.IsSome && d.Value is not null
                     ? Fin<A>.Succ(d.Value)
                     : Fin<A>.Fail(Fail);
             }
@@ -589,7 +603,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SomeAsyncUnitContext<MOptionAsync<A>, OptionAsync<A>, A> Some(Action<A> f) =>
-            new SomeAsyncUnitContext<MOptionAsync<A>, OptionAsync<A>, A>(this, f);
+            new (this, f);
 
         /// <summary>
         /// Fluent pattern matching.  Provide a Some handler and then follow
@@ -603,7 +617,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SomeAsyncContext<MOptionAsync<A>, OptionAsync<A>, A, B> Some<B>(Func<A, B> f) =>
-            new SomeAsyncContext<MOptionAsync<A>, OptionAsync<A>, A, B>(this, f);
+            new (this, f);
 
         /// <summary>
         /// Match the two states of the Option and return a non-null R.
@@ -1410,7 +1424,7 @@ namespace LanguageExt
         public async IAsyncEnumerator<A> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         {
             var (isSome, value) = await Data.ConfigureAwait(false);
-            if(isSome)
+            if(isSome && value is not null)
             {
                 yield return value;
             }
