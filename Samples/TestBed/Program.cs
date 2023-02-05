@@ -139,12 +139,12 @@ public class Program
         var timeHalfStep = Observable.Interval(TimeSpan.FromSeconds(.5)).Select(_ => "half");
         var channel1     = Producer.yieldAll<Runtime, string>(timeOneStep);
         var channel2     = Producer.yieldAll<Runtime, string>(timeHalfStep);
-        var channel      = (channel1 + channel2) | writeLine;
+        var channel      = Producer.merge(channel1, channel2) | writeLine;
 
         var result = (await queueing //.RunEffect()
                          .Run(Runtime.New()))
            .Match(Succ: x => Console.WriteLine($"Success: {x}"),
-                  Fail: e => Console.WriteLine(e));
+                  Fail: Console.WriteLine);
     }
 
     static Effect<Runtime, Unit> fizzBuzz =>

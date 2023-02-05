@@ -2,11 +2,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using LanguageExt.Effects;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Pipes.Proxy;
 using static LanguageExt.Prelude;
@@ -71,57 +70,19 @@ namespace LanguageExt.Pipes
             where RT : struct, HasCancel<RT> =>
             yieldAll<RT, X>(new EnumerateObservable<X>(xs));
         
-        /*
-        [Pure, MethodImpl(mops)]
-        internal static Producer<RT, OUT, X> enumerate<RT, OUT, X>(EnumerateData<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Void, Unit, Unit, OUT, X, X>(xs, Pure<RT, OUT, X>).ToProducer();
-        
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, OUT, X> enumerate<RT, OUT, X>(IEnumerable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            enumerate<RT, OUT, X>(new EnumerateEnumerable<X>(xs));
-        
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, X, X> enumerate2<RT, X>(IEnumerable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            enumerate<RT, X, X>(new EnumerateEnumerable<X>(xs));
-
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, OUT, X> enumerate<RT, OUT, X>(IAsyncEnumerable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            enumerate<RT, OUT, X>(new EnumerateAsyncEnumerable<X>(xs));
-
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, X, X> enumerate2<RT, X>(IAsyncEnumerable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            enumerate<RT, X, X>(new EnumerateAsyncEnumerable<X>(xs));
-
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, OUT, X> observe<RT, OUT, X>(IObservable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            enumerate<RT, OUT, X>(new EnumerateObservable<X>(xs));
-     
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, X, X> observe2<RT, X>(IObservable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            enumerate<RT, X, X>(new EnumerateObservable<X>(xs));
-            */
-
-        
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, A, R> repeatM<RT, A, R>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, R>());
+            compose(lift<RT, A, A>(ma), cat<RT, A, R>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, A, Unit> repeatM<RT, A>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
+            compose(lift<RT, A, A>(ma), cat<RT, A, Unit>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
@@ -382,8 +343,6 @@ namespace LanguageExt.Pipes
                     }
                 });
         }
-
- 
         
         
         /// <summary>
@@ -392,40 +351,80 @@ namespace LanguageExt.Pipes
         /// <remarks>The merged producer completes when all component producers have completed</remarks>
         /// <param name="ms">Sequence of producers to merge</param>
         /// <returns>Merged producers</returns>
-        public static Producer<RT, OUT, A> merge<RT, OUT, A>(Seq<Producer<RT, OUT, A>> ms) where RT : struct, HasCancel<RT>
+        public static Producer<RT, OUT, Unit> merge<RT, OUT>(Seq<Producer<RT, OUT, Unit>> ms) where RT : struct, HasCancel<RT>
         {
-            return from e in lift<RT, OUT, RT>(runtime<RT>())
-                   from x in yieldAll<RT, OUT>(go(e))
-                   select default(A);
+            var prod = from e in lift<RT, Fin<OUT>, RT>(runtime<RT>())
+                       from x in yieldAll<RT, Fin<OUT>>(go(e))
+                       select unit;
             
-            async IAsyncEnumerable<OUT> go(RT env)
+            var pipe = from fo in Pipe.awaiting<RT, Fin<OUT>, OUT>()
+                       from nx in fo.Match(Succ: Pipe.yield<RT, Fin<OUT>, OUT>, 
+                                           Fail: e => Pipe.lift<RT, Fin<OUT>, OUT, Unit>(Aff<RT, Unit>.Fail(e)))
+                       select nx;
+
+            return prod | pipe;
+            
+            async IAsyncEnumerable<Fin<OUT>> go(RT env)
             {
                 var queue   = new ConcurrentQueue<OUT>();
                 var wait    = new AutoResetEvent(true);
                 var running = true;
+                Error failed = null;
+                
+                // Create a new local runtime with its own cancellation token
+                var lenv = env.LocalCancel;
+                    
+                // If the parent cancels, we should too
+                using var reg = env.CancellationToken.Register(() => lenv.CancellationTokenSource.Cancel());
 
-                // Create a consumer that simply awaits a value and then puts it in our concurrent queue 
-                // to be re-yielded
-                var enqueue = Consumer.awaiting<RT, OUT>()
-                                      .Map(x =>
-                                           {
-                                               queue.Enqueue(x);
-                                               wait.Set();
-                                               return default(A);
-                                           })
-                                      .ToConsumer();
+                // Posts a value to the queue and triggers the merged producer's yield
+                Unit post(OUT x)
+                {
+                    queue.Enqueue(x);
+                    wait.Set();
+                    return default;
+                }
 
+                // Consumer that drains any Producer
+                Consumer<RT, OUT, Unit> enqueue() =>
+                    from _ in Consumer.awaiting<RT, OUT>().Select(post)
+                    from r in enqueue()
+                    select default(Unit);
+
+                // Safe execution of an effect that captures and logs any errors
+                // We trigger the end of the whole merge operation if any error occurs
+                async Task<Fin<Unit>> run(Effect<RT, Unit> m)
+                {
+                    try
+                    {
+                        var r = await m.RunEffect().Run(lenv).AsTask().ConfigureAwait(false);
+                        if (r.IsFail && !r.Error.Is(Errors.Cancelled)) 
+                        {
+                            // Bail on all if we get any error (other than a cancellation)
+                            running = false;
+                            failed = failed?.Append(r.Error) ?? r.Error;
+                            lenv.CancellationTokenSource.Cancel();
+                            wait.Set();
+                        }
+                        return r;
+                    }
+                    catch (Exception e)
+                    {
+                        running = false;
+                        failed = failed?.Append(e) ?? e;
+                        lenv.CancellationTokenSource.Cancel();
+                        wait.Set();
+                        return (Error)e;
+                    }
+                }
+                
                 // Compose the enqueue Consumer with the Producer to create an Effect that can be run 
-                var mme = ms.Map(m => m | enqueue).Strict();
-
-                // Run the producing effects
-                // We should NOT be awaiting these 
-                var mmt = mme.Map(m => m.RunEffect().Run(env).AsTask());
+                var mmt = ms.Map(m => m | enqueue()).Map(run).ToArray();
 
                 // When all tasks are done, we're done
                 // We should NOT be awaiting this 
                 #pragma warning disable CS4014             
-                Task.WhenAll(mmt.ToArray())
+                Task.WhenAll(mmt)
                     .Iter(_ =>
                           {
                               running = false;
@@ -435,14 +434,19 @@ namespace LanguageExt.Pipes
 
                 do
                 {
-                    await wait.WaitOneAsync(env.CancellationToken).ConfigureAwait(false);
+                    await wait.WaitOneAsync(lenv.CancellationToken).ConfigureAwait(false);
                     while (queue.TryDequeue(out var item))
                     {
                         yield return item;
                     }
                 }
                 // Keep processing until we're cancelled or all of the Producers have stopped producing
-                while (running && !env.CancellationToken.IsCancellationRequested);
+                while (running && !lenv.CancellationToken.IsCancellationRequested);
+
+                if (failed != null)
+                {
+                    yield return failed;
+                }
             }
         }
         
@@ -452,8 +456,9 @@ namespace LanguageExt.Pipes
         /// <remarks>The merged producer completes when all component queues have completed</remarks>
         /// <param name="ms">Sequence of queues to merge</param>
         /// <returns>Queues merged into a single producer</returns>
-        public static Producer<RT, OUT, A> merge<RT, OUT, A>(params Queue<RT, OUT, A>[] ms) where RT : struct, HasCancel<RT> =>
-            merge(toSeq(ms.Map(m => (Producer<RT, OUT, A>)m)));
+        public static Producer<RT, OUT, Unit> merge<RT, OUT>(params Queue<RT, OUT, Unit>[] ms) 
+            where RT : struct, HasCancel<RT> =>
+            merge(toSeq(ms.Map(m => (Producer<RT, OUT, Unit>)m)));
  
         /// <summary>
         /// Merge an array of producers into a single producer
@@ -461,7 +466,8 @@ namespace LanguageExt.Pipes
         /// <remarks>The merged producer completes when all component producers have completed</remarks>
         /// <param name="ms">Sequence of producers to merge</param>
         /// <returns>Merged producers</returns>
-        public static Producer<RT, OUT, A> merge<RT, OUT, A>(params Producer<RT, OUT, A>[] ms) where RT : struct, HasCancel<RT> =>
+        public static Producer<RT, OUT, Unit> merge<RT, OUT>(params Producer<RT, OUT, Unit>[] ms) 
+            where RT : struct, HasCancel<RT> =>
             merge(toSeq(ms));
  
         /// <summary>
@@ -470,7 +476,8 @@ namespace LanguageExt.Pipes
         /// <remarks>The merged producer completes when all component producers have completed</remarks>
         /// <param name="ms">Sequence of producers to merge</param>
         /// <returns>Merged producers</returns>
-        public static Producer<RT, OUT, A> merge<RT, OUT, A>(params Proxy<RT, Void, Unit, Unit, OUT, A>[] ms) where RT : struct, HasCancel<RT> =>
+        public static Producer<RT, OUT, Unit> merge<RT, OUT>(params Proxy<RT, Void, Unit, Unit, OUT, Unit>[] ms) 
+            where RT : struct, HasCancel<RT> =>
             merge(toSeq(ms).Map(m => m.ToProducer()));
  
         /// <summary>
@@ -479,8 +486,9 @@ namespace LanguageExt.Pipes
         /// <remarks>The merged producer completes when all component queues have completed</remarks>
         /// <param name="ms">Sequence of queues to merge</param>
         /// <returns>Queues merged into a single producer</returns>
-        public static Producer<RT, OUT, A> merge<RT, OUT, A>(Seq<Queue<RT, OUT, A>> ms) where RT : struct, HasCancel<RT> =>
-            merge(ms.Map(m => (Producer<RT, OUT, A>)m));
+        public static Producer<RT, OUT, Unit> merge<RT, OUT>(Seq<Queue<RT, OUT, Unit>> ms) 
+            where RT : struct, HasCancel<RT> =>
+            merge(ms.Map(m => (Producer<RT, OUT, Unit>)m));
  
         /// <summary>
         /// Merge a sequence of producers into a single producer
@@ -488,7 +496,8 @@ namespace LanguageExt.Pipes
         /// <remarks>The merged producer completes when all component producers have completed</remarks>
         /// <param name="ms">Sequence of producers to merge</param>
         /// <returns>Merged producers</returns>
-        public static Producer<RT, OUT, A> merge<RT, OUT, A>(Seq<Proxy<RT, Void, Unit, Unit, OUT, A>> ms) where RT : struct, HasCancel<RT> =>
+        public static Producer<RT, OUT, Unit> merge<RT, OUT>(Seq<Proxy<RT, Void, Unit, Unit, OUT, Unit>> ms) 
+            where RT : struct, HasCancel<RT> =>
             merge(ms.Map(m => m.ToProducer()));
     }
 }

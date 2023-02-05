@@ -278,18 +278,6 @@ namespace LanguageExt.Pipes
             SelectMany(a => bind(a).Select(b => project(a, b)));
 
         /// <summary>
-        /// Merge two producers together into one.  This is effectively like getting to producing streams and merging
-        /// them into one stream.  If you're doing this with many producers it's more efficient to call `Producer.merge(...)`
-        /// with many `Producers` than just summing them.  If you're merging 2 or 3, then this is fine.
-        /// </summary>
-        /// <param name="ma">First `Producer` to merge</param>
-        /// <param name="mb">Second `Producer` to merge</param>
-        /// <returns>A new `Producer` with both inputs merged</returns>
-        [Pure]
-        public static Producer<RT, OUT, A> operator +(Producer<RT, OUT, A> ma, Producer<RT, OUT, A> mb) =>
-            Producer.merge(ma, mb);
-
-        /// <summary>
         /// Chain one producer's set of yields after another
         /// </summary>
         [Pure]

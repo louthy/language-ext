@@ -103,9 +103,5 @@ namespace LanguageExt.Pipes
         [Pure]
         public static Effect<RT, A> operator |(Queue<RT, OUT, A> p1, Consumer<OUT, A> p2) => 
             Proxy.compose(p1, p2);
-
-        [Pure]
-        public static Producer<RT, OUT, A> operator +(Queue<RT, OUT, A> ma, Queue<RT, OUT, A> mb) =>
-            Producer.merge(ma, mb);
     }
 }

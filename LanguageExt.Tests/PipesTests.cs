@@ -13,7 +13,7 @@ public class PipesTests
     [Fact]
     public Task MergeSynchronousProducersSucceeds() =>
         compose(
-            Producer.merge<Runtime, int, Unit>(
+            Producer.merge<Runtime, int>(
                 yield(1),
                 yield(1)),
             awaiting<int>().Map(ignore))

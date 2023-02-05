@@ -6,7 +6,6 @@ using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Pipes
 {
-   
     internal abstract class Enumerate<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>
         where RT : struct, HasCancel<RT>
     {

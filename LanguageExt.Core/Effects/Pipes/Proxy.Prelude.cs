@@ -155,22 +155,45 @@ namespace LanguageExt.Pipes
         /// Repeat the `Producer` indefinitely
         /// </summary>
         [Pure, MethodImpl(mops)]
-        public static Producer<RT, OUT, R> repeat<RT, OUT, R>(Producer<RT, OUT, R> ma) where RT : struct, HasCancel<RT> =>
-            new Repeat<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
+        public static Producer<RT, OUT, Unit> repeat<RT, OUT, R>(Producer<RT, OUT, R> ma) where RT : struct, HasCancel<RT> =>
+            new Enumerate<RT, Void, Unit, Unit, OUT, Unit, Unit>(
+                    new EnumerateEnumerable<Unit>(units),
+                    _ => ma.ToProxy().Map(_ => unit),
+                    _ => Producer.Pure<RT, OUT, Unit>(unit))
+                .ToProducer();
 
         /// <summary>
         /// Repeat the `Consumer` indefinitely
         /// </summary>
         [Pure, MethodImpl(mops)]
-        public static Consumer<RT, IN, R> repeat<RT, IN, R>(Consumer<RT, IN, R> ma) where RT : struct, HasCancel<RT> =>
-            new Repeat<RT, Unit, IN, Unit, Void, R>(ma).ToConsumer();
+        public static Consumer<RT, IN, Unit> repeat<RT, IN, R>(Consumer<RT, IN, R> ma) where RT : struct, HasCancel<RT> =>
+            new Enumerate<RT, Unit, IN, Unit, Void, Unit, Unit>(
+                    new EnumerateEnumerable<Unit>(units),
+                    _ => ma.ToProxy().Map(_ => unit),
+                    _ => Consumer.Pure<RT, IN, Unit>(unit))
+                .ToConsumer();
 
         /// <summary>
         /// Repeat the `Pipe` indefinitely
         /// </summary>
         [Pure, MethodImpl(mops)]
-        public static Pipe<RT, IN, OUT, R> repeat<RT, IN, OUT, R>(Pipe<RT, IN, OUT, R> ma) where RT : struct, HasCancel<RT> =>
-            new Repeat<RT, Unit, IN, Unit, OUT, R>(ma).ToPipe();
+        public static Pipe<RT, IN, OUT, Unit> repeat<RT, IN, OUT, R>(Pipe<RT, IN, OUT, R> ma) where RT : struct, HasCancel<RT> =>
+            new Enumerate<RT, Unit, IN, Unit, OUT, Unit, Unit>(
+                    new EnumerateEnumerable<Unit>(units),
+                    _ => ma.ToProxy().Map(_ => unit),
+                    _ => Pipe.Pure<RT, IN, OUT, Unit>(unit))
+                .ToPipe();
+
+        static IEnumerable<Unit> units
+        {
+            get
+            {
+                while (true)
+                {
+                    yield return default;
+                }
+            }
+        }
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
@@ -686,7 +709,6 @@ namespace LanguageExt.Pipes
                     Respond<RT, A1, A, B1, B, Func<R, S>> (var b, var fb1) => new Respond<RT, A1, A, B1, B, S>(b, b1 => Go(fb1(b1))),
                     M<RT, A1, A, B1, B, Func<R, S>> (var m)                => new M<RT, A1, A, B1, B, S>(m.Map(Go)),
                     Pure<RT, A1, A, B1, B, Func<R, S>> (var f)             => px.Map(f),
-                    Repeat<RT, A1, A, B1, B, Func<R, S>> (var innr)        => new Repeat<RT, A1, A, B1, B, S>(innr.Apply(px)),
                     Enumerate<RT, A1, A, B1, B, Func<R, S>> enumer         => enumer.Bind(px.Map),
                     Use<RT, A1, A, B1, B, Func<R, S>> use                  => use.Bind(px.Map),
                     Release<RT, A1, A, B1, B, Func<R, S>> rel              => rel.Bind(px.Map),

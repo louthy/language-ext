@@ -46,7 +46,6 @@ namespace LanguageExt.Pipes
                     M<RT, Void, Unit, Unit, Void, R> (var m)          => m.Bind(Go),
                     Pure<RT, Void, Unit, Unit, Void, R> (var r)       => Aff<RT, R>.Success(r),                                                                                
                     Enumerate<RT, Void, Unit, Unit, Void, R> me       => EnumerateCase(me, disps),
-                    Repeat<RT, Void, Unit, Unit, Void, R> r           => RepeatCase(r, disps),
                     Use<RT, Void, Unit, Unit, Void, R> mu             => mu.Run(disps).RunEffect(disps),
                     Release<RT, Void, Unit, Unit, Void, R> mu         => mu.Run(disps).RunEffect(disps),
                     Request<RT, Void, Unit, Unit, Void, R> (var v, _) => closed<Aff<RT, R>>(v),
@@ -78,26 +77,6 @@ namespace LanguageExt.Pipes
                                 }
                             });
 
-
-        static Aff<RT, R> RepeatCase<RT, R>(
-            Repeat<RT, Void, Unit, Unit, Void, R> r, 
-            ConcurrentDictionary<object, IDisposable> disps)
-            where RT : struct, HasCancel<RT> =>
-            AffMaybe<RT, R>(
-                async env =>
-                {
-                    var effect = r.Inner.RunEffect(disps);
-                    while (!env.CancellationToken.IsCancellationRequested)
-                    {
-                        var fi = await effect.Run(env).ConfigureAwait(false);
-                        if (fi.IsFail) return fi.Error;
-                        if (fi.Value is IDisposable d)
-                        {
-                            d.Dispose();
-                        }
-                    }
-                    return Errors.Cancelled;
-                });
 
         static Aff<RT, R> EnumerateCase<RT, R>(
             Enumerate<RT, Void, Unit, Unit, Void, R> me,
@@ -156,8 +135,10 @@ namespace LanguageExt.Pipes
                 });
 
         [Pure]
-        static Aff<RT, R> RunEffect<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma,
-            ConcurrentDictionary<object, IDisposable> disps) where RT : struct, HasCancel<RT> =>
+        static Aff<RT, R> RunEffect<RT, R>(
+            this Proxy<RT, Void, Unit, Unit, Void, R> ma,
+            ConcurrentDictionary<object, IDisposable> disps) 
+            where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, R>(
                 async env =>
                 {
@@ -175,21 +156,6 @@ namespace LanguageExt.Pipes
                                 if (fp.IsFail) return fp.Error;
                                 p = fp.Value.ToProxy();
                                 break;
-
-                            case Repeat<RT, Void, Unit, Unit, Void, R> (var inner):
-                                var effect = inner.RunEffect(disps);
-                                while (!env.CancellationToken.IsCancellationRequested)
-                                {
-                                    var fi = await effect.Run(env).ConfigureAwait(false);
-                                    if (fi.IsFail) return fi.Error;
-                                    if (fi.Value is IDisposable d)
-                                    {
-                                        d.Dispose();
-                                    }
-                                }
-
-                                return Errors.Cancelled;
-
 
                             case Enumerate<RT, Void, Unit, Unit, Void, R> me:
                             {
@@ -264,6 +230,7 @@ namespace LanguageExt.Pipes
                     return Errors.Cancelled;
                 });
 
+        
         [Pure, MethodImpl(Proxy.mops)]
         public static Effect<RT, R> lift<RT, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
             lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();

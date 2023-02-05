@@ -75,50 +75,14 @@ namespace LanguageExt.Pipes
         public static Pipe<RT, IN, OUT, Unit> yieldAll<RT, IN, OUT>(IObservable<OUT> xs)
             where RT : struct, HasCancel<RT> =>
             yieldAll<RT, IN, OUT>(new EnumerateObservable<OUT>(xs));        
-        
-        /*
-        [Pure, MethodImpl(mops)]
-        internal static Pipe<RT, IN, OUT, X> enumerate<RT, IN, OUT, X>(EnumerateData<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Unit, IN, Unit, OUT, X, X>(xs, Pipe.Pure<RT, IN, OUT, X>).ToPipe();
-        
-        [Pure, MethodImpl(mops)]
-        public static Pipe<RT, IN, X, X> enumerate<RT, IN, X>(IEnumerable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Unit, IN, Unit, X, X, X>(xs, Pipe.Pure<RT, IN, X, X>).ToPipe();
-
-        [Pure, MethodImpl(mops)]
-        public static Pipe<RT, IN, OUT, X> enumerate<RT, IN, OUT, X>(IEnumerable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Unit, IN, Unit, OUT, X, X>(xs, Pipe.Pure<RT, IN, OUT, X>).ToPipe();
-        
-        [Pure, MethodImpl(mops)]
-        public static Pipe<RT, IN, X, X> enumerate<RT, IN, X>(IAsyncEnumerable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Unit, IN, Unit, X, X, X>(xs, Pipe.Pure<RT, IN, X, X>).ToPipe();
-
-        [Pure, MethodImpl(mops)]
-        public static Pipe<RT, IN, OUT, X> enumerate<RT, IN, OUT, X>(IAsyncEnumerable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Unit, IN, Unit, OUT, X, X>(xs, Pipe.Pure<RT, IN, OUT, X>).ToPipe();
-
-        [Pure, MethodImpl(mops)]
-        public static Pipe<RT, IN, X, X> observe<RT, IN, X>(IObservable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Unit, IN, Unit, X, X, X>(xs, Pipe.Pure<RT, IN, X, X>).ToPipe();
-
-        [Pure, MethodImpl(mops)]
-        public static Pipe<RT, IN, OUT, X> observe<RT, IN, OUT, X>(IObservable<X> xs)
-            where RT : struct, HasCancel<RT> =>
-            new Enumerate<RT, Unit, IN, Unit, OUT, X, X>(xs, Pipe.Pure<RT, IN, OUT, X>).ToPipe();*/
 
         /// <summary>
         /// Only forwards values that satisfy the predicate.
         /// </summary>
         public static Pipe<RT, A, A, Unit> filter<RT, A>(Func<A, bool> f)  where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, Unit>().For(a => f(a)
-                    ? Pipe.yield<RT, A, A>(a)
-                    : Pipe.Pure<RT, A, A, Unit>(default))
+            cat<RT, A, Unit>().For(a => f(a)
+                    ? yield<RT, A, A>(a)
+                    : Pure<RT, A, A, Unit>(default))
                 .ToPipe();
 
         /// <summary>
@@ -131,7 +95,7 @@ namespace LanguageExt.Pipes
         /// Map the output of the pipe (not the bound value as is usual with Map)
         /// </summary>
         public static Pipe<RT, A, B, Unit> map<RT, A, B>(Func<A, B> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, Unit>().For(a => Pipe.yield<RT, A, B>(f(a))).ToPipe();
+            cat<RT, A, Unit>().For(a => yield<RT, A, B>(f(a))).ToPipe();
 
         /// <summary>
         /// Map the output of the pipe (not the bound value as is usual with Map)
@@ -144,9 +108,8 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, B, R> mapM<RT, A, B, R>(Func<A, Aff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, R>()
-                 .ForEach<RT, A, A, B, R>(a => Pipe.lift<RT, A, B, B>(f(a))
-                                                .Bind(Pipe.yield<RT, A, B>)
+            cat<RT, A, R>()
+                 .ForEach(a => lift<RT, A, B, B>(f(a)).Bind(yield<RT, A, B>)
                  .ToPipe());
 
         /// <summary>
@@ -154,19 +117,16 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, A, Unit> mapM<RT, A>(Func<A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, Unit>()
-                .ForEach<RT, A, A, A, Unit>(a => Pipe.lift<RT, A, A, A>(f(a))
-                    .Bind(Pipe.yield<RT, A, A>)
-                    .ToPipe());
+            cat<RT, A, Unit>()
+                .ForEach(a => lift<RT, A, A, A>(f(a)).Bind(yield<RT, A, A>).ToPipe());
 
         /// <summary>
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, B, R> mapM<RT, A, B, R>(Func<A, Aff<B>> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, R>()
-                 .ForEach<RT, A, A, B, R>(a => Pipe.lift<RT, A, B, B>(f(a))
-                                                .Bind(Pipe.yield<RT, A, B>)
+            cat<RT, A, R>()
+                 .ForEach(a => lift<RT, A, B, B>(f(a)).Bind(yield<RT, A, B>)
                  .ToPipe());
         
         /// <summary>
@@ -174,30 +134,24 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, B, R> mapM<RT, A, B, R>(Func<A, Eff<RT, B>> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, R>()
-                .ForEach<RT, A, A, B, R>(a => Pipe.lift<RT, A, B, B>(f(a))
-                    .Bind(Pipe.yield<RT, A, B>)
-                    .ToPipe());
+            cat<RT, A, R>()
+                .ForEach(a => lift<RT, A, B, B>(f(a)).Bind(yield<RT, A, B>).ToPipe());
         
         /// <summary>
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, A, Unit> mapM<RT, A>(Func<A, Eff<RT, A>> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, Unit>()
-                .ForEach<RT, A, A, A, Unit>(a => Pipe.lift<RT, A, A, A>(f(a))
-                    .Bind(Pipe.yield<RT, A, A>)
-                    .ToPipe());
+            cat<RT, A, Unit>()
+                .ForEach(a => lift<RT, A, A, A>(f(a)).Bind(yield<RT, A, A>).ToPipe());
 
         /// <summary>
         /// Apply a monadic function to all values flowing downstream (not the bound value as is usual with Map)
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Pipe<RT, A, B, R> mapM<RT, A, B, R>(Func<A, Eff<B>> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, R>()
-                .ForEach<RT, A, A, B, R>(a => Pipe.lift<RT, A, B, B>(f(a))
-                    .Bind(Pipe.yield<RT, A, B>)
-                    .ToPipe());
+            cat<RT, A, R>()
+                .ForEach(a => lift<RT, A, B, B>(f(a)).Bind(yield<RT, A, B>).ToPipe());
 
         /// <summary>
         /// Lift the IO monad into the Pipe monad transformer (a specialism of the Proxy monad transformer)
