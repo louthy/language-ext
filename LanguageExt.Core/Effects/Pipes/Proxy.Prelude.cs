@@ -340,9 +340,11 @@ namespace LanguageExt.Pipes
         /// `pull` is the identity of the pull category.
         /// </remarks>
         [Pure, MethodImpl(mops)]
-        public static Proxy<RT, UOut, UIn, UOut, UIn, A> pull<RT, UOut, UIn, A>(UOut a1) 
+        public static Proxy<RT, UOut, UIn, UOut, UIn, A> pull<RT, UOut, UIn, A>(UOut a1)
             where RT : struct, HasCancel<RT> =>
-            new Request<RT, UOut, UIn, UOut, UIn, A>(a1, a => new Respond<RT, UOut, UIn, UOut, UIn, A>(a, pull<RT, UOut, UIn, A>));
+            new Request<RT, UOut, UIn, UOut, UIn, A>(a1,
+                a => new Respond<RT, UOut, UIn, UOut, UIn, A>(a,
+                    pull<RT, UOut, UIn, A>));
 
         /// <summary>
         /// `push = respond | request | push`
@@ -353,7 +355,9 @@ namespace LanguageExt.Pipes
         [Pure, MethodImpl(mops)]
         public static Proxy<RT, UOut, UIn, UOut, UIn, A> push<RT, UOut, UIn, A>(UIn a) 
             where RT : struct, HasCancel<RT> =>
-            new Respond<RT, UOut, UIn, UOut, UIn, A>(a, a1 => new Request<RT, UOut, UIn, UOut, UIn, A>(a1, push<RT, UOut, UIn, A>));
+            new Respond<RT, UOut, UIn, UOut, UIn, A>(a, 
+                a1 => new Request<RT, UOut, UIn, UOut, UIn, A>(a1, 
+                    push<RT, UOut, UIn, A>));
 
         /// <summary>
         /// Send a value of type `DOut` downstream and block waiting for a reply of type `DIn`

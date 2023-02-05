@@ -69,62 +69,34 @@ namespace LanguageExt.Pipes
         public static Producer<RT, X, Unit> yieldAll<RT, X>(IObservable<X> xs)
             where RT : struct, HasCancel<RT> =>
             yieldAll<RT, X>(new EnumerateObservable<X>(xs));
-        
-        /// <summary>
-        /// Repeat a monadic action indefinitely, yielding each result
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, A, R> repeatM<RT, A, R>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            compose(lift<RT, A, A>(ma), cat<RT, A, R>());
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, A, Unit> repeatM<RT, A>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            compose(lift<RT, A, A>(ma), cat<RT, A, Unit>());
-
-        /// <summary>
-        /// Repeat a monadic action indefinitely, yielding each result
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, A, R> repeatM<RT, A, R>(Eff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, R>());
+            repeat(lift<RT, A, A>(ma).Bind(yield<RT, A>));
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, A, Unit> repeatM<RT, A>(Eff<RT, A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
-        
-        /// <summary>
-        /// Repeat a monadic action indefinitely, yielding each result
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, A, R> repeatM<RT, A, R>(Aff<A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, R>());
+            repeat(lift<RT, A, A>(ma).Bind(yield<RT, A>));
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, A, Unit> repeatM<RT, A>(Aff<A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
-
-        /// <summary>
-        /// Repeat a monadic action indefinitely, yielding each result
-        /// </summary>
-        [Pure, MethodImpl(mops)]
-        public static Producer<RT, A, R> repeatM<RT, A, R>(Eff<A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, R>());
+            repeat(lift<RT, A, A>(ma).Bind(yield<RT, A>));
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, A, Unit> repeatM<RT, A>(Eff<A> ma) where RT : struct, HasCancel<RT> =>
-            Proxy.compose(lift<RT, A, A>(ma), Proxy.cat<RT, A, Unit>());
+            repeat(lift<RT, A, A>(ma).Bind(yield<RT, A>));
 
         
         /// <summary>

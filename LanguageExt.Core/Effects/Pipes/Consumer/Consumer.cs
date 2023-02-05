@@ -170,65 +170,55 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Aff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, R>()
-                 .ForEach<RT, A, A, R>(a => lift<RT, A>(f(a)));
+            cat<RT, A, R>().ForEach(a => lift<RT, A>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Aff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, Unit>()
-                 .ForEach<RT, A, A, Unit>(a => lift<RT, A>(f(a)));
+            cat<RT, A, Unit>().ForEach(a => lift<RT, A>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Eff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, R>()
-                 .ForEach<RT, A, A, R>(a => lift<RT, A>(f(a)));
+            cat<RT, A, R>().ForEach(a => lift<RT, A>(f(a)));
         
         /// <summary>
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Eff<RT, Unit>> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, Unit>()
-                 .ForEach<RT, A, A, Unit>(a => lift<RT, A>(f(a)));
+            cat<RT, A, Unit>().ForEach(a => lift<RT, A>(f(a)));
         
-        
-
         /// <summary>
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Aff<Unit>> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, R>()
-                 .ForEach<RT, A, A, R>(a => lift<RT, A, Unit>(f(a)));
+            cat<RT, A, R>().ForEach(a => lift<RT, A, Unit>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Aff<Unit>> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, Unit>()
-                 .ForEach<RT, A, A, Unit>(a => lift<RT, A, Unit>(f(a)));
+            cat<RT, A, Unit>().ForEach(a => lift<RT, A, Unit>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Eff<Unit>> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, R>()
-                 .ForEach<RT, A, A, R>(a => lift<RT, A, Unit>(f(a)));
+            cat<RT, A, R>().ForEach(a => lift<RT, A, Unit>(f(a)));
 
         /// <summary>
         /// Consume all values using a monadic function
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Eff<Unit>> f) where RT : struct, HasCancel<RT> =>
-            Proxy.cat<RT, A, Unit>()
-                 .ForEach<RT, A, A, Unit>(a => lift<RT, A, Unit>(f(a)));        
+            cat<RT, A, Unit>().ForEach(a => lift<RT, A, Unit>(f(a)));        
     }
 }

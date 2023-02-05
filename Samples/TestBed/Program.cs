@@ -69,7 +69,7 @@ public class Program
         //var _ = QueueExample<Runtime>.Issue1065().RunUnit(new Runtime()).Result;
         //ScheduleTests.Run();
         //ApplicativeTest.Test().GetAwaiter().GetResult();
-        ignore(PipesTestBed.effect.RunEffect().Run(Runtime.New()).Result);
+        Console.WriteLine(PipesTestBed.effect.RunEffect().Run(Runtime.New()).Result);
     }
 
     public static async Task PipesTest()

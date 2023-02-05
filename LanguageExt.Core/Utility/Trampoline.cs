@@ -1,9 +1,8 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Threading.Tasks;
 
 namespace LanguageExt;
-using static LanguageExt.Prelude;
-
 
 public class Trampoline
 {
