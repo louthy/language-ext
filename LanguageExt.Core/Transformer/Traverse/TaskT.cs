@@ -1,9 +1,6 @@
 #nullable enable
 using System;
-using LanguageExt;
-using System.Linq;
 using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.TypeClasses;
@@ -91,7 +88,7 @@ namespace LanguageExt
             {
                 rb.Add(f(await a.ConfigureAwait(false)));
             }
-            return Seq.FromArray<B>(rb.ToArray());
+            return Seq.FromArray(rb.ToArray());
         }
         
         public static Task<Seq<B>> TraverseParallel<A, B>(this Seq<Task<A>> ma, int windowSize, Func<A, B> f) =>
@@ -145,7 +142,9 @@ namespace LanguageExt
         {
             var (s, v) = await ma.Data.ConfigureAwait(false);
             if (!s) return OptionAsync<B>.None;
+            #nullable disable
             var a = await v.ConfigureAwait(false);
+            #nullable enable
             return OptionAsync<B>.Some(f(a));
         }
         
@@ -240,7 +239,7 @@ namespace LanguageExt
             var mr = ma.Try();
             if (mr.IsBottom) return Try<B>(BottomException.Default);
             else if (mr.IsFaulted) return Try<B>(mr.Exception);
-            return Try<B>(f(await mr.Value.ConfigureAwait(false)));
+            return Try(f(await mr.Value.ConfigureAwait(false)));
         }
         
         public static async Task<TryOption<B>> Traverse<A, B>(this TryOption<Task<A>> ma, Func<A, B> f)
@@ -272,7 +271,7 @@ namespace LanguageExt
             var mr = ma.Run();
             if (mr.IsBottom) return FailEff<B>(BottomException.Default);
             else if (mr.IsFail) return FailEff<B>(mr.Error);
-            return SuccessEff<B>(f(await mr.Value.ConfigureAwait(false)));
+            return SuccessEff(f(await mr.Value.ConfigureAwait(false)));
         }
     }
 }

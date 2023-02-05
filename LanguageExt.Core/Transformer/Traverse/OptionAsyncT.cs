@@ -24,9 +24,11 @@ namespace LanguageExt
             async Task<(bool, Arr<B>)> Go(Arr<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => !d.IsSome)
                      ? (false, default)
                      : (true, new Arr<B>(rb.Map(d => d.Value)));
+                #nullable enable
             }
         }
 
@@ -36,9 +38,11 @@ namespace LanguageExt
             async Task<(bool, HashSet<B>)> Go(HashSet<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, new HashSet<B>(rb.Map(d => d.Value)));
+                #nullable enable
             }
         }
         
@@ -48,7 +52,9 @@ namespace LanguageExt
         
         public static OptionAsync<IEnumerable<B>> TraverseSerial<A, B>(this IEnumerable<OptionAsync<A>> ma, Func<A, B> f)
         {
+                #nullable disable
             return new OptionAsync<IEnumerable<B>>(Go(ma, f));
+                #nullable enable
             async Task<(bool, IEnumerable<B>)> Go(IEnumerable<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = new List<B>();
@@ -56,8 +62,10 @@ namespace LanguageExt
                 {
                     var (isSome, b) = await a.Data;
                     if (!isSome) return (false, System.Array.Empty<B>());
+                    #nullable disable
                     rb.Add(f(b));
-                }
+                    #nullable enable
+                };
                 return (true, rb);
             };
         }
@@ -67,13 +75,17 @@ namespace LanguageExt
  
         public static OptionAsync<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<OptionAsync<A>> ma, int windowSize, Func<A, B> f)
         {
+            #nullable disable
             return new OptionAsync<IEnumerable<B>>(Go(ma, f));
+            #nullable enable
             async Task<(bool, IEnumerable<B>)> Go(IEnumerable<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, identity).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => !d.IsSome)
                     ? (false, System.Array.Empty<B>())
                     : (true, rb.Map(d => d.Value));
+                #nullable enable
             }
         }
         
@@ -97,9 +109,11 @@ namespace LanguageExt
             async Task<(bool, Lst<B>)> Go(Lst<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, new Lst<B>(rb.Map(d => d.Value)));
+                #nullable enable
             }
         }
 
@@ -109,9 +123,11 @@ namespace LanguageExt
             async Task<(bool, Que<B>)> Go(Que<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, new Que<B>(rb.Map(d => d.Value)));
+                #nullable enable
             }
         }
         
@@ -130,7 +146,9 @@ namespace LanguageExt
                 {
                     var (isSome, b) = await a.Data;
                     if (!isSome) return (false, default);
+                #nullable disable
                     rb[ix] = f(b);
+                #nullable enable
                     ix++;
                 }
                 return (true, Seq.FromArray<B>(rb));
@@ -146,9 +164,11 @@ namespace LanguageExt
             async Task<(bool, Seq<B>)> Go(Seq<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, Prelude.identity).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, Seq.FromArray<B>(rb.Map(d => d.Value).ToArray()));
+                #nullable enable
             }
         }
                
@@ -171,9 +191,11 @@ namespace LanguageExt
             async Task<(bool, Set<B>)> Go(Set<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await Task.WhenAll(ma.Map(a => a.Map(f).Data)).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, new Set<B>(rb.Map(d => d.Value)));
+                #nullable enable
             }
         }
 
@@ -183,9 +205,11 @@ namespace LanguageExt
             async Task<(bool, Stck<B>)> Go(Stck<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var rb = await Task.WhenAll(ma.Reverse().Map(a => a.Map(f).Data)).ConfigureAwait(false);
+                #nullable disable
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)
                     : (true, new Stck<B>(rb.Map(d => d.Value)));
+                #nullable enable
             }
         }
         
@@ -203,7 +227,9 @@ namespace LanguageExt
                 if (da.State == EitherStatus.IsLeft) return (true, EitherAsync<L, B>.Left(da.Left));
                 var (isSome, value) = await da.Right.Data.ConfigureAwait(false);
                 if (!isSome) return (false, default);
+                #nullable disable
                 return (true, EitherAsync<L, B>.Right(f(value)));
+                #nullable enable
             }
         }
 
@@ -216,13 +242,17 @@ namespace LanguageExt
                 if (!isSomeA) return (true, OptionAsync<B>.None);
                 var (isSomeB, valueB) = await valueA.Data.ConfigureAwait(false);
                 if (!isSomeB) return (false, default);
+                #nullable disable
                 return (true, OptionAsync<B>.Some(f(valueB)));
+                #nullable enable
             }
         }
         
         public static OptionAsync<TryAsync<B>> Traverse<A, B>(this TryAsync<OptionAsync<A>> ma, Func<A, B> f)
         {
+            #nullable disable
             return new OptionAsync<TryAsync<B>>(Go(ma, f));
+            #nullable enable
             async Task<(bool, TryAsync<B>)> Go(TryAsync<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var resultA = await ma.Try().ConfigureAwait(false);
@@ -230,13 +260,17 @@ namespace LanguageExt
                 if (resultA.IsFaulted) return (true, TryAsyncFail<B>(resultA.Exception));
                 var (isSome, value) = await resultA.Value.Data.ConfigureAwait(false);
                 if (!isSome) return (false, TryAsyncFail<B>(BottomException.Default));
+                #nullable disable
                 return (true, TryAsync<B>(f(value)));
+                #nullable enable
             }
         }
         
         public static OptionAsync<TryOptionAsync<B>> Traverse<A, B>(this TryOptionAsync<OptionAsync<A>> ma, Func<A, B> f)
         {
+            #nullable disable
             return new OptionAsync<TryOptionAsync<B>>(Go(ma, f));
+            #nullable enable
             async Task<(bool, TryOptionAsync<B>)> Go(TryOptionAsync<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var resultA = await ma.Try().ConfigureAwait(false);
@@ -245,19 +279,25 @@ namespace LanguageExt
                 if (resultA.IsFaulted) return (true, TryOptionAsyncFail<B>(resultA.Exception));
                 var (isSome, value) = await resultA.Value.Value.Data.ConfigureAwait(false);
                 if (!isSome) return (false, TryOptionAsyncFail<B>(BottomException.Default));
+                #nullable disable
                 return (true, TryOptionAsync<B>(f(value)));
+                #nullable enable
             }
         }
 
         public static OptionAsync<Task<B>> Traverse<A, B>(this Task<OptionAsync<A>> ma, Func<A, B> f)
         {
+            #nullable disable
             return new OptionAsync<Task<B>>(Go(ma, f));
+            #nullable enable
             async Task<(bool, Task<B>)> Go(Task<OptionAsync<A>> ma, Func<A, B> f)
             {
                 var result = await ma.ConfigureAwait(false);
                 var (isSome, value) = await result.Data.ConfigureAwait(false);
                 if (!isSome) return (false, Task.FromException<B>(BottomException.Default));
+                #nullable disable
                 return (true, f(value).AsTask());
+                #nullable enable
             }
         }
 
@@ -269,7 +309,9 @@ namespace LanguageExt
                 var result = await ma.ConfigureAwait(false);
                 var (isSome, value) = await result.Data.ConfigureAwait(false);
                 if (!isSome) return (false, default);
+                #nullable disable
                 return (true, f(value).AsValueTask());
+                #nullable enable
             }
         }
                 
@@ -283,7 +325,9 @@ namespace LanguageExt
                 if (resultA.IsFail) return (true, FailAff<B>(resultA.Error));
                 var (isSome, value) = await resultA.Value.Data.ConfigureAwait(false);
                 if (!isSome) return (false, default);
+                #nullable disable
                 return (true, SuccessAff<B>(f(value)));
+                #nullable enable
             }
         }
 
@@ -300,7 +344,9 @@ namespace LanguageExt
                 if(ma.IsLeft) return (true, Left<L, B>(ma.LeftValue));
                 var (isSome, value) = await ma.RightValue.Data.ConfigureAwait(false);
                 if(!isSome) return (false, default);
+                #nullable disable
                 return (true, f(value));
+                #nullable enable
             }
         }
 
@@ -313,7 +359,9 @@ namespace LanguageExt
                 if(ma.IsLeft) return (true, LeftUnsafe<L, B>(ma.LeftValue));
                 var (isSome, value) = await ma.RightValue.Data.ConfigureAwait(false);
                 if(!isSome) return (false, default);
+                #nullable disable
                 return (true, f(value));
+                #nullable enable
             }
         }
 
@@ -325,7 +373,9 @@ namespace LanguageExt
                 if(ma.IsBottom) return (false, default);
                 var (isSome, value) = await ma.Value.Data.ConfigureAwait(false);
                 if(!isSome) return (false, default);
+                #nullable disable
                 return (true, new Identity<B>(f(value)));
+                #nullable enable
             }
         }
 
@@ -337,7 +387,9 @@ namespace LanguageExt
                 if(ma.IsFail) return (true, ma.Cast<B>());
                 var (isSome, value) = await ma.Value.Data.ConfigureAwait(false);
                 if(!isSome) return (false, default);
+                #nullable disable
                 return (true, Fin<B>.Succ(f(value)));
+                #nullable enable
             }
         }
 
@@ -349,7 +401,9 @@ namespace LanguageExt
                 if(ma.IsNone) return (true, Option<B>.None);
                 var (isSome, value) = await ma.Value.Data.ConfigureAwait(false);
                 if(!isSome) return (false, default);
+                #nullable disable
                 return (true, Option<B>.Some(f(value)));
+                #nullable enable
             }
         }
         
@@ -361,15 +415,19 @@ namespace LanguageExt
                 if(ma.IsNone) return (true, OptionUnsafe<B>.None);
                 var (isSome, value) = await ma.Value.Data.ConfigureAwait(false);
                 if(!isSome) return (false, default);
+                #nullable disable
                 return (true, OptionUnsafe<B>.Some(f(value)));
-            }
+                #nullable enable
+        }
         }
         
         public static OptionAsync<Try<B>> Traverse<A, B>(this Try<OptionAsync<A>> ma, Func<A, B> f)
         {
             try
             {
+                #nullable disable
                 return new OptionAsync<Try<B>>(Go(ma, f));
+                #nullable enable
                 async Task<(bool, Try<B>)> Go(Try<OptionAsync<A>> ma, Func<A, B> f)
                 {
                     var ra = ma.Try();
@@ -377,7 +435,9 @@ namespace LanguageExt
                     if (ra.IsFaulted) return (true, TryFail<B>(ra.Exception));
                     var (isSome, value) = await ra.Value.Data.ConfigureAwait(false);
                     if(!isSome) return (false, TryFail<B>(BottomException.Default));
-                    return (true, Try<B>(f(value)));
+                    #nullable disable
+                    return (true, Try(f(value)));
+                    #nullable enable
                 }
             }
             catch (Exception e)
@@ -390,7 +450,9 @@ namespace LanguageExt
         {
             try
             {
+                #nullable disable
                 return new OptionAsync<TryOption<B>>(Go(ma, f));
+                #nullable enable
                 async Task<(bool, TryOption<B>)> Go(TryOption<OptionAsync<A>> ma, Func<A, B> f)
                 {
                     var ra = ma.Try();
@@ -399,7 +461,9 @@ namespace LanguageExt
                     if (ra.IsFaulted) return (true, TryOptionFail<B>(ra.Exception));
                     var (isSome, value) = await ra.Value.Value.Data.ConfigureAwait(false);
                     if (!isSome) return (false, TryOptionFail<B>(BottomException.Default));
+                    #nullable disable
                     return (true, TryOption<B>(f(value)));
+                    #nullable disable
                 }
             }
             catch (Exception e)
