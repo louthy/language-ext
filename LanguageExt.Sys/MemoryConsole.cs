@@ -23,6 +23,9 @@ namespace LanguageExt.Sys
     /// </remarks>
     public class MemoryConsole : IEnumerable<string>
     {
+        const ConsoleColor DefaultBgColor = ConsoleColor.Black;
+        const ConsoleColor DefaultColor = ConsoleColor.White;
+
         readonly ConcurrentQueue<ConsoleKeyInfo> KeyboardBuffer = new();
         readonly ConcurrentStack<string> Console = new();
 
@@ -121,8 +124,15 @@ namespace LanguageExt.Sys
             return default;
         }
 
-        internal ConsoleColor BgColor { get; private set; } = ConsoleColor.Black;
-        internal ConsoleColor Color { get; private set; } = ConsoleColor.White;
+        internal Unit ResetColor()
+        {
+            BgColor = DefaultBgColor;
+            Color = DefaultColor;
+            return default;
+        }
+
+        internal ConsoleColor BgColor { get; private set; } = DefaultBgColor;
+        internal ConsoleColor Color { get; private set; } = DefaultColor;
 
         internal Option<int> Read()
         {

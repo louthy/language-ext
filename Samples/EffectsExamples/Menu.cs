@@ -36,7 +36,7 @@ namespace EffectsExamples
             from exa in findExample(ix)
             from __0 in Console<RT>.setColor(ConsoleColor.Yellow)
             from __1 in Console<RT>.writeLine(exa.Desc)
-            from __2 in Console<RT>.setColor(ConsoleColor.White)
+            from __2 in Console<RT>.resetColor()
             from res in localCancel(exa.Example) | @catch(logError)
             from __3 in showComplete(5)
             select res;

@@ -29,6 +29,9 @@ namespace LanguageExt.Sys.Test
         public Unit SetColor(ConsoleColor color) =>
             mem.SetColor(color);
 
+        public Unit ResetColor() =>
+            mem.ResetColor();
+
         public ConsoleColor BgColor => 
             mem.BgColor;
         

@@ -108,6 +108,9 @@ namespace LanguageExt.Sys
         public static Eff<RT, Unit> setColor(ConsoleColor color) =>
             default(RT).ConsoleEff.Map(e => e.SetColor(color));
 
+        public static Eff<RT, Unit> resetColor() =>
+            default(RT).ConsoleEff.Map(e => e.ResetColor());
+
         public static Eff<RT, ConsoleColor> bgColor =>
             default(RT).ConsoleEff.Map(static e => e.BgColor);
 

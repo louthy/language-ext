@@ -54,7 +54,7 @@ public static class PipesTestBed
       | Pipe.mapM<Runtime, DateTime>(dt => 
             from _1 in Console<Runtime>.setColor(ConsoleColor.Green)
             from _2 in Console<Runtime>.writeLine(dt.ToLongTimeString())
-            from _3 in Console<Runtime>.setColor(ConsoleColor.White)
+            from _3 in Console<Runtime>.resetColor()
             select dt)
       | writeLine<DateTime>(); 
 }
