@@ -14,9 +14,13 @@ public static class PipesTestBed
 {
     static Producer<Runtime, int, Unit> numbers(int n, int failOn) =>
         from _ in yield(n)
-        from x in failOn == n ? FailEff<Runtime, Unit>($"failed on {n}") : unitEff
         from t in Time<Runtime>.sleepFor(1000 * ms)
-        from r in n < 0 ? Pure(unit) : numbers(n - 1, failOn)
+        from x in failOn == n 
+                    ? FailEff<Runtime, Unit>($"failed on {n}") 
+                    : unitEff
+        from r in n < 0 
+                    ? Pure(unit) 
+                    : numbers(n - 1, failOn)
         select r;
     
     public static Effect<Runtime, Unit> effect => 
@@ -56,5 +60,6 @@ public static class PipesTestBed
             from _2 in Console<Runtime>.writeLine(dt.ToLongTimeString())
             from _3 in Console<Runtime>.setColor(ConsoleColor.White)
             select dt)
-      | writeLine<DateTime>(); 
+      | writeLine<DateTime>();
+    
 }
