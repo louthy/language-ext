@@ -13,199 +13,221 @@ namespace LanguageExt.SysX.Diag
     /// takes an `Eff` or `Aff` operation to run (which is the activity).  The runtime system will maintain the parent-
     /// child relationships for the activities, and maintains the 'current' activity.
     /// </summary>
-    /// <typeparam name="RT"></typeparam>
+    /// <typeparam name="RT">runtime</typeparam>
     public static class Activity<RT>
         where RT : struct, HasActivitySource<RT>, HasCancel<RT>
     {
+        private readonly record struct DisposableActivity : IDisposable
+        {
+            public DisposableActivity(Activity? activity) => this.Activity = activity;
+
+            public void Dispose() => Activity?.Dispose();
+
+            public Activity? Activity { get; }
+        }
+
+        private static Eff<RT, DisposableActivity> startActivity(
+            string name,
+            ActivityKind activityKind,
+            HashMap<string, object> activityTags,
+            Seq<ActivityLink> activityLinks,
+            DateTimeOffset startTime,
+            ActivityContext? parentContext = default) =>
+            from rt in runtime<RT>()
+            from source in rt.ActivitySourceEff.Map(x =>
+                    new DisposableActivity(
+                        x.StartActivity(
+                            name,
+                            activityKind,
+                            rt.CurrentActivity != null
+                                ? parentContext ?? rt.CurrentActivity.Context
+                                : default,
+                            activityTags,
+                            activityLinks,
+                            startTime)))
+            select source;
+
         /// <summary>
         /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
         /// activity context, tags, optional activity link and optional start time.
         /// </summary>
-        /// <param name="operation">The operation to whose activity will be traced</param>
         /// <param name="name">The operation name of the activity.</param>
+        /// <param name="operation">The operation to whose activity will be traced</param>
         /// <returns>The result of the `operation`</returns>
         public static Eff<RT, A> span<A>(string name, Eff<RT, A> operation) =>
             span(name, ActivityKind.Internal, default, default, DateTimeOffset.Now, operation);
-        
+
         /// <summary>
         /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
         /// activity context, tags, optional activity link and optional start time.
         /// </summary>
-        /// <param name="operation">The operation to whose activity will be traced</param>
         /// <param name="name">The operation name of the activity.</param>
+        /// <param name="activityKind">The activity kind.</param>
+        /// <param name="operation">The operation to whose activity will be traced</param>
+        /// <returns>The result of the `operation`</returns>
+        public static Eff<RT, A> span<A>(
+            string name,
+            ActivityKind activityKind,
+            Eff<RT, A> operation) => 
+            span(name, activityKind, default, default, DateTimeOffset.Now, operation);
+
+        /// <summary>
+        /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
+        /// activity context, tags, optional activity link and optional start time.
+        /// </summary>
+        /// <param name="name">The operation name of the activity.</param>
+        /// <param name="activityKind">The activity kind.</param>
+        /// <param name="activityTags">The optional tags list to initialise the created activity object with.</param>
+        /// <param name="operation">The operation to whose activity will be traced</param>
+        /// <returns>The result of the `operation`</returns>
+        public static Eff<RT, A> span<A>(
+            string name,
+            ActivityKind activityKind,
+            HashMap<string, object> activityTags,
+            Eff<RT, A> operation) => 
+            span(name, activityKind, activityTags, default, DateTimeOffset.Now, operation);
+
+        /// <summary>
+        /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
+        /// activity context, tags, optional activity link and optional start time.
+        /// </summary>
+        /// <param name="name">The operation name of the activity.</param>
+        /// <param name="activityKind">The activity kind.</param>
+        /// <param name="activityTags">The optional tags list to initialise the created activity object with.</param>
+        /// <param name="activityLinks">The optional `ActivityLink` list to initialise the created activity object with.</param>
+        /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
+        /// <param name="operation">The operation to whose activity will be traced</param>
+        /// <returns>The result of the `operation`</returns>
+        public static Eff<RT, TA> span<TA>(
+            string name,
+            ActivityKind activityKind,
+            HashMap<string, object> activityTags,
+            Seq<ActivityLink> activityLinks,
+            DateTimeOffset startTime,
+            Eff<RT, TA> operation) =>
+            use(startActivity(name, activityKind, activityTags, activityLinks, startTime),
+                act => localEff<RT, RT, TA>(rt => rt.SetActivity(act.Activity), operation));
+
+        /// <summary>
+        /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
+        /// activity context, tags, optional activity link and optional start time.
+        /// </summary>
+        /// <param name="name">The operation name of the activity.</param>
+        /// <param name="activityKind">The activity kind.</param>
+        /// <param name="parentContext">The parent `ActivityContext` object to initialize the created activity object
+        /// with</param>
+        /// <param name="activityTags">The optional tags list to initialise the created activity object with.</param>
+        /// <param name="activityLinks">The optional `ActivityLink` list to initialise the created activity object with.</param>
+        /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
+        /// <param name="operation">The operation to whose activity will be traced</param>
+        /// <returns>The result of the `operation`</returns>
+        public static Eff<RT, A> span<A>(
+            string name,
+            ActivityKind activityKind,
+            ActivityContext parentContext,
+            HashMap<string, object> activityTags,
+            Seq<ActivityLink> activityLinks,
+            DateTimeOffset startTime,
+            Eff<RT, A> operation) =>
+            use(startActivity(
+                    name,
+                    activityKind,
+                    activityTags,
+                    activityLinks,
+                    startTime,
+                    parentContext),
+                act => localEff<RT, RT, A>(rt => rt.SetActivity(act.Activity), operation));
+
+        /// <summary>
+        /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
+        /// activity context, tags, optional activity link and optional start time.
+        /// </summary>
+        /// <param name="name">The operation name of the activity.</param>
+        /// <param name="operation">The operation to whose activity will be traced</param>
         /// <returns>The result of the `operation`</returns>
         public static Aff<RT, A> span<A>(string name, Aff<RT, A> operation) =>
             span(name, ActivityKind.Internal, default, default, DateTimeOffset.Now, operation);
-            
-        /// <summary>
-        /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
-        /// activity context, tags, optional activity link and optional start time.
-        /// </summary>
-        /// <param name="operation">The operation to whose activity will be traced</param>
-        /// <param name="name">The operation name of the activity.</param>
-        /// <param name="kind">The activity kind.</param>
-        /// <returns>The result of the `operation`</returns>
-        public static Eff<RT, A> span<A>(string name, ActivityKind kind, Eff<RT, A> operation) =>
-            span(name, kind, default, default, DateTimeOffset.Now, operation);
-        
-        /// <summary>
-        /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
-        /// activity context, tags, optional activity link and optional start time.
-        /// </summary>
-        /// <param name="operation">The operation to whose activity will be traced</param>
-        /// <param name="name">The operation name of the activity.</param>
-        /// <param name="kind">The activity kind.</param>
-        /// <returns>The result of the `operation`</returns>
-        public static Aff<RT, A> span<A>(string name, ActivityKind kind, Aff<RT, A> operation) =>
-            span(name, kind, default, default, DateTimeOffset.Now, operation);
-            
-        /// <summary>
-        /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
-        /// activity context, tags, optional activity link and optional start time.
-        /// </summary>
-        /// <param name="operation">The operation to whose activity will be traced</param>
-        /// <param name="name">The operation name of the activity.</param>
-        /// <param name="kind">The activity kind.</param>
-        /// <param name="tags">The optional tags list to initialise the created activity object with.</param>
-        /// <returns>The result of the `operation`</returns>
-        public static Eff<RT, A> span<A>(string name, ActivityKind kind, HashMap<string, object> tags, Eff<RT, A> operation) =>
-            span(name, kind, tags, default, DateTimeOffset.Now, operation);
-        
-        /// <summary>
-        /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
-        /// activity context, tags, optional activity link and optional start time.
-        /// </summary>
-        /// <param name="operation">The operation to whose activity will be traced</param>
-        /// <param name="name">The operation name of the activity.</param>
-        /// <param name="kind">The activity kind.</param>
-        /// <param name="tags">The optional tags list to initialise the created activity object with.</param>
-        /// <returns>The result of the `operation`</returns>
-        public static Aff<RT, A> span<A>(string name, ActivityKind kind, HashMap<string, object> tags, Aff<RT, A> operation) =>
-            span(name, kind, tags, default, DateTimeOffset.Now, operation);
-                    
-        /// <summary>
-        /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
-        /// activity context, tags, optional activity link and optional start time.
-        /// </summary>
-        /// <param name="operation">The operation to whose activity will be traced</param>
-        /// <param name="name">The operation name of the activity.</param>
-        /// <param name="kind">The activity kind.</param>
-        /// <param name="parentContext">The parent `ActivityContext` object to initialize the created activity object
-        /// with</param>
-        /// <param name="tags">The optional tags list to initialise the created activity object with.</param>
-        /// <param name="links">The optional `ActivityLink` list to initialise the created activity object with.</param>
-        /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
-        /// <returns>The result of the `operation`</returns>
-        public static Eff<RT, A> span<A>(
-            string name, 
-            ActivityKind kind, 
-            ActivityContext parentContext,
-            HashMap<string, object> tags, 
-            Seq<ActivityLink> links, 
-            DateTimeOffset startTime,
-            Eff<RT, A> operation) =>
-            use(default(RT).ActivitySourceEff.Map(rt => rt.StartActivity(
-                    name, 
-                    kind,
-                    parentContext,
-                    tags,
-                    links,
-                    startTime)),
-                act => localEff<RT, RT, A>(rt => rt.SetActivity(act), operation));
 
         /// <summary>
         /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
         /// activity context, tags, optional activity link and optional start time.
         /// </summary>
-        /// <param name="operation">The operation to whose activity will be traced</param>
         /// <param name="name">The operation name of the activity.</param>
-        /// <param name="kind">The activity kind.</param>
-        /// <param name="parentContext">The parent `ActivityContext` object to initialize the created activity object
-        /// with</param>
-        /// <param name="tags">The optional tags list to initialise the created activity object with.</param>
-        /// <param name="links">The optional `ActivityLink` list to initialise the created activity object with.</param>
-        /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
+        /// <param name="activityKind">The activity kind.</param>
+        /// <param name="operation">The operation to whose activity will be traced</param>
         /// <returns>The result of the `operation`</returns>
         public static Aff<RT, A> span<A>(
-            string name, 
-            ActivityKind kind, 
+            string name,
+            ActivityKind activityKind,
+            Aff<RT, A> operation) => 
+            span(name, activityKind, default, default, DateTimeOffset.Now, operation);
+
+        /// <summary>
+        /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
+        /// activity context, tags, optional activity link and optional start time.
+        /// </summary>
+        /// <param name="name">The operation name of the activity.</param>
+        /// <param name="activityKind">The activity kind.</param>
+        /// <param name="activityTags">The optional tags list to initialise the created activity object with.</param>
+        /// <param name="operation">The operation to whose activity will be traced</param>
+        /// <returns>The result of the `operation`</returns>
+        public static Aff<RT, A> span<A>(
+            string name,
+            ActivityKind activityKind,
+            HashMap<string, object> activityTags,
+            Aff<RT, A> operation) => 
+            span(name, activityKind, activityTags, default, DateTimeOffset.Now, operation);
+        
+        /// <summary>
+        /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
+        /// activity context, tags, optional activity link and optional start time.
+        /// </summary>
+        /// <param name="name">The operation name of the activity.</param>
+        /// <param name="activityKind">The activity kind.</param>
+        /// <param name="activityTags">The optional tags list to initialise the created activity object with.</param>
+        /// <param name="activityLinks">The optional `ActivityLink` list to initialise the created activity object with.</param>
+        /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
+        /// <param name="operation">The operation to whose activity will be traced</param>
+        /// <returns>The result of the `operation`</returns>
+        public static Aff<RT, A> span<A>(
+            string name,
+            ActivityKind activityKind,
+            HashMap<string, object> activityTags,
+            Seq<ActivityLink> activityLinks,
+            DateTimeOffset startTime,
+            Aff<RT, A> operation) =>
+            use(startActivity(name, activityKind, activityTags, activityLinks, startTime),
+                act => localAff<RT, RT, A>(rt => rt.SetActivity(act.Activity), operation));
+        
+        /// <summary>
+        /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
+        /// activity context, tags, optional activity link and optional start time.
+        /// </summary>
+        /// <param name="name">The operation name of the activity.</param>
+        /// <param name="activityKind">The activity kind.</param>
+        /// <param name="parentContext">The parent `ActivityContext` object to initialize the created activity object
+        /// with</param>
+        /// <param name="activityTags">The optional tags list to initialise the created activity object with.</param>
+        /// <param name="activityLinks">The optional `ActivityLink` list to initialise the created activity object with.</param>
+        /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
+        /// <param name="operation">The operation to whose activity will be traced</param>
+        /// <returns>The result of the `operation`</returns>
+        public static Aff<RT, A> span<A>(
+            string name,
+            ActivityKind activityKind,
             ActivityContext parentContext,
-            HashMap<string,object> tags, 
-            Seq<ActivityLink> links, 
+            HashMap<string, object> activityTags,
+            Seq<ActivityLink> activityLinks,
             DateTimeOffset startTime,
             Aff<RT, A> operation) =>
-            use(default(RT).ActivitySourceEff.Map(rt => rt.StartActivity(
-                    name, 
-                    kind,
-                    parentContext,
-                    tags,
-                    links,
-                    startTime)),
-                act => localAff<RT, RT, A>(rt => rt.SetActivity(act), operation));
-
-        /// <summary>
-        /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
-        /// activity context, tags, optional activity link and optional start time.
-        /// </summary>
-        /// <param name="operation">The operation to whose activity will be traced</param>
-        /// <param name="name">The operation name of the activity.</param>
-        /// <param name="kind">The activity kind.</param>
-        /// <param name="tags">The optional tags list to initialise the created activity object with.</param>
-        /// <param name="links">The optional `ActivityLink` list to initialise the created activity object with.</param>
-        /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
-        /// <returns>The result of the `operation`</returns>
-        static Eff<RT, A> span<A>(
-            string name,
-            ActivityKind kind,
-            HashMap<string, object> tags,
-            Seq<ActivityLink> links,
-            DateTimeOffset startTime,
-            Eff<RT, A> operation) =>
-            from e in runtime<RT>()
-            from r in use(e.ActivitySourceEff.Map(
-                    rt => e.CurrentActivity == null
-                        ? rt.StartActivity(name, kind)
-                        : rt.StartActivity(
-                            name,
-                            kind,
-                            e.CurrentActivity.Context,
-                            tags,
-                            links,
-                            startTime)),
-                act => localEff<RT, RT, A>(rt => rt.SetActivity(act), operation))
-            select r;
-
-        /// <summary>
-        /// Creates a new activity if there are active listeners for it, using the specified name, activity kind, parent
-        /// activity context, tags, optional activity link and optional start time.
-        /// </summary>
-        /// <param name="operation">The operation to whose activity will be traced</param>
-        /// <param name="name">The operation name of the activity.</param>
-        /// <param name="kind">The activity kind.</param>
-        /// <param name="tags">The optional tags list to initialise the created activity object with.</param>
-        /// <param name="links">The optional `ActivityLink` list to initialise the created activity object with.</param>
-        /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
-        /// <returns>The result of the `operation`</returns>
-        static Aff<RT, A> span<A>(
-            string name,
-            ActivityKind kind,
-            HashMap<string, object> tags,
-            Seq<ActivityLink> links,
-            DateTimeOffset startTime,
-            Aff<RT, A> operation) =>
-            from e in runtime<RT>()
-            from r in use(e.ActivitySourceEff.Map(
-                    rt => e.CurrentActivity == null
-                            ? rt.StartActivity(name, kind)
-                            : rt.StartActivity(
-                                name,
-                                kind,
-                                e.CurrentActivity.Context,
-                                tags,
-                                links,
-                                startTime)),
-                act => localAff<RT, RT, A>(rt => rt.SetActivity(act), operation))
-            select r;
+            use(startActivity(
+                    name,
+                    activityKind,
+                    activityTags,
+                    activityLinks,
+                    startTime,
+                    parentContext),
+                act => localAff<RT, RT, A>(rt => rt.SetActivity(act.Activity), operation));
 
         /// <summary>
         /// Set the state trace string
@@ -226,13 +248,13 @@ namespace LanguageExt.SysX.Diag
         /// Read the trace-state string of the current activity
         /// </summary>
         public static Eff<RT, Option<string>> traceState =>
-            Eff<RT, Option<string>>(rt => rt.CurrentActivity?.TraceStateString);        
+            Eff<RT, Option<string>>(rt => rt.CurrentActivity?.TraceStateString);
 
         /// <summary>
         /// Read the trace ID of the current activity
         /// </summary>
         public static Eff<RT, Option<ActivityTraceId>> traceId =>
-            Eff<RT, Option<ActivityTraceId>>(rt => Optional(rt.CurrentActivity?.TraceId));        
+            Eff<RT, Option<ActivityTraceId>>(rt => Optional(rt.CurrentActivity?.TraceId));
 
         /// <summary>
         /// Add baggage to the current activity
@@ -243,10 +265,7 @@ namespace LanguageExt.SysX.Diag
         public static Eff<RT, Unit> addBaggage(string key, string? value) =>
             Eff<RT, Unit>(rt =>
             {
-                if (rt.CurrentActivity is not null)
-                {
-                    rt.CurrentActivity.AddBaggage(key, value);
-                }
+                rt.CurrentActivity?.AddBaggage(key, value);
                 return unit;
             });
 
@@ -255,9 +274,9 @@ namespace LanguageExt.SysX.Diag
         /// </summary>
         public static Eff<RT, HashMap<string, string?>> baggage =>
             Eff<RT, HashMap<string, string?>>(rt =>
-                rt.CurrentActivity is not null
-                    ? rt.CurrentActivity.Baggage.ToHashMap()
-                    :  HashMap<string, string?>());        
+                    rt.CurrentActivity is not null
+                        ? rt.CurrentActivity.Baggage.ToHashMap()
+                        : HashMap<string, string?>());
 
         /// <summary>
         /// Add tag to the current activity
@@ -268,10 +287,7 @@ namespace LanguageExt.SysX.Diag
         public static Eff<RT, Unit> addTag(string name, string? value) =>
             Eff<RT, Unit>(rt =>
             {
-                if (rt.CurrentActivity is not null)
-                {
-                    rt.CurrentActivity.AddTag(name, value);
-                }
+                rt.CurrentActivity?.AddTag(name, value);
                 return unit;
             });
 
@@ -283,10 +299,7 @@ namespace LanguageExt.SysX.Diag
         public static Eff<RT, Unit> addTag(string name, object? value) =>
             Eff<RT, Unit>(rt =>
             {
-                if (rt.CurrentActivity is not null)
-                {
-                    rt.CurrentActivity.AddTag(name, value);
-                }
+                rt.CurrentActivity?.AddTag(name, value);
                 return unit;
             });
 
@@ -295,18 +308,18 @@ namespace LanguageExt.SysX.Diag
         /// </summary>
         public static Eff<RT, HashMap<string, string?>> tags =>
             Eff<RT, HashMap<string, string?>>(rt =>
-                rt.CurrentActivity is not null
-                    ? rt.CurrentActivity.Tags.ToHashMap()
-                    :  HashMap<string, string?>());        
+                    rt.CurrentActivity is not null
+                        ? rt.CurrentActivity.Tags.ToHashMap()
+                        : HashMap<string, string?>());
 
         /// <summary>
         /// Read the tags of the current activity
         /// </summary>
         public static Eff<RT, HashMap<string, object?>> tagObjects =>
             Eff<RT, HashMap<string, object?>>(rt =>
-                rt.CurrentActivity is not null
-                    ? rt.CurrentActivity.TagObjects.ToHashMap()
-                    :  HashMap<string, object?>());        
+                    rt.CurrentActivity is not null
+                        ? rt.CurrentActivity.TagObjects.ToHashMap()
+                        : HashMap<string, object?>());
 
         /// <summary>
         /// Read the context of the current activity
@@ -320,16 +333,27 @@ namespace LanguageExt.SysX.Diag
         /// </summary>
         /// <remarks>None if there is no current activity</remarks>
         public static Eff<RT, Option<TimeSpan>> duration =>
-            Eff<RT, Option<TimeSpan>>(rt => Optional(rt.CurrentActivity?.Duration));        
+            Eff<RT, Option<TimeSpan>>(rt => Optional(rt.CurrentActivity?.Duration));
+
+        /// <summary>
+        /// Add an event to the current activity
+        /// </summary>
+        /// <param name="@event">Event</param>
+        public static Eff<RT, Unit> addEvent(ActivityEvent @event) =>
+            Eff<RT, Unit>(rt =>
+            {
+                rt.CurrentActivity?.AddEvent(@event);
+                return unit;
+            });
 
         /// <summary>
         /// Read the events of the current activity
         /// </summary>
         public static Eff<RT, Seq<ActivityEvent>> events =>
-            Eff<RT, Seq<ActivityEvent>>(rt => 
-                rt.CurrentActivity is not null
-                    ? rt.CurrentActivity.Events.ToSeq()
-                    :  Seq<ActivityEvent>());
+            Eff<RT, Seq<ActivityEvent>>(rt =>
+                    rt.CurrentActivity is not null
+                        ? rt.CurrentActivity.Events.ToSeq()
+                        : Seq<ActivityEvent>());
 
         /// <summary>
         /// Read the ID of the current activity
@@ -349,10 +373,10 @@ namespace LanguageExt.SysX.Diag
         /// Read the links of the current activity
         /// </summary>
         public static Eff<RT, Seq<ActivityLink>> links =>
-            Eff<RT, Seq<ActivityLink>>(rt => 
-                rt.CurrentActivity is not null
-                    ? rt.CurrentActivity.Links.ToSeq()
-                    :  Seq<ActivityLink>());
+            Eff<RT, Seq<ActivityLink>>(rt =>
+                    rt.CurrentActivity is not null
+                        ? rt.CurrentActivity.Links.ToSeq()
+                        : Seq<ActivityLink>());
 
         /// <summary>
         /// Read the current activity
