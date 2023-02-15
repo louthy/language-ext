@@ -15,7 +15,7 @@ using A = Activity<Runtime>;
 
 public static class ActivityTests
 {
-    private static readonly ActivitySource Source = new(nameof(ActivityTests));
+    static readonly ActivitySource Source = new(nameof(ActivityTests));
 
     static ActivityTests() =>
         ActivitySource.AddActivityListener(
@@ -27,11 +27,11 @@ public static class ActivityTests
             }
         );
 
-    private static T ArrangeAndAct<T>(this Eff<Runtime, T> effect) =>
+    static T ArrangeAndAct<T>(this Eff<Runtime, T> effect) =>
         effect.Run(Runtime.New(new ActivityEnv(Source, default, default), Encoding.Default))
             .ThrowIfFail();
 
-    private static async ValueTask<T> ArrangeAndAct<T>(this Aff<Runtime, T> effect) =>
+    static async ValueTask<T> ArrangeAndAct<T>(this Aff<Runtime, T> effect) =>
         (await effect.Run(Runtime.New(new ActivityEnv(Source, default, default), Encoding.Default)))
         .ThrowIfFail();
 
@@ -108,7 +108,7 @@ public static class ActivityTests
         result.IsSome.Should().BeTrue();
     }
 
-    private static readonly ActivityEvent TestEvent = new("some event");
+    static readonly ActivityEvent TestEvent = new("some event");
 
     [Fact(DisplayName = "The events can be read")]
     public static void Case9()

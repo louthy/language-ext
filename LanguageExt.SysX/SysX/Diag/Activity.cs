@@ -17,7 +17,7 @@ namespace LanguageExt.SysX.Diag
     public static class Activity<RT>
         where RT : struct, HasActivitySource<RT>, HasCancel<RT>
     {
-        private readonly record struct DisposableActivity : IDisposable
+        readonly record struct DisposableActivity : IDisposable
         {
             public DisposableActivity(Activity? activity) => this.Activity = activity;
 
@@ -26,7 +26,7 @@ namespace LanguageExt.SysX.Diag
             public Activity? Activity { get; }
         }
 
-        private static Eff<RT, DisposableActivity> startActivity(
+        static Eff<RT, DisposableActivity> startActivity(
             string name,
             ActivityKind activityKind,
             HashMap<string, object> activityTags,
