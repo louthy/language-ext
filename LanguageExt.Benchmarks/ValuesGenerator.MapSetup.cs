@@ -1,12 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using LanguageExt.TypeClasses;
+using Sasa.Collections;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Benchmarks
 {
     internal partial class ValuesGenerator
     {
+        public static Trie<T, T> SasaTrieSetup<T>(Dictionary<T, T> values)
+        {
+            var trie = Trie<T, T>.Empty;
+            foreach (var kvp in values)
+            {
+                trie = trie.Add(kvp.Key, kvp.Value);
+            }
+            return trie;
+        }
+        
         public static ImmutableDictionary<T, T> SysColImmutableDictionarySetup<T>(Dictionary<T, T> values)
         {
             var immutableMap = ImmutableDictionary.Create<T, T>();

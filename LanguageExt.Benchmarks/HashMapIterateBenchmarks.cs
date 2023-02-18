@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
+using Sasa.Collections;
 
 namespace LanguageExt.Benchmarks
 {
@@ -20,12 +21,14 @@ namespace LanguageExt.Benchmarks
         Dictionary<T, T> dictionary;
         HashMap<TOrd, T, T> hashMap;
         Map<TOrd, T, T> map;
+        Trie<T, T> sasaTrie;
 
         [GlobalSetup]
         public void Setup()
         {
             var values = ValuesGenerator.Default.GenerateDictionary<T, T>(N);
 
+            sasaTrie = ValuesGenerator.SasaTrieSetup(values);
             immutableMap = ValuesGenerator.SysColImmutableDictionarySetup(values);
             immutableSortedMap = ValuesGenerator.SysColImmutableSortedDictionarySetup(values);
             dictionary = ValuesGenerator.SysColDictionarySetup(values);
@@ -53,6 +56,20 @@ namespace LanguageExt.Benchmarks
             T result = default;
 
             var collection = immutableSortedMap;
+            foreach (var item in collection)
+            {
+                result = item.Value;
+            }
+
+            return result;
+        }
+        
+        [Benchmark]
+        public T SasaTrie()
+        {
+            T result = default;
+
+            var collection = sasaTrie;
             foreach (var item in collection)
             {
                 result = item.Value;

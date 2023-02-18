@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
+using Sasa.Collections;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Benchmarks
@@ -47,7 +48,19 @@ namespace LanguageExt.Benchmarks
 
             return map;
         }
+        
+        [Benchmark]
+        public Trie<T, T> SasaTrie()
+        {
+            var map = Trie<T, T>.Empty;
+            foreach (var kvp in values)
+            {
+                map = map.Add(kvp.Key, kvp.Value);
+            }
 
+            return map;
+        }
+        
         [Benchmark]
         public Dictionary<T, T> SysColDictionary()
         {
