@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Text;
 using System.Threading;
@@ -18,8 +20,10 @@ namespace LanguageExt.Sys.Test
         HasTextRead<Runtime>,
         HasTime<Runtime>,
         HasEnvironment<Runtime>,
-        HasDirectory<Runtime>
+        HasDirectory<Runtime>,
+        HasRandom<Runtime>
     {
+        public const int Seed = 123456789;
         public readonly RuntimeEnv env;
 
         /// <summary>
@@ -38,39 +42,45 @@ namespace LanguageExt.Sys.Test
         /// Constructor function
         /// </summary>
         /// <param name="timeSpec">Defines how time works in the runtime</param>
-        public static Runtime New(TestTimeSpec? timeSpec = default) =>
+        /// <param name="seed">seed to used for the random generator</param>
+        public static Runtime New(TestTimeSpec? timeSpec = default, int seed = Seed) =>
             new Runtime(new RuntimeEnv(new CancellationTokenSource(),
                                        System.Text.Encoding.Default,
                                        new MemoryConsole(),
                                        new MemoryFS(),
                                        timeSpec,
-                                       MemorySystemEnvironment.InitFromSystem()));
+                                       MemorySystemEnvironment.InitFromSystem(),
+                                       seed));
 
         /// <summary>
         /// Constructor function
         /// </summary>
         /// <param name="source">Cancellation token source</param>
         /// <param name="timeSpec">Defines how time works in the runtime</param>
-        public static Runtime New(CancellationTokenSource source, TestTimeSpec? timeSpec = default) =>
+        /// <param name="seed">seed to used for the random generator</param>
+        public static Runtime New(CancellationTokenSource source, TestTimeSpec? timeSpec = default, int seed = Seed) =>
             new Runtime(new RuntimeEnv(source, 
                                        System.Text.Encoding.Default, 
                                        new MemoryConsole(), 
                                        new MemoryFS(),
                                        timeSpec,
-                                       MemorySystemEnvironment.InitFromSystem()));
+                                       MemorySystemEnvironment.InitFromSystem(),
+                                       seed));
 
         /// <summary>
         /// Constructor function
         /// </summary>
         /// <param name="encoding">Text encoding</param>
         /// <param name="timeSpec">Defines how time works in the runtime</param>
-        public static Runtime New(Encoding encoding, TestTimeSpec? timeSpec = default) =>
+        /// <param name="seed">seed to used for the random generator</param>
+        public static Runtime New(Encoding encoding, TestTimeSpec? timeSpec = default, int seed = Seed) =>
             new Runtime(new RuntimeEnv(new CancellationTokenSource(), 
                                        encoding, 
                                        new MemoryConsole(), 
                                        new MemoryFS(),
                                        timeSpec,
-                                       MemorySystemEnvironment.InitFromSystem()));
+                                       MemorySystemEnvironment.InitFromSystem(),
+                                       seed));
 
         /// <summary>
         /// Constructor function
@@ -78,13 +88,15 @@ namespace LanguageExt.Sys.Test
         /// <param name="encoding">Text encoding</param>
         /// <param name="source">Cancellation token source</param>
         /// <param name="timeSpec">Defines how time works in the runtime</param>
-        public static Runtime New(Encoding encoding, CancellationTokenSource source, TestTimeSpec? timeSpec = default) =>
+        /// <param name="seed">seed to used for the random generator</param>
+        public static Runtime New(Encoding encoding, CancellationTokenSource source, TestTimeSpec? timeSpec = default, int seed = Seed) =>
             new Runtime(new RuntimeEnv(source, 
                                        encoding, 
                                        new MemoryConsole(), 
                                        new MemoryFS(),
                                        timeSpec,
-                                       MemorySystemEnvironment.InitFromSystem()));
+                                       MemorySystemEnvironment.InitFromSystem(),
+                                       seed));
 
         /// <summary>
         /// Create a new Runtime with a fresh cancellation token
@@ -159,6 +171,13 @@ namespace LanguageExt.Sys.Test
         /// <returns>Operating-system environment environment</returns>
         public Eff<Runtime, Traits.EnvironmentIO> EnvironmentEff =>
             Eff<Runtime, Traits.EnvironmentIO>(rt => new Test.EnvironmentIO(rt.Env.SysEnv));
+        
+        /// <summary>
+        /// Access the random synchronous effect environment
+        /// </summary>
+        /// <returns>Random synchronous effect environment</returns>
+        public Eff<Runtime, Traits.RandomIO> RandomEff =>
+            Eff<Runtime, Traits.RandomIO>(rt => rt.env.Random);
     }
     
     public class RuntimeEnv
@@ -170,6 +189,8 @@ namespace LanguageExt.Sys.Test
         public readonly MemoryFS FileSystem;
         public readonly TestTimeSpec TimeSpec;
         public readonly MemorySystemEnvironment SysEnv;
+        public readonly int Seed;
+        public readonly RandomIO Random;
 
         public RuntimeEnv(
             CancellationTokenSource source, 
@@ -178,7 +199,8 @@ namespace LanguageExt.Sys.Test
             MemoryConsole console, 
             MemoryFS fileSystem, 
             TestTimeSpec? timeSpec,
-            MemorySystemEnvironment sysEnv)
+            MemorySystemEnvironment sysEnv,
+            int seed)
         {
             Source     = source;
             Token      = token;
@@ -187,6 +209,8 @@ namespace LanguageExt.Sys.Test
             FileSystem = fileSystem;
             TimeSpec   = timeSpec ?? TestTimeSpec.RunningFromNow();
             SysEnv     = sysEnv;
+            Seed       = seed;
+            Random     = new RandomIO(Seed);
         }
 
         public RuntimeEnv(
@@ -195,12 +219,13 @@ namespace LanguageExt.Sys.Test
             MemoryConsole console,
             MemoryFS fileSystem, 
             TestTimeSpec? timeSpec,
-            MemorySystemEnvironment sysEnv) : 
-            this(source, source.Token, encoding, console, fileSystem, timeSpec, sysEnv)
+            MemorySystemEnvironment sysEnv,
+            int seed) : 
+            this(source, source.Token, encoding, console, fileSystem, timeSpec, sysEnv, seed)
         {
         }
 
         public RuntimeEnv LocalCancel =>
-            new RuntimeEnv(new CancellationTokenSource(), Encoding, Console, FileSystem, TimeSpec, SysEnv); 
+            new RuntimeEnv(new CancellationTokenSource(), Encoding, Console, FileSystem, TimeSpec, SysEnv,Seed); 
     }
 }

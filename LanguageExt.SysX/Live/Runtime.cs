@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Text;
 using System.Threading;
@@ -19,7 +21,8 @@ namespace LanguageExt.SysX.Live
         HasTextRead<Runtime>,
         HasTime<Runtime>,
         HasEnvironment<Runtime>,
-        HasDirectory<Runtime>
+        HasDirectory<Runtime>,
+        HasRandom<Runtime>
     {
         readonly RuntimeEnv env;
 
@@ -159,6 +162,13 @@ namespace LanguageExt.SysX.Live
         /// <returns>Operating-system environment environment</returns>
         public Eff<Runtime, EnvironmentIO> EnvironmentEff =>
             SuccessEff(Sys.Live.EnvironmentIO.Default);
+ 
+        /// <summary>
+        /// Access the random synchronous effect environment
+        /// </summary>
+        /// <returns>Random synchronous effect environment</returns>
+        public Eff<Runtime, RandomIO> RandomEff =>
+            SuccessEff<Runtime, RandomIO>(new Sys.Live.RandomIO(new Random()));
     }
     
     public record RuntimeEnv(
