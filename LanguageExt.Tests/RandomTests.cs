@@ -29,37 +29,37 @@ public static class RandomTests
 
     [Fact(DisplayName = "Generate int provides a random int")]
     public static void Case1() => 
-        LR.generateInt().Run(live).ThrowIfFail().Should().BePositive();
+        LR.nextInt().Run(live).ThrowIfFail().Should().BePositive();
 
     [Fact(DisplayName = "Generate int provides a random int between 2 values")]
     public static void Case2() =>
-        LR.generateInt(2, 6).Run(live).ThrowIfFail().Should().BePositive().And.BeInRange(2, 6);
+        LR.nextInt(2, 6).Run(live).ThrowIfFail().Should().BePositive().And.BeInRange(2, 6);
 
     [Fact(DisplayName = "Generate int provides a random int up to a max value")]
     public static void Case3() =>
-        LR.generateInt(0, 6).Run(live).ThrowIfFail().Should().BeGreaterOrEqualTo(0).And.BeLessThan(6);
+        LR.nextInt(0, 6).Run(live).ThrowIfFail().Should().BeGreaterOrEqualTo(0).And.BeLessThan(6);
 
     [Fact(DisplayName = "Generate int provides a random int up to a max value (SysX.Live)")]
     public static void Case3a() =>
-        LRX.generateInt(0, 6).Run(liveX).ThrowIfFail().Should().BeGreaterOrEqualTo(0).And.BeLessThan(6);
+        LRX.nextInt(0, 6).Run(liveX).ThrowIfFail().Should().BeGreaterOrEqualTo(0).And.BeLessThan(6);
 
     [Fact(DisplayName = "Generate int provides a random int up to a max value (SysX.Test)")]
     public static void Case3b() =>
-        TRX.generateInt(0, 6).Run(testX()).ThrowIfFail().Should().BeGreaterOrEqualTo(0).And.BeLessThan(6);
+        TRX.nextInt(0, 6).Run(testX()).ThrowIfFail().Should().BeGreaterOrEqualTo(0).And.BeLessThan(6);
     
     sealed class MockRandom : RandomIO
     {
-        public int GenerateInt(int? min = default, int? max = default) => 666;
+        public int NextInt(int? min = default, int? max = default) => 666;
 
-        public byte[] GenerateByteArray(long length) => throw new NotImplementedException();
+        public byte[] NextByteArray(long length) => throw new NotImplementedException();
 
-        public double GenerateDouble() => throw new NotImplementedException();
+        public double NextDouble() => throw new NotImplementedException();
 
-        public long GenerateLong() => throw new NotImplementedException();
+        public long NextLong() => throw new NotImplementedException();
 
-        public float GenerateFloat() => throw new NotImplementedException();
+        public float NextFloat() => throw new NotImplementedException();
 
-        public Guid GenerateGuid() => throw new NotImplementedException();
+        public Guid NextGuid() => throw new NotImplementedException();
     }
 
     struct CustomRuntime : HasRandom<CustomRuntime>
@@ -70,7 +70,7 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random can be mocked")]
     public static void Case4() =>
-        Random<CustomRuntime>.generateInt()
+        Random<CustomRuntime>.nextInt()
             .Run(new CustomRuntime())
             .ThrowIfFail()
             .Should()
@@ -78,39 +78,39 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random bytes can be generated to length")]
     public static void Case5() => 
-        LR.generateByteArray(7).Run(live).ThrowIfFail().Should().HaveCount(7);
+        LR.nextByteArray(7).Run(live).ThrowIfFail().Should().HaveCount(7);
     
     [Fact(DisplayName = "Random bytes can be generated to length (SysX.Live)")]
     public static void Case5a() => 
-        LRX.generateByteArray(7).Run(liveX).ThrowIfFail().Should().HaveCount(7);
+        LRX.nextByteArray(7).Run(liveX).ThrowIfFail().Should().HaveCount(7);
     
     [Fact(DisplayName = "Random bytes can be generated to length (SysX.Test)")]
     public static void Case5b() => 
-        TRX.generateByteArray(7).Run(testX()).ThrowIfFail().Should().HaveCount(7);
+        TRX.nextByteArray(7).Run(testX()).ThrowIfFail().Should().HaveCount(7);
 
     [Fact(DisplayName = "Random doubles can be generated")]
     public static void Case6() => 
-        LR.generateDouble().Run(live).ThrowIfFail().Should().BePositive();
+        LR.nextDouble().Run(live).ThrowIfFail().Should().BePositive();
 
     [Fact(DisplayName = "Random longs can be generated")]
     public static void Case7() =>
-        LR.generateLong().Run(live).ThrowIfFail().Should().BeInRange(long.MinValue, long.MaxValue);
+        LR.nextLong().Run(live).ThrowIfFail().Should().BeInRange(long.MinValue, long.MaxValue);
 
     [Fact(DisplayName = "Random floats can be generated")]
     public static void Case8() =>
-        LR.generateFloat().Run(live).ThrowIfFail().Should().BeInRange(float.MinValue, float.MaxValue);
+        LR.nextFloat().Run(live).ThrowIfFail().Should().BeInRange(float.MinValue, float.MaxValue);
 
     [Fact(DisplayName = "Random guids can be generated")]
     public static void Case9() => 
-        LR.generateGuid().Run(live).ThrowIfFail().Should().NotBeEmpty();
+        LR.nextGuid().Run(live).ThrowIfFail().Should().NotBeEmpty();
 
     [Fact(DisplayName = "Random guids can be generated")]
     public static void Case10() => 
-        LR.generateChar().Run(live).ThrowIfFail().Should().NotBeNull();
+        LR.nextChar().Run(live).ThrowIfFail().Should().NotBeNull();
 
     [Fact(DisplayName = "Random durations between a range can be generated")]
     public static void Case11() =>
-        LR.generateDuration(10 * seconds, 1 * minute)
+        LR.nextDuration(10 * seconds, 1 * minute)
             .Run(live)
             .ThrowIfFail()
             .Should()
@@ -118,7 +118,7 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random time spans between a range can be generated")]
     public static void Case12() =>
-        LR.generateTimespan(10 * seconds, 1 * minute)
+        LR.nextTimespan(10 * seconds, 1 * minute)
             .Run(live)
             .ThrowIfFail()
             .Should()
@@ -127,7 +127,7 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random date time offsets between a range can be generated")]
     public static void Case13() =>
-        LR.generateDateTimeOffset(DateTimeOffset.Now, DateTimeOffset.Now + TimeSpan.FromDays(10))
+        LR.nextDateTimeOffset(DateTimeOffset.Now, DateTimeOffset.Now + TimeSpan.FromDays(10))
             .Run(live)
             .ThrowIfFail()
             .Should()
@@ -135,7 +135,7 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random date time between a range can be generated")]
     public static void Case14() =>
-        LR.generateDateTime(DateTime.Now, DateTime.Now + TimeSpan.FromDays(10))
+        LR.nextDateTime(DateTime.Now, DateTime.Now + TimeSpan.FromDays(10))
             .Run(live)
             .ThrowIfFail()
             .Should()
@@ -143,7 +143,7 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random ranges can be generated")]
     public static void Case17() =>
-        LR.generateRange(LR.generateChar(), 4, 25)
+        LR.nextRange(LR.nextChar(), 4, 25)
             .Run(live)
             .ThrowIfFail()
             .Should()
@@ -152,7 +152,7 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random ranges can be generated with other random effects")]
     public static void Case18() =>
-        LR.generateRange(LR.generateGuid(), 4, 25)
+        LR.nextRange(LR.nextGuid(), 4, 25)
             .Run(live)
             .ThrowIfFail()
             .Should()
@@ -161,19 +161,19 @@ public static class RandomTests
 
     [Fact(DisplayName = "Generate int provides a random int deterministically")]
     public static void Case19() => 
-        TR.generateInt().Run(test()).ThrowIfFail().Should().Be(1673116976);
+        TR.nextInt().Run(test()).ThrowIfFail().Should().Be(1673116976);
 
     [Fact(DisplayName = "Generate int provides a random int between 2 values deterministically")]
     public static void Case20() => 
-        TR.generateInt(2, 6).Run(test()).ThrowIfFail().Should().Be(5);
+        TR.nextInt(2, 6).Run(test()).ThrowIfFail().Should().Be(5);
 
     [Fact(DisplayName = "Generate int provides a random int up to a max value deterministically")]
     public static void Case21() => 
-        TR.generateInt(0, 6).Run(test()).ThrowIfFail().Should().Be(4);
+        TR.nextInt(0, 6).Run(test()).ThrowIfFail().Should().Be(4);
 
     [Fact(DisplayName = "Random bytes can be generated to length deterministically")]
     public static void Case22() =>
-        TR.generateByteArray(7)
+        TR.nextByteArray(7)
             .Run(test())
             .ThrowIfFail()
             .Should()
@@ -181,31 +181,31 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random doubles can be generated deterministically")]
     public static void Case23() =>
-        TR.generateDouble().Run(test()).ThrowIfFail().Should().Be(0.7791058052233913);
+        TR.nextDouble().Run(test()).ThrowIfFail().Should().Be(0.7791058052233913);
 
     [Fact(DisplayName = "Random doubles within range can be generated deterministically")]
     public static void Case23b() =>
-        TR.generateDouble(0.8, 0.9).Run(test()).ThrowIfFail().Should().Be(0.8791058052233915);
+        TR.nextDouble(0.8, 0.9).Run(test()).ThrowIfFail().Should().Be(0.8791058052233915);
 
     [Fact(DisplayName = "Random longs can be generated deterministically")]
     public static void Case24() =>
-        TR.generateLong().Run(test()).ThrowIfFail().Should().Be(5197507324635506224L);
+        TR.nextLong().Run(test()).ThrowIfFail().Should().Be(5197507324635506224L);
 
     [Fact(DisplayName = "Random longs within a range can be generated deterministically")]
     public static void Case24b() =>
-        TR.generateLong(10L, 900L).Run(test()).ThrowIfFail().Should().Be(264L);
+        TR.nextLong(10L, 900L).Run(test()).ThrowIfFail().Should().Be(264L);
 
     [Fact(DisplayName = "Random floats can be generated deterministically")]
     public static void Case25() => 
-        TR.generateFloat().Run(test()).ThrowIfFail().Should().Be(3733900F);
+        TR.nextFloat().Run(test()).ThrowIfFail().Should().Be(3733900F);
 
     [Fact(DisplayName = "Random floats within a range can be generated deterministically")]
     public static void Case25b() => 
-        TR.generateFloat(0.8F, 0.9F).Run(test()).ThrowIfFail().Should().Be(0.8353472F);
+        TR.nextFloat(0.8F, 0.9F).Run(test()).ThrowIfFail().Should().Be(0.8353472F);
 
     [Fact(DisplayName = "Random guids can be generated deterministically")]
     public static void Case26() =>
-        TR.generateGuid()
+        TR.nextGuid()
             .Run(test())
             .ThrowIfFail()
             .Should()
@@ -213,11 +213,11 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random char can be generated deterministically")]
     public static void Case27() => 
-        TR.generateChar().Run(test()).ThrowIfFail().Should().Be('i');
+        TR.nextChar().Run(test()).ThrowIfFail().Should().Be('i');
 
     [Fact(DisplayName = "Random durations between a range can be generated deterministically")]
     public static void Case28() =>
-        TR.generateDuration(10 * seconds, 1 * minute)
+        TR.nextDuration(10 * seconds, 1 * minute)
             .Run(test())
             .ThrowIfFail()
             .Should()
@@ -225,7 +225,7 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random time spans between a range can be generated deterministically")]
     public static void Case29() =>
-        TR.generateTimespan(10 * seconds, 1 * minute)
+        TR.nextTimespan(10 * seconds, 1 * minute)
             .Run(test())
             .ThrowIfFail()
             .Should()
@@ -233,11 +233,11 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random ranges can be generated deterministically")]
     public static void Case30() =>
-        TR.generateRange(TR.generateChar(), 4, 25).Run(test()).ThrowIfFail().Should().HaveCount(20);
+        TR.nextRange(TR.nextChar(), 4, 25).Run(test()).ThrowIfFail().Should().HaveCount(20);
 
     [Fact(DisplayName = "Random ranges can be generated with other random effects deterministically")]
     public static void Case31() =>
-        TR.generateRange(TR.generateGuid(), 4, 25)
+        TR.nextRange(TR.nextGuid(), 4, 25)
             .Run(test())
             .ThrowIfFail()
             .Should()
@@ -246,15 +246,15 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random strings can be generated")]
     public static void Case32() =>
-        LR.generateString(4, 25).Run(live).ThrowIfFail().Should().NotBeEmpty();
+        LR.nextString(4, 25).Run(live).ThrowIfFail().Should().NotBeEmpty();
 
     [Fact(DisplayName = "Random strings can be generated deterministically")]
     public static void Case33() =>
-        TR.generateString(4, 25).Run(test()).ThrowIfFail().Should().Be("g9.XyvJR3Ng\"J-v<br`E");
+        TR.nextString(4, 25).Run(test()).ThrowIfFail().Should().Be("g9.XyvJR3Ng\"J-v<br`E");
 
     [Fact(DisplayName = "Random chars in a range can be generated")]
     public static void Case34() =>
-        LR.generateChar('a', 'z')
+        LR.nextChar('a', 'z')
             .Run(live)
             .ThrowIfFail()
             .Should()
@@ -263,7 +263,7 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random chars in a range can be generated deterministically")]
     public static void Case35() => 
-        TR.generateChar('a', 'z').Run(test()).ThrowIfFail().Should().Be('t');
+        TR.nextChar('a', 'z').Run(test()).ThrowIfFail().Should().Be('t');
 
     [Fact(DisplayName = "Random pick will get a random element from the collection")]
     public static void Case36() =>
@@ -280,15 +280,15 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random enum will get a random enum from the enumeration")]
     public static void Case38() =>
-        LR.generateEnum<LogLevel>().Run(live).ThrowIfFail().Should().BeOneOf(Enum.GetValues<LogLevel>());
+        LR.nextEnum<LogLevel>().Run(live).ThrowIfFail().Should().BeOneOf(Enum.GetValues<LogLevel>());
 
     [Fact(DisplayName = "Random enum will get a random enum from the enumeration deterministically")]
     public static void Case39() =>
-        TR.generateEnum<LogLevel>().Run(test()).ThrowIfFail().Should().Be(LogLevel.Warning);
+        TR.nextEnum<LogLevel>().Run(test()).ThrowIfFail().Should().Be(LogLevel.Warning);
 
     [Fact(DisplayName = "Random boolean can be generated deterministically")]
     public static void Case40() => 
-        TR.generateBool().Run(test()).ThrowIfFail().Should().BeTrue();
+        TR.nextBool().Run(test()).ThrowIfFail().Should().BeTrue();
 
     [Fact(DisplayName = "Random weighted pick can be returned")]
     public static void Case41()
@@ -347,8 +347,8 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random tuples can be generated")]
     public static void Case44() => (
-            from a in TR.generateInt()
-            from b in TR.generateInt()
+            from a in TR.nextInt()
+            from b in TR.nextInt()
             select (a, b)).Run(test())
         .ThrowIfFail()
         .Should()

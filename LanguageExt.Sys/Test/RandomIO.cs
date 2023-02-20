@@ -20,7 +20,7 @@ public sealed class RandomIO : LanguageExt.Sys.Traits.RandomIO
     /// <param name="min">minimum int to return</param>
     /// <param name="max">maximum int to return</param>
     /// <returns>int</returns>
-    public int GenerateInt(int? min = default, int? max = default) =>
+    public int NextInt(int? min = default, int? max = default) =>
         (min, max) switch
         {
             ({ } m, { } mx) => _rng.Next(m, mx),
@@ -29,11 +29,11 @@ public sealed class RandomIO : LanguageExt.Sys.Traits.RandomIO
         };
 
     /// <summary>
-    /// Fills the elements of a specified array of bytes with random numbers
+    /// Returns an array of bytes with random numbers
     /// </summary>
     /// <param name="length">number of bytes to fill</param>
     /// <returns>bytes</returns>
-    public byte[] GenerateByteArray(long length)
+    public byte[] NextByteArray(long length)
     {
         var array = new byte[length];
         _rng.NextBytes(array);
@@ -44,14 +44,14 @@ public sealed class RandomIO : LanguageExt.Sys.Traits.RandomIO
     /// Returns a non-negative double
     /// </summary>
     /// <returns>double</returns>
-    public double GenerateDouble() => 
+    public double NextDouble() => 
         _rng.NextDouble();
 
     /// <summary>
     /// Returns a non-negative long
     /// </summary>
     /// <returns>long</returns>
-    public long GenerateLong()
+    public long NextLong()
     {
         var buf = new byte[8];
         _rng.NextBytes(buf);
@@ -62,7 +62,7 @@ public sealed class RandomIO : LanguageExt.Sys.Traits.RandomIO
     /// Returns a non-negative float
     /// </summary>
     /// <returns>float</returns>
-    public float GenerateFloat()
+    public float NextFloat()
     {
         var buffer = new byte[4];
         _rng.NextBytes(buffer);
@@ -73,6 +73,6 @@ public sealed class RandomIO : LanguageExt.Sys.Traits.RandomIO
     /// Returns a non-negative guid
     /// </summary>
     /// <returns>guid</returns>
-    public Guid GenerateGuid() =>
-        new(GenerateByteArray(16));
+    public Guid NextGuid() =>
+        new(NextByteArray(16));
 }

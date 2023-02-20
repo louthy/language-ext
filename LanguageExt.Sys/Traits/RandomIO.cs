@@ -13,38 +13,38 @@ public interface RandomIO
     /// <param name="min">minimum int to return</param>
     /// <param name="max">maximum int to return</param>
     /// <returns>int</returns>
-    int GenerateInt(int? min = default, int? max = default);
+    int NextInt(int? min = default, int? max = default);
 
     /// <summary>
-    /// Fills the elements of a specified array of bytes with random numbers
+    /// Returns an array of bytes with random numbers
     /// </summary>
     /// <param name="length">number of bytes to fill</param>
     /// <returns>bytes</returns>
-    byte[] GenerateByteArray(long length);
+    byte[] NextByteArray(long length);
 
     /// <summary>
     /// Returns a non-negative double
     /// </summary>
     /// <returns>double</returns>
-    double GenerateDouble();
+    double NextDouble();
 
     /// <summary>
     /// Returns a non-negative long
     /// </summary>
     /// <returns>long</returns>
-    long GenerateLong();
+    long NextLong();
 
     /// <summary>
     /// Returns a non-negative float
     /// </summary>
     /// <returns>float</returns>
-    float GenerateFloat();
+    float NextFloat();
 
     /// <summary>
     /// Returns a non-negative guid
     /// </summary>
     /// <returns>guid</returns>
-    Guid GenerateGuid();
+    Guid NextGuid();
 }
 
 /// <summary>
