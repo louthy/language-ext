@@ -185,7 +185,7 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random doubles within range can be generated deterministically")]
     public static void Case23b() =>
-        TR.nextDouble(0.8, 0.9).Run(test()).ThrowIfFail().Should().Be(0.8791058052233915);
+        TR.nextDouble(0.8, 0.9).Run(test()).ThrowIfFail().Should().Be(0.8779105805223392);
 
     [Fact(DisplayName = "Random longs can be generated deterministically")]
     public static void Case24() =>
@@ -197,11 +197,11 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random floats can be generated deterministically")]
     public static void Case25() => 
-        TR.nextFloat().Run(test()).ThrowIfFail().Should().Be(3733900F);
+        TR.nextFloat().Run(test()).ThrowIfFail().Should().Be(3.4028233E+38F);
 
     [Fact(DisplayName = "Random floats within a range can be generated deterministically")]
     public static void Case25b() => 
-        TR.nextFloat(0.8F, 0.9F).Run(test()).ThrowIfFail().Should().Be(0.8353472F);
+        TR.nextFloat(0.8F, 0.9F).Run(test()).ThrowIfFail().Should().Be(0.8999999F);
 
     [Fact(DisplayName = "Random guids can be generated deterministically")]
     public static void Case26() =>
@@ -221,7 +221,7 @@ public static class RandomTests
             .Run(test())
             .ThrowIfFail()
             .Should()
-            .Be(10000.779105805223);
+            .Be(48955.290261169568);
 
     [Fact(DisplayName = "Random time spans between a range can be generated deterministically")]
     public static void Case29() =>
@@ -229,7 +229,7 @@ public static class RandomTests
             .Run(test())
             .ThrowIfFail()
             .Should()
-            .Be(TimeSpan.FromMilliseconds(10000.779105805223));
+            .Be(TimeSpan.FromMilliseconds(48955.290261169568));
 
     [Fact(DisplayName = "Random ranges can be generated deterministically")]
     public static void Case30() =>
@@ -267,7 +267,7 @@ public static class RandomTests
 
     [Fact(DisplayName = "Random pick will get a random element from the collection")]
     public static void Case36() =>
-        LR.uniform<int>(List(1, 2, 3, 4, 5))
+        LR.uniform(1, 2, 3, 4, 5)
             .Run(live)
             .ThrowIfFail()
             .Should()
@@ -293,8 +293,8 @@ public static class RandomTests
     [Fact(DisplayName = "Random weighted pick can be returned")]
     public static void Case41()
     {
-        var result = TR.weighted<int>(
-                List((5, 1), (15, 2), (30, 3), (30, 4), (15, 5), (5, 6))
+        var result = TR.weighted(
+                (5, 1), (15, 2), (30, 3), (30, 4), (15, 5), (5, 6)
             )
             .Fold(Schedule.recurs(1000), Seq.empty<int>(), (seq, i) => seq.Add(i))
             .Run(test())
@@ -353,4 +353,13 @@ public static class RandomTests
         .ThrowIfFail()
         .Should()
         .Be((1673116976, 1631631590));
+
+    [Fact(DisplayName = "Lists can be shuffled")]
+    public static void Case45() =>
+        TR.shuffle(1, 2, 3, 4, 5)
+            .Run(test())
+            .ThrowIfFail()
+            .AsEnumerable()
+            .Should()
+            .ContainInOrder(2, 3, 1, 5, 4);
 }

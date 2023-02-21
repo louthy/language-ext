@@ -18,6 +18,14 @@ namespace LanguageExt.Sys;
 /// <typeparam name="RT">runtime</typeparam>
 public static class Random<RT> where RT : struct, HasRandom<RT>
 {
+    [Pure]
+    static (T min, T max) ensureBounds<T, TNum>(T min, T max) where TNum : struct, Ord<T> 
+    {
+        min = default(TNum).Compare(min, max) == -1 ? min : max;
+        max = default(TNum).Compare(max, min) == 1 ? max : min;
+        return ( min, max);
+    }
+
     /// <summary>
     /// Returns a non-negative int
     /// </summary>
@@ -27,7 +35,7 @@ public static class Random<RT> where RT : struct, HasRandom<RT>
     [Pure]
     public static Eff<RT, int> nextInt(int? min = default, int? max = default) =>
         default(RT).RandomEff.Map(io => io.NextInt(min, max));
-
+    
     /// <summary>
     /// Fills the elements of a specified array of bytes with random numbers
     /// </summary>
@@ -35,17 +43,7 @@ public static class Random<RT> where RT : struct, HasRandom<RT>
     [Pure]
     public static Eff<RT, byte[]> nextByteArray(long length) =>
         default(RT).RandomEff.Map(io => io.NextByteArray(length));
-
-    [Pure]
-    static Eff<RT, (T result, T min, T max)> bounded<T, TNum>(Eff<RT, T> effect, T min, T max)
-        where TNum : struct, Ord<T> =>
-        effect.Map(r =>
-            {
-                min = default(TNum).Compare(min, max) == -1 ? min : max;
-                max = default(TNum).Compare(max, min) == 1 ? max : min;
-                return (r, min, max);
-            });
-
+    
     /// <summary>
     /// Returns a non-negative double
     /// </summary>
@@ -53,12 +51,16 @@ public static class Random<RT> where RT : struct, HasRandom<RT>
     /// <param name="max">maximum double to return</param>
     /// <returns>double</returns>
     [Pure]
-    public static Eff<RT, double> nextDouble(double? min = default, double? max = default) =>
-        bounded<double, TDouble>(
-                default(RT).RandomEff.Map(static io => io.NextDouble()),
-                min ?? 0.0,
-                max ?? 1.0)
-            .Map(static t => t.result % (t.max - t.min) + t.min);
+    public static Eff<RT, double> nextDouble(double? min = default, double? max = default)
+    {
+        var (mi, me) = ensureBounds<double, TDouble>(min ?? 0.0, max ?? 1.0);
+        return default(RT).RandomEff.Map(static io => io.NextDouble())
+            .Map(n =>
+            {
+                var result = n * (me - mi) + mi;
+                return result < me ? result : MathExt.NextAfter(me, double.NegativeInfinity);
+            });
+    }
 
     /// <summary>
     /// Returns a non-negative long
@@ -67,12 +69,11 @@ public static class Random<RT> where RT : struct, HasRandom<RT>
     /// <param name="max">maximum long to return</param>
     /// <returns>long</returns>
     [Pure]
-    public static Eff<RT, long> nextLong(long? min = default, long? max = default) =>
-        bounded<long, TLong>(
-            default(RT).RandomEff.Map(static io => io.NextLong()),
-            min ?? 0,
-            max ?? long.MaxValue)
-            .Map(static t => t.result % (t.max - t.min) + t.min);
+    public static Eff<RT, long> nextLong(long? min = default, long? max = default)
+    {
+        var (mi, me) = ensureBounds<long, TLong>(min ?? 0L, max ?? long.MaxValue);
+        return default(RT).RandomEff.Map(io => io.NextLong() % (me - mi) + mi);
+    }
 
     /// <summary>
     /// Returns a non-negative float
@@ -81,12 +82,16 @@ public static class Random<RT> where RT : struct, HasRandom<RT>
     /// <param name="max">maximum float to return</param>
     /// <returns>float</returns>
     [Pure]
-    public static Eff<RT, float> nextFloat(float? min = default, float? max = default) =>
-        bounded<float, TFloat>(
-            default(RT).RandomEff.Map(static io => io.NextFloat()),
-            min ?? 0.0f,
-            max ?? float.MaxValue)
-            .Map(static t => t.result % (t.max - t.min) + t.min);
+    public static Eff<RT, float> nextFloat(float? min = default, float? max = default)
+    {
+        var (mi, me) = ensureBounds<float, TFloat>(min ?? 0.0f, max ?? float.MaxValue);
+        return default(RT).RandomEff.Map(static io => io.NextFloat())
+            .Map(n =>
+            {
+                var result = n * (me - mi) + me;
+                return result < me ? result : MathExt.NextAfter(me, float.NegativeInfinity);
+            });
+    }
 
     /// <summary>
     /// Returns a non-negative guid
@@ -184,12 +189,32 @@ public static class Random<RT> where RT : struct, HasRandom<RT>
     /// <summary>
     /// Returns a random element with an equal probability
     /// </summary>
+    /// <param name="head">head of the list</param>
+    /// <param name="tail">rest of the list or empty</param>
+    /// <typeparam name="T">some T</typeparam>
+    /// <returns>random T</returns>
+    public static Eff<RT, T> uniform<T>(T head, params T[] tail) =>
+        uniform<T>(List(head,tail));
+    
+    /// <summary>
+    /// Returns a random element with an equal probability
+    /// </summary>
     /// <param name="elements">list of elements</param>
     /// <typeparam name="T">some T</typeparam>
     /// <returns>random T</returns>
     public static Eff<RT, T> uniform<T>(Lst<NonEmpty, T> elements) =>
         nextInt(0, elements.Count - 1).Map(i => elements[i]);
 
+    /// <summary>
+    /// Returns a random element with a weighted probability
+    /// </summary>
+    /// <param name="head">head of the list</param>
+    /// <param name="tail">rest of the list or empty</param>
+    /// <typeparam name="T">some T</typeparam>
+    /// <returns>random T</returns>
+    public static Eff<RT, T> weighted<T>((int weight, T element) head, params(int weight, T element)[] tail) =>
+        weighted<T>(List(head,tail));
+    
     /// <summary>
     /// Returns a random element with a weighted probability
     /// </summary>
@@ -212,6 +237,39 @@ public static class Random<RT> where RT : struct, HasRandom<RT>
                             })
                         .element;
                 });
+    }
+
+    /// <summary>
+    /// Randomly shuffles the specified list
+    /// </summary>
+    /// <param name="head">head of the list</param>
+    /// <param name="tail">rest of the list or empty</param>
+    /// <typeparam name="T">some T</typeparam>
+    /// <returns>shuffled list</returns>
+    [Pure]
+    public static Eff<RT, Lst<NonEmpty, T>> shuffle<T>(T head, params T[] tail) =>
+        shuffle(List<NonEmpty, T>(head, tail));
+    
+    /// <summary>
+    /// Randomly shuffles the specified list
+    /// </summary>
+    /// <param name="elements">non empty list to shuffle</param>
+    /// <typeparam name="T">some T</typeparam>
+    /// <returns>shuffled list</returns>
+    [Pure]
+    public static Eff<RT, Lst<NonEmpty, T>> shuffle<T>(Lst<NonEmpty, T> elements)
+    {
+        var mutable = elements.ToList();
+        return default(RT).RandomEff.Map(io =>
+            {
+                for (var n = elements.Count - 1; n > 0; n--)
+                {
+                    var k = io.NextInt(max: n + 1);
+                    (mutable[k], mutable[n]) = (mutable[n], mutable[k]);
+                }
+
+                return List<NonEmpty, T>(mutable[0], mutable.Tail().ToArray());
+            });
     }
 
     /// <summary>
