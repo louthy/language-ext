@@ -225,17 +225,14 @@ public static class Random<RT> where RT : struct, HasRandom<RT>
     {
         var el = elements.Map(x => x with { weight = Math.Abs(x.weight) });
         return nextInt(0, el.Sum(x => x.weight))
-            .Map(
-                rand =>
+            .Map(rand =>
                 {
                     var sum = 0;
-                    return el.First(
-                            x =>
+                    return el.First(x =>
                             {
                                 sum += x.weight;
                                 return rand < sum;
-                            })
-                        .element;
+                            }).element;
                 });
     }
 

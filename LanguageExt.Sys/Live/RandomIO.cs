@@ -23,7 +23,8 @@ public struct RandomIO : LanguageExt.Sys.Traits.RandomIO
     public int NextInt(int? min = default, int? max = default) =>
         (min, max) switch
         {
-            ({ } m, { } mx) => _rng.Next(m, mx),
+            ({ } m, { } mx) when m <= mx => _rng.Next(m, mx),
+            ({ } m, { } mx) when m >= mx => _rng.Next(mx,m),
             (_, { } mx) => _rng.Next(mx),
             _ => _rng.Next()
         };

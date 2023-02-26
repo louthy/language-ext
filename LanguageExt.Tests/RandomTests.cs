@@ -41,11 +41,11 @@ public static class RandomTests
 
     [Fact(DisplayName = "Generate int provides a random int up to a max value (SysX.Live)")]
     public static void Case3a() =>
-        LRX.nextInt(0, 6).Run(liveX).ThrowIfFail().Should().BeGreaterOrEqualTo(0).And.BeLessThan(6);
+        LRX.nextInt(max: 6).Run(liveX).ThrowIfFail().Should().BeGreaterOrEqualTo(0).And.BeLessThan(6);
 
     [Fact(DisplayName = "Generate int provides a random int up to a max value (SysX.Test)")]
     public static void Case3b() =>
-        TRX.nextInt(0, 6).Run(testX()).ThrowIfFail().Should().BeGreaterOrEqualTo(0).And.BeLessThan(6);
+        TRX.nextInt(max: 6).Run(testX()).ThrowIfFail().Should().BeGreaterOrEqualTo(0).And.BeLessThan(6);
     
     sealed class MockRandom : RandomIO
     {
@@ -362,4 +362,21 @@ public static class RandomTests
             .AsEnumerable()
             .Should()
             .ContainInOrder(2, 3, 1, 5, 4);
+    
+    [Fact(DisplayName = "Min and max can be assigned the wrong way round and it swaps the bounds (Test)")]
+    public static void Case46() =>
+        TR.nextInt(3, 1)
+            .Run(test())
+            .ThrowIfFail()
+            .Should()
+            .Be(2);
+    
+    [Fact(DisplayName = "Min and max can be assigned the wrong way round and it swaps the bounds (Live)")]
+    public static void Case47() =>
+        LR.nextInt(3, 1)
+            .Run(live)
+            .ThrowIfFail()
+            .Should()
+            .BeGreaterOrEqualTo(1)
+            .And.BeLessThanOrEqualTo(3);
 }
