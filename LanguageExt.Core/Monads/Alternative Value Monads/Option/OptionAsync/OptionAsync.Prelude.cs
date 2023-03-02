@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -150,7 +151,7 @@ namespace LanguageExt
         /// <param name="value">Value to be made OptionAsyncal, or null</param>
         /// <returns>If the value is null it will be None else Some(value)</returns>
         [Pure]
-        public static OptionAsync<T> OptionalAsync<T>(Task<T> value) =>
+        public static OptionAsync<T> OptionalAsync<T>(Task<T?> value) =>
             OptionAsync<T>.OptionalAsync(value);
 
         /// <summary>
@@ -160,7 +161,7 @@ namespace LanguageExt
         /// <param name="f">A function that returns the value to construct the OptionAsync with</param>
         /// <returns>A lazy OptionAsync<T></returns>
         [Pure]
-        public static OptionAsync<T> OptionalAsync<T>(Func<Unit, Task<T>> f) =>
+        public static OptionAsync<T> OptionalAsync<T>(Func<Unit, Task<T?>> f) =>
             OptionAsync<T>.OptionalAsync(f(unit));
 
         /// <summary>
