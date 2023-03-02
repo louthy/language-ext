@@ -18,6 +18,16 @@ namespace LanguageExt.Sys;
 /// <typeparam name="RT">runtime</typeparam>
 public static class Random<RT> where RT : struct, HasRandom<RT>
 {
+    /// <summary>
+    /// Create a new random context and run the provided Eff in that context
+    /// </summary>
+    /// <param name="ma">Operation to run in the next context</param>
+    /// <param name="seed">optional seed for the random instance</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>An effect that captures the operation running in context</returns>
+    public static Eff<RT, A> localRandom<A>(Eff<RT, A> ma, int? seed = default) => 
+        EffMaybe<RT, A>(rt => ma.Run(rt.LocalRandom(seed)));
+    
     [Pure]
     static (T min, T max) ensureBounds<T, TNum>(T min, T max) where TNum : struct, Ord<T> 
     {

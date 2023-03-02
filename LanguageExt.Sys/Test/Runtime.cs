@@ -171,7 +171,15 @@ namespace LanguageExt.Sys.Test
         /// <returns>Operating-system environment environment</returns>
         public Eff<Runtime, Traits.EnvironmentIO> EnvironmentEff =>
             Eff<Runtime, Traits.EnvironmentIO>(rt => new Test.EnvironmentIO(rt.Env.SysEnv));
-        
+
+        /// <summary>
+        /// Creates a new runtime from this with a new Random IO and optional seed
+        /// </summary>
+        /// <remarks>This is for sub-systems to run in their own local random/controlled random contexts</remarks>
+        /// <returns>New runtime</returns>
+        public Runtime LocalRandom(int? seed = default) =>
+            new Runtime(env.LocalRandom(seed));
+
         /// <summary>
         /// Access the random synchronous effect environment
         /// </summary>
@@ -227,5 +235,8 @@ namespace LanguageExt.Sys.Test
 
         public RuntimeEnv LocalCancel =>
             new RuntimeEnv(new CancellationTokenSource(), Encoding, Console, FileSystem, TimeSpec, SysEnv,Seed); 
+        
+        public RuntimeEnv LocalRandom(int? seed = default) =>
+            new RuntimeEnv(new CancellationTokenSource(), Encoding, Console, FileSystem, TimeSpec, SysEnv, seed ?? Seed); 
     }
 }

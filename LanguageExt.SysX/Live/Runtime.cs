@@ -164,24 +164,40 @@ namespace LanguageExt.SysX.Live
             SuccessEff(Sys.Live.EnvironmentIO.Default);
  
         /// <summary>
+        /// Creates a new runtime from this with a new Random IO and optional seed
+        /// </summary>
+        /// <remarks>This is for sub-systems to run in their own local random/controlled random contexts</remarks>
+        /// <returns>New runtime</returns>
+        public Runtime LocalRandom(int? seed = default) =>
+            new Runtime(
+                env with
+                {
+                    Random = seed != null
+                        ? new Sys.Live.RandomIO(new Random(seed.Value))
+                        : new Sys.Live.RandomIO(new Random())
+                });
+
+        /// <summary>
         /// Access the random synchronous effect environment
         /// </summary>
         /// <returns>Random synchronous effect environment</returns>
         public Eff<Runtime, RandomIO> RandomEff =>
-            SuccessEff<Runtime, RandomIO>(new Sys.Live.RandomIO(new Random()));
+            Eff<Runtime, RandomIO>(static rt => rt.env.Random);
     }
     
     public record RuntimeEnv(
         ActivityEnv Activity,
         CancellationTokenSource Source, 
         CancellationToken Token, 
-        Encoding Encoding) : IDisposable
+        Encoding Encoding,
+        RandomIO Random) : IDisposable
     {
-        public RuntimeEnv(ActivityEnv activity, CancellationTokenSource source, Encoding encoding) : 
+        public RuntimeEnv(ActivityEnv activity, CancellationTokenSource source, Encoding encoding, Random? randomProvider = default) : 
             this(activity,
                  source, 
                  source.Token, 
-                 encoding)
+                 encoding,
+                 new Sys.Live.RandomIO(randomProvider ?? new Random()))
         {
         }
 

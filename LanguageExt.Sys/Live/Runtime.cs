@@ -3,7 +3,6 @@
 using System;
 using System.Text;
 using System.Threading;
-using System.Diagnostics;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Sys.Traits;
 using static LanguageExt.Prelude;
@@ -136,13 +135,21 @@ namespace LanguageExt.Sys.Live
         /// <returns>Operating-system environment environment</returns>
         public Eff<Runtime, Traits.EnvironmentIO> EnvironmentEff =>
             SuccessEff(Sys.Live.EnvironmentIO.Default);
-        
+
+        /// <summary>
+        /// Creates a new runtime from this with a new Random IO and optional seed
+        /// </summary>
+        /// <remarks>This is for sub-systems to run in their own local random/controlled random contexts</remarks>
+        /// <returns>New runtime</returns>
+        public Runtime LocalRandom(int? seed = default) =>
+            new Runtime(env.LocalRandom(seed));
+
         /// <summary>
         /// Access the random synchronous effect environment
         /// </summary>
         /// <returns>Random synchronous effect environment</returns>
         public Eff<Runtime, Traits.RandomIO> RandomEff =>
-            SuccessEff<Runtime, Traits.RandomIO>(new Sys.Live.RandomIO(new Random()));
+            Eff<Runtime, Traits.RandomIO>(static rt => rt.env.Random);
     }
     
     public class RuntimeEnv
@@ -150,16 +157,21 @@ namespace LanguageExt.Sys.Live
         public readonly CancellationTokenSource Source;
         public readonly CancellationToken Token;
         public readonly Encoding Encoding;
+        public readonly Traits.RandomIO Random;
 
-        public RuntimeEnv(CancellationTokenSource source, CancellationToken token, Encoding encoding)
+        public RuntimeEnv(CancellationTokenSource source, CancellationToken token, Encoding encoding, Random? randomProvider = default)
         {
             Source   = source;
             Token    = token;
             Encoding = encoding;
+            Random = new RandomIO(randomProvider ?? new Random());
         }
 
         public RuntimeEnv(CancellationTokenSource source, Encoding encoding) : this(source, source.Token, encoding)
         {
         }
+
+        public RuntimeEnv LocalRandom(int? seed = default) =>
+            new RuntimeEnv(Source, Token, Encoding, seed != null ? new Random(seed.Value) : new Random()); 
     }
 }

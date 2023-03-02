@@ -55,6 +55,13 @@ public interface RandomIO
 public interface HasRandom<RT> where RT : struct
 {
     /// <summary>
+    /// Creates a new runtime from this with a new Random IO and optional seed
+    /// </summary>
+    /// <remarks>This is for sub-systems to run in their own local random/controlled random contexts</remarks>
+    /// <returns>New runtime</returns>
+    RT LocalRandom(int? seed = default);
+    
+    /// <summary>
     /// Access the random synchronous effect environment
     /// </summary>
     /// <returns>Random synchronous effect environment</returns>

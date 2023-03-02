@@ -64,6 +64,9 @@ public static class RandomTests
 
     struct CustomRuntime : HasRandom<CustomRuntime>
     {
+        public CustomRuntime LocalRandom(int? seed = default) =>
+            new CustomRuntime();
+
         public Eff<CustomRuntime, RandomIO> RandomEff =>
             SuccessEff<CustomRuntime, RandomIO>(new MockRandom());
     }
@@ -379,4 +382,64 @@ public static class RandomTests
             .Should()
             .BeGreaterOrEqualTo(1)
             .And.BeLessThanOrEqualTo(3);
+
+    private static void CheckIsSameInstanceAcrossRuntime<T>(T runtime) where T : struct, HasRandom<T>
+    {
+        var (a,b,c) = (
+                from _a in runtime<T>().Bind(x => x.RandomEff)
+                from _b in runtime<T>().Bind(x => x.RandomEff)
+                from _c in runtime<T>().Bind(x => x.RandomEff)
+                select (_a, _b, _c))
+            .Run(runtime)
+            .ThrowIfFail();
+        a.Should().Be(b).And.Be(c);
+    }
+
+    [Fact(DisplayName = "A single random instance is shared for a single runtime (Live)")]
+    public static void Case48() => 
+        CheckIsSameInstanceAcrossRuntime(live);
+    
+    [Fact(DisplayName = "A single random instance is shared for a single runtime (SysX.Live)")]
+    public static void Case49() => 
+        CheckIsSameInstanceAcrossRuntime(liveX);
+    
+    [Fact(DisplayName = "A single random instance is shared for a single runtime (Test)")]
+    public static void Case50() => 
+        CheckIsSameInstanceAcrossRuntime(test());
+    
+    [Fact(DisplayName = "A single random instance is shared for a single runtime (SysX.Test)")]
+    public static void Case51() => 
+        CheckIsSameInstanceAcrossRuntime(testX());
+
+    [Fact(DisplayName = "A nested random context can be used (Live)")]
+    public static void Case52() =>
+        LR.localRandom(LR.nextInt(), 999).Run(live).ThrowIfFail().Should().Be(1351050993);
+    
+    [Fact(DisplayName = "A nested random context can be used without a seed (Live)")]
+    public static void Case53() =>
+        LR.localRandom(LR.nextInt(max: 20)).Run(live).ThrowIfFail().Should().BeLessThan(20);
+   
+    [Fact(DisplayName = "A nested random context can be used (Test)")]
+    public static void Case54() =>
+        TR.localRandom(TR.nextInt(), 999).Run(test()).ThrowIfFail().Should().Be(1351050993);
+    
+    [Fact(DisplayName = "A nested random context can be used without a seed (Test)")]
+    public static void Case55() =>
+        TR.localRandom(TR.nextInt(max: 20)).Run(test()).ThrowIfFail().Should().BeLessThan(20);
+    
+    [Fact(DisplayName = "A nested random context can be used (SysX.Live)")]
+    public static void Case56() =>
+        LRX.localRandom(LRX.nextInt(), 999).Run(liveX).ThrowIfFail().Should().Be(1351050993);
+    
+    [Fact(DisplayName = "A nested random context can be used without a seed (SysX.Live)")]
+    public static void Case57() =>
+        LRX.localRandom(LRX.nextInt(max: 20)).Run(liveX).ThrowIfFail().Should().BeLessThan(20);
+    
+    [Fact(DisplayName = "A nested random context can be used (SysX.Test)")]
+    public static void Case58() =>
+        TRX.localRandom(TRX.nextInt(), 999).Run(testX()).ThrowIfFail().Should().Be(1351050993);
+    
+    [Fact(DisplayName = "A nested random context can be used without a seed (SysX.Test)")]
+    public static void Case59() =>
+        TRX.localRandom(TRX.nextInt(max: 20)).Run(testX()).ThrowIfFail().Should().BeLessThan(20);
 }
