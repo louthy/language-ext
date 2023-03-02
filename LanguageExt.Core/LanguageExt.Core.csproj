@@ -42,13 +42,13 @@
     <None Remove="obj\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[6.0.0,)" />
-    <PackageReference Include="System.Reflection.Emit" Version="[4.3.0,)" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="[4.5.4,)" />
     <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
     <PackageReference Include="Microsoft.CSharp" Version="[4.7.0,)" />
-    <PackageReference Include="System.Memory" Version="[4.5.4,)" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="[4.3.0,)" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
     <PackageReference Include="System.Diagnostics.Contracts" Version="[4.3.0,)" />
     <PackageReference Include="System.Linq" Version="[4.3.0,)" />
     <PackageReference Include="System.Linq.Queryable" Version="[4.3.0,)" />

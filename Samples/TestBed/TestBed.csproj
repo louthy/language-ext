@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <LangVersion>default</LangVersion>
         <StartupObject>Program</StartupObject>
         <RoslynCodeGenVersion>0.6.1</RoslynCodeGenVersion>
@@ -16,9 +16,9 @@
       
         <ProjectReference Include="..\..\LanguageExt.CodeGen\LanguageExt.CodeGen.csproj" PrivateAssets="all" />
 
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
 
-        <PackageReference Include="System.Reactive" Version="[3.0.0,)" />
+        <PackageReference Include="System.Reactive" Version="5.0.0" />
         <PackageReference Include="System.ValueTuple" Version="4.5.0" />
         <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj" />
         <ProjectReference Include="..\..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />

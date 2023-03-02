@@ -43,7 +43,7 @@
         <None Remove="obj\**" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="FSharp.Core" Version="[4.1.12,)" />
+        <PackageReference Include="FSharp.Core" Version="7.0.200" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />

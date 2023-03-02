@@ -30,7 +30,7 @@
     <ItemGroup>
         <None Include="..\Images\lang-ext-small.png">
             <Pack>True</Pack>
-            <PackagePath/>
+            <PackagePath />
         </None>
         <None Update="HKT\AsyncSync\HKT.AsyncSync.Extensions.tt">
           <Generator>TextTemplatingFileGenerator</Generator>
@@ -64,15 +64,15 @@
         <None Remove="obj\**" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[6.0.0,)" />
-        <PackageReference Include="System.Reflection.Emit" Version="[4.3.0,)" />
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
+        <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
         <PackageReference Include="System.Threading.Tasks.Extensions" Version="[4.5.4,)" />
         <PackageReference Include="System.ValueTuple" Version="[4.5.0,)" />
         <PackageReference Include="Microsoft.CSharp" Version="[4.7.0,)" />
-        <PackageReference Include="System.Memory" Version="[4.5.4,)" />
+        <PackageReference Include="System.Memory" Version="4.5.5" />
     </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netstandard2.'">
-        <PackageReference Include="System.Reflection.Emit.Lightweight" Version="[4.3.0,)" />
+        <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
         <PackageReference Include="System.Diagnostics.Contracts" Version="[4.3.0,)" />
         <PackageReference Include="System.Linq" Version="[4.3.0,)" />
         <PackageReference Include="System.Linq.Queryable" Version="[4.3.0,)" />

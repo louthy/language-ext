@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>default</LangVersion>
 
         <PackageVersion>4.4.2</PackageVersion>
@@ -15,7 +14,7 @@
         <PackageIcon>lang-ext-small.png</PackageIcon>
         <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <OutputType>library</OutputType>
         <AssemblyVersion>4.0.0.0</AssemblyVersion>
