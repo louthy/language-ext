@@ -15,6 +15,10 @@ namespace LanguageExt.Sys.Traits
         Unit Write(string value);
         Unit SetBgColor(ConsoleColor color);
         Unit SetColor(ConsoleColor color);
+        /// <summary>
+        /// Sets the foreground and background console colors to their defaults.
+        /// </summary>
+        Unit ResetColor();
         ConsoleColor BgColor { get; }
         ConsoleColor Color { get; }
     }

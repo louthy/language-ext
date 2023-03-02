@@ -29,6 +29,12 @@ namespace LanguageExt.Sys.Live
             return unit;
         }
 
+        public Unit ResetColor()
+        {
+            Console.ResetColor();
+            return unit;
+        }
+
         public ConsoleColor BgColor => 
             System.Console.BackgroundColor;
         
