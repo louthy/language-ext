@@ -6,6 +6,7 @@ using System.Threading;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Sys.Traits;
 using static LanguageExt.Prelude;
+using static LanguageExt.Sys.Test.RandomIO;
 
 namespace LanguageExt.Sys.Test
 {
@@ -23,7 +24,6 @@ namespace LanguageExt.Sys.Test
         HasDirectory<Runtime>,
         HasRandom<Runtime>
     {
-        public const int Seed = 123456789;
         public readonly RuntimeEnv env;
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace LanguageExt.Sys.Test
         /// <param name="seed">seed to used for the random generator</param>
         public static Runtime New(TestTimeSpec? timeSpec = default, int seed = Seed) =>
             new Runtime(new RuntimeEnv(new CancellationTokenSource(),
-                                       System.Text.Encoding.Default,
+                                       Encoding.Default,
                                        new MemoryConsole(),
                                        new MemoryFS(),
                                        timeSpec,
@@ -60,7 +60,7 @@ namespace LanguageExt.Sys.Test
         /// <param name="seed">seed to used for the random generator</param>
         public static Runtime New(CancellationTokenSource source, TestTimeSpec? timeSpec = default, int seed = Seed) =>
             new Runtime(new RuntimeEnv(source, 
-                                       System.Text.Encoding.Default, 
+                                       Encoding.Default, 
                                        new MemoryConsole(), 
                                        new MemoryFS(),
                                        timeSpec,
@@ -131,7 +131,7 @@ namespace LanguageExt.Sys.Test
         /// </summary>
         /// <returns>Console environment</returns>
         public Eff<Runtime, Traits.ConsoleIO> ConsoleEff =>
-            Eff<Runtime, Traits.ConsoleIO>(rt => new Test.ConsoleIO(rt.Env.Console));
+            Eff<Runtime, Traits.ConsoleIO>(rt => new ConsoleIO(rt.Env.Console));
 
         /// <summary>
         /// Access the file environment
@@ -139,7 +139,7 @@ namespace LanguageExt.Sys.Test
         /// <returns>File environment</returns>
         public Eff<Runtime, Traits.FileIO> FileEff =>
             from n in Time<Runtime>.now
-            from r in Eff<Runtime, Traits.FileIO>(rt => new Test.FileIO(rt.Env.FileSystem, n))
+            from r in Eff<Runtime, Traits.FileIO>(rt => new FileIO(rt.Env.FileSystem, n))
             select r;
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace LanguageExt.Sys.Test
         /// <returns>Directory environment</returns>
         public Eff<Runtime, Traits.DirectoryIO> DirectoryEff =>
             from n in Time<Runtime>.now
-            from r in Eff<Runtime, Traits.DirectoryIO>(rt => new Test.DirectoryIO(rt.Env.FileSystem, n))
+            from r in Eff<Runtime, Traits.DirectoryIO>(rt => new DirectoryIO(rt.Env.FileSystem, n))
             select r;
         
         /// <summary>
@@ -156,21 +156,21 @@ namespace LanguageExt.Sys.Test
         /// </summary>
         /// <returns>TextReader environment</returns>
         public Eff<Runtime, Traits.TextReadIO> TextReadEff =>
-            SuccessEff(Test.TextReadIO.Default);
+            SuccessEff(TextReadIO.Default);
 
         /// <summary>
         /// Access the time environment
         /// </summary>
         /// <returns>Time environment</returns>
         public Eff<Runtime, Traits.TimeIO> TimeEff  =>
-            Eff<Runtime, Traits.TimeIO>(rt => new Test.TimeIO(rt.Env.TimeSpec));
+            Eff<Runtime, Traits.TimeIO>(rt => new TimeIO(rt.Env.TimeSpec));
 
         /// <summary>
         /// Access the operating-system environment
         /// </summary>
         /// <returns>Operating-system environment environment</returns>
         public Eff<Runtime, Traits.EnvironmentIO> EnvironmentEff =>
-            Eff<Runtime, Traits.EnvironmentIO>(rt => new Test.EnvironmentIO(rt.Env.SysEnv));
+            Eff<Runtime, Traits.EnvironmentIO>(rt => new EnvironmentIO(rt.Env.SysEnv));
 
         /// <summary>
         /// Creates a new runtime from this with a new Random IO and optional seed
@@ -218,7 +218,7 @@ namespace LanguageExt.Sys.Test
             TimeSpec   = timeSpec ?? TestTimeSpec.RunningFromNow();
             SysEnv     = sysEnv;
             Seed       = seed;
-            Random     = new RandomIO(Seed);
+            Random     = New(seed);
         }
 
         public RuntimeEnv(
@@ -234,7 +234,7 @@ namespace LanguageExt.Sys.Test
         }
 
         public RuntimeEnv LocalCancel =>
-            new RuntimeEnv(new CancellationTokenSource(), Encoding, Console, FileSystem, TimeSpec, SysEnv,Seed); 
+            new RuntimeEnv(new CancellationTokenSource(), Encoding, Console, FileSystem, TimeSpec, SysEnv, Seed); 
         
         public RuntimeEnv LocalRandom(int? seed = default) =>
             new RuntimeEnv(new CancellationTokenSource(), Encoding, Console, FileSystem, TimeSpec, SysEnv, seed ?? Seed); 

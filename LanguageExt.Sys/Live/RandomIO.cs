@@ -1,6 +1,8 @@
 ﻿#nullable enable
 
 using System;
+using System.Threading;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Sys.Live;
 
@@ -9,25 +11,46 @@ namespace LanguageExt.Sys.Live;
 /// </summary>
 public struct RandomIO : LanguageExt.Sys.Traits.RandomIO
 {
-    private readonly Random _rng;
+    static readonly ThreadLocal<Random> SharedRandom = 
+        new(() => new Random());
 
-    public RandomIO(Random rng) =>
-        _rng = rng;
+    static readonly Func<int, ThreadLocal<Random>> SeededSharedRandom =
+        memoUnsafe((int seed) => new ThreadLocal<Random>(() => new Random(seed)));
 
+    readonly int? _seed;
+
+    RandomIO(int? seed) =>
+        _seed = seed;
+
+    /// <summary>
+    /// Creates a new seeded instance of random IO
+    /// </summary>
+    /// <param name="seed">seed</param>
+    /// <returns>random IO</returns>
+    public static RandomIO New(int? seed = default) => new(seed);
+
+    static Random Instance(int? seed) =>
+        seed.HasValue
+            ? SeededSharedRandom(seed.Value).Value
+            : SharedRandom.Value;
+    
     /// <summary>
     /// Returns a non-negative int
     /// </summary>
     /// <param name="min">minimum int to return</param>
     /// <param name="max">maximum int to return</param>
     /// <returns>int</returns>
-    public int NextInt(int? min = default, int? max = default) =>
-        (min, max) switch
+    public int NextInt(int? min = default, int? max = default)
+    {
+        var rng = Instance(_seed);
+        return (min, max) switch
         {
-            ({ } m, { } mx) when m <= mx => _rng.Next(m, mx),
-            ({ } m, { } mx) when m >= mx => _rng.Next(mx,m),
-            (_, { } mx) => _rng.Next(mx),
-            _ => _rng.Next()
+            ({ } m, { } mx) when m <= mx => rng.Next(m, mx),
+            ({ } m, { } mx) when m >= mx => rng.Next(mx, m),
+            (_, { } mx) => rng.Next(mx),
+            _ => rng.Next()
         };
+    }
 
     /// <summary>
     /// Returns an array of bytes with random numbers
@@ -36,8 +59,9 @@ public struct RandomIO : LanguageExt.Sys.Traits.RandomIO
     /// <returns>bytes</returns>
     public byte[] NextByteArray(long length)
     {
+        var rng = Instance(_seed);
         var array = new byte[length];
-        _rng.NextBytes(array);
+        rng.NextBytes(array);
         return array;
     }
 
@@ -45,8 +69,11 @@ public struct RandomIO : LanguageExt.Sys.Traits.RandomIO
     /// Returns a non-negative double
     /// </summary>
     /// <returns>double</returns>
-    public double NextDouble() =>
-        _rng.NextDouble();
+    public double NextDouble()
+    {
+        var rng = Instance(_seed);
+        return rng.NextDouble();
+    }
 
     /// <summary>
     /// Returns a non-negative long
@@ -54,8 +81,9 @@ public struct RandomIO : LanguageExt.Sys.Traits.RandomIO
     /// <returns>long</returns>
     public long NextLong()
     {
+        var rng = Instance(_seed);
         var buf = new byte[8];
-        _rng.NextBytes(buf);
+        rng.NextBytes(buf);
         return Math.Abs(BitConverter.ToInt64(buf, 0));
     }
 
@@ -65,8 +93,9 @@ public struct RandomIO : LanguageExt.Sys.Traits.RandomIO
     /// <returns>float</returns>
     public float NextFloat()
     {
+        var rng = Instance(_seed);
         var buffer = new byte[4];
-        _rng.NextBytes(buffer);
+        rng.NextBytes(buffer);
         return Math.Abs(BitConverter.ToSingle(buffer, 0));
     }
 

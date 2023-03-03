@@ -159,12 +159,12 @@ namespace LanguageExt.Sys.Live
         public readonly Encoding Encoding;
         public readonly Traits.RandomIO Random;
 
-        public RuntimeEnv(CancellationTokenSource source, CancellationToken token, Encoding encoding, Random? randomProvider = default)
+        public RuntimeEnv(CancellationTokenSource source, CancellationToken token, Encoding encoding, int? seed = default)
         {
             Source   = source;
             Token    = token;
             Encoding = encoding;
-            Random = new RandomIO(randomProvider ?? new Random());
+            Random = RandomIO.New(seed);
         }
 
         public RuntimeEnv(CancellationTokenSource source, Encoding encoding) : this(source, source.Token, encoding)
@@ -172,6 +172,6 @@ namespace LanguageExt.Sys.Live
         }
 
         public RuntimeEnv LocalRandom(int? seed = default) =>
-            new RuntimeEnv(Source, Token, Encoding, seed != null ? new Random(seed.Value) : new Random()); 
+            new RuntimeEnv(Source, Token, Encoding, seed); 
     }
 }

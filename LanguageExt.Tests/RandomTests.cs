@@ -2,12 +2,15 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using CodeGeneration.Roslyn;
 using FluentAssertions;
 using LanguageExt.Sys;
 using LanguageExt.Sys.Traits;
 using Xunit;
+using Xunit.Abstractions;
 using static LanguageExt.Prelude;
+using RandomIO = LanguageExt.Sys.Traits.RandomIO;
 
 namespace LanguageExt.Tests;
 
@@ -413,7 +416,7 @@ public static class RandomTests
 
     [Fact(DisplayName = "A nested random context can be used (Live)")]
     public static void Case52() =>
-        LR.localRandom(LR.nextInt(), 999).Run(live).ThrowIfFail().Should().Be(1351050993);
+        LR.localRandom(LR.nextInt(), 52).Run(live).ThrowIfFail().Should().Be(1916327665);
     
     [Fact(DisplayName = "A nested random context can be used without a seed (Live)")]
     public static void Case53() =>
@@ -421,7 +424,7 @@ public static class RandomTests
    
     [Fact(DisplayName = "A nested random context can be used (Test)")]
     public static void Case54() =>
-        TR.localRandom(TR.nextInt(), 999).Run(test()).ThrowIfFail().Should().Be(1351050993);
+        TR.localRandom(TR.nextInt(), 54).Run(test()).ThrowIfFail().Should().Be(2012643656);
     
     [Fact(DisplayName = "A nested random context can be used without a seed (Test)")]
     public static void Case55() =>
@@ -429,7 +432,7 @@ public static class RandomTests
     
     [Fact(DisplayName = "A nested random context can be used (SysX.Live)")]
     public static void Case56() =>
-        LRX.localRandom(LRX.nextInt(), 999).Run(liveX).ThrowIfFail().Should().Be(1351050993);
+        LRX.localRandom(LRX.nextInt(), 56).Run(liveX).ThrowIfFail().Should().Be(2108959647);
     
     [Fact(DisplayName = "A nested random context can be used without a seed (SysX.Live)")]
     public static void Case57() =>
@@ -437,9 +440,48 @@ public static class RandomTests
     
     [Fact(DisplayName = "A nested random context can be used (SysX.Test)")]
     public static void Case58() =>
-        TRX.localRandom(TRX.nextInt(), 999).Run(testX()).ThrowIfFail().Should().Be(1351050993);
+        TRX.localRandom(TRX.nextInt(), 58).Run(testX()).ThrowIfFail().Should().Be(57791991);
     
     [Fact(DisplayName = "A nested random context can be used without a seed (SysX.Test)")]
     public static void Case59() =>
         TRX.localRandom(TRX.nextInt(max: 20)).Run(testX()).ThrowIfFail().Should().BeLessThan(20);
+}
+
+public sealed class RandomConcurrentTests
+{
+    private readonly ITestOutputHelper _output;
+
+    public RandomConcurrentTests(ITestOutputHelper output) =>
+        _output = output;
+
+
+    [Fact(DisplayName = "Concurrent access to randomness is safe")]
+    public void Case1()
+    {
+        var live = Sys.Live.Runtime.New();
+        var generateRandomNumbers =
+            LR.nextDouble().Fold(Schedule.recurs(2000000),
+                    (iteration: 0, last: 0.0, total: 0.0, average: 0.0),
+                    (t, d) =>
+                    {
+                        var i = t.iteration + 1;
+                        var to = d + t.total;
+                        if (d == t.last && d == 0) throw new Exception("Random is corrupted!");
+                        return (iteration: i, last: d, total: to, average: to / i);
+                    });
+        var threads =
+            Range(1, 10)
+                .Select(i => new Thread(() =>
+                        {
+                            var (iteration, _, total, average) = generateRandomNumbers.Run(live).ThrowIfFail();
+                            _output.WriteLine("Thread {0} finished execution.", Thread.CurrentThread.Name);
+                            _output.WriteLine("Random numbers generated: {0:N0}", iteration);
+                            _output.WriteLine("Sum of random numbers: {0:N2}", total);
+                            _output.WriteLine("Random number mean: {0:N4}\n", average);
+                        }) { Name = i.ToString() })
+                .ToSeq();
+
+        foreach (var thread in threads) thread.Start();
+        foreach (var thread in threads) thread.Join();
+    }
 }

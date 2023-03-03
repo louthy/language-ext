@@ -9,6 +9,7 @@ using LanguageExt.Sys.Test;
 using static LanguageExt.Prelude;
 using LanguageExt.Sys;
 using LanguageExt.SysX.Traits;
+using static LanguageExt.Sys.Test.RandomIO;
 using RandomIO = LanguageExt.Sys.Traits.RandomIO;
 
 namespace LanguageExt.SysX.Test
@@ -26,7 +27,6 @@ namespace LanguageExt.SysX.Test
         HasDirectory<Runtime>,
         HasRandom<Runtime>
     {
-        public const int Seed = 123456789;
         public readonly RuntimeEnv env;
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace LanguageExt.SysX.Test
         MemorySystemEnvironment SysEnv,
         int Seed) 
     {
-        public readonly RandomIO Random = new Sys.Test.RandomIO(Seed);
+        public readonly RandomIO Random = New(Seed);
         
         public RuntimeEnv(
             ActivityEnv activity,

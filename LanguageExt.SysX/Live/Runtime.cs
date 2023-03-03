@@ -169,13 +169,7 @@ namespace LanguageExt.SysX.Live
         /// <remarks>This is for sub-systems to run in their own local random/controlled random contexts</remarks>
         /// <returns>New runtime</returns>
         public Runtime LocalRandom(int? seed = default) =>
-            new Runtime(
-                env with
-                {
-                    Random = seed != null
-                        ? new Sys.Live.RandomIO(new Random(seed.Value))
-                        : new Sys.Live.RandomIO(new Random())
-                });
+            new Runtime(env with { Random = Sys.Live.RandomIO.New(seed) });
 
         /// <summary>
         /// Access the random synchronous effect environment
@@ -192,12 +186,12 @@ namespace LanguageExt.SysX.Live
         Encoding Encoding,
         RandomIO Random) : IDisposable
     {
-        public RuntimeEnv(ActivityEnv activity, CancellationTokenSource source, Encoding encoding, Random? randomProvider = default) : 
+        public RuntimeEnv(ActivityEnv activity, CancellationTokenSource source, Encoding encoding, int? seed = default) : 
             this(activity,
                  source, 
                  source.Token, 
                  encoding,
-                 new Sys.Live.RandomIO(randomProvider ?? new Random()))
+                  Sys.Live.RandomIO.New(seed))
         {
         }
 
