@@ -4,7 +4,6 @@ using System;
 using System.Text;
 using System.Threading;
 using System.Diagnostics;
-using System.Reflection;
 using LanguageExt.Sys.Traits;
 using LanguageExt.SysX.Traits;
 using static LanguageExt.Prelude;
@@ -42,24 +41,27 @@ namespace LanguageExt.SysX.Live
         /// <summary>
         /// Constructor function
         /// </summary>
-        public static Runtime New() =>
-            new Runtime(new RuntimeEnv(ActivityEnv.Default, new CancellationTokenSource(), Encoding.Default));
+        /// <param name="seed">seed to used for the random generator</param>
+        public static Runtime New(int? seed = default) =>
+            new Runtime(new RuntimeEnv(ActivityEnv.Default, new CancellationTokenSource(), Encoding.Default, seed));
 
         /// <summary>
         /// Constructor function
         /// </summary>
         /// <param name="activity">Tracing activity</param>
         /// <param name="source">Cancellation token source</param>
-        public static Runtime New(ActivityEnv activity, CancellationTokenSource source) =>
-            new Runtime(new RuntimeEnv(activity, source, Encoding.Default));
+        /// <param name="seed">seed to used for the random generator</param>
+        public static Runtime New(ActivityEnv activity, CancellationTokenSource source, int? seed = default) =>
+            new Runtime(new RuntimeEnv(activity, source, Encoding.Default, seed));
 
         /// <summary>
         /// Constructor function
         /// </summary>
         /// <param name="activity">Tracing activity</param>
         /// <param name="encoding">Text encoding</param>
-        public static Runtime New(ActivityEnv activity, Encoding encoding) =>
-            new Runtime(new RuntimeEnv(activity, new CancellationTokenSource(), encoding));
+        /// <param name="seed">seed to used for the random generator</param>
+        public static Runtime New(ActivityEnv activity, Encoding encoding, int? seed = default) =>
+            new Runtime(new RuntimeEnv(activity, new CancellationTokenSource(), encoding, seed));
 
         /// <summary>
         /// Constructor function
@@ -67,8 +69,9 @@ namespace LanguageExt.SysX.Live
         /// <param name="activity">Tracing activity</param>
         /// <param name="encoding">Text encoding</param>
         /// <param name="source">Cancellation token source</param>
-        public static Runtime New(ActivityEnv activity, Encoding encoding, CancellationTokenSource source) =>
-            new Runtime(new RuntimeEnv(activity, source, encoding));
+        /// <param name="seed">seed to used for the random generator</param>
+        public static Runtime New(ActivityEnv activity, Encoding encoding, CancellationTokenSource source, int? seed = default) =>
+            new Runtime(new RuntimeEnv(activity, source, encoding, seed));
 
         /// <summary>
         /// Create a new Runtime with a fresh cancellation token

@@ -386,7 +386,7 @@ public static class RandomTests
             .BeGreaterOrEqualTo(1)
             .And.BeLessThanOrEqualTo(3);
 
-    private static void CheckIsSameInstanceAcrossRuntime<T>(T runtime) where T : struct, HasRandom<T>
+    static void CheckIsSameInstanceAcrossRuntime<T>(T runtime) where T : struct, HasRandom<T>
     {
         var (a,b,c) = (
                 from _a in runtime<T>().Bind(x => x.RandomEff)
@@ -449,18 +449,17 @@ public static class RandomTests
 
 public sealed class RandomConcurrentTests
 {
-    private readonly ITestOutputHelper _output;
+    readonly ITestOutputHelper _output;
 
     public RandomConcurrentTests(ITestOutputHelper output) =>
         _output = output;
 
-
-    [Fact(DisplayName = "Concurrent access to randomness is safe")]
-    public void Case1()
+    void PerformConcurrentRandomTest<RT>(RT runtime) where RT : struct, HasRandom<RT>
     {
-        var live = Sys.Live.Runtime.New();
-        var generateRandomNumbers =
-            LR.nextDouble().Fold(Schedule.recurs(2000000),
+        Eff<RT,(int iteration,double last, double total, double average)>GenerateRandomNumbers() =>
+            Random<RT>.nextDouble()
+                .Fold(
+                    Schedule.recurs(2000000),
                     (iteration: 0, last: 0.0, total: 0.0, average: 0.0),
                     (t, d) =>
                     {
@@ -471,9 +470,11 @@ public sealed class RandomConcurrentTests
                     });
         var threads =
             Range(1, 10)
-                .Select(i => new Thread(() =>
+                .Select(
+                    i => new Thread(
+                        () =>
                         {
-                            var (iteration, _, total, average) = generateRandomNumbers.Run(live).ThrowIfFail();
+                            var (iteration, _, total, average) = GenerateRandomNumbers().Run(runtime).ThrowIfFail();
                             _output.WriteLine("Thread {0} finished execution.", Thread.CurrentThread.Name);
                             _output.WriteLine("Random numbers generated: {0:N0}", iteration);
                             _output.WriteLine("Sum of random numbers: {0:N2}", total);
@@ -484,4 +485,28 @@ public sealed class RandomConcurrentTests
         foreach (var thread in threads) thread.Start();
         foreach (var thread in threads) thread.Join();
     }
+
+    [Fact(DisplayName = "Concurrent access to randomness is safe without seed (Live)")]
+    public void Case1() => 
+        PerformConcurrentRandomTest(Sys.Live.Runtime.New());
+    
+    [Fact(DisplayName = "Concurrent access to randomness is safe with seed (Live)")]
+    public void Case2() => 
+        PerformConcurrentRandomTest(Sys.Live.Runtime.New(1234567));
+    
+    [Fact(DisplayName = "Concurrent access to randomness is safe without seed (SysX.Live)")]
+    public void Case3() => 
+        PerformConcurrentRandomTest(SysX.Live.Runtime.New());
+    
+    [Fact(DisplayName = "Concurrent access to randomness is safe with seed (SysX.Live)")]
+    public void Case4() => 
+        PerformConcurrentRandomTest(SysX.Live.Runtime.New(1234567));
+    
+    [Fact(DisplayName = "Concurrent access to randomness is safe (Test)")]
+    public void Case5() => 
+        PerformConcurrentRandomTest(Sys.Test.Runtime.New());
+    
+    [Fact(DisplayName = "Concurrent access to randomness is safe (SysX.Test)")]
+    public void Case6() => 
+        PerformConcurrentRandomTest(SysX.Test.Runtime.New());
 }

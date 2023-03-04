@@ -41,30 +41,34 @@ namespace LanguageExt.Sys.Live
         /// <summary>
         /// Constructor function
         /// </summary>
-        public static Runtime New() =>
-            new Runtime(new RuntimeEnv(new CancellationTokenSource(), System.Text.Encoding.Default));
+        /// <param name="seed">seed to used for the random generator</param>
+        public static Runtime New(int? seed = default) =>
+            new Runtime(new RuntimeEnv(new CancellationTokenSource(), Encoding.Default, seed));
 
         /// <summary>
         /// Constructor function
         /// </summary>
         /// <param name="source">Cancellation token source</param>
-        public static Runtime New(CancellationTokenSource source) =>
-            new Runtime(new RuntimeEnv(source, System.Text.Encoding.Default));
+        /// <param name="seed">seed to used for the random generator</param>
+        public static Runtime New(CancellationTokenSource source, int? seed = default) =>
+            new Runtime(new RuntimeEnv(source, Encoding.Default, seed));
 
         /// <summary>
         /// Constructor function
         /// </summary>
         /// <param name="encoding">Text encoding</param>
-        public static Runtime New(Encoding encoding) =>
-            new Runtime(new RuntimeEnv(new CancellationTokenSource(), encoding));
+        /// <param name="seed">seed to used for the random generator</param>
+        public static Runtime New(Encoding encoding, int? seed = default) =>
+            new Runtime(new RuntimeEnv(new CancellationTokenSource(), encoding, seed));
 
         /// <summary>
         /// Constructor function
         /// </summary>
         /// <param name="encoding">Text encoding</param>
         /// <param name="source">Cancellation token source</param>
-        public static Runtime New(Encoding encoding, CancellationTokenSource source) =>
-            new Runtime(new RuntimeEnv(source, encoding));
+        /// <param name="seed">seed to used for the random generator</param>
+        public static Runtime New(Encoding encoding, CancellationTokenSource source, int? seed = default) =>
+            new Runtime(new RuntimeEnv(source, encoding, seed));
 
         /// <summary>
         /// Create a new Runtime with a fresh cancellation token
@@ -99,42 +103,42 @@ namespace LanguageExt.Sys.Live
         /// </summary>
         /// <returns>Console environment</returns>
         public Eff<Runtime, Traits.ConsoleIO> ConsoleEff =>
-            SuccessEff(Sys.Live.ConsoleIO.Default);
+            SuccessEff(ConsoleIO.Default);
 
         /// <summary>
         /// Access the file environment
         /// </summary>
         /// <returns>File environment</returns>
         public Eff<Runtime, Traits.FileIO> FileEff =>
-            SuccessEff(Sys.Live.FileIO.Default);
+            SuccessEff(FileIO.Default);
 
         /// <summary>
         /// Access the directory environment
         /// </summary>
         /// <returns>Directory environment</returns>
         public Eff<Runtime, Traits.DirectoryIO> DirectoryEff =>
-            SuccessEff(Sys.Live.DirectoryIO.Default);
+            SuccessEff(DirectoryIO.Default);
 
         /// <summary>
         /// Access the TextReader environment
         /// </summary>
         /// <returns>TextReader environment</returns>
         public Eff<Runtime, Traits.TextReadIO> TextReadEff =>
-            SuccessEff(Sys.Live.TextReadIO.Default);
+            SuccessEff(TextReadIO.Default);
 
         /// <summary>
         /// Access the time environment
         /// </summary>
         /// <returns>Time environment</returns>
         public Eff<Runtime, Traits.TimeIO> TimeEff  =>
-            SuccessEff(Sys.Live.TimeIO.Default);
+            SuccessEff(TimeIO.Default);
 
         /// <summary>
         /// Access the operating-system environment
         /// </summary>
         /// <returns>Operating-system environment environment</returns>
         public Eff<Runtime, Traits.EnvironmentIO> EnvironmentEff =>
-            SuccessEff(Sys.Live.EnvironmentIO.Default);
+            SuccessEff(EnvironmentIO.Default);
 
         /// <summary>
         /// Creates a new runtime from this with a new Random IO and optional seed
@@ -167,7 +171,7 @@ namespace LanguageExt.Sys.Live
             Random = RandomIO.New(seed);
         }
 
-        public RuntimeEnv(CancellationTokenSource source, Encoding encoding) : this(source, source.Token, encoding)
+        public RuntimeEnv(CancellationTokenSource source, Encoding encoding, int? seed = default) : this(source, source.Token, encoding, seed)
         {
         }
 
