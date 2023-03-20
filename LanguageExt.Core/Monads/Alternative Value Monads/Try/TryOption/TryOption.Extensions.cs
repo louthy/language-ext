@@ -32,7 +32,7 @@ public static class TryOptionExtensions
         var res = ma.Try();
         return res.IsSome
             ? res.Value.Value
-            : res.IsNone 
+            : res.IsNone
                 ? null
                 : (object)Error.New(res.Exception);
     }
@@ -56,7 +56,7 @@ public static class TryOptionExtensions
             return ra;
         });
     }
-        
+
     /// <summary>
     /// If the TryOption fails, retry `amount` times
     /// </summary>
@@ -311,7 +311,7 @@ public static class TryOptionExtensions
 
         return Unit.Default;
     }
-    
+
     /// <summary>
     /// Convert the structure to an Eff
     /// </summary>
@@ -323,7 +323,7 @@ public static class TryOptionExtensions
             ma.Match(Some: Fin<A>.Succ,
                      None: () => Fin<A>.Fail(Errors.None),
                      Fail: e => Fin<A>.Fail(e)));
-    
+
     /// <summary>
     /// Convert the structure to an Eff
     /// </summary>
@@ -335,7 +335,7 @@ public static class TryOptionExtensions
             ma.Match(Some: Fin<A>.Succ,
                      None: () => Fin<A>.Fail(None),
                      Fail: e => Fin<A>.Fail(e)));
-    
+
     /// <summary>
     /// Convert the structure to an Eff
     /// </summary>
@@ -347,7 +347,7 @@ public static class TryOptionExtensions
             ma.Match(Some: Fin<A>.Succ,
                      None: () => Fin<A>.Fail(None()),
                      Fail: e => Fin<A>.Fail(e)));
-    
+
     /// <summary>
     /// Convert the structure to an Eff
     /// </summary>
@@ -359,7 +359,7 @@ public static class TryOptionExtensions
             ma.Match(Some: Fin<A>.Succ,
                      None: () => Fin<A>.Succ(None),
                      Fail: e => Fin<A>.Fail(e)));
-    
+
     /// <summary>
     /// Convert the structure to an Eff
     /// </summary>
@@ -380,7 +380,7 @@ public static class TryOptionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Aff<A> ToAff<A>(this TryOption<A> ma) =>
         ToEff(ma);
-    
+
     /// <summary>
     /// Convert the structure to an Aff
     /// </summary>
@@ -389,7 +389,7 @@ public static class TryOptionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Aff<A> ToAff<A>(this TryOption<A> ma, Error None) =>
         ToEff(ma, None);
-    
+
     /// <summary>
     /// Convert the structure to an Aff
     /// </summary>
@@ -398,7 +398,7 @@ public static class TryOptionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Aff<A> ToAff<A>(this TryOption<A> ma, Func<Error> None) =>
         ToEff(ma, None);
-    
+
     /// <summary>
     /// Convert the structure to an Aff
     /// </summary>
@@ -416,7 +416,7 @@ public static class TryOptionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Aff<A> ToAff<A>(this TryOption<A> ma, Func<A> None) =>
         ToEff(ma, None);
-    
+
     [Pure]
     public static Option<A> ToOption<A>(this TryOption<A> self)
     {
@@ -536,7 +536,7 @@ public static class TryOptionExtensions
         self.IfSome(action);
 
     /// <summary>
-    /// Counts the number of bound values.  
+    /// Counts the number of bound values.
     /// </summary>
     /// <typeparam name="T">Type of the bound value</typeparam>
     /// <param name="self">TrTry computation</param>
@@ -784,7 +784,7 @@ public static class TryOptionExtensions
         {
             var res = self().Value;
             return res.IsSome
-                ? Some(res.Value)().Value 
+                ? Some(res.Value)().Value
                 : None()().Value;
         });
     }
@@ -949,21 +949,6 @@ public static class TryOptionExtensions
             : Some(res.Value.Value);
         }).ConfigureAwait(false);
 
-    public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Some, Func<R> None, Func<Exception, R> Fail) =>
-        await (from tt in self.ContinueWith(trySelf =>
-        {
-            var res = trySelf.Result.Try();
-            return /* res.IsBottom ? Fail(res.Exception ?? new BottomException()).AsTask()
-            : */ res.IsFaulted
-                ? Fail(res.Exception).AsTask()
-                : res.Value.IsSome
-                    ? Some(res.Value.Value)
-                    : None().AsTask();
-        })
-        from t in tt
-        select t)
-       .ConfigureAwait(false);
-
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Some, Func<R> Fail) =>
         await (from tt in self.ContinueWith(trySelf =>
         {
@@ -975,57 +960,6 @@ public static class TryOptionExtensions
         from t in tt
         select t)
        .ConfigureAwait(false);
-
-    public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Some, Func<Task<R>> Fail) =>
-        await (from tt in self.ContinueWith(trySelf =>
-        {
-            var res = trySelf.Result.Try();
-            return res.IsFaulted || res.Value.IsNone
-                ? Fail()
-                : Some(res.Value.Value);
-        })
-        from t in tt
-        select t)
-       .ConfigureAwait(false);
-
-    public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
-        await (from tt in self.ContinueWith(trySelf =>
-        {
-            var res = trySelf.Result.Try();
-            return /* res.IsBottom ? Fail(res.Exception ?? new BottomException())
-            : */res.IsFaulted
-                ? Fail(res.Exception)
-                : res.Value.IsSome 
-                    ? Some(res.Value.Value)
-                    : None();
-        })
-        from t in tt
-        select t).ConfigureAwait(false);
-
-    public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, R> Some, Func<Task<R>> Fail) =>
-        await (from tt in self.ContinueWith(trySelf =>
-        {
-            var res = trySelf.Result.Try();
-            return res.IsFaulted || res.Value.IsNone
-                ? Fail()
-                : Some(res.Value.Value).AsTask();
-        })
-        from t in tt
-        select t).ConfigureAwait(false);
-
-    public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, R> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
-        await (from tt in self.ContinueWith(trySelf =>
-        {
-            var res = trySelf.Result.Try();
-            return /* res.IsBottom ? Fail(res.Exception ?? new BottomException())
-            : */ res.IsFaulted
-                ? Fail(res.Exception)
-                : res.Value.IsSome
-                    ? Some(res.Value.Value).AsTask()
-                    : None();
-        })
-        from t in tt
-        select t).ConfigureAwait(false);
 
     [Pure]
     public static TryOption<T> Flatten<T>(this TryOption<TryOption<T>> self) =>
@@ -1144,7 +1078,7 @@ public static class TryOptionExtensions
         select plus<NUM, A>(x, y);
 
     /// <summary>
-    /// Find the subtract of the bound value of Try(x) and Try(y).  If either of 
+    /// Find the subtract of the bound value of Try(x) and Try(y).  If either of
     /// the Trys are Fail then the result is Fail
     /// </summary>
     /// <param name="lhs">Left-hand side of the operation</param>
