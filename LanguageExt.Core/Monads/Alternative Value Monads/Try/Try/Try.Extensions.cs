@@ -52,7 +52,7 @@ public static class TryExtensions
             return ra;
         };
     }
-    
+
     /// <summary>
     /// If the Try fails, retry `amount` times
     /// </summary>
@@ -73,7 +73,7 @@ public static class TryExtensions
             amount--;
             if (amount <= 0) return ra;
         }
-    };    
+    };
 
     /// <summary>
     /// Forces evaluation of the lazy try
@@ -356,7 +356,7 @@ public static class TryExtensions
         self.IfSucc(action);
 
     /// <summary>
-    /// Counts the number of bound values.  
+    /// Counts the number of bound values.
     /// </summary>
     /// <typeparam name="T">Type of the bound value</typeparam>
     /// <param name="self">TrTry computation</param>
@@ -654,10 +654,10 @@ public static class TryExtensions
             return new Result<T>(e);
         }
     }
-    
+
     [Pure]
     public static Try<U> Use<T, U>(this Try<T> self, Func<T, U> select)
-        where T : IDisposable => 
+        where T : IDisposable =>
         self.Map(x => use(x, select));
 
     [Pure]
@@ -820,23 +820,23 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Try<A> Add<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
+    public static Try<A> Add<ARITH, A>(this Try<A> lhs, Try<A> rhs) where ARITH : struct, Arithmetic<A> =>
         from x in lhs
         from y in rhs
-        select plus<NUM, A>(x, y);
+        select plus<ARITH, A>(x, y);
 
     /// <summary>
-    /// Find the subtract of the bound value of Try(x) and Try(y).  If either of 
+    /// Find the subtract of the bound value of Try(x) and Try(y).  If either of
     /// the Trys are Fail then the result is Fail
     /// </summary>
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Try<A> Subtract<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
+    public static Try<A> Subtract<ARITH, A>(this Try<A> lhs, Try<A> rhs) where ARITH : struct, Arithmetic<A> =>
         from x in lhs
         from y in rhs
-        select subtract<NUM, A>(x, y);
+        select subtract<ARITH, A>(x, y);
 
     /// <summary>
     /// Multiply the bound value of Try(x) and Try(y).  If either of the
@@ -846,10 +846,10 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Try<A> Product<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
+    public static Try<A> Product<ARITH, A>(this Try<A> lhs, Try<A> rhs) where ARITH : struct, Arithmetic<A> =>
         from x in lhs
         from y in rhs
-        select product<NUM, A>(x, y);
+        select product<ARITH, A>(x, y);
 
     /// <summary>
     /// Multiply the bound value of Try(x) and Try(y).  If either of the

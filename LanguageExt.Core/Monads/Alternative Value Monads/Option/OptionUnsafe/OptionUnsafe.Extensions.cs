@@ -37,7 +37,7 @@ public static class OptionUnsafeExtensions
             }
         }
     }
-    
+
     /// <summary>
     /// Extracts from a list of `OptionUnsafe` all the `Some` elements.
     /// All the `Some` elements are extracted in order.
@@ -57,7 +57,7 @@ public static class OptionUnsafeExtensions
         }
         return toSeq(ToSequence(self));
     }
-    
+
     /// <summary>
     /// Add the bound values of x and y, uses an Add type-class to provide the add
     /// operation for type A.  For example x.Add<TInteger,int>(y)
@@ -68,13 +68,13 @@ public static class OptionUnsafeExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
-    public static OptionUnsafe<A> Add<NUM, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where NUM : struct, Num<A> =>
+    public static OptionUnsafe<A> Add<ARITH, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where ARITH : struct, Arithmetic<A> =>
         from a in x
         from b in y
-        select plus<NUM, A>(a, b);
+        select plus<ARITH, A>(a, b);
 
     /// <summary>
-    /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 
+    /// Find the subtract between the two bound values of x and y, uses a Subtract type-class
     /// to provide the subtract operation for type A.  For example x.Subtract<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="DIFF">Subtract of A</typeparam>
@@ -83,13 +83,13 @@ public static class OptionUnsafeExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An OptionUnsafe with the subtract between x and y</returns>
     [Pure]
-    public static OptionUnsafe<A> Subtract<NUM, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where NUM : struct, Num<A> =>
+    public static OptionUnsafe<A> Subtract<ARITH, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where ARITH : struct, Arithmetic<A> =>
         from a in x
         from b in y
-        select subtract<NUM, A>(a, b);
+        select subtract<ARITH, A>(a, b);
 
     /// <summary>
-    /// Find the product between the two bound values of x and y, uses a Product type-class 
+    /// Find the product between the two bound values of x and y, uses a Product type-class
     /// to provide the product operation for type A.  For example x.Product<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="PROD">Product of A</typeparam>
@@ -98,10 +98,10 @@ public static class OptionUnsafeExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An OptionUnsafe with the product of x and y</returns>
     [Pure]
-    public static OptionUnsafe<A> Product<NUM, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where NUM : struct, Num<A> =>
+    public static OptionUnsafe<A> Product<ARITH, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where ARITH : struct, Arithmetic<A> =>
         from a in x
         from b in y
-        select product<NUM, A>(a, b);
+        select product<ARITH, A>(a, b);
 
     /// <summary>
     /// Divide the two bound values of x and y, uses a Divide type-class to provide the divide
@@ -302,7 +302,7 @@ public static class OptionUnsafeExtensions
         sum<NUM, MOptionUnsafe<A>, OptionUnsafe<A>, A>(self);
 
     /// <summary>
-    /// Projection from one value to another 
+    /// Projection from one value to another
     /// </summary>
     /// <typeparam name="B">Resulting functor value type</typeparam>
     /// <param name="map">Projection function</param>
@@ -316,7 +316,7 @@ public static class OptionUnsafeExtensions
     }
 
     /// <summary>
-    /// Projection from one value to another 
+    /// Projection from one value to another
     /// </summary>
     /// <typeparam name="B">Resulting functor value type</typeparam>
     /// <param name="map">Projection function</param>
@@ -330,7 +330,7 @@ public static class OptionUnsafeExtensions
     }
 
     /// <summary>
-    /// Projection from one value to another 
+    /// Projection from one value to another
     /// </summary>
     /// <typeparam name="B">Resulting functor value type</typeparam>
     /// <param name="map">Projection function</param>
@@ -341,7 +341,7 @@ public static class OptionUnsafeExtensions
             : None;
 
     /// <summary>
-    /// Projection from one value to another 
+    /// Projection from one value to another
     /// </summary>
     /// <typeparam name="B">Resulting functor value type</typeparam>
     /// <param name="map">Projection function</param>
@@ -436,7 +436,7 @@ public static class OptionUnsafeExtensions
 
     /// <summary>
     /// <para>
-    /// OptionUnsafe types are like lists of 0 or 1 items, and therefore follow the 
+    /// OptionUnsafe types are like lists of 0 or 1 items, and therefore follow the
     /// same rules when folding.
     /// </para><para>
     /// In the case of lists, 'Fold', when applied to a binary
@@ -458,7 +458,7 @@ public static class OptionUnsafeExtensions
 
     /// <summary>
     /// <para>
-    /// OptionUnsafe types are like lists of 0 or 1 items, and therefore follow the 
+    /// OptionUnsafe types are like lists of 0 or 1 items, and therefore follow the
     /// same rules when folding.
     /// </para><para>
     /// In the case of lists, 'Fold', when applied to a binary
@@ -483,13 +483,13 @@ public static class OptionUnsafeExtensions
     /// <summary>
     /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
     /// then True is returned (because the predicate applies for-all values).
-    /// If the OptionUnsafe is in a Some state the value is the result of running 
-    /// applying the bound value to the predicate supplied.        
+    /// If the OptionUnsafe is in a Some state the value is the result of running
+    /// applying the bound value to the predicate supplied.
     /// </summary>
     /// <param name="pred"></param>
-    /// <returns>If the OptionUnsafe is in a None state then True is returned (because 
+    /// <returns>If the OptionUnsafe is in a None state then True is returned (because
     /// the predicate applies for-all values).  If the OptionUnsafe is in a Some state
-    /// the value is the result of running applying the bound value to the 
+    /// the value is the result of running applying the bound value to the
     /// predicate supplied.</returns>
     public static async Task<bool> ForAllAsync<A>(this Task<OptionUnsafe<A>> self, Func<A, bool> pred) =>
         (await self.ConfigureAwait(false)).ForAll(pred);
@@ -497,13 +497,13 @@ public static class OptionUnsafeExtensions
     /// <summary>
     /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
     /// then True is returned (because the predicate applies for-all values).
-    /// If the OptionUnsafe is in a Some state the value is the result of running 
-    /// applying the bound value to the predicate supplied.        
+    /// If the OptionUnsafe is in a Some state the value is the result of running
+    /// applying the bound value to the predicate supplied.
     /// </summary>
     /// <param name="pred"></param>
-    /// <returns>If the OptionUnsafe is in a None state then True is returned (because 
+    /// <returns>If the OptionUnsafe is in a None state then True is returned (because
     /// the predicate applies for-all values).  If the OptionUnsafe is in a Some state
-    /// the value is the result of running applying the bound value to the 
+    /// the value is the result of running applying the bound value to the
     /// predicate supplied.</returns>
     public static async Task<bool> ForAllAsync<A>(this OptionUnsafe<Task<A>> self, Func<A, bool> pred) =>
         self.IsSome
@@ -513,13 +513,13 @@ public static class OptionUnsafeExtensions
     /// <summary>
     /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
     /// then True is returned if invoking None returns True.
-    /// If the OptionUnsafe is in a Some state the value is the result of running 
-    /// applying the bound value to the Some predicate supplied.        
+    /// If the OptionUnsafe is in a Some state the value is the result of running
+    /// applying the bound value to the Some predicate supplied.
     /// </summary>
     /// <param name="pred"></param>
-    /// <returns>If the OptionUnsafe is in a None state then True is returned if 
-    /// invoking None returns True. If the OptionUnsafe is in a Some state the value 
-    /// is the result of running applying the bound value to the Some predicate 
+    /// <returns>If the OptionUnsafe is in a None state then True is returned if
+    /// invoking None returns True. If the OptionUnsafe is in a Some state the value
+    /// is the result of running applying the bound value to the Some predicate
     /// supplied.</returns>
     public static async Task<bool> ExistsAsync<A>(this Task<OptionUnsafe<A>> self, Func<A, bool> pred) =>
         (await self.ConfigureAwait(false)).Exists(pred);
@@ -527,13 +527,13 @@ public static class OptionUnsafeExtensions
     /// <summary>
     /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
     /// then True is returned if invoking None returns True.
-    /// If the OptionUnsafe is in a Some state the value is the result of running 
-    /// applying the bound value to the Some predicate supplied.        
+    /// If the OptionUnsafe is in a Some state the value is the result of running
+    /// applying the bound value to the Some predicate supplied.
     /// </summary>
     /// <param name="pred"></param>
-    /// <returns>If the OptionUnsafe is in a None state then True is returned if 
-    /// invoking None returns True. If the OptionUnsafe is in a Some state the value 
-    /// is the result of running applying the bound value to the Some predicate 
+    /// <returns>If the OptionUnsafe is in a None state then True is returned if
+    /// invoking None returns True. If the OptionUnsafe is in a Some state the value
+    /// is the result of running applying the bound value to the Some predicate
     /// supplied.</returns>
     public static async Task<bool> ExistsAsync<A>(this OptionUnsafe<Task<A>> self, Func<A, bool> pred) =>
         self.IsSome

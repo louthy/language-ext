@@ -25,10 +25,10 @@ public static class TryAsyncExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Aff<A> ToAff<A>(this TryAsync<A> ma) =>
         Prelude.AffMaybe(() =>
-             ma.Match(Succ: x => Fin<A>.Succ(x), 
+             ma.Match(Succ: x => Fin<A>.Succ(x),
                       Fail: e => Fin<A>.Fail(e))
                .ToValue());
-    
+
     /// <summary>
     /// Use for pattern-matching the case of the target
     /// </summary>
@@ -68,7 +68,7 @@ public static class TryAsyncExtensions
             return ra;
         });
     }
-        
+
     /// <summary>
     /// If the TryAsync fails, retry `amount` times
     /// </summary>
@@ -90,7 +90,7 @@ public static class TryAsyncExtensions
             if (amount <= 0) return ra;
         }
     };
-        
+
     /// <summary>
     /// If the TryOptionAsync fails, retry `amount` times whilst backing off `backOffMilliSeconds`
     /// </summary>
@@ -114,7 +114,7 @@ public static class TryAsyncExtensions
             await Task.Delay(backOffMilliSeconds).ConfigureAwait(false);
             backOffMilliSeconds += backOffMilliSeconds;
         }
-    };      
+    };
 
     /// <summary>
     /// Custom awaiter that turns an TryAsync into an Try
@@ -547,7 +547,7 @@ public static class TryAsyncExtensions
         IfSucc(self, action);
 
     /// <summary>
-    /// Counts the number of bound values.  
+    /// Counts the number of bound values.
     /// </summary>
     /// <typeparam name="T">Type of the bound value</typeparam>
     /// <param name="self">TrTry computation</param>
@@ -1335,7 +1335,7 @@ public static class TryAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>1 if lhs > rhs, 0 if lhs == rhs, -1 if lhs < rhs</returns>
     [Pure]
-    public static async Task<int> Compare<ORD, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where ORD : struct, Ord<A> 
+    public static async Task<int> Compare<ORD, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where ORD : struct, Ord<A>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -1376,32 +1376,32 @@ public static class TryAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Add<NUM, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where NUM : struct, Num<A> => Memo(async () =>
+    public static TryAsync<A> Add<ARITH, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where ARITH : struct, Arithmetic<A> => Memo(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
         await Task.WhenAll(x, y).ConfigureAwait(false);
         if (x.IsFaulted || x.Result.IsFaulted) return x.Result;
         if (y.IsFaulted || y.Result.IsFaulted) return y.Result;
-        return plus<NUM, A>(x.Result.Value, y.Result.Value);
+        return plus<ARITH, A>(x.Result.Value, y.Result.Value);
     });
 
     /// <summary>
-    /// Find the subtract of the bound value of Try(x) and Try(y).  If either of 
+    /// Find the subtract of the bound value of Try(x) and Try(y).  If either of
     /// the Trys are Fail then the result is Fail
     /// </summary>
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Subtract<NUM, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where NUM : struct, Num<A> => Memo(async () =>
+    public static TryAsync<A> Subtract<ARITH, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where ARITH : struct, Arithmetic<A> => Memo(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
         await Task.WhenAll(x, y).ConfigureAwait(false);
         if (x.IsFaulted || x.Result.IsFaulted) return x.Result;
         if (y.IsFaulted || y.Result.IsFaulted) return y.Result;
-        return subtract<NUM, A>(x.Result.Value, y.Result.Value);
+        return subtract<ARITH, A>(x.Result.Value, y.Result.Value);
     });
 
     /// <summary>
@@ -1412,14 +1412,14 @@ public static class TryAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Product<NUM, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where NUM : struct, Num<A> => Memo(async () =>
+    public static TryAsync<A> Product<ARITH, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where ARITH : struct, Arithmetic<A> => Memo(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
         await Task.WhenAll(x, y).ConfigureAwait(false);
         if (x.IsFaulted || x.Result.IsFaulted) return x.Result;
         if (y.IsFaulted || y.Result.IsFaulted) return y.Result;
-        return product<NUM, A>(x.Result.Value, y.Result.Value);
+        return product<ARITH, A>(x.Result.Value, y.Result.Value);
     });
 
     /// <summary>
