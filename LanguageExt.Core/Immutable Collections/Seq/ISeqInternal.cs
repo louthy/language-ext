@@ -16,6 +16,7 @@ namespace LanguageExt
     {
         SeqType Type { get; }
         A this[int index] { get; }
+        Option<A> At(int index);
         ISeqInternal<A> Add(A value);
         ISeqInternal<A> Cons(A value);
         A Head { get; }

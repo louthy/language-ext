@@ -89,6 +89,15 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Indexer
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Option<A> At(int index) =>
+            index < 0 || index >= count
+                ? default(Option<A>)
+                : data[start + index];
+
+        /// <summary>
         /// Add an item to the end of the sequence
         /// </summary>
         /// <remarks>

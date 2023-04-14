@@ -420,6 +420,76 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        public void Concat_strict_and_strict_then_index_test()
+        {
+            var s1 = Seq(1, 2, 3);
+            var s2 = Seq(4, 5, 6);
+            var s3 = s1.Concat(s2);
+            Assert.Equal(1, s3[0]);
+            Assert.Equal(2, s3[1]);
+            Assert.Equal(3, s3[2]);
+            Assert.Equal(4, s3[3]);
+            Assert.Equal(5, s3[4]);
+            Assert.Equal(6, s3[5]);
+        }
+
+        [Fact]
+        public void Concat_lazy_and_strict_then_index_test_1()
+        {
+            var s1 = Seq(Range(1, 3));
+            var s2 = Seq(4, 5, 6);
+            var s3 = s1.Concat(s2);
+            Assert.Equal(1, s3[0]);
+            Assert.Equal(2, s3[1]);
+            Assert.Equal(3, s3[2]);
+            Assert.Equal(4, s3[3]);
+            Assert.Equal(5, s3[4]);
+            Assert.Equal(6, s3[5]);
+        }
+
+        [Fact]
+        public void Concat_lazy_and_strict_then_index_test_2()
+        {
+            var s1 = Seq(Range(1, 3));
+            var s2 = Seq(4, 5, 6);
+            var s3 = s1.Concat(s2);
+            Assert.Equal(6, s3[5]);
+            Assert.Equal(5, s3[4]);
+            Assert.Equal(4, s3[3]);
+            Assert.Equal(3, s3[2]);
+            Assert.Equal(2, s3[1]);
+            Assert.Equal(1, s3[0]);
+        }
+        
+        [Fact]
+        public void Concat_lazy_and_lazy_then_index_test_1()
+        {
+            var s1 = Seq(Range(1, 3));
+            var s2 = Seq(Range(4, 3));
+            var s3 = s1.Concat(s2);
+            Assert.Equal(1, s3[0]);
+            Assert.Equal(2, s3[1]);
+            Assert.Equal(3, s3[2]);
+            Assert.Equal(4, s3[3]);
+            Assert.Equal(5, s3[4]);
+            Assert.Equal(6, s3[5]);
+        }
+
+        [Fact]
+        public void Concat_lazy_and_lazy_then_index_test_2()
+        {
+            var s1 = Seq(Range(1, 3));
+            var s2 = Seq(Range(4, 3));
+            var s3 = s1.Concat(s2);
+            Assert.Equal(6, s3[5]);
+            Assert.Equal(5, s3[4]);
+            Assert.Equal(4, s3[3]);
+            Assert.Equal(3, s3[2]);
+            Assert.Equal(2, s3[1]);
+            Assert.Equal(1, s3[0]);
+        }
+
+        [Fact]
         public void CheckItems()
         {
             var xs = Seq<int>();

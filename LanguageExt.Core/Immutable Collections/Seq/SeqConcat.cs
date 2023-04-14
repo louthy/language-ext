@@ -12,13 +12,33 @@ namespace LanguageExt
         internal readonly Seq<ISeqInternal<A>> ms;
         int selfHash;
 
-        public SeqConcat(Seq<ISeqInternal<A>> ms)
-        {
+        public SeqConcat(Seq<ISeqInternal<A>> ms) =>
             this.ms = ms;
+
+        public A this[int index]
+        {
+            get
+            {
+                var r = At(index);
+                if (r.IsSome) return r.Value;
+                throw new IndexOutOfRangeException();
+            }
         }
 
-        public A this[int index] => 
-            throw new NotSupportedException();
+        public Option<A> At(int index)
+        {
+            if (index < 0) return default;
+            var ms1 = ms;
+            while (!ms1.IsEmpty)
+            {
+                var head = ms1.Head;
+                var r = head.At(index);
+                if (r.IsSome) return r;
+                index -= head.Count;
+                ms1 = ms1.Tail;
+            }
+            return default;
+        }
 
         public SeqType Type =>
             SeqType.Concat;
@@ -39,7 +59,7 @@ namespace LanguageExt
         }
 
         public ISeqInternal<A> Tail =>
-            new SeqLazy<A>(this.Skip(1));
+            new SeqLazy<A>(Skip(1));
 
         public bool IsEmpty => 
             ms.ForAll(s => s.IsEmpty);
@@ -74,13 +94,13 @@ namespace LanguageExt
             ms.Sum(s => s.Count);
 
         public SeqConcat<A> AddSeq(ISeqInternal<A> ma) =>
-            new SeqConcat<A>(ms.Add(ma));
+            new (ms.Add(ma));
 
         public SeqConcat<A> AddSeqRange(Seq<ISeqInternal<A>> ma) =>
-            new SeqConcat<A>(ms.Concat(ma));
+            new (ms.Concat(ma));
 
         public SeqConcat<A> ConsSeq(ISeqInternal<A> ma) =>
-            new SeqConcat<A>(ma.Cons(ms));
+            new (ma.Cons(ms));
 
         public ISeqInternal<A> Add(A value)
         {

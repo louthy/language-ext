@@ -75,14 +75,22 @@ namespace LanguageExt
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if (index < 0) throw new IndexOutOfRangeException();
-                if (index < count) return data[data.Length - count];
-                var lazyIndex = index - count + seqStart;
-                var (succ, val) = StreamTo(lazyIndex);
-                return succ
-                    ? val
-                    : throw new IndexOutOfRangeException();
+                var r = At(index);
+                if (r.IsSome) return r.Value;
+                throw new IndexOutOfRangeException();
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Option<A> At(int index)
+        {
+            if (index < 0) return default;
+            if (index < count) return data[data.Length - count];
+            var lazyIndex = index - count + seqStart;
+            var (succ, val) = StreamTo(lazyIndex);
+            return succ
+                ? val
+                : default(Option<A>);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

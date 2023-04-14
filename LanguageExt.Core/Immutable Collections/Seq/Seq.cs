@@ -4,12 +4,9 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using LanguageExt;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
 
 namespace LanguageExt
 {
@@ -127,11 +124,19 @@ namespace LanguageExt
         /// <summary>
         /// Indexer
         /// </summary>
+        /// <exception cref="IndexOutOfRangeException"></exception>
         public A this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Value[index];
         }
+
+        /// <summary>
+        /// Safe indexer
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Option<A> At(int index) =>
+            Value.At(index);
 
         /// <summary>
         /// Add an item to the end of the sequence
@@ -143,7 +148,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Seq<A> Add(A value) =>
-            new Seq<A>(Value.Add(value));
+            new (Value.Add(value));
 
         /// <summary>
         /// Add a range of items to the end of the sequence
@@ -394,7 +399,7 @@ namespace LanguageExt
         public Seq<A> Tail
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new Seq<A>(Value.Tail);
+            get => new (Value.Tail);
         }
 
         /// <summary>
@@ -403,7 +408,7 @@ namespace LanguageExt
         public Seq<A> Init
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => new Seq<A>(Value.Init);
+            get => new (Value.Init);
         }
 
         /// <summary>

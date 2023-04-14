@@ -12,6 +12,9 @@ namespace LanguageExt
         public A this[int index] => 
             throw new IndexOutOfRangeException();
 
+        public Option<A> At(int index) => 
+            default;
+
         public A Head =>
             throw new InvalidOperationException("Sequence is empty");
 

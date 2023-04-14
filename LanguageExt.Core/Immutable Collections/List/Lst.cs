@@ -17,11 +17,9 @@ namespace LanguageExt
     /// <typeparam name="A">Value type</typeparam>
     [Serializable]
     public readonly struct Lst<A> :
-        IEnumerable<A>,
         IComparable<Lst<A>>,
         IComparable,
         IReadOnlyList<A>,
-        IReadOnlyCollection<A>,
         IEquatable<Lst<A>>
     {
         /// <summary>
@@ -189,6 +187,17 @@ namespace LanguageExt
                 if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
                 return ListModule.GetItem(Root, index);
             }
+        }
+
+        /// <summary>
+        /// Safe index accessor
+        /// </summary>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Option<A> At(int index)
+        {
+            if (index < 0 || index >= Root.Count) return default;
+            return ListModule.GetItem(Root, index);
         }
 
         /// <summary>
