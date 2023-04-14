@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.SysX", "Languag
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Transformers", "LanguageExt.Transformers\LanguageExt.Transformers.csproj", "{108E970C-900C-46C4-BAEB-5F84AFA6842E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.SourceGen", "LanguageExt.SourceGen\LanguageExt.SourceGen.csproj", "{1D9F2754-747C-4397-87C8-20B7581EF61E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -197,6 +199,18 @@ Global
 		{108E970C-900C-46C4-BAEB-5F84AFA6842E}.Release|x64.Build.0 = Release|Any CPU
 		{108E970C-900C-46C4-BAEB-5F84AFA6842E}.Release|x86.ActiveCfg = Release|Any CPU
 		{108E970C-900C-46C4-BAEB-5F84AFA6842E}.Release|x86.Build.0 = Release|Any CPU
+		{1D9F2754-747C-4397-87C8-20B7581EF61E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D9F2754-747C-4397-87C8-20B7581EF61E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D9F2754-747C-4397-87C8-20B7581EF61E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1D9F2754-747C-4397-87C8-20B7581EF61E}.Debug|x64.Build.0 = Debug|Any CPU
+		{1D9F2754-747C-4397-87C8-20B7581EF61E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1D9F2754-747C-4397-87C8-20B7581EF61E}.Debug|x86.Build.0 = Debug|Any CPU
+		{1D9F2754-747C-4397-87C8-20B7581EF61E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D9F2754-747C-4397-87C8-20B7581EF61E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D9F2754-747C-4397-87C8-20B7581EF61E}.Release|x64.ActiveCfg = Release|Any CPU
+		{1D9F2754-747C-4397-87C8-20B7581EF61E}.Release|x64.Build.0 = Release|Any CPU
+		{1D9F2754-747C-4397-87C8-20B7581EF61E}.Release|x86.ActiveCfg = Release|Any CPU
+		{1D9F2754-747C-4397-87C8-20B7581EF61E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
