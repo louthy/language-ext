@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\LanguageExt.SourceGen\LanguageExt.SourceGen.csproj" 
+                        OutputItemType="Analyzer" 
+                        ReferenceOutputAssembly="false" />
+      <ProjectReference Include="..\..\LanguageExt.TypeSystem\LanguageExt.TypeSystem.csproj" />
+    </ItemGroup>
+
+</Project>

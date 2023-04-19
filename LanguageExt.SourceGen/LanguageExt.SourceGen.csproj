@@ -1,12 +1,35 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
+        <PackageVersion>4.4.3</PackageVersion>
+        <PackageId>LanguageExt.SourceGen</PackageId>
+        <Title>LanguageExt.SourceGen</Title>
+        <Authors>Paul Louth</Authors>
+        <Summary>Source-generators for Language-Ext</Summary>
+        <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
+        <Description>Record, unions, and deriving generators</Description>
+        <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
+        <PackageIcon>lang-ext-small.png</PackageIcon>
+        <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+        <OutputType>library</OutputType>
+        <AssemblyVersion>4.0.0.0</AssemblyVersion>
+        <FileVersion>4.0.0.0</FileVersion>
         <TargetFramework>netstandard2.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>default</LangVersion>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.5.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="4.5.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.5.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.5.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <Compile Include="../LanguageExt.TypeSystem/**/*.cs"/>
+        <Compile Remove="../LanguageExt.TypeSystem/obj/**/*.cs" />
     </ItemGroup>
 </Project>
