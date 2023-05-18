@@ -342,7 +342,6 @@ public static class TryOptionAsyncExtensions
     /// <param name="self">TryOptionAsync computation</param>
     /// <param name="Fail">The delegate to invoke if the TryOptionAsync computation fails</param>
     /// <typeparam name="A">Type of bound value</typeparam>
-    /// <returns></returns>
     [Pure]
     public static async Task<Unit> IfFail<A>(this TryOptionAsync<A> self, Action<Exception> Fail) {
         if(isnull(self)) throw new ArgumentNullException(nameof(self));
@@ -357,6 +356,7 @@ public static class TryOptionAsyncExtensions
         catch (Exception e)
         {
             TryConfig.ErrorLogger(e);
+            Fail(e);
         }
 
         return unit;

@@ -315,6 +315,31 @@ public static class TryAsyncExtensions
         new ExceptionMatchAsync<A>(self.Try());
 
     /// <summary>
+    /// Invoke a delegate if the TryAsync computation fails
+    /// </summary>
+    /// <param name="self">the TryAsync computation</param>
+    /// <param name="Fail">The delegate to invoke if the TryAsync computation fails</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    [Pure]
+    public static async Task<Unit> IfFail<A>(this TryAsync<A> self, Action<Exception> Fail) {
+        if(isnull(self)) throw new ArgumentNullException(nameof(self));
+        if(isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        try
+        {
+            var res = await self.Try().ConfigureAwait(false);
+            if(res.IsFaulted)
+                Fail(res.Exception);
+        }
+        catch(Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            Fail(e);
+        }
+        return unit;
+    }
+
+    /// <summary>
     /// Pattern matches the two possible states of the Try computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>

@@ -306,6 +306,16 @@ namespace LanguageExt
             self.IfFail();
 
         /// <summary>
+        /// Invoke a delegate if the Try computation fails
+        /// </summary>
+        /// <param name="self">The Try computation</param>
+        /// <param name="Fail">The delegate to invoke if the Try computation fails</param>
+        /// <typeparam name="T">Type of bound value</typeparam>
+        [Pure]
+        public static Unit ifFail<T>(Try<T> self, Action<Exception> Fail) =>
+            self.IfFail(Fail);
+
+        /// <summary>
         /// Maps the bound value to the resulting exception (if the Try computation fails).  
         /// If the Try computation succeeds then a NotSupportedException is used.
         /// </summary>
