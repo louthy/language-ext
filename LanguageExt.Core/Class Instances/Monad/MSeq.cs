@@ -63,15 +63,8 @@ namespace LanguageExt.ClassInstances
             fa.FoldBack(state, f);
 
         [Pure]
-        public Seq<A> Plus(Seq<A> ma, Seq<A> mb)
-        {
-            IEnumerable<A> Yield()
-            {
-                foreach (var a in ma) yield return a;
-                foreach (var b in mb) yield return b;
-            }
-            return toSeq(Yield());
-        }
+        public Seq<A> Plus(Seq<A> ma, Seq<A> mb) =>
+            ma.Concat(mb);
 
         [Pure]
         public Seq<A> Zero() =>
