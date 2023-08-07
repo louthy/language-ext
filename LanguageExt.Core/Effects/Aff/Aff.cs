@@ -117,7 +117,7 @@ namespace LanguageExt
                            });
                 });
 
-            async Task Go(Func<RT, ValueTask<Fin<A>>> thunk, RT lenv, CancellationTokenRegistration reg)
+            static async Task Go(Func<RT, ValueTask<Fin<A>>> thunk, RT lenv, CancellationTokenRegistration reg)
             {
                 try
                 {
@@ -125,8 +125,8 @@ namespace LanguageExt
                 }
                 finally
                 {
-                    lenv.CancellationTokenSource.Dispose();
                     reg.Dispose();
+                    lenv.CancellationTokenSource.Dispose();
                 }
             }
         }
@@ -198,7 +198,7 @@ namespace LanguageExt
                         {
                             // The token-source might have already been disposed, so let's ignore that error
                         }
-                    return FinFail<A>(Errors.TimedOut);
+                        return FinFail<A>(Errors.TimedOut);
                     }
                     else
                     {
@@ -207,7 +207,7 @@ namespace LanguageExt
                     }
                 });
 
-            async Task<Fin<A>> Go(Func<RT, ValueTask<Fin<A>>> thunk, RT lenv)
+            static async Task<Fin<A>> Go(Func<RT, ValueTask<Fin<A>>> thunk, RT lenv)
             {
                 try
                 {
