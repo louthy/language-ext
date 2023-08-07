@@ -32,7 +32,7 @@ namespace EffectsExamples
             select unit;
 
         static Aff<RT, int> sum =>
-            digit.Fold(Schedule.recurs(10) | Schedule.spaced(1 * second), 0, (s, x) => s + x);
+            digit.Fold(Schedule.recurs(9) | Schedule.spaced(1 * second), 0, (s, x) => s + x);
 
         static Aff<RT, int> digit =>
             from one in SuccessAff<RT, int>(1)

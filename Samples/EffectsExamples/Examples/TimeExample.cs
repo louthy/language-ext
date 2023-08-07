@@ -10,7 +10,7 @@ namespace EffectsExamples
     /// Clock example
     /// </summary>
     /// <remarks>
-    /// Prints the time for 15 repetitions, the space between the prints follows the Fibonacci sequence up to 10 seconds
+    /// Prints the time for 10 repetitions, the space between the prints follows the Fibonacci sequence up to 10 seconds
     /// and then it's clamped
     /// </remarks>
     public class TimeExample<RT>
@@ -20,7 +20,7 @@ namespace EffectsExamples
         HasConsole<RT>
     {
         public static Eff<RT, Unit> main =>
-            repeat(Schedule.spaced(10 * second) | Schedule.recurs(15) | Schedule.fibonacci(1*second),
+            repeat(Schedule.spaced(10 * second) | Schedule.fibonacci(1 * second) | Schedule.recurs(9),
                    from tm in Time<RT>.now
                    from _1 in Console<RT>.writeLine(tm.ToLongTimeString())
                    select unit);
