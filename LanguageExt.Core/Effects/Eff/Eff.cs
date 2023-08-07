@@ -3,7 +3,6 @@ using LanguageExt.Common;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Thunks;
 
 namespace LanguageExt
 {

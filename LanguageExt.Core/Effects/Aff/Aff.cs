@@ -100,27 +100,35 @@ namespace LanguageExt
                     var reg = env.CancellationToken.Register(() => lenv.CancellationTokenSource.Cancel());
                     
                     // Run
-                    ignore(t(lenv).Iter(_ => Dispose()));
+                    ignore(Go(t, lenv, reg));
                     
                     // Return an effect that cancels the fire-and-forget expression
-                    return Eff<Unit>(() =>
-                                     {
-                                         lenv.CancellationTokenSource.Cancel();
-                                         Dispose();
-                                         return unit;
-                                     });
-
-                    void Dispose()
-                    {
-                        try
-                        {
-                            reg.Dispose();
-                        }
-                        catch
-                        {
-                        }
-                    }
+                    return Eff(() =>
+                           {
+                               try
+                               {
+                                   lenv.CancellationTokenSource.Cancel();
+                               }
+                               catch
+                               {
+                                   // The token-source might have already been disposed, so let's ignore that error
+                               }
+                               return unit;
+                           });
                 });
+
+            async Task Go(Func<RT, ValueTask<Fin<A>>> thunk, RT lenv, CancellationTokenRegistration reg)
+            {
+                try
+                {
+                    await thunk(lenv).ConfigureAwait(false);
+                }
+                finally
+                {
+                    lenv.CancellationTokenSource.Dispose();
+                    reg.Dispose();
+                }
+            }
         }
 
         /// <summary>
@@ -177,13 +185,20 @@ namespace LanguageExt
                     using var delayTokSrc = new CancellationTokenSource();
                     var lenv       = env.LocalCancel;
                     var delay      = Task.Delay(timeoutDelay, delayTokSrc.Token);
-                    var task       = t(lenv).AsTask();
-                    var completed  = await Task.WhenAny(new Task[] {delay, task}).ConfigureAwait(false);
+                    var task       = Go(t, lenv);
+                    var completed  = await Task.WhenAny(delay, task).ConfigureAwait(false);
 
                     if (completed == delay)
                     {
-                        lenv.CancellationTokenSource.Cancel();
-                        return FinFail<A>(Errors.TimedOut);
+                        try
+                        {
+                            lenv.CancellationTokenSource.Cancel();
+                        }
+                        catch
+                        {
+                            // The token-source might have already been disposed, so let's ignore that error
+                        }
+                    return FinFail<A>(Errors.TimedOut);
                     }
                     else
                     {
@@ -191,6 +206,18 @@ namespace LanguageExt
                         return await task.ConfigureAwait(false);
                     }
                 });
+
+            async Task<Fin<A>> Go(Func<RT, ValueTask<Fin<A>>> thunk, RT lenv)
+            {
+                try
+                {
+                    return await thunk(lenv).ConfigureAwait(false);
+                }
+                finally
+                {
+                    lenv.CancellationTokenSource.Dispose();
+                }
+            }
         }
 
         [Pure, MethodImpl(Opt.Default)]
