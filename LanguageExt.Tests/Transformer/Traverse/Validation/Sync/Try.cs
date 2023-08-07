@@ -14,7 +14,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Sync
             var mb = ma.Sequence();
             var mc = Success<Error, Try<int>>(Try(12));
 
-            Assert.Equal(mc, mb);
+            var eq = mb == mc;
+            Assert.True(eq);
         }
 
         [Fact]
@@ -24,7 +25,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Sync
             var mb = ma.Sequence();
             var mc = Success<Error, Try<int>>(Try<int>(new Exception("Fail")));
 
-            Assert.Equal(mc, mb);
+            var eq = mb == mc;
+            Assert.True(eq);
         }
 
         [Fact]
@@ -34,7 +36,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.Validation.Sync
             var mb = ma.Sequence();
             var mc = Success<Error, Try<int>>(TrySucc(12));
 
-            Assert.Equal(mc, mb);
+            var eq = mb == mc;
+            Assert.True(eq);
         }
     }
 }

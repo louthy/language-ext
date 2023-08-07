@@ -22,7 +22,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.Stck.Sync
             var mb = ma.Traverse(identity);
             var mc = Stack(TryOptionSucc(1), TryOptionSucc(2), TryOptionSucc(3), TryOptionSucc(4));
 
-            Assert.Equal(mc, mb);
+            var eq = mb == mc;
+            Assert.True(eq);
         }
 
         [Fact]
@@ -32,7 +33,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.Stck.Sync
             var mb = ma.Traverse(identity);
             var mc = Stack(TryOptionFail<int>(new System.Exception("Fail")));
 
-            Assert.Equal(mc, mb);
+            var eq = mb == mc;
+            Assert.True(eq);
         }
     }
 }

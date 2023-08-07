@@ -30,7 +30,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.Stck.Sync
             var mb = ma.Traverse(identity);
             var mc = Stack(TryFail<int>(new System.Exception("Fail")));
 
-            Assert.Equal(mc, mb);
+            var eq = mb == mc;
+            Assert.True(eq);
         }
     }
 }

@@ -230,8 +230,18 @@ namespace LanguageExt.Tests
             var some = Some(123);
             var none = Option<int>.None;
 
-            Assert.Equal(FinSucc(123), some.ToFin());
-            Assert.True(none.ToFin(e).IsFail);
+            var mx = FinSucc(123);
+            var my = some.ToFin();
+            var me = none.ToFin(e);
+
+            var e1 = mx == my;
+            var e2 = mx.Equals(my);
+            var e3 = mx.Equals((object)my);
+            
+            Assert.True(e1);
+            Assert.True(e2);
+            Assert.True(e3);
+            Assert.True(me.IsFail);
         }
 
         private Option<string> GetStringNone()

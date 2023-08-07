@@ -15,7 +15,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.ValidationMonoid.Sync
             var mb = ma.Traverse(identity);
             var mc = Success<MSeq<Error>, Seq<Error>, TryOption<int>>(TryOption(12));
 
-            Assert.Equal(mc, mb);
+            var eq = mb == mc;
+            Assert.True(eq);
         }
 
         [Fact]
@@ -25,7 +26,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.ValidationMonoid.Sync
             var mb = ma.Traverse(identity);
             var mc = Success<MSeq<Error>, Seq<Error>, TryOption<int>>(TryOption<int>(new Exception("Fail")));
 
-            Assert.Equal(mc, mb);
+            var eq = mb == mc;
+            Assert.True(eq);
         }
 
         [Fact]
@@ -35,7 +37,8 @@ namespace LanguageExt.Tests.Transformer.Traverse.ValidationMonoid.Sync
             var mb = ma.Traverse(identity);
             var mc = Success<MSeq<Error>, Seq<Error>, TryOption<int>>(TryOptionSucc(12));
 
-            Assert.Equal(mc, mb);
+            var eq = mb == mc;
+            Assert.True(eq);
         }
     }
 }
