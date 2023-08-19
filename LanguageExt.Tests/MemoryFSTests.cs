@@ -211,8 +211,8 @@ namespace LanguageExt.Tests
 
             var comp = from _1 in Dir.create(srcdir)
                        from _2 in Dir.create(destdir)
-                       from sf in SuccessEff(Path.Combine(srcdir, file))
-                       from df in SuccessEff(Path.Combine(destdir, file))
+                       from sf in SuccessEff(Combine(srcdir, file))
+                       from df in SuccessEff(Combine(destdir, file))
                        from _3 in File.writeAllText(sf, "Hello, World")
                        from _4 in Dir.move(sf, df)
                        from tx in File.readAllText(df)
@@ -222,7 +222,10 @@ namespace LanguageExt.Tests
             var r = await comp.Run(rt);
             Assert.True(r == (false, "Hello, World"), FailMsg(r));
         }
-        
+
+        static string Combine(string path1, string path2) =>
+             path1 + (path1.EndsWith("\\") ? path2 : "\\" + path2);
+
         static string FailMsg<A>(Fin<A> ma) =>
             ma.Match(Succ: _ => "", Fail: e => e.Message);
     }
