@@ -51,7 +51,7 @@ namespace LanguageExt
 
         internal readonly R right;
         internal readonly L left;
-
+        
         private Either(R right)
         {
             if (isnull(right))
@@ -71,7 +71,6 @@ namespace LanguageExt
             this.right = default(R);
             this.left = left;
         }
-
 
         Either(SerializationInfo info, StreamingContext context)
         {

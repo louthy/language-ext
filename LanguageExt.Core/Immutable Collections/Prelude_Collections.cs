@@ -550,6 +550,13 @@ namespace LanguageExt
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
+        public static AtomHashMap<K, V> AtomHashMap<K, V>(HashMap<K, V> items) =>
+            new (items);
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
         public static AtomHashMap<K, V> AtomHashMap<K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) =>
             LanguageExt.HashMap.create(head, tail).ToAtom();
 
@@ -566,7 +573,6 @@ namespace LanguageExt
         [Pure]
         public static AtomHashMap<K, V> toAtomHashMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
             LanguageExt.HashMap.createRange(items).ToAtom();
-
 
 
         /// <summary>
@@ -594,6 +600,13 @@ namespace LanguageExt
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
+        public static AtomHashMap<EqK, K, V> AtomHashMap<EqK, K, V>(HashMap<EqK, K, V> items) where EqK : struct, Eq<K> =>
+            new (items);
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
         public static AtomHashMap<EqK, K, V> toAtomHashMap<EqK, K, V>(IEnumerable<(K, V)> items) where EqK : struct, Eq<K> =>
             LanguageExt.HashMap.createRange<EqK, K, V>(items).ToAtom();
 
@@ -603,8 +616,6 @@ namespace LanguageExt
         [Pure]
         public static AtomHashMap<EqK, K, V> toAtomHashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : struct, Eq<K> =>
             LanguageExt.HashMap.createRange<EqK, K, V>(items).ToAtom();
-
-        
         
         /// <summary>
         /// Create an immutable list

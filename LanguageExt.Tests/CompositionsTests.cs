@@ -1,5 +1,4 @@
-﻿using LanguageExt;
-using static LanguageExt.Prelude;
+﻿using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Compositions;
 using LanguageExt.ClassInstances;

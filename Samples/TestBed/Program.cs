@@ -18,6 +18,7 @@ using LanguageExt.Sys.Live;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using Newtonsoft.Json;
 using TestBed;
 using static LanguageExt.Prelude;
 using static LanguageExt.Pipes.Proxy;
@@ -69,7 +70,9 @@ public class Program
         //var _ = QueueExample<Runtime>.Issue1065().RunUnit(new Runtime()).Result;
         //ScheduleTests.Run();
         //ApplicativeTest.Test().GetAwaiter().GetResult();
-        Console.WriteLine(PipesTestBed.effect.RunEffect().Run(Runtime.New()).Result);
+        //Console.WriteLine(PipesTestBed.effect.RunEffect().Run(Runtime.New()).Result);
+        //Issue1230.Run();
+        //Issue1234.Test();
     }
 
     public static async Task PipesTest()

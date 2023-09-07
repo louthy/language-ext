@@ -6,6 +6,7 @@ using LanguageExt.Effects.Traits;
 using LanguageExt.Sys;
 using LanguageExt.Sys.Traits;
 using static LanguageExt.Prelude;
+using Newtonsoft.Json;
 
 public class QueueExample<RT>
     where RT : struct,
@@ -30,5 +31,14 @@ public class QueueExample<RT>
                    from _52 in Console<RT>.writeLine(ln)
                    select unit)
                | @catch(exception => Console<RT>.writeLine(exception.Message));
+    }
+}
+
+public class Issue1230
+{
+    public static void Run()
+    {
+        var finVal = Fin<string>.Succ("hello");
+        var json = JsonConvert.SerializeObject(finVal);
     }
 }

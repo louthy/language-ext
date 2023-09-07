@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using LanguageExt;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using Xunit;

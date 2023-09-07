@@ -2,7 +2,6 @@
 using System;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
-using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests

@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-
-using LanguageExt;
 using M = LanguageExt.Map;
 using LanguageExt.Parsec;
 using static LanguageExt.Prelude;

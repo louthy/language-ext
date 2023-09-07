@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using LanguageExt;
 using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 

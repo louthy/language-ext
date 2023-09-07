@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using LanguageExt;
 using LanguageExt.ClassInstances;
 using Xunit;
 using static LanguageExt.Prelude;

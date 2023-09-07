@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Xunit;
 using static LanguageExt.Prelude;
-using LanguageExt;
 
 namespace LanguageExt.Tests
 {

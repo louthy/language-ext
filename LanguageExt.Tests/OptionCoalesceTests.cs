@@ -1,5 +1,4 @@
 ﻿using Xunit;
-using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests

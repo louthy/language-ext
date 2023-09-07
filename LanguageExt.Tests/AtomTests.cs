@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using LanguageExt;
 using static LanguageExt.Prelude;
 using Xunit;
 using System.Diagnostics;

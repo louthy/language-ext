@@ -2,7 +2,6 @@
 using static LanguageExt.List;
 using static LanguageExt.Queue;
 using Xunit;
-using LanguageExt;
 
 namespace LanguageExt.Tests
 {

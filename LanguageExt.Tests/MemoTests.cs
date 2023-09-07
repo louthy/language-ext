@@ -1,7 +1,6 @@
 ﻿using Xunit;
 using System;
 using System.Linq;
-using LanguageExt;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;
 

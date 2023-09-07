@@ -48,7 +48,6 @@ namespace LanguageExt.Tests
         static Try<UserMapping> createUserMapping2(ADUser user) => () =>
             UserMapping.New(user.ToString() + " mapped");
 
-        [Fact]
         public TryAsync<int> Issue207_5() =>
             from us in TryAsync<ADUser>(() => throw new Exception("fail"))
             from mu in createUserMapping2(us).ToAsync()

@@ -1,5 +1,4 @@
-﻿using LanguageExt;
-using LanguageExt.ClassInstances;
+﻿using LanguageExt.ClassInstances;
 using Xunit;
 using System.Linq;
 

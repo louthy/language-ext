@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
-using LanguageExt;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;

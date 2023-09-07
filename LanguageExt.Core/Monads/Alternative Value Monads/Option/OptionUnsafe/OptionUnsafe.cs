@@ -70,7 +70,6 @@ namespace LanguageExt
         /// Ctor that facilitates serialisation
         /// </summary>
         /// <param name="option">None or Some A.</param>
-        [Pure]
         public OptionUnsafe(IEnumerable<A> option)
         {
             var first = option.Take(1).ToArray();
@@ -80,7 +79,6 @@ namespace LanguageExt
                 : default;
         }
 
-        [Pure]
         OptionUnsafe(SerializationInfo info, StreamingContext context)
         {
             isSome = (bool)info.GetValue("IsSome", typeof(bool));
@@ -97,7 +95,7 @@ namespace LanguageExt
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("IsSome", IsSome);
-            if (IsSome) info.AddValue("Value", Value);
+            if (IsSome) info.AddValue("Value", (object)Value);
         }
 
         /// <summary>

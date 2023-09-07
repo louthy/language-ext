@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-
-using LanguageExt;
 using LanguageExt.UnitsOfMeasure;
 using static LanguageExt.Prelude;
 

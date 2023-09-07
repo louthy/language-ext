@@ -58,11 +58,11 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Fin<A> Fail(Error error) => 
-            new Fin<A>(error);
+            new (error);
 
         [Pure, MethodImpl(Opt.Default)]
         public static Fin<A> Fail(string error) => 
-            new Fin<A>(Error.New(error));
+            new (Error.New(error));
 
         [Pure]
         public bool IsFail

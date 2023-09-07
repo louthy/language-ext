@@ -1,6 +1,5 @@
 using System;
 using Xunit;
-using LanguageExt;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
