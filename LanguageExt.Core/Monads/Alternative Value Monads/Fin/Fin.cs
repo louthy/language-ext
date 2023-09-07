@@ -21,7 +21,7 @@ namespace LanguageExt
         IComparable<Fin<A>>, 
         IComparable, 
         IEquatable<Fin<A>>,
-        IEnumerable<Fin<A>>,
+        IEnumerable<A>,
         ISerializable
     {
         internal readonly Error error;
@@ -384,7 +384,7 @@ namespace LanguageExt
             (IsSucc && other.IsSucc && default(EqDefault<A>).Equals(value, other.value)) || (IsSucc == false && other.IsSucc == false);
 
         [Pure, MethodImpl(Opt.Default)]
-        public IEnumerator<Fin<A>> GetEnumerator()
+        public IEnumerator<A> GetEnumerator()
         {
             if (IsSucc)
             {
