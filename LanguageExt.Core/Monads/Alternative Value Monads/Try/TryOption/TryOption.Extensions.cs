@@ -1072,10 +1072,10 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOption<A> Add<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : struct, Num<A> =>
+    public static TryOption<A> Add<ARITH, A>(this TryOption<A> lhs, TryOption<A> rhs) where ARITH : struct, Arithmetic<A> =>
         from x in lhs
         from y in rhs
-        select plus<NUM, A>(x, y);
+        select plus<ARITH, A>(x, y);
 
     /// <summary>
     /// Find the subtract of the bound value of Try(x) and Try(y).  If either of
@@ -1085,10 +1085,10 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOption<A> Subtract<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : struct, Num<A> =>
+    public static TryOption<A> Subtract<ARITH, A>(this TryOption<A> lhs, TryOption<A> rhs) where ARITH : struct, Arithmetic<A> =>
         from x in lhs
         from y in rhs
-        select subtract<NUM, A>(x, y);
+        select subtract<ARITH, A>(x, y);
 
     /// <summary>
     /// Multiply the bound value of Try(x) and Try(y).  If either of the
@@ -1098,10 +1098,10 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOption<A> Product<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : struct, Num<A> =>
+    public static TryOption<A> Product<ARITH, A>(this TryOption<A> lhs, TryOption<A> rhs) where ARITH : struct, Arithmetic<A> =>
         from x in lhs
         from y in rhs
-        select product<NUM, A>(x, y);
+        select product<ARITH, A>(x, y);
 
     /// <summary>
     /// Multiply the bound value of Try(x) and Try(y).  If either of the

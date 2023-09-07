@@ -34,7 +34,7 @@ public static partial class OptionAsyncExtensions
                             .ConfigureAwait(false);
         return res.Filter(x => x.IsSome).Map(x => x.Value).ToArray();
     }
-    
+
 
     /// <summary>
     /// Extracts from a list of `OptionAsync` all the `Some` elements.
@@ -47,7 +47,7 @@ public static partial class OptionAsyncExtensions
                             .WindowMap(identity)
                             .ConfigureAwait(false);
         return res.Filter(x => x.IsSome).Map(x => x.Value).ToSeq();
-    }    
+    }
 
     /// <summary>
     /// Add the bound values of x and y, uses an Add type-class to provide the add
@@ -59,13 +59,13 @@ public static partial class OptionAsyncExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
-    public static OptionAsync<A> Add<NUM, A>(this OptionAsync<A> x, OptionAsync<A> y) where NUM : struct, Num<A> =>
+    public static OptionAsync<A> Add<ARITH, A>(this OptionAsync<A> x, OptionAsync<A> y) where ARITH : struct, Arithmetic<A> =>
         from a in x
         from b in y
-        select plus<NUM, A>(a, b);
+        select plus<ARITH, A>(a, b);
 
     /// <summary>
-    /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 
+    /// Find the subtract between the two bound values of x and y, uses a Subtract type-class
     /// to provide the subtract operation for type A.  For example x.Subtract<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="DIFF">Subtract of A</typeparam>
@@ -74,13 +74,13 @@ public static partial class OptionAsyncExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with the subtract between x and y</returns>
     [Pure]
-    public static OptionAsync<A> Subtract<NUM, A>(this OptionAsync<A> x, OptionAsync<A> y) where NUM : struct, Num<A> =>
+    public static OptionAsync<A> Subtract<ARITH, A>(this OptionAsync<A> x, OptionAsync<A> y) where ARITH : struct, Arithmetic<A> =>
         from a in x
         from b in y
-        select subtract<NUM, A>(a, b);
+        select subtract<ARITH, A>(a, b);
 
     /// <summary>
-    /// Find the product between the two bound values of x and y, uses a Product type-class 
+    /// Find the product between the two bound values of x and y, uses a Product type-class
     /// to provide the product operation for type A.  For example x.Product<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="PROD">Product of A</typeparam>
@@ -89,10 +89,10 @@ public static partial class OptionAsyncExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with the product of x and y</returns>
     [Pure]
-    public static OptionAsync<A> Product<NUM, A>(this OptionAsync<A> x, OptionAsync<A> y) where NUM : struct, Num<A> =>
+    public static OptionAsync<A> Product<ARITH, A>(this OptionAsync<A> x, OptionAsync<A> y) where ARITH : struct, Arithmetic<A> =>
         from a in x
         from b in y
-        select product<NUM, A>(a, b);
+        select product<ARITH, A>(a, b);
 
     /// <summary>
     /// Divide the two bound values of x and y, uses a Divide type-class to provide the divide
