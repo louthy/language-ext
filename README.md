@@ -1138,7 +1138,7 @@ public void TreeTests()
     Assert.True(treeA != treeC);
 }
 ```
-There are some [unit tests](https://github.com/louthy/language-ext/blob/master/LanguageExt.Tests/RecordTypesTest.cs) to see this in action.
+There are some [unit tests](https://github.com/louthy/language-ext/blob/main/LanguageExt.Tests/RecordTypesTest.cs) to see this in action.
 
 > Inheritance is not supported in `Record` derived types, so if you derive a type from a type that derives from `Record` then you won't magically inherit any equality, ordering, hash-code, etc. behaviours. This feature is explicitly here to implement record-like functionality, which do not support inheritance in other functional languages. Equality of origin is explicitly checked for.
 
@@ -2027,5 +2027,5 @@ As well as the extensions, there are also static classes for the transformer typ
 ```
 ## Contributing & Code of Conduct
 
-If you would like to get involved with this project, please first read the [Contribution Guidelines](https://github.com/louthy/language-ext/blob/master/CONTRIBUTING.md) and the [Code of Conduct](https://github.com/louthy/language-ext/blob/master/CODE_OF_CONDUCT.md).
+If you would like to get involved with this project, please first read the [Contribution Guidelines](https://github.com/louthy/language-ext/blob/main/CONTRIBUTING.md) and the [Code of Conduct](https://github.com/louthy/language-ext/blob/main/CODE_OF_CONDUCT.md).
 
