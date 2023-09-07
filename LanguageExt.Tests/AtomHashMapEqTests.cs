@@ -484,11 +484,11 @@ namespace LanguageExt.Tests
             Assert.Equal(initialValue, state.From);
             Assert.Equal(hashMap.ToHashMap(), state.To);
             Assert.Equal(initialValue.Append(toAppend), hashMap.ToHashMap());
-            Assert.Equal(
-                HashMap(
-                    ("biz", Change<int>.Added(7)),
-                    ("baz", Change<int>.Added(9))),
-                state.Changes);
+            Assert.True(
+                HashMap<TString, string, Change<int>>(
+                    ("biz", Change<int>.Added(7)), 
+                    ("baz", Change<int>.Added(9))) == state.Changes);
+            
         }
 
         [Fact]
@@ -507,11 +507,10 @@ namespace LanguageExt.Tests
             Assert.Equal(
                 initialValue.Append(toAppend.ToHashMap()),
                 hashMap.ToHashMap());
-            Assert.Equal(
-                HashMap(
-                    ("biz", Change<int>.Added(7)),
-                    ("baz", Change<int>.Added(9))),
-                state.Changes);
+            Assert.True(
+                HashMap<TString, string, Change<int>>(
+                    ("biz", Change<int>.Added(7)), 
+                    ("baz", Change<int>.Added(9))) == state.Changes);
         }
 
         [Fact]
