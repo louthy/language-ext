@@ -136,6 +136,16 @@ public static class TryOptionExtensionsAsync
         self.ToAsync().IfFail();
 
     /// <summary>
+    /// Invoke a delegate if failed
+    /// </summary>
+    /// <param name="self">The TryOption computation</param>
+    /// <param name="Fail">The delegate to invoke if the TryOption computation fails</param>
+    /// <returns></returns>
+    [Pure]
+    public static Task<Unit> IfFailAsync(this TryOption<Exception> self, Action<Exception> Fail) =>
+        self.ToAsync().IfFail(Fail);
+
+    /// <summary>
     /// Pattern matches the two possible states of the Try computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>

@@ -332,6 +332,16 @@ namespace LanguageExt
             self.IfFail();
 
         /// <summary>
+        /// Invoke a delegate if the TryOptionAsync fails
+        /// </summary>
+        /// <param name="self">TryOptionAsync computation</param>
+        /// <param name="Fail">The delegate to invoke if the TryOption computation fails</param>
+        /// <typeparam name="T">Type of bound value</typeparam>
+        [Pure]
+        public static Task<Unit> ifFail<T>(TryOptionAsync<T> self, Action<Exception> Fail) =>
+            self.IfFail(Fail);
+
+        /// <summary>
         /// Flattens nested TryOptionAsync computations
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>

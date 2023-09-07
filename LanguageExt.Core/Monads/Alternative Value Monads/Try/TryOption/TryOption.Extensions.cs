@@ -227,6 +227,22 @@ public static class TryOptionExtensions
     }
 
     /// <summary>
+    /// Invoke a delegate if the Try fails
+    /// </summary>
+    /// <param name="self">TryOption computation</param>
+    /// <param name="Fail">Delegate to run on failure</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    /// <returns></returns>
+    [Pure]
+    public static Unit IfFail<A>(this TryOption<A> self, Action<Exception> Fail)
+    {
+        var res = TryOptionExtensions.Try(self);
+        if (res.IsFaulted)
+            Fail(res.Exception);
+        return unit;
+    }
+
+    /// <summary>
     /// Pattern matches the two possible states of the Try computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>

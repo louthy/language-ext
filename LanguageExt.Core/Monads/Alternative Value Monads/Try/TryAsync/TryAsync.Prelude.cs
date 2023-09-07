@@ -291,6 +291,32 @@ namespace LanguageExt
         public static ExceptionMatchAsync<T> ifFail<T>(TryAsync<T> self) =>
             self.IfFail();
 
+        ///  <summary>
+        /// Invoke a delegate if the TryAsync computation fails
+        /// </summary>
+        /// <param name="self">The TryAsync computation</param>
+        /// <param name="Fail">The delegate to invoke if the TryAsync computation fails</param>
+        /// <typeparam name="T">Type of bound value</typeparam>
+        [Pure]
+        public static async Task<Unit> ifFail<T>(TryAsync<T> self, Action<Exception> Fail)
+        {
+            if(isnull(self)) throw new ArgumentNullException(nameof(self));
+            if(isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+            try
+            {
+                var res = await self.Try().ConfigureAwait(false);
+                if (res.IsFaulted)
+                    Fail(res.Exception);
+            }
+            catch (Exception e)
+            {
+                TryConfig.ErrorLogger(e);
+                Fail(e);
+            }
+            return unit;
+        }
+
         /// <summary>
         /// Maps the bound value to the resulting exception (if the TryAsync computation fails).  
         /// If the TryAsync computation succeeds then a NotSupportedException is used.

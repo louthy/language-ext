@@ -153,6 +153,16 @@ public static class TryExtensionsAsync
         self.ToAsync().IfFailThrow();
 
     /// <summary>
+    /// Invokes the delegate if the Try computation fails
+    /// </summary>
+    /// <param name="self">The Try computation</param>
+    /// <param name="Fail">The delegate to invoke if the Try computation fails</param>
+    /// <typeparam name="A">Type of bound value</typeparam>
+    [Pure]
+    public static Task<Unit> IfFailAsync<A>(this Try<A> self, Action<Exception> Fail) =>
+        self.ToAsync().IfFail(Fail);
+
+    /// <summary>
     /// Map the bound value from A to Task of B
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
