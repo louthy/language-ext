@@ -16,7 +16,7 @@ namespace LanguageExt.Tests
 
             uriTry.Match(
                 Succ: uri => Assert.NotNull(uri),
-                Fail: ex => Assert.True(false, "should have succeeded")
+                Fail: ex => Assert.Fail("should have succeeded")
             );
         }
 
@@ -26,7 +26,7 @@ namespace LanguageExt.Tests
             var uriTry = CreateUri("rubbish");
 
             uriTry.Match(
-                Succ: uri => Assert.True(false, "should have failed"),
+                Succ: uri => Assert.Fail("should have failed"),
                 Fail: ex => Assert.NotNull(ex)
             );
         }
@@ -50,7 +50,7 @@ namespace LanguageExt.Tests
 
             uriTry.Match(
                 Succ: uri => Assert.NotNull(uri),
-                Fail: ex => Assert.True(false, "should have succeeded")
+                Fail: ex => Assert.Fail("should have succeeded")
             );
             Assert.True(tried, "matching should run the Try");
         }

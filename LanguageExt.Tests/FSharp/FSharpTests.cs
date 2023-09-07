@@ -14,7 +14,7 @@ namespace LanguageExt.Tests.FSharp
         var either = LanguageExt.FSharp.fs(result);
 
         Prelude.match(either,
-            r => Assert.False(true, "Shouldn't get here"),
+            r => Assert.Fail( "Shouldn't get here"),
             l => Assert.True(l == error));
     }
     
@@ -37,7 +37,7 @@ namespace LanguageExt.Tests.FSharp
         
         Prelude.match(either,
             r => Assert.True(r == 123),
-            l => Assert.False(true, "Shouldn't get here"));
+            l => Assert.Fail( "Shouldn't get here"));
     }
     
     [Fact]

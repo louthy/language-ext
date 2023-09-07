@@ -164,7 +164,7 @@ namespace Core.Tests
                 select resource;
 
             await program.Match(
-                Right: r => Assert.True(false, "this should not pass"),
+                Right: r => Assert.Fail("this should not pass"),
                 Left: e => Assert.Equal("pixel not found", e.Value)
             );
         }
@@ -315,9 +315,9 @@ namespace Issues
             var failableTask = fun((Either<string, int> value) =>
                 value.AsTask());
 
-            var result = await from a in failableTask("This will NOT cause a Bottom Exception")
-                               from b in failableTask(3)
-                               select a + b;
+            var result = await (from a in failableTask("This will NOT cause a Bottom Exception")
+                                from b in failableTask(3)
+                                select a + b);
         }
 
     }

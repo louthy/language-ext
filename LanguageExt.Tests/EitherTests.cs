@@ -11,7 +11,7 @@ namespace LanguageExt.Tests
             Either<string, int> either = Right(123);
 
             either.Match( Right: i => Assert.True(i == 123),
-                          Left:  _ => Assert.False(true,"Shouldn't get here") );
+                          Left:  _ => Assert.Fail("Shouldn't get here") );
 
             int c = either.Match( Right: i  => i + 1, 
                                   Left: _ => 0 );
@@ -24,7 +24,7 @@ namespace LanguageExt.Tests
             var either = Right<string, int>(123);
 
             match(either, Right: i => Assert.True(i == 123),
-                          Left:  _ => Assert.False(true,"Shouldn't get here") );
+                          Left:  _ => Assert.Fail("Shouldn't get here") );
 
             int c = match(either, Right: i => i + 1,
                                   Left:  _ => 0 );
@@ -36,7 +36,7 @@ namespace LanguageExt.Tests
         {
             var either = ItsLeft;
 
-            either.Match( Right: r => Assert.False(true,"Shouldn't get here"),
+            either.Match( Right: r => Assert.Fail("Shouldn't get here"),
                           Left:  l => Assert.True(l == "Left") );
 
             int c = either.Match( Right: r => r + 1, 
@@ -49,7 +49,7 @@ namespace LanguageExt.Tests
         {
             var either = ItsLeft;
 
-            match(either, Right: r => Assert.False(true,"Shouldn't get here"),
+            match(either, Right: r => Assert.Fail("Shouldn't get here"),
                           Left:  l => Assert.True(l == "Left") );
 
             int c = match(either, Right: r => r + 1,
@@ -67,7 +67,7 @@ namespace LanguageExt.Tests
             select x + y + z)
            .Match(
              Right: r => Assert.True(r == 12),
-             Left:  l => Assert.False(true,"Shouldn't get here")
+             Left:  l => Assert.Fail("Shouldn't get here")
            );
         }
 
@@ -79,7 +79,7 @@ namespace LanguageExt.Tests
              from z in Six
              select x + y + z)
             .Match(
-              r => Assert.False(true,"Shouldn't get here"),
+              r => Assert.Fail("Shouldn't get here"),
               l => Assert.True(l == "Left")
             );
         }
@@ -142,7 +142,7 @@ namespace LanguageExt.Tests
              from z in Right(5)
              select x + y + z)
             .Match(
-              Right: r => Assert.True(false, "Shouldn't get here"),
+              Right: r => Assert.Fail("Shouldn't get here"),
               Left: l => Assert.True(true)
             );
         }

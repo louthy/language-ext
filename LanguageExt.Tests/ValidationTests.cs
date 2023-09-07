@@ -22,7 +22,7 @@ namespace LanguageExt.Tests
                 .MapFail(ToUpper);
 
             failure.Match(
-                Succ: _ => Assert.True(false, "should never get here"),
+                Succ: _ => Assert.Fail("should never get here"),
                 Fail: errors =>
                 {
                     Assert.True(errors.Count == 1);
@@ -38,7 +38,7 @@ namespace LanguageExt.Tests
 
             success.Match(
                 Succ: succ => Assert.True(succ == 42),
-                Fail: errors => Assert.True(false, "should never get here"));
+                Fail: errors => Assert.Fail("should never get here"));
         }
 
         [Fact]
@@ -51,7 +51,7 @@ namespace LanguageExt.Tests
                 );
 
             failure.Match(
-                Succ: _ => Assert.True(false, "should never get here"),
+                Succ: _ => Assert.Fail("should never get here"),
                 Fail: errors =>
                 {
                     Assert.True(errors.Count == 1);
@@ -70,7 +70,7 @@ namespace LanguageExt.Tests
 
             success.Match(
                 Succ: succ => Assert.True(succ == 43),
-                Fail: err => Assert.True(false, "should never get here"));
+                Fail: err => Assert.Fail("should never get here"));
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace LanguageExt.Tests
                 .MapFail<MSeq<string>, Seq<string>>(f => f.Map(ToUpper));
 
             failure.Match(
-                Succ: _ => Assert.True(false, "should never get here"),
+                Succ: _ => Assert.Fail("should never get here"),
                 Fail: errors =>
                 {
                     Assert.True(errors.Count == 1);
@@ -96,7 +96,7 @@ namespace LanguageExt.Tests
 
             success.Match(
                 Succ: succ => Assert.True(succ == 42),
-                Fail: errors => Assert.True(false, "should never get here"));
+                Fail: errors => Assert.Fail("should never get here"));
         }
 
         [Fact]
@@ -109,7 +109,7 @@ namespace LanguageExt.Tests
                 );
 
             failure.Match(
-                Succ: _ => Assert.True(false, "should never get here"),
+                Succ: _ => Assert.Fail("should never get here"),
                 Fail: errors =>
                 {
                     Assert.True(errors.Count == 1);
@@ -128,7 +128,7 @@ namespace LanguageExt.Tests
 
             success.Match(
                 Succ: succ => Assert.True(succ == 43),
-                Fail: err => Assert.True(false, "should never get here"));
+                Fail: err => Assert.Fail("should never get here"));
         }
 
         [Fact]
@@ -145,7 +145,7 @@ namespace LanguageExt.Tests
                     Assert.True(cc.Year == 2020);
                     Assert.True(cc.Number == "1234567891012345");
                 },
-                Fail: err => Assert.True(false, "should never get here"));
+                Fail: err => Assert.Fail("should never get here"));
         }
 
         [Fact]
@@ -155,7 +155,7 @@ namespace LanguageExt.Tests
             Assert.True(res.IsFail);
 
             res.Match(
-                Succ: _ => Assert.True(false, "should never get here"),
+                Succ: _ => Assert.Fail("should never get here"),
                 Fail: errors =>
                 {
                     Assert.True(errors.Count == 2);
@@ -171,7 +171,7 @@ namespace LanguageExt.Tests
             Assert.True(res.IsFail);
 
             res.Match(
-                Succ: _ => Assert.True(false, "should never get here"),
+                Succ: _ => Assert.Fail("should never get here"),
                 Fail: errors =>
                 {
                     Assert.True(errors.Count == 3);

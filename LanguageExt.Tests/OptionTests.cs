@@ -14,7 +14,7 @@ namespace LanguageExt.Tests
             var optional = Some(123);
 
             optional.Match(Some: i => Assert.True(i == 123),
-                           None: () => Assert.False(true,"Shouldn't get here"));
+                           None: () => Assert.Fail("Shouldn't get here"));
 
             int c = optional.Match(Some: i => i + 1,
                                    None: () => 0);
@@ -28,7 +28,7 @@ namespace LanguageExt.Tests
             var optional = Some(123);
 
             match(optional, Some: i => Assert.True(i == 123),
-                            None: () => Assert.False(true,"Shouldn't get here"));
+                            None: () => Assert.Fail("Shouldn't get here"));
 
             int c = match(optional, Some: i => i + 1,
                                     None: () => 0);
@@ -41,7 +41,7 @@ namespace LanguageExt.Tests
         {
             Option<int> optional = None;
 
-            optional.Match(Some: i => Assert.False(true,"Shouldn't get here"),
+            optional.Match(Some: i => Assert.Fail("Shouldn't get here"),
                            None: () => Assert.True(true));
 
             int c = optional.Match(Some: i => i + 1,
@@ -55,7 +55,7 @@ namespace LanguageExt.Tests
         {
             Option<int> optional = None;
 
-            match(optional, Some: i => Assert.False(true,"Shouldn't get here"),
+            match(optional, Some: i => Assert.Fail("Shouldn't get here"),
                             None: () => Assert.True(true));
 
             int c = match(optional, Some: i => i + 1,
