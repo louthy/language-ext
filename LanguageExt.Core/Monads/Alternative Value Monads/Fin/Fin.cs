@@ -21,7 +21,7 @@ namespace LanguageExt
         IComparable<Fin<A>>, 
         IComparable, 
         IEquatable<Fin<A>>,
-        IEnumerable<A>,
+        IEnumerable<EitherData<Error, A>>,
         ISerializable
     {
         internal readonly Error error;
@@ -383,14 +383,18 @@ namespace LanguageExt
         public bool Equals(Fin<A> other) =>
             (IsSucc && other.IsSucc && default(EqDefault<A>).Equals(value, other.value)) || (IsSucc == false && other.IsSucc == false);
 
-        [Pure, MethodImpl(Opt.Default)]
-        public IEnumerator<A> GetEnumerator()
+        IEnumerable<EitherData<Error, A>> EitherEnum()
         {
-            if (IsSucc)
-            {
-                yield return Value;
-            }
+            yield return new EitherData<Error, A>(IsSucc ? EitherStatus.IsRight : EitherStatus.IsLeft, value, error);
         }
+
+        [Pure, MethodImpl(Opt.Default)]
+        public IEnumerator<EitherData<Error, A>> GetEnumerator() =>
+            EitherEnum().GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+            EitherEnum().GetEnumerator();
+    
 
         [Pure, MethodImpl(Opt.Default)]
         public override string ToString() =>
@@ -425,9 +429,6 @@ namespace LanguageExt
                 error = (Error)info.GetValue("Fail", typeof(Error));
             }
         }
-
-        IEnumerator IEnumerable.GetEnumerator() =>
-            GetEnumerator();
 
         [Pure, MethodImpl(Opt.Default)]
         public int CompareTo(object obj) =>
