@@ -167,5 +167,67 @@ namespace LanguageExt
         /// </summary>
         public static CatchValue<A> @catch<A>(A Fail) =>
             matchError(static _ => true, e => Fail);
+        
+        /// <summary>
+        /// Catch errors
+        /// </summary>
+        public static CatchValue<A> @catchOf<E, A>(Func<E, A> Fail) where E : Error =>
+            matchError(static e => e is E, e => Fail((E)e));
+        
+        /// <summary>
+        /// Catch errors
+        /// </summary>
+        public static CatchError @catchOf<E>(Func<E, Error> Fail) where E : Error =>
+            matchError(static e => e is E, e => Fail((E)e));
+
+        /// <summary>
+        /// Catch expected errors
+        /// </summary>
+        public static CatchValue<A> @expected<A>(Func<Expected, A> Fail) =>
+            @catchOf(Fail);
+
+        /// <summary>
+        /// Catch expected errors
+        /// </summary>
+        public static CatchError @expected(Func<Expected, Error> Fail)=>
+            @catchOf(Fail);
+
+        /// <summary>
+        /// Catch expected errors
+        /// </summary>
+        public static CatchValue<A> @expectedOf<E, A>(Func<E, A> Fail) where E : Expected =>
+            @catchOf(Fail);
+
+        /// <summary>
+        /// Catch expected errors
+        /// </summary>
+        public static CatchError @expectedOf<E>(Func<E, Error> Fail)
+            where E : Expected =>
+            @catchOf(Fail);
+
+        /// <summary>
+        /// Catch exceptional errors
+        /// </summary>
+        public static CatchValue<A> @exceptional<A>(Func<Exceptional, A> Fail) =>
+            @catchOf(Fail);
+
+        /// <summary>
+        /// Catch exceptional errors
+        /// </summary>
+        public static CatchError @exceptional(Func<Exceptional, Error> Fail) =>
+            @catchOf(Fail);
+
+        /// <summary>
+        /// Catch exceptional errors
+        /// </summary>
+        public static CatchValue<A> @exceptionalOf<E, A>(Func<E, A> Fail) where E : Exceptional =>
+            @catchOf(Fail);
+            
+        /// <summary>
+        /// Catch exceptional errors
+        /// </summary>
+        public static CatchError @exceptionalOf<E>(Func<E, Error> Fail)
+            where E : Exceptional  =>
+            @catchOf(Fail);        
     }
 }

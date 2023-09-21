@@ -49,6 +49,31 @@ public static class Ext
         Producer.merge(qs.Map(q => q.ToProducer<RT, A>()).ToSeq());
 }
 
+public static class YourPrelude
+{
+    public static Aff<A> OptionalAff<A>(this Func<Task<A?>> task) =>
+        OptionalAff(task, Errors.None);
+    
+    public static Aff<A> OptionalAff<A>(this Func<Task<A?>> task, Error fail) =>
+        AffMaybe(async () => 
+            await task() switch
+            {
+                null => fail,
+                var x => FinSucc(x)
+            });
+    
+    public static Aff<A> OptionalAff<A>(this Func<ValueTask<A?>> task) =>
+        OptionalAff(task, Errors.None);
+    
+    public static Aff<A> OptionalAff<A>(this Func<ValueTask<A?>> task, Error fail) =>
+        AffMaybe(async () => 
+            await task() switch
+            {
+                null => fail,
+                var x => FinSucc(x)
+            });
+}
+
 public class Program
 {
     static void Main(string[] args)

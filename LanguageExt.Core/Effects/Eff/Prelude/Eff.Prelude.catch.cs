@@ -151,5 +151,73 @@ namespace LanguageExt
         /// </summary>
         public static EffCatch<A> @catch<A>(Func<Error, Eff<A>> Fail) =>
             matchError(static _ => true, Fail);    
+        
+        /// <summary>
+        /// Catch errors
+        /// </summary>
+        public static EffCatch<A> @catchOf<E, A>(Func<E, Eff<A>> Fail) where E : Error =>
+            matchError(static e => e is E, e => Fail((E)e));
+
+        /// <summary>
+        /// Catch errors
+        /// </summary>
+        public static EffCatch<RT, A> @catchOf<RT, E, A>(Func<E, Eff<RT, A>> Fail)
+            where RT : struct
+            where E : Error =>
+            matchError(static e => e is E, e => Fail((E)e));
+
+        /// <summary>
+        /// Catch expected errors
+        /// </summary>
+        public static EffCatch<A> @expected<A>(Func<Expected, Eff<A>> Fail) =>
+            @catchOf(Fail);
+
+        /// <summary>
+        /// Catch expected errors
+        /// </summary>
+        public static EffCatch<RT, A> @expected<RT, A>(Func<Expected, Eff<RT, A>> Fail) 
+            where RT : struct =>
+            @catchOf(Fail);
+
+        /// <summary>
+        /// Catch expected errors
+        /// </summary>
+        public static EffCatch<A> @expectedOf<E, A>(Func<E, Eff<A>> Fail) where E : Expected =>
+            @catchOf(Fail);
+
+        /// <summary>
+        /// Catch expected errors
+        /// </summary>
+        public static EffCatch<RT, A> @expectedOf<RT, E, A>(Func<E, Eff<RT, A>> Fail)
+            where RT : struct
+            where E : Expected =>
+            @catchOf(Fail);
+
+        /// <summary>
+        /// Catch exceptional errors
+        /// </summary>
+        public static EffCatch<A> @exceptional<A>(Func<Exceptional, Eff<A>> Fail) =>
+            @catchOf(Fail);
+
+        /// <summary>
+        /// Catch exceptional errors
+        /// </summary>
+        public static EffCatch<RT, A> @exceptional<RT, A>(Func<Exceptional, Eff<RT, A>> Fail) 
+            where RT : struct =>
+            @catchOf(Fail);
+
+        /// <summary>
+        /// Catch exceptional errors
+        /// </summary>
+        public static EffCatch<A> @exceptionalOf<E, A>(Func<E, Eff<A>> Fail) where E : Exceptional =>
+            @catchOf(Fail);
+            
+        /// <summary>
+        /// Catch exceptional errors
+        /// </summary>
+        public static EffCatch<RT, A> @exceptionalOf<RT, E, A>(Func<E, Eff<RT, A>> Fail)
+            where RT : struct
+            where E : Exceptional  =>
+            @catchOf(Fail);
     }
 }
