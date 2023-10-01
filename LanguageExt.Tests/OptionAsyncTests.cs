@@ -300,6 +300,14 @@ namespace LanguageExt.Tests
             Assert.True(result);
         }
 
+        [Fact]
+        public async Task AwaitSomeCaseTest()
+            => Assert.Equal(Some(10), await OptionAsync<int>.Some(10));
+
+        [Fact]
+        public async Task AwaitNoneCaseTest()
+            => Assert.Equal(None, await OptionAsync<int>.None);
+
         // Not valuable any more 
         //[Fact]
         //public async void SequenceFlip()
