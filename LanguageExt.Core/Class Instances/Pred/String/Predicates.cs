@@ -17,7 +17,7 @@ namespace LanguageExt.ClassInstances.Pred
     }
 
     public struct Matches<PATTERN> : Pred<string>
-    where PATTERN : Const<string>
+    where PATTERN : struct, Const<string>
     {
         public static readonly Matches<PATTERN> Is = default;
 
