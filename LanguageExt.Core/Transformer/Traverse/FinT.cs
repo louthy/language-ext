@@ -145,7 +145,7 @@ namespace LanguageExt
                 res[ix] = f(xs.Value);
                 ix++;
             }
-            return Fin<Seq<B>>.Succ(Seq.FromArray<B>(res));                
+            return Fin<Seq<B>>.Succ(Seq.FromArray(res));                
         }
                 
         public static Fin<IEnumerable<B>> Traverse<A, B>(this IEnumerable<Fin<A>> ma, Func<A, B> f)
@@ -156,7 +156,7 @@ namespace LanguageExt
                 if (xs.IsFail) return xs.Cast<IEnumerable<B>>();
                 res.Add(f(xs.Value));
             }
-            return Fin<IEnumerable<B>>.Succ(Seq.FromArray<B>(res.ToArray()));                
+            return Fin<IEnumerable<B>>.Succ(res);                
         }
         
         public static Fin<Set<B>> Traverse<A, B>(this Set<Fin<A>> ma, Func<A, B> f)
