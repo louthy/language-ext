@@ -3,7 +3,7 @@
     <PropertyGroup>
         <LangVersion>default</LangVersion>
 
-        <PackageVersion>4.4.6</PackageVersion>
+        <PackageVersion>4.4.7</PackageVersion>
         <PackageId>LanguageExt.SysX</PackageId>
         <Title>LanguageExt.SysX</Title>
         <Authors>Paul Louth</Authors>
