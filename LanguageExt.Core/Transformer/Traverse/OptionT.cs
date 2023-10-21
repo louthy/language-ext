@@ -193,7 +193,7 @@ namespace LanguageExt
                 res.Add(f(xs.Value));
                 #nullable enable
             }
-            return Option<IEnumerable<B>>.Some(Seq.FromArray<B>(res.ToArray()));                
+            return Option<IEnumerable<B>>.Some(res);                
         }
         
         public static Option<Set<B>> Traverse<A, B>(this Set<Option<A>> ma, Func<A, B> f)

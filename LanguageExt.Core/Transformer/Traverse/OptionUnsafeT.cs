@@ -169,7 +169,7 @@ namespace LanguageExt
                 if (xs.IsNone) return None;
                 res.Add(f(xs.Value));
             }
-            return OptionUnsafe<IEnumerable<B>>.Some(Seq.FromArray<B>(res.ToArray()));                
+            return OptionUnsafe<IEnumerable<B>>.Some(res);                
         }
         
         public static OptionUnsafe<Set<B>> Traverse<A, B>(this Set<OptionUnsafe<A>> ma, Func<A, B> f)

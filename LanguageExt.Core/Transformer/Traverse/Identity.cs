@@ -105,7 +105,7 @@ namespace LanguageExt
             {
                 res.Add(f(xs.Value));
             }
-            return new Identity<IEnumerable<B>>(Seq.FromArray(res.ToArray()));            
+            return new Identity<IEnumerable<B>>(res);            
         }
         
         public static Identity<Set<B>> Traverse<A, B>(this Set<Identity<A>> ma, Func<A, B> f)
