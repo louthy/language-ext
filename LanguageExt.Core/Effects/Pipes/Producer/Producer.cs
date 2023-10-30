@@ -338,8 +338,8 @@ namespace LanguageExt.Pipes
             
             async IAsyncEnumerable<Fin<OUT>> go(RT env)
             {
-                var queue   = new ConcurrentQueue<OUT>();
-                var wait    = new AutoResetEvent(true);
+                var queue = new ConcurrentQueue<OUT>();
+                using var wait = new AutoResetEvent(true);
                 var running = true;
                 Error failed = null;
                 

@@ -110,7 +110,8 @@ namespace LanguageExt.Pipes
                             return await me.Next(default).RunEffect(disps).Run(env).ConfigureAwait(false);
 
                         case EnumerateDataType.Observable:
-                            var wait = new AutoResetEvent(false);
+                        {
+                            using var wait = new AutoResetEvent(false);
                             var lastTask = unit.AsValueTask();
                             Fin<Unit> last = Errors.Cancelled;
 
@@ -128,6 +129,7 @@ namespace LanguageExt.Pipes
                                 await lastTask.ConfigureAwait(false);
                                 return await me.Next(default).RunEffect(disps).Run(env).ConfigureAwait(false);
                             }
+                        }
 
                         default:
                             throw new NotSupportedException();
@@ -185,7 +187,8 @@ namespace LanguageExt.Pipes
                                         break;
 
                                     case EnumerateDataType.Observable:
-                                        var wait = new AutoResetEvent(false);
+                                    {
+                                        using var wait = new AutoResetEvent(false);
                                         var lastTask = unit.AsValueTask();
                                         Fin<Unit> last = Errors.Cancelled;
 
@@ -204,6 +207,7 @@ namespace LanguageExt.Pipes
                                             p = me.Next(default);
                                             break;
                                         }
+                                    }
 
                                     default:
                                         throw new NotSupportedException();
