@@ -23,7 +23,7 @@ namespace LanguageExt
                 async () =>
                 {
                     A   nextValue = default;
-                    var wait      = new AutoResetEvent(false);
+                    using var wait = new AutoResetEvent(false);
 
                     using var disp = ma.Subscribe(
                         (A x) =>
@@ -56,8 +56,8 @@ namespace LanguageExt
             AffMaybe<RT, Unit>(
                 async env =>
                 {
-                    A   nextValue = default;
-                    var wait      = new AutoResetEvent(false);
+                    A nextValue = default;
+                    using var wait = new AutoResetEvent(false);
 
                     using var disp = ma.Subscribe(
                         (A x) =>
@@ -92,8 +92,8 @@ namespace LanguageExt
             AffMaybe<S>(
                 async () =>
                 {
-                    A   nextValue = default;
-                    var wait      = new AutoResetEvent(false);
+                    A nextValue = default;
+                    using var wait = new AutoResetEvent(false);
 
                     using var disp = ma.Subscribe(
                         (A x) =>
@@ -129,8 +129,8 @@ namespace LanguageExt
             AffMaybe<RT, S>(
                 async env =>
                 {
-                    A   nextValue = default;
-                    var wait      = new AutoResetEvent(false);
+                    A nextValue = default;
+                    using var wait = new AutoResetEvent(false);
 
                     using var disp = ma.Subscribe(
                         (A x) =>

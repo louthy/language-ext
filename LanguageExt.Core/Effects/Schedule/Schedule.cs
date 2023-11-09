@@ -253,7 +253,7 @@ public abstract partial record Schedule
             if (!pred(results.EffectResult))
                 return FinalResult(results.EffectResult, results.State);
 
-            var wait = new AutoResetEvent(false);
+            using var wait = new AutoResetEvent(false);
             using var enumerator = durations.GetEnumerator();
             while (enumerator.MoveNext() && pred(results.EffectResult))
             {
@@ -289,7 +289,7 @@ public abstract partial record Schedule
             if (!pred(results.EffectResult))
                 return FinalResult(results.EffectResult, results.State);
 
-            var wait = new AutoResetEvent(false);
+            using var wait = new AutoResetEvent(false);
             using var enumerator = durations.GetEnumerator();
             while (enumerator.MoveNext() && pred(results.EffectResult))
             {
