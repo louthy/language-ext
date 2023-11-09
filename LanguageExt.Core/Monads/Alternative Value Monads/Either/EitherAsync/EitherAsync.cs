@@ -1418,28 +1418,6 @@ namespace LanguageExt
         /// <typeparam name="LRet">Left return</typeparam>
         /// <typeparam name="RRet">Right return</typeparam>
         /// <param name="self">Either to map</param>
-        /// <param name="Right">Right map function</param>
-        /// <param name="Left">Left map function</param>
-        /// <returns>Mapped Either</returns>
-        [Pure]
-        public EitherAsync<L, Ret> BiMap<Ret>(Func<R, Ret> Right, Func<L, Ret> Left)
-        {
-            async Task<Ret> Do(EitherAsync<L, R> self, Func<R, Ret> right, Func<L, Ret> left) =>
-                (await self.IsRight.ConfigureAwait(false))
-                    ? right(await self.RightValue().ConfigureAwait(false))
-                    : left(await self.LeftValue().ConfigureAwait(false));
-
-            return EitherAsync<L, Ret>.RightAsync(Do(this, Right, Left));
-        }
-
-        /// <summary>
-        /// Bi-maps the value in the Either into a Right state
-        /// </summary>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <typeparam name="LRet">Left return</typeparam>
-        /// <typeparam name="RRet">Right return</typeparam>
-        /// <param name="self">Either to map</param>
         /// <param name="RightAsync">Right map function</param>
         /// <param name="Left">Left map function</param>
         /// <returns>Mapped Either</returns>
@@ -1474,28 +1452,6 @@ namespace LanguageExt
                     : await left(await self.LeftValue().ConfigureAwait(false));
 
             return EitherAsync<L, Ret>.RightAsync(Do(this, Right, LeftAsync));
-        }
-
-        /// <summary>
-        /// Bi-maps the value in the Either into a Right state
-        /// </summary>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <typeparam name="LRet">Left return</typeparam>
-        /// <typeparam name="RRet">Right return</typeparam>
-        /// <param name="self">Either to map</param>
-        /// <param name="RightAsync">Right map function</param>
-        /// <param name="LeftAsync">Left map function</param>
-        /// <returns>Mapped Either</returns>
-        [Pure]
-        public EitherAsync<L, Ret> BiMapAsync<Ret>(Func<R, Task<Ret>> RightAsync, Func<L, Task<Ret>> LeftAsync)
-        {
-            async Task<Ret> Do(EitherAsync<L, R> self, Func<R, Task<Ret>> right, Func<L, Task<Ret>> left) =>
-                (await self.IsRight.ConfigureAwait(false))
-                    ? await right(await self.RightValue().ConfigureAwait(false)).ConfigureAwait(false)
-                    : await left(await self.LeftValue().ConfigureAwait(false)).ConfigureAwait(false);
-
-            return EitherAsync<L, Ret>.RightAsync(Do(this, RightAsync, LeftAsync));
         }
 
         /// <summary>

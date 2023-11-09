@@ -9,26 +9,9 @@ namespace LanguageExt.ClassInstances
 {
     public struct ApplTryAsync<A, B> : 
         FunctorAsync<TryAsync<A>, TryAsync<B>, A, B>,
-        BiFunctorAsync<TryAsync<A>, TryAsync<B>, A, Unit, B>,
         ApplicativeAsync<TryAsync<Func<A, B>>, TryAsync<A>, TryAsync<B>, A, B>
     {
         public static readonly ApplTryAsync<A, B> Inst = default(ApplTryAsync<A, B>);
-
-        [Pure]
-        public TryAsync<B> BiMapAsync(TryAsync<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
-            default(FTryAsync<A, B>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public TryAsync<B> BiMapAsync(TryAsync<A> ma, Func<A, B> fa, Func<Unit, Task<B>> fb) =>
-            default(FTryAsync<A, B>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public TryAsync<B> BiMapAsync(TryAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, B> fb) =>
-            default(FTryAsync<A, B>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public TryAsync<B> BiMapAsync(TryAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, Task<B>> fb) =>
-            default(FTryAsync<A, B>).BiMapAsync(ma, fa, fb);
 
         [Pure]
         public TryAsync<B> Map(TryAsync<A> ma, Func<A, B> f) =>
@@ -145,35 +128,10 @@ namespace LanguageExt.ClassInstances
 
     public struct ApplTryAsync<A> :
         FunctorAsync<TryAsync<A>, TryAsync<A>, A, A>,
-        BiFunctorAsync<TryAsync<A>, TryAsync<A>, A, Unit, A>,
         ApplicativeAsync<TryAsync<Func<A, A>>, TryAsync<A>, TryAsync<A>, A, A>,
         ApplicativeAsync<TryAsync<Func<A, Func<A, A>>>, TryAsync<Func<A, A>>, TryAsync<A>, TryAsync<A>, TryAsync<A>, A, A, A>
     {
         public static readonly ApplTryAsync<A> Inst = default(ApplTryAsync<A>);
-
-        [Pure]
-        public TryAsync<A> BiMapAsync(TryAsync<A> ma, Func<A, A> fa, Func<Unit, A> fb) => () =>
-            ma.Match(
-                Succ: a => new Result<A>(fa(a)),
-                Fail: _ => new Result<A>(fb(unit)));
-
-        [Pure]
-        public TryAsync<A> BiMapAsync(TryAsync<A> ma, Func<A, Task<A>> fa, Func<Unit, A> fb) => () =>
-            ma.Match(
-                Succ: async a => new Result<A>(await fa(a).ConfigureAwait(false)),
-                Fail: _ => new Result<A>(fb(unit)));
-
-        [Pure]
-        public TryAsync<A> BiMapAsync(TryAsync<A> ma, Func<A, A> fa, Func<Unit, Task<A>> fb) => () =>
-            ma.Match(
-                Succ: a => new Result<A>(fa(a)),
-                Fail: async _ => new Result<A>(await fb(unit).ConfigureAwait(false)));
-
-        [Pure]
-        public TryAsync<A> BiMapAsync(TryAsync<A> ma, Func<A, Task<A>> fa, Func<Unit, Task<A>> fb) => () =>
-            ma.Match(
-                Succ: async a => new Result<A>(await fa(a).ConfigureAwait(false)),
-                Fail: async _ => new Result<A>(await fb(unit).ConfigureAwait(false)));
 
         [Pure]
         public TryAsync<A> Map(TryAsync<A> ma, Func<A, A> f) => () =>

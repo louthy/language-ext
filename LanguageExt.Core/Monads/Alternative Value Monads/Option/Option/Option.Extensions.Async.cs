@@ -684,8 +684,8 @@ public static partial class OptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Option<A> self, Func<A, B> Some, Func<Unit, B> None) =>
-        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, None);
-
+        self.BiMap(Some, None).ToAsync();
+        
     /// <summary>
     /// Projection from one value to another
     /// </summary>
@@ -695,7 +695,7 @@ public static partial class OptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Option<A> self, Func<A, B> Some, Func<B> None) =>
-        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, _ => None());
+        self.BiMap(Some, None).ToAsync();
 
     /// <summary>
     /// <para>

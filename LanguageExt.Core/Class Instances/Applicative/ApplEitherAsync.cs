@@ -7,7 +7,6 @@ namespace LanguageExt.ClassInstances
 {
     public struct ApplEitherAsync<L, A, B> :
         FunctorAsync<EitherAsync<L, A>, EitherAsync<L, B>, A, B>,
-        BiFunctorAsync<EitherAsync<L, A>, EitherAsync<L, B>, L, A, B>,
         ApplicativeAsync<EitherAsync<L, Func<A, B>>, EitherAsync<L, A>, EitherAsync<L, B>, A, B>
     {
         public static ApplEitherAsync<L, A, B> Inst = default(ApplEitherAsync<L, A, B>);
@@ -23,22 +22,6 @@ namespace LanguageExt.ClassInstances
             from f in fab
             from a in fa
             select f(a);
-
-        [Pure]
-        public EitherAsync<L, B> BiMapAsync(EitherAsync<L, A> ma, Func<L, B> fa, Func<A, B> fb) =>
-            default(FEitherAsync<L, A, B>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public EitherAsync<L, B> BiMapAsync(EitherAsync<L, A> ma, Func<L, Task<B>> fa, Func<A, B> fb) =>
-            default(FEitherAsync<L, A, B>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public EitherAsync<L, B> BiMapAsync(EitherAsync<L, A> ma, Func<L, B> fa, Func<A, Task<B>> fb) =>
-            default(FEitherAsync<L, A, B>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public EitherAsync<L, B> BiMapAsync(EitherAsync<L, A> ma, Func<L, Task<B>> fa, Func<A, Task<B>> fb) =>
-            default(FEitherAsync<L, A, B>).BiMapAsync(ma, fa, fb);
 
         [Pure]
         public EitherAsync<L, B> Map(EitherAsync<L, A> ma, Func<A, B> f) =>

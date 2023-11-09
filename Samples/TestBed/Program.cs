@@ -78,6 +78,19 @@ public class Program
 {
     static void Main(string[] args)
     {
+        var ox = SomeAsync(100);
+        var r1 = ox.BiMap(
+                       Some: x => OptionAsync<int>.None,
+                       None: () => OptionAsync<int>.Some(200))
+                   .Flatten();
+
+        var ex = RightAsync<string, int>(100);
+        var r2 = ex.BiMap(
+                       Right: r => LeftAsync<string, int>("go left"), 
+                       Left:  l => RightAsync<string, int>(200))
+                   .Flatten();
+
+ 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         //                                                                                                    //
         //                                                                                                    //

@@ -22,6 +22,15 @@ public static class EitherAsyncExtensions
         ma.Bind(identity);
 
     /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static EitherAsync<L, R> Flatten<L, R>(this EitherAsync<EitherAsync<L, R>, EitherAsync<L, R>> ma) =>
+        ma.Match(l => l.ToEither(), r => r.ToEither())
+          .Flatten()
+          .ToAsync();
+
+    /// <summary>
     /// Add the bound values of x and y, uses an Add type-class to provide the add
     /// operation for type A.  For example x.Add<TInteger,int>(y)
     /// </summary>

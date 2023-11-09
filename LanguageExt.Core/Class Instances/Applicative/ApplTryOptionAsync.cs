@@ -9,26 +9,9 @@ namespace LanguageExt.ClassInstances
 {
     public struct ApplTryOptionAsync<A, B> : 
         FunctorAsync<TryOptionAsync<A>, TryOptionAsync<B>, A, B>,
-        BiFunctorAsync<TryOptionAsync<A>, TryOptionAsync<B>, A, Unit, B>,
         ApplicativeAsync<TryOptionAsync<Func<A, B>>, TryOptionAsync<A>, TryOptionAsync<B>, A, B>
     {
         public static readonly ApplTryOptionAsync<A, B> Inst = default(ApplTryOptionAsync<A, B>);
-
-        [Pure]
-        public TryOptionAsync<B> BiMapAsync(TryOptionAsync<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
-            default(FTryOptionAsync<A, B>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public TryOptionAsync<B> BiMapAsync(TryOptionAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, B> fb) =>
-            default(FTryOptionAsync<A, B>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public TryOptionAsync<B> BiMapAsync(TryOptionAsync<A> ma, Func<A, B> fa, Func<Unit, Task<B>> fb) =>
-            default(FTryOptionAsync<A, B>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public TryOptionAsync<B> BiMapAsync(TryOptionAsync<A> ma, Func<A, Task<B>> fa, Func<Unit, Task<B>> fb) =>
-            default(FTryOptionAsync<A, B>).BiMapAsync(ma, fa, fb);
 
         [Pure]
         public TryOptionAsync<B> Map(TryOptionAsync<A> ma, Func<A, B> f) =>
@@ -240,27 +223,10 @@ namespace LanguageExt.ClassInstances
 
     public struct ApplTryOptionAsync<A> :
         FunctorAsync<TryOptionAsync<A>, TryOptionAsync<A>, A, A>,
-        BiFunctorAsync<TryOptionAsync<A>, TryOptionAsync<A>, A, Unit, A>,
         ApplicativeAsync<TryOptionAsync<Func<A, A>>, TryOptionAsync<A>, TryOptionAsync<A>, A, A>,
         ApplicativeAsync<TryOptionAsync<Func<A, Func<A, A>>>, TryOptionAsync<Func<A, A>>, TryOptionAsync<A>, TryOptionAsync<A>, TryOptionAsync<A>, A, A, A>
     {
         public static readonly ApplTryOptionAsync<A> Inst = default(ApplTryOptionAsync<A>);
-
-        [Pure]
-        public TryOptionAsync<A> BiMapAsync(TryOptionAsync<A> ma, Func<A, A> fa, Func<Unit, A> fb) =>
-            default(FTryOptionAsync<A, A>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public TryOptionAsync<A> BiMapAsync(TryOptionAsync<A> ma, Func<A, Task<A>> fa, Func<Unit, A> fb) =>
-            default(FTryOptionAsync<A, A>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public TryOptionAsync<A> BiMapAsync(TryOptionAsync<A> ma, Func<A, A> fa, Func<Unit, Task<A>> fb) =>
-            default(FTryOptionAsync<A, A>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public TryOptionAsync<A> BiMapAsync(TryOptionAsync<A> ma, Func<A, Task<A>> fa, Func<Unit, Task<A>> fb) =>
-            default(FTryOptionAsync<A, A>).BiMapAsync(ma, fa, fb);
 
         [Pure]
         public TryOptionAsync<A> Map(TryOptionAsync<A> ma, Func<A, A> f) =>

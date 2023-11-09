@@ -723,7 +723,7 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<Unit, B> None) =>
-        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, None);
+        self.Map(o => o.BiMap(Some, None)).ToAsync();
 
     /// <summary>
     /// Projection from one value to another
@@ -734,7 +734,10 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, Task<B>> Some, Func<Unit, B> None) =>
-        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, None);
+        self.Map(o => o.BiMap(Some, () => None(default).AsTask()))
+            .Map(tt => tt.Sequence())
+            .Flatten()
+            .ToAsync();
 
     /// <summary>
     /// Projection from one value to another
@@ -745,7 +748,10 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, Task<B>> Some, Func<Unit, Task<B>> None) =>
-        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, None);
+        self.Map(o => o.BiMap(Some, None))
+            .Map(tt => tt.Sequence())
+            .Flatten()
+            .ToAsync();
 
     /// <summary>
     /// Projection from one value to another
@@ -756,7 +762,10 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<Unit, Task<B>> None) =>
-        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, None);
+        self.Map(o => o.BiMap(x => Some(x).AsTask(), None))
+            .Map(tt => tt.Sequence())
+            .Flatten()
+            .ToAsync();
 
     /// <summary>
     /// Projection from one value to another
@@ -767,7 +776,8 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<B> None) =>
-        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, _ => None());
+        self.Map(o => o.BiMap(Some, None))
+            .ToAsync();
 
     /// <summary>
     /// Projection from one value to another
@@ -778,7 +788,10 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, Task<B>> Some, Func<B> None) =>
-        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, _ => None());
+        self.Map(o => o.BiMap(Some, () => None().AsTask()))
+            .Map(tt => tt.Sequence())
+            .Flatten()
+            .ToAsync();
 
     /// <summary>
     /// Projection from one value to another
@@ -789,7 +802,10 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, Task<B>> Some, Func<Task<B>> None) =>
-        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, async _ => await None().ConfigureAwait(false));
+        self.Map(o => o.BiMap(Some, None))
+            .Map(tt => tt.Sequence())
+            .Flatten()
+            .ToAsync();
 
     /// <summary>
     /// Projection from one value to another
@@ -800,7 +816,10 @@ public static class TaskOptionAsyncExtensions
     /// <returns>Mapped functor</returns>
     [Pure]
     public static OptionAsync<B> BiMapAsync<A, B>(this Task<Option<A>> self, Func<A, B> Some, Func<Task<B>> None) =>
-        default(FOptionAsync<A, B>).BiMapAsync(self.ToAsync(), Some, async _ => await None().ConfigureAwait(false));
+        self.Map(o => o.BiMap(x => Some(x).AsTask(), None))
+            .Map(tt => tt.Sequence())
+            .Flatten()
+            .ToAsync();
 
     /// <summary>
     /// <para>

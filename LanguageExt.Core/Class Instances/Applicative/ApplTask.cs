@@ -8,26 +8,9 @@ namespace LanguageExt.ClassInstances
 {
     public struct ApplTask<A, B> : 
         FunctorAsync<Task<A>, Task<B>, A, B>,
-        BiFunctorAsync<Task<A>, Task<B>, A, Unit, B>,
         ApplicativeAsync<Task<Func<A, B>>, Task<A>, Task<B>, A, B>
     {
         public static readonly ApplTask<A, B> Inst = default(ApplTask<A, B>);
-
-        [Pure]
-        public Task<B> BiMapAsync(Task<A> ma, Func<A, B> fa, Func<Unit, B> fb) =>
-            FTask<A, B>.Inst.BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public Task<B> BiMapAsync(Task<A> ma, Func<A, Task<B>> fa, Func<Unit, B> fb) =>
-            FTask<A, B>.Inst.BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public Task<B> BiMapAsync(Task<A> ma, Func<A, B> fa, Func<Unit, Task<B>> fb) =>
-            FTask<A, B>.Inst.BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public Task<B> BiMapAsync(Task<A> ma, Func<A, Task<B>> fa, Func<Unit, Task<B>> fb) =>
-            FTask<A, B>.Inst.BiMapAsync(ma, fa, fb);
 
         [Pure]
         public Task<B> Map(Task<A> ma, Func<A, B> f) =>
@@ -97,27 +80,10 @@ namespace LanguageExt.ClassInstances
 
     public struct ApplTask<A> :
         FunctorAsync<Task<A>, Task<A>, A, A>,
-        BiFunctorAsync<Task<A>, Task<A>, A, Unit, A>,
         ApplicativeAsync<Task<Func<A, A>>, Task<A>, Task<A>, A, A>,
         ApplicativeAsync<Task<Func<A, Func<A, A>>>, Task<Func<A, A>>, Task<A>, Task<A>, Task<A>, A, A, A>
     {
         public static readonly ApplTask<A> Inst = default(ApplTask<A>);
-
-        [Pure]
-        public Task<A> BiMapAsync(Task<A> ma, Func<A, A> fa, Func<Unit, A> fb) =>
-            default(FTask<A, A>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public Task<A> BiMapAsync(Task<A> ma, Func<A, Task<A>> fa, Func<Unit, A> fb) =>
-            default(FTask<A, A>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public Task<A> BiMapAsync(Task<A> ma, Func<A, A> fa, Func<Unit, Task<A>> fb) =>
-            default(FTask<A, A>).BiMapAsync(ma, fa, fb);
-
-        [Pure]
-        public Task<A> BiMapAsync(Task<A> ma, Func<A, Task<A>> fa, Func<Unit, Task<A>> fb) =>
-            default(FTask<A, A>).BiMapAsync(ma, fa, fb);
 
         [Pure]
         public Task<A> Map(Task<A> ma, Func<A, A> f) =>

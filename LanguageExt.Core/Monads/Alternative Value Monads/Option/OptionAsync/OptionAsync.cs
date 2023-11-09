@@ -1129,8 +1129,14 @@ namespace LanguageExt
         /// <param name="None">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
-        public OptionAsync<B> BiMap<B>(Func<A, B> Some, Func<Unit, B> None) =>
-            FOptionAsync<A, B>.Inst.BiMapAsync(this, Some, None);
+        public OptionAsync<B> BiMap<B>(Func<A, B> Some, Func<Unit, B> None)
+        {
+            return new OptionAsync<B>(Go(Data));
+            async Task<(bool IsSome, B? Value)> Go(Task<(bool IsSome, A? Value)> d) =>
+                await d.ConfigureAwait(false) is { IsSome: true, Value: not null } v 
+                    ? (true, Some(v.Value)) 
+                    : (true, None(default));
+        }
 
         /// <summary>
         /// Projection from one value to another
@@ -1140,8 +1146,14 @@ namespace LanguageExt
         /// <param name="None">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
-        public OptionAsync<B> BiMap<B>(Func<A, B> Some, Func<B> None) =>
-            FOptionAsync<A, B>.Inst.BiMapAsync(this, Some, _ => None());
+        public OptionAsync<B> BiMap<B>(Func<A, B> Some, Func<B> None)
+        {
+            return new OptionAsync<B>(Go(Data));
+            async Task<(bool IsSome, B? Value)> Go(Task<(bool IsSome, A? Value)> d) =>
+                await d.ConfigureAwait(false) is { IsSome: true, Value: not null } v 
+                    ? (true, Some(v.Value)) 
+                    : (true, None());
+        }
 
         /// <summary>
         /// <para>
