@@ -1,8 +1,10 @@
+using System;
 using Xunit;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.EitherAsyncT.Collections
 {
+    [Obsolete]
     public class SeqEitherAsync
     {
         [Fact]

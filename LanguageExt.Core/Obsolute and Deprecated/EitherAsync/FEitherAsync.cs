@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct FEitherAsync<L, R, R2> :
         FunctorAsync<EitherAsync<L, R>, EitherAsync<L, R2>, R, R2>
     {

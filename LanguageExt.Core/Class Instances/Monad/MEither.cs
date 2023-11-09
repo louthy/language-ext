@@ -13,8 +13,7 @@ namespace LanguageExt.ClassInstances
         Monad<Either<L, R>, R>,
         Optional<Either<L, R>, R>,
         OptionalUnsafe<Either<L, R>, R>,
-        BiFoldable<Either<L, R>, L, R>,
-        AsyncPair<Either<L, R>, EitherAsync<L, R>>
+        BiFoldable<Either<L, R>, L, R>
     {
         public static readonly MEither<L, R> Inst = default(MEither<L, R>);
 
@@ -223,6 +222,7 @@ namespace LanguageExt.ClassInstances
             select f(a, b);
 
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public EitherAsync<L, R> ToAsync(Either<L, R> sa) =>
             sa.ToAsync();
     }

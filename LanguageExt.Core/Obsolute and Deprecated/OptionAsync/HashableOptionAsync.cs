@@ -1,4 +1,5 @@
-﻿using LanguageExt.TypeClasses;
+﻿using System;
+using LanguageExt.TypeClasses;
 using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
@@ -6,6 +7,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Option type hash
     /// </summary>
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct HashableOptionAsync<A> : HashableAsync<OptionAsync<A>>
     {
         public async Task<int> GetHashCodeAsync(OptionAsync<A> x)
@@ -18,6 +20,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Option type hash
     /// </summary>
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct HashableOptionAsync<HashA, A> : HashableAsync<OptionAsync<A>> 
         where HashA : struct, HashableAsync<A>
     {

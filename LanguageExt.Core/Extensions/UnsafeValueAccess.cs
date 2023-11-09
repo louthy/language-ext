@@ -29,9 +29,11 @@ namespace LanguageExt.UnsafeValueAccess
                 ? option.Value
                 : default(A);
 
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<A> ValueUnsafe<A>(this OptionAsync<A> option) =>
             option.Value;
 
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<A> Value<A>(this OptionAsync<A> option) where A : struct =>
             option.Value;
 

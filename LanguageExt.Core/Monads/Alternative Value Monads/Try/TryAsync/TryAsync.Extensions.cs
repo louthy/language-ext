@@ -509,12 +509,14 @@ public static class TryAsyncExtensions
               Fail: x => EitherUnsafe<L, A>.Left(Fail(Error.New(x))));
 
     [Pure]
+    [Obsolete(Change.UseEffMonadInstead)]
     public static EitherAsync<Error, A> ToEither<A>(this TryAsync<A> self) => new EitherAsync<Error, A>(
         self.Match(
               Succ: v => EitherData.Right<Error, A>(v),
               Fail: x => EitherData.Left<Error, A>(Error.New(x))));
 
     [Pure]
+    [Obsolete(Change.UseEffMonadInstead)]
     public static EitherAsync<L, A> ToEither<A, L>(this TryAsync<A> self, Func<Error, L> Fail) => new EitherAsync<L, A>(
         self.Match(
               Succ: v => EitherData.Right<L, A>(v),

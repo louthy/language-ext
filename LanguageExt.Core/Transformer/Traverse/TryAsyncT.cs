@@ -193,6 +193,7 @@ namespace LanguageExt
         // Async types
         //
 
+        [Obsolete(Change.UseEffMonadInstead)]
         public static TryAsync<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, TryAsync<A>> ma, Func<A, B> f)
         {
             return ToTry(() => Go(ma, f));
@@ -207,6 +208,7 @@ namespace LanguageExt
             }
         }
 
+        [Obsolete(Change.UseEffMonadInstead)]
         public static TryAsync<OptionAsync<B>> Traverse<A, B>(this OptionAsync<TryAsync<A>> ma, Func<A, B> f)
         {
             return ToTry(() => Go(ma, f));

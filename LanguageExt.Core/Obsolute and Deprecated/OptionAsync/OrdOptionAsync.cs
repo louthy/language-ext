@@ -1,4 +1,5 @@
-﻿using LanguageExt.TypeClasses;
+﻿using System;
+using LanguageExt.TypeClasses;
 using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
@@ -6,6 +7,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Option type equality
     /// </summary>
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct OrdOptionAsync<A> : OrdAsync<OptionAsync<A>>
     {
         public Task<int> CompareAsync(OptionAsync<A> x, OptionAsync<A> y) =>
@@ -21,6 +23,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Option type equality
     /// </summary>
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct OrdOptionAsync<OrdA, A> : OrdAsync<OptionAsync<A>> where OrdA : struct, OrdAsync<A>
     {
         public async Task<int> CompareAsync(OptionAsync<A> x, OptionAsync<A> y)

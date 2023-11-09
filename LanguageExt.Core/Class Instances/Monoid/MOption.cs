@@ -16,7 +16,6 @@ namespace LanguageExt.ClassInstances
         BiFoldable<Option<A>, A, Unit>,
         Eq<Option<A>>,
         Ord<Option<A>>,
-        AsyncPair<Option<A>, OptionAsync<A>>,
         Monoid<Option<A>>
         where MonoidA : struct, Monoid<A>
     {
@@ -154,6 +153,7 @@ namespace LanguageExt.ClassInstances
             compare<OrdDefault<A>, A>(x, y);
 
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public OptionAsync<A> ToAsync(Option<A> sa) =>
             sa.ToAsync();
         

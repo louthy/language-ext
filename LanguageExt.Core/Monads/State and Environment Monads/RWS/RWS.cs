@@ -129,6 +129,7 @@ namespace LanguageExt
                 ? None
                 : SomeUnsafe(Value);
 
+        [Obsolete(Change.UseEffMonadInstead)]
         public OptionAsync<A> ToOptionAsync() =>
             IsFaulted
                 ? OptionAsync<A>.None
@@ -164,11 +165,13 @@ namespace LanguageExt
                 ? LeftUnsafe<L, A>(Left(ErrorInt))
                 : RightUnsafe<L, A>(Value);
 
+        [Obsolete(Change.UseEffMonadInstead)]
         public EitherAsync<Error, A> ToEitherAsync() =>
             IsFaulted
                 ? LeftAsync<Error, A>(ErrorInt)
                 : RightAsync<Error, A>(Value);
 
+        [Obsolete(Change.UseEffMonadInstead)]
         public EitherAsync<L, A> ToEitherAsync<L>(Func<Error, L> Left) =>
             IsFaulted
                 ? LeftAsync<L, A>(Left(ErrorInt))

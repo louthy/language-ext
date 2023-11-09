@@ -72,6 +72,7 @@ namespace LanguageExt
         /// Convert the structure to an Either
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<A, B> toEitherAsync<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, ChoiceAsync<CH, A, B>
         {
@@ -87,6 +88,7 @@ namespace LanguageExt
         /// Convert the structure to a Option
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<B> toOptionAsync<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, ChoiceAsync<CH, A, B>
         {

@@ -281,6 +281,7 @@ namespace LanguageExt
         /// <param name="f">Mapping and lifting operation</param>
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<OptionAsync<B>> Sequence<A, B>(this OptionAsync<A> ta, Func<A, Task<B>> f) =>
             ta.Map(f).Sequence();
         
@@ -306,6 +307,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <param name="f">Mapping and lifting operation</param>
         /// <returns>Mapped and lifted monad</returns>
+        [Obsolete(Change.UseEffMonadInstead)]
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<EitherAsync<L, B>> Sequence<L, A, B>(this EitherAsync<L, A> ta, Func<A, Task<B>> f) =>
             ta.Map(f).Sequence();    

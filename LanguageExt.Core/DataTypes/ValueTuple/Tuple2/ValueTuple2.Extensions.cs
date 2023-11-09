@@ -270,6 +270,7 @@ public static class ValueTuple2Extensions
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
     /// </summary>
     [Pure]
+    [Obsolete(Change.UseEffMonadInstead)]
     public static EitherAsync<L, (C, D)> Traverse<L, A, B, C, D>(this (EitherAsync<L, A> ma, EitherAsync<L, B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
         apply((a, b) => f((a, b)), tuple.ma, tuple.mb);
 
@@ -277,6 +278,7 @@ public static class ValueTuple2Extensions
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
     /// </summary>
     [Pure]
+    [Obsolete(Change.UseEffMonadInstead)]
     public static EitherAsync<L, (C, D)> Traverse<L, A, B, C, D>(this (EitherAsync<L, A> ma, EitherAsync<L, B> mb) tuple, Func<A, B, (C c, D d)> f) =>
         apply((a, b) => f(a, b), tuple.ma, tuple.mb);
 
@@ -284,6 +286,7 @@ public static class ValueTuple2Extensions
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
     /// </summary>
     [Pure]
+    [Obsolete(Change.UseEffMonadInstead)]
     public static EitherAsync<L, (A, B)> Sequence<L, A, B>(this (EitherAsync<L, A> ma, EitherAsync<L, B> mb) tuple) =>
         apply((a, b) => (a, b), tuple.ma, tuple.mb);
 
@@ -407,6 +410,7 @@ public static class ValueTuple2Extensions
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
     /// </summary>
     [Pure]
+    [Obsolete(Change.UseEffMonadInstead)]
     public static OptionAsync<(C, D)> Traverse<A, B, C, D>(this (OptionAsync<A> ma, OptionAsync<B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
         apply((a, b) => f((a, b)), tuple.ma, tuple.mb);
 
@@ -414,6 +418,7 @@ public static class ValueTuple2Extensions
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
     /// </summary>
     [Pure]
+    [Obsolete(Change.UseEffMonadInstead)]
     public static OptionAsync<(C, D)> Traverse<A, B, C, D>(this (OptionAsync<A> ma, OptionAsync<B> mb) tuple, Func<A, B, (C c, D d)> f) =>
         apply((a, b) => f(a, b), tuple.ma, tuple.mb);
 
@@ -421,6 +426,7 @@ public static class ValueTuple2Extensions
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
     /// </summary>
     [Pure]
+    [Obsolete(Change.UseEffMonadInstead)]
     public static OptionAsync<(A, B)> Sequence<A, B>(this (OptionAsync<A> ma, OptionAsync<B> mb) tuple) =>
         apply((a, b) => (a, b), tuple.ma, tuple.mb);
 

@@ -1,3 +1,4 @@
+using System;
 using Xunit;
 using LanguageExt;
 using LanguageExt.Common;
@@ -5,6 +6,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.EitherAsyncT.Sync
 {
+    [Obsolete]
     public class ValidationSeqEitherAsync
     {
         [Fact]

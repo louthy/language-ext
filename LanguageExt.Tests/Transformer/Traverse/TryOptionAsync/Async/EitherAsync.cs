@@ -7,6 +7,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.TryOptionAsyncT.Async
 {
+    [Obsolete]
     public class EitherAsyncTryOptionAsync
     {
         static Task<bool> Eq<A>(TryOptionAsync<EitherAsync<Error, A>> ma, TryOptionAsync<EitherAsync<Error, A>> mb) =>

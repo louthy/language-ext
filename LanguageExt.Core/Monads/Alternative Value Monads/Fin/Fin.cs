@@ -621,6 +621,7 @@ namespace LanguageExt
                 : None;
 
         [Pure, MethodImpl(Opt.Default)]
+        [Obsolete(Change.UseEffMonadInstead)]
         public OptionAsync<A> ToOptionAsync() =>
             IsSucc
                 ? SomeAsync(Value)
@@ -645,6 +646,7 @@ namespace LanguageExt
                 : LeftUnsafe<Error, A>(Error);
 
         [Pure, MethodImpl(Opt.Default)]
+        [Obsolete(Change.UseEffMonadInstead)]
         public EitherAsync<Error, A> ToEitherAsync() =>
             IsSucc
                 ? RightAsync<Error, A>(Value)

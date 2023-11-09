@@ -8,6 +8,7 @@ using LanguageExt.DataTypes.Serialisation;
 
 namespace LanguageExt.ClassInstances
 {
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct MEitherAsync<L, R> :
         ChoiceAsync<EitherAsync<L, R>, L, R>,
         Alternative<EitherAsync<L, R>, L, R>,

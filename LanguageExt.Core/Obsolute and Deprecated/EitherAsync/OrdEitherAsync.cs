@@ -1,4 +1,5 @@
-﻿using System.Data.SqlTypes;
+﻿using System;
+using System.Data.SqlTypes;
 using LanguageExt.TypeClasses;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Either type ordering
     /// </summary>
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct OrdEitherAsync<L, A> : OrdAsync<EitherAsync<L, A>>
     {
         public Task<int> CompareAsync(EitherAsync<L, A> x, EitherAsync<L, A> y) =>
@@ -22,6 +24,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Either type ordering
     /// </summary>
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct OrdEitherAsync<OrdL, OrdA, L, A> : OrdAsync<EitherAsync<L, A>> 
         where OrdL : struct, OrdAsync<L>
         where OrdA : struct, OrdAsync<A>

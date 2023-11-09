@@ -10,6 +10,7 @@ using LanguageExt.Common;
 /// <summary>
 /// Extension methods for the Try monad
 /// </summary>
+[Obsolete(Change.UseEffMonadInstead)]
 public static class TryExtensionsAsync
 {
     /// <summary>
@@ -141,6 +142,7 @@ public static class TryExtensionsAsync
         self.ToAsync().ToOptionUnsafe();
 
     [Pure]
+    [Obsolete(Change.UseEffMonadInstead)]
     public static EitherAsync<Error, A> ToEitherAsync<A>(this Try<A> self) =>
         self.ToAsync().ToEither();
 

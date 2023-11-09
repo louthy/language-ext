@@ -303,6 +303,7 @@ namespace LanguageExt
         // Async types
         //
 
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Aff<RT, EitherAsync<L, B>> Traverse<RT, L, A, B>(this EitherAsync<L, Aff<RT, A>> ma, Func<A, B> f)
             where RT : struct, HasCancel<RT>
         {
@@ -318,6 +319,7 @@ namespace LanguageExt
             }
         }
 
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Aff<RT, OptionAsync<B>> Traverse<RT, A, B>(this OptionAsync<Aff<RT, A>> ma, Func<A, B> f)
             where RT : struct, HasCancel<RT>
         {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct FOptionAsync<A, B> : 
         FunctorAsync<OptionAsync<A>, OptionAsync<B>, A, B>
     {

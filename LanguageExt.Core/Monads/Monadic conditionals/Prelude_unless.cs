@@ -181,6 +181,7 @@ namespace LanguageExt
         ///     select x;
         /// 
         /// </example>
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<Unit> unless(bool flag, OptionAsync<Unit> alternative) =>
             when(!flag, alternative);          
 
@@ -229,6 +230,7 @@ namespace LanguageExt
         ///     select x;
         /// 
         /// </example>
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, Unit> unless<L>(bool flag, EitherAsync<L, Unit> alternative) =>
             when(!flag, alternative);
 

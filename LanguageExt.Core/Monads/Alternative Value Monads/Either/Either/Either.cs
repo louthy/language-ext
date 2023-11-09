@@ -324,6 +324,7 @@ namespace LanguageExt
         /// Match the two states of the Either and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
+        [Obsolete(Change.UseEffMonadInstead)]
         public Task<R2> MatchAsync<R2>(Func<R, R2> Right, Func<L, Task<R2>> LeftAsync) =>
             matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), LeftAsync, Right);
 
@@ -331,6 +332,7 @@ namespace LanguageExt
         /// Match the two states of the Either and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
+        [Obsolete(Change.UseEffMonadInstead)]
         public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> RightAsync, Func<L, R2> Left) =>
             matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), Left, RightAsync);
 
@@ -338,6 +340,7 @@ namespace LanguageExt
         /// Match the two states of the Either and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
+        [Obsolete(Change.UseEffMonadInstead)]
         public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> RightAsync, Func<L, Task<R2>> LeftAsync) =>
             matchAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R, R2>(ToAsync(), LeftAsync, RightAsync);
 
@@ -609,6 +612,7 @@ namespace LanguageExt
         /// Convert the Either to an EitherAsync
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public EitherAsync<L, R> ToAsync() =>
             new EitherAsync<L, R>(this.Head().AsTask());
 

@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -193,6 +194,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
+        [Obsolete(Change.UseEffMonadInstead)]
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TryOptionAsync<OptionAsync<A>> Sequence<A>(this OptionAsync<TryOptionAsync<A>> ta) =>
             ta.Traverse(identity);
@@ -215,6 +217,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
+        [Obsolete(Change.UseEffMonadInstead)]
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TryOptionAsync<EitherAsync<L, A>> Sequence<L, A>(this EitherAsync<L, TryOptionAsync<A>> ta) =>
             ta.Traverse(identity);

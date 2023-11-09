@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.EitherAsyncT.Sync
 {
+    [Obsolete]
     public class TryEitherAsync
     {
         [Fact]

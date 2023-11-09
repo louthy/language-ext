@@ -10,6 +10,7 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
 
+[Obsolete(Change.UseEffMonadInstead)]
 public static class TaskOptionAsyncExtensions
 {
     public static OptionAsync<A> ToAsync<A>(this Task<Option<A>> ma) =>

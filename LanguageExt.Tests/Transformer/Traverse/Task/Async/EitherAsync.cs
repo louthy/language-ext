@@ -7,6 +7,7 @@ using LanguageExt.ClassInstances;
 
 namespace LanguageExt.Tests.Transformer.Traverse.TaskT.Async
 {
+    [Obsolete]
     public class EitherAsyncTask
     {
         static Task<bool> Eq<A>(Task<EitherAsync<Error, A>> ma, Task<EitherAsync<Error, A>> mb) =>

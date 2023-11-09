@@ -57,6 +57,7 @@ public static class ReaderExt
         self.Run(env).ToOptionUnsafe();
 
     [Pure]
+    [Obsolete(Change.UseEffMonadInstead)]
     public static OptionAsync<A> ToOptionAsync<Env, A>(this Reader<Env, A> self, Env env) =>
         self.Run(env).ToOptionAsync();
 
@@ -77,10 +78,12 @@ public static class ReaderExt
         self.Run(env).ToEitherUnsafe(Left);
 
     [Pure]
+    [Obsolete(Change.UseEffMonadInstead)]
     public static EitherAsync<Error, A> ToEitherAsync<Env, A>(this Reader<Env, A> self, Env env) =>
         self.Run(env).ToEitherAsync();
 
     [Pure]
+    [Obsolete(Change.UseEffMonadInstead)]
     public static EitherAsync<L, A> ToEitherAsync<Env, L, A>(this Reader<Env, A> self, Env env, Func<Error, L> Left) =>
         self.Run(env).ToEitherAsync(Left);
 

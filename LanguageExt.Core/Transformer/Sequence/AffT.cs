@@ -526,6 +526,7 @@ namespace LanguageExt
         /// <param name="f">Mapping and lifting operation</param>
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Aff<RT, OptionAsync<B>> Sequence<RT, A, B>(this OptionAsync<A> ta, Func<A, Aff<RT, B>> f) 
             where RT : struct, HasCancel<RT> =>
             ta.Map(f).Sequence();
@@ -553,6 +554,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <param name="f">Mapping and lifting operation</param>
         /// <returns>Mapped and lifted monad</returns>
+        [Obsolete(Change.UseEffMonadInstead)]
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Aff<RT, EitherAsync<L, B>> Sequence<RT, L, A, B>(this EitherAsync<L, A> ta, Func<A, Aff<RT, B>> f) 
             where RT : struct, HasCancel<RT> =>

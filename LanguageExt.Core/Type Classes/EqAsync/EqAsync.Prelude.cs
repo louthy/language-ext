@@ -1,4 +1,5 @@
-﻿using LanguageExt.ClassInstances;
+﻿using System;
+using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -25,6 +26,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> equalsAsync<EqA, A>(OptionAsync<A> x, OptionAsync<A> y) where EqA : struct, EqAsync<A> =>
             default(EqOptionAsync<EqA, A>).EqualsAsync(x, y);
     }

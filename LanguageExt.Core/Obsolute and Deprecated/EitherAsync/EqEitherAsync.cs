@@ -1,4 +1,5 @@
-﻿using System.Data.SqlTypes;
+﻿using System;
+using System.Data.SqlTypes;
 using LanguageExt.TypeClasses;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Either type equality
     /// </summary>
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct EqEitherAsync<L, R> : EqAsync<EitherAsync<L, R>>
     {
         public Task<bool> EqualsAsync(EitherAsync<L, R> x, EitherAsync<L, R> y) =>
@@ -19,6 +21,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Either type equality
     /// </summary>
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct EqEitherAsync<EqL, EqR, L, R> : EqAsync<EitherAsync<L, R>> 
         where EqL : struct, EqAsync<L>
         where EqR : struct, EqAsync<R>

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct ApplEitherAsync<L, A, B> :
         FunctorAsync<EitherAsync<L, A>, EitherAsync<L, B>, A, B>,
         ApplicativeAsync<EitherAsync<L, Func<A, B>>, EitherAsync<L, A>, EitherAsync<L, B>, A, B>
@@ -36,6 +37,7 @@ namespace LanguageExt.ClassInstances
             EitherAsync<L, A>.RightAsync(x);
     }
 
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct ApplEitherAsync<L, A, B, C> :
         ApplicativeAsync<EitherAsync<L, Func<A, Func<B, C>>>, EitherAsync<L, Func<B, C>>, EitherAsync<L, A>, EitherAsync<L, B>, EitherAsync<L, C>, A, B, C>
     {

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
+    [Obsolete(Change.UseEffMonadInstead)]
     public readonly struct MOptionAsync<A> :
         Alternative<OptionAsync<A>, Unit, A>,
         OptionalAsync<OptionAsync<A>, A>,

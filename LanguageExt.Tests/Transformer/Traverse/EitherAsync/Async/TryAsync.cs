@@ -5,6 +5,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.EitherAsyncT.Async
 {
+    [Obsolete]
     public class TryAsyncEitherAsync
     {
         [Fact]

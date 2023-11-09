@@ -235,6 +235,7 @@ namespace LanguageExt
         /// Convert the structure to an Either
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, A> toEitherAsync<OPT, OA, L, A>(OA ma, L defaultLeftValue)
             where OPT : struct, OptionalAsync<OA, A> =>
             new EitherAsync<L, A>(
@@ -246,6 +247,7 @@ namespace LanguageExt
         /// Convert the structure to an Either
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, A> toEitherAsync<OPT, OA, L, A>(OA ma, Func<L> Left)
             where OPT : struct, OptionalAsync<OA, A> =>
             new EitherAsync<L, A>(
@@ -277,6 +279,7 @@ namespace LanguageExt
         /// Convert the structure to a Option
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<A> toOptionAsync<OPT, OA, A>(OA ma)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).Match(ma,

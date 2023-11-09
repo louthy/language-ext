@@ -129,6 +129,7 @@ namespace LanguageExt
         // Async types
         //
 
+        [Obsolete(Change.UseEffMonadInstead)]
         public static async Task<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, Task<A>> ma, Func<A, B> f)
         {
             var da = await ma.Data.ConfigureAwait(false);
@@ -138,6 +139,7 @@ namespace LanguageExt
             return EitherAsync<L, B>.Right(f(a));
         }
 
+        [Obsolete(Change.UseEffMonadInstead)]
         public static async Task<OptionAsync<B>> Traverse<A, B>(this OptionAsync<Task<A>> ma, Func<A, B> f)
         {
             var (s, v) = await ma.Data.ConfigureAwait(false);

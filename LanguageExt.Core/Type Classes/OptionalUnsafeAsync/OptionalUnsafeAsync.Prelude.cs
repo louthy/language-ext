@@ -377,6 +377,7 @@ namespace LanguageExt
         /// Convert the structure to a Option
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<A> toOptionAsync<OPT, OA, A>(OA ma)
             where OPT : struct, OptionalAsync<OA, A> =>
             default(OPT).Match(ma,

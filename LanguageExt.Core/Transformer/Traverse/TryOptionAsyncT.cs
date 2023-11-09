@@ -12,6 +12,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
+    [Obsolete(Change.UseEffMonadInstead)]
     public static partial class TryOptionAsyncT
     {
         static TryOptionAsync<A> ToTry<A>(Func<Task<OptionalResult<A>>> ma) => 
@@ -216,6 +217,7 @@ namespace LanguageExt
         // Async types
         //
 
+        [Obsolete(Change.UseEffMonadInstead)]
         public static TryOptionAsync<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, TryOptionAsync<A>> ma, Func<A, B> f)
         {
             return ToTry(() => Go(ma, f));

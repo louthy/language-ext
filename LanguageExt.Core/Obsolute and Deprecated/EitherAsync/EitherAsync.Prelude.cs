@@ -18,6 +18,7 @@ namespace LanguageExt
         /// Monadic join
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, R> flatten<L, R>(EitherAsync<L, EitherAsync<L, R>> ma) =>
             ma.Bind(identity);
 
@@ -31,6 +32,7 @@ namespace LanguageExt
         /// <param name="y">Right hand side of the operation</param>
         /// <returns>An option with y added to x</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, R> plus<NUM, L, R>(EitherAsync<L, R> x, EitherAsync<L, R> y) where NUM : struct, Num<R> =>
             from a in x
             from b in y
@@ -46,6 +48,7 @@ namespace LanguageExt
         /// <param name="y">Right hand side of the operation</param>
         /// <returns>An option with the subtract between x and y</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, R> subtract<NUM, L, R>(EitherAsync<L, R> x, EitherAsync<L, R> y) where NUM : struct, Num<R> =>
             from a in x
             from b in y
@@ -61,6 +64,7 @@ namespace LanguageExt
         /// <param name="y">Right hand side of the operation</param>
         /// <returns>An option with the product of x and y</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, R> product<NUM, L, R>(EitherAsync<L, R> x, EitherAsync<L, R> y) where NUM : struct, Num<R> =>
             from a in x
             from b in y
@@ -76,6 +80,7 @@ namespace LanguageExt
         /// <param name="y">Right hand side of the operation</param>
         /// <returns>An option x / y</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, R> divide<NUM, L, R>(EitherAsync<L, R> x, EitherAsync<L, R> y) where NUM : struct, Num<R> =>
             from a in x
             from b in y
@@ -88,6 +93,7 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, B> apply<L, A, B>(EitherAsync<L, Func<A, B>> fab, EitherAsync<L, A> fa) =>
             ApplEitherAsync<L, A, B>.Inst.Apply(fab, fa);
 
@@ -98,6 +104,7 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, B> apply<L, A, B>(Func<A, B> fab, EitherAsync<L, A> fa) =>
             ApplEitherAsync<L, A, B>.Inst.Apply(fab, fa);
 
@@ -109,6 +116,7 @@ namespace LanguageExt
         /// <param name="fb">Applicative b to apply</param>
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, C> apply<L, A, B, C>(EitherAsync<L, Func<A, B, C>> fabc, EitherAsync<L, A> fa, EitherAsync<L, B> fb) =>
             from x in fabc
             from y in ApplEitherAsync<L, A, B, C>.Inst.Apply(curry(x), fa, fb)
@@ -122,6 +130,7 @@ namespace LanguageExt
         /// <param name="fb">Applicative b to apply</param>
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, C> apply<L, A, B, C>(Func<A, B, C> fabc, EitherAsync<L, A> fa, EitherAsync<L, B> fb) =>
             ApplEitherAsync<L, A, B, C>.Inst.Apply(curry(fabc), fa, fb);
 
@@ -132,6 +141,7 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, Func<B, C>> apply<L, A, B, C>(EitherAsync<L, Func<A, B, C>> fabc, EitherAsync<L, A> fa) =>
             from x in fabc
             from y in ApplEitherAsync<L, A, B, C>.Inst.Apply(curry(x), fa)
@@ -144,6 +154,7 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, Func<B, C>> apply<L, A, B, C>(Func<A, B, C> fabc, EitherAsync<L, A> fa) =>
             ApplEitherAsync<L, A, B, C>.Inst.Apply(curry(fabc), fa);
 
@@ -154,6 +165,7 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, Func<B, C>> apply<L, A, B, C>(EitherAsync<L, Func<A, Func<B, C>>> fabc, EitherAsync<L, A> fa) =>
             ApplEitherAsync<L, A, B, C>.Inst.Apply(fabc, fa);
 
@@ -164,6 +176,7 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, Func<B, C>> apply<L, A, B, C>(Func<A, Func<B, C>> fabc, EitherAsync<L, A> fa) =>
             ApplEitherAsync<L, A, B, C>.Inst.Apply(fabc, fa);
 
@@ -174,6 +187,7 @@ namespace LanguageExt
         /// <param name="fb">Applicative to evaluate second and then return</param>
         /// <returns>Applicative of type Option<B></returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, B> action<L, A, B>(EitherAsync<L, A> fa, EitherAsync<L, B> fb) =>
             ApplEitherAsync<L, A, B>.Inst.Action(fa, fb);
 
@@ -185,6 +199,7 @@ namespace LanguageExt
         /// <param name="value">Either to check</param>
         /// <returns>True if the Either is in a Right state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> isRight<L, R>(EitherAsync<L, R> value) =>
             value.IsRight;
 
@@ -196,6 +211,7 @@ namespace LanguageExt
         /// <param name="value">Either to check</param>
         /// <returns>True if the Either is in a Left state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> isLeft<L, R>(EitherAsync<L, R> value) =>
             value.IsLeft;
 
@@ -208,6 +224,7 @@ namespace LanguageExt
         /// <param name="value">Right value</param>
         /// <returns>A new Either instance</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, R> RightAsync<L, R>(Task<R> value) =>
             EitherAsync<L, R>.RightAsync(value);
 
@@ -220,6 +237,7 @@ namespace LanguageExt
         /// <param name="value">Right value</param>
         /// <returns>A new Either instance</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, R> RightAsync<L, R>(Func<Unit, Task<R>> value) =>
             EitherAsync<L, R>.RightAsync(value(unit));
 
@@ -232,6 +250,7 @@ namespace LanguageExt
         /// <param name="value">Right value</param>
         /// <returns>A new Either instance</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, R> RightAsync<L, R>(R value) =>
             EitherAsync<L, R>.Right(value);
 
@@ -244,6 +263,7 @@ namespace LanguageExt
         /// <param name="value">Left value</param>
         /// <returns>A new Either instance</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, R> LeftAsync<L, R>(Task<L> value) =>
             EitherAsync<L, R>.LeftAsync(value);
 
@@ -256,6 +276,7 @@ namespace LanguageExt
         /// <param name="value">Left value</param>
         /// <returns>A new Either instance</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, R> LeftAsync<L, R>(Func<Unit, Task<L>> value) =>
             EitherAsync<L, R>.LeftAsync(value(unit));
 
@@ -268,6 +289,7 @@ namespace LanguageExt
         /// <param name="value">Left value</param>
         /// <returns>A new Either instance</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, R> LeftAsync<L, R>(L value) =>
             EitherAsync<L, R>.Left(value);
 
@@ -278,6 +300,7 @@ namespace LanguageExt
         /// <param name="Left">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<R> ifLeft<L, R>(EitherAsync<L, R> either, Func<R> LeftSync) =>
            either.IfLeft(LeftSync);
 
@@ -288,6 +311,7 @@ namespace LanguageExt
         /// <param name="leftMap">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<R> ifLeft<L, R>(EitherAsync<L, R> either, Func<L, R> LeftSync) =>
            either.IfLeft(LeftSync);
 
@@ -298,6 +322,7 @@ namespace LanguageExt
         /// <param name="leftMap">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<R> ifLeftAsync<L, R>(EitherAsync<L, R> either, Func<L, Task<R>> LeftAsync) =>
            either.IfLeftAsync(LeftAsync);
 
@@ -308,6 +333,7 @@ namespace LanguageExt
         /// <param name="rightValue">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<R> ifLeft<L, R>(EitherAsync<L, R> either, R Right) =>
            either.IfLeft(Right);
 
@@ -317,6 +343,7 @@ namespace LanguageExt
         /// <param name="Left">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Unit> ifLeft<L, R>(EitherAsync<L, R> either, Action<L> Left) =>
            either.IfLeft(Left);
 
@@ -326,6 +353,7 @@ namespace LanguageExt
         /// <param name="Left">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Unit> ifLeftAsync<L, R>(EitherAsync<L, R> either, Func<L, Task> Left) =>
            either.IfLeftAsync(Left);
 
@@ -335,6 +363,7 @@ namespace LanguageExt
         /// <param name="Right">Action to invoke</param>
         /// <returns>Unit</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Unit> ifRight<L, R>(EitherAsync<L, R> either, Action<R> Right) =>
            either.IfRight(Right);
 
@@ -344,6 +373,7 @@ namespace LanguageExt
         /// <param name="Right">Action to invoke</param>
         /// <returns>Unit</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Unit> ifRightAsync<L, R>(EitherAsync<L, R> either, Func<R, Task> RightAsync) =>
            either.IfRightAsync(RightAsync);
 
@@ -354,6 +384,7 @@ namespace LanguageExt
         /// <param name="Left">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<L> ifRight<L, R>(EitherAsync<L, R> either, L Left) =>
            either.IfRight(Left);
 
@@ -364,6 +395,7 @@ namespace LanguageExt
         /// <param name="Left">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<L> ifRightAsync<L, R>(EitherAsync<L, R> either, Func<Task<L>> RightAsync) =>
            either.IfRightAsync(RightAsync: RightAsync);
 
@@ -374,6 +406,7 @@ namespace LanguageExt
         /// <param name="Left">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<L> ifRight<L, R>(EitherAsync<L, R> either, Func<L> Left) =>
            either.IfRight(Left);
 
@@ -384,6 +417,7 @@ namespace LanguageExt
         /// <param name="Left">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<L> ifRight<L, R>(EitherAsync<L, R> either, Func<R, L> Left) =>
            either.IfRight(Left);
 
@@ -394,6 +428,7 @@ namespace LanguageExt
         /// <param name="Left">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<L> ifRightAsync<L, R>(EitherAsync<L, R> either, Func<R, Task<L>> LeftAsync) =>
            either.IfRightAsync(LeftAsync);
 
@@ -408,6 +443,7 @@ namespace LanguageExt
         /// <param name="Left">Function to invoke if in a Left state</param>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Ret> match<L, R, Ret>(EitherAsync<L, R> either, Func<R, Ret> Right, Func<L, Ret> Left, Func<Ret> Bottom = null) =>
             either.Match(Right, Left, Bottom);
 
@@ -422,6 +458,7 @@ namespace LanguageExt
         /// <param name="Left">Function to invoke if in a Left state</param>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Ret> matchAsync<L, R, Ret>(EitherAsync<L, R> either, Func<R, Task<Ret>> RightAsync, Func<L, Ret> Left, Func<Ret> Bottom = null) =>
             either.MatchAsync(RightAsync, Left, Bottom);
 
@@ -436,6 +473,7 @@ namespace LanguageExt
         /// <param name="Left">Function to invoke if in a Left state</param>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Ret> matchAsync<L, R, Ret>(EitherAsync<L, R> either, Func<R, Ret> Right, Func<L, Task<Ret>> LeftAsync, Func<Ret> Bottom = null) =>
             either.MatchAsync(Right, LeftAsync, Bottom);
 
@@ -450,6 +488,7 @@ namespace LanguageExt
         /// <param name="Left">Function to invoke if in a Left state</param>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Ret> matchAsync<L, R, Ret>(EitherAsync<L, R> either, Func<R, Task<Ret>> RightAsync, Func<L, Task<Ret>> LeftAsync, Func<Ret> Bottom = null) =>
             either.MatchAsync(RightAsync, LeftAsync, Bottom);
 
@@ -462,6 +501,7 @@ namespace LanguageExt
         /// <param name="Right">Action to invoke if in a Right state</param>
         /// <param name="Left">Action to invoke if in a Left state</param>
         /// <returns>Unit</returns>
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Unit> match<L, R>(EitherAsync<L, R> either, Action<R> Right, Action<L> Left, Action Bottom = null) =>
             either.Match(Right, Left, Bottom);
 
@@ -474,6 +514,7 @@ namespace LanguageExt
         /// <param name="Right">Action to invoke if in a Right state</param>
         /// <param name="Left">Action to invoke if in a Left state</param>
         /// <returns>Unit</returns>
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Unit> matchAsync<L, R>(EitherAsync<L, R> either, Func<R, Task> RightAsync, Action<L> Left, Action Bottom = null) =>
             either.MatchAsync(RightAsync, Left, Bottom);
 
@@ -486,6 +527,7 @@ namespace LanguageExt
         /// <param name="Right">Action to invoke if in a Right state</param>
         /// <param name="Left">Action to invoke if in a Left state</param>
         /// <returns>Unit</returns>
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Unit> matchAsync<L, R>(EitherAsync<L, R> either, Action<R> Right, Func<L, Task> LeftAsync, Action Bottom = null) =>
             either.MatchAsync(Right, LeftAsync, Bottom);
 
@@ -498,6 +540,7 @@ namespace LanguageExt
         /// <param name="Right">Action to invoke if in a Right state</param>
         /// <param name="Left">Action to invoke if in a Left state</param>
         /// <returns>Unit</returns>
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Unit> matchAsync<L, R>(EitherAsync<L, R> either, Func<R, Task> RightAsync, Func<L, Task> LeftAsync, Action Bottom = null) =>
             either.MatchAsync(RightAsync, LeftAsync, Bottom);
 
@@ -517,6 +560,7 @@ namespace LanguageExt
         /// <param name="Right">Folder function, applied if structure is in a Right state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> fold<S, L, R>(EitherAsync<L, R> either, S state, Func<S, R, S> Right) =>
             either.Fold(state, Right);
 
@@ -536,6 +580,7 @@ namespace LanguageExt
         /// <param name="RightAsync">Folder function, applied if structure is in a Right state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> foldAsync<S, L, R>(EitherAsync<L, R> either, S state, Func<S, R, Task<S>> RightAsync) =>
             either.FoldAsync(state, RightAsync);
 
@@ -556,6 +601,7 @@ namespace LanguageExt
         /// <param name="Left">Folder function, applied if Either is in a Left state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> bifold<L, R, S>(EitherAsync<L, R> either, S state, Func<S, R, S> Right, Func<S, L, S> Left) =>
             either.BiFold(state, Right, Left);
 
@@ -576,6 +622,7 @@ namespace LanguageExt
         /// <param name="Left">Folder function, applied if Either is in a Left state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> bifoldAsync<L, R, S>(EitherAsync<L, R> either, S state, Func<S, R, Task<S>> RightAsync, Func<S, L, S> Left) =>
             either.BiFoldAsync(state, RightAsync, Left);
 
@@ -596,6 +643,7 @@ namespace LanguageExt
         /// <param name="Left">Folder function, applied if Either is in a Left state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> bifoldAsync<L, R, S>(EitherAsync<L, R> either, S state, Func<S, R, S> Right, Func<S, L, Task<S>> LeftAsync) =>
             either.BiFoldAsync(state, Right, LeftAsync);
 
@@ -616,6 +664,7 @@ namespace LanguageExt
         /// <param name="Left">Folder function, applied if Either is in a Left state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> bifoldAsync<L, R, S>(EitherAsync<L, R> either, S state, Func<S, R, Task<S>> RightAsync, Func<S, L, Task<S>> LeftAsync) =>
             either.BiFoldAsync(state, RightAsync, LeftAsync);
 
@@ -630,6 +679,7 @@ namespace LanguageExt
         /// True if the Either is in a Right state and the predicate returns True.  
         /// False otherwise.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> forall<L, R>(EitherAsync<L, R> either, Func<R, bool> pred) =>
             either.ForAll(pred);
 
@@ -644,6 +694,7 @@ namespace LanguageExt
         /// True if the Either is in a Right state and the predicate returns True.  
         /// False otherwise.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> forallAsync<L, R>(EitherAsync<L, R> either, Func<R, Task<bool>> pred) =>
             either.ForAllAsync(pred);
 
@@ -657,6 +708,7 @@ namespace LanguageExt
         /// <param name="Left">Left predicate</param>
         /// <returns>True if the predicate returns True.  True if the Either is in a bottom state.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> biforall<L, R>(EitherAsync<L, R> either, Func<R, bool> Right, Func<L, bool> Left) =>
             either.BiForAll(Right, Left);
 
@@ -670,6 +722,7 @@ namespace LanguageExt
         /// <param name="Left">Left predicate</param>
         /// <returns>True if the predicate returns True.  True if the Either is in a bottom state.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> biforallAsync<L, R>(EitherAsync<L, R> either, Func<R, Task<bool>> RightAsync, Func<L, bool> Left) =>
             either.BiForAllAsync(RightAsync, Left);
 
@@ -683,6 +736,7 @@ namespace LanguageExt
         /// <param name="Left">Left predicate</param>
         /// <returns>True if the predicate returns True.  True if the Either is in a bottom state.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> biforallAsync<L, R>(EitherAsync<L, R> either, Func<R, bool> Right, Func<L, Task<bool>> LeftAsync) =>
             either.BiForAllAsync(Right, LeftAsync);
 
@@ -696,6 +750,7 @@ namespace LanguageExt
         /// <param name="Left">Left predicate</param>
         /// <returns>True if the predicate returns True.  True if the Either is in a bottom state.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> biforallAsync<L, R>(EitherAsync<L, R> either, Func<R, Task<bool>> RightAsync, Func<L, Task<bool>> LeftAsync) =>
             either.BiForAllAsync(RightAsync, LeftAsync);
 
@@ -707,6 +762,7 @@ namespace LanguageExt
         /// <param name="either">Either to count</param>
         /// <returns>1 if the Either is in a Right state, 0 otherwise.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<int> count<L, R>(EitherAsync<L, R> either) =>
             either.Count();
 
@@ -719,6 +775,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if the Either is in a Right state and the predicate returns True.  False otherwise.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> exists<L, R>(EitherAsync<L, R> either, Func<R, bool> pred) =>
             either.Exists(pred);
 
@@ -731,6 +788,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if the Either is in a Right state and the predicate returns True.  False otherwise.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> existsAsync<L, R>(EitherAsync<L, R> either, Func<R, Task<bool>> pred) =>
             either.ExistsAsync(pred);
 
@@ -744,6 +802,7 @@ namespace LanguageExt
         /// <param name="Left">Left predicate</param>
         /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> biexists<L, R>(EitherAsync<L, R> either, Func<R, bool> Right, Func<L, bool> Left) =>
             either.BiExists(Right,Left);
 
@@ -757,6 +816,7 @@ namespace LanguageExt
         /// <param name="Left">Left predicate</param>
         /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> biexistsAsync<L, R>(EitherAsync<L, R> either, Func<R, Task<bool>> RightAsync, Func<L, bool> Left) =>
             either.BiExistsAsync(RightAsync, Left);
 
@@ -770,6 +830,7 @@ namespace LanguageExt
         /// <param name="Left">Left predicate</param>
         /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> biexistsAsync<L, R>(EitherAsync<L, R> either, Func<R, bool> Right, Func<L, Task<bool>> LeftAsync) =>
             either.BiExistsAsync(Right, LeftAsync);
 
@@ -783,6 +844,7 @@ namespace LanguageExt
         /// <param name="Left">Left predicate</param>
         /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> biexistsAsync<L, R>(EitherAsync<L, R> either, Func<R, Task<bool>> RightAsync, Func<L, Task<bool>> LeftAsync) =>
             either.BiExistsAsync(RightAsync, LeftAsync);
 
@@ -796,6 +858,7 @@ namespace LanguageExt
         /// <param name="f">Map function</param>
         /// <returns>Mapped EitherAsync</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, Ret> map<L, R, Ret>(EitherAsync<L, R> either, Func<R, Ret> f) =>
             either.Map(f);
 
@@ -809,6 +872,7 @@ namespace LanguageExt
         /// <param name="f">Map function</param>
         /// <returns>Mapped EitherAsync</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, Ret> mapAsync<L, R, Ret>(EitherAsync<L, R> either, Func<R, Task<Ret>> f) =>
             either.MapAsync(f);
 
@@ -824,6 +888,7 @@ namespace LanguageExt
         /// <param name="Left">Left map function</param>
         /// <returns>Mapped EitherAsync</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<LRet, RRet> bimap<L, R, LRet, RRet>(EitherAsync<L, R> either, Func<R, RRet> Right, Func<L, LRet> Left) =>
             either.BiMap(Right, Left);
 
@@ -839,6 +904,7 @@ namespace LanguageExt
         /// <param name="Left">Left map function</param>
         /// <returns>Mapped EitherAsync</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<LRet, RRet> bimapAsync<L, R, LRet, RRet>(EitherAsync<L, R> either, Func<R, Task<RRet>> RightAsync, Func<L, LRet> Left) =>
             either.BiMapAsync(RightAsync, Left);
 
@@ -854,6 +920,7 @@ namespace LanguageExt
         /// <param name="Left">Left map function</param>
         /// <returns>Mapped EitherAsync</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<LRet, RRet> bimapAsync<L, R, LRet, RRet>(EitherAsync<L, R> either, Func<R, RRet> Right, Func<L, Task<LRet>> LeftAsync) =>
             either.BiMapAsync(Right, LeftAsync);
 
@@ -869,6 +936,7 @@ namespace LanguageExt
         /// <param name="Left">Left map function</param>
         /// <returns>Mapped EitherAsync</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<LRet, RRet> bimapAsync<L, R, LRet, RRet>(EitherAsync<L, R> either, Func<R, Task<RRet>> RightAsync, Func<L, Task<LRet>> LeftAsync) =>
             either.BiMapAsync(RightAsync, LeftAsync);
 
@@ -876,6 +944,7 @@ namespace LanguageExt
         /// Partial application map
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, Func<T2, R>> parmap<L, T1, T2, R>(EitherAsync<L, T1> either, Func<T1, T2, R> func) =>
             either.ParMap(func);
 
@@ -883,6 +952,7 @@ namespace LanguageExt
         /// Partial application map
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, Func<T2, Func<T3, R>>> parmap<L, T1, T2, T3, R>(EitherAsync<L, T1> either, Func<T1, T2, T3, R> func) =>
             either.ParMap(func);
 
@@ -903,6 +973,7 @@ namespace LanguageExt
         /// If the predicate returns True the Either is returned as-is.
         /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, R> filter<L, R>(EitherAsync<L, R> either, Func<R, bool> pred) =>
             either.Filter(pred);
 
@@ -923,6 +994,7 @@ namespace LanguageExt
         /// If the predicate returns True the Either is returned as-is.
         /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, R> filterAsync<L, R>(EitherAsync<L, R> either, Func<R, Task<bool>> pred) =>
             either.FilterAsync(pred);
 
@@ -937,6 +1009,7 @@ namespace LanguageExt
         /// <param name="binder"></param>
         /// <returns>Bound EitherAsync</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static EitherAsync<L, Ret> bind<L, R, Ret>(EitherAsync<L, R> either, Func<R, EitherAsync<L, Ret>> binder) =>
             either.Bind(binder);
 
@@ -951,6 +1024,7 @@ namespace LanguageExt
         /// <param name="Left">Left match function</param>
         /// <returns>Sequence of mapped values</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public async static Task<IEnumerable<Ret>> match<L, R, Ret>(IEnumerable<EitherAsync<L, R>> list,
             Func<R, Ret> Right,
             Func<L, Ret> Left) =>
@@ -964,6 +1038,7 @@ namespace LanguageExt
         /// <param name="either">Either to project</param>
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Lst<R>> rightToList<L, R>(EitherAsync<L, R> either) =>
             either.RightToList();
 
@@ -975,6 +1050,7 @@ namespace LanguageExt
         /// <param name="either">Either to project</param>
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Arr<R>> rightToArray<L, R>(EitherAsync<L, R> either) =>
             either.RightToArray();
 
@@ -986,6 +1062,7 @@ namespace LanguageExt
         /// <param name="either">Either to project</param>
         /// <returns>If the Either is in a Left state, a Lst of L with one item.  A zero length Lst L otherwise</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Lst<L>> leftToList<L, R>(EitherAsync<L, R> either) =>
             either.LeftToList();
 
@@ -997,6 +1074,7 @@ namespace LanguageExt
         /// <param name="either">Either to project</param>
         /// <returns>If the Either is in a Right state, an array of L with one item.  A zero length array of L otherwise</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Arr<L>> leftToArray<L, R>(EitherAsync<L, R> either) =>
             either.LeftToArray();
 
@@ -1008,6 +1086,7 @@ namespace LanguageExt
         /// <param name="either">Either to project</param>
         /// <returns>If the Either is in a Right state, an IQueryable of R with one item.  A zero length IQueryable R otherwise</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<IQueryable<R>> rightToQuery<L, R>(EitherAsync<L, R> either) =>
             either.RightAsEnumerable()
                   .Map(x => x.AsEnumerable())
@@ -1021,6 +1100,7 @@ namespace LanguageExt
         /// <param name="either">Either to project</param>
         /// <returns>If the Either is in a Left state, an IQueryable of L with one item.  A zero length IQueryable L otherwise</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<IQueryable<L>> leftToQuery<L, R>(EitherAsync<L, R> either) =>
             either.LeftAsEnumerable()
                   .Map(x => x.AsEnumerable())
@@ -1035,6 +1115,7 @@ namespace LanguageExt
         /// <param name="self">Either list</param>
         /// <returns>An enumerable of L</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<IEnumerable<L>> lefts<L, R>(IEnumerable<EitherAsync<L, R>> self) =>
             leftsAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(self);
 
@@ -1047,6 +1128,7 @@ namespace LanguageExt
         /// <param name="self">Either list</param>
         /// <returns>An enumerable of L</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Seq<L>> lefts<L, R>(Seq<EitherAsync<L, R>> self) =>
             leftsAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(self);
 
@@ -1059,6 +1141,7 @@ namespace LanguageExt
         /// <param name="self">Either list</param>
         /// <returns>An enumerable of L</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<IEnumerable<R>> rights<L, R>(IEnumerable<EitherAsync<L, R>> self) =>
             rightsAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(self);
 
@@ -1071,6 +1154,7 @@ namespace LanguageExt
         /// <param name="self">Either list</param>
         /// <returns>An enumerable of L</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Seq<R>> rights<L, R>(Seq<EitherAsync<L, R>> self) =>
             rightsAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(self);
 
@@ -1085,6 +1169,7 @@ namespace LanguageExt
         /// <param name="self">Either list</param>
         /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<(IEnumerable<L> Lefts, IEnumerable<R> Rights)> partition<L, R>(IEnumerable<EitherAsync<L, R>> self) =>
             partitionAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(self);
 
@@ -1099,6 +1184,7 @@ namespace LanguageExt
         /// <param name="self">Either list</param>
         /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<(Seq<L> Lefts, Seq<R> Rights)> partition<L, R>(Seq<EitherAsync<L, R>> self) =>
             partitionAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(self);
     }

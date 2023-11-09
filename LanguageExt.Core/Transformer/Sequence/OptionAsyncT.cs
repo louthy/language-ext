@@ -8,6 +8,7 @@ using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
+    [Obsolete(Change.UseEffMonadInstead)]
     public partial class OptionAsyncT
     {
         /// <summary>

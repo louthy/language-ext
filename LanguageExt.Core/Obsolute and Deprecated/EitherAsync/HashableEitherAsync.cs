@@ -1,4 +1,5 @@
-﻿using LanguageExt.TypeClasses;
+﻿using System;
+using LanguageExt.TypeClasses;
 using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
@@ -6,6 +7,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Either type hash
     /// </summary>
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct HashableEitherAsync<L, R> : HashableAsync<EitherAsync<L, R>>
     {
         public Task<int> GetHashCodeAsync(EitherAsync<L, R> x) =>
@@ -15,6 +17,7 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Either type hash
     /// </summary>
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct HashableEitherAsync<HashL, HashR, L, R> : HashableAsync<EitherAsync<L, R>>
         where HashL : struct, HashableAsync<L>
         where HashR : struct, HashableAsync<R>

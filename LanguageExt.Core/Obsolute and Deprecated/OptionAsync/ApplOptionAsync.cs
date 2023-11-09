@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances
 {
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct ApplOptionAsync<A, B> :
         FunctorAsync<OptionAsync<A>, OptionAsync<B>, A, B>,
         ApplicativeAsync<OptionAsync<Func<A, B>>, OptionAsync<A>, OptionAsync<B>, A, B>
@@ -69,6 +70,7 @@ namespace LanguageExt.ClassInstances
             select b;
     }
 
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct ApplOptionAsync<A, B, C> :
         ApplicativeAsync<OptionAsync<Func<A, Func<B, C>>>, OptionAsync<Func<B, C>>, OptionAsync<A>, OptionAsync<B>, OptionAsync<C>, A, B, C>
     {

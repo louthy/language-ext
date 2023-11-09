@@ -4,6 +4,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
+    [Obsolete(Change.UseEffMonadInstead)]
     public static class EitherAsyncGuardExtensions
     {
         public static EitherAsync<L, Unit> ToEitherAsync<L>(this Guard<L> ma) =>

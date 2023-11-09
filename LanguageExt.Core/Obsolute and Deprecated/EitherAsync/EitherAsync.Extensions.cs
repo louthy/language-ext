@@ -12,6 +12,7 @@ using LanguageExt.Common;
 /// <summary>
 /// Extension methods for Either
 /// </summary>
+[Obsolete(Change.UseEffMonadInstead)]
 public static class EitherAsyncExtensions
 {
     /// <summary>

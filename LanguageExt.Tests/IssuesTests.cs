@@ -184,9 +184,11 @@ namespace Core.Tests
         public static OptionAsync<Pixel> GetPixel(PixelId id) =>
             Option<Pixel>.None.ToAsync();
 
+        [Obsolete]
         public static EitherAsync<Error, string> GenerateLinkId(PixelId pixelId) =>
             Right<Error, string>($"{pixelId}-1234").ToAsync();
 
+        [Obsolete]
         public static EitherAsync<Error, WebResource> ScrapeUrl(string url) =>
             Right<Error, WebResource>(new WebResource(200)).ToAsync();
 
@@ -399,20 +401,25 @@ namespace Issues
         }
     }
 
+    [Obsolete]
     public class Issue376
     {
         static Task<int> Number(int n) => n.AsTask();
         static Task<string> Error(string err) => err.AsTask();
 
+        [Obsolete]
         public static EitherAsync<string, int> Op1() =>
             Number(1);
 
+        [Obsolete]
         public static EitherAsync<string, int> Op2() =>
             RightAsync<string, int>(2.AsTask());
 
+        [Obsolete]
         public static EitherAsync<string, int> Op3() =>
             Error("error");
 
+        [Obsolete]
         public static EitherAsync<string, int> Calculate(int x, int y, int z) =>
             (x + y + z);
 
@@ -523,6 +530,7 @@ namespace Issues
     }
 
     // https://stackoverflow.com/questions/54609459/languageext-eitherasyn-with-aggegrate-bind-with-validation
+    [Obsolete]
     public class StackOverflow_54609459
     {
         public class Error { }

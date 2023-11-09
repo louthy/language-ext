@@ -288,6 +288,7 @@ namespace LanguageExt
         // Async types
         //
 
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Aff<EitherAsync<L, B>> Traverse<L, A, B>(this EitherAsync<L, Aff<A>> ma, Func<A, B> f)
         {
             return AffMaybe<EitherAsync<L, B>>(() => Go(ma, f));
@@ -302,6 +303,7 @@ namespace LanguageExt
             }
         }
 
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Aff<OptionAsync<B>> Traverse<A, B>(this OptionAsync<Aff<A>> ma, Func<A, B> f)
         {
             return AffMaybe<OptionAsync<B>>(() => Go(ma, f));

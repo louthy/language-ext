@@ -9,6 +9,7 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using LanguageExt.DataTypes.Serialisation;
 
+[Obsolete(Change.UseEffMonadInstead)]
 public static partial class TaskEitherAsyncExtensions
 {
     public static EitherAsync<L, R> ToAsync<L, R>(this Task<Either<L, R>> ma) =>

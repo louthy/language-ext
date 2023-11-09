@@ -33,7 +33,7 @@ namespace LanguageExt
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
     [Serializable]
-    //[AsyncMethodBuilder(typeof(EitherAsyncBuilder<,>))]
+    [Obsolete(Change.UseEffMonadInstead)]
     public readonly struct EitherAsync<L, R> :
         IAsyncEnumerable<R>,
         IEitherAsync
@@ -1872,6 +1872,7 @@ namespace LanguageExt
     /// <summary>
     /// Context for the fluent EitherAsync matching
     /// </summary>
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct EitherAsyncContext<L, R, Ret>
     {
         readonly EitherAsync<L, R> either;
@@ -1896,6 +1897,7 @@ namespace LanguageExt
     /// <summary>
     /// Context for the fluent EitherAsync matching
     /// </summary>
+    [Obsolete(Change.UseEffMonadInstead)]
     public struct EitherAsyncUnitContext<L, R>
     {
         readonly EitherAsync<L, R> either;
