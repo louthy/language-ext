@@ -1,9 +1,11 @@
+using System;
 using Xunit;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Sync
 {
+    [Obsolete]
     public class EitherUnsafeOptionAsync
     {
         [Fact]

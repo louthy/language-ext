@@ -32,6 +32,7 @@ namespace LanguageExt
     ///     
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
+    [Obsolete(Change.UseEffMonadInstead)]
     public readonly struct OptionAsync<A> :
         IAsyncEnumerable<A>,
         IOptionalAsync

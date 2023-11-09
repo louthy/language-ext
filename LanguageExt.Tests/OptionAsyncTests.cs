@@ -7,6 +7,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests
 {
+    [Obsolete]
     public class OptionAsyncTests
     {
         /// <summary>
@@ -74,6 +75,7 @@ namespace LanguageExt.Tests
             Assert.True(await noneString.IsNone);
         }
 
+        [Obsolete]
         private static OptionAsync<string> wrap(string str) => Task.FromResult(str);
 
         private Task DoWork()
@@ -313,6 +315,7 @@ namespace LanguageExt.Tests
         //    taskOpt = optTask.Sequence();
         //}
 
+        [Obsolete]
         private static OptionAsync<int> GetValue(bool select) =>
             select
                 ? OptionAsync<int>.Some(1000)

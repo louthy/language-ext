@@ -9,6 +9,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Async
     public class TaskOptionAsync
     {
         [Fact]
+        [Obsolete]
         public async void TaskNoneIsNoneTask()
         {
             var ma = OptionAsync<int>.None.AsTask();
@@ -21,6 +22,7 @@ namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Async
         }
         
         [Fact]
+        [Obsolete]
         public async void TaskSomeIsSomeTask()
         {
             var ma = OptionAsync<int>.Some(123).AsTask();

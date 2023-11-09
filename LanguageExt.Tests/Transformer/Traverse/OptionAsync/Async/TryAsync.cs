@@ -5,6 +5,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Async
 {
+    [Obsolete]
     public class TryAsyncOptionAsync
     {
         [Fact]

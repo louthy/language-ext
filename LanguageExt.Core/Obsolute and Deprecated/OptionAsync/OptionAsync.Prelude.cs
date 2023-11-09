@@ -15,6 +15,7 @@ namespace LanguageExt
         /// Monadic join
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<A> flatten<A>(OptionAsync<OptionAsync<A>> ma) =>
             ma.Bind(identity);
 
@@ -25,12 +26,14 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<T> subtract<NUM, T>(OptionAsync<T> lhs, OptionAsync<T> rhs) where NUM : struct, Num<T> =>
             lhs.Subtract<NUM, T>(rhs);
 
         /// <summary>
         /// Find the product of the Ts
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<T> product<NUM, T>(OptionAsync<T> lhs, OptionAsync<T> rhs) where NUM : struct, Num<T> =>
             lhs.Product<NUM, T>(rhs);
 
@@ -41,6 +44,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<T> divide<NUM, T>(OptionAsync<T> lhs, OptionAsync<T> rhs) where NUM : struct, Num<T> =>
             lhs.Divide<NUM, T>(rhs);
 
@@ -51,6 +55,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<T> add<NUM, T>(OptionAsync<T> lhs, OptionAsync<T> rhs) where NUM : struct, Num<T> =>
             lhs.Add<NUM, T>(rhs);
 
@@ -61,6 +66,7 @@ namespace LanguageExt
         /// <param name="value">OptionAsync</param>
         /// <returns>True if value is in a Some state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> isSome<T>(OptionAsync<T> value) =>
             value.IsSome;
 
@@ -71,6 +77,7 @@ namespace LanguageExt
         /// <param name="value">OptionAsync</param>
         /// <returns>True if value is in a None state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> isNone<T>(OptionAsync<T> value) =>
             value.IsNone;
 
@@ -82,6 +89,7 @@ namespace LanguageExt
         /// <returns>`OptionAsync<T>` in a Some state or throws ValueIsNullException
         /// if isnull(value).</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<T> SomeAsync<T>(T value) =>
             isnull(value)
                 ? raise<OptionAsync<T>>(new ValueIsNullException())
@@ -95,6 +103,7 @@ namespace LanguageExt
         /// <returns>OptionAsync<T> in a Some state or throws ValueIsNullException
         /// if isnull(value).</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<T> SomeAsync<T>(Task<T> taskValue) =>
             OptionAsync<T>.SomeAsync(taskValue);
 
@@ -106,6 +115,7 @@ namespace LanguageExt
         /// <returns>OptionAsync<T> in a Some state or throws ValueIsNullException
         /// if isnull(value).</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<Task<A>> SomeValueAsync<A>(Task<A> taskValue) =>
             OptionAsync<Task<A>>.SomeAsync(taskValue.AsTask());
         
@@ -117,6 +127,7 @@ namespace LanguageExt
         /// <returns>OptionAsync<T> in a Some state or throws ValueIsNullException
         /// if isnull(value).</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<T> SomeAsync<T>(Func<Unit, Task<T>> f) =>
             OptionAsync<T>.SomeAsync(f(default));
         
@@ -128,6 +139,7 @@ namespace LanguageExt
         /// <returns>OptionAsync<T> in a Some state or throws ValueIsNullException
         /// if isnull(value).</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<T> SomeAsync<T>(Func<Task<T>> f) =>
             OptionAsync<T>.SomeAsync(f());
 
@@ -139,6 +151,7 @@ namespace LanguageExt
         /// <returns>OptionAsync<T> in a Some state or throws ValueIsNullException
         /// if isnull(value)</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<T> SomeAsync<T>(T? value) where T : struct =>
             value.HasValue
                 ? OptionAsync<T>.SomeAsync(value.Value.AsTask())
@@ -151,6 +164,7 @@ namespace LanguageExt
         /// <param name="value">Value to be made OptionAsyncal, or null</param>
         /// <returns>If the value is null it will be None else Some(value)</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<T> OptionalAsync<T>(Task<T?> value) =>
             OptionAsync<T>.OptionalAsync(value);
 
@@ -161,6 +175,7 @@ namespace LanguageExt
         /// <param name="f">A function that returns the value to construct the OptionAsync with</param>
         /// <returns>A lazy OptionAsync<T></returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<T> OptionalAsync<T>(Func<Unit, Task<T?>> f) =>
             OptionAsync<T>.OptionalAsync(f(unit));
 
@@ -171,6 +186,7 @@ namespace LanguageExt
         /// <param name="value">Value to be made OptionAsyncal, or null</param>
         /// <returns>If the value is null it will be None else Some(value)</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<T> OptionalAsync<T>(T? value) where T : struct =>
             value.HasValue
                 ? default(MOptionAsync<T>).ReturnAsync(_ => value.Value.AsTask())
@@ -180,6 +196,7 @@ namespace LanguageExt
         /// Invokes the action if OptionAsync is in the Some state, otherwise nothing happens.
         /// </summary>
         /// <param name="f">Action to invoke if OptionAsync is in the Some state</param>
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Unit> ifSome<T>(OptionAsync<T> OptionAsync, Action<T> Some) => 
             OptionAsync.IfSome(Some);
 
@@ -192,6 +209,7 @@ namespace LanguageExt
         /// <returns>Tesult of invoking the None() operation if the OptionAsyncal 
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<T> ifNone<T>(OptionAsync<T> ma, Func<T> None) =>
             ma.IfNone(None);
 
@@ -204,6 +222,7 @@ namespace LanguageExt
         /// <returns>noneValue if the OptionAsyncal is in a None state, otherwise
         /// the bound Some(x) value is returned</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<T> ifNone<T>(OptionAsync<T> ma, T noneValue) =>
             ma.IfNone(noneValue);
 
@@ -216,6 +235,7 @@ namespace LanguageExt
         /// <returns>Tesult of invoking the None() operation if the OptionAsyncal 
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<T> ifNoneUnsafe<T>(OptionAsync<T> ma, Func<T> None) =>
             ma.IfNoneUnsafe(None);
 
@@ -228,6 +248,7 @@ namespace LanguageExt
         /// <returns>noneValue if the OptionAsyncal is in a None state, otherwise
         /// the bound Some(x) value is returned</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<T> ifNoneUnsafe<T>(OptionAsync<T> ma, T noneValue) =>
             ma.IfNoneUnsafe(noneValue);
 
@@ -239,6 +260,7 @@ namespace LanguageExt
         /// <param name="None">None match operation. Must not return null.</param>
         /// <returns>A non-null B</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<R> match<T, R>(OptionAsync<T> ma, Func<T, R> Some, Func<R> None) =>
             ma.Match(Some, None);
 
@@ -250,6 +272,7 @@ namespace LanguageExt
         /// <param name="None">None match operation. Must not return null.</param>
         /// <returns>A non-null B</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<R> matchAsync<T, R>(OptionAsync<T> ma, Func<T, Task<R>> Some, Func<R> None) =>
             ma.MatchAsync(Some, None);
 
@@ -261,6 +284,7 @@ namespace LanguageExt
         /// <param name="None">None match operation. Must not return null.</param>
         /// <returns>A non-null B</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<R> matchAsync<T, R>(OptionAsync<T> ma, Func<T, R> Some, Func<Task<R>> None) =>
             ma.MatchAsync(Some, None);
 
@@ -272,6 +296,7 @@ namespace LanguageExt
         /// <param name="None">None match operation. Must not return null.</param>
         /// <returns>A non-null B</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<R> matchAsync<T, R>(OptionAsync<T> ma, Func<T, Task<R>> Some, Func<Task<R>> None) =>
             ma.MatchAsync(Some, None);
 
@@ -283,6 +308,7 @@ namespace LanguageExt
         /// <param name="None">None match operation. May return null.</param>
         /// <returns>B, or null</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<R> matchUnsafe<T, R>(OptionAsync<T> ma, Func<T, R> Some, Func<R> None) =>
             ma.MatchUnsafe(Some, None);
 
@@ -294,6 +320,7 @@ namespace LanguageExt
         /// <param name="None">None match operation. May return null.</param>
         /// <returns>B, or null</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<R> matchUnsafeAsync<T, R>(OptionAsync<T> ma, Func<T, Task<R>> Some, Func<R> None) =>
             ma.MatchUnsafeAsync(Some, None);
 
@@ -305,6 +332,7 @@ namespace LanguageExt
         /// <param name="None">None match operation. May return null.</param>
         /// <returns>B, or null</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<R> matchUnsafeAsync<T, R>(OptionAsync<T> ma, Func<T, R> Some, Func<Task<R>> None) =>
             ma.MatchUnsafeAsync(Some, None);
 
@@ -316,6 +344,7 @@ namespace LanguageExt
         /// <param name="None">None match operation. May return null.</param>
         /// <returns>B, or null</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<R> matchUnsafeAsync<T, R>(OptionAsync<T> ma, Func<T, Task<R>> Some, Func<Task<R>> None) =>
             ma.MatchUnsafeAsync(Some, None);
 
@@ -324,6 +353,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Some">Some match operation</param>
         /// <param name="None">None match operation</param>
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Unit> match<T>(OptionAsync<T> ma, Action<T> Some, Action None) =>
             ma.Match(Some, None);
 
@@ -334,6 +364,7 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<B> apply<A, B>(OptionAsync<Func<A, B>> fab, OptionAsync<A> fa) =>
             ApplOptionAsync<A, B>.Inst.Apply(fab, fa);
 
@@ -344,6 +375,7 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<B> apply<A, B>(Func<A, B> fab, OptionAsync<A> fa) =>
             ApplOptionAsync<A, B>.Inst.Apply(fab, fa);
 
@@ -355,6 +387,7 @@ namespace LanguageExt
         /// <param name="fb">Applicative b to apply</param>
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<C> apply<A, B, C>(OptionAsync<Func<A, B, C>> fabc, OptionAsync<A> fa, OptionAsync<B> fb) =>
             from x in fabc
             from y in ApplOptionAsync<A, B, C>.Inst.Apply(curry(x), fa, fb)
@@ -368,6 +401,7 @@ namespace LanguageExt
         /// <param name="fb">Applicative b to apply</param>
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<C> apply<A, B, C>(Func<A, B, C> fabc, OptionAsync<A> fa, OptionAsync<B> fb) =>
             ApplOptionAsync<A, B, C>.Inst.Apply(curry(fabc), fa, fb);
 
@@ -378,6 +412,7 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<Func<B, C>> apply<A, B, C>(OptionAsync<Func<A, B, C>> fabc, OptionAsync<A> fa) =>
             from x in fabc
             from y in ApplOptionAsync<A, B, C>.Inst.Apply(curry(x), fa)
@@ -390,6 +425,7 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, OptionAsync<A> fa) =>
             ApplOptionAsync<A, B, C>.Inst.Apply(curry(fabc), fa);
 
@@ -400,6 +436,7 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<Func<B, C>> apply<A, B, C>(OptionAsync<Func<A, Func<B, C>>> fabc, OptionAsync<A> fa) =>
             ApplOptionAsync<A, B, C>.Inst.Apply(fabc, fa);
 
@@ -410,6 +447,7 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, OptionAsync<A> fa) =>
             ApplOptionAsync<A, B, C>.Inst.Apply(fabc, fa);
 
@@ -420,6 +458,7 @@ namespace LanguageExt
         /// <param name="fb">Applicative to evaluate second and then return</param>
         /// <returns>Applicative of type OptionAsync<B></returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<B> action<A, B>(OptionAsync<A> fa, OptionAsync<B> fb) =>
             ApplOptionAsync<A, B>.Inst.Action(fa, fb);
 
@@ -444,6 +483,7 @@ namespace LanguageExt
         /// <param name="folder">Folder function, applied if OptionAsync is in a Some state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> fold<S, A>(OptionAsync<A> ma, S state, Func<S, A, S> folder) =>
             ma.Fold(state, folder);
 
@@ -468,6 +508,7 @@ namespace LanguageExt
         /// <param name="folder">Folder function, applied if OptionAsync is in a Some state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> fold<S, A>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> folder) =>
             ma.FoldAsync(state, folder);
 
@@ -492,6 +533,7 @@ namespace LanguageExt
         /// <param name="None">Folder function, applied if OptionAsync is in a None state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> bifold<S, A>(OptionAsync<A> ma, S state, Func<S, A, S> Some, Func<S, S> None) =>
             ma.BiFold(state, Some, None);
 
@@ -516,6 +558,7 @@ namespace LanguageExt
         /// <param name="None">Folder function, applied if OptionAsync is in a None state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> bifold<S, A>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> Some, Func<S, S> None) =>
             ma.BiFoldAsync(state, Some, None);
 
@@ -540,6 +583,7 @@ namespace LanguageExt
         /// <param name="None">Folder function, applied if OptionAsync is in a None state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> bifold<S, A>(OptionAsync<A> ma, S state, Func<S, A, S> Some, Func<S, Task<S>> None) =>
             ma.BiFoldAsync(state, Some, None);
 
@@ -564,6 +608,7 @@ namespace LanguageExt
         /// <param name="None">Folder function, applied if OptionAsync is in a None state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> bifold<S, A>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> Some, Func<S, Task<S>> None) =>
             ma.BiFoldAsync(state, Some, None);
 
@@ -588,6 +633,7 @@ namespace LanguageExt
         /// <param name="None">Folder function, applied if OptionAsync is in a None state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> bifold<S, A>(OptionAsync<A> ma, S state, Func<S, A, S> Some, Func<S, Unit, S> None) =>
             ma.BiFold(state, Some, None);
 
@@ -612,6 +658,7 @@ namespace LanguageExt
         /// <param name="None">Folder function, applied if OptionAsync is in a None state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> bifold<S, A>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> Some, Func<S, Unit, S> None) =>
             ma.BiFold(state, Some, None);
 
@@ -636,6 +683,7 @@ namespace LanguageExt
         /// <param name="None">Folder function, applied if OptionAsync is in a None state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> bifold<S, A>(OptionAsync<A> ma, S state, Func<S, A, S> Some, Func<S, Unit, Task<S>> None) =>
             ma.BiFoldAsync(state, Some, None);
 
@@ -660,6 +708,7 @@ namespace LanguageExt
         /// <param name="None">Folder function, applied if OptionAsync is in a None state</param>
         /// <returns>The aggregate state</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<S> bifold<S, A>(OptionAsync<A> ma, S state, Func<S, A, Task<S>> Some, Func<S, Unit, Task<S>> None) =>
             ma.BiFoldAsync(state, Some, None);
 
@@ -675,6 +724,7 @@ namespace LanguageExt
         /// the value is the result of running applying the bound value to the 
         /// predicate supplied.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> forall<A>(OptionAsync<A> ma, Func<A, bool> pred) =>
             ma.ForAll(pred);
 
@@ -691,6 +741,7 @@ namespace LanguageExt
         /// is the result of running applying the bound value to the Some predicate 
         /// supplied.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> biforall<A>(OptionAsync<A> ma, Func<A, bool> Some, Func<Unit, bool> None) =>
             ma.BiForAll(Some, None);
 
@@ -707,6 +758,7 @@ namespace LanguageExt
         /// is the result of running applying the bound value to the Some predicate 
         /// supplied.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> biforall<A>(OptionAsync<A> ma, Func<A, bool> Some, Func<bool> None) =>
             ma.BiForAll(Some, None);
 
@@ -723,6 +775,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns></returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<int> count<A>(OptionAsync<A> ma) =>
             ma.Count();
 
@@ -738,6 +791,7 @@ namespace LanguageExt
         /// is the result of running applying the bound value to the Some predicate 
         /// supplied.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> exists<A>(OptionAsync<A> ma, Func<A, bool> pred) =>
             ma.Exists(pred);
 
@@ -754,6 +808,7 @@ namespace LanguageExt
         /// is the result of running applying the bound value to the Some predicate 
         /// supplied.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> biexists<A>(OptionAsync<A> ma, Func<A, bool> Some, Func<Unit, bool> None) =>
             ma.BiExists(Some, None);
 
@@ -770,6 +825,7 @@ namespace LanguageExt
         /// is the result of running applying the bound value to the Some predicate 
         /// supplied.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<bool> biexists<A>(OptionAsync<A> ma, Func<A, bool> Some, Func<bool> None) =>
             ma.BiExists(Some, None);
 
@@ -780,6 +836,7 @@ namespace LanguageExt
         /// <param name="f">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<B> map<A, B>(OptionAsync<A> ma, Func<A, B> f) =>
             ma.Map(f);
 
@@ -791,6 +848,7 @@ namespace LanguageExt
         /// <param name="None">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<B> bimap<A, B>(OptionAsync<A> ma, Func<A, B> Some, Func<B> None) =>
             ma.BiMap(Some, None);
 
@@ -802,6 +860,7 @@ namespace LanguageExt
         /// <param name="None">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<B> bimap<A, B>(OptionAsync<A> ma, Func<A, B> Some, Func<Unit, B> None) =>
             ma.BiMap(Some, None);
 
@@ -809,6 +868,7 @@ namespace LanguageExt
         /// Partial application map
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<Func<T2, R>> parmap<T1, T2, R>(OptionAsync<T1> ma, Func<T1, T2, R> mapper) =>
             ma.ParMap(mapper);
 
@@ -816,6 +876,7 @@ namespace LanguageExt
         /// Partial application map
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(OptionAsync<T1> ma, Func<T1, T2, T3, R> mapper) =>
             ma.ParMap(mapper);
 
@@ -826,6 +887,7 @@ namespace LanguageExt
         /// <returns>Some(x) if the OptionAsync is in a Some state and the predicate
         /// returns True.  None otherwise.</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<T> filter<T>(OptionAsync<T> ma, Func<T, bool> pred) =>
             ma.Filter(pred);
 
@@ -833,6 +895,7 @@ namespace LanguageExt
         /// Monadic bind operation
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static OptionAsync<R> bind<T, R>(OptionAsync<T> ma, Func<T, OptionAsync<R>> binder) =>
             ma.Bind(binder);
 
@@ -842,6 +905,7 @@ namespace LanguageExt
         /// <param name="Some">Some match operation</param>
         /// <param name="None">None match operation</param>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static async Task<IEnumerable<R>> match<T, R>(IEnumerable<OptionAsync<T>> list,
             Func<T, IEnumerable<R>> Some,
             Func<IEnumerable<R>> None
@@ -872,6 +936,7 @@ namespace LanguageExt
         /// <param name="Some">Some match operation</param>
         /// <param name="None">None match operation</param>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<IEnumerable<R>> match<T, R>(IEnumerable<OptionAsync<T>> list,
             Func<T, IEnumerable<R>> Some,
             IEnumerable<R> None) =>
@@ -882,6 +947,7 @@ namespace LanguageExt
         /// All the 'Some' elements are extracted in order.
         /// </summary>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<IEnumerable<T>> somes<T>(IEnumerable<OptionAsync<T>> list) =>
             list.Somes();
 
@@ -890,6 +956,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An immutable list of zero or one items</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Lst<T>> toList<T>(OptionAsync<T> OptionAsync) =>
             OptionAsync.ToList();
 
@@ -898,6 +965,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
+        [Obsolete(Change.UseEffMonadInstead)]
         public static Task<Arr<T>> toArray<T>(OptionAsync<T> OptionAsync) =>
             OptionAsync.ToArray();
     }

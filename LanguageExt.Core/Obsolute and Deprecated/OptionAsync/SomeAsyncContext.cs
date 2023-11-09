@@ -4,6 +4,7 @@ using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
+    [Obsolete(Change.UseEffMonadInstead)]
     public class SomeAsyncContext<OPT, OA, A, B> where OPT : struct, OptionalAsync<OA, A>
     {
         private readonly OA option;

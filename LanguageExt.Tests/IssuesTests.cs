@@ -17,6 +17,7 @@ using static LanguageExt.Parsec.Char;
 
 namespace LanguageExt.Tests
 {
+    [Obsolete]
     public class IssuesTests
     {
         /// <summary>
@@ -121,6 +122,7 @@ public class TopHatTests
         public Option<int> Id2 { get; set; }
     }
 
+    [Obsolete]
     OptionAsync<int> SumOptionAsync() => SomeAsync(async _ =>
     {
         var first = await Task.FromResult(1);
@@ -149,6 +151,7 @@ namespace Core.Tests
 {
     using static ExternalSystem;
 
+    [Obsolete]
     public class ExternalOptionsAndEithersTests
     {
         [Fact]
@@ -177,6 +180,7 @@ namespace Core.Tests
             public Error(string value) : base(value) { }
         }
 
+        [Obsolete]
         public static OptionAsync<Pixel> GetPixel(PixelId id) =>
             Option<Pixel>.None.ToAsync();
 

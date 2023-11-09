@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
+    [Obsolete(Change.UseEffMonadInstead)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct OptionAsyncMethodBuilder<A>
     {

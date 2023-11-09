@@ -1,35 +1,36 @@
+using System;
 using Xunit;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Collections
 {
+    [Obsolete]
     public class ArrOptionAsync
     {
         [Fact]
+        [Obsolete]
         public async void EmptyIsSomeEmpty()
         {
             var ma = Array<OptionAsync<int>>();
-
             var mb = ma.Sequence();
-
             var mc = SomeAsync(Array<int>());
             
             Assert.True(await (mb == mc));        
         }
 
         [Fact]
+        [Obsolete]
         public async void CollectionOfSomesIsSomeCollection()
         {
             var ma = Array(SomeAsync(1), SomeAsync(2), SomeAsync(3));
-
             var mb = ma.Sequence();
-
             var mc = SomeAsync(Array(1, 2, 3));
 
             Assert.True(await (mb == mc));
         }
         
         [Fact]
+        [Obsolete]
         public async void CollectionOfSomesAndNonesIsNone()
         {
             var ma = Array(SomeAsync(1), SomeAsync(2), None);

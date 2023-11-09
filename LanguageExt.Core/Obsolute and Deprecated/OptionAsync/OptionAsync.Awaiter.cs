@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
+    [Obsolete(Change.UseEffMonadInstead)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct OptionAsyncAwaiter<A> : INotifyCompletion
     {

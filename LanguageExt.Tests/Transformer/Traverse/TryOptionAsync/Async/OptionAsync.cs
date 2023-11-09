@@ -8,6 +8,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.TryOptionAsyncT.Async
 {
+    [Obsolete]
     public class OptionAsyncTryOptionAsync
     {
         static Task<bool> Eq<A>(TryOptionAsync<OptionAsync<A>> ma, TryOptionAsync<OptionAsync<A>> mb) =>

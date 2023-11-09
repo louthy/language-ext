@@ -12,6 +12,7 @@ namespace LanguageExt
     {
         // Async : Arr
 
+        [Obsolete]
         public static OptionAsync<Arr<B>> BindT<A, B>(this OptionAsync<Arr<A>> ma, Func<A, OptionAsync<Arr<B>>> f) =>
             ma.BindAsync(
                 async ima =>
@@ -120,7 +121,7 @@ namespace LanguageExt
 
 
         // Async : HashSet
-
+        [Obsolete]
         public static OptionAsync<HashSet<B>> BindT<A, B>(this OptionAsync<HashSet<A>> ma, Func<A, OptionAsync<HashSet<B>>> f) =>
             ma.BindAsync(
                 async ima =>
@@ -229,6 +230,7 @@ namespace LanguageExt
 
         // Async : Lst
 
+        [Obsolete]
         public static OptionAsync<Lst<B>> BindT<A, B>(this OptionAsync<Lst<A>> ma, Func<A, OptionAsync<Lst<B>>> f) =>
             ma.BindAsync(
                 async ima =>
@@ -338,6 +340,7 @@ namespace LanguageExt
 
         // Async : Option
 
+        [Obsolete]
         public static OptionAsync<Option<B>> BindT<A, B>(this OptionAsync<Option<A>> ma, Func<A, OptionAsync<Option<B>>> f) =>
             ma.Bind(
                 ima => ima.Match(
@@ -379,6 +382,7 @@ namespace LanguageExt
 
         // Async : OptionUnsafe
 
+        [Obsolete]
         public static OptionAsync<OptionUnsafe<B>> BindT<A, B>(this OptionAsync<OptionUnsafe<A>> ma, Func<A, OptionAsync<OptionUnsafe<B>>> f) =>
             ma.Bind(
                 ima => ima.MatchUnsafe(
@@ -419,6 +423,7 @@ namespace LanguageExt
 
         // Async : Either
 
+        [Obsolete]
         public static OptionAsync<Either<L, B>> BindT<L, A, B>(this OptionAsync<Either<L, A>> ma, Func<A, OptionAsync<Either<L, B>>> f) =>
             ma.Bind(
                 ima => ima.Match(
@@ -459,6 +464,7 @@ namespace LanguageExt
 
         // Async : EitherUnsafe
 
+        [Obsolete]
         public static OptionAsync<EitherUnsafe<L, B>> BindT<L, A, B>(this OptionAsync<EitherUnsafe<L, A>> ma, Func<A, OptionAsync<EitherUnsafe<L, B>>> f) =>
             ma.Bind(
                 ima => ima.MatchUnsafe(
@@ -499,6 +505,7 @@ namespace LanguageExt
 
         // Async : Try
 
+        [Obsolete]
         public static OptionAsync<Try<B>> BindT<A, B>(this OptionAsync<Try<A>> ma, Func<A, OptionAsync<Try<B>>> f) =>
             ma.Bind(
                 ima => ima.Match(
@@ -540,6 +547,7 @@ namespace LanguageExt
 
         // Async : Try
 
+        [Obsolete]
         public static OptionAsync<TryOption<B>> BindT<A, B>(this OptionAsync<TryOption<A>> ma, Func<A, OptionAsync<TryOption<B>>> f) =>
             ma.Bind(
                 ima => ima.Match(
@@ -587,6 +595,7 @@ namespace LanguageExt
 
         // Async : IEnumerable
 
+        [Obsolete]
         public static OptionAsync<IEnumerable<B>> BindT<A, B>(this OptionAsync<IEnumerable<A>> ma, Func<A, OptionAsync<IEnumerable<B>>> f) =>
             ma.BindAsync(
                 async ima =>
@@ -657,6 +666,7 @@ namespace LanguageExt
                     return TryAsync(results.AsEnumerable());
                 });
 
+        [Obsolete]
         public static TryOptionAsync<IEnumerable<B>> BindT<A, B>(this TryOptionAsync<IEnumerable<A>> ma, Func<A, TryOptionAsync<IEnumerable<B>>> f) =>
             ma.BindAsync(
                 async ima =>
@@ -678,6 +688,7 @@ namespace LanguageExt
 
         // Async : Seq
 
+        [Obsolete]
         public static OptionAsync<Seq<B>> BindT<A, B>(this OptionAsync<Seq<A>> ma, Func<A, OptionAsync<Seq<B>>> f) =>
             ma.BindAsync(
                 async ima =>
@@ -768,6 +779,7 @@ namespace LanguageExt
 
         // Async : Set
 
+        [Obsolete]
         public static OptionAsync<Set<B>> BindT<A, B>(this OptionAsync<Set<A>> ma, Func<A, OptionAsync<Set<B>>> f) =>
             ma.BindAsync(
                 async ima =>
@@ -877,6 +889,7 @@ namespace LanguageExt
 
         // Async : Validation
 
+        [Obsolete]
         public static OptionAsync<Validation<L, B>> BindT<L, A, B>(this OptionAsync<Validation<L, A>> ma, Func<A, OptionAsync<Validation<L, B>>> f) =>
             ma.Bind(
                 ima => ima.Match(

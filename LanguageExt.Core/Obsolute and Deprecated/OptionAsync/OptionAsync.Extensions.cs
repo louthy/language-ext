@@ -13,6 +13,7 @@ using LanguageExt.ClassInstances;
 /// <summary>
 /// Extension methods for OptionAsync
 /// </summary>
+[Obsolete(Change.UseEffMonadInstead)]
 public static partial class OptionAsyncExtensions
 {
     /// <summary>

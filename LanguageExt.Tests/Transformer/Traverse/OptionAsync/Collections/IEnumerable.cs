@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Collections
 {
+    [Obsolete]
     public class IEnumerableOptionAsync
     {
         [Fact]

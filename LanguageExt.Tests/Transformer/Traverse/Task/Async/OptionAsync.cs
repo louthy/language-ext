@@ -7,6 +7,7 @@ using LanguageExt.ClassInstances;
 
 namespace LanguageExt.Tests.Transformer.Traverse.TaskT.Async
 {
+    [Obsolete]
     public class OptionAsyncTask
     {
         static Task<bool> Eq<A>(Task<OptionAsync<A>> ma, Task<OptionAsync<A>> mb) =>
