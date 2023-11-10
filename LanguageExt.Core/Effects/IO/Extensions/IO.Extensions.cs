@@ -23,5 +23,5 @@ public static class IOExtensions
 
     public static IO<RT, E, (A First, B Second)> Zip<RT, E, A, B>(this (IO<RT, E, A> First, IO<RT, E, B> Second) tuple)
          where RT : struct, HasCancel<RT> =>
-         new(new ZipSumTransducer2<RT, E, A, B>(tuple.First.Thunk, tuple.Second.Thunk));
+         new(Transducer.zip(tuple.First.Thunk, tuple.Second.Thunk));
 }

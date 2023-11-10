@@ -12,13 +12,17 @@ using LanguageExt.Transducers;
 namespace LanguageExt
 {
     /// <summary>
-    /// Synchronous IO monad
+    /// Transducer based IO monad
     /// </summary>
+    /// <typeparam name="RT">Runtime struct</typeparam>
+    /// <typeparam name="E">Error value type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
     public readonly struct IO<RT, E, A>
         where RT : struct, HasCancel<RT>
     {
-        internal Transducer<RT, Sum<E, A>> Thunk => thunk ?? Transducer.Fail<RT, Sum<E, A>>(Errors.Bottom);
         readonly Transducer<RT, Sum<E, A>> thunk;
+        internal Transducer<RT, Sum<E, A>> Thunk => 
+            thunk ?? Transducer.Fail<RT, Sum<E, A>>(Errors.Bottom);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -36,21 +40,21 @@ namespace LanguageExt
         /// Constructor
         /// </summary>
         [MethodImpl(Opt.Default)]
-        internal IO(Func<RT, Sum<E, A>> thunk) =>
+        IO(Func<RT, Sum<E, A>> thunk) =>
             this.thunk = Transducer.lift(thunk);
 
         /// <summary>
         /// Constructor
         /// </summary>
         [MethodImpl(Opt.Default)]
-        internal IO(Func<RT, A> thunk) : this(rt => Sum<E, A>.Right(thunk(rt)))
+        IO(Func<RT, A> thunk) : this(rt => Sum<E, A>.Right(thunk(rt)))
         { }
 
         /// <summary>
         /// Constructor
         /// </summary>
         [MethodImpl(Opt.Default)]
-        internal IO(Transducer<RT, A> thunk) 
+        IO(Transducer<RT, A> thunk) 
             : this(Transducer.compose(thunk, Transducer.lift<A, Sum<E, A>>(x => Sum<E, A>.Right(x))))
         { }
 
@@ -58,14 +62,14 @@ namespace LanguageExt
         /// Constructor
         /// </summary>
         [MethodImpl(Opt.Default)]
-        internal IO(Func<RT, Either<E, A>> thunk) : this(rt => thunk(rt).ToSum())
+        IO(Func<RT, Either<E, A>> thunk) : this(rt => thunk(rt).ToSum())
         { }
 
         /// <summary>
         /// Constructor
         /// </summary>
         [MethodImpl(Opt.Default)]
-        internal IO(Transducer<RT, Either<E, A>> thunk) 
+        IO(Transducer<RT, Either<E, A>> thunk) 
             : this(Transducer.compose(thunk, Transducer.lift<Either<E, A>, Sum<E, A>>(x => x.ToSum())))
         { }
 
@@ -178,90 +182,6 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public IO<RT, E, A> Memo() =>
             new(Transducer.memo(Thunk));
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //
-        // Operators
-        //
-        
-        [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, IO<RT, E, A> mb) =>
-            new(Transducer.choice(ma.Thunk, mb.Thunk));
-
-        /*
-         
-         TODO
-         
-        [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, A> operator |(IO<RT, E, A> ma, Eff<E, A> mb) =>
-            new (e =>
-            {
-                var ra = ma.Run(e);
-                return ra.IsSucc
-                    ? ra
-                    : mb.Run();
-            });
-
-        [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, A> operator |(IO<A> ma, IO<RT, A> mb) =>
-            new(e =>
-            {
-                var ra = ma.Run();
-                return ra.IsSucc
-                    ? ra
-                    : mb.Run(e);
-            });
-
-        [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, A> operator |(IO<RT, A> ma, IOCatch<RT, A> mb) =>
-            new(env =>
-            {
-                var ra = ma.Run(env);
-                return ra.IsSucc
-                    ? ra
-                    : mb.Run(env, ra.Error);
-            });
-
-        [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, A> operator |(IO<RT, A> ma, IOCatch<A> mb) =>
-            new(env =>
-            {
-                var ra = ma.Run(env);
-                return ra.IsSucc
-                    ? ra
-                    : mb.Run(ra.Error);
-            });
-
-        [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, A> operator |(IO<RT, A> ma, CatchValue<A> value) =>
-            new(env =>
-            {
-                var ra = ma.Run(env);
-                return ra.IsSucc
-                    ? ra
-                    : value.Match(ra.Error)
-                        ? FinSucc(value.Value(ra.Error))
-                        : ra;
-            });
-
-        [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, A> operator |(IO<RT, A> ma, CatchError value) =>
-            new(env =>
-            {
-                var ra = ma.Run(env);
-                return ra.IsSucc
-                    ? ra
-                    : value.Match(ra.Error)
-                        ? FinFail<A>(value.Value(ra.Error))
-                        : ra;
-            });
-
-        /// <summary>
-        /// Implicit conversion from pure IO
-        /// </summary>
-        public static implicit operator IO<RT, E, A>(IO<E, A> ma) =>
-            IOectMaybe(_ => ma.Run());
-            */
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -382,13 +302,13 @@ namespace LanguageExt
         [Pure]
         public IO<RT, E, B> Match<B>(Transducer<A, B> Succ, Transducer<E, B> Fail) =>
             new(Transducer.compose(
-                Transducer.bimap(Thunk, Fail, Succ),
-                Transducer.lift<Sum<B, B>, Sum<E, B>>(s => s switch
-                {
-                    SumRight<B, B> r => Sum<E, B>.Right(r.Value),
-                    SumLeft<B, B> l => Sum<E, B>.Right(l.Value),
-                    _ => throw new BottomException()
-                })));
+                    Transducer.bimap(Thunk, Fail, Succ),
+                    Transducer.lift<Sum<B, B>, Sum<E, B>>(s => s switch
+                    {
+                        SumRight<B, B> r => Sum<E, B>.Right(r.Value),
+                        SumLeft<B, B> l => Sum<E, B>.Right(l.Value),
+                        _ => throw new BottomException()
+                    })));
 
         /// <summary>
         /// Map the failure to a success value
@@ -535,5 +455,102 @@ namespace LanguageExt
         /// <returns>Composition of this monad and the result of the function provided</returns>
         public IO<RT, E, C> SelectMany<B, C>(Func<A, IO<RT, E, B>> bind, Func<A, B, C> project) =>
             Bind(x => bind(x).Map(y => project(x, y)));
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //
+        // Folding
+        //
+
+        /// <summary>
+        /// Fold the effect
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, S> Fold<S>(S initialState, Func<S, A, S> folder) =>
+            new(Transducer.fold(Thunk, initialState, folder));
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //
+        // Operators
+        //
+        
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, IO<RT, E, A> mb) =>
+            new(Transducer.choice(ma.Thunk, mb.Thunk));
+
+        /*
+         
+         TODO
+         
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, A> operator |(IO<RT, E, A> ma, Eff<E, A> mb) =>
+            new (e =>
+            {
+                var ra = ma.Run(e);
+                return ra.IsSucc
+                    ? ra
+                    : mb.Run();
+            });
+
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, A> operator |(IO<A> ma, IO<RT, A> mb) =>
+            new(e =>
+            {
+                var ra = ma.Run();
+                return ra.IsSucc
+                    ? ra
+                    : mb.Run(e);
+            });
+
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, A> operator |(IO<RT, A> ma, IOCatch<RT, A> mb) =>
+            new(env =>
+            {
+                var ra = ma.Run(env);
+                return ra.IsSucc
+                    ? ra
+                    : mb.Run(env, ra.Error);
+            });
+
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, A> operator |(IO<RT, A> ma, IOCatch<A> mb) =>
+            new(env =>
+            {
+                var ra = ma.Run(env);
+                return ra.IsSucc
+                    ? ra
+                    : mb.Run(ra.Error);
+            });
+
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, A> operator |(IO<RT, A> ma, CatchValue<A> value) =>
+            new(env =>
+            {
+                var ra = ma.Run(env);
+                return ra.IsSucc
+                    ? ra
+                    : value.Match(ra.Error)
+                        ? FinSucc(value.Value(ra.Error))
+                        : ra;
+            });
+
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, A> operator |(IO<RT, A> ma, CatchError value) =>
+            new(env =>
+            {
+                var ra = ma.Run(env);
+                return ra.IsSucc
+                    ? ra
+                    : value.Match(ra.Error)
+                        ? FinFail<A>(value.Value(ra.Error))
+                        : ra;
+            });
+
+        /// <summary>
+        /// Implicit conversion from pure IO
+        /// </summary>
+        public static implicit operator IO<RT, E, A>(IO<E, A> ma) =>
+            IOectMaybe(_ => ma.Run());
+            */
+        
     }
 }
