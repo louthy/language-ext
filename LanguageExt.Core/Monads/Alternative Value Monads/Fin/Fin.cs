@@ -634,6 +634,12 @@ namespace LanguageExt
                 : None;
 
         [Pure, MethodImpl(Opt.Default)]
+        public Sum<Error, A> ToSum() =>
+            IsSucc
+                ? Sum<Error, A>.Right(Value)
+                : Sum<Error, A>.Left(Error);
+
+        [Pure, MethodImpl(Opt.Default)]
         public Either<Error, A> ToEither() =>
             IsSucc
                 ? Right<Error, A>(Value)

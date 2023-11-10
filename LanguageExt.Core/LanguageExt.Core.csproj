@@ -56,4 +56,8 @@
   <ItemGroup>
     <None Include="README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Effects\IO\Extensions\" />
+    <Folder Include="Effects\IO\Prelude\" />
+  </ItemGroup>
 </Project>

@@ -17,6 +17,55 @@ public static class TResult
     
     public static TResult<S> Recursive<S>(TRecursiveRunner<S> reduce) => 
         new TRecursive<S>(reduce);
+
+    public static Fin<A> ToFin<A>(this TResult<A> ma) =>
+        ma switch
+        {
+            TContinue<A> r => Fin<A>.Succ(r.Value),
+            TComplete<A> r => Fin<A>.Succ(r.Value),
+            TFail<A> r => Fin<A>.Fail(r.Error),
+            TCancelled<A> => Fin<A>.Fail(Errors.Cancelled),
+            TNone<A> => Fin<A>.Fail(Errors.None),
+            _ => Fin<A>.Fail(Errors.Bottom)
+        };
+
+    public static Fin<A> ToFin<A>(this TResult<Sum<Error, A>> ma) =>
+        ma switch
+        {
+            TContinue<Sum<Error, A>> r => SumToFin(r.Value),
+            TComplete<Sum<Error, A>> r => SumToFin(r.Value),
+            TFail<Sum<Error, A>> r => Fin<A>.Fail(r.Error),
+            TCancelled<Sum<Error, A>> => Fin<A>.Fail(Errors.Cancelled),
+            TNone<Sum<Error, A>> => Fin<A>.Fail(Errors.None),
+            _ => Fin<A>.Fail(Errors.Bottom)
+        };
+
+    public static Either<E, A> ToEither<E, A>(this TResult<Sum<E, A>> ma, Func<Error, Either<E, A>> errorMap) =>
+        ma switch
+        {
+            TContinue<Sum<E, A>> r => SumToEither(r.Value),
+            TComplete<Sum<E, A>> r => SumToEither(r.Value),
+            TFail<Sum<E, A>> r => errorMap(r.Error),
+            TCancelled<Sum<E, A>> => errorMap(Errors.Cancelled),
+            TNone<Sum<E, A>> => errorMap(Errors.None),
+            _ => Either<E, A>.Bottom
+        };
+
+    static Fin<A> SumToFin<A>(Sum<Error, A> value) =>
+        value switch
+        {
+            SumRight<Error, A> r => Fin<A>.Succ(r.Value),
+            SumLeft<Error, A> l => Fin<A>.Fail(l.Value),
+            _ => Fin<A>.Fail(Errors.Bottom)
+        };
+
+    static Either<E, A> SumToEither<E, A>(Sum<E, A> value) =>
+        value switch
+        {
+            SumRight<E, A> r => Either<E, A>.Right(r.Value),
+            SumLeft<E, A> l => Either<E, A>.Left(l.Value),
+            _ => Either<E, A>.Bottom
+        };
 }
 
 public abstract record TResultBase

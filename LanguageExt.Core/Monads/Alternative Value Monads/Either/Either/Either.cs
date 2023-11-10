@@ -11,6 +11,7 @@ using LanguageExt.ClassInstances;
 using System.Runtime.Serialization;
 using LanguageExt.DataTypes.Serialisation;
 using System.Collections;
+using System.Runtime.CompilerServices;
 using LanguageExt.Common;
 
 namespace LanguageExt
@@ -579,6 +580,17 @@ namespace LanguageExt
         [Pure]
         public Option<R> ToOption() =>
             toOption<MEither<L, R>, Either<L, R>, L, R>(this);
+
+        /// <summary>
+        /// Convert the Either to a Sum
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public Sum<L, R> ToSum() =>
+            IsBottom
+                ? throw new BottomException()
+                : IsRight
+                    ? Sum<L, R>.Right(right)
+                    : Sum<L, R>.Left(left);
 
         /// <summary>
         /// Convert to an Eff

@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System;
+using System.Threading;
 using LanguageExt.HKT;
 
 namespace LanguageExt.Transducers;
@@ -164,9 +165,12 @@ public static partial class Transducer
     /// If the transducer throws an exception or yields an `Error`, then it will return `TResult.Fail`.
     /// If the transducer is cancelled, then it will return `TResult.Cancelled`. 
     /// </returns>
-    public static TResult<B> Invoke1<A, B>(this Transducer<A, B> transducer, A value) =>
+    public static TResult<B> Invoke1<A, B>(
+        this Transducer<A, B> transducer, 
+        A value, 
+        CancellationToken token) =>
         transducer
-            .Invoke(value, default, Invoke1Reducer<B>.Default)
+            .Invoke(value, default, Invoke1Reducer<B>.Default, token)
             .Bind(static b => b is null ? TResult.None<B>() : TResult.Complete<B>(b));
     
     /// <summary>
@@ -187,9 +191,10 @@ public static partial class Transducer
         this Transducer<A, B> transducer, 
         A value, 
         S initialState, 
-        Reducer<S, B> reducer)
+        Reducer<S, B> reducer, 
+        CancellationToken token)
     {
-        var st = new TState();
+        var st = new TState(token);
 
         try
         {

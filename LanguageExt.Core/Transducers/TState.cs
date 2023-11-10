@@ -10,8 +10,8 @@ public class TState : IDisposable
     public readonly CancellationToken Token;
     ConcurrentDictionary<object, IDisposable>? Disps;
 
-    public TState() =>
-        Disps = null;
+    public TState(CancellationToken token) =>
+        (Disps, Token) = (null, token);
 
     public TState(ConcurrentDictionary<object, IDisposable>? disps, CancellationToken token) =>
         (Disps, Token) = (disps, token);

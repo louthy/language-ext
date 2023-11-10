@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 
 namespace LanguageExt.Transducers;
 
@@ -17,6 +18,17 @@ public static partial class Transducer
     public static Transducer<Unit, A> Pure<A>(A value) =>
         constant<Unit, A>(value);
 
+    /// <summary>
+    /// Fail transducer
+    /// </summary>
+    /// <remarks>
+    /// Consider this the `throw` of transducers.  It is the nuclear option to get out of a reduce.
+    /// </remarks>
+    /// <param name="error">Error to raise</param>
+    /// <returns>A transducer that always fails</returns>
+    public static Transducer<A, B> Fail<A, B>(Error error) =>
+        new FailTransducer<A, B>(error);
+    
     /// <summary>
     /// Identity transducer
     /// </summary>
@@ -310,5 +322,29 @@ public static partial class Transducer
         Transducer<Sum<X, A>, Sum<Y, B>> First,
         Transducer<B, C> Right) =>
         new MapRight2<X, Y, A, B, C>(First, Right);
-    
+
+    /// <summary>
+    /// Choice transducer
+    /// </summary>
+    /// <remarks>
+    /// Tries a sequence of transducers until one succeeds (results in a `Sum.Right`).  If the sequence
+    /// is exhausted then the transducer completes.
+    /// </remarks>
+    /// <param name="transducers">Sequence of transducers</param>
+    /// <returns>Transducer that encapsulates the choice</returns>
+    public static Transducer<A, Sum<X, B>> choice<X, A, B>(Seq<Transducer<A, Sum<X, B>>> transducers) =>
+        new ChoiceTransducer<X, A, B>(transducers);
+
+    /// <summary>
+    /// Choice transducer
+    /// </summary>
+    /// <remarks>
+    /// Tries a sequence of transducers until one succeeds (results in a `Sum.Right`).  If the sequence
+    /// is exhausted then the transducer completes.
+    /// </remarks>
+    /// <param name="transducers">Sequence of transducers</param>
+    /// <returns>Transducer that encapsulates the choice</returns>
+    public static Transducer<A, Sum<X, B>> choice<X, A, B>(params Transducer<A, Sum<X, B>>[] transducers) =>
+        new ChoiceTransducer<X, A, B>(transducers.ToSeq());
+
 }
