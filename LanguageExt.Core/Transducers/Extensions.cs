@@ -282,7 +282,28 @@ public static partial class Transducer
     /// <returns>Memoised transducer</returns>
     public static Transducer<A, B> Memo<EqA, A, B>(this Transducer<A, B> transducer)
         where EqA : struct, Eq<A> =>
-        new Memo1Transducer<EqA, A, B>(transducer);  
+        new Memo1Transducer<EqA, A, B>(transducer);
+    
+    /// <summary>
+    /// Zips two transducers together so their results are paired
+    /// </summary>
+    /// <param name="First">First transducer</param>
+    /// <param name="Second">Second transducer</param>
+    /// <returns>A transducer that contains the results of both provided</returns>
+    public static Transducer<E, (A First, B Second)> Zip<E, A, B>(this Transducer<E, A> First, Transducer<E, B> Second) =>
+        new ZipTransducer2<E, A, B>(First, Second);
+
+    /// <summary>
+    /// Zips two transducers together so their results are paired
+    /// </summary>
+    /// <param name="First">First transducer</param>
+    /// <param name="Second">Second transducer</param>
+    /// <returns>A transducer that contains the results of both provided</returns>
+    public static Transducer<E, Sum<X, (A First, B Second)>> Zip<E, X, A, B>(
+        this Transducer<E, Sum<X, A>> First, 
+        Transducer<E, Sum<X, B>> Second) =>
+        new ZipSumTransducer2<E, X, A, B>(First, Second);
+    
     
     /// <summary>
     /// Invoke the transducer, reducing to a single value only

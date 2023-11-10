@@ -273,7 +273,7 @@ public static class ActivityTests
                 "test",
                 ActivityKind.Client,
                 HashMap(("1", "a" as object), ("2", "b")),
-                Zip(A.kind, A.tags)
+                A.kind.Zip(A.tags)
             )
             .ArrangeAndAct();
         kind.IsSome.Should().BeTrue();
@@ -300,7 +300,7 @@ public static class ActivityTests
                 "test",
                 ActivityKind.Client,
                 HashMap(("1", "a" as object), ("2", "b")),
-                Zip(A.kind, A.tags).ToAff()
+                A.kind.Zip(A.tags).ToAff()
             )
             .ArrangeAndAct();
         kind.IsSome.Should().BeTrue();
@@ -322,7 +322,7 @@ public static class ActivityTests
                     HashMap(("1", "a" as object), ("2", "b")),
                     Seq<ActivityLink>.Empty,
                     DateTimeOffset.Now,
-                    Zip(A.kind, A.tags).ToAff()
+                    A.kind.Zip(A.tags).ToAff()
                 )
                 select result
             )
