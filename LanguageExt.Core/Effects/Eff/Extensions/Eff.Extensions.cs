@@ -627,7 +627,7 @@ namespace LanguageExt
         //
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Eff<RT, (A, B)> Zip<RT, A, B>(Eff<RT, A> ma, Eff<RT, B> mb) where RT : struct =>
+        public static Eff<RT, (A, B)> Zip<RT, A, B>(this Eff<RT, A> ma, Eff<RT, B> mb) where RT : struct =>
             new(e =>
             {
                 var ta = ma.Run(e);
@@ -638,7 +638,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Eff<RT, (A, B)> Zip<RT, A, B>(Eff<A> ma, Eff<RT, B> mb) where RT : struct =>
+        public static Eff<RT, (A, B)> Zip<RT, A, B>(this Eff<A> ma, Eff<RT, B> mb) where RT : struct =>
             new(e =>
             {
                 var ta = ma.Run();
@@ -649,7 +649,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Eff<RT, (A, B)> Zip<RT, A, B>(Eff<RT, A> ma, Eff<B> mb) where RT : struct =>
+        public static Eff<RT, (A, B)> Zip<RT, A, B>(this Eff<RT, A> ma, Eff<B> mb) where RT : struct =>
             new(e =>
             {
                 var ta = ma.Run(e);

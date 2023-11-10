@@ -160,8 +160,17 @@ public static partial class Transducer
     /// </summary>
     /// <param name="ff">Nested transducers</param>
     /// <returns>Flattened transducers</returns>
-    public static Transducer<Env, Sum<X, A>> flatten<Env, X, Y, A>(Transducer<Env, Sum<X, Transducer<Env, Sum<X, A>>>> ff) =>
+    public static Transducer<Env, Sum<X, A>> flatten<Env, X, A>(Transducer<Env, Sum<X, Transducer<Env, Sum<X, A>>>> ff) =>
         new FlattenSumTransducer1<Env, X, A>(ff);
+    
+    /// <summary>
+    /// Take nested transducers and flatten them
+    /// </summary>
+    /// <param name="ff">Nested transducers</param>
+    /// <returns>Flattened transducers</returns>
+    public static Transducer<Env, Sum<X, A>> flatten<Env, X, A>(
+        Transducer<Env, Sum<Transducer<Env, Sum<X, A>>, Transducer<Env, Sum<X, A>>>> ff) =>
+        new FlattenSumTransducer2<Env, X, A>(ff);
 
     /*
     /// <summary>
@@ -325,6 +334,42 @@ public static partial class Transducer
         Transducer<B, C> Right) =>
         new MapRight2<X, Y, A, B, C>(First, Right);
 
+    /// <summary>
+    /// Filter the values in the transducer
+    /// </summary>
+    /// <param name="f">Transducer to filter</param>
+    /// <param name="pred">Predicate to apply</param>
+    /// <returns>Filtered transducer</returns>
+    public static Transducer<A, B> filter<A, B>(Transducer<A, B> f, Transducer<B, bool> pred) =>
+        new FilterTransducer1<A, B>(f, pred);
+
+    /// <summary>
+    /// Filter the values in the transducer
+    /// </summary>
+    /// <param name="f">Transducer to filter</param>
+    /// <param name="pred">Predicate to apply</param>
+    /// <returns>Filtered transducer</returns>
+    public static Transducer<A, B> filter<A, B>(Transducer<A, B> f, Func<B, bool> pred) =>
+        Filter(f, lift(pred));
+
+    /// <summary>
+    /// Filter the values in the transducer
+    /// </summary>
+    /// <param name="f">Transducer to filter</param>
+    /// <param name="pred">Predicate to apply</param>
+    /// <returns>Filtered transducer</returns>
+    public static Transducer<A, Sum<X, B>> filter<X, A, B>(Transducer<A, Sum<X, B>> f, Transducer<B, bool> pred) =>
+        new FilterSumTransducer1<X, A, B>(f, pred);
+
+    /// <summary>
+    /// Filter the values in the transducer
+    /// </summary>
+    /// <param name="f">Transducer to filter</param>
+    /// <param name="pred">Predicate to apply</param>
+    /// <returns>Filtered transducer</returns>
+    public static Transducer<A, Sum<X, B>> filter<X, A, B>(Transducer<A, Sum<X, B>> f, Func<B, bool> pred) =>
+        Filter(f, lift(pred));    
+    
     /// <summary>
     /// Choice transducer
     /// </summary>
