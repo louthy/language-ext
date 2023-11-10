@@ -8,5 +8,5 @@ record FailTransducer<A, B>(Error Error) : Transducer<A, B>
         this;
     
     public Reducer<S, A> Transform<S>(Reducer<S, B> reduce) =>
-        Reducer.From<S, A>((_, _, _) => TResult.Fail<S>(Error));
+        Reducer.from<S, A>((_, _, _) => TResult.Fail<S>(Error));
 }

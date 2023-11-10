@@ -19,7 +19,7 @@ public abstract record Reducer<S, A>
 
 public static class Reducer
 {
-    public static Reducer<S, A> From<S, A>(Func<TState, S, A, TResult<S>> f) =>
+    public static Reducer<S, A> from<S, A>(Func<TState, S, A, TResult<S>> f) =>
         new FReducer<S, A>(f);
 }
 

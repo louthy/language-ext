@@ -4,6 +4,7 @@ using LanguageExt.Common;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Transducers;
@@ -16,7 +17,7 @@ namespace LanguageExt
     public readonly struct IO<RT, E, A>
         where RT : struct, HasCancel<RT>
     {
-        internal Transducer<RT, Sum<E, A>> Thunk => thunk ?? Transducer.Fail<RT, Sum<E, A>>(Errors.Bottom);
+        Transducer<RT, Sum<E, A>> Thunk => thunk ?? Transducer.Fail<RT, Sum<E, A>>(Errors.Bottom);
         readonly Transducer<RT, Sum<E, A>> thunk;
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace LanguageExt
         /// Invoke the effect
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
-        public Either<E, A> Run(RT env, Func<Error, Either<E, A>>? errorMap)
+        public Either<E, A> Run(RT env, Func<Error, Either<E, A>>? errorMap = null)
         {
             return Thunk.Invoke1(env, default(RT).CancellationToken).ToEither(errorMap ?? Throw);
             static Either<E, A> Throw(Error e) => e.ToException().Rethrow<Either<E, A>>();
@@ -74,23 +75,9 @@ namespace LanguageExt
         /// <summary>
         /// Memoise the result, so subsequent calls don't invoke the side-IOect
         /// </summary>
-        /*
-         
-         TODO:
-         
         [Pure, MethodImpl(Opt.Default)]
-        public IO<RT, A> Memo()
-        {
-            var thnk = Thunk;
-            Fin<A> mr = default;
-
-            return new IO<RT, A>(rt =>
-            {
-                if (mr.IsSucc) return mr;
-                mr = thnk(rt);
-                return mr;
-            });
-        }  */      
+        public IO<RT, E, A> Memo() =>
+            new(Transducer.memoStream(Thunk));
 
         /// <summary>
         /// Lift a synchronous effect into the IO monad
@@ -219,5 +206,49 @@ namespace LanguageExt
         public static implicit operator IO<RT, E, A>(IO<E, A> ma) =>
             IOectMaybe(_ => ma.Run());
             */
+        
+        //
+        // Map and map-left
+        //
+
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, B> Map<B>(Func<A, B> f) =>
+            new(Transducer.mapRight(Thunk, Transducer.lift(f)));
+
+        [Pure, MethodImpl(Opt.Default)]
+        public  IO<RT, E, A> MapFail(Func<E, E> f) =>
+            new(Transducer.mapLeft(Thunk, Transducer.lift(f)));
+
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, B> MapAsync<B>(Func<CancellationToken, A, Task<B>> f) =>
+            new(Transducer.mapRight(Thunk, Transducer.liftIO(f)));
+        
+        
+        //
+        // Bi-map
+        //
+
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, B> BiMap<B>(Func<A, B> Succ, Func<E, E> Fail) =>
+            new(Transducer.bimap(Thunk, Transducer.lift(Fail), Transducer.lift(Succ)));
+        
+
+        //
+        // Match
+        //
+
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, B> Match<B>(Func<A, B> Succ, Func<E, B> Fail) =>
+            new(Transducer.compose(
+                Transducer.bimap(Thunk, Transducer.lift(Fail), Transducer.lift(Succ)),
+                Transducer.lift<Sum<B, B>, Sum<E, B>>(s => s switch
+                {
+                    SumRight<B, B> r => Sum<E, B>.Right(r.Value),
+                    SumLeft<B, B> l => Sum<E, B>.Right(l.Value),
+                    _ => throw new BottomException()
+                })));
+
+
+
     }
 }

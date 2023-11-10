@@ -3,7 +3,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.ClassInstances;
 using LanguageExt.Common;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt.Transducers;
 
@@ -347,4 +349,79 @@ public static partial class Transducer
     public static Transducer<A, Sum<X, B>> choice<X, A, B>(params Transducer<A, Sum<X, B>>[] transducers) =>
         new ChoiceTransducer<X, A, B>(transducers.ToSeq());
 
+    /// <summary>
+    /// Caches the result of the transducer computation for each value flowing through.
+    /// </summary>
+    /// <remarks>
+    /// This works within the context of a single `Invoke` operation, so it only makes
+    /// sense if you're using the transducer as part of a stream process.  This allows
+    /// each item coming through to have its result cached. So you never repeat the
+    /// process for each `A` value.
+    /// </remarks>
+    /// <param name="transducer"></param>
+    /// <typeparam name="EqA"></typeparam>
+    /// <typeparam name="A"></typeparam>
+    /// <typeparam name="B"></typeparam>
+    /// <returns></returns>
+    public static Transducer<A, B> memoStream<A, B>(Transducer<A, B> transducer) =>
+        memoStream<EqDefault<A>, A, B>(transducer);
+
+    /// <summary>
+    /// Caches the result of the transducer computation for each value flowing through.
+    /// </summary>
+    /// <remarks>
+    /// This works within the context of a single `Invoke` operation, so it only makes
+    /// sense if you're using the transducer as part of a stream process.  This allows
+    /// each item coming through to have its result cached. So you never repeat the
+    /// process for each `A` value.
+    /// </remarks>
+    /// <param name="transducer"></param>
+    /// <typeparam name="EqA"></typeparam>
+    /// <typeparam name="A"></typeparam>
+    /// <typeparam name="B"></typeparam>
+    /// <returns></returns>
+    public static Transducer<A, B> memoStream<EqA, A, B>(Transducer<A, B> transducer)
+        where EqA : struct, Eq<A> =>
+        new MemoTransducer<EqA, A, B>(transducer);
+
+    /// <summary>
+    /// Caches the result of the transducer computation for each value flowing through.
+    /// </summary>
+    /// <remarks>
+    /// Unlike `MemoStream` -  which only caches values for the duration of the the call
+    /// to `Invoke` - this caches values for the duration of the life of the `Transducer`
+    /// instance.  
+    /// </remarks>
+    /// <remarks>
+    /// NOTE: Transducers use both a _value_ and a _state_ as inputs to its transformation
+    /// and reduce process.  For memoisation the state is ignored.  In a non-memoisation
+    /// scenario a different state and value pair could produce different results; and
+    /// so this should be considered when deciding to apply a memo to a transducer: it
+    /// only checks _value_ equality.
+    /// </remarks>
+    /// <param name="transducer">Transducer to memoise</param>
+    /// <returns>Memoised transducer</returns>
+    public static Transducer<A, B> memo<A, B>(Transducer<A, B> transducer) =>
+        memo<EqDefault<A>, A, B>(transducer);
+
+    /// <summary>
+    /// Caches the result of the transducer computation for each value flowing through.
+    /// </summary>
+    /// <remarks>
+    /// Unlike `MemoStream` -  which only caches values for the duration of the the call
+    /// to `Invoke` - this caches values for the duration of the life of the `Transducer`
+    /// instance.  
+    /// </remarks>
+    /// <remarks>
+    /// NOTE: Transducers use both a _value_ and a _state_ as inputs to its transformation
+    /// and reduce process.  For memoisation the state is ignored.  In a non-memoisation
+    /// scenario a different state and value pair could produce different results; and
+    /// so this should be considered when deciding to apply a memo to a transducer: it
+    /// only checks _value_ equality.
+    /// </remarks>
+    /// <param name="transducer">Transducer to memoise</param>
+    /// <returns>Memoised transducer</returns>
+    public static Transducer<A, B> memo<EqA, A, B>(Transducer<A, B> transducer)
+        where EqA : struct, Eq<A> =>
+        new Memo1Transducer<EqA, A, B>(transducer);    
 }
