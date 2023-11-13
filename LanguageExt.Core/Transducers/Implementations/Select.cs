@@ -12,8 +12,7 @@ record SelectTransducer<A, B, C>(Transducer<A, B> F, Func<B, C> G) :
     public Transducer<A, C> Morphism =>
         this;
 
-    record Mapper<S>(Func<B, C> G, Reducer<S, C> Reducer) :
-        Reducer<S, B>
+    record Mapper<S>(Func<B, C> G, Reducer<S, C> Reducer) : Reducer<S, B>
     {
         public override TResult<S> Run(TState st, S s, B b) =>
             Reducer.Run(st, s, G(b));

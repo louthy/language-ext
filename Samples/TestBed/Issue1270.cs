@@ -5,6 +5,7 @@ using static LanguageExt.Prelude;
 
 namespace TestBed;
 
+[Obsolete]
 public class Issue1270
 {
     public record Command;

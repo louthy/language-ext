@@ -311,18 +311,27 @@ public static partial class Transducer
         where EqA : struct, Eq<A> =>
         new Memo1Transducer<EqA, A, B>(transducer);
     
+
     /// <summary>
-    /// Zips two transducers together so their results are paired
+    /// Zips transducers together so their results are combined.  
     /// </summary>
+    /// <remarks>
+    /// Asynchronous transducers will run concurrently
+    /// </remarks>
     /// <param name="First">First transducer</param>
     /// <param name="Second">Second transducer</param>
     /// <returns>A transducer that contains the results of both provided</returns>
-    public static Transducer<E, (A First, B Second)> Zip<E, A, B>(this Transducer<E, A> First, Transducer<E, B> Second) =>
+    public static Transducer<E, (A First, B Second)> Zip<E, A, B>(
+        this Transducer<E, A> First, 
+        Transducer<E, B> Second) =>
         new ZipTransducer2<E, A, B>(First, Second);
 
     /// <summary>
-    /// Zips two transducers together so their results are paired
+    /// Zips transducers together so their results are combined.  
     /// </summary>
+    /// <remarks>
+    /// Asynchronous transducers will run concurrently
+    /// </remarks>
     /// <param name="First">First transducer</param>
     /// <param name="Second">Second transducer</param>
     /// <returns>A transducer that contains the results of both provided</returns>
@@ -330,6 +339,39 @@ public static partial class Transducer
         this Transducer<E, Sum<X, A>> First, 
         Transducer<E, Sum<X, B>> Second) =>
         new ZipSumTransducer2<E, X, A, B>(First, Second);
+
+    /// <summary>
+    /// Zips transducers together so their results are combined.  
+    /// </summary>
+    /// <remarks>
+    /// Asynchronous transducers will run concurrently
+    /// </remarks>
+    /// <param name="First">First transducer</param>
+    /// <param name="Second">Second transducer</param>
+    /// <param name="Third">Third transducer</param>
+    /// <returns>A transducer that contains the results of all provided</returns>
+    public static Transducer<E, (A First, B Second, C Third)> Zip<E, A, B, C>(
+        this Transducer<E, A> First, 
+        Transducer<E, B> Second,
+        Transducer<E, C> Third) =>
+        new ZipTransducer3<E, A, B, C>(First, Second, Third);
+
+    /// <summary>
+    /// Zips transducers together so their results are combined.  
+    /// </summary>
+    /// <remarks>
+    /// Asynchronous transducers will run concurrently
+    /// </remarks>
+    /// <param name="First">First transducer</param>
+    /// <param name="Second">Second transducer</param>
+    /// <param name="Third">Third transducer</param>
+    /// <returns>A transducer that contains the results of all provided</returns>
+    public static Transducer<E, Sum<X, (A First, B Second, C Third)>> Zip<E, X, A, B, C>(
+        this Transducer<E, Sum<X, A>> First, 
+        Transducer<E, Sum<X, B>> Second, 
+        Transducer<E, Sum<X, C>> Third) =>
+        new ZipSumTransducer3<E, X, A, B, C>(First, Second, Third);    
+
     
     
     /// <summary>

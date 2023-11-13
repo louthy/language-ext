@@ -18,8 +18,11 @@ namespace LanguageExt
     /// <typeparam name="E">Error value type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     public readonly struct IO<RT, E, A>
-        where RT : struct, HasCancel<RT>
+        where RT : struct, HasIO<RT, E>
     {
+        static readonly Func<Error, Either<E, A>> errorMap = 
+            e => default(RT).FromError(e); 
+        
         readonly Transducer<RT, Sum<E, A>> thunk;
         internal Transducer<RT, Sum<E, A>> Thunk => 
             thunk ?? Transducer.Fail<RT, Sum<E, A>>(Errors.Bottom);
@@ -82,11 +85,9 @@ namespace LanguageExt
         /// Invoke the effect
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
-        public Either<E, A> Run(RT env, Func<Error, Either<E, A>>? errorMap = null)
-        {
-            return Thunk.Invoke1(env, default(RT).CancellationToken).ToEither(errorMap ?? Throw);
-            static Either<E, A> Throw(Error e) => e.ToException().Rethrow<Either<E, A>>();
-        }
+        public Either<E, A> Run(RT env) =>
+            Thunk.Invoke1(env, default(RT).CancellationToken)
+                 .ToEither(errorMap);
 
         /// <summary>
         /// Invoke the effect
@@ -95,11 +96,8 @@ namespace LanguageExt
         /// Throws on error
         /// </remarks>
         [MethodImpl(Opt.Default)]
-        public Unit RunUnit(RT env)
-        {
-            return ignore(Run(env, Throw));
-            static Either<E, A> Throw(Error e) => e.ToException().Rethrow<Either<E, A>>();
-        }
+        public Unit RunUnit(RT env) =>
+            ignore(Run(env));
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
