@@ -13,10 +13,10 @@ record MemoTransducer<EqA, A, B>(Transducer<A, B> Transducer) : Transducer<A, B>
     public Transducer<A, B> Morphism =>
         this;
 
-    public Reducer<S, A> Transform<S>(Reducer<S, B> reduce) =>
+    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Reduce<S>(Transducer, reduce);
 
-    record Reduce<S>(Transducer<A, B> Transducer, Reducer<S, B> Reducer) : Reducer<S, A>
+    record Reduce<S>(Transducer<A, B> Transducer, Reducer<B, S> Reducer) : Reducer<A, S>
     {
         readonly AtomHashMap<EqA, A, TResult<S>> memos = AtomHashMap<EqA, A, TResult<S>>(); 
 
@@ -39,11 +39,11 @@ record Memo1Transducer<EqA, A, B>(Transducer<A, B> Transducer) : Transducer<A, B
     public Transducer<A, B> Morphism =>
         this;
     
-    public Reducer<S, A> Transform<S>(Reducer<S, B> reduce) =>
+    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Reduce<S>(Transducer, reduce, memos);
 
-    record Reduce<S>(Transducer<A, B> Transducer, Reducer<S, B> Reducer, AtomHashMap<EqKey, Key, TResultBase> Memos) 
-        : Reducer<S, A>
+    record Reduce<S>(Transducer<A, B> Transducer, Reducer<B, S> Reducer, AtomHashMap<EqKey, Key, TResultBase> Memos) 
+        : Reducer<A, S>
     {
         public override TResult<S> Run(TState state, S stateValue, A value)
         {

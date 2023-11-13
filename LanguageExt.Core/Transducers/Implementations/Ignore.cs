@@ -7,10 +7,10 @@ namespace LanguageExt.Transducers;
 record IgnoreTransducer<A, B>(Transducer<Unit, B> Transducer) : 
     Transducer<A, B>
 {
-    public Reducer<S, A> Transform<S>(Reducer<S, B> reduce) =>
+    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Ignore<S>(Transducer.Transform(reduce));
 
-    record Ignore<S>(Reducer<S, Unit> Reducer) : Reducer<S, A>
+    record Ignore<S>(Reducer<Unit, S> Reducer) : Reducer<A, S>
     {
         public override TResult<S> Run(TState state, S stateValue, A value) =>
             Reducer.Run(state, stateValue, default);

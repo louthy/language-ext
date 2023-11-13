@@ -2,52 +2,59 @@
 
 namespace LanguageExt.Transducers;
 
-record FoldTransducer1<S, E, A>(Transducer<E, A> Transducer, S InitialState, Func<S, A, S> Folder) : Transducer<E, S>
+record FoldTransducer1<TState, E, A>(
+        Transducer<E, A> Transducer, 
+        TState InitialState, 
+        Func<TState, A, TState> Folder) 
+    : Transducer<E, TState>
 {
-    public Transducer<E, S> Morphism =>
+    public Transducer<E, TState> Morphism =>
         this;
 
-    public Reducer<S1, E> Transform<S1>(Reducer<S1, S> reduce) =>
-        new Reduce1<S1>(Transducer, InitialState, Folder, reduce);
+    public Reducer<E, S> Transform<S>(Reducer<TState, S> reduce) =>
+        new Reduce1<S>(Transducer, InitialState, Folder, reduce);
 
-    record Reduce1<InS>(
+    record Reduce1<S>(
         Transducer<E, A> Transducer, 
-        S InitialState, 
-        Func<S, A, S> Folder,
-        Reducer<InS, S> Reduce) : Reducer<InS, E>
+        TState InitialState, 
+        Func<TState, A, TState> Folder,
+        Reducer<TState, S> Reduce) : Reducer<E, S>
     {
-        public override TResult<InS> Run(TState state, InS stateValue, E env) =>
+        public override TResult<S> Run(LanguageExt.TState state, S stateValue, E env) =>
             Transducer
-                .Transform(Reducer.from<S, A>((_, s, x) => TResult.Continue(Folder(s, x))))
+                .Transform(Reducer.from<A, TState>((_, s, x) => TResult.Continue(Folder(s, x))))
                 .Run(state, InitialState, env)
                 .Bind(sx => Reduce.Run(state, stateValue, sx));
     }
 }
 
-record FoldTransducer2<S, E, X, A>(Transducer<E, Sum<X, A>> Transducer, S InitialState, Func<S, A, S> Folder) : Transducer<E, Sum<X, S>>
+record FoldTransducer2<TState, E, X, A>(
+    Transducer<E, Sum<X, A>> Transducer, 
+    TState InitialState, 
+    Func<TState, A, TState> Folder) : Transducer<E, Sum<X, TState>>
 {
-    public Transducer<E, Sum<X, S>> Morphism =>
+    public Transducer<E, Sum<X, TState>> Morphism =>
         this;
 
-    public Reducer<S1, E> Transform<S1>(Reducer<S1, Sum<X, S>> reduce) =>
-        new Reduce1<S1>(Transducer, InitialState, Folder, reduce);
+    public Reducer<E, S> Transform<S>(Reducer<Sum<X, TState>, S> reduce) =>
+        new Reduce1<S>(Transducer, InitialState, Folder, reduce);
 
-    record Reduce1<InS>(
+    record Reduce1<S>(
         Transducer<E, Sum<X, A>> Transducer, 
-        S InitialState, 
-        Func<S, A, S> Folder,
-        Reducer<InS, Sum<X, S>> Reduce) : Reducer<InS, E>
+        TState InitialState, 
+        Func<TState, A, TState> Folder,
+        Reducer<Sum<X, TState>, S> Reduce) : Reducer<E, S>
     {
-        public override TResult<InS> Run(TState state, InS stateValue, E env) =>
+        public override TResult<S> Run(LanguageExt.TState state, S stateValue, E env) =>
             Transducer
                 .Transform(
-                    Reducer.from<Sum<X, S>, Sum<X, A>>((st, s, xa) => (s, xa) switch
+                    Reducer.from<Sum<X, A>, Sum<X, TState>>((st, s, xa) => (s, xa) switch
                     {
-                        (SumRight<X, S> xs, SumRight<X, A> r) => TResult.Continue(Sum<X, S>.Right(Folder(xs.Value, r.Value))),
-                        (SumRight<X, S>, SumLeft<X, A> l) => TResult.Complete(Sum<X, S>.Left(l.Value)),
+                        (SumRight<X, TState> xs, SumRight<X, A> r) => TResult.Continue(Sum<X, TState>.Right(Folder(xs.Value, r.Value))),
+                        (SumRight<X, TState>, SumLeft<X, A> l) => TResult.Complete(Sum<X, TState>.Left(l.Value)),
                         _ => TResult.Complete(s),
                     }))
-                .Run(state, Sum<X, S>.Right(InitialState), env)
+                .Run(state, Sum<X, TState>.Right(InitialState), env)
                 .Bind(sx => Reduce.Run(state, stateValue, sx));
     }
 }

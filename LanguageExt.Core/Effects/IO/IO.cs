@@ -90,14 +90,86 @@ namespace LanguageExt
                  .ToEither(errorMap);
 
         /// <summary>
-        /// Invoke the effect
+        /// Invoke the effect (which could produce multiple values).  Run a reducer for
+        /// each value yielded.
         /// </summary>
-        /// <remarks>
-        /// Throws on error
-        /// </remarks>
-        [MethodImpl(Opt.Default)]
-        public Unit RunUnit(RT env) =>
-            ignore(Run(env));
+        [Pure, MethodImpl(Opt.Default)]
+        public Fin<S> RunMany<S>(RT env, S initialState, Func<S, Either<E, A>, TResult<S>> reducer) =>
+            Thunk.Invoke(
+                     env,
+                     initialState,
+                     Reducer.from<Sum<E, A>, S>(
+                         (_, s, sv) => sv switch
+                         {
+                             SumRight<E, A> r => reducer(s, Either<E, A>.Right(r.Value)),
+                             SumLeft<E, A> l => reducer(s, Either<E, A>.Left(l.Value)),
+                             _ => TResult.Complete(s)
+                         }),
+                     default(RT).CancellationToken)
+                 .ToFin();
+
+        /// <summary>
+        /// Invoke the effect (which could produce multiple values).  Collect those results in a `Seq`
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public Either<E, Seq<A>> RunMany(RT env) =>
+            RunMany(env,
+                    Either<E, Seq<A>>.Right(Seq<A>()),
+                    (s, v) =>
+                        (s.IsRight, v.IsRight) switch
+                        {
+                            (true, true) => TResult.Continue(Either<E, Seq<A>>.Right(((Seq<A>)s).Add((A)v))),
+                            (true, false) => TResult.Complete(Either<E, Seq<A>>.Left((E)v)),
+                            _ => TResult.Complete(s),
+                        })
+                .Match(
+                    Succ: v => v,
+                    Fail: e => default(RT).FromError(e));
+
+        /// <summary>
+        /// Invoke the effect asynchronously
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public Task<Either<E, A>> RunAsync(RT env) =>
+            Thunk.Invoke1Async(env, default(RT).CancellationToken)
+                 .Map(r => r.ToEither(errorMap));
+
+        /// <summary>
+        /// Invoke the effect (which could produce multiple values).  Run a reducer for
+        /// each value yielded.
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public Task<Fin<S>> RunManyAsync<S>(RT env, S initialState, Func<S, Either<E, A>, TResult<S>> reducer) =>
+            Thunk.InvokeAsync(
+                     env,
+                     initialState,
+                     Reducer.from<Sum<E, A>, S>(
+                         (_, s, sv) => sv switch
+                         {
+                             SumRight<E, A> r => reducer(s, Either<E, A>.Right(r.Value)),
+                             SumLeft<E, A> l => reducer(s, Either<E, A>.Left(l.Value)),
+                             _ => TResult.Complete(s)
+                         }),
+                     default(RT).CancellationToken)
+                 .Map(r => r.ToFin());
+
+        /// <summary>
+        /// Invoke the effect (which could produce multiple values).  Collect those results in a `Seq`
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public Task<Either<E, Seq<A>>> RunManyAsync(RT env) =>
+            RunManyAsync(env,
+                    Either<E, Seq<A>>.Right(Seq<A>()),
+                    (s, v) =>
+                        (s.IsRight, v.IsRight) switch
+                        {
+                            (true, true) => TResult.Continue(Either<E, Seq<A>>.Right(((Seq<A>)s).Add((A)v))),
+                            (true, false) => TResult.Complete(Either<E, Seq<A>>.Left((E)v)),
+                            _ => TResult.Complete(s)
+                        })
+                .Map(r => r.Match(
+                    Succ: v => v,
+                    Fail: e => default(RT).FromError(e)));
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -471,9 +543,23 @@ namespace LanguageExt
         // Operators
         //
         
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, IO<RT, E, A> mb) =>
             new(Transducer.choice(ma.Thunk, mb.Thunk));
+
+        /// <summary>
+        /// Convert a resource tracking monad to an IO monad
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public static implicit operator IO<RT, E, A>(Use<A> use) =>
+            use.ToIO<RT, E>();
 
         /*
          
@@ -549,6 +635,6 @@ namespace LanguageExt
         public static implicit operator IO<RT, E, A>(IO<E, A> ma) =>
             IOectMaybe(_ => ma.Run());
             */
-        
+
     }
 }

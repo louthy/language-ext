@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
 using LanguageExt.HKT;
 using LanguageExt.TypeClasses;
@@ -10,13 +11,17 @@ namespace LanguageExt.Transducers;
 
 public static partial class Transducer
 {
-    record Wrap<M, A, B>(Transducer<A, B> F) : KArr<M, A, B>
-    {
-        public Transducer<A, B> Morphism => F;
-    }
-
-    internal static KArr<M, A, B> Cast<M, A, B>(this Transducer<A, B> f) =>
-        new Wrap<M, A, B>(f);
+    /// <summary>
+    /// Resource tracking transducer
+    /// </summary>
+    public static Transducer<A, B> Use<A, B>(this Transducer<A, B> transducer, Func<B, Unit> dispose) =>
+        new UseTransducer1<A, B>(transducer, dispose);
+    
+    /// <summary>
+    /// Resource tracking transducer
+    /// </summary>
+    public static Transducer<A, B> Use<A, B>(this Transducer<A, B> transducer) where B : IDisposable =>
+        new UseTransducer2<A, B>(transducer);
     
     /// <summary>
     /// Maps every value passing through this transducer
@@ -411,7 +416,7 @@ public static partial class Transducer
         this Transducer<A, B> transducer, 
         A value, 
         S initialState, 
-        Reducer<S, B> reducer, 
+        Reducer<B, S> reducer, 
         CancellationToken token)
     {
         var st = new TState(token);
@@ -455,5 +460,45 @@ public static partial class Transducer
         {
             st.Dispose();
         }
-    }    
+    }
+
+
+    /// <summary>
+    /// Invoke the transducer, transforming the input value and finally reducing the output  with
+    /// the `Reducer` provided
+    /// </summary>
+    /// <param name="transducer">Transducer to invoke</param>
+    /// <param name="value">Value to use as the argument to the transducer</param>
+    /// <param name="initialState">Starting state</param>
+    /// <param name="reducer">Value to use as the argument to the transducer</param>
+    /// <returns>
+    /// If the transducer yields multiple values then it will return the last value in a `TResult.Complete`.
+    /// If the transducer yields zero values then it will return `TResult.None`. 
+    /// If the transducer throws an exception or yields an `Error`, then it will return `TResult.Fail`.
+    /// If the transducer is cancelled, then it will return `TResult.Cancelled`. 
+    /// </returns>
+    public static Task<TResult<S>> InvokeAsync<S, A, B>(
+        this Transducer<A, B> transducer,
+        A value,
+        S initialState,
+        Reducer<B, S> reducer,
+        CancellationToken token) =>
+        TaskAsync<A>.RunAsync<S>((t, v) => Invoke(transducer, v, initialState, reducer, t), value, token);
+    
+    /// <summary>
+    /// Invoke the transducer, reducing to a single value only
+    /// </summary>
+    /// <param name="transducer">Transducer to invoke</param>
+    /// <param name="value">Value to use as the argument to the transducer</param>
+    /// <returns>
+    /// If the transducer yields multiple values then it will return the last value in a `TResult.Complete`.
+    /// If the transducer yields zero values then it will return `TResult.None`. 
+    /// If the transducer throws an exception or yields an `Error`, then it will return `TResult.Fail`.
+    /// If the transducer is cancelled, then it will return `TResult.Cancelled`. 
+    /// </returns>
+    public static Task<TResult<B>> Invoke1Async<A, B>(
+        this Transducer<A, B> transducer, 
+        A value, 
+        CancellationToken token) =>
+        TaskAsync<A>.RunAsync<B>((t, v) => Invoke1(transducer, v, t), value, token);
 }

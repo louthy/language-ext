@@ -7,16 +7,16 @@ namespace LanguageExt.Transducers;
 
 record FlattenTransducer1<A, B>(Transducer<A, Transducer<A, B>> FF) : Transducer<A, B>
 {
-    public Reducer<S, A> Transform<S>(Reducer<S, B> reduce) =>
+    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Reduce<S>(FF, reduce);
     
-    record Reduce<S>(Transducer<A, Transducer<A, B>> FF, Reducer<S, B> Reducer) : Reducer<S, A>
+    record Reduce<S>(Transducer<A, Transducer<A, B>> FF, Reducer<B, S> Reducer) : Reducer<A, S>
     {
         public override TResult<S> Run(TState st, S s, A x) =>
             FF.Transform(new Reduce1<S>(x, Reducer)).Run(st, s, x);
     }    
     
-    record Reduce1<S>(A Value, Reducer<S, B> Reducer) : Reducer<S, Transducer<A, B>>
+    record Reduce1<S>(A Value, Reducer<B, S> Reducer) : Reducer<Transducer<A, B>, S>
     {
         public override TResult<S> Run(TState st, S s, Transducer<A, B> f) =>
             f.Transform(Reducer).Run(st, s, Value);
@@ -28,16 +28,16 @@ record FlattenTransducer1<A, B>(Transducer<A, Transducer<A, B>> FF) : Transducer
 
 record FlattenTransducer2<A, B>(Transducer<A, Transducer<Unit, B>> FF) : Transducer<A, B>
 {
-    public Reducer<S, A> Transform<S>(Reducer<S, B> reduce) =>
+    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Reduce<S>(FF, reduce);
     
-    record Reduce<S>(Transducer<A, Transducer<Unit, B>> FF, Reducer<S, B> Reducer) : Reducer<S, A>
+    record Reduce<S>(Transducer<A, Transducer<Unit, B>> FF, Reducer<B, S> Reducer) : Reducer<A, S>
     {
         public override TResult<S> Run(TState st, S s, A x) =>
             FF.Transform(new Reduce1<S>(Reducer)).Run(st, s, x);
     }    
     
-    record Reduce1<S>(Reducer<S, B> Reducer) : Reducer<S, Transducer<Unit, B>>
+    record Reduce1<S>(Reducer<B, S> Reducer) : Reducer<Transducer<Unit, B>, S>
     {
         public override TResult<S> Run(TState st, S s, Transducer<Unit, B> f) =>
             f.Transform(Reducer).Run(st, s, default);
@@ -53,17 +53,17 @@ record FlattenSumTransducer1<Env, X, A>(Transducer<Env, Sum<X, Transducer<Env, S
     public Transducer<Env, Sum<X, A>> Morphism => 
         this;
 
-    public Reducer<S, Env> Transform<S>(Reducer<S, Sum<X, A>> reduce) =>
+    public Reducer<Env, S> Transform<S>(Reducer<Sum<X, A>, S> reduce) =>
         new Reduce0<S>(FF, reduce);
 
-    record Reduce0<S>(Transducer<Env, Sum<X, Transducer<Env, Sum<X, A>>>> FF, Reducer<S, Sum<X, A>> Reducer) 
-        : Reducer<S, Env>
+    record Reduce0<S>(Transducer<Env, Sum<X, Transducer<Env, Sum<X, A>>>> FF, Reducer<Sum<X, A>, S> Reducer) 
+        : Reducer<Env, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Env value) =>
             FF.Transform(new Reduce<S>(value, Reducer)).Run(state, stateValue, value);
     }
 
-    record Reduce<S>(Env Env, Reducer<S, Sum<X, A>> Reducer) : Reducer<S, Sum<X, Transducer<Env, Sum<X, A>>>>
+    record Reduce<S>(Env Env, Reducer<Sum<X, A>, S> Reducer) : Reducer<Sum<X, Transducer<Env, Sum<X, A>>>, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Sum<X, Transducer<Env, Sum<X, A>>> value) =>
             value switch
@@ -85,17 +85,17 @@ record FlattenSumTransducer2<Env, X, A>(Transducer<Env, Sum<Transducer<Env, Sum<
     public Transducer<Env, Sum<X, A>> Morphism => 
         this;
 
-    public Reducer<S, Env> Transform<S>(Reducer<S, Sum<X, A>> reduce) =>
+    public Reducer<Env, S> Transform<S>(Reducer<Sum<X, A>, S> reduce) =>
         new Reduce0<S>(FF, reduce);
 
-    record Reduce0<S>(Transducer<Env, Sum<Transducer<Env, Sum<X, A>>, Transducer<Env, Sum<X, A>>>> FF, Reducer<S, Sum<X, A>> Reducer) 
-        : Reducer<S, Env>
+    record Reduce0<S>(Transducer<Env, Sum<Transducer<Env, Sum<X, A>>, Transducer<Env, Sum<X, A>>>> FF, Reducer<Sum<X, A>, S> Reducer) 
+        : Reducer<Env, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Env value) =>
             FF.Transform(new Reduce1<S>(value, Reducer)).Run(state, stateValue, value);
     }
 
-    record Reduce1<S>(Env Env, Reducer<S, Sum<X, A>> Reducer) : Reducer<S, Sum<Transducer<Env, Sum<X, A>>, Transducer<Env, Sum<X, A>>>>
+    record Reduce1<S>(Env Env, Reducer<Sum<X, A>, S> Reducer) : Reducer<Sum<Transducer<Env, Sum<X, A>>, Transducer<Env, Sum<X, A>>>, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Sum<Transducer<Env, Sum<X, A>>, Transducer<Env, Sum<X, A>>> value) =>
             value switch

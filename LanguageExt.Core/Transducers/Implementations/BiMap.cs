@@ -11,13 +11,13 @@ record BiMap<E, X, Y, A, B>(
     public Transducer<E, Sum<Y, B>> Morphism =>
         this;
 
-    public Reducer<S, E> Transform<S>(Reducer<S, Sum<Y, B>> reduce) =>
+    public Reducer<E, S> Transform<S>(Reducer<Sum<Y, B>, S> reduce) =>
         First.Transform(new FirstReduce<S>(Left, Right, reduce));
 
     record FirstReduce<S>(
         Transducer<X, Y> Left, 
         Transducer<A, B> Right, 
-        Reducer<S, Sum<Y, B>> Reduce) : Reducer<S, Sum<X, A>>
+        Reducer<Sum<Y, B>, S> Reduce) : Reducer<Sum<X, A>, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Sum<X, A> value) =>
             value switch
@@ -28,13 +28,13 @@ record BiMap<E, X, Y, A, B>(
             };
     }
 
-    record RightReduce<S>(Reducer<S, Sum<Y, B>> Reduce) : Reducer<S, B>
+    record RightReduce<S>(Reducer<Sum<Y, B>, S> Reduce) : Reducer<B, S>
     {
         public override TResult<S> Run(TState state, S stateValue, B value) =>
             Reduce.Run(state, stateValue, Sum<Y, B>.Right(value));
     }
     
-    record LeftReduce<S>(Reducer<S, Sum<Y, B>> Reduce) : Reducer<S, Y>
+    record LeftReduce<S>(Reducer<Sum<Y, B>, S> Reduce) : Reducer<Y, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Y value) =>
             Reduce.Run(state, stateValue, Sum<Y, B>.Left(value));
@@ -52,13 +52,13 @@ record BiMap2<X, Y, Z, A, B, C>(
     public Transducer<Sum<X, A>, Sum<Z, C>> Morphism =>
         this;
 
-    public Reducer<S, Sum<X, A>> Transform<S>(Reducer<S, Sum<Z, C>> reduce) =>
+    public Reducer<Sum<X, A>, S> Transform<S>(Reducer<Sum<Z, C>, S> reduce) =>
         First.Transform(new FirstReduce<S>(Left, Right, reduce));
 
     record FirstReduce<S>(
         Transducer<Y, Z> Left, 
         Transducer<B, C> Right, 
-        Reducer<S, Sum<Z, C>> Reduce) : Reducer<S, Sum<Y, B>>
+        Reducer<Sum<Z, C>, S> Reduce) : Reducer<Sum<Y, B>, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Sum<Y, B> value) =>
             value switch
@@ -69,13 +69,13 @@ record BiMap2<X, Y, Z, A, B, C>(
             };
     }
 
-    record RightReduce<S>(Reducer<S, Sum<Z, C>> Reduce) : Reducer<S, C>
+    record RightReduce<S>(Reducer<Sum<Z, C>, S> Reduce) : Reducer<C, S>
     {
         public override TResult<S> Run(TState state, S stateValue, C value) =>
             Reduce.Run(state, stateValue, Sum<Z, C>.Right(value));
     }
     
-    record LeftReduce<S>(Reducer<S, Sum<Z, C>> Reduce) : Reducer<S, Z>
+    record LeftReduce<S>(Reducer<Sum<Z, C>, S> Reduce) : Reducer<Z, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Z value) =>
             Reduce.Run(state, stateValue, Sum<Z, C>.Left(value));
@@ -90,21 +90,21 @@ record MapRight<E, X, A, B>(Transducer<E, Sum<X, A>> First, Transducer<A, B> Rig
     public Transducer<E, Sum<X, B>> Morphism =>
         this;
 
-    public Reducer<S, E> Transform<S>(Reducer<S, Sum<X, B>> reduce) =>
+    public Reducer<E, S> Transform<S>(Reducer<Sum<X, B>, S> reduce) =>
         First.Transform(new FirstReduce<S>(Right, reduce));
 
-    record FirstReduce<S>(Transducer<A, B> Right, Reducer<S, Sum<X, B>> Reduce) : Reducer<S, Sum<X, A>>
+    record FirstReduce<S>(Transducer<A, B> Right, Reducer<Sum<X, B>, S> Reduce) : Reducer<Sum<X, A>, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Sum<X, A> value) =>
             value switch
             {
-                SumRight<X, A> r => Right.Transform(new RightReduce<S>(Reduce)).Run(state, stateValue, r.Value), 
+                SumRight<X, A> r => Right.Transform(new RightReduce<S>(Reduce)).Run(state, stateValue, r.Value),
                 SumLeft<X, A> l => Reduce.Run(state, stateValue, Sum<X, B>.Left(l.Value)),
                 _ => throw new BottomException()
             };
     }
 
-    record RightReduce<S>(Reducer<S, Sum<X, B>> Reduce) : Reducer<S, B>
+    record RightReduce<S>(Reducer<Sum<X, B>, S> Reduce) : Reducer<B, S>
     {
         public override TResult<S> Run(TState state, S stateValue, B value) =>
             Reduce.Run(state, stateValue, Sum<X, B>.Right(value));
@@ -121,10 +121,10 @@ record MapRight2<X, Y, A, B, C>(
     public Transducer<Sum<X, A>, Sum<Y, C>> Morphism =>
         this;
 
-    public Reducer<S, Sum<X, A>> Transform<S>(Reducer<S, Sum<Y, C>> reduce) =>
+    public Reducer<Sum<X, A>, S> Transform<S>(Reducer<Sum<Y, C>, S> reduce) =>
         First.Transform(new FirstReduce<S>(Right, reduce));
 
-    record FirstReduce<S>(Transducer<B, C> Right, Reducer<S, Sum<Y, C>> Reduce) : Reducer<S, Sum<Y, B>>
+    record FirstReduce<S>(Transducer<B, C> Right, Reducer<Sum<Y, C>, S> Reduce) : Reducer<Sum<Y, B>, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Sum<Y, B> value) =>
             value switch
@@ -135,7 +135,7 @@ record MapRight2<X, Y, A, B, C>(
             };
     }
 
-    record RightReduce<S>(Reducer<S, Sum<Y, C>> Reduce) : Reducer<S, C>
+    record RightReduce<S>(Reducer<Sum<Y, C>, S> Reduce) : Reducer<C, S>
     {
         public override TResult<S> Run(TState state, S stateValue, C value) =>
             Reduce.Run(state, stateValue, Sum<Y, C>.Right(value));
@@ -150,10 +150,10 @@ record MapLeft<E, X, Y, A>(Transducer<E, Sum<X, A>> First, Transducer<X, Y> Left
     public Transducer<E, Sum<Y, A>> Morphism =>
         this;
 
-    public Reducer<S, E> Transform<S>(Reducer<S, Sum<Y, A>> reduce) =>
+    public Reducer<E, S> Transform<S>(Reducer<Sum<Y, A>, S> reduce) =>
         First.Transform(new FirstReduce<S>(Left, reduce));
 
-    record FirstReduce<S>(Transducer<X, Y> Left, Reducer<S, Sum<Y, A>> Reduce) : Reducer<S, Sum<X, A>>
+    record FirstReduce<S>(Transducer<X, Y> Left, Reducer<Sum<Y, A>, S> Reduce) : Reducer<Sum<X, A>, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Sum<X, A> value) =>
             value switch
@@ -164,7 +164,7 @@ record MapLeft<E, X, Y, A>(Transducer<E, Sum<X, A>> First, Transducer<X, Y> Left
             };
     }
     
-    record LeftReduce<S>(Reducer<S, Sum<Y, A>> Reduce) : Reducer<S, Y>
+    record LeftReduce<S>(Reducer<Sum<Y, A>, S> Reduce) : Reducer<Y, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Y value) =>
             Reduce.Run(state, stateValue, Sum<Y, A>.Left(value));
@@ -181,10 +181,10 @@ record MapLeft2<X, Y, Z, A, B>(
     public Transducer<Sum<X, A>, Sum<Z, B>> Morphism =>
         this;
 
-    public Reducer<S, Sum<X, A>> Transform<S>(Reducer<S, Sum<Z, B>> reduce) =>
+    public Reducer<Sum<X, A>, S> Transform<S>(Reducer<Sum<Z, B>, S> reduce) =>
         First.Transform(new FirstReduce<S>(Left, reduce));
 
-    record FirstReduce<S>(Transducer<Y, Z> Left, Reducer<S, Sum<Z, B>> Reduce) : Reducer<S, Sum<Y, B>>
+    record FirstReduce<S>(Transducer<Y, Z> Left, Reducer<Sum<Z, B>, S> Reduce) : Reducer<Sum<Y, B>, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Sum<Y, B> value) =>
             value switch
@@ -195,7 +195,7 @@ record MapLeft2<X, Y, Z, A, B>(
             };
     }
     
-    record LeftReduce<S>(Reducer<S, Sum<Z, B>> Reduce) : Reducer<S, Z>
+    record LeftReduce<S>(Reducer<Sum<Z, B>, S> Reduce) : Reducer<Z, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Z value) =>
             Reduce.Run(state, stateValue, Sum<Z, B>.Left(value));

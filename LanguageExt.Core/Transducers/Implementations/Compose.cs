@@ -6,7 +6,7 @@ record ComposeTransducer<TA, TB, TC>(
     Transducer<TB, TC> G) : 
     Transducer<TA, TC>
 {
-    public Reducer<S, TA> Transform<S>(Reducer<S, TC> reduce) =>
+    public Reducer<TA, S> Transform<S>(Reducer<TC, S> reduce) =>
         F.Transform(
             G.Transform(reduce));
 
@@ -20,7 +20,7 @@ record ComposeTransducer<TA, TB, TC, TD>(
     Transducer<TC, TD> H) : 
     Transducer<TA, TD>
 {
-    public Reducer<S, TA> Transform<S>(Reducer<S, TD> reduce) =>
+    public Reducer<TA, S> Transform<S>(Reducer<TD, S> reduce) =>
         F.Transform(
             G.Transform(
                 H.Transform(reduce)));
@@ -36,7 +36,7 @@ record ComposeTransducer<TA, TB, TC, TD, TE>(
     Transducer<TD, TE> I) : 
     Transducer<TA, TE>
 {
-    public Reducer<S, TA> Transform<S>(Reducer<S, TE> reduce) =>
+    public Reducer<TA, S> Transform<S>(Reducer<TE, S> reduce) =>
         F.Transform(
             G.Transform(
                 H.Transform(
@@ -54,7 +54,7 @@ record ComposeTransducer<TA, TB, TC, TD, TE, TF>(
     Transducer<TE, TF> J) : 
     Transducer<TA, TF>
 {
-    public Reducer<S, TA> Transform<S>(Reducer<S, TF> reduce) =>
+    public Reducer<TA, S> Transform<S>(Reducer<TF, S> reduce) =>
         F.Transform(
             G.Transform(
                 H.Transform(
@@ -74,7 +74,7 @@ record ComposeTransducer<TA, TB, TC, TD, TE, TF, TG>(
     Transducer<TF, TG> K) : 
     Transducer<TA, TG>
 {
-    public Reducer<S, TA> Transform<S>(Reducer<S, TG> reduce) =>
+    public Reducer<TA, S> Transform<S>(Reducer<TG, S> reduce) =>
         F.Transform(
             G.Transform(
                 H.Transform(

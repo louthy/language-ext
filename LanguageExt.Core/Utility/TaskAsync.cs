@@ -333,4 +333,117 @@ internal static class TaskAsync<A>
 
         return TResult.Continue(vt.Result);
     }
+    
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //   Async
+    // 
+    
+    /// <summary>
+    /// Runs a task concurrently and yields whilst waiting
+    /// </summary>
+    /// <param name="f">Function that yields a task to run</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>Result of the operation</returns>
+    public static Task<TResult<A>> RunAsync(Func<CancellationToken, A> f, CancellationToken token) =>
+        Task.Run(() =>
+        {
+            try
+            {
+                return TResult.Continue(f(token));
+            }
+            catch (Exception e)
+            {
+                return e is OperationCanceledException
+                    ? TResult.Cancel<A>()
+                    : TResult.Fail<A>(e);
+            }
+        }, token);
+    
+    /// <summary>
+    /// Runs a task concurrently and yields whilst waiting
+    /// </summary>
+    /// <param name="f">Function that yields a task to run</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>Result of the operation</returns>
+    public static Task<Fin<A>> RunAsync(Func<A> f, CancellationToken token) =>
+        Task.Run(() =>
+        {
+            try
+            {
+                return Fin<A>.Succ(f());
+            }
+            catch (Exception e)
+            {
+                return e is OperationCanceledException
+                    ? Fin<A>.Fail(Errors.Cancelled)
+                    : Fin<A>.Fail(e);
+            }
+        }, token);
+    
+    /// <summary>
+    /// Runs a task concurrently and yields whilst waiting
+    /// </summary>
+    /// <param name="f">Function that yields a task to run</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>Result of the operation</returns>
+    public static Task<TResult<A>> RunAsync(Func<CancellationToken, TResult<A>> f, CancellationToken token) =>   
+        Task.Run(() =>
+        {
+            try
+            {
+                return f(token);
+            }
+            catch (Exception e)
+            {
+                return e is OperationCanceledException
+                    ? TResult.Cancel<A>()
+                    : TResult.Fail<A>(e);
+            }
+        }, token);
+    
+    /// <summary>
+    /// Runs a task concurrently and yields whilst waiting
+    /// </summary>
+    /// <param name="f">Function that yields a task to run</param>
+    /// <param name="value">Value to pass to the function to run</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>Result of the operation</returns>
+    public static Task<TResult<B>> RunAsync<B>(Func<CancellationToken, A, TResult<B>> f, A value, CancellationToken token) =>
+        Task.Run(() =>
+        {
+            try
+            {
+                return f(token, value);
+            }
+            catch (Exception e)
+            {
+                return e is OperationCanceledException
+                    ? TResult.Cancel<B>()
+                    : TResult.Fail<B>(e);
+            }
+        }, token);
+        
+    /// <summary>
+    /// Runs a task concurrently and yields whilst waiting
+    /// </summary>
+    /// <param name="f">Function that yields a task to run</param>
+    /// <param name="value">Value to pass to the function to run</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>Result of the operation</returns>
+    public static Task<TResult<B>> RunAsync<B>(Func<CancellationToken, A, B> f, A value, CancellationToken token) =>
+        Task.Run(() =>
+        {
+            try
+            {
+                return TResult.Continue(f(token, value));
+            }
+            catch (Exception e)
+            {
+                return e is OperationCanceledException
+                    ? TResult.Cancel<B>()
+                    : TResult.Fail<B>(e);
+            }
+        }, token);
+    
 }

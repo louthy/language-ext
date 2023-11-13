@@ -7,9 +7,9 @@ namespace LanguageExt.Transducers;
 /// Reducer is an encapsulation of a fold operation.  It also takes a `TState` which can be
 /// used to track resources allocated.
 /// </summary>
-/// <typeparam name="S">State type</typeparam>
 /// <typeparam name="A">Value type</typeparam>
-public abstract record Reducer<S, A> 
+/// <typeparam name="S">State type</typeparam>
+public abstract record Reducer<A, S> 
 {
     /// <summary>
     /// Run the reduce operation with an initial state and value
@@ -19,11 +19,11 @@ public abstract record Reducer<S, A>
 
 public static class Reducer
 {
-    public static Reducer<S, A> from<S, A>(Func<TState, S, A, TResult<S>> f) =>
-        new FReducer<S, A>(f);
+    public static Reducer<A, S> from<A, S>(Func<TState, S, A, TResult<S>> f) =>
+        new FReducer<A, S>(f);
 }
 
-record FReducer<S, A>(Func<TState, S, A, TResult<S>> F) : Reducer<S, A>
+record FReducer<A, S>(Func<TState, S, A, TResult<S>> F) : Reducer<A, S>
 {
     public override TResult<S> Run(TState state, S stateValue, A value) =>
         F(state, stateValue, value);

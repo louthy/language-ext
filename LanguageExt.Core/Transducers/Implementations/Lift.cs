@@ -5,10 +5,10 @@ namespace LanguageExt.Transducers;
 
 record LiftTransducer1<A, B>(Func<A, TResult<B>> F) : Transducer<A, B>
 {
-    public Reducer<S, A> Transform<S>(Reducer<S, B> reduce) =>
+    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Reduce<S>(F, reduce);
 
-    record Reduce<S>(Func<A, TResult<B>> F, Reducer<S, B> Reducer) : Reducer<S, A>
+    record Reduce<S>(Func<A, TResult<B>> F, Reducer<B, S> Reducer) : Reducer<A, S>
     {
         public override TResult<S> Run(TState st, S s, A x) =>
             F(x).Reduce(st, s, Reducer);
@@ -23,10 +23,10 @@ record LiftTransducer1<A, B>(Func<A, TResult<B>> F) : Transducer<A, B>
 
 record LiftTransducer2<A>(Func<TResult<A>> F) : Transducer<Unit, A>
 {
-    public Reducer<S, Unit> Transform<S>(Reducer<S, A> reduce) =>
+    public Reducer<Unit, S> Transform<S>(Reducer<A, S> reduce) =>
         new Reduce<S>(F, reduce);
 
-    record Reduce<S>(Func<TResult<A>> F, Reducer<S, A> Reducer) : Reducer<S, Unit>
+    record Reduce<S>(Func<TResult<A>> F, Reducer<A, S> Reducer) : Reducer<Unit, S>
     {
         public override TResult<S> Run(TState st, S s, Unit x) =>
             F().Reduce(st, s, Reducer);
@@ -41,10 +41,10 @@ record LiftTransducer2<A>(Func<TResult<A>> F) : Transducer<Unit, A>
 
 record LiftTransducer3<A, B>(Func<A, B> F) : Transducer<A, B>
 {
-    public Reducer<S, A> Transform<S>(Reducer<S, B> reduce) =>
+    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Reduce<S>(F, reduce);
 
-    record Reduce<S>(Func<A, B> F, Reducer<S, B> Reducer) : Reducer<S, A>
+    record Reduce<S>(Func<A, B> F, Reducer<B, S> Reducer) : Reducer<A, S>
     {
         public override TResult<S> Run(TState st, S s, A x) =>
             Reducer.Run(st, s, F(x));
@@ -60,10 +60,10 @@ record LiftTransducer3<A, B>(Func<A, B> F) : Transducer<A, B>
 
 record LiftTransducer4<A>(Func<A> F) : Transducer<Unit, A>
 {
-    public Reducer<S, Unit> Transform<S>(Reducer<S, A> reduce) =>
+    public Reducer<Unit, S> Transform<S>(Reducer<A, S> reduce) =>
         new Reduce<S>(F, reduce);
 
-    record Reduce<S>(Func<A> F, Reducer<S, A> Reducer) : Reducer<S, Unit>
+    record Reduce<S>(Func<A> F, Reducer<A, S> Reducer) : Reducer<Unit, S>
     {
         public override TResult<S> Run(TState st, S s, Unit x) =>
             Reducer.Run(st, s, F());

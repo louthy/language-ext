@@ -20,5 +20,5 @@ public interface Transducer<A, B> : KArr<Any, A, B>
     /// <param name="reduce">Reducer</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Reducer that captures the transformation of the `Transducer` and the provided reducer</returns>
-    Reducer<S, A> Transform<S>(Reducer<S, B> reduce);
+    Reducer<A, S> Transform<S>(Reducer<B, S> reduce);
 }

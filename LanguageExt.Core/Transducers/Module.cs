@@ -32,6 +32,24 @@ public static partial class Transducer
         new FailTransducer<A, B>(error);
     
     /// <summary>
+    /// Resource tracking transducer
+    /// </summary>
+    public static Transducer<A, B> use<A, B>(Transducer<A, B> transducer, Func<B, Unit> dispose) =>
+        new UseTransducer1<A, B>(transducer, dispose);
+    
+    /// <summary>
+    /// Resource tracking transducer
+    /// </summary>
+    public static Transducer<A, B> use<A, B>(Transducer<A, B> transducer) where B : IDisposable =>
+        new UseTransducer2<A, B>(transducer);
+    
+    /// <summary>
+    /// Resource releasing transducer
+    /// </summary>
+    public static Transducer<A, Unit> release<A>() =>
+        ReleaseTransducer<A>.Default;
+    
+    /// <summary>
     /// Identity transducer
     /// </summary>
     public static Transducer<A, A> identity<A>() =>
@@ -334,6 +352,18 @@ public static partial class Transducer
         Transducer<B, C> Right) =>
         new MapRight2<X, Y, A, B, C>(First, Right);
 
+    /// <summary>
+    /// Make a Sum Right from a value
+    /// </summary>
+    public static Transducer<A, Sum<X, A>> mkRight<X, A>() =>
+        lift<A, Sum<X, A>>(a => Sum<X, A>.Right(a));
+
+    /// <summary>
+    /// Make a Sum Left from a value
+    /// </summary>
+    public static Transducer<X, Sum<X, A>> mkLeft<X, A>() =>
+        lift<X, Sum<X, A>>(x => Sum<X, A>.Left(x));
+    
     /// <summary>
     /// Filter the values in the transducer
     /// </summary>

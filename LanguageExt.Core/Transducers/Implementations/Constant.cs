@@ -3,10 +3,10 @@ namespace LanguageExt.Transducers;
 
 record ConstantTransducer<A, B>(B Value) : Transducer<A, B>
 {
-    public Reducer<S, A> Transform<S>(Reducer<S, B> reduce) =>
+    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Reduce<S>(Value, reduce);
 
-    record Reduce<S>(B Value, Reducer<S, B> Reducer) : Reducer<S, A>
+    record Reduce<S>(B Value, Reducer<B, S> Reducer) : Reducer<A, S>
     {
         public override TResult<S> Run(TState st, S s, A _) =>
             Reducer.Run(st, s, Value);

@@ -12,8 +12,8 @@ public static class TResult
     public static TResult<A> None<A>() => TNone<A>.Default;
     public static TResult<A> Fail<A>(Error Error) => new TFail<A>(Error);
     
-    public static TResult<S> Recursive<S, A>(TState st, S s, A value, Reducer<S, A> reduce) => 
-        new TRecursive<S>(new TRecursiveReduce<S, A>(st, s, value, reduce));
+    public static TResult<S> Recursive<S, A>(TState st, S s, A value, Reducer<A, S> reduce) => 
+        new TRecursive<S>(new TRecursiveReduce<A, S>(st, s, value, reduce));
     
     public static TResult<S> Recursive<S>(TRecursiveRunner<S> reduce) => 
         new TRecursive<S>(reduce);
@@ -79,7 +79,7 @@ public abstract record TResultBase
 public abstract record TResult<A> : TResultBase
 {
     public virtual A ValueUnsafe => throw new InvalidOperationException("Can't call ValueUnsafe on a TResult that has no value");
-    public abstract TResult<S> Reduce<S>(TState state, S stateValue, Reducer<S, A> reducer);
+    public abstract TResult<S> Reduce<S>(TState state, S stateValue, Reducer<A, S> reducer);
     public abstract TResult<B> Map<B>(Func<A, B> f);
     public abstract TResult<B> Bind<B>(Func<A, TResult<B>> f);
 }
@@ -97,7 +97,7 @@ public sealed record TContinue<A>(A Value) : TResult<A>
     public override TResult<B> Bind<B>(Func<A, TResult<B>> f) =>
         f(Value);
 
-    public override TResult<S> Reduce<S>(TState state, S stateValue, Reducer<S, A> reducer) =>
+    public override TResult<S> Reduce<S>(TState state, S stateValue, Reducer<A, S> reducer) =>
         TResult.Recursive(state, stateValue, Value, reducer);
 
     public override string ToString() =>
@@ -117,7 +117,7 @@ public sealed record TComplete<A>(A Value) : TResult<A>
     public override TResult<B> Bind<B>(Func<A, TResult<B>> f) =>
         f(Value);
 
-    public override TResult<S> Reduce<S>(TState state, S stateValue, Reducer<S, A> reducer) =>
+    public override TResult<S> Reduce<S>(TState state, S stateValue, Reducer<A, S> reducer) =>
         TResult.Complete(stateValue);
 
     public override string ToString() =>
@@ -139,7 +139,7 @@ public sealed record TCancelled<A> : TResult<A>
     public override TResult<B> Bind<B>(Func<A, TResult<B>> _) =>
         TCancelled<B>.Default;
 
-    public override TResult<S> Reduce<S>(TState state, S stateValue, Reducer<S, A> reducer) =>
+    public override TResult<S> Reduce<S>(TState state, S stateValue, Reducer<A, S> reducer) =>
         TCancelled<S>.Default;
     
     public override string ToString() =>
@@ -160,7 +160,7 @@ public sealed record TNone<A> : TResult<A>
     public override TResult<B> Bind<B>(Func<A, TResult<B>> _) =>
         TNone<B>.Default;
 
-    public override TResult<S> Reduce<S>(TState state, S stateValue, Reducer<S, A> reducer) =>
+    public override TResult<S> Reduce<S>(TState state, S stateValue, Reducer<A, S> reducer) =>
         TNone<S>.Default;
 
     public override string ToString() =>
@@ -180,7 +180,7 @@ public sealed record TFail<A>(Error Error) : TResult<A>
     public override TResult<B> Bind<B>(Func<A, TResult<B>> _) =>
         TResult.Fail<B>(Error);
 
-    public override TResult<S> Reduce<S>(TState state, S stateValue, Reducer<S, A> reducer) =>
+    public override TResult<S> Reduce<S>(TState state, S stateValue, Reducer<A, S> reducer) =>
         TResult.Fail<S>(Error);
 
     public override string ToString() =>
@@ -203,7 +203,7 @@ public sealed record TRecursive<A>(TRecursiveRunner<A> Runner) : TResult<A>
     public TResult<A> Run() =>
         Runner.Run();
 
-    public override TResult<S> Reduce<S>(TState st, S s, Reducer<S, A> r) =>
+    public override TResult<S> Reduce<S>(TState st, S s, Reducer<A, S> r) =>
         Runner.Run() switch
         {
             TContinue<A> va => TResult.Recursive(st, s, va.Value, r),
@@ -230,7 +230,7 @@ public abstract record TRecursiveRunner<A>
         new TRecursiveBind<A, B>(this, f);
 }
 
-public sealed record TRecursiveReduce<S, A>(TState State, S StateValue, A Value, Reducer<S, A> Next) 
+public sealed record TRecursiveReduce<A, S>(TState State, S StateValue, A Value, Reducer<A, S> Next) 
     : TRecursiveRunner<S>
 {
     public override TResult<S> Run() =>
