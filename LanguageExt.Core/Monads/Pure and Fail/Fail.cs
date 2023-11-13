@@ -1,4 +1,6 @@
-﻿using LanguageExt.Common;
+﻿#nullable enable
+using System;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.TypeClasses;
 
@@ -20,6 +22,19 @@ namespace LanguageExt;
 /// <typeparam name="E">Bound value type</typeparam>
 public readonly record struct Fail<E>(E Value)
 {
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Standard operators
+    //
+
+    public Fail<F> MapFail<F>(Func<E, F> f) =>
+        new(f(Value));
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Conversion
+    //
+    
     public Either<E, A> ToEither<A>() =>
         Either<E, A>.Left(Value);
     
@@ -33,6 +48,11 @@ public readonly record struct Fail<E>(E Value)
 
 public static class FailExtensions
 {
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Conversion
+    //
+    
     public static Fin<A> ToFin<A>(this Fail<Error> fail) =>
         Fin<A>.Fail(fail.Value);
     

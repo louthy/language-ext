@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
 using LanguageExt.ClassInstances;
-using LanguageExt.Common;
 
 namespace LanguageExt
 {

@@ -21,7 +21,7 @@ public static class IOExtensions
     /// <typeparam name="E">Error type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>IO monad that processes multiple items</returns>
-    public static IO<RT, E, A> Many<RT, E, A>(this IEnumerable<A> items)
+    public static IO<RT, E, A> ManyIO<RT, E, A>(this IEnumerable<A> items)
         where RT : struct, HasIO<RT, E> =>
         new(Transducer.compose(
                 Transducer.constant<RT, IEnumerable<A>>(items),
@@ -36,7 +36,7 @@ public static class IOExtensions
     /// <typeparam name="E">Error type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>IO monad that processes multiple items</returns>
-    public static IO<RT, E, A> Many<RT, E, A>(this Seq<A> items)
+    public static IO<RT, E, A> ManyIO<RT, E, A>(this Seq<A> items)
         where RT : struct, HasIO<RT, E> =>
         new(Transducer.compose(
             Transducer.constant<RT, Seq<A>>(items),
@@ -51,7 +51,7 @@ public static class IOExtensions
     /// <typeparam name="E">Error type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>IO monad that processes multiple items</returns>
-    public static IO<RT, E, A> Many<RT, E, A>(this IAsyncEnumerable<A> items)
+    public static IO<RT, E, A> ManyIO<RT, E, A>(this IAsyncEnumerable<A> items)
         where RT : struct, HasIO<RT, E> =>
         new(Transducer.compose(
             Transducer.constant<RT, IAsyncEnumerable<A>>(items),
@@ -135,6 +135,7 @@ public static class IOExtensions
         where RT : struct, HasIO<RT, Err> =>
         self.Bind(a => bind(a).Zip().Map(cd => project(a, cd)));
 
+    /*
     /// <summary>
     /// Monadic bind and project with resource using monad
     /// </summary>
@@ -174,6 +175,7 @@ public static class IOExtensions
         Func<Unit, B, C> project)
         where RT : struct, HasIO<RT, E> =>
         ma.ToIO<RT, E>().SelectMany(x => bind(x).Map(y => project(x, y)));
+        */
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
