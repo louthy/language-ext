@@ -476,6 +476,16 @@ namespace LanguageExt
 
         /// <summary>
         /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+        /// transducer provided; which in turn returns a new IO monad.  This can be thought of as
+        /// chaining IO operations sequentially.
+        /// </summary>
+        /// <param name="f">Bind operation</param>
+        /// <returns>Composition of this monad and the result of the transducer provided</returns>
+        public IO<RT, E, B> Bind<B>(Transducer<A, IO<RT, E, B>> f) =>
+            Map(f).Flatten();
+
+        /// <summary>
+        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
         /// function provided; which in turn returns a new IO monad.  This can be thought of as
         /// chaining IO operations sequentially.
         /// </summary>
@@ -516,13 +526,13 @@ namespace LanguageExt
 
         /// <summary>
         /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-        /// transducer provided; which in turn returns a new IO monad.  This can be thought of as
+        /// function provided; which in turn returns a new IO monad.  This can be thought of as
         /// chaining IO operations sequentially.
         /// </summary>
         /// <param name="f">Bind operation</param>
-        /// <returns>Composition of this monad and the result of the transducer provided</returns>
-        public IO<RT, E, B> Bind<B>(Transducer<A, IO<RT, E, B>> f) =>
-            Map(f).Flatten();
+        /// <returns>Composition of this monad and the result of the function provided</returns>
+        public IO<RT, E, B> Bind<B>(Func<A, LiftIO<B>> f) =>
+            Map(x => f(x).ToIO<RT, E>()).Flatten();
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -578,6 +588,16 @@ namespace LanguageExt
         /// <returns>Composition of this monad and the result of the function provided</returns>
         public IO<RT, E, C> SelectMany<B, C>(Func<A, Release<B>> bind, Func<A, Unit, C> project) =>
             Bind(x => bind(x).ToIO<RT, E>().Map(y => project(x, y)));
+
+        /// <summary>
+        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+        /// function provided; which in turn returns a new IO monad.  This can be thought of as
+        /// chaining IO operations sequentially.
+        /// </summary>
+        /// <param name="bind">Bind operation</param>
+        /// <returns>Composition of this monad and the result of the function provided</returns>
+        public IO<RT, E, C> SelectMany<B, C>(Func<A, LiftIO<B>> bind, Func<A, B, C> project) =>
+            Bind(x => bind(x).ToIO<RT, E>().Map(y => project(x, y)));
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -608,25 +628,32 @@ namespace LanguageExt
             new(Transducer.choice(ma.Thunk, mb.Thunk));
 
         /// <summary>
-        /// Convert a resource tracking monad to an IO monad
+        /// Convert to an IO monad
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static implicit operator IO<RT, E, A>(Use<A> ma) =>
             ma.ToIO<RT, E>();
 
         /// <summary>
-        /// Convert a pure value to an IO monad
+        /// Convert to an IO monad
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static implicit operator IO<RT, E, A>(Pure<A> ma) =>
             ma.ToIO<RT, E>();
 
         /// <summary>
-        /// Convert a pure value to an IO monad
+        /// Convert to an IO monad
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static implicit operator IO<RT, E, A>(Fail<E> ma) =>
             ma.ToIO<RT, A>();
+
+        /// <summary>
+        /// Convert to an IO monad
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public static implicit operator IO<RT, E, A>(LiftIO<A> ma) =>
+            ma.ToIO<RT, E>();
 
         /*
          

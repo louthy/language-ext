@@ -1,4 +1,8 @@
 ﻿
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace LanguageExt
 {
     public static partial class Prelude
@@ -49,5 +53,42 @@ namespace LanguageExt
         /// <returns>Pure monad</returns>
         public static Fail<E> Fail<E>(E error) =>
             new (error);
+
+        /// <summary>
+        /// Represents a lifted IO function.  
+        /// </summary>
+        /// <remarks>
+        /// On its own this doesn't do much, but it allows other monads to convert
+        /// from it and provide binding extensions that mean this will work in
+        /// binding scenarios.
+        ///
+        /// It simplifies certain scenarios where additional generic arguments are
+        /// needed.  This only requires the generic argument of the value which
+        /// means the C# inference system can work.
+        /// </remarks>
+        /// <param name="f">IO function</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>Lifted IO function</returns>
+        public static LiftIO<A> liftIO<A>(Func<CancellationToken, Task<A>> f) =>
+            new (f);
+
+        /// <summary>
+        /// Represents a lifted IO function.  
+        /// </summary>
+        /// <remarks>
+        /// On its own this doesn't do much, but it allows other monads to convert
+        /// from it and provide binding extensions that mean this will work in
+        /// binding scenarios.
+        ///
+        /// It simplifies certain scenarios where additional generic arguments are
+        /// needed.  This only requires the generic argument of the value which
+        /// means the C# inference system can work.
+        /// </remarks>
+        /// <param name="f">IO function</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>Lifted IO function</returns>
+        public static LiftIO<A> liftIO<A>(Func<Task<A>> f) =>
+            new (_ => f());
+        
     }
 }

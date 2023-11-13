@@ -11,11 +11,11 @@ namespace LanguageExt;
 /// </summary>
 /// <remarks>
 /// On its own this doesn't do much, but it allows other monads to convert
-/// from it and provide binding extensions that mean this will work with
-/// any monad.
+/// from it and provide binding extensions that mean this will work in
+/// binding scenarios.
 ///
 /// It simplifies certain scenarios where additional generic arguments are
-/// needed.  This only requires rhe generic argument of the value which
+/// needed.  This only requires the generic argument of the value which
 /// means the C# inference system can work.
 /// </remarks>
 /// <param name="Value">Bound value</param>

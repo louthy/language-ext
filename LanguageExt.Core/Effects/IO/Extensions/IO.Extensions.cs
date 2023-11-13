@@ -39,9 +39,9 @@ public static class IOExtensions
     public static IO<RT, E, A> ManyIO<RT, E, A>(this Seq<A> items)
         where RT : struct, HasIO<RT, E> =>
         new(Transducer.compose(
-            Transducer.constant<RT, Seq<A>>(items),
-            Transducer.seq<A>(),
-            Transducer.mkRight<E, A>()));
+                Transducer.constant<RT, Seq<A>>(items),
+                Transducer.seq<A>(),
+                Transducer.mkRight<E, A>()));
 
     /// <summary>
     /// Lifts an asynchronous lazy sequence into the IO monad
@@ -54,9 +54,9 @@ public static class IOExtensions
     public static IO<RT, E, A> ManyIO<RT, E, A>(this IAsyncEnumerable<A> items)
         where RT : struct, HasIO<RT, E> =>
         new(Transducer.compose(
-            Transducer.constant<RT, IAsyncEnumerable<A>>(items),
-            Transducer.asyncEnumerable<A>(),
-            Transducer.mkRight<E, A>()));
+                Transducer.constant<RT, IAsyncEnumerable<A>>(items),
+                Transducer.asyncEnumerable<A>(),
+                Transducer.mkRight<E, A>()));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -134,48 +134,6 @@ public static class IOExtensions
         Func<A, (B First, C Second, D Third), E> project)
         where RT : struct, HasIO<RT, Err> =>
         self.Bind(a => bind(a).Zip().Map(cd => project(a, cd)));
-
-    /*
-    /// <summary>
-    /// Monadic bind and project with resource using monad
-    /// </summary>
-    public static IO<RT, E, C> SelectMany<RT, E, A, B, C>(
-        this IO<RT, E, A> ma,
-        Func<A, Use<B>> bind,
-        Func<A, B, C> project)
-        where RT : struct, HasIO<RT, E> =>
-        ma.SelectMany(x => bind(x).ToIO<RT, E>().Map(y => project(x, y)));
-
-    /// <summary>
-    /// Monadic bind and project with resource using monad
-    /// </summary>
-    public static IO<RT, E, C> SelectMany<RT, E, A, B, C>(
-        this Use<A> ma,
-        Func<A, IO<RT, E, B>> bind,
-        Func<A, B, C> project)
-        where RT : struct, HasIO<RT, E> =>
-        ma.ToIO<RT, E>().SelectMany(x => bind(x).Map(y => project(x, y)));
-
-    /// <summary>
-    /// Monadic bind and project with resource releasing monad
-    /// </summary>
-    public static IO<RT, E, C> SelectMany<RT, E, A, C>(
-        this IO<RT, E, A> ma,
-        Func<A, Release<Unit>> bind,
-        Func<A, Unit, C> project)
-        where RT : struct, HasIO<RT, E> =>
-        ma.SelectMany(x => bind(x).ToIO<RT, E>().Map(y => project(x, y)));
-
-    /// <summary>
-    /// Monadic bind and project with resource releasing monad
-    /// </summary>
-    public static IO<RT, E, C> SelectMany<RT, E, A, B, C>(
-        this Release<A> ma,
-        Func<Unit, IO<RT, E, B>> bind,
-        Func<Unit, B, C> project)
-        where RT : struct, HasIO<RT, E> =>
-        ma.ToIO<RT, E>().SelectMany(x => bind(x).Map(y => project(x, y)));
-        */
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
