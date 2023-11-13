@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
@@ -48,7 +49,34 @@ public static partial class Transducer
     /// </summary>
     public static Transducer<A, Unit> release<A>() =>
         ReleaseTransducer<A>.Default;
-    
+
+    /// <summary>
+    /// Stream the items in the enumerable through the transducer
+    /// </summary>
+    /// <param name="items">Items to stream</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Transducer that represents the stream</returns>
+    public static Transducer<IEnumerable<A>, A> enumerable<A>() =>
+        StreamEnumerableTransducer<A>.Default;
+
+    /// <summary>
+    /// Stream the items in the `Seq` through the transducer
+    /// </summary>
+    /// <param name="items">Items to stream</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Transducer that represents the stream</returns>
+    public static Transducer<Seq<A>, A> seq<A>() =>
+        StreamSeqTransducer<A>.Default;
+
+    /// <summary>
+    /// Stream the items in the `IAsyncEnumerable` through the transducer
+    /// </summary>
+    /// <param name="items">Items to stream</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Transducer that represents the stream</returns>
+    public static Transducer<IAsyncEnumerable<A>, A> asyncEnumerable<A>() =>
+        StreamAsyncEnumerableTransducer<A>.Default;
+
     /// <summary>
     /// Identity transducer
     /// </summary>

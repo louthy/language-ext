@@ -9,6 +9,7 @@ namespace LanguageExt.Tests
     {
         #region Null Disposable Tests
         [Fact]
+        [Obsolete]
         public void useTryMap_NullDisposable_IsNotFaulted()
         {
             IDisposable d = null;
@@ -21,6 +22,7 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        [Obsolete]
         public void useTryBind_NullDisposable_IsNotFaulted()
         {
             IDisposable d = null;
@@ -132,6 +134,7 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        [Obsolete]
         public void useTryMap_TryException_IsFaulted()
         {
             var m = Try<IDisposable>(() => throw new Exception());
@@ -143,6 +146,7 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        [Obsolete]
         public void useTryBind_TryException_IsFaulted()
         {
             var m = Try<IDisposable>(() => throw new Exception());
@@ -192,6 +196,7 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        [Obsolete]
         public void useTryMap_TryException_SelectNotInvoked()
         {
             var m = Try<IDisposable>(() => throw new Exception());
@@ -208,6 +213,7 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        [Obsolete]
         public void useTryBind_TryException_SelectNotInvoked()
         {
             var m = Try<IDisposable>(() => throw new Exception());
@@ -260,6 +266,7 @@ namespace LanguageExt.Tests
 
         #region Disposable Disposed Tests
         [Fact]
+        [Obsolete]
         public void useTryMap_MockDisposable_DisposeCalled()
         {
             var d = new FakeDisposable();
@@ -272,6 +279,7 @@ namespace LanguageExt.Tests
         }
 
         [Fact]
+        [Obsolete]
         public void useTryBind_MockDisposable_DisposeCalled()
         {
             var d = new FakeDisposable();

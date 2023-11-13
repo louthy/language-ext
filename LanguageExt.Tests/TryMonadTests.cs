@@ -215,6 +215,7 @@ namespace LanguageExt.Tests
         Try<Lst<string>> getLines(string text) => () =>
             text.Split('\n').Freeze();
 
+        [Obsolete]
         Try<Lst<string>> getURLContent(string uri) =>
             from address in parseUri(uri)
             from result in use(
@@ -225,6 +226,7 @@ namespace LanguageExt.Tests
             select result;
 
         [Fact]
+        [Obsolete]
         public void UrlTest()
         {
             // Iterates all lines of content
