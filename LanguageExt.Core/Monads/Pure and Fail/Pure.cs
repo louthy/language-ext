@@ -27,8 +27,34 @@ public readonly record struct Pure<A>(A Value)
     //  Standard operators
     //
 
+    /// <summary>
+    /// Functor map
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Result bound value type</typeparam>
+    /// <returns>Result of the applying the mapping function to the `Pure` value</returns>
     public Pure<B> Map<B>(Func<A, B> f) =>
         new (f(Value));
+
+    /// <summary>
+    /// Monadic bind
+    /// </summary>
+    /// <param name="f">Bind function</param>
+    /// <typeparam name="B">Result bound value type</typeparam>
+    /// <returns>Result of the applying the bind function to the `Pure` value</returns>
+    public Pure<B> Bind<B>(Func<A, Pure<B>> f) =>
+        f(Value);
+
+    /// <summary>
+    /// Monadic bind and project
+    /// </summary>
+    /// <param name="bind">Bind function</param>
+    /// <param name="project">Project function</param>
+    /// <typeparam name="B">Result of the bind operation bound value type</typeparam>
+    /// <typeparam name="C">Result of the mapping operation bound value type</typeparam>
+    /// <returns>Result of the applying the bind and mapping function to the `Pure` value</returns>
+    public Pure<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
+        new(project(Value, bind(Value).Value));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -36,7 +62,9 @@ public readonly record struct Pure<A>(A Value)
     //
     
     public Option<A> ToOption() =>
-        Option<A>.Some(Value);
+        Value is null 
+            ? Option<A>.None 
+            : Option<A>.Some(Value);
     
     public OptionUnsafe<A> ToOptionUnsafe() =>
         OptionUnsafe<A>.Some(Value);
@@ -139,4 +167,16 @@ public readonly record struct Pure<A>(A Value)
 
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
+}
+
+public static class PureExtensions
+{
+    /// <summary>
+    /// Monadic join
+    /// </summary>
+    /// <param name="mma">Nested `Pure` monad</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Flattened monad</returns>
+    public static Pure<A> Flatten<A>(this Pure<Pure<A>> mma) =>
+        mma.Value;
 }

@@ -660,27 +660,7 @@ namespace LanguageExt
          TODO
          
         [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, A> operator |(IO<RT, E, A> ma, Eff<E, A> mb) =>
-            new (e =>
-            {
-                var ra = ma.Run(e);
-                return ra.IsSucc
-                    ? ra
-                    : mb.Run();
-            });
-
-        [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, A> operator |(IO<A> ma, IO<RT, A> mb) =>
-            new(e =>
-            {
-                var ra = ma.Run();
-                return ra.IsSucc
-                    ? ra
-                    : mb.Run(e);
-            });
-
-        [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, A> operator |(IO<RT, A> ma, IOCatch<RT, A> mb) =>
+        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, TransducerCatch<RT, E, A> mb) =>
             new(env =>
             {
                 var ra = ma.Run(env);
@@ -727,8 +707,7 @@ namespace LanguageExt
         /// Implicit conversion from pure IO
         /// </summary>
         public static implicit operator IO<RT, E, A>(IO<E, A> ma) =>
-            IOectMaybe(_ => ma.Run());
-            */
+            IOectMaybe(_ => ma.Run());*/
 
     }
 }

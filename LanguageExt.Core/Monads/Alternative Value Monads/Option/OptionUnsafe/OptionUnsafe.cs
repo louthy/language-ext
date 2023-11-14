@@ -1082,5 +1082,36 @@ namespace LanguageExt
             isSome
                 ? OptionUnsafe<B>.Some(await map(Value).ConfigureAwait(false))
                 : OptionUnsafe<B>.None;
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 
+        // `Pure` support
+        //
+
+        /// <summary>
+        /// Monadic bind
+        /// </summary>
+        /// <param name="f">Bind function</param>
+        [Pure]
+        public OptionUnsafe<B> Bind<B>(Func<A, Pure<B>> f) =>
+            IsSome 
+                ? f(Value).ToOptionUnsafe()
+                : OptionUnsafe<B>.None;
+
+        /// <summary>
+        /// Monadic bind and project
+        /// </summary>
+        /// <param name="bind">Bind function</param>
+        /// <param name="project">Project function</param>
+        [Pure]
+        public OptionUnsafe<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
+            IsSome 
+                ? OptionUnsafe<C>.Some(project(Value, bind(Value).Value))
+                : OptionUnsafe<C>.None;
+
+        [Pure]
+        public static implicit operator OptionUnsafe<A>(Pure<A> mr) =>
+            Some(mr.Value);
+        
     }
 }

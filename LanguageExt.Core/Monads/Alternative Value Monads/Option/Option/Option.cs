@@ -1354,5 +1354,35 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 
+        // `Pure` support
+        //
+
+        /// <summary>
+        /// Monadic bind
+        /// </summary>
+        /// <param name="f">Bind function</param>
+        [Pure]
+        public Option<B> Bind<B>(Func<A, Pure<B>> f) =>
+            IsSome && Value is not null 
+                ? f(Value).ToOption()
+                : Option<B>.None;
+
+        /// <summary>
+        /// Monadic bind and project
+        /// </summary>
+        /// <param name="bind">Bind function</param>
+        /// <param name="project">Project function</param>
+        [Pure]
+        public Option<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
+            IsSome && Value is not null
+                ? Option<C>.Some(project(Value, bind(Value).Value))
+                : Option<C>.None;
+
+        [Pure]
+        public static implicit operator Option<A>(Pure<A> mr) =>
+            mr.Value is null ? None : Some(mr.Value);
     }
 }

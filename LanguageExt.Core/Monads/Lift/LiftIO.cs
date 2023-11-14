@@ -33,13 +33,33 @@ public readonly record struct LiftIO<A>(Func<CancellationToken, Task<A>> F)
     /// </summary>
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Result of the mapping operation</typeparam>
-    /// <returns>Mapped lifted IO</returns>
+    /// <returns>Mapped lifted-IO</returns>
     public LiftIO<B> Map<B>(Func<A, B> f)
     {
         var fn = F;
         return new(ct => fn(ct).Map(f));
     }
 
+    /// <summary>
+    /// Monad bind
+    /// </summary>
+    /// <param name="f">Bind function</param>
+    /// <typeparam name="B">Result of the bind operation</typeparam>
+    /// <returns>Chained lifted-IO</returns>
+    public LiftIO<B> Bind<B>(Func<A, LiftIO<B>> f) =>
+        Map(f).Flatten();
+
+    /// <summary>
+    /// Monad bind and project
+    /// </summary>
+    /// <param name="bind">Bind function</param>
+    /// <param name="project">Project function</param>
+    /// <typeparam name="B">Result of the bind operation</typeparam>
+    /// <typeparam name="C">Result of the project operation</typeparam>
+    /// <returns>Chained and mapped lifted-IO</returns>
+    public LiftIO<C> SelectMany<B, C>(Func<A, LiftIO<B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Conversion
@@ -90,4 +110,19 @@ public readonly record struct LiftIO<A>(Func<CancellationToken, Task<A>> F)
 
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
+}
+
+public static class LiftIOExtensions
+{
+    /// <summary>
+    /// Monadic join
+    /// </summary>
+    /// <param name="mma">Nested `LiftIO` monad</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Flattened monad</returns>
+    public static LiftIO<A> Flatten<A>(this LiftIO<LiftIO<A>> mma)
+    {
+        var f1 = mma.F;
+        return new(ct => f1(ct).Bind(f2 => f2.F(ct)));
+    }
 }

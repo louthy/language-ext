@@ -1385,6 +1385,57 @@ namespace LanguageExt
             join<EqDefault<K>, MEither<L, R>, MEither<L, U>, MEither<L, V>, Either<L, R>, Either<L, U>, Either<L, V>, R, U, K, V>(
                 this, inner, outerKeyMap, innerKeyMap, project
                 );
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 
+        // `Pure` and `Fail` support
+        //
+
+        /// <summary>
+        /// Monadic bind
+        /// </summary>
+        /// <param name="f">Bind function</param>
+        [Pure]
+        public Either<L, B> Bind<B>(Func<R, Pure<B>> f) =>
+            IsRight ? f(RightValue).ToEither<L>()
+            : IsLeft ? Either<L, B>.Left(LeftValue)
+            : Either<L, B>.Bottom;      
+
+        /// <summary>
+        /// Monadic bind
+        /// </summary>
+        /// <param name="f">Bind function</param>
+        [Pure]
+        public Either<L, B> Bind<B>(Func<R, Fail<L>> f) =>
+            IsRight ? f(RightValue).ToEither<B>()
+            : IsLeft ? Either<L, B>.Left(LeftValue)
+            : Either<L, B>.Bottom;
+
+        /// <summary>
+        /// Monadic bind and project
+        /// </summary>
+        /// <param name="bind">Bind function</param>
+        /// <param name="project">Project function</param>
+        [Pure]
+        public Either<L, C> SelectMany<B, C>(Func<R, Pure<B>> bind, Func<R, B, C> project) =>
+            Bind(x => bind(x).Map(y => project(x, y)));
+
+        /// <summary>
+        /// Monadic bind and project
+        /// </summary>
+        /// <param name="bind">Bind function</param>
+        /// <param name="project">Project function</param>
+        [Pure]
+        public Either<L, C> SelectMany<B, C>(Func<R, Fail<L>> bind, Func<R, B, C> project) =>
+            Bind(x => bind(x).ToEither<C>());
+
+        [Pure]
+        public static implicit operator Either<L, R>(Pure<R> mr) =>
+            Right(mr.Value);
+
+        [Pure]
+        public static implicit operator Either<L, R>(Fail<L> mr) =>
+            Left(mr.Value);
     }
 
     /// <summary>

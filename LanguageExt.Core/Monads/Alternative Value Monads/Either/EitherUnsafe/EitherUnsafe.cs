@@ -1010,6 +1010,58 @@ namespace LanguageExt
             join<EqDefault<K>, MEitherUnsafe<L, R>, MEitherUnsafe<L, U>, MEitherUnsafe<L, V>, EitherUnsafe<L, R>, EitherUnsafe<L, U>, EitherUnsafe<L, V>, R, U, K, V>(
                 this, inner, outerKeyMap, innerKeyMap, project
                 );
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 
+        // `Pure` and `Fail` support
+        //
+
+        /// <summary>
+        /// Monadic bind
+        /// </summary>
+        /// <param name="f">Bind function</param>
+        [Pure]
+        public EitherUnsafe<L, B> Bind<B>(Func<R, Pure<B>> f) =>
+            IsRight ? f(RightValue).ToEitherUnsafe<L>()
+            : IsLeft ? EitherUnsafe<L, B>.Left(LeftValue)
+            : EitherUnsafe<L, B>.Bottom;      
+
+        /// <summary>
+        /// Monadic bind
+        /// </summary>
+        /// <param name="f">Bind function</param>
+        [Pure]
+        public EitherUnsafe<L, B> Bind<B>(Func<R, Fail<L>> f) =>
+            IsRight ? f(RightValue).ToEitherUnsafe<B>()
+            : IsLeft ? EitherUnsafe<L, B>.Left(LeftValue)
+            : EitherUnsafe<L, B>.Bottom;
+
+        /// <summary>
+        /// Monadic bind and project
+        /// </summary>
+        /// <param name="bind">Bind function</param>
+        /// <param name="project">Project function</param>
+        [Pure]
+        public EitherUnsafe<L, C> SelectMany<B, C>(Func<R, Pure<B>> bind, Func<R, B, C> project) =>
+            Bind(x => bind(x).Map(y => project(x, y)));
+
+        /// <summary>
+        /// Monadic bind and project
+        /// </summary>
+        /// <param name="bind">Bind function</param>
+        /// <param name="project">Project function</param>
+        [Pure]
+        public EitherUnsafe<L, C> SelectMany<B, C>(Func<R, Fail<L>> bind, Func<R, B, C> project) =>
+            Bind(x => bind(x).ToEitherUnsafe<C>());
+
+        [Pure]
+        public static implicit operator EitherUnsafe<L, R>(Pure<R> mr) =>
+            Right(mr.Value);
+
+        [Pure]
+        public static implicit operator EitherUnsafe<L, R>(Fail<L> mr) =>
+            Left(mr.Value);
+        
     }
     /// <summary>
     /// Context for the fluent EitherUnsafe matching

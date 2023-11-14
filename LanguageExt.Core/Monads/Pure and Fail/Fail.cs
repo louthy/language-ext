@@ -38,6 +38,9 @@ public readonly record struct Fail<E>(E Value)
     public Either<E, A> ToEither<A>() =>
         Either<E, A>.Left(Value);
     
+    public EitherUnsafe<E, A> ToEitherUnsafe<A>() =>
+        EitherUnsafe<E, A>.Left(Value);
+    
     public Validation<E, A> ToValidation<A>() =>
         Validation<E, A>.Fail(Prelude.Seq1(Value));
     
