@@ -304,24 +304,6 @@ namespace LanguageExt
         public  IO<RT, E, A> MapFail(Transducer<E, E> f) =>
             new(Transducer.mapLeft(Thunk, f));
 
-        /// <summary>
-        /// Maps the IO monad if it's in a success state
-        /// </summary>
-        /// <param name="f">Function to map the success value with</param>
-        /// <returns>Mapped IO monad</returns>
-        [Pure, MethodImpl(Opt.Default)]
-        public IO<RT, E, B> MapAsync<B>(Func<A, Task<B>> f) =>
-            MapAsync((_, a) => f(a));
-
-        /// <summary>
-        /// Maps the IO monad if it's in a success state
-        /// </summary>
-        /// <param name="f">Function to map the success value with</param>
-        /// <returns>Mapped IO monad</returns>
-        [Pure, MethodImpl(Opt.Default)]
-        public IO<RT, E, B> MapAsync<B>(Func<CancellationToken, A, Task<B>> f) =>
-            new(Transducer.mapRight(Thunk, Transducer.liftIO(f)));
-
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
         // Bi-map
