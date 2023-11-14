@@ -2,6 +2,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Transducers;
 

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
+using LanguageExt.Effects.Traits;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt.Transducers;
@@ -454,18 +455,6 @@ public static partial class Transducer
     /// <returns>Transducer that folds the stream of values</returns>
     public static Transducer<E, Sum<X, S>> fold<S, E, X, A>(Transducer<E, Sum<X, A>> transducer, S initialState, Func<S, A, S> folder) =>
         new FoldTransducer2<S, E, X, A>(transducer, initialState, folder);
-    
-    /// <summary>
-    /// Choice transducer
-    /// </summary>
-    /// <remarks>
-    /// Tries a sequence of transducers until one succeeds (results in a `Sum.Right`).  If the sequence
-    /// is exhausted then the transducer completes.
-    /// </remarks>
-    /// <param name="transducers">Sequence of transducers</param>
-    /// <returns>Transducer that encapsulates the choice</returns>
-    public static Transducer<A, Sum<X, B>> choice<X, A, B>(Seq<Transducer<A, Sum<X, B>>> transducers) =>
-        new ChoiceTransducer<X, A, B>(transducers);
 
     /// <summary>
     /// Choice transducer
@@ -476,8 +465,20 @@ public static partial class Transducer
     /// </remarks>
     /// <param name="transducers">Sequence of transducers</param>
     /// <returns>Transducer that encapsulates the choice</returns>
-    public static Transducer<A, Sum<X, B>> choice<X, A, B>(params Transducer<A, Sum<X, B>>[] transducers) =>
-        new ChoiceTransducer<X, A, B>(transducers.ToSeq());
+    public static Transducer<E, Sum<X, B>> choice<E, X, B>(Seq<Transducer<E, Sum<X, B>>> transducers) =>
+        new ChoiceTransducer<E, X, B>(transducers);
+
+    /// <summary>
+    /// Choice transducer
+    /// </summary>
+    /// <remarks>
+    /// Tries a sequence of transducers until one succeeds (results in a `Sum.Right`).  If the sequence
+    /// is exhausted then the transducer completes.
+    /// </remarks>
+    /// <param name="transducers">Sequence of transducers</param>
+    /// <returns>Transducer that encapsulates the choice</returns>
+    public static Transducer<E, Sum<X, B>> choice<E, X, B>(params Transducer<E, Sum<X, B>>[] transducers) =>
+        new ChoiceTransducer<E, X, B>(transducers.ToSeq());
 
     /// <summary>
     /// Caches the result of the transducer computation for each value flowing through.

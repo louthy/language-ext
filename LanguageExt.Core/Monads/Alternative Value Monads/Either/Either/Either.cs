@@ -13,6 +13,7 @@ using LanguageExt.DataTypes.Serialisation;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
+using LanguageExt.Transducers;
 
 namespace LanguageExt
 {
@@ -477,6 +478,23 @@ namespace LanguageExt
             !ReferenceEquals(obj, null) && 
             obj is Either<L, R> && 
             EqChoice<EqDefault<L>, EqDefault<R>, MEither<L, R>, Either<L,R>, L, R>.Inst.Equals(this, (Either<L, R>)obj);
+
+        /// <summary>
+        /// Convert `Either` to a `Transducer`
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="BottomException">If the either is in a bottom state then this exception will be thrown</exception>
+        [Pure]
+        public Transducer<Unit, Sum<L, R>> ToTransducer()
+        {
+            var sum = IsRight
+                ? Sum<L, R>.Right(RightValue)
+                : IsLeft
+                    ? Sum<L, R>.Left(LeftValue)
+                    : throw new BottomException();
+
+            return Transducer.lift<Unit, Sum<L, R>>(_ => sum);
+        }
 
         /// <summary>
         /// Project the Either into a Lst R

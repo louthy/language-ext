@@ -14,6 +14,7 @@ using System.Runtime.Serialization;
 using LanguageExt.DataTypes.Serialisation;
 using System.Collections;
 using LanguageExt.Common;
+using LanguageExt.Transducers;
 
 namespace LanguageExt
 {
@@ -393,6 +394,23 @@ namespace LanguageExt
             obj is EitherUnsafe<L, R> &&
             EqChoiceUnsafe<EqDefault<L>, EqDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Equals(this, (EitherUnsafe<L, R>)obj);
 
+        /// <summary>
+        /// Convert `Either` to a `Transducer`
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="BottomException">If the either is in a bottom state then this exception will be thrown</exception>
+        [Pure]
+        public Transducer<Unit, Sum<L, R>> ToTransducer()
+        {
+            var sum = IsRight
+                ? Sum<L, R>.Right(RightValue)
+                : IsLeft
+                    ? Sum<L, R>.Left(LeftValue)
+                    : throw new BottomException();
+
+            return Transducer.lift<Unit, Sum<L, R>>(_ => sum);
+        }
+        
         /// <summary>
         /// Project the EitherUnsafe into a Lst R
         /// </summary>

@@ -2,6 +2,7 @@
 using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.Transducers;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt;
@@ -20,7 +21,7 @@ namespace LanguageExt;
 /// </remarks>
 /// <param name="Value">Bound value</param>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly record struct Pure<A>(A Value)
+public readonly record struct Pure<A>(A Value) : Transducer<Unit, A>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -60,6 +61,9 @@ public readonly record struct Pure<A>(A Value)
     //
     //  Conversion
     //
+    
+    public Transducer<Unit, A> ToTransducer() =>
+        Transducer.Pure(Value);
     
     public Option<A> ToOption() =>
         Value is null 
@@ -167,6 +171,17 @@ public readonly record struct Pure<A>(A Value)
 
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Transducer
+    //
+
+    public Transducer<Unit, A> Morphism =>
+        ToTransducer();
+    
+    public Reducer<Unit, S> Transform<S>(Reducer<A, S> reduce) => 
+        ToTransducer().Transform(reduce);
 }
 
 public static class PureExtensions

@@ -87,7 +87,7 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public Either<E, A> Run(RT env) =>
-            Thunk.Invoke1(env, default(RT).CancellationToken)
+            Thunk.Invoke1(env, env.CancellationToken)
                  .ToEither(errorMap);
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace LanguageExt
                              SumLeft<E, A> l => reducer(s, Either<E, A>.Left(l.Value)),
                              _ => TResult.Complete(s)
                          }),
-                     default(RT).CancellationToken)
+                     env.CancellationToken)
                  .ToFin();
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public Task<Either<E, A>> RunAsync(RT env) =>
-            Thunk.Invoke1Async(env, default(RT).CancellationToken)
+            Thunk.Invoke1Async(env, env.CancellationToken)
                  .Map(r => r.ToEither(errorMap));
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace LanguageExt
                              SumLeft<E, A> l => reducer(s, Either<E, A>.Left(l.Value)),
                              _ => TResult.Complete(s)
                          }),
-                     default(RT).CancellationToken)
+                     env.CancellationToken)
                  .Map(r => r.ToFin());
 
         /// <summary>
@@ -615,17 +615,6 @@ namespace LanguageExt
         //
         // Operators
         //
-        
-        /// <summary>
-        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-        /// result of the first without running the second.
-        /// </summary>
-        /// <param name="ma">First IO operation</param>
-        /// <param name="mb">Alternative IO operation</param>
-        /// <returns>Result of either the first or second operation</returns>
-        [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, IO<RT, E, A> mb) =>
-            new(Transducer.choice(ma.Thunk, mb.Thunk));
 
         /// <summary>
         /// Convert to an IO monad
@@ -654,11 +643,267 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public static implicit operator IO<RT, E, A>(LiftIO<A> ma) =>
             ma.ToIO<RT, E>();
+        
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, IO<RT, E, A> mb) =>
+            new(Transducer.choice(ma.Thunk, mb.Thunk));
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, CatchError<E> mb) =>
+            new(Transducer.compose(
+                ma.Thunk, 
+                new CatchSumTransducerRT<RT, E, A>(mb.Match, 
+                    Transducer.compose(
+                        Transducer.lift(mb.Value),
+                        Transducer.mkLeft<E, A>()))));
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, CatchValue<E, A> mb) =>
+            new(Transducer.compose(
+                ma.Thunk, 
+                new CatchSumTransducerRT<RT, E, A>(mb.Match, 
+                    Transducer.compose(
+                        Transducer.lift(mb.Value),
+                        Transducer.mkRight<E, A>()))));
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, IOCatch<RT, E, A> mb) =>
+            ma.Match(Succ: Pure, Fail: mb.Run).Flatten();        
+        
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<RT, A> mb) =>
+            ma | new IO<RT, E, A>(Transducer.compose(mb, Transducer.mkRight<E, A>()));
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<RT, E> mb) =>
+            ma | new IO<RT, E, A>(Transducer.compose(mb, Transducer.mkLeft<E, A>()));
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<Unit, A> mb) =>
+            ma | new IO<RT, E, A>(
+                Transducer.compose(
+                    Transducer.constant<RT, Unit>(default), 
+                    mb, 
+                    Transducer.mkRight<E, A>()));
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<Unit, E> mb) =>
+            ma | new IO<RT, E, A>(
+                Transducer.compose(
+                    Transducer.constant<RT, Unit>(default), 
+                    mb, 
+                    Transducer.mkLeft<E, A>()));
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<RT, Sum<E, A>> mb) =>
+            ma | new IO<RT, E, A>(mb);
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<Unit, Sum<E, A>> mb) =>
+            ma | new IO<RT, E, A>(Transducer.compose(Transducer.constant<RT, Unit>(default), mb));
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<RT, Sum<Error, A>> mb) =>
+            ma | new IO<RT, E, A>(Transducer.mapLeft(mb, Transducer.lift<Error, E>(e => default(RT).FromError(e))));
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<Unit, Sum<Error, A>> mb) =>
+            ma | new IO<RT, E, A>(
+                Transducer.compose(
+                    Transducer.constant<RT, Unit>(default), 
+                    Transducer.mapLeft(mb, Transducer.lift<Error, E>(e => default(RT).FromError(e)))));
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(Transducer<RT, A> ma, IO<RT, E, A> mb) =>
+            new IO<RT, E, A>(Transducer.compose(ma, Transducer.mkRight<E, A>())) | mb;
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(Transducer<RT, E> ma, IO<RT, E, A> mb) =>
+            new IO<RT, E, A>(Transducer.compose(ma, Transducer.mkLeft<E, A>())) | mb;
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(Transducer<Unit, A> ma, IO<RT, E, A> mb) =>
+            new IO<RT, E, A>(
+                Transducer.compose(
+                    Transducer.constant<RT, Unit>(default),
+                    ma,
+                    Transducer.mkRight<E, A>())) | mb;
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(Transducer<Unit, E> ma, IO<RT, E, A> mb) =>
+            new IO<RT, E, A>(
+                Transducer.compose(
+                    Transducer.constant<RT, Unit>(default),
+                    ma,
+                    Transducer.mkLeft<E, A>())) | mb;
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(Transducer<RT, Sum<E, A>> ma, IO<RT, E, A>  mb) =>
+            new IO<RT, E, A>(ma) | mb;
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(Transducer<Unit, Sum<E, A>> ma, IO<RT, E, A> mb) =>
+            new IO<RT, E, A>(Transducer.compose(Transducer.constant<RT, Unit>(default), ma)) | mb;
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(Transducer<RT, Sum<Error, A>> ma, IO<RT, E, A> mb) =>
+            new IO<RT, E, A>(Transducer.mapLeft(ma, Transducer.lift<Error, E>(e => default(RT).FromError(e)))) | mb;
+
+        /// <summary>
+        /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+        /// result of the first without running the second.
+        /// </summary>
+        /// <param name="ma">First IO operation</param>
+        /// <param name="mb">Alternative IO operation</param>
+        /// <returns>Result of either the first or second operation</returns>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> operator |(Transducer<Unit, Sum<Error, A>> ma, IO<RT, E, A> mb) =>
+            new IO<RT, E, A>(
+                Transducer.compose(
+                    Transducer.constant<RT, Unit>(default),
+                    Transducer.mapLeft(ma, Transducer.lift<Error, E>(e => default(RT).FromError(e))))) | mb;
+
+
+
 
         /*
-         
+
          TODO
-         
+
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, TransducerCatch<RT, E, A> mb) =>
             new(env =>

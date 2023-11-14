@@ -2,6 +2,7 @@
 using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.Transducers;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt;
@@ -20,7 +21,7 @@ namespace LanguageExt;
 /// </remarks>
 /// <param name="Value">Bound value</param>
 /// <typeparam name="E">Bound value type</typeparam>
-public readonly record struct Fail<E>(E Value)
+public readonly record struct Fail<E>(E Value) : Transducer<Unit, E>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -34,6 +35,9 @@ public readonly record struct Fail<E>(E Value)
     //
     //  Conversion
     //
+
+    public Transducer<Unit, E> ToTransducer() =>
+        Transducer.Pure(Value);
     
     public Either<E, A> ToEither<A>() =>
         Either<E, A>.Left(Value);
@@ -47,6 +51,17 @@ public readonly record struct Fail<E>(E Value)
     public IO<RT, E, A> ToIO<RT, A>()
         where RT : struct, HasIO<RT, E> =>
         IO<RT, E, A>.Fail(Value);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Transducer
+    //
+
+    public Transducer<Unit, E> Morphism =>
+        ToTransducer();
+
+    public Reducer<Unit, S> Transform<S>(Reducer<E, S> reduce) =>
+        ToTransducer().Transform(reduce);
 }
 
 public static class FailExtensions

@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.DataTypes.Serialisation;
+using LanguageExt.Transducers;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -584,6 +585,23 @@ namespace LanguageExt
             }
         }
 
+        /// <summary>
+        /// Convert to a `Transducer`
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="BottomException">If the either is in a bottom state then this exception will be thrown</exception>
+        [Pure]
+        public Transducer<Unit, Sum<Error, A>> ToTransducer()
+        {
+            var sum = IsSucc
+                ? Sum<Error, A>.Right(Value)
+                : IsFail
+                    ? Sum<Error, A>.Left(Error)
+                    : throw new BottomException();
+
+            return Transducer.lift<Unit, Sum<Error, A>>(_ => sum);
+        }
+        
         [Pure, MethodImpl(Opt.Default)]
         public System.Collections.Generic.List<A> ToList() =>
             IsSucc

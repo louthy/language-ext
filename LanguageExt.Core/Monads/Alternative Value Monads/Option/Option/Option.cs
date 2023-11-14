@@ -14,6 +14,7 @@ using System.Runtime.Serialization;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
+using LanguageExt.Transducers;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt
@@ -510,6 +511,19 @@ namespace LanguageExt
         public Type GetUnderlyingType() => 
             typeof(A);
 
+        /// <summary>
+        /// Convert to a `Transducer`
+        /// </summary>
+        [Pure]
+        public Transducer<Unit, Sum<Unit, A>> ToTransducer()
+        {
+            var sum = IsSome && Value is not null
+                ? Sum<Unit, A>.Right(Value)
+                : Sum<Unit, A>.Left(default);
+
+            return Transducer.lift<Unit, Sum<Unit, A>>(_ => sum);
+        }
+        
         /// <summary>
         /// Convert the Option to an enumerable of zero or one items
         /// </summary>

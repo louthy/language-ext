@@ -12,6 +12,7 @@ using System.Runtime.Serialization;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
+using LanguageExt.Transducers;
 
 namespace LanguageExt
 {
@@ -484,6 +485,19 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Type GetUnderlyingType() =>
             typeof(A);
+        
+        /// <summary>
+        /// Convert to a `Transducer`
+        /// </summary>
+        [Pure]
+        public Transducer<Unit, Sum<Unit, A>> ToTransducer()
+        {
+            var sum = IsSome && Value is not null
+                ? Sum<Unit, A>.Right(Value)
+                : Sum<Unit, A>.Left(default);
+
+            return Transducer.lift<Unit, Sum<Unit, A>>(_ => sum);
+        }
 
         /// <summary>
         /// Convert the OptionUnsafe to an enumerable of zero or one items
@@ -881,9 +895,7 @@ namespace LanguageExt
         /// predicate supplied.</returns>
         [Pure]
         public bool ForAll(Func<A, bool> pred) =>
-            isSome
-                ? pred(Value)
-                : true;
+            !isSome || pred(Value);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
@@ -934,9 +946,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool Exists(Func<A, bool> pred) =>
-            isSome
-                ? pred(Value)
-                : false;
+            isSome && pred(Value);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
