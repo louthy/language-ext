@@ -45,13 +45,24 @@ namespace LanguageExt
         /// </summary>
         [MethodImpl(Opt.Default)]
         IO(Func<RT, Sum<E, A>> thunk) =>
-            this.thunk = Transducer.lift(thunk);
+            this.thunk = Transducer.lift<RT, Sum<E, A>>(rt =>
+            {
+                try
+                {
+                    return thunk(rt);
+                }
+                catch (Exception e)
+                {
+                    return Sum<E, A>.Left(default(RT).FromError(e));
+                }
+            });
 
         /// <summary>
         /// Constructor
         /// </summary>
         [MethodImpl(Opt.Default)]
-        IO(Func<RT, A> thunk) : this(rt => Sum<E, A>.Right(thunk(rt)))
+        IO(Func<RT, A> thunk) 
+            : this(rt => Sum<E, A>.Right(thunk(rt)))
         { }
 
         /// <summary>
@@ -66,7 +77,8 @@ namespace LanguageExt
         /// Constructor
         /// </summary>
         [MethodImpl(Opt.Default)]
-        IO(Func<RT, Either<E, A>> thunk) : this(rt => thunk(rt).ToSum())
+        IO(Func<RT, Either<E, A>> thunk) 
+            : this(rt => thunk(rt).ToSum())
         { }
 
         /// <summary>
@@ -238,14 +250,51 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> LiftIO(Func<RT, Task<A>> f) =>
-            new (Transducer.liftIO<RT, A>((_, rt) => f(rt)));
+            new (Transducer.liftIO<RT, Sum<E, A>>(async (_, rt) =>
+            {
+                try
+                {
+                    return Sum<E, A>.Right(await f(rt).ConfigureAwait(false));
+                }
+                catch (Exception e)
+                {
+                    return Sum<E, A>.Left(default(RT).FromError(e));
+                }
+            }));
 
         /// <summary>
         /// Lift a asynchronous effect into the IO monad
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> LiftIO(Func<RT, Task<Sum<E, A>>> f) =>
-            new (Transducer.liftIO<RT, Sum<E, A>>((_, rt) => f(rt)));
+            new (Transducer.liftIO<RT, Sum<E, A>>(async (_, rt) => 
+            {
+                try
+                {
+                    return await f(rt).ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    return Sum<E, A>.Left(default(RT).FromError(e));
+                }
+            }));
+
+        /// <summary>
+        /// Lift a asynchronous effect into the IO monad
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public static IO<RT, E, A> LiftIO(Func<RT, Task<Either<E, A>>> f) =>
+            new (Transducer.liftIO<RT, Sum<E, A>>(async (_, rt) => 
+            {
+                try
+                {
+                    return (await f(rt).ConfigureAwait(false)).ToSum();
+                }
+                catch (Exception e)
+                {
+                    return Sum<E, A>.Left(default(RT).FromError(e));
+                }
+            }));
 
         /// <summary>
         /// Memoise the result, so subsequent calls don't invoke the side-IOect
@@ -483,8 +532,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Bind operation</param>
         /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, B> Bind<B>(Func<A, Fail<E>> f) =>
-            Map(x => f(x).ToIO<RT, B>()).Flatten();
+        public IO<RT, E, A> Bind(Func<A, Fail<E>> f) =>
+            Map(x => f(x).ToIO<RT, A>()).Flatten();
 
         /// <summary>
         /// Monadic bind operation.  This runs the current IO monad and feeds its result to the

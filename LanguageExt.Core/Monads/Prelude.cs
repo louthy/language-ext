@@ -2,6 +2,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.Effects;
 
 namespace LanguageExt
 {
@@ -89,6 +90,5 @@ namespace LanguageExt
         /// <returns>Lifted IO function</returns>
         public static LiftIO<A> liftIO<A>(Func<Task<A>> f) =>
             new (_ => f());
-        
     }
 }
