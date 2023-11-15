@@ -12,11 +12,14 @@ namespace LanguageExt
 {
     /// <summary>
     /// Immutable array
-    /// Native array O(1) read performance.  Modifications require copying of the entire 
-    /// array to generate the newly mutated version.  This is will be very expensive 
+    /// Native array O(1) read performance.  Modifications require copying of the entire
+    /// array to generate the newly mutated version.  This is will be very expensive
     /// for large arrays.
     /// </summary>
     /// <typeparam name="A">Value type</typeparam>
+#if NET8_0_OR_GREATER
+    [CollectionBuilder(typeof(Arr), nameof(Arr.create))]
+#endif
     [Serializable]
     public struct Arr<A> :
         IEnumerable<A>,
@@ -152,7 +155,7 @@ namespace LanguageExt
         ///
         ///     var res = arr.Case switch
         ///     {
-        ///       
+        ///
         ///        A value         => ...,
         ///        (var x, var xs) => ...,
         ///        _               => ...
@@ -678,7 +681,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(object obj) =>
             obj is Arr<A> t ? CompareTo(t) : 1;
-        
+
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(Arr<A> other) =>

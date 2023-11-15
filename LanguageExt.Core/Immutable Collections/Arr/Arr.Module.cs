@@ -45,6 +45,15 @@ namespace LanguageExt
             new Arr<T>(items);
 
         /// <summary>
+        /// Create an array from a initial set of items
+        /// </summary>
+        /// <param name="items">Items</param>
+        /// <returns>Lst T</returns>
+        [Pure]
+        public static Arr<T> create<T>(ReadOnlySpan<T> items) =>
+            items.IsEmpty ? empty<T>() : create(items.ToArray());
+
+        /// <summary>
         /// Add an item to the array
         /// </summary>
         /// <param name="array">Array</param>
