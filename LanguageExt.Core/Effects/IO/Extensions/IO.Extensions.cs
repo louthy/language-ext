@@ -76,7 +76,7 @@ public static partial class IOExtensions
     /// <returns>Flattened IO monad</returns>
     public static IO<RT, E, A> Flatten<RT, E, A>(this IO<RT, E, IO<RT, E, A>> mma)
         where RT : struct, HasIO<RT, E> =>
-        new(mma.Thunk.Map(ma => ma.Map(r => r.Thunk)).Flatten());
+        new(mma.Morphism.Map(ma => ma.Map(r => r.Morphism)).Flatten());
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -155,7 +155,7 @@ public static partial class IOExtensions
     public static IO<RT, E, (A First, B Second)> Zip<RT, E, A, B>(
          this (IO<RT, E, A> First, IO<RT, E, B> Second) tuple)
          where RT : struct, HasIO<RT, E> =>
-         new(Transducer.zip(tuple.First.Thunk, tuple.Second.Thunk));
+         new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism));
 
     /// <summary>
     /// Takes two IO monads and zips their result
@@ -175,7 +175,7 @@ public static partial class IOExtensions
               IO<RT, E, B> Second, 
               IO<RT, E, C> Third) tuple)
         where RT : struct, HasIO<RT, E> =>
-        new(Transducer.zip(tuple.First.Thunk, tuple.Second.Thunk, tuple.Third.Thunk));
+        new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism, tuple.Third.Morphism));
 
     /// <summary>
     /// Takes two IO monads and zips their result

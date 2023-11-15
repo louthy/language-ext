@@ -4,7 +4,6 @@ using LanguageExt.Common;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Effects;
 using LanguageExt.Effects.Traits;
@@ -18,15 +17,19 @@ namespace LanguageExt
     /// <typeparam name="RT">Runtime struct</typeparam>
     /// <typeparam name="E">Error value type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
-    public readonly struct IO<RT, E, A>
+    public readonly struct IO<RT, E, A> : Transducer<RT, Sum<E, A>>
         where RT : struct, HasIO<RT, E>
     {
+        /// <summary>
+        /// Cached mapping of errors to a valid output for this type 
+        /// </summary>
         static readonly Func<Error, Either<E, A>> errorMap = 
             e => default(RT).FromError(e); 
         
+        /// <summary>
+        /// Underlying transducer that captures all of the IO behaviour 
+        /// </summary>
         readonly Transducer<RT, Sum<E, A>> thunk;
-        internal Transducer<RT, Sum<E, A>> Thunk => 
-            thunk ?? Transducer.Fail<RT, Sum<E, A>>(Errors.Bottom);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -88,6 +91,26 @@ namespace LanguageExt
         IO(Transducer<RT, Either<E, A>> thunk) 
             : this(Transducer.compose(thunk, Transducer.lift<Either<E, A>, Sum<E, A>>(x => x.ToSum())))
         { }
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //
+        // Transducer
+        //
+
+        /// <summary>
+        /// Access to the underlying transducer
+        /// </summary>
+        public Transducer<RT, Sum<E, A>> Morphism =>
+            thunk ?? Transducer.Fail<RT, Sum<E, A>>(Errors.Bottom);
+        
+        /// <summary>
+        /// Reduction of the underlying transducer
+        /// </summary>
+        /// <param name="reduce">Reducer </param>
+        /// <typeparam name="S"></typeparam>
+        /// <returns></returns>
+        public Reducer<RT, S> Transform<S>(Reducer<Sum<E, A>, S> reduce) => 
+            Morphism.Transform(reduce);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -99,8 +122,8 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public Either<E, A> Run(RT env) =>
-            Thunk.Invoke1(env, env.CancellationToken)
-                 .ToEither(errorMap);
+            Morphism.Invoke1(env, env.CancellationToken)
+                    .ToEither(errorMap);
 
         /// <summary>
         /// Invoke the effect (which could produce multiple values).  Run a reducer for
@@ -108,18 +131,18 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public Fin<S> RunMany<S>(RT env, S initialState, Func<S, Either<E, A>, TResult<S>> reducer) =>
-            Thunk.Invoke(
-                     env,
-                     initialState,
-                     Reducer.from<Sum<E, A>, S>(
-                         (_, s, sv) => sv switch
-                         {
-                             SumRight<E, A> r => reducer(s, Either<E, A>.Right(r.Value)),
-                             SumLeft<E, A> l => reducer(s, Either<E, A>.Left(l.Value)),
-                             _ => TResult.Complete(s)
-                         }),
-                     env.CancellationToken)
-                 .ToFin();
+            Morphism.Invoke(
+                        env,
+                        initialState,
+                        Reducer.from<Sum<E, A>, S>(
+                            (_, s, sv) => sv switch
+                            {
+                                SumRight<E, A> r => reducer(s, Either<E, A>.Right(r.Value)),
+                                SumLeft<E, A> l => reducer(s, Either<E, A>.Left(l.Value)),
+                                _ => TResult.Complete(s)
+                            }),
+                        env.CancellationToken)
+                    .ToFin();
 
         /// <summary>
         /// Invoke the effect (which could produce multiple values).  Collect those results in a `Seq`
@@ -144,8 +167,8 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public Task<Either<E, A>> RunAsync(RT env) =>
-            Thunk.Invoke1Async(env, env.CancellationToken)
-                 .Map(r => r.ToEither(errorMap));
+            Morphism.Invoke1Async(env, env.CancellationToken)
+                    .Map(r => r.ToEither(errorMap));
 
         /// <summary>
         /// Invoke the effect (which could produce multiple values).  Run a reducer for
@@ -153,18 +176,18 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public Task<Fin<S>> RunManyAsync<S>(RT env, S initialState, Func<S, Either<E, A>, TResult<S>> reducer) =>
-            Thunk.InvokeAsync(
-                     env,
-                     initialState,
-                     Reducer.from<Sum<E, A>, S>(
-                         (_, s, sv) => sv switch
-                         {
-                             SumRight<E, A> r => reducer(s, Either<E, A>.Right(r.Value)),
-                             SumLeft<E, A> l => reducer(s, Either<E, A>.Left(l.Value)),
-                             _ => TResult.Complete(s)
-                         }),
-                     env.CancellationToken)
-                 .Map(r => r.ToFin());
+            Morphism.InvokeAsync(
+                        env,
+                        initialState,
+                        Reducer.from<Sum<E, A>, S>(
+                            (_, s, sv) => sv switch
+                            {
+                                SumRight<E, A> r => reducer(s, Either<E, A>.Right(r.Value)),
+                                SumLeft<E, A> l => reducer(s, Either<E, A>.Left(l.Value)),
+                                _ => TResult.Complete(s)
+                            }),
+                        env.CancellationToken)
+                    .Map(r => r.ToFin());
 
         /// <summary>
         /// Invoke the effect (which could produce multiple values).  Collect those results in a `Seq`
@@ -296,12 +319,33 @@ namespace LanguageExt
                 }
             }));
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //
+        // Memoisation
+        //
+        
         /// <summary>
         /// Memoise the result, so subsequent calls don't invoke the side-IOect
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public IO<RT, E, A> Memo() =>
-            new(Transducer.memo(Thunk));
+            new(Transducer.memo(Morphism));
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 
+        // Forking
+        //
+
+        /// <summary>
+        /// Queue this IO operation to run on the thread-pool. 
+        /// </summary>
+        /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
+        /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
+        /// the forked IO operation or to await the result of it.
+        /// </returns>
+        [MethodImpl(Opt.Default)]
+        public IO<RT, E, ForkIO<RT, E, A>> Fork(Option<TimeSpan> timeout = default) =>
+            new(Transducer.fork(Morphism, timeout).Map(TFork.ToIO<RT, E, A>));
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -333,7 +377,7 @@ namespace LanguageExt
         /// <returns>Mapped IO monad</returns>
         [Pure, MethodImpl(Opt.Default)]
         public IO<RT, E, B> Map<B>(Transducer<A, B> f) =>
-            new(Transducer.mapRight(Thunk, f));
+            new(Transducer.mapRight(Morphism, f));
 
         /// <summary>
         /// Maps the IO monad if it's in a success state
@@ -351,7 +395,7 @@ namespace LanguageExt
         /// <returns>Mapped IO monad</returns>
         [Pure, MethodImpl(Opt.Default)]
         public  IO<RT, E, A> MapFail(Transducer<E, E> f) =>
-            new(Transducer.mapLeft(Thunk, f));
+            new(Transducer.mapLeft(Morphism, f));
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -378,7 +422,7 @@ namespace LanguageExt
         /// <returns>Mapped IO monad</returns>
         [Pure, MethodImpl(Opt.Default)]
         public IO<RT, E, B> BiMap<B>(Transducer<A, B> Succ, Transducer<E, E> Fail) =>
-            new(Transducer.bimap(Thunk, Fail, Succ));
+            new(Transducer.bimap(Morphism, Fail, Succ));
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -404,7 +448,7 @@ namespace LanguageExt
         [Pure]
         public IO<RT, E, B> Match<B>(Transducer<A, B> Succ, Transducer<E, B> Fail) =>
             new(Transducer.compose(
-                    Transducer.bimap(Thunk, Fail, Succ),
+                    Transducer.bimap(Morphism, Fail, Succ),
                     Transducer.lift<Sum<B, B>, Sum<E, B>>(s => s switch
                     {
                         SumRight<B, B> r => Sum<E, B>.Right(r.Value),
@@ -447,8 +491,8 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public IO<RT, E, A> IfFailIO(Func<E, IO<RT, E, A>> Fail) =>
             new(Transducer.bimap(
-                    Thunk,
-                    Transducer.lift((E e) => Fail(e).Thunk),
+                    Morphism,
+                    Transducer.lift((E e) => Fail(e).Morphism),
                     Transducer.lift((A x) => Transducer.constant<RT, Sum<E, A>>(Sum<E, A>.Right(x))))
                 .Flatten());
 
@@ -480,7 +524,7 @@ namespace LanguageExt
         /// <param name="predicate">Predicate to apply to the bound value></param>
         /// <returns>Filtered IO</returns>
         public IO<RT, E, A> Filter(Transducer<A, bool> predicate) =>
-            new(Transducer.filter(Thunk, predicate));
+            new(Transducer.filter(Morphism, predicate));
 
         /// <summary>
         /// Only allow values through the effect if the predicate returns `true` for the bound value
@@ -640,7 +684,7 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public IO<RT, E, S> Fold<S>(S initialState, Func<S, A, S> folder) =>
-            new(Transducer.fold(Thunk, initialState, folder));
+            new(Transducer.fold(Morphism, initialState, folder));
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -684,7 +728,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, IO<RT, E, A> mb) =>
-            new(Transducer.choice(ma.Thunk, mb.Thunk));
+            new(Transducer.choice(ma.Morphism, mb.Morphism));
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -696,7 +740,7 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, CatchError<E> mb) =>
             new(Transducer.compose(
-                ma.Thunk, 
+                ma.Morphism, 
                 new CatchSumTransducerRT<RT, E, A>(mb.Match, 
                     Transducer.compose(
                         Transducer.lift(mb.Value),
@@ -712,7 +756,7 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, CatchValue<E, A> mb) =>
             new(Transducer.compose(
-                ma.Thunk, 
+                ma.Morphism, 
                 new CatchSumTransducerRT<RT, E, A>(mb.Match, 
                     Transducer.compose(
                         Transducer.lift(mb.Value),
@@ -927,63 +971,5 @@ namespace LanguageExt
                 Transducer.compose(
                     Transducer.constant<RT, Unit>(default),
                     Transducer.mapLeft(ma, Transducer.lift<Error, E>(e => default(RT).FromError(e))))) | mb;
-
-
-
-
-        /*
-
-         TODO
-
-        [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, E, A> operator |(IO<RT, E, A> ma, TransducerCatch<RT, E, A> mb) =>
-            new(env =>
-            {
-                var ra = ma.Run(env);
-                return ra.IsSucc
-                    ? ra
-                    : mb.Run(env, ra.Error);
-            });
-
-        [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, A> operator |(IO<RT, A> ma, IOCatch<A> mb) =>
-            new(env =>
-            {
-                var ra = ma.Run(env);
-                return ra.IsSucc
-                    ? ra
-                    : mb.Run(ra.Error);
-            });
-
-        [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, A> operator |(IO<RT, A> ma, CatchValue<A> value) =>
-            new(env =>
-            {
-                var ra = ma.Run(env);
-                return ra.IsSucc
-                    ? ra
-                    : value.Match(ra.Error)
-                        ? FinSucc(value.Value(ra.Error))
-                        : ra;
-            });
-
-        [Pure, MethodImpl(Opt.Default)]
-        public static IO<RT, A> operator |(IO<RT, A> ma, CatchError value) =>
-            new(env =>
-            {
-                var ra = ma.Run(env);
-                return ra.IsSucc
-                    ? ra
-                    : value.Match(ra.Error)
-                        ? FinFail<A>(value.Value(ra.Error))
-                        : ra;
-            });
-
-        /// <summary>
-        /// Implicit conversion from pure IO
-        /// </summary>
-        public static implicit operator IO<RT, E, A>(IO<E, A> ma) =>
-            IOectMaybe(_ => ma.Run());*/
-
     }
 }

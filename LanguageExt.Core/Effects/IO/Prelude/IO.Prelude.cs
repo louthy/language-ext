@@ -84,7 +84,7 @@ public static partial class Prelude
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> flatten<RT, E, A>(IO<RT, E, IO<RT, E, A>> mma)
         where RT : struct, HasIO<RT, E> =>
-        new(mma.Thunk.Map(ma => ma.Map(r => r.Thunk)).Flatten());
+        new(mma.Morphism.Map(ma => ma.Map(r => r.Morphism)).Flatten());
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -107,7 +107,7 @@ public static partial class Prelude
     public static IO<RT, E, (A First, B Second)> zip<RT, E, A, B>(
          (IO<RT, E, A> First, IO<RT, E, B> Second) tuple)
          where RT : struct, HasIO<RT, E> =>
-         new(Transducer.zip(tuple.First.Thunk, tuple.Second.Thunk));
+         new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism));
 
     /// <summary>
     /// Takes two IO monads and zips their result
@@ -128,7 +128,7 @@ public static partial class Prelude
               IO<RT, E, B> Second, 
               IO<RT, E, C> Third) tuple)
         where RT : struct, HasIO<RT, E> =>
-        new(Transducer.zip(tuple.First.Thunk, tuple.Second.Thunk, tuple.Third.Thunk));
+        new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism, tuple.Third.Morphism));
 
     /// <summary>
     /// Takes two IO monads and zips their result
@@ -223,6 +223,11 @@ public static partial class Prelude
         where RT : struct, HasIO<RT, E> =>
         IO<RT, E, A>.LiftIO(f);
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Memoisation
+    //
+    
     /// <summary>
     /// Memoise the result, so subsequent calls don't invoke the side-IOect
     /// </summary>
@@ -230,6 +235,23 @@ public static partial class Prelude
     public static IO<RT, E, A> memo<RT, E, A>(IO<RT, E, A> ma)
         where RT : struct, HasIO<RT, E> =>
         ma.Memo();
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 
+    // Forking
+    //
+
+    /// <summary>
+    /// Queue this IO operation to run on the thread-pool. 
+    /// </summary>
+    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
+    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
+    /// the forked IO operation or to await the result of it.
+    /// </returns>
+    [MethodImpl(Opt.Default)]
+    public static IO<RT, E, ForkIO<RT, E, A>> fork<RT, E, A>(IO<RT, E, A> ma, Option<TimeSpan> timeout = default) 
+        where RT : struct, HasIO<RT, E> =>
+        ma.Fork(timeout);    
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

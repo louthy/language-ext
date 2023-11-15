@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -10,6 +11,15 @@ namespace LanguageExt;
 
 internal static class TaskAsync<A>
 {
+    static Error FromAggregate(AggregateException? e)
+    {
+        if (e is null) return Errors.None;
+        var errs = e.InnerExceptions.Map(Error.New).ToSeq();
+        if (errs.Count == 0) return Errors.None;
+        if (errs.Count == 1) return errs.Head;
+        return Error.Many(errs);
+    }
+
     /// <summary>
     /// Runs a task concurrently and yields whilst waiting
     /// </summary>
@@ -39,7 +49,7 @@ internal static class TaskAsync<A>
         {
             return t.Exception is null
                 ? TResult.None<A>()
-                : TResult.Fail<A>(Error.New(t.Exception.InnerExceptions.FirstOrDefault() ?? t.Exception));
+                : TResult.Fail<A>(FromAggregate(t.Exception));
         }
 
         return TResult.Continue(t.Result);
@@ -75,7 +85,7 @@ internal static class TaskAsync<A>
             var t = vt.AsTask();
             return t.Exception is null
                 ? TResult.None<A>()
-                : TResult.Fail<A>(Error.New(t.Exception.InnerExceptions.FirstOrDefault() ?? t.Exception));
+                : TResult.Fail<A>(FromAggregate(t.Exception));
         }
 
         return TResult.Continue(vt.Result);
@@ -108,9 +118,7 @@ internal static class TaskAsync<A>
 
         if (t.IsFaulted)
         {
-            return t.Exception is null
-                ? Errors.None
-                : Error.New(t.Exception.InnerExceptions.FirstOrDefault() ?? t.Exception);
+            return FromAggregate(t.Exception);
         }
 
         return t.Result;
@@ -145,7 +153,7 @@ internal static class TaskAsync<A>
         {
             return t.Exception is null
                 ? TResult.None<A>()
-                : TResult.Fail<A>(Error.New(t.Exception.InnerExceptions.FirstOrDefault() ?? t.Exception));
+                : TResult.Fail<A>(FromAggregate(t.Exception));
         }
 
         return t.Result;
@@ -181,7 +189,7 @@ internal static class TaskAsync<A>
             var t = vt.AsTask();
             return t.Exception is null
                     ? TResult.None<A>()
-                    : TResult.Fail<A>(Error.New(t.Exception.InnerExceptions.FirstOrDefault() ?? t.Exception));
+                    : TResult.Fail<A>(FromAggregate(t.Exception));
         }
 
         return vt.Result;
@@ -217,7 +225,7 @@ internal static class TaskAsync<A>
         {
             return t.Exception is null
                     ? TResult.None<B>()
-                    : TResult.Fail<B>(Error.New(t.Exception.InnerExceptions.FirstOrDefault() ?? t.Exception));
+                    : TResult.Fail<B>(FromAggregate(t.Exception));
         }
 
         return t.Result;
@@ -254,7 +262,7 @@ internal static class TaskAsync<A>
             var t = vt.AsTask();
             return t.Exception is null
                 ? TResult.None<B>()
-                : TResult.Fail<B>(Error.New(t.Exception.InnerExceptions.FirstOrDefault() ?? t.Exception));
+                : TResult.Fail<B>(FromAggregate(t.Exception));
         }
 
         return vt.Result;
@@ -291,7 +299,7 @@ internal static class TaskAsync<A>
         {
             return t.Exception is null
                     ? TResult.None<B>()
-                    : TResult.Fail<B>(Error.New(t.Exception.InnerExceptions.FirstOrDefault() ?? t.Exception));
+                    : TResult.Fail<B>(FromAggregate(t.Exception));
         }
 
         return TResult.Continue(t.Result);
@@ -328,7 +336,7 @@ internal static class TaskAsync<A>
             var t = vt.AsTask();
             return t.Exception is null
                 ? TResult.None<B>()
-                : TResult.Fail<B>(Error.New(t.Exception.InnerExceptions.FirstOrDefault() ?? t.Exception));
+                : TResult.Fail<B>(FromAggregate(t.Exception));
         }
 
         return TResult.Continue(vt.Result);
@@ -344,8 +352,12 @@ internal static class TaskAsync<A>
     /// </summary>
     /// <param name="f">Function that yields a task to run</param>
     /// <param name="token">Cancellation token</param>
+    /// <param name="@finally">What to run when the function is complete</param>
     /// <returns>Result of the operation</returns>
-    public static Task<TResult<A>> RunAsync(Func<CancellationToken, A> f, CancellationToken token) =>
+    public static Task<TResult<A>> RunAsync(
+        Func<CancellationToken, A> f, 
+        CancellationToken token, 
+        Action? @finally = null) =>
         Task.Run(() =>
         {
             try
@@ -358,6 +370,10 @@ internal static class TaskAsync<A>
                     ? TResult.Cancel<A>()
                     : TResult.Fail<A>(e);
             }
+            finally
+            {
+                @finally?.Invoke();
+            }
         }, token);
     
     /// <summary>
@@ -365,8 +381,12 @@ internal static class TaskAsync<A>
     /// </summary>
     /// <param name="f">Function that yields a task to run</param>
     /// <param name="token">Cancellation token</param>
+    /// <param name="@finally">What to run when the function is complete</param>
     /// <returns>Result of the operation</returns>
-    public static Task<Fin<A>> RunAsync(Func<A> f, CancellationToken token) =>
+    public static Task<Fin<A>> RunAsync(
+        Func<A> f, 
+        CancellationToken token, 
+        Action? @finally = null) =>
         Task.Run(() =>
         {
             try
@@ -379,6 +399,10 @@ internal static class TaskAsync<A>
                     ? Fin<A>.Fail(Errors.Cancelled)
                     : Fin<A>.Fail(e);
             }
+            finally
+            {
+                @finally?.Invoke();
+            }
         }, token);
     
     /// <summary>
@@ -386,8 +410,12 @@ internal static class TaskAsync<A>
     /// </summary>
     /// <param name="f">Function that yields a task to run</param>
     /// <param name="token">Cancellation token</param>
+    /// <param name="@finally">What to run when the function is complete</param>
     /// <returns>Result of the operation</returns>
-    public static Task<TResult<A>> RunAsync(Func<CancellationToken, TResult<A>> f, CancellationToken token) =>   
+    public static Task<TResult<A>> RunAsync(
+        Func<CancellationToken, TResult<A>> f, 
+        CancellationToken token, 
+        Action? @finally = null) =>   
         Task.Run(() =>
         {
             try
@@ -400,6 +428,10 @@ internal static class TaskAsync<A>
                     ? TResult.Cancel<A>()
                     : TResult.Fail<A>(e);
             }
+            finally
+            {
+                @finally?.Invoke();
+            }
         }, token);
     
     /// <summary>
@@ -408,8 +440,13 @@ internal static class TaskAsync<A>
     /// <param name="f">Function that yields a task to run</param>
     /// <param name="value">Value to pass to the function to run</param>
     /// <param name="token">Cancellation token</param>
+    /// <param name="@finally">What to run when the function is complete</param>
     /// <returns>Result of the operation</returns>
-    public static Task<TResult<B>> RunAsync<B>(Func<CancellationToken, A, TResult<B>> f, A value, CancellationToken token) =>
+    public static Task<TResult<B>> RunAsync<B>(
+        Func<CancellationToken, A, TResult<B>> f, 
+        A value, 
+        CancellationToken token, 
+        Action? @finally = null) =>
         Task.Run(() =>
         {
             try
@@ -422,6 +459,10 @@ internal static class TaskAsync<A>
                     ? TResult.Cancel<B>()
                     : TResult.Fail<B>(e);
             }
+            finally
+            {
+                @finally?.Invoke();
+            }
         }, token);
         
     /// <summary>
@@ -430,8 +471,13 @@ internal static class TaskAsync<A>
     /// <param name="f">Function that yields a task to run</param>
     /// <param name="value">Value to pass to the function to run</param>
     /// <param name="token">Cancellation token</param>
+    /// <param name="@finally">What to run when the function is complete</param>
     /// <returns>Result of the operation</returns>
-    public static Task<TResult<B>> RunAsync<B>(Func<CancellationToken, A, B> f, A value, CancellationToken token) =>
+    public static Task<TResult<B>> RunAsync<B>(
+        Func<CancellationToken, A, B> f, 
+        A value, 
+        CancellationToken token, 
+        Action? @finally = null) =>
         Task.Run(() =>
         {
             try
@@ -443,6 +489,10 @@ internal static class TaskAsync<A>
                 return e is OperationCanceledException
                     ? TResult.Cancel<B>()
                     : TResult.Fail<B>(e);
+            }
+            finally
+            {
+                @finally?.Invoke();
             }
         }, token);
     

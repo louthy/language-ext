@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
@@ -377,7 +378,31 @@ public static partial class Transducer
         Transducer<E, Sum<X, C>> Third) =>
         new ZipSumTransducer3<E, X, A, B, C>(First, Second, Third);    
 
-    
+    /// <summary>
+    /// Create a transducer that is queued to run on the thread-pool. 
+    /// </summary>
+    /// <param name="transducer">Transducer to fork</param>
+    /// <param name="timeout">Maximum time that the forked transducer can run for.  `None` for no timeout.</param>
+    /// <returns>Returns a `TFork` data-structure that contains two transducers that can be used to either cancel the
+    /// /// forked transducer or to await the result of it.</returns>
+    public static Transducer<A, TFork<B>> Fork<A, B>(
+        this Transducer<A, B> transducer, 
+        Option<TimeSpan> timeout = default) =>
+        new ForkTransducer1<A, B>(transducer, timeout);
+
+    /// <summary>
+    /// Create a transducer that is queued to run on the thread-pool. 
+    /// </summary>
+    /// <param name="transducer">Transducer to fork</param>
+    /// <param name="timeout">Maximum time that the forked transducer can run for.  `None` for no timeout.</param>
+    /// <returns>Returns a `TFork` data-structure that contains two transducers that can be used to either cancel the
+    /// /// forked transducer or to await the result of it.</returns>
+    public static Transducer<A, TFork<S>> Fork<S, A, B>(
+        this Transducer<A, B> transducer, 
+        S initialState,
+        Reducer<B, S> reducer,
+        Option<TimeSpan> timeout = default) =>
+        new ForkTransducer2<S, A, B>(transducer, initialState, reducer, timeout);
     
     /// <summary>
     /// Invoke the transducer, reducing to a single value only
@@ -482,8 +507,9 @@ public static partial class Transducer
         A value,
         S initialState,
         Reducer<B, S> reducer,
-        CancellationToken token) =>
-        TaskAsync<A>.RunAsync<S>((t, v) => Invoke(transducer, v, initialState, reducer, t), value, token);
+        CancellationToken token,
+        Action? @finally = null) =>
+        TaskAsync<A>.RunAsync<S>((t, v) => Invoke(transducer, v, initialState, reducer, t), value, token, @finally);
     
     /// <summary>
     /// Invoke the transducer, reducing to a single value only
@@ -499,6 +525,25 @@ public static partial class Transducer
     public static Task<TResult<B>> Invoke1Async<A, B>(
         this Transducer<A, B> transducer, 
         A value, 
-        CancellationToken token) =>
-        TaskAsync<A>.RunAsync<B>((t, v) => Invoke1(transducer, v, t), value, token);
+        CancellationToken token,
+        Action? @finally = null) =>
+        TaskAsync<A>.RunAsync<B>((t, v) => Invoke1(transducer, v, t), value, token, @finally);
+
+    internal static IEnumerable<Transducer<A, Sum<E, B>>> FlattenChoices<A, E, B>(this IEnumerable<Transducer<A, Sum<E, B>>> items)
+    {
+        foreach (var item in items)
+        {
+            if (item is ChoiceTransducer<A, E, B> choice)
+            {
+                foreach (var citem in choice.Transducers)
+                {
+                    yield return citem;
+                }
+            }
+            else
+            {
+                yield return item;
+            }
+        }
+    }
 }

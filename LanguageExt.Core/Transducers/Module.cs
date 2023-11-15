@@ -466,7 +466,7 @@ public static partial class Transducer
     /// <param name="transducers">Sequence of transducers</param>
     /// <returns>Transducer that encapsulates the choice</returns>
     public static Transducer<E, Sum<X, B>> choice<E, X, B>(Seq<Transducer<E, Sum<X, B>>> transducers) =>
-        new ChoiceTransducer<E, X, B>(transducers);
+        new ChoiceTransducer<E, X, B>(transducers.FlattenChoices().ToSeq());
 
     /// <summary>
     /// Choice transducer
@@ -478,7 +478,7 @@ public static partial class Transducer
     /// <param name="transducers">Sequence of transducers</param>
     /// <returns>Transducer that encapsulates the choice</returns>
     public static Transducer<E, Sum<X, B>> choice<E, X, B>(params Transducer<E, Sum<X, B>>[] transducers) =>
-        new ChoiceTransducer<E, X, B>(transducers.ToSeq());
+        new ChoiceTransducer<E, X, B>(transducers.FlattenChoices().ToSeq());
 
     /// <summary>
     /// Caches the result of the transducer computation for each value flowing through.
@@ -614,5 +614,29 @@ public static partial class Transducer
         Transducer<E, Sum<X, A>> First, 
         Transducer<E, Sum<X, B>> Second, 
         Transducer<E, Sum<X, C>> Third) =>
-        new ZipSumTransducer3<E, X, A, B, C>(First, Second, Third);    
+        new ZipSumTransducer3<E, X, A, B, C>(First, Second, Third);
+
+    /// <summary>
+    /// Create a transducer that is queued to run on the thread-pool. 
+    /// </summary>
+    /// <param name="transducer">Transducer to fork</param>
+    /// <param name="timeout">Maximum time that the forked transducer can run for.  `None` for no timeout.</param>
+    /// <returns>Returns a `TFork` data-structure that contains two transducers that can be used to either cancel the
+    /// /// forked transducer or to await the result of it.</returns>
+    public static Transducer<A, TFork<B>> fork<A, B>(Transducer<A, B> transducer, Option<TimeSpan> timeout = default) =>
+        new ForkTransducer1<A, B>(transducer, timeout);
+
+    /// <summary>
+    /// Create a transducer that is queued to run on the thread-pool. 
+    /// </summary>
+    /// <param name="transducer">Transducer to fork</param>
+    /// <param name="timeout">Maximum time that the forked transducer can run for.  `None` for no timeout.</param>
+    /// <returns>Returns a `TFork` data-structure that contains two transducers that can be used to either cancel the
+    /// /// forked transducer or to await the result of it.</returns>
+    public static Transducer<A, TFork<S>> fork<S, A, B>(
+        Transducer<A, B> transducer, 
+        S initialState,
+        Reducer<B, S> reducer,
+        Option<TimeSpan> timeout = default) =>
+        new ForkTransducer2<S, A, B>(transducer, initialState, reducer, timeout);
 }
