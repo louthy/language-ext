@@ -23,6 +23,15 @@ public static class Reducer
         new FReducer<A, S>(f);
 }
 
+public static class Reducer<A>
+{
+    public static readonly Reducer<A, A> identity = 
+        Reducer.from<A, A>((_, _, v) => TResult.Continue(v));
+    
+    public static readonly Reducer<A, Option<A>> optionIdentity = 
+        Reducer.from<A, Option<A>>((_, _, v) => TResult.Continue(Prelude.Some(v)));
+}
+
 record FReducer<A, S>(Func<TState, S, A, TResult<S>> F) : Reducer<A, S>
 {
     public override TResult<S> Run(TState state, S stateValue, A value) =>

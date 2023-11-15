@@ -48,17 +48,7 @@ namespace LanguageExt
         /// </summary>
         [MethodImpl(Opt.Default)]
         IO(Func<RT, Sum<E, A>> thunk) =>
-            this.thunk = Transducer.lift<RT, Sum<E, A>>(rt =>
-            {
-                try
-                {
-                    return thunk(rt);
-                }
-                catch (Exception e)
-                {
-                    return Sum<E, A>.Left(default(RT).FromError(e));
-                }
-            });
+            this.thunk = Transducer.lift(thunk);
 
         /// <summary>
         /// Constructor
@@ -117,6 +107,25 @@ namespace LanguageExt
         // Invoking
         //
         
+        /// <summary>
+        /// All IO monads will catch exceptions at their point of invocation (i.e. in the `Run*` methods).
+        /// But they do not catch exceptions elsewhere without explicitly using this `Try()` method.
+        ///
+        /// This wraps the `IO` monad in a try/catch that converts exceptional errors to an `E` and 
+        /// therefore puts the `IO` in a `Fail` state the expression that can then be matched upon.
+        /// </summary>
+        /// <remarks>
+        /// Useful when you want exceptions to be dealt with through matching/bi-mapping/etc.
+        /// and not merely be caught be the exception handler in `Run*`.
+        /// </remarks>
+        /// <remarks>
+        /// This is used automatically for the first argument in the coalescing `|` operator so that any
+        /// exceptional failures, in the first argument, allow the second argument to be invoked. 
+        /// </remarks>
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, A> Try() =>
+            new(Transducer.@try(Morphism, _ => true, Transducer.mkLeft<E, A>()));
+
         /// <summary>
         /// Invoke the effect
         /// </summary>
@@ -273,51 +282,24 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> LiftIO(Func<RT, Task<A>> f) =>
-            new (Transducer.liftIO<RT, Sum<E, A>>(async (_, rt) =>
-            {
-                try
-                {
-                    return Sum<E, A>.Right(await f(rt).ConfigureAwait(false));
-                }
-                catch (Exception e)
-                {
-                    return Sum<E, A>.Left(default(RT).FromError(e));
-                }
-            }));
+            new (Transducer.liftIO<RT, Sum<E, A>>(
+                async (_, rt) => Sum<E, A>.Right(await f(rt).ConfigureAwait(false))));
 
         /// <summary>
         /// Lift a asynchronous effect into the IO monad
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> LiftIO(Func<RT, Task<Sum<E, A>>> f) =>
-            new (Transducer.liftIO<RT, Sum<E, A>>(async (_, rt) => 
-            {
-                try
-                {
-                    return await f(rt).ConfigureAwait(false);
-                }
-                catch (Exception e)
-                {
-                    return Sum<E, A>.Left(default(RT).FromError(e));
-                }
-            }));
+            new(Transducer.liftIO<RT, Sum<E, A>>(
+                async (_, rt) => await f(rt).ConfigureAwait(false)));
 
         /// <summary>
         /// Lift a asynchronous effect into the IO monad
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> LiftIO(Func<RT, Task<Either<E, A>>> f) =>
-            new (Transducer.liftIO<RT, Sum<E, A>>(async (_, rt) => 
-            {
-                try
-                {
-                    return (await f(rt).ConfigureAwait(false)).ToSum();
-                }
-                catch (Exception e)
-                {
-                    return Sum<E, A>.Left(default(RT).FromError(e));
-                }
-            }));
+            new (Transducer.liftIO<RT, Sum<E, A>>(
+                async (_, rt) => (await f(rt).ConfigureAwait(false)).ToSum()));
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -728,7 +710,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, IO<RT, E, A> mb) =>
-            new(Transducer.choice(ma.Morphism, mb.Morphism));
+            new(Transducer.choice(ma.Try().Morphism, mb.Morphism));
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -739,12 +721,10 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, CatchError<E> mb) =>
-            new(Transducer.compose(
-                ma.Morphism, 
-                new CatchSumTransducerRT<RT, E, A>(mb.Match, 
-                    Transducer.compose(
-                        Transducer.lift(mb.Value),
-                        Transducer.mkLeft<E, A>()))));
+            new(Transducer.@try(
+                ma.Morphism,
+                mb.Match,
+                Transducer.compose(Transducer.lift(mb.Value), Transducer.mkLeft<E, A>())));
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -755,13 +735,11 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, CatchValue<E, A> mb) =>
-            new(Transducer.compose(
-                ma.Morphism, 
-                new CatchSumTransducerRT<RT, E, A>(mb.Match, 
-                    Transducer.compose(
-                        Transducer.lift(mb.Value),
-                        Transducer.mkRight<E, A>()))));
-
+            new(Transducer.@try(
+                ma.Morphism,
+                mb.Match,
+                Transducer.compose(Transducer.lift(mb.Value), Transducer.mkRight<E, A>())));
+        
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
         /// result of the first without running the second.
@@ -771,8 +749,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, IOCatch<RT, E, A> mb) =>
-            ma.Match(Succ: Pure, Fail: mb.Run).Flatten();        
-        
+            ma.Try().Match(Succ: Pure, Fail: mb.Run).Flatten();        
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -783,7 +760,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<RT, A> mb) =>
-            ma | new IO<RT, E, A>(Transducer.compose(mb, Transducer.mkRight<E, A>()));
+            ma.Try() | new IO<RT, E, A>(Transducer.compose(mb, Transducer.mkRight<E, A>()));
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -794,7 +771,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<RT, E> mb) =>
-            ma | new IO<RT, E, A>(Transducer.compose(mb, Transducer.mkLeft<E, A>()));
+            ma.Try() | new IO<RT, E, A>(Transducer.compose(mb, Transducer.mkLeft<E, A>()));
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -805,7 +782,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<Unit, A> mb) =>
-            ma | new IO<RT, E, A>(
+            ma.Try() | new IO<RT, E, A>(
                 Transducer.compose(
                     Transducer.constant<RT, Unit>(default), 
                     mb, 
@@ -820,7 +797,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<Unit, E> mb) =>
-            ma | new IO<RT, E, A>(
+            ma.Try() | new IO<RT, E, A>(
                 Transducer.compose(
                     Transducer.constant<RT, Unit>(default), 
                     mb, 
@@ -835,7 +812,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<RT, Sum<E, A>> mb) =>
-            ma | new IO<RT, E, A>(mb);
+            ma.Try() | new IO<RT, E, A>(mb);
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -846,7 +823,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<Unit, Sum<E, A>> mb) =>
-            ma | new IO<RT, E, A>(Transducer.compose(Transducer.constant<RT, Unit>(default), mb));
+            ma.Try() | new IO<RT, E, A>(Transducer.compose(Transducer.constant<RT, Unit>(default), mb));
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -857,7 +834,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<RT, Sum<Error, A>> mb) =>
-            ma | new IO<RT, E, A>(Transducer.mapLeft(mb, Transducer.lift<Error, E>(e => default(RT).FromError(e))));
+            ma.Try() | new IO<RT, E, A>(Transducer.mapLeft(mb, Transducer.lift<Error, E>(e => default(RT).FromError(e))));
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -868,7 +845,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<Unit, Sum<Error, A>> mb) =>
-            ma | new IO<RT, E, A>(
+            ma.Try() | new IO<RT, E, A>(
                 Transducer.compose(
                     Transducer.constant<RT, Unit>(default), 
                     Transducer.mapLeft(mb, Transducer.lift<Error, E>(e => default(RT).FromError(e)))));
@@ -893,7 +870,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(Transducer<RT, E> ma, IO<RT, E, A> mb) =>
-            new IO<RT, E, A>(Transducer.compose(ma, Transducer.mkLeft<E, A>())) | mb;
+            new IO<RT, E, A>(Transducer.compose(ma, Transducer.mkLeft<E, A>())).Try() | mb;
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -908,7 +885,7 @@ namespace LanguageExt
                 Transducer.compose(
                     Transducer.constant<RT, Unit>(default),
                     ma,
-                    Transducer.mkRight<E, A>())) | mb;
+                    Transducer.mkRight<E, A>())).Try() | mb;
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -923,7 +900,7 @@ namespace LanguageExt
                 Transducer.compose(
                     Transducer.constant<RT, Unit>(default),
                     ma,
-                    Transducer.mkLeft<E, A>())) | mb;
+                    Transducer.mkLeft<E, A>())).Try() | mb;
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -934,7 +911,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(Transducer<RT, Sum<E, A>> ma, IO<RT, E, A>  mb) =>
-            new IO<RT, E, A>(ma) | mb;
+            new IO<RT, E, A>(ma).Try() | mb;
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -945,7 +922,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(Transducer<Unit, Sum<E, A>> ma, IO<RT, E, A> mb) =>
-            new IO<RT, E, A>(Transducer.compose(Transducer.constant<RT, Unit>(default), ma)) | mb;
+            new IO<RT, E, A>(Transducer.compose(Transducer.constant<RT, Unit>(default), ma)).Try() | mb;
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -956,7 +933,7 @@ namespace LanguageExt
         /// <returns>Result of either the first or second operation</returns>
         [Pure, MethodImpl(Opt.Default)]
         public static IO<RT, E, A> operator |(Transducer<RT, Sum<Error, A>> ma, IO<RT, E, A> mb) =>
-            new IO<RT, E, A>(Transducer.mapLeft(ma, Transducer.lift<Error, E>(e => default(RT).FromError(e)))) | mb;
+            new IO<RT, E, A>(Transducer.mapLeft(ma, Transducer.lift<Error, E>(e => default(RT).FromError(e)))).Try() | mb;
 
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -970,6 +947,6 @@ namespace LanguageExt
             new IO<RT, E, A>(
                 Transducer.compose(
                     Transducer.constant<RT, Unit>(default),
-                    Transducer.mapLeft(ma, Transducer.lift<Error, E>(e => default(RT).FromError(e))))) | mb;
+                    Transducer.mapLeft(ma, Transducer.lift<Error, E>(e => default(RT).FromError(e))))).Try() | mb;
     }
 }

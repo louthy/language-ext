@@ -639,4 +639,44 @@ public static partial class Transducer
         Reducer<B, S> reducer,
         Option<TimeSpan> timeout = default) =>
         new ForkTransducer2<S, A, B>(transducer, initialState, reducer, timeout);
+
+    /// <summary>
+    /// Like `try` / `catch` this transducer wraps an existing transducer and catches any errors generated.
+    ///
+    /// The `match` function is a predicate that decides if the error is going to be dealt with by the
+    /// `catch` transducer.  If it is then it can make the result safe, or indeed throw a new error if
+    /// necessary.
+    /// </summary>
+    /// <param name="transducer">Transducer to wrap with the try</param>
+    /// <param name="match">Predicate that decides if the error is going to be dealt with</param>
+    /// <param name="catch">Transducer that handles the error</param>
+    /// <returns>A transducer that is wrapped with a `try` / `catch`</returns>
+    public static Transducer<A, B> @try<A, B>(
+        Transducer<A, B> transducer,
+        Func<Error, bool> match,
+        Transducer<Error, B> @catch) =>
+        new TryTransducer<A, B>(transducer, match, @catch);
+
+    /// <summary>
+    /// Like `try` / `catch` this transducer wraps an existing transducer and catches any errors generated.
+    ///
+    /// The `match` function is a predicate that decides if the error is going to be dealt with by the
+    /// `catch` transducer.  If it is then it can make the result safe, or indeed throw a new error if
+    /// necessary.
+    /// </summary>
+    /// <remarks>
+    /// Because the result of the wrapped transducer is a `Sum` type where `Left` is considered the failure
+    /// value.  This function will convert any exceptional `Error` values to `Left` so they can be matched and
+    /// caught just like any regular `Left` value.
+    /// </remarks>
+    /// <param name="transducer">Transducer to wrap with the try</param>
+    /// <param name="match">Predicate that decides if the error is going to be dealt with</param>
+    /// <param name="catch">Transducer that handles the error</param>
+    /// <returns>A transducer that is wrapped with a `try` / `catch`</returns>
+    public static Transducer<RT, Sum<X, A>> @try<RT, X, A>(
+        Transducer<RT, Sum<X, A>> transducer,
+        Func<X, bool> match,
+        Transducer<X, Sum<X, A>> @catch) 
+        where RT : struct, HasFromError<RT, X> =>
+        new TryTransducer<RT, X, A>(transducer, match, @catch);
 }

@@ -452,7 +452,7 @@ public static partial class Transducer
             var tf = transducer.Transform(reducer);
             var tr = tf.Run(st, s, value);
 
-            while (true)
+            while (!st.Token.IsCancellationRequested)
             {
                 switch (tr)
                 {
@@ -476,6 +476,7 @@ public static partial class Transducer
                         return TResult.None<S>();
                 }
             }
+            return TResult.Cancel<S>();
         }
         catch (Exception e)
         {
