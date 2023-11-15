@@ -8,6 +8,7 @@ using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Transducers;
 
@@ -679,4 +680,84 @@ public static partial class Transducer
         Transducer<X, Sum<X, A>> @catch) 
         where RT : struct, HasFromError<RT, X> =>
         new TryTransducer<RT, X, A>(transducer, match, @catch);
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <returns>A transducer that retries</returns>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    public static Transducer<A, B> retry<A, B>(Schedule schedule, Transducer<A, B> transducer) =>
+        retryUntil(schedule, transducer, _ => false);
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each failure.  If it returns
+    /// `true` then the retying stops and the `Error` is yielded.</param>
+    /// <returns>A transducer that retries</returns>
+    public static Transducer<A, B> retryUntil<A, B>(
+        Schedule schedule, 
+        Transducer<A, B> transducer, 
+        Func<Error, bool> predicate) =>
+        new RetryTransducer<A, B>(transducer, schedule, predicate);
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each failure.  If it returns
+    /// `false` then the retying stops and the `Error` is yielded.</param>
+    /// <returns>A transducer that retries</returns>
+    public static Transducer<A, B> retryWhile<A, B>(
+        Schedule schedule,
+        Transducer<A, B> transducer,
+        Func<Error, bool> predicate) =>
+        retryUntil(schedule, transducer, not(predicate));
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <returns>A transducer that retries</returns>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    public static Transducer<RT, Sum<X, A>> retry<RT, X, A>(
+        Schedule schedule, 
+        Transducer<RT, Sum<X, A>> transducer)
+        where RT : struct, HasFromError<RT, X> =>
+        retryUntil<RT, X, A>(schedule, transducer, _ => false);
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each failure.  If it returns
+    /// `true` then the retying stops and the `Error` is yielded.</param>
+    /// <returns>A transducer that retries</returns>
+    public static Transducer<RT, Sum<X, A>> retryUntil<RT, X, A>(
+        Schedule schedule, 
+        Transducer<RT, Sum<X, A>> transducer, 
+        Func<X, bool> predicate) 
+        where RT : struct, HasFromError<RT, X> =>
+        new RetrySumTransducer<RT, X, A>(transducer, schedule, predicate);
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each failure.  If it returns
+    /// `false` then the retying stops and the `Error` is yielded.</param>
+    /// <returns>A transducer that retries</returns>
+    public static Transducer<RT, Sum<X, A>> retryWhile<RT, X, A>(
+        Schedule schedule,
+        Transducer<RT, Sum<X, A>> transducer,
+        Func<X, bool> predicate) 
+        where RT : struct, HasFromError<RT, X> =>
+        retryUntil(schedule, transducer, not(predicate));
+
 }
