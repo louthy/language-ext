@@ -26,8 +26,15 @@ record SelectManyTransducer1<E, A, B, C>(
     record Binder<S>(E Value, Func<A, Transducer<E, B>> Bind, Func<A, B, C> Project, Reducer<C, S> Reducer) :
         Reducer<A, S>
     {
-        public override TResult<S> Run(TState st, S s, A b) =>
-            TResult.Recursive(st, s, Value, Bind(b).Transform(new Projector<S>(b, Project, Reducer)));
+        public override TResult<S> Run(TState st, S s, A a) =>
+            Bind(a) switch
+            {
+                TailTransducer<E, B> tail when typeof(B) == typeof(C) =>
+                    TResult.Recursive(st, s, Value, tail.Recursive.Transform((Reducer<B, S>)(object)Reducer)),
+
+                var b =>
+                    TResult.Recursive(st, s, Value, b.Transform(new Projector<S>(a, Project, Reducer)))
+            };
     }
     
     record Projector<S>(A Value, Func<A, B, C> Project, Reducer<C, S> Reducer) :
@@ -67,7 +74,14 @@ record SelectManyTransducer2<E, A, B, C>(
     record BindApply<S>(E ValueX, A ValueY, Func<A, B, C> Project, Reducer<C, S> Reducer) : Reducer<Transducer<E, B>, S>
     {
         public override TResult<S> Run(TState st, S s, Transducer<E, B> t) =>
-            TResult.Recursive(st, s, ValueX, t.Transform(new Projector<S>(ValueY, Project, Reducer)));
+            t switch
+            {
+                TailTransducer<E, B> tail when typeof(B) == typeof(C) =>
+                    TResult.Recursive(st, s, ValueX, tail.Recursive.Transform((Reducer<B, S>)(object)Reducer)),
+
+                var b =>
+                    TResult.Recursive(st, s, ValueX, b.Transform(new Projector<S>(ValueY, Project, Reducer)))
+            };
     }
 
     record Projector<S>(A Value, Func<A, B, C> Project, Reducer<C, S> Reducer) :
@@ -104,9 +118,14 @@ record SelectManySumTransducer1<E, X, A, B, C>(
             ma switch
             {
                 SumRight<X, A> r =>
-                    typeof(B) == typeof(Unit) && typeof(C) == typeof(Unit) 
-                        ? TResult.Recursive(st, s, Value, Bind(r.Value).Transform((Reducer<Sum<X, B>, S>)(object)Reducer))
-                        : TResult.Recursive(st, s, Value, Bind(r.Value).Transform(new Projector<S>(r.Value, Project, Reducer))),
+                    Bind(r.Value) switch
+                    {
+                        TailTransducer<E, Sum<X, B>> tail when typeof(B) == typeof(C) => 
+                            TResult.Recursive(st, s, Value, tail.Recursive.Transform((Reducer<Sum<X, B>, S>)(object)Reducer)),
+        
+                        var b => 
+                            TResult.Recursive(st, s, Value, b.Transform(new Projector<S>(r.Value, Project, Reducer)))
+                    },
                 
                 SumLeft<X, A> l =>
                     Reducer.Run(st, s, Sum<X, C>.Left(l.Value)),

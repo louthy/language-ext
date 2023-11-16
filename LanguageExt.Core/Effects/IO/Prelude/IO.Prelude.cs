@@ -225,7 +225,7 @@ public static partial class Prelude
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    // Memoisation
+    // Memoisation and tail-recursion
     //
     
     /// <summary>
@@ -235,6 +235,39 @@ public static partial class Prelude
     public static IO<RT, E, A> memo<RT, E, A>(IO<RT, E, A> ma)
         where RT : struct, HasIO<RT, E> =>
         ma.Memo();
+    
+    /// <summary>
+    /// Wrap this around the final `from` call in a `IO` LINQ expression to void a recursion induced space-leak.
+    /// </summary>
+    /// <example>
+    /// 
+    ///     IO<RT, E, A> recursive(int x) =>
+    ///         from x in writeLine(x)
+    ///         from r in tail(recursive(x + 1))
+    ///         select r;      <--- this never runs
+    /// 
+    /// </example>
+    /// <remarks>
+    /// This means the result of the LINQ expression comes from the final `from`, _not_ the `select.  If the
+    /// type of the `final` from differs from the type of the `select` then this has no effect.
+    /// </remarks>
+    /// <remarks>
+    /// Background: When making recursive LINQ expressions, the final `select` is problematic because it means there's code
+    /// to run _after_ the final `from` expression.  This means there's you're guaranteed to have a space-leak due to the
+    /// need to hold thunks to the final `select` on every recursive step.
+    ///
+    /// This function ignores the `select` altogether and says that the final `from` is where we get our return result
+    /// from and therefore there's no need to hold the thunk. 
+    /// </remarks>
+    /// <param name="ma">IO operation</param>
+    /// <typeparam name="RT">Runtime type</typeparam>
+    /// <typeparam name="E">Error type</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>IO operation that's marked ready for tail recursion</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static IO<RT, E, A> tail<RT, E, A>(IO<RT, E, A> ma)
+        where RT : struct, HasIO<RT, E> =>
+        new(Transducer.tail(ma.Morphism));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 

@@ -35,6 +35,12 @@ public static partial class Transducer
         new FailTransducer<A, B>(error);
     
     /// <summary>
+    /// Wrap this around a tail recursive call to mark it as the end of a recursive expression.
+    /// </summary>
+    public static Transducer<A, B> tail<A, B>(Transducer<A, B> recursive) =>
+        new TailTransducer<A, B>(recursive);
+    
+    /// <summary>
     /// Resource tracking transducer
     /// </summary>
     public static Transducer<A, B> use<A, B>(Transducer<A, B> transducer, Func<B, Unit> dispose) =>

@@ -303,7 +303,7 @@ namespace LanguageExt
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
-        // Memoisation
+        // Memoisation and tail calls
         //
         
         /// <summary>
@@ -312,6 +312,34 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public IO<RT, E, A> Memo() =>
             new(Transducer.memo(Morphism));
+
+        /// <summary>
+        /// Wrap this around the final `from` call in a `IO` LINQ expression to void a recursion induced space-leak.
+        /// </summary>
+        /// <example>
+        /// 
+        ///     IO<RT, E, A> recursive(int x) =>
+        ///         from x in writeLine(x)
+        ///         from r in tail(recursive(x + 1))
+        ///         select r;      <--- this never runs
+        /// 
+        /// </example>
+        /// <remarks>
+        /// This means the result of the LINQ expression comes from the final `from`, _not_ the `select.  If the
+        /// type of the `final` from differs from the type of the `select` then this has no effect.
+        /// </remarks>
+        /// <remarks>
+        /// Background: When making recursive LINQ expressions, the final `select` is problematic because it means
+        /// there's code to run _after_ the final `from` expression.  This means there's you're guaranteed to have a
+        /// space-leak due to the need to hold thunks to the final `select` on every recursive step.
+        ///
+        /// This function ignores the `select` altogether and says that the final `from` is where we get our return
+        /// result from and therefore there's no need to hold the thunk. 
+        /// </remarks>
+        /// <returns>IO operation that's marked ready for tail recursion</returns>        
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, A> Tail() =>
+            new(Transducer.tail(Morphism));
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // 
