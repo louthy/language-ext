@@ -11,7 +11,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        infiniteLoop(1).Run(new MinimalRT());
+        recursiveAskForNumber.Run(new MinimalRT());
     }
 
     static IO<MinimalRT, Error, Unit> infiniteLoop(int value) =>
@@ -22,19 +22,18 @@ class Program
         select unit;
     
     static IO<MinimalRT, Error, int> recursiveAskForNumber =>
-        from x in Pure(100)
-        from y in Pure(200)
-        from z in askForNumber(1)
-        select x + y + z;
+        from n in askForNumber(1)
+        from _ in writeLine($"Your number is: {n}")
+        select n;
     
     static IO<MinimalRT, Error, int> askForNumber(int attempts) =>
         from _ in writeLine($"Enter a number (attempt number: {attempts})")
         from l in readLine
-        from n in int.TryParse(l, out var v)
-            ? Pure(v)
-            : from _ in writeLine("That's not a number!")
-              from r in askForNumber(attempts + 1)
-              select r
+        from n in tail(int.TryParse(l, out var v)
+                            ? Pure(v)
+                            : from _ in writeLine("That's not a number!")
+                              from r in tail(askForNumber(attempts + 1))
+                              select r)
         select n;
 
     static readonly IO<MinimalRT, Error, string> readLine =
