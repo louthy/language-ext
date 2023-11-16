@@ -9,8 +9,7 @@ namespace LanguageExt.Effects;
 /// Minimal runtime for running the non-runtime based IO monads
 /// </summary>
 public readonly struct MinimalRT : 
-    HasCancel<MinimalRT>,
-    HasFromError<MinimalRT, Error>
+    HasIO<MinimalRT, Error>
 {
     public MinimalRT(
         CancellationTokenSource cancellationTokenSource,
@@ -20,7 +19,13 @@ public readonly struct MinimalRT :
     public MinimalRT(
         CancellationTokenSource cancellationTokenSource) =>
         (CancellationTokenSource, CancellationToken) = (cancellationTokenSource, cancellationTokenSource.Token);
-    
+
+    public MinimalRT()
+    {
+        CancellationTokenSource = new CancellationTokenSource();
+        CancellationToken = CancellationTokenSource.Token;
+    }
+
     public MinimalRT LocalCancel =>
         new MinimalRT(CancellationTokenSource);
     

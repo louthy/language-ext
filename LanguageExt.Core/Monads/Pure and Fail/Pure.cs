@@ -47,6 +47,15 @@ public readonly record struct Pure<A>(A Value) : Transducer<Unit, A>
         f(Value);
 
     /// <summary>
+    /// Monadic bind
+    /// </summary>
+    /// <param name="f">Bind function</param>
+    /// <typeparam name="B">Result bound value type</typeparam>
+    /// <returns>Result of the applying the bind function to the `Pure` value</returns>
+    public Fail<B> Bind<B>(Func<A, Fail<B>> f) =>
+        f(Value);
+
+    /// <summary>
     /// Monadic bind and project
     /// </summary>
     /// <param name="bind">Bind function</param>
