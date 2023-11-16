@@ -11,13 +11,11 @@ class Program
 {
     static void Main(string[] args)
     {
-        var r = infiniteLoop(1);
-            
-        Console.WriteLine(r.Run(new MinimalRT()));
+        infiniteLoop(1).Run(new MinimalRT());
     }
 
     static IO<MinimalRT, Error, Unit> infiniteLoop(int value) =>
-        from _ in writeLine(value.ToString())
+        from _ in writeLine($"{value}")
         from r in infiniteLoop(value + 1)
         select unit;
     
