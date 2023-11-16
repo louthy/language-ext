@@ -11,7 +11,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        recursiveAskForNumber.Run(new MinimalRT());
+        retrying.Run(new MinimalRT());
     }
 
     static IO<MinimalRT, Error, Unit> infiniteLoop(int value) =>
@@ -36,6 +36,16 @@ class Program
                               select r)
         select n;
 
+    static IO<MinimalRT, Error, Unit> retrying =>
+        from ix in many(Range(1, 10))
+        from _1 in retry(
+            from _2 in writeLine($"Enter a number to add to {ix}")
+            from nm in readLine.Map(int.Parse)
+            from _3 in writeLine($"Number {ix} + {nm} = {ix + nm}")
+            select unit)
+        from _4 in waitOneSecond
+        select unit;
+    
     static readonly IO<MinimalRT, Error, string> readLine =
         liftIO<MinimalRT, Error, string>(_ => Console.ReadLine() ?? "");
     
@@ -45,4 +55,11 @@ class Program
             Console.WriteLine(line);
             return unit;
         });
+    
+    static IO<MinimalRT, Error, Unit> waitOneSecond =>
+        liftIO<MinimalRT, Error, Unit>(async _ => {
+            await Task.Delay(1000);
+            return unit;
+        });
+    
 }

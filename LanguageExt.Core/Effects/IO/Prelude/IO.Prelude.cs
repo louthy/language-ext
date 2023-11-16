@@ -12,59 +12,7 @@ namespace LanguageExt;
 
 public static partial class Prelude
 {
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Conversion
-    //
-
-    /// <summary>
-    /// Lifts a lazy sequence into the IO monad
-    /// </summary>
-    /// <param name="items">Items</param>
-    /// <typeparam name="RT">Runtime</typeparam>
-    /// <typeparam name="E">Error type</typeparam>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>IO monad that processes multiple items</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<RT, E, A> manyIO<RT, E, A>(IEnumerable<A> items)
-        where RT : struct, HasIO<RT, E> =>
-        new(Transducer.compose(
-                Transducer.constant<RT, IEnumerable<A>>(items),
-                Transducer.enumerable<A>(),
-                Transducer.mkRight<E, A>()));
-
-    /// <summary>
-    /// Lifts a lazy sequence into the IO monad
-    /// </summary>
-    /// <param name="items">Items</param>
-    /// <typeparam name="RT">Runtime</typeparam>
-    /// <typeparam name="E">Error type</typeparam>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>IO monad that processes multiple items</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<RT, E, A> manyIO<RT, E, A>(Seq<A> items)
-        where RT : struct, HasIO<RT, E> =>
-        new(Transducer.compose(
-                Transducer.constant<RT, Seq<A>>(items),
-                Transducer.seq<A>(),
-                Transducer.mkRight<E, A>()));
-
-    /// <summary>
-    /// Lifts an asynchronous lazy sequence into the IO monad
-    /// </summary>
-    /// <param name="items">Items</param>
-    /// <typeparam name="RT">Runtime</typeparam>
-    /// <typeparam name="E">Error type</typeparam>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>IO monad that processes multiple items</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<RT, E, A> manyIO<RT, E, A>(IAsyncEnumerable<A> items)
-        where RT : struct, HasIO<RT, E> =>
-        new(Transducer.compose(
-                Transducer.constant<RT, IAsyncEnumerable<A>>(items),
-                Transducer.asyncEnumerable<A>(),
-                Transducer.mkRight<E, A>()));
-    
+   
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Monadic join

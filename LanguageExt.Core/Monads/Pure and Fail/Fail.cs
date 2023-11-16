@@ -11,13 +11,9 @@ namespace LanguageExt;
 /// Represents an error value.  
 /// </summary>
 /// <remarks>
-/// On its own this doesn't do much, but it allows other monads to convert
-/// from it and provide binding extensions that mean this will work with
-/// any monad.
-///
-/// It simplifies certain scenarios where additional generic arguments are
-/// needed.  This only requires rhe generic argument of the value which
-/// means the C# inference system can work.
+/// On its own this doesn't do much, but  allows other monads to convert
+/// from it and provide binding extensions that mean it can be lifted into
+/// other monads without specifying lots of extra generic arguments.
 /// </remarks>
 /// <param name="Value">Bound value</param>
 /// <typeparam name="E">Bound value type</typeparam>

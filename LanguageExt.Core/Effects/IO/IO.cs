@@ -619,6 +619,16 @@ namespace LanguageExt
         public IO<RT, E, B> Bind<B>(Func<A, LiftIO<B>> f) =>
             Bind(x => f(x).ToIO<RT, E>());
 
+        /// <summary>
+        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+        /// function provided; which in turn returns a new IO monad.  This can be thought of as
+        /// chaining IO operations sequentially.
+        /// </summary>
+        /// <param name="f">Bind operation</param>
+        /// <returns>Composition of this monad and the result of the function provided</returns>
+        public IO<RT, E, B> Bind<B>(Func<A, Many<B>> f) =>
+            Bind(x => f(x).ToIO<RT, E>());
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
         //  Monadic binding and projection
@@ -683,6 +693,16 @@ namespace LanguageExt
         /// <returns>Composition of this monad and the result of the function provided</returns>
         public IO<RT, E, C> SelectMany<B, C>(Func<A, LiftIO<B>> bind, Func<A, B, C> project) =>
             SelectMany(x => bind(x).ToIO<RT, E>(), project);
+
+        /// <summary>
+        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+        /// function provided; which in turn returns a new IO monad.  This can be thought of as
+        /// chaining IO operations sequentially.
+        /// </summary>
+        /// <param name="bind">Bind operation</param>
+        /// <returns>Composition of this monad and the result of the function provided</returns>
+        public IO<RT, E, C> SelectMany<B, C>(Func<A, Many<B>> bind, Func<A, B, C> project) =>
+            SelectMany(x => bind(x).ToIO<RT, E>(), project);
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -727,6 +747,10 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public static implicit operator IO<RT, E, A>(LiftIO<A> ma) =>
+            ma.ToIO<RT, E>();
+
+        [Pure, MethodImpl(Opt.Default)]
+        public static implicit operator IO<RT, E, A>(Many<A> ma) =>
             ma.ToIO<RT, E>();
         
         /// <summary>
