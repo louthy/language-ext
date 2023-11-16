@@ -13,13 +13,13 @@ record FlattenTransducer1<A, B>(Transducer<A, Transducer<A, B>> FF) : Transducer
     record Reduce<S>(Transducer<A, Transducer<A, B>> FF, Reducer<B, S> Reducer) : Reducer<A, S>
     {
         public override TResult<S> Run(TState st, S s, A x) =>
-            FF.Transform(new Reduce1<S>(x, Reducer)).Run(st, s, x);
+            TResult.Recursive(st, s, x, FF.Transform(new Reduce1<S>(x, Reducer)));
     }    
     
     record Reduce1<S>(A Value, Reducer<B, S> Reducer) : Reducer<Transducer<A, B>, S>
     {
         public override TResult<S> Run(TState st, S s, Transducer<A, B> f) =>
-            TResult.Recursive(st, s, Value, f.Transform(Reducer));
+            f.Transform(Reducer).Run(st, s, Value);
     }
 
     public Transducer<A, B> Morphism =>
@@ -34,7 +34,7 @@ record FlattenTransducer2<A, B>(Transducer<A, Transducer<Unit, B>> FF) : Transdu
     record Reduce<S>(Transducer<A, Transducer<Unit, B>> FF, Reducer<B, S> Reducer) : Reducer<A, S>
     {
         public override TResult<S> Run(TState st, S s, A x) =>
-            FF.Transform(new Reduce1<S>(Reducer)).Run(st, s, x);
+            TResult.Recursive(st, s, x, FF.Transform(new Reduce1<S>(Reducer)));
     }    
     
     record Reduce1<S>(Reducer<B, S> Reducer) : Reducer<Transducer<Unit, B>, S>
@@ -60,7 +60,7 @@ record FlattenSumTransducer1<Env, X, A>(Transducer<Env, Sum<X, Transducer<Env, S
         : Reducer<Env, S>
     {
         public override TResult<S> Run(TState state, S stateValue, Env value) =>
-            FF.Transform(new Reduce<S>(value, Reducer)).Run(state, stateValue, value);
+            TResult.Recursive(state, stateValue, value, FF.Transform(new Reduce<S>(value, Reducer)));
     }
 
     record Reduce<S>(Env Env, Reducer<Sum<X, A>, S> Reducer) : Reducer<Sum<X, Transducer<Env, Sum<X, A>>>, S>
@@ -69,10 +69,10 @@ record FlattenSumTransducer1<Env, X, A>(Transducer<Env, Sum<X, Transducer<Env, S
             value switch
             {
                 SumRight<X, Transducer<Env, Sum<X, A>>> r =>
-                    TResult.Recursive(state, stateValue, Env, r.Value.Transform(Reducer)),
+                    r.Value.Transform(Reducer).Run(state, stateValue, Env),
 
                 SumLeft<X, Transducer<Env, Sum<X, A>>> l =>
-                    TResult.Recursive(state, stateValue, Sum<X, A>.Left(l.Value), Reducer),
+                    Reducer.Run(state, stateValue, Sum<X, A>.Left(l.Value)),
                 
                 _ => TResult.Complete(stateValue)
             };

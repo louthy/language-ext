@@ -15,7 +15,9 @@ class Program
     }
 
     static IO<MinimalRT, Error, Unit> infiniteLoop(int value) =>
-        from _ in writeLine($"{value}")
+        from _ in value % 100000 == 0
+                    ? writeLine($"{value}")
+                    : Pure(unit)
         from r in infiniteLoop(value + 1)
         select unit;
     
