@@ -28,7 +28,7 @@ public static partial class Transducer
     /// Maps every value passing through this transducer
     /// </summary>
     public static Transducer<A, C> Map<A, B, C>(this Transducer<A, B> m, Func<B, C> f) =>
-        new SelectTransducer<A, B, C>(m, f);
+        new MapTransducer<A, B, C>(m, f);
 
     /// <summary>
     /// Maps every right value passing through this transducer
@@ -76,7 +76,7 @@ public static partial class Transducer
     /// Maps every value passing through this transducer
     /// </summary>
     public static Transducer<A, C> Select<A, B, C>(this Transducer<A, B> m, Func<B, C> g) =>
-        new SelectTransducer<A, B, C>(m, g);
+        new MapTransducer<A, B, C>(m, g);
 
     /// <summary>
     /// Projects every value into the monadic bind function provided. 
@@ -107,7 +107,7 @@ public static partial class Transducer
         this Transducer<A, B> m, 
         Func<B, Transducer<A, C>> g,
         Func<B, C, D> h) =>
-        new SelectManyTransducer2<A, B, C, D>(m, g, h);    
+        new SelectManyTransducer1<A, B, C, D>(m, g, h);    
 
     /// <summary>
     /// Take nested transducers and flatten them

@@ -3,7 +3,7 @@ using System;
 
 namespace LanguageExt.Transducers;
 
-record SelectTransducer<A, B, C>(Transducer<A, B> F, Func<B, C> G) : 
+record MapTransducer<A, B, C>(Transducer<A, B> F, Func<B, C> G) : 
     Transducer<A, C>
 {
     public Reducer<A, S> Transform<S>(Reducer<C, S> reduce) =>

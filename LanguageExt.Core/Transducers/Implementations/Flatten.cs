@@ -101,10 +101,10 @@ record FlattenSumTransducer2<Env, X, A>(Transducer<Env, Sum<Transducer<Env, Sum<
             value switch
             {
                 SumRight<Transducer<Env, Sum<X, A>>, Transducer<Env, Sum<X, A>>> r =>
-                    TResult.Recursive(state, stateValue, Env, r.Value.Transform(Reducer)),
+                    r.Value.Transform(Reducer).Run(state, stateValue, Env),
 
                 SumLeft<Transducer<Env, Sum<X, A>>, Transducer<Env, Sum<X, A>>> l =>
-                    TResult.Recursive(state, stateValue, Env, l.Value.Transform(Reducer)),
+                    l.Value.Transform(Reducer).Run(state, stateValue, Env),
                 
                 _ => TResult.Complete(stateValue)
             };

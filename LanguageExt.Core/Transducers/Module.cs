@@ -261,50 +261,59 @@ public static partial class Transducer
     /// Gets a lifted function and a lifted argument, invokes the function with the argument and re-lifts the result.
     /// </remarks>
     /// <returns>Result of applying the function to the argument</returns>
-    public static Transducer<A, C> apply<A, B, C>(
-        Transducer<A, Func<B, C>> ff,
-        Transducer<A, B> fa) =>
-        new ApplyTransducer<A, B, C>(ff, fa);
+    public static Transducer<E, B> apply<E, A, B>(
+        Transducer<E, Func<A, B>> ff,
+        Transducer<E, A> fa) =>
+        new ApplyTransducer<E, A, B>(ff, fa);
 
     /// <summary>
     /// Monadic bind
     /// </summary>
-    public static Transducer<A, C> bind<A, B, C>(
-        Transducer<A, B> m,
-        Transducer<B, Transducer<A, C>> f) =>
-        new BindTransducer1<A, B, C>(m, f);
+    public static Transducer<E, B> bind<E, A, B>(
+        Transducer<E, A> m,
+        Transducer<A, Transducer<E, B>> f) =>
+        new BindTransducer1<E, A, B>(m, f);
 
     /// <summary>
     /// Monadic bind
     /// </summary>
-    public static Transducer<A, C> bind<A, B, C>(
-        Transducer<A, B> m,
-        Transducer<B, Func<A, C>> f) =>
-        new BindTransducer2<A, B, C>(m, f);
+    public static Transducer<E, B> bind<E, A, B>(
+        Transducer<E, A> m,
+        Transducer<A, Func<E, B>> f) =>
+        new BindTransducer2<E, A, B>(m, f);
 
     /// <summary>
     /// Monadic bind
     /// </summary>
-    public static Transducer<A, C> bind<A, B, C>(
-        Transducer<A, B> m,
-        Func<B, Transducer<A, C>> f) =>
-        new BindTransducer3<A, B, C>(m, f);
+    public static Transducer<E, B> bind<E, A, B>(
+        Transducer<E, A> m,
+        Func<A, Transducer<E, B>> f) =>
+        new BindTransducer3<E, A, B>(m, f);
 
     /// <summary>
     /// Monadic bind
     /// </summary>
-    public static Transducer<A, Sum<X, C>> bind<X, A, B, C>(
-        Transducer<A, Sum<X, B>> m,
-        Func<B, Transducer<A, Sum<X, C>>> f) =>
-        new BindTransducerSum<X, A, B, C>(m, lift(f));
+    public static Transducer<E, Sum<X, B>> bind<E, X, A, B>(
+        Transducer<E, Sum<X, A>> m,
+        Transducer<A, Transducer<E, Sum<X, B>>> f) =>
+        new BindTransducerSum<X, E, A, B>(m, f);
 
     /// <summary>
     /// Monadic bind
     /// </summary>
-    public static Transducer<A, Sum<X, C>> bind<X, A, B, C>(
-        Transducer<A, Sum<X, B>> m,
-        Transducer<B, Transducer<A, Sum<X, C>>> f) =>
-        new BindTransducerSum<X, A, B, C>(m, f);
+    public static Transducer<E, Sum<X, B>> bind<E, X, A, B>(
+        Transducer<E, Sum<X, A>> m,
+        Func<A, Transducer<E, Sum<X, B>>> f) =>
+        new BindTransducerSum2<X, E, A, B>(m, f);
+
+    /// <summary>
+    /// Monadic bind
+    /// </summary>
+    public static Transducer<E, Sum<X, C>> selectMany<E, X, A, B, C>(
+        Transducer<E, Sum<X, A>> ma,
+        Func<A, Transducer<E, Sum<X, B>>> bind, 
+        Func<A, B, C> project) =>
+        new SelectManySumTransducer1<E, X, A, B, C>(ma, bind, project);
 
     /// <summary>
     /// Lifts a unit accepting transducer, ignores the input value.
@@ -332,11 +341,37 @@ public static partial class Transducer
     /// <param name="Left">Left mapping transducer</param>
     /// <param name="Right">Right mapping transducer</param>
     /// <returns>Composition of first, left, and right transducers</returns>
+    public static Transducer<E, Sum<Y, B>> bimap<E, X, Y, A, B>(
+        Transducer<E, Sum<X, A>> First,
+        Func<X, Y> Left,
+        Func<A, B> Right) =>
+        new BiMap3<E, X, Y, A, B>(First, Left, Right);
+
+    /// <summary>
+    /// Functor bi-map
+    /// </summary>
+    /// <param name="First">First transducer to run</param>
+    /// <param name="Left">Left mapping transducer</param>
+    /// <param name="Right">Right mapping transducer</param>
+    /// <returns>Composition of first, left, and right transducers</returns>
     public static Transducer<Sum<X, A>, Sum<Z, C>> bimap<X, Y, Z, A, B, C>(
         Transducer<Sum<X, A>, Sum<Y, B>> First,
         Transducer<Y, Z> Left,
         Transducer<B, C> Right) =>
         new BiMap2<X, Y, Z, A, B, C>(First, Left, Right);
+
+    /// <summary>
+    /// Functor bi-map
+    /// </summary>
+    /// <param name="First">First transducer to run</param>
+    /// <param name="Left">Left mapping transducer</param>
+    /// <param name="Right">Right mapping transducer</param>
+    /// <returns>Composition of first, left, and right transducers</returns>
+    public static Transducer<Sum<X, A>, Sum<Z, C>> bimap<X, Y, Z, A, B, C>(
+        Transducer<Sum<X, A>, Sum<Y, B>> First,
+        Func<Y, Z> Left,
+        Func<B, C> Right) =>
+        new BiMap4<X, Y, Z, A, B, C>(First, Left, Right);
 
     /// <summary>
     /// Functor bi-map map left
@@ -354,11 +389,33 @@ public static partial class Transducer
     /// </summary>
     /// <param name="First">First transducer to run</param>
     /// <param name="Left">Left mapping transducer</param>
+    /// <returns>Composition of first and left transducers</returns>
+    public static Transducer<E, Sum<Y, A>> mapLeft<E, X, Y, A>(
+        Transducer<E, Sum<X, A>> First,
+        Func<X, Y> Left) =>
+        new MapLeft2<E, X, Y, A>(First, Left);
+
+    /// <summary>
+    /// Functor bi-map map left
+    /// </summary>
+    /// <param name="First">First transducer to run</param>
+    /// <param name="Left">Left mapping transducer</param>
     /// <returns>Composition of first and left</returns>
     public static Transducer<Sum<X, A>, Sum<Z, B>> mapLeft<X, Y, Z, A, B>(
         Transducer<Sum<X, A>, Sum<Y, B>> First,
         Transducer<Y, Z> Left) =>
         new MapLeft2<X, Y, Z, A, B>(First, Left);
+
+    /// <summary>
+    /// Functor bi-map map left
+    /// </summary>
+    /// <param name="First">First transducer to run</param>
+    /// <param name="Left">Left mapping transducer</param>
+    /// <returns>Composition of first and left</returns>
+    public static Transducer<Sum<X, A>, Sum<Z, B>> mapLeft<X, Y, Z, A, B>(
+        Transducer<Sum<X, A>, Sum<Y, B>> First,
+        Func<Y, Z> Left) =>
+        new MapLeft3<X, Y, Z, A, B>(First, Left);
 
     /// <summary>
     /// Functor bi-map map right
@@ -377,10 +434,32 @@ public static partial class Transducer
     /// <param name="First">First transducer to run</param>
     /// <param name="Right">Right mapping transducer</param>
     /// <returns>Composition of first and right transducers</returns>
+    public static Transducer<E, Sum<X, B>> mapRight<E, X, A, B>(
+        Transducer<E, Sum<X, A>> First,
+        Func<A, B> Right) =>
+        new MapRight3<E, X, A, B>(First, Right);
+
+    /// <summary>
+    /// Functor bi-map map right
+    /// </summary>
+    /// <param name="First">First transducer to run</param>
+    /// <param name="Right">Right mapping transducer</param>
+    /// <returns>Composition of first and right transducers</returns>
     public static Transducer<Sum<X, A>, Sum<Y, C>> mapRight<X, Y, A, B, C>(
         Transducer<Sum<X, A>, Sum<Y, B>> First,
         Transducer<B, C> Right) =>
         new MapRight2<X, Y, A, B, C>(First, Right);
+
+    /// <summary>
+    /// Functor bi-map map right
+    /// </summary>
+    /// <param name="First">First transducer to run</param>
+    /// <param name="Right">Right mapping transducer</param>
+    /// <returns>Composition of first and right transducers</returns>
+    public static Transducer<Sum<X, A>, Sum<Y, C>> mapRight<X, Y, A, B, C>(
+        Transducer<Sum<X, A>, Sum<Y, B>> First,
+        Func<B, C> Right) =>
+        new MapRight1<X, Y, A, B, C>(First, Right);
 
     /// <summary>
     /// Make a Sum Right from a value

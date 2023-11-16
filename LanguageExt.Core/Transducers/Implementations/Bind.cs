@@ -70,13 +70,13 @@ record BindTransducer3<A, B, C>(Transducer<A, B> M, Func<B, Transducer<A, C>> F)
     internal record Reduce<S>(Transducer<A, B> M, Func<B, Transducer<A, C>> F, Reducer<C, S> Reducer) : Reducer<A, S>
     {
         public override TResult<S> Run(TState st, S s, A value) =>
-            M.Transform(new Binder<S>(value, F, Reducer)).Run(st, s, value);
+            TResult.Recursive(st, s, value, M.Transform(new Binder<S>(value, F, Reducer)));
     }
     
     internal record Binder<S>(A Value, Func<B, Transducer<A, C>> F, Reducer<C, S> Reducer) : Reducer<B, S>
     {
         public override TResult<S> Run(TState st, S s, B value) =>
-            TResult.Recursive(st, s, Value, F(value).Transform(Reducer));
+            F(value).Transform(Reducer).Run(st, s, Value);
     }
 
     public Transducer<A, C> Morphism =>
@@ -157,6 +157,36 @@ record BindTransducerSum<X, A, B, C>(Transducer<A, Sum<X, B>> M, Transducer<B, T
     {
         public override TResult<S> Run(TState st, S s, Transducer<A, Sum<X, C>> f) =>
             f.Transform(Reducer).Run(st, s, Value);
+    }
+
+    public Transducer<A, Sum<X, C>> Morphism =>
+        this;
+}
+
+record BindTransducerSum2<X, A, B, C>(Transducer<A, Sum<X, B>> M, Func<B, Transducer<A, Sum<X, C>>> F) : 
+    Transducer<A, Sum<X, C>>
+{
+    public Reducer<A, S> Transform<S>(Reducer<Sum<X, C>, S> reduce) =>
+        new Reduce<S>(M, F, reduce);
+
+    record Reduce<S>(Transducer<A, Sum<X, B>> M, Func<B, Transducer<A, Sum<X, C>>> F, Reducer<Sum<X, C>, S> Reducer) 
+        : Reducer<A, S>
+    {
+        public override TResult<S> Run(TState st, S s, A value) =>
+            M.Transform(new Binder1<S>(value, F, Reducer)).Run(st, s, value);
+    }
+    
+    record Binder1<S>(A Value, Func<B, Transducer<A, Sum<X, C>>> F, Reducer<Sum<X, C>, S> Reducer) : Reducer<Sum<X, B>, S>
+    {
+        public override TResult<S> Run(TState st, S s, Sum<X, B> value) =>
+            value switch
+            {
+                SumRight<X, B> r =>
+                    TResult.Recursive(st, s, Value, F(r.Value).Transform(Reducer)),
+                
+                SumLeft<X, B> l => Reducer.Run(st, s, Sum<X, C>.Left(l.Value)),
+                _ => TResult.Complete(s)
+            };
     }
 
     public Transducer<A, Sum<X, C>> Morphism =>
