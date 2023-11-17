@@ -38,7 +38,7 @@ namespace TestBed.WPF
         /// Button handler in the IO monad
         /// </summary>
         IO<MinimalRT, Error, Unit> tickIO =>
-            from _1 in setCount(x => x + 1)
+            from _1 in modifyCount(x => x + 1)
             from _2 in setButtonText(CounterButton, $"{count}")
             select unit;
 
@@ -61,31 +61,21 @@ namespace TestBed.WPF
             }));
 
         /// <summary>
-        /// Wait for a number of seconds 
-        /// </summary>
-        IO<MinimalRT, Error, Unit> waitFor(int seconds) =>
-            liftIO(async token =>
-            {
-                await Task.Delay(TimeSpan.FromSeconds(seconds), token);
-                return unit;
-            });
-
-        /// <summary>
         /// Set the count value
         /// </summary>
         IO<MinimalRT, Error, Unit> setCount(int value) =>
-            setCount(_ => value);
-
-        /// <summary>
-        /// Set the count value
-        /// </summary>
-        IO<MinimalRT, Error, Unit> setCount(Func<int, int> f) =>
-            count.Swap(f);
+            modifyCount(_ => value);
 
         /// <summary>
         /// Reset the count value
         /// </summary>
         IO<MinimalRT, Error, Unit> resetCount =>
-            count.Swap(_ => 0);
+            modifyCount(_ => 0);
+
+        /// <summary>
+        /// Set the count value
+        /// </summary>
+        IO<MinimalRT, Error, Unit> modifyCount(Func<int, int> f) =>
+            count.Swap(f);
     }
 }
