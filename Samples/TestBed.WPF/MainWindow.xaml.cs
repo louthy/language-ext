@@ -51,11 +51,7 @@ namespace TestBed.WPF
         /// Helper IO for setting button text safely
         /// </summary>
         static IO<MinimalRT, Error, Unit> setButtonText(Button button, string text) =>
-            lift(() =>
-            {
-                button.Content = text;
-                return unit;
-            });
+            lift(action: () => button.Content = text);
 
         /// <summary>
         /// Set the count value
@@ -80,10 +76,7 @@ namespace TestBed.WPF
         /// </summary>
         IO<MinimalRT, Error, Unit> waitFor(double milliseconds) =>
             liftIO(async token =>
-            {
                 await Task.Delay(TimeSpan.FromMilliseconds(milliseconds), token)
-                          .ConfigureAwait(false);
-                return unit;
-            });
+                          .ConfigureAwait(false));
     }
 }
