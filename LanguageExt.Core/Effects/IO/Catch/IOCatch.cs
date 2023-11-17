@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using static LanguageExt.Prelude;

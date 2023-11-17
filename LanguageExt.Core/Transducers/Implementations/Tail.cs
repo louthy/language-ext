@@ -1,3 +1,4 @@
+#nullable enable
 namespace LanguageExt.Transducers;
 
 record TailTransducer<A, B>(Transducer<A, B> Recursive) : Transducer<A, B>

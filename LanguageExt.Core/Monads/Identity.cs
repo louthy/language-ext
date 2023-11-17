@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
+﻿#nullable enable
+using System;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;

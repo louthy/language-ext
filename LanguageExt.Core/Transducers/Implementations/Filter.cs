@@ -1,3 +1,4 @@
+#nullable enable
 namespace LanguageExt.Transducers;
 
 record FilterTransducer1<A, B>(Transducer<A, B> F, Transducer<B, bool> Predicate) : Transducer<A, B>

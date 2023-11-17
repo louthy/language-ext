@@ -1,4 +1,5 @@
-﻿namespace LanguageExt.HKT;
+﻿#nullable enable
+namespace LanguageExt.HKT;
 
 /// <summary>
 /// Any kind

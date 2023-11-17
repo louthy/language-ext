@@ -1,4 +1,5 @@
-﻿using LanguageExt.Common;
+﻿#nullable enable
+using LanguageExt.Common;
 
 namespace LanguageExt.Transducers;
 

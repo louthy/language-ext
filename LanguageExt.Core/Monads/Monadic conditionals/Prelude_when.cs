@@ -1,8 +1,8 @@
+#nullable enable
 using System;
 using System.Threading.Tasks;
 using LanguageExt.Effects.Traits;
 using LanguageExt.TypeClasses;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {

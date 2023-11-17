@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Transducers;
