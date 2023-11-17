@@ -66,7 +66,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of ma</returns>
     public static IO<RT, E, A> retryUntil<RT, E, A>(
         IO<RT, E, A> ma,
-        Func<Error, bool> predicate)
+        Func<E, bool> predicate)
         where RT : struct, HasIO<RT, E> =>
         new(Transducer.retryUntil(Schedule.Forever, ma.Morphism, predicate));
 
@@ -81,7 +81,7 @@ public static partial class Prelude
     public static IO<RT, E, A> retryUntil<RT, E, A>(
         Schedule schedule,
         IO<RT, E, A> ma,
-        Func<Error, bool> predicate)
+        Func<E, bool> predicate)
         where RT : struct, HasIO<RT, E> =>
         new(Transducer.retryUntil(schedule, ma.Morphism, predicate));
 }

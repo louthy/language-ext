@@ -90,6 +90,7 @@ namespace LanguageExt
         /// <summary>
         /// Access to the underlying transducer
         /// </summary>
+        [Pure]
         public Transducer<RT, Sum<E, A>> Morphism =>
             thunk ?? Transducer.Fail<RT, Sum<E, A>>(Errors.Bottom);
         
@@ -99,6 +100,7 @@ namespace LanguageExt
         /// <param name="reduce">Reducer </param>
         /// <typeparam name="S"></typeparam>
         /// <returns></returns>
+        [Pure, MethodImpl(Opt.Default)]
         public Reducer<RT, S> Transform<S>(Reducer<Sum<E, A>, S> reduce) => 
             Morphism.Transform(reduce);
 
