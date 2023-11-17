@@ -7,6 +7,6 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Button Name="CounterButton" Height="100" Width="100" Click="ButtonOnClick" FontSize="25pt"></Button>
+        <Button Name="CounterButton" Height="100" Width="300" Click="ButtonOnClick" FontSize="25pt"></Button>
     </Grid>
 </Window>

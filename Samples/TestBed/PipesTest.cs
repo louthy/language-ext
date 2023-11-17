@@ -19,7 +19,7 @@ public static class PipesTestBed
                     ? FailEff<Runtime, Unit>($"failed on {n}") 
                     : unitEff
         from r in n < 0 
-                    ? Pure(unit) 
+                    ? Proxy.Pure(unit) 
                     : numbers(n - 1, failOn)
         select r;
     
