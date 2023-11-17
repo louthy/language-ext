@@ -31,6 +31,9 @@ record BindTransducer1<A, B, C>(Transducer<A, B> M, Transducer<B, Transducer<A, 
 
     public Transducer<A, C> Morphism =>
         this;
+    
+    public override string ToString() =>  
+        "bind";
 }
 
 record BindTransducer2<A, B, C>(Transducer<A, B> M, Transducer<B, Func<A, C>> F) : 
@@ -59,6 +62,9 @@ record BindTransducer2<A, B, C>(Transducer<A, B> M, Transducer<B, Func<A, C>> F)
 
     public Transducer<A, C> Morphism =>
         this;
+    
+    public override string ToString() =>  
+        "bind";
 }
 
 record BindTransducer3<A, B, C>(Transducer<A, B> M, Func<B, Transducer<A, C>> F) : 
@@ -81,6 +87,9 @@ record BindTransducer3<A, B, C>(Transducer<A, B> M, Func<B, Transducer<A, C>> F)
 
     public Transducer<A, C> Morphism =>
         this;
+    
+    public override string ToString() =>  
+        "bind";
 }
 
 record BindTransducer3A<A, B, C>(Transducer<A, B> M, Func<B, Transducer<Unit, C>> F) : 
@@ -103,6 +112,9 @@ record BindTransducer3A<A, B, C>(Transducer<A, B> M, Func<B, Transducer<Unit, C>
 
     public Transducer<A, C> Morphism =>
         this;
+    
+    public override string ToString() =>  
+        "bind";
 }
 
 record BindTransducer3B<A, B, C>(Transducer<Unit, B> M, Func<B, Transducer<A, C>> F) : 
@@ -125,6 +137,9 @@ record BindTransducer3B<A, B, C>(Transducer<Unit, B> M, Func<B, Transducer<A, C>
 
     public Transducer<A, C> Morphism =>
         this;
+    
+    public override string ToString() =>  
+        "bind";
 }
 
 record BindTransducerSum<X, A, B, C>(Transducer<A, Sum<X, B>> M, Transducer<B, Transducer<A, Sum<X, C>>> F) : 
@@ -161,6 +176,9 @@ record BindTransducerSum<X, A, B, C>(Transducer<A, Sum<X, B>> M, Transducer<B, T
 
     public Transducer<A, Sum<X, C>> Morphism =>
         this;
+    
+    public override string ToString() =>  
+        "bind";
 }
 
 record BindTransducerSum2<X, A, B, C>(Transducer<A, Sum<X, B>> M, Func<B, Transducer<A, Sum<X, C>>> F) : 
@@ -191,4 +209,7 @@ record BindTransducerSum2<X, A, B, C>(Transducer<A, Sum<X, B>> M, Func<B, Transd
 
     public Transducer<A, Sum<X, C>> Morphism =>
         this;
+    
+    public override string ToString() =>  
+        "bind";
 }

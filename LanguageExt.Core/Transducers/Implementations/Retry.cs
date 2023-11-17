@@ -89,6 +89,9 @@ record RetryTransducer<A, B>(Transducer<A, B> F, Schedule Schedule, Func<Error, 
             return TResult.Cancel<S>();
         }
     }
+            
+    public override string ToString() =>  
+        "retry";
 }
 
 record RetrySumTransducer<RT, X, A>(Transducer<RT, Sum<X, A>> F, Schedule Schedule, Func<X, bool> Predicate) 
@@ -185,4 +188,7 @@ record RetrySumTransducer<RT, X, A>(Transducer<RT, Sum<X, A>> F, Schedule Schedu
             return TResult.Cancel<S>();
         }
     }
+            
+    public override string ToString() =>  
+        "retry";
 }

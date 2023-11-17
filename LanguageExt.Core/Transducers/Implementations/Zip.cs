@@ -22,6 +22,9 @@ record ZipTransducer2<E, A, B>(Transducer<E, A> First, Transducer<E, B> Second)
                                .Run(st, s, value)))
                  .Run(state, stateValue, value);
     }
+                                
+    public override string ToString() =>  
+        $"zip";
 }
 
 record ZipSumTransducer2<E, X, A, B>(Transducer<E, Sum<X, A>> First, Transducer<E, Sum<X, B>> Second)
@@ -63,6 +66,9 @@ record ZipSumTransducer2<E, X, A, B>(Transducer<E, Sum<X, A>> First, Transducer<
                         _ => TResult.Complete(s)
                     })).Run(state, stateValue, value);
     }
+                                
+    public override string ToString() =>  
+        $"zip";
 }
 
 record ZipTransducer3<E, A, B, C>(
@@ -95,6 +101,9 @@ record ZipTransducer3<E, A, B, C>(
                                .Run(st, s, value)))
                  .Run(state, stateValue, value);
     }
+                                
+    public override string ToString() =>  
+        $"zip";
 }
 
 record ZipSumTransducer3<E, X, A, B, C>(
@@ -152,4 +161,7 @@ record ZipSumTransducer3<E, X, A, B, C>(
                         _ => TResult.Complete(s)
                     })).Run(state, stateValue, value);
     }
+                                
+    public override string ToString() =>  
+        $"zip";
 }

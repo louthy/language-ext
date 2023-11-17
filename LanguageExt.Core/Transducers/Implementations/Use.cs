@@ -19,6 +19,9 @@ record UseTransducer1<A, B>(Transducer<A, B> F, Func<B, Unit> CleanUp) : Transdu
             return Reduce.Run(state, stateValue, value);
         }
     }
+                            
+    public override string ToString() =>  
+        $"use";
 }
 
 record UseTransducer2<A, B>(Transducer<A, B> F) : Transducer<A, B> where B : IDisposable
@@ -37,4 +40,7 @@ record UseTransducer2<A, B>(Transducer<A, B> F) : Transducer<A, B> where B : IDi
             return Reduce.Run(state, stateValue, value);
         }
     }
+                            
+    public override string ToString() =>  
+        $"use";
 }

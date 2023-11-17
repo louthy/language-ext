@@ -14,6 +14,9 @@ record FilterTransducer1<A, B>(Transducer<A, B> F, Transducer<B, bool> Predicate
                         flag 
                             ? reduce.Run(st2, s2, v) 
                             : TResult.Complete(s2))).Run(st, s, v)));
+            
+    public override string ToString() =>  
+        "filter";
 }
 
 record FilterSumTransducer1<X, A, B>(Transducer<A, Sum<X, B>> F, Transducer<B, bool> Predicate) : Transducer<A, Sum<X, B>>
@@ -34,4 +37,7 @@ record FilterSumTransducer1<X, A, B>(Transducer<A, Sum<X, B>> F, Transducer<B, b
 
                     _ => TResult.Complete(s)
                 }));
+            
+    public override string ToString() =>  
+        "filter";
 }

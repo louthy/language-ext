@@ -50,6 +50,9 @@ record StreamEnumerableTransducer<A> : Transducer<IEnumerable<A>, A>
             }
         }
     }
+                
+    public override string ToString() =>  
+        "many(enumerable)";
 }
 
 record StreamSeqTransducer<A> : Transducer<Seq<A>, A>
@@ -98,6 +101,9 @@ record StreamSeqTransducer<A> : Transducer<Seq<A>, A>
             }
         }
     }
+                    
+    public override string ToString() =>  
+        "many(seq)";
 }
 
 record StreamAsyncEnumerableTransducer<A> : Transducer<IAsyncEnumerable<A>, A>
@@ -149,4 +155,7 @@ record StreamAsyncEnumerableTransducer<A> : Transducer<IAsyncEnumerable<A>, A>
             }
         }
     }
+                        
+    public override string ToString() =>  
+        "many(async-enumerable)";
 }

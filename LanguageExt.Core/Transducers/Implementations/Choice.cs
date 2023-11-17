@@ -21,4 +21,7 @@ record ChoiceTransducer<E, X, B>(Seq<Transducer<E, Sum<X, B>>> Transducers) : Tr
                     : TResult.Recursive(state, stateValue, value, new Reduce<S>(Reducer, Transducers.Tail))
             };
     }
+        
+    public override string ToString() =>  
+        "choice";
 }

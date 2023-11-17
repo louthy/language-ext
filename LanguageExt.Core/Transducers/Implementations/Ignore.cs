@@ -15,6 +15,9 @@ record IgnoreTransducer<A, B>(Transducer<Unit, B> Transducer) :
         public override TResult<S> Run(TState state, S stateValue, A value) =>
             Reducer.Run(state, stateValue, default);
     }
+            
+    public override string ToString() =>  
+        "ignore";
     
     public Transducer<A, B> Morphism =>
         this;

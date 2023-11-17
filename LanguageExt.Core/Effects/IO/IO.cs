@@ -4,6 +4,7 @@ using LanguageExt.Common;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Effects;
 using LanguageExt.Effects.Traits;
@@ -132,8 +133,8 @@ namespace LanguageExt
         /// Invoke the effect
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
-        public Either<E, A> Run(RT env) =>
-            Morphism.Invoke1(env, env.CancellationToken)
+        public Either<E, A> Run(RT env, SynchronizationContext? context = null) =>
+            Morphism.Invoke1(env, null, env.CancellationToken, context)
                     .ToEither(errorMap);
 
         /// <summary>
@@ -152,7 +153,9 @@ namespace LanguageExt
                                 SumLeft<E, A> l => reducer(s, Either<E, A>.Left(l.Value)),
                                 _ => TResult.Complete(s)
                             }),
-                        env.CancellationToken)
+                        null, 
+                        env.CancellationToken, 
+                        SynchronizationContext.Current)
                     .ToFin();
 
         /// <summary>
@@ -178,7 +181,7 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public Task<Either<E, A>> RunAsync(RT env) =>
-            Morphism.Invoke1Async(env, env.CancellationToken)
+            Morphism.Invoke1Async(env, null, env.CancellationToken, env.SynchronizationContext)
                     .Map(r => r.ToEither(errorMap));
 
         /// <summary>
@@ -197,7 +200,9 @@ namespace LanguageExt
                                 SumLeft<E, A> l => reducer(s, Either<E, A>.Left(l.Value)),
                                 _ => TResult.Complete(s)
                             }),
-                        env.CancellationToken)
+                        null,
+                        env.CancellationToken,
+                        env.SynchronizationContext)
                     .Map(r => r.ToFin());
 
         /// <summary>
@@ -309,7 +314,7 @@ namespace LanguageExt
         //
         
         /// <summary>
-        /// Memoise the result, so subsequent calls don't invoke the side-IOect
+        /// Memoise the result, so subsequent calls don't invoke the side-effect
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public IO<RT, E, A> Memo() =>
@@ -559,7 +564,7 @@ namespace LanguageExt
         /// <param name="f">Bind operation</param>
         /// <returns>Composition of this monad and the result of the function provided</returns>
         public IO<RT, E, B> Bind<B>(Func<A, IO<RT, E, B>> f) =>
-            new(Transducer.bind(Morphism, x => f(x).Morphism));
+            new(Transducer.bind(Morphism, x => f(x)));
 
         /// <summary>
         /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
@@ -757,6 +762,26 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public IO<RT, E, S> Fold<S>(S initialState, Func<S, A, S> folder) =>
             new(Transducer.fold(Morphism, initialState, folder));
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //
+        // Synchronisation between contexts
+        //
+        
+        /// <summary>
+        /// Make a transducer run on the `SynchronizationContext` that was captured at the start
+        /// of an `Invoke` call.
+        /// </summary>
+        /// <remarks>
+        /// The transducer receives its input value from the currently running sync-context and
+        /// then proceeds to run its operation in the captured `SynchronizationContext`:
+        /// typically a UI context, but could be any captured context.  The result of the
+        /// transducer is the received back on the currently running sync-context. 
+        /// </remarks>
+        /// <param name="f">Transducer</param>
+        /// <returns></returns>
+        public IO<RT, E, A> Post() =>
+            new(Transducer.post(Morphism));        
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //

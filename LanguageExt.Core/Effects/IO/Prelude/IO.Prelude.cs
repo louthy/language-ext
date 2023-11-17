@@ -508,8 +508,28 @@ public static partial class Prelude
     /// Fold the effect
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static IO<RT, E, S> fold<RT, E, A, S>(IO<RT, E, A> ma, S initialState, Func<S, A, S> folder)
+    public static IO<RT, E, S> foldIO<RT, E, A, S>(IO<RT, E, A> ma, S initialState, Func<S, A, S> folder)
         where RT : struct, HasIO<RT, E> =>
         ma.Fold(initialState, folder);
-
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Synchronisation between contexts
+    //
+    
+    /// <summary>
+    /// Make a transducer run on the `SynchronizationContext` that was captured at the start
+    /// of an `Invoke` call.
+    /// </summary>
+    /// <remarks>
+    /// The transducer receives its input value from the currently running sync-context and
+    /// then proceeds to run its operation in the captured `SynchronizationContext`:
+    /// typically a UI context, but could be any captured context.  The result of the
+    /// transducer is the received back on the currently running sync-context. 
+    /// </remarks>
+    /// <param name="f">Transducer</param>
+    /// <returns></returns>
+    public static IO<RT, E, A> post<RT, E, A>(IO<RT, E, A> ma)
+        where RT : struct, HasIO<RT, E> =>
+        new(Transducer.post(ma.Morphism));
 }

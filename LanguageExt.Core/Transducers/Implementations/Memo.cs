@@ -29,6 +29,9 @@ record MemoTransducer<EqA, A, B>(Transducer<A, B> Transducer) : Transducer<A, B>
             return result;
         }
     }
+            
+    public override string ToString() =>  
+        "memo";
 }
 
 record Memo1Transducer<EqA, A, B>(Transducer<A, B> Transducer) : Transducer<A, B>
@@ -72,4 +75,7 @@ record Memo1Transducer<EqA, A, B>(Transducer<A, B> Transducer) : Transducer<A, B
         public bool Equals(Key x, Key y) =>
             x.StateType == y.StateType && default(EqA).Equals(x.Value, y.Value);
     }
+            
+    public override string ToString() =>  
+        "memo";
 }

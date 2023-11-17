@@ -75,6 +75,9 @@ record FlattenTTransducer1<Env, X, A>(
 
     public Transducer<Env, Sum<X, A>> Morphism =>
         this;
+            
+    public override string ToString() =>  
+        "flattenT";
 }
 
 record FlattenTTransducer2<Env, X, A>(
@@ -134,4 +137,7 @@ record FlattenTTransducer2<Env, X, A>(
 
     public Transducer<Env, Sum<X, A>> Morphism =>
         this;
+            
+    public override string ToString() =>  
+        "flattenT";
 }

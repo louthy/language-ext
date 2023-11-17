@@ -924,4 +924,19 @@ public static partial class Transducer
         Func<A, bool> predicate) 
         where RT : struct, HasFromError<RT, X> =>
         repeatUntil(schedule, transducer, not(predicate));
+
+    /// <summary>
+    /// Make a transducer run on the `SynchronizationContext` that was captured at the start
+    /// of an `Invoke` call.
+    /// </summary>
+    /// <remarks>
+    /// The transducer receives its input value from the currently running sync-context and
+    /// then proceeds to run its operation in the captured `SynchronizationContext`:
+    /// typically a UI context, but could be any captured context.  The result of the
+    /// transducer is the received back on the currently running sync-context. 
+    /// </remarks>
+    /// <param name="f">Transducer</param>
+    /// <returns></returns>
+    public static Transducer<A, B> post<A, B>(Transducer<A, B> f) =>
+        new PostTransducer<A, B>(f);
 }

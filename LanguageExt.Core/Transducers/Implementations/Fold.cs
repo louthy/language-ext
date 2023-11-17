@@ -27,6 +27,9 @@ record FoldTransducer1<TState, E, A>(
                 .Run(state, InitialState, env)
                 .Bind(sx => Reduce.Run(state, stateValue, sx));
     }
+            
+    public override string ToString() =>  
+        "fold";
 }
 
 record FoldTransducer2<TState, E, X, A>(
@@ -58,4 +61,7 @@ record FoldTransducer2<TState, E, X, A>(
                 .Run(state, Sum<X, TState>.Right(InitialState), env)
                 .Bind(sx => Reduce.Run(state, stateValue, sx));
     }
+            
+    public override string ToString() =>  
+        "fold";
 }

@@ -10,7 +10,10 @@ record IdentityTransducer<A> : Transducer<A, A>
 
     public Reducer<A, S> Transform<S>(Reducer<A, S> reduce) =>
         reduce;
-    
+                
+    public override string ToString() =>  
+        "identity";
+
     public Transducer<A, A> Morphism =>
         this;
 }

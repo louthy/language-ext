@@ -17,4 +17,7 @@ record MapTransducer<A, B, C>(Transducer<A, B> F, Func<B, C> G) :
         public override TResult<S> Run(TState st, S s, B b) =>
             Reducer.Run(st, s, G(b));
     }
+            
+    public override string ToString() =>  
+        "map";
 }

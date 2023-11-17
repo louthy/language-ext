@@ -12,27 +12,37 @@ public readonly struct MinimalRT :
     HasIO<MinimalRT, Error>
 {
     public MinimalRT(
+        SynchronizationContext syncContext,
         CancellationTokenSource cancellationTokenSource,
         CancellationToken cancellationToken) =>
-        (CancellationTokenSource, CancellationToken) = (cancellationTokenSource, cancellationToken);
+        (SynchronizationContext, CancellationTokenSource, CancellationToken) = 
+            (syncContext, cancellationTokenSource, cancellationToken);
 
     public MinimalRT(
+        SynchronizationContext syncContext,
         CancellationTokenSource cancellationTokenSource) =>
-        (CancellationTokenSource, CancellationToken) = (cancellationTokenSource, cancellationTokenSource.Token);
+        (SynchronizationContext, CancellationTokenSource, CancellationToken) = 
+            (syncContext, cancellationTokenSource, cancellationTokenSource.Token);
 
     public MinimalRT()
     {
         CancellationTokenSource = new CancellationTokenSource();
         CancellationToken = CancellationTokenSource.Token;
+        SynchronizationContext = SynchronizationContext.Current;
     }
 
     public MinimalRT LocalCancel =>
-        new MinimalRT(CancellationTokenSource);
+        new (SynchronizationContext, CancellationTokenSource);
     
+    public SynchronizationContext SynchronizationContext { get; }
     public CancellationToken CancellationToken { get; }
-    
     public CancellationTokenSource CancellationTokenSource { get; }
     
     public Error FromError(Error error) => 
         error;
+
+    public MinimalRT WithSyncContext(SynchronizationContext syncContext) =>
+        new (syncContext, CancellationTokenSource);
+
+
 }

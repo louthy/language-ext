@@ -11,7 +11,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        retrying.Run(new MinimalRT());
+        folding.Run(new MinimalRT());
     }
 
     static IO<MinimalRT, Error, Unit> infiniteLoop(int value) =>
@@ -36,6 +36,13 @@ class Program
                               select r)
         select n;
 
+    private static IO<MinimalRT, Error, Unit> folding =>
+        from n in many(Range(1, 10))
+                    .ToIO<MinimalRT, Error>()
+                    .Fold(0, (s, x) => s + x)
+        from _ in writeLine($"Total {n}")
+        select unit;
+
     static IO<MinimalRT, Error, Unit> retrying =>
         from ix in many(Range(1, 10))
         from _1 in retry(
@@ -45,7 +52,7 @@ class Program
             select unit)
         from _4 in waitOneSecond
         select unit;
-
+    
     static IO<MinimalRT, Error, Unit> repeating =>
         from stopAt in lift(() => DateTime.Now.AddSeconds(10))
         from _ in writeLine("READ THE TODO AND DO IT") // TODO: Add the repeat functions to IO.Extensions.Repeat and IO.Prelude.Repeat

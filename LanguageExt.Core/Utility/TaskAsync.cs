@@ -11,7 +11,7 @@ namespace LanguageExt;
 
 internal static class TaskAsync<A>
 {
-    static Error FromAggregate(AggregateException? e)
+    internal static Error FromAggregate(AggregateException? e)
     {
         if (e is null) return Errors.None;
         var errs = e.InnerExceptions.Map(Error.New).ToSeq();
@@ -355,9 +355,9 @@ internal static class TaskAsync<A>
     /// <param name="@finally">What to run when the function is complete</param>
     /// <returns>Result of the operation</returns>
     public static Task<TResult<A>> RunAsync(
-        Func<CancellationToken, A> f, 
-        CancellationToken token, 
-        Action? @finally = null) =>
+        Func<CancellationToken, A> f,
+        Action? @finally,
+        CancellationToken token) =>
         Task.Run(() =>
         {
             try
@@ -385,8 +385,8 @@ internal static class TaskAsync<A>
     /// <returns>Result of the operation</returns>
     public static Task<Fin<A>> RunAsync(
         Func<A> f, 
-        CancellationToken token, 
-        Action? @finally = null) =>
+        Action? @finally,
+        CancellationToken token) =>
         Task.Run(() =>
         {
             try
@@ -414,8 +414,8 @@ internal static class TaskAsync<A>
     /// <returns>Result of the operation</returns>
     public static Task<TResult<A>> RunAsync(
         Func<CancellationToken, TResult<A>> f, 
-        CancellationToken token, 
-        Action? @finally = null) =>   
+        Action? @finally,
+        CancellationToken token) =>
         Task.Run(() =>
         {
             try
@@ -445,8 +445,8 @@ internal static class TaskAsync<A>
     public static Task<TResult<B>> RunAsync<B>(
         Func<CancellationToken, A, TResult<B>> f, 
         A value, 
-        CancellationToken token, 
-        Action? @finally = null) =>
+        Action? @finally,
+        CancellationToken token) =>
         Task.Run(() =>
         {
             try
@@ -476,8 +476,8 @@ internal static class TaskAsync<A>
     public static Task<TResult<B>> RunAsync<B>(
         Func<CancellationToken, A, B> f, 
         A value, 
-        CancellationToken token, 
-        Action? @finally = null) =>
+        Action? @finally,
+        CancellationToken token) =>
         Task.Run(() =>
         {
             try

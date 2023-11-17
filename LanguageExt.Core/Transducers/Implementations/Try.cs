@@ -76,6 +76,9 @@ record TryTransducer<A, B>(
             }
         }
     }
+                            
+    public override string ToString() =>  
+        $"try";
 }
 
 record TryTransducer<RT, X, A>(
@@ -156,4 +159,7 @@ record TryTransducer<RT, X, A>(
             }
         }
     }
+                            
+    public override string ToString() =>  
+        $"try";
 }

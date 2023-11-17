@@ -31,4 +31,7 @@ record ApplyTransducer<A, B, C>(Transducer<A, Func<B, C>> FF, Transducer<A, B> F
         public override TResult<S> Run(TState state, S stateValue, B value) =>
             TResult.Recursive(state, stateValue, F(value), Reducer);
     }
+
+    public override string ToString() =>  
+        "apply";
 }

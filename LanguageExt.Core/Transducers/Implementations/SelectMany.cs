@@ -43,6 +43,9 @@ record SelectManyTransducer1<E, A, B, C>(
         public override TResult<S> Run(TState st, S s, B c) =>
           Reducer.Run(st, s, Project(Value, c));
     }
+                
+    public override string ToString() =>  
+        "selectMany";
 }
 
 record SelectManyTransducer2<E, A, B, C>(
@@ -90,6 +93,9 @@ record SelectManyTransducer2<E, A, B, C>(
         public override TResult<S> Run(TState st, S s, B c) =>
             Reducer.Run(st, s, Project(Value, c));
     }
+                
+    public override string ToString() =>  
+        "selectMany";
 }
 
 record SelectManySumTransducer1<E, X, A, B, C>(
@@ -149,4 +155,7 @@ record SelectManySumTransducer1<E, X, A, B, C>(
                 _ => TResult.Complete(s)
             };
     }
+                
+    public override string ToString() =>  
+        "selectMany";
 }

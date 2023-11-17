@@ -8,13 +8,14 @@ namespace LanguageExt;
 public class TState : IDisposable
 {
     public readonly CancellationToken Token;
+    public readonly SynchronizationContext SynchronizationContext;
     ConcurrentDictionary<object, IDisposable>? Disps;
 
-    public TState(CancellationToken token) =>
-        (Disps, Token) = (null, token);
+    public TState(SynchronizationContext syncContext, CancellationToken token) =>
+        (Disps, Token, SynchronizationContext) = (null, token, syncContext);
 
-    public TState(ConcurrentDictionary<object, IDisposable>? disps, CancellationToken token) =>
-        (Disps, Token) = (disps, token);
+    public TState(ConcurrentDictionary<object, IDisposable>? disps, SynchronizationContext syncContext, CancellationToken token) =>
+        (Disps, Token, SynchronizationContext) = (disps, token, syncContext);
 
     public Unit Using<A>(A value, Func<A, Unit> dispose)
     {

@@ -21,4 +21,7 @@ record ReleaseTransducer<A> : Transducer<A, Unit>
             return Reduce.Run(state, stateValue, default);
         }
     }
+            
+    public override string ToString() =>  
+        "release";
 }

@@ -12,6 +12,9 @@ record ComposeTransducer<TA, TB, TC>(
 
     public Transducer<TA, TC> Morphism =>
         this;
+        
+    public override string ToString() =>  
+        "a -> b -> c";
 }
 
 record ComposeTransducer<TA, TB, TC, TD>(
@@ -27,6 +30,9 @@ record ComposeTransducer<TA, TB, TC, TD>(
 
     public Transducer<TA, TD> Morphism =>
         this;
+        
+    public override string ToString() =>  
+        "a -> b -> c -> d";
 }
 
 record ComposeTransducer<TA, TB, TC, TD, TE>(
@@ -44,6 +50,9 @@ record ComposeTransducer<TA, TB, TC, TD, TE>(
 
     public Transducer<TA, TE> Morphism =>
         this;
+        
+    public override string ToString() =>  
+        "a -> b -> c -> d -> e";
 }
 
 record ComposeTransducer<TA, TB, TC, TD, TE, TF>(
@@ -63,6 +72,9 @@ record ComposeTransducer<TA, TB, TC, TD, TE, TF>(
 
     public Transducer<TA, TF> Morphism =>
         this;
+        
+    public override string ToString() =>  
+        "a -> b -> c -> d -> e -> f";
 }
 
 record ComposeTransducer<TA, TB, TC, TD, TE, TF, TG>(
@@ -84,4 +96,7 @@ record ComposeTransducer<TA, TB, TC, TD, TE, TF, TG>(
 
     public Transducer<TA, TG> Morphism =>
         this;
+        
+    public override string ToString() =>  
+        "a -> b -> c -> d -> e -> f -> g";
 }

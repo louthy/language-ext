@@ -89,6 +89,9 @@ record RepeatTransducer<A, B>(Transducer<A, B> F, Schedule Schedule, Func<B, boo
             return TResult.Cancel<S>();
         }
     }
+            
+    public override string ToString() =>  
+        "repeat";
 }
 
 record RepeatSumTransducer<RT, X, A>(Transducer<RT, Sum<X, A>> F, Schedule Schedule, Func<A, bool> Predicate) 
@@ -184,4 +187,7 @@ record RepeatSumTransducer<RT, X, A>(Transducer<RT, Sum<X, A>> F, Schedule Sched
             return TResult.Cancel<S>();
         }
     }
+            
+    public override string ToString() =>  
+        "repeat";
 }

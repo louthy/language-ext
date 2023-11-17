@@ -25,7 +25,7 @@ public static partial class IOExtensions
     /// <returns>Flattened IO monad</returns>
     public static IO<RT, E, A> Flatten<RT, E, A>(this IO<RT, E, IO<RT, E, A>> mma)
         where RT : struct, HasIO<RT, E> =>
-        new(mma.Morphism.Map(ma => ma.Map(r => r.Morphism)).Flatten());
+        new(mma.Bind(ma => ma));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

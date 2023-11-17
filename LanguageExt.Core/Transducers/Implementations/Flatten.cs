@@ -24,6 +24,9 @@ record FlattenTransducer1<A, B>(Transducer<A, Transducer<A, B>> FF) : Transducer
 
     public Transducer<A, B> Morphism =>
         this;
+            
+    public override string ToString() =>  
+        "flatten";
 }
 
 record FlattenTransducer2<A, B>(Transducer<A, Transducer<Unit, B>> FF) : Transducer<A, B>
@@ -109,4 +112,7 @@ record FlattenSumTransducer2<Env, X, A>(Transducer<Env, Sum<Transducer<Env, Sum<
                 _ => TResult.Complete(stateValue)
             };
     }    
+            
+    public override string ToString() =>  
+        "flatten";
 }
