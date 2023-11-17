@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
-using LanguageExt.HKT;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt.Transducers;
@@ -418,11 +417,10 @@ public static partial class Transducer
     public static TResult<B> Invoke1<A, B>(
         this Transducer<A, B> transducer, 
         A value, 
-        Action? @finally,
         CancellationToken token,
         SynchronizationContext? syncContext) =>
         transducer
-            .Invoke(value, default, Invoke1Reducer<B>.Default, @finally, token, syncContext)
+            .Invoke(value, default, Invoke1Reducer<B>.Default, token, syncContext)
             .Bind(static b => b is null ? TResult.None<B>() : TResult.Complete<B>(b));
     
     /// <summary>
@@ -444,7 +442,6 @@ public static partial class Transducer
         A value, 
         S initialState, 
         Reducer<B, S> reducer,
-        Action? @finally,
         CancellationToken token,
         SynchronizationContext? syncContext)
     {
@@ -489,7 +486,6 @@ public static partial class Transducer
         finally
         {
             st.Dispose();
-            @finally?.Invoke();
         }
     }
 
@@ -516,7 +512,7 @@ public static partial class Transducer
         Action? @finally,
         CancellationToken token,
         SynchronizationContext syncContext) =>
-        TaskAsync<A>.RunAsync<S>((t, v) => Invoke(transducer, v, initialState, reducer, null, t, syncContext), value, @finally, token);
+        TaskAsync<A>.RunAsync<S>((t, v) => Invoke(transducer, v, initialState, reducer, t, syncContext), value, @finally, token);
     
     /// <summary>
     /// Invoke the transducer, reducing to a single value only
@@ -535,7 +531,7 @@ public static partial class Transducer
         Action? @finally,
         CancellationToken token,
         SynchronizationContext syncContext) =>
-        TaskAsync<A>.RunAsync<B>((t, v) => Invoke1(transducer, v, null, t, syncContext), value, @finally, token);
+        TaskAsync<A>.RunAsync<B>((t, v) => Invoke1(transducer, v, t, syncContext), value, @finally, token);
 
     internal static IEnumerable<Transducer<A, Sum<E, B>>> FlattenChoices<A, E, B>(this IEnumerable<Transducer<A, Sum<E, B>>> items)
     {

@@ -23,8 +23,21 @@ namespace TestBed.WPF
             InitializeComponent();
 
             // Start the ticking...
-            ignore(tickIO.RunAsync(runtime));
+            runTick();
         }
+
+        async void runTick()
+        {
+            try
+            {
+                await tickIO.RunAsync(runtime);
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
+        }
+        
 
         async void ButtonOnClick(object? sender, RoutedEventArgs e) =>
             ignore(await buttonOnClickIO.RunAsync(runtime));
@@ -44,7 +57,7 @@ namespace TestBed.WPF
         /// </summary>
         IO<MinimalRT, Error, Unit> buttonOnClickIO =>
             from _1 in resetCount
-            from _2 in setButtonText(CounterButton, $"{count}")
+            from _2 in post(setButtonText(CounterButton, $"{count}"))
             select unit;
         
         /// <summary>
