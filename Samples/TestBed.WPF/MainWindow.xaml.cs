@@ -21,25 +21,25 @@ namespace TestBed.WPF
         {
             runtime = new MinimalRT();
             InitializeComponent();
-            
-            var dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-            dispatcherTimer.Tick += DispatcherTick;
-            dispatcherTimer.Interval = TimeSpan.FromSeconds(1);
-            dispatcherTimer.Start();
+
+            // Start the ticking...
+            ignore(tickIO.RunAsync(runtime));
         }
 
         async void DispatcherTick(object? sender, EventArgs e) =>
-            await tickIO.RunAsync(runtime);
+            ignore(await tickIO.RunAsync(runtime));
         
         async void ButtonOnClick(object? sender, RoutedEventArgs e) =>
-            await buttonOnClickIO.RunAsync(runtime);
+            ignore(await buttonOnClickIO.RunAsync(runtime));
         
         /// <summary>
-        /// Button handler in the IO monad
+        /// Infinite loop that ticks every second
         /// </summary>
         IO<MinimalRT, Error, Unit> tickIO =>
             from _1 in modifyCount(x => x + 1)
             from _2 in setButtonText(CounterButton, $"{count}")
+            from _3 in waitFor(1)
+            from _4 in tail(tickIO)
             select unit;
 
         /// <summary>
@@ -77,5 +77,15 @@ namespace TestBed.WPF
         /// </summary>
         IO<MinimalRT, Error, Unit> modifyCount(Func<int, int> f) =>
             count.Swap(f);
+
+        /// <summary>
+        /// Async delay
+        /// </summary>
+        IO<MinimalRT, Error, Unit> waitFor(int seconds) =>
+            liftIO(async token =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(seconds));
+                return unit;
+            });
     }
 }
