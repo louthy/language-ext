@@ -26,9 +26,6 @@ namespace TestBed.WPF
             ignore(tickIO.RunAsync(runtime));
         }
 
-        async void DispatcherTick(object? sender, EventArgs e) =>
-            ignore(await tickIO.RunAsync(runtime));
-        
         async void ButtonOnClick(object? sender, RoutedEventArgs e) =>
             ignore(await buttonOnClickIO.RunAsync(runtime));
         
