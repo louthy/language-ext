@@ -90,5 +90,40 @@ namespace LanguageExt
         /// <returns>Lifted IO function</returns>
         public static LiftIO<A> liftIO<A>(Func<Task<A>> f) =>
             new (_ => f());
+
+        /// <summary>
+        /// Represents a lifted function.  
+        /// </summary>
+        /// <remarks>
+        /// On its own this doesn't do much, but it allows other monads to convert
+        /// from it and provide binding extensions that mean this will work in
+        /// binding scenarios.
+        ///
+        /// It simplifies certain scenarios where additional generic arguments are
+        /// needed.  This only requires the generic argument of the value which
+        /// means the C# inference system can work.
+        /// </remarks>
+        /// <param name="f">Function to lift</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>Lifted function</returns>
+        public static Lift<Unit, A> lift<A>(Func<A> f) =>
+            new (_ => f());
+
+        /// <summary>
+        /// Represents a lifted function.  
+        /// </summary>
+        /// <remarks>
+        /// On its own this doesn't do much, but it allows other monads to convert
+        /// from it and provide binding extensions that mean this will work in
+        /// binding scenarios.
+        ///
+        /// It simplifies certain scenarios where additional generic arguments are
+        /// needed.  This only requires the generic argument of the value which
+        /// means the C# inference system can work.
+        /// </remarks>
+        /// <param name="f">Function to lift</param>
+        /// <returns>Lifted function</returns>
+        public static Lift<A, B> lift<A, B>(Func<A, B> f) =>
+            new (f);
     }
 }

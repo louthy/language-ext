@@ -835,8 +835,8 @@ public static partial class Transducer
     /// </summary>
     /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
     /// <param name="transducer">Transducer to keep retrying</param>
-    /// <param name="predicate">Predicate that decides whether to continue on each failure.  If it returns
-    /// `false` then the retying stops and the `Error` is yielded.</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `false` then the repeating stops and the latest value is yielded.</param>
     /// <returns>A transducer that retries</returns>
     public static Transducer<RT, Sum<X, A>> retryWhile<RT, X, A>(
         Schedule schedule,
@@ -844,5 +844,84 @@ public static partial class Transducer
         Func<X, bool> predicate) 
         where RT : struct, HasFromError<RT, X> =>
         retryUntil(schedule, transducer, not(predicate));
+    
+    /// <summary>
+    /// Keep repeating the transducer
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of repeats and the time-gap between each one</param>
+    /// <returns>A transducer that repeats</returns>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<A, B> repeat<A, B>(Schedule schedule, Transducer<A, B> transducer) =>
+        repeatUntil(schedule, transducer, _ => false);
 
+    /// <summary>
+    /// Keep repeating the transducer until a condition is met
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of repeats and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `true` then the repeating stops and the latest value is yielded.</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<A, B> repeatUntil<A, B>(
+        Schedule schedule, 
+        Transducer<A, B> transducer, 
+        Func<B, bool> predicate) =>
+        new RepeatTransducer<A, B>(transducer, schedule, predicate);
+
+    /// <summary>
+    /// Keep repeating the transducer until a condition is met
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `false` then the repeating stops and the latest value is yielded.</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<A, B> repeatWhile<A, B>(
+        Schedule schedule,
+        Transducer<A, B> transducer,
+        Func<B, bool> predicate) =>
+        repeatUntil(schedule, transducer, not(predicate));
+
+    /// <summary>
+    /// Keep repeating the transducer 
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <returns>A transducer that retries</returns>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<RT, Sum<X, A>> repeat<RT, X, A>(
+        Schedule schedule, 
+        Transducer<RT, Sum<X, A>> transducer)
+        where RT : struct, HasFromError<RT, X> =>
+        repeatUntil<RT, X, A>(schedule, transducer, _ => false);
+
+    /// <summary>
+    /// Keep repeating the transducer until a condition is met
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `true` then the repeating stops and the latest value is yielded.</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<RT, Sum<X, A>> repeatUntil<RT, X, A>(
+        Schedule schedule, 
+        Transducer<RT, Sum<X, A>> transducer, 
+        Func<A, bool> predicate) 
+        where RT : struct, HasFromError<RT, X> =>
+        new RepeatSumTransducer<RT, X, A>(transducer, schedule, predicate);
+
+    /// <summary>
+    /// Keep repeating the transducer until a condition is met
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of repeats and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `false` then the repeating stops and the latest value is yielded.</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<RT, Sum<X, A>> repeatWhile<RT, X, A>(
+        Schedule schedule,
+        Transducer<RT, Sum<X, A>> transducer,
+        Func<A, bool> predicate) 
+        where RT : struct, HasFromError<RT, X> =>
+        repeatUntil(schedule, transducer, not(predicate));
 }

@@ -45,21 +45,28 @@ class Program
             select unit)
         from _4 in waitOneSecond
         select unit;
+
+    static IO<MinimalRT, Error, Unit> repeating =>
+        from stopAt in lift(() => DateTime.Now.AddSeconds(10))
+        from _ in writeLine("READ THE TODO AND DO IT") // TODO: Add the repeat functions to IO.Extensions.Repeat and IO.Prelude.Repeat
+        select unit;
     
     static readonly IO<MinimalRT, Error, string> readLine =
-        liftIO<MinimalRT, Error, string>(_ => Console.ReadLine() ?? "");
+        lift(() => Console.ReadLine() ?? "");
     
     static IO<MinimalRT, Error, Unit> writeLine(string line) =>
-        liftIO<MinimalRT, Error, Unit>(_ =>
+        lift(() =>
         {
             Console.WriteLine(line);
             return unit;
         });
     
     static IO<MinimalRT, Error, Unit> waitOneSecond =>
-        liftIO<MinimalRT, Error, Unit>(async _ => {
+        liftIO(async _ => {
             await Task.Delay(1000);
             return unit;
         });
     
+    static IO<MinimalRT, Error, DateTime> now =>
+        lift(() => DateTime.Now);
 }

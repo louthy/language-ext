@@ -626,6 +626,26 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Bind operation</param>
         /// <returns>Composition of this monad and the result of the function provided</returns>
+        public IO<RT, E, B> Bind<B>(Func<A, Lift<RT, B>> f) =>
+            Bind(x => f(x).ToIO<RT, E, B>());
+
+        /// <summary>
+        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+        /// function provided; which in turn returns a new IO monad.  This can be thought of as
+        /// chaining IO operations sequentially.
+        /// </summary>
+        /// <param name="f">Bind operation</param>
+        /// <returns>Composition of this monad and the result of the function provided</returns>
+        public IO<RT, E, B> Bind<B>(Func<A, Lift<Unit, B>> f) =>
+            Map(a => f(a).F(default));
+
+        /// <summary>
+        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+        /// function provided; which in turn returns a new IO monad.  This can be thought of as
+        /// chaining IO operations sequentially.
+        /// </summary>
+        /// <param name="f">Bind operation</param>
+        /// <returns>Composition of this monad and the result of the function provided</returns>
         public IO<RT, E, B> Bind<B>(Func<A, Many<B>> f) =>
             Bind(x => f(x).ToIO<RT, E>());
 
@@ -701,6 +721,26 @@ namespace LanguageExt
         /// </summary>
         /// <param name="bind">Bind operation</param>
         /// <returns>Composition of this monad and the result of the function provided</returns>
+        public IO<RT, E, C> SelectMany<B, C>(Func<A, Lift<RT, B>> bind, Func<A, B, C> project) =>
+            SelectMany(x => bind(x).ToIO<RT, E, B>(), project);
+
+        /// <summary>
+        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+        /// function provided; which in turn returns a new IO monad.  This can be thought of as
+        /// chaining IO operations sequentially.
+        /// </summary>
+        /// <param name="bind">Bind operation</param>
+        /// <returns>Composition of this monad and the result of the function provided</returns>
+        public IO<RT, E, C> SelectMany<B, C>(Func<A, Lift<Unit, B>> bind, Func<A, B, C> project) =>
+            Map(x => project(x, bind(x).F(unit)));
+
+        /// <summary>
+        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+        /// function provided; which in turn returns a new IO monad.  This can be thought of as
+        /// chaining IO operations sequentially.
+        /// </summary>
+        /// <param name="bind">Bind operation</param>
+        /// <returns>Composition of this monad and the result of the function provided</returns>
         public IO<RT, E, C> SelectMany<B, C>(Func<A, Many<B>> bind, Func<A, B, C> project) =>
             SelectMany(x => bind(x).ToIO<RT, E>(), project);
         
@@ -748,6 +788,20 @@ namespace LanguageExt
         [Pure, MethodImpl(Opt.Default)]
         public static implicit operator IO<RT, E, A>(LiftIO<A> ma) =>
             ma.ToIO<RT, E>();
+
+        /// <summary>
+        /// Convert to an IO monad
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public static implicit operator IO<RT, E, A>(Lift<RT, A> ma) =>
+            ma.ToIO<RT, E, A>();
+
+        /// <summary>
+        /// Convert to an IO monad
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public static implicit operator IO<RT, E, A>(Lift<Unit, A> ma) =>
+            Lift(_ => ma.F(unit));
 
         [Pure, MethodImpl(Opt.Default)]
         public static implicit operator IO<RT, E, A>(Many<A> ma) =>
