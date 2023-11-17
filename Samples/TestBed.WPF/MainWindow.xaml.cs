@@ -48,7 +48,7 @@ namespace TestBed.WPF
             select unit;
         
         /// <summary>
-        /// Helper IO for setting button text safely
+        /// Helper IO for setting button text 
         /// </summary>
         static IO<MinimalRT, Error, Unit> setButtonText(Button button, string text) =>
             lift(action: () => button.Content = text);
@@ -74,9 +74,7 @@ namespace TestBed.WPF
         /// <summary>
         /// Async delay
         /// </summary>
-        IO<MinimalRT, Error, Unit> waitFor(double milliseconds) =>
-            liftIO(async token =>
-                await Task.Delay(TimeSpan.FromMilliseconds(milliseconds), token)
-                          .ConfigureAwait(false));
+        IO<MinimalRT, Error, Unit> waitFor(double ms) =>
+            liftIO(async token => await Task.Delay(TimeSpan.FromMilliseconds(ms), token));
     }
 }
