@@ -32,7 +32,7 @@ namespace TestBed.WPF
         /// </summary>
         IO<MinimalRT, Error, Unit> startup =>
             from _1 in fork(tickIO)
-            from _2 in fork(onMouseMove(this).Bind(showMousePos))
+            from _2 in fork(onMouseMove.Bind(showMousePos))
             select unit;
         
         /// <summary>

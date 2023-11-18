@@ -58,7 +58,7 @@ public class WindowIO<RT, E> : Window
     ///
     /// It's pretty ugly, but it does wrap up the complexity so the consumer never has to worry.
     /// </summary>
-    protected IO<RT, E, MouseEventArgs> onMouseMove(Window window) => 
+    protected IO<RT, E, MouseEventArgs> onMouseMove => 
         from rtime in runtime<RT, E>()
         from queue in Pure(new ConcurrentQueue<MouseEventArgs>())
         from waite in use(() => new AutoResetEvent(false))
@@ -68,8 +68,8 @@ public class WindowIO<RT, E> : Window
                 queue.Enqueue(e);
                 waite.Set();
             }),
-            release: h => window.RemoveHandler(Mouse.MouseMoveEvent, h))
-        from _ in lift(() => window.AddHandler(Mouse.MouseMoveEvent, hndlr, false))
+            release: h => RemoveHandler(Mouse.MouseMoveEvent, h))
+        from _ in lift(() => AddHandler(Mouse.MouseMoveEvent, hndlr, false))
         from xs in many(stream(rtime, queue, waite))
         select xs;
     
