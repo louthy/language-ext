@@ -2,25 +2,60 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using LanguageExt;
 using LanguageExt.Common;
-using LanguageExt.Effects;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
+
 namespace TestBed.WPF;
 
-public record WindowIO<RT, E>(RT Runtime)
+public class WindowIO<RT, E> : Window
     where RT : struct, HasIO<RT, E>
 {
+    readonly RT Runtime;
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    protected WindowIO(RT runtime) =>
+        Runtime = runtime;
+    
+    /// <summary>
+    /// Startup launch
+    /// </summary>
+    protected Unit onStart(IO<RT, E, Unit> operation) =>
+        operation.Run(Runtime)
+                 .IfLeft(e => Error.New(e?.ToString() ?? "there was an error").Throw());
+        
+    /// <summary>
+    /// Helper IO for setting control text 
+    /// </summary>
+    protected static IO<RT, E, Unit> setContent(ContentControl control, string text) =>
+        lift(action: () => control.Content = text);
+        
+    /// <summary>
+    /// Helper IO for setting control text 
+    /// </summary>
+    protected static IO<RT, E, Unit> setContent(TextBlock control, string text) =>
+        lift(action: () => control.Text = text);
+
+    /// <summary>
+    /// Get mouse position
+    /// </summary>
+    protected IO<RT, E, Point> getPosition(MouseEventArgs @event) =>
+        lift(() => @event.GetPosition(this));
+    
     /// <summary>
     /// Idea for how event handlers could be consumed
     ///
     /// It's pretty ugly, but it does wrap up the complexity so the consumer never has to worry.
     /// </summary>
-    public IO<RT, E, MouseEventArgs> OnMouseMove(Window window) => 
+    protected IO<RT, E, MouseEventArgs> onMouseMove(Window window) => 
         from rtime in runtime<RT, E>()
         from queue in Pure(new ConcurrentQueue<MouseEventArgs>())
         from waite in use(() => new AutoResetEvent(false))
@@ -32,10 +67,17 @@ public record WindowIO<RT, E>(RT Runtime)
             }),
             release: h => window.RemoveHandler(Mouse.MouseMoveEvent, h))
         from _ in lift(() => window.AddHandler(Mouse.MouseMoveEvent, hndlr, false))
-        from xs in many(Stream(rtime, queue, waite))
+        from xs in many(stream(rtime, queue, waite))
         select xs;
     
-    static IEnumerable<EVENT> Stream<EVENT>(RT rt, ConcurrentQueue<EVENT> queue, AutoResetEvent wait)
+    /// <summary>
+    /// Async delay
+    /// </summary>
+    protected static IO<RT, E, Unit> waitFor(double ms) =>
+        liftIO(async token => await Task.Delay(TimeSpan.FromMilliseconds(ms), token));
+
+    
+    static IEnumerable<EVENT> stream<EVENT>(RT rt, ConcurrentQueue<EVENT> queue, AutoResetEvent wait)
     {
         while (!rt.CancellationToken.IsCancellationRequested)
         {
