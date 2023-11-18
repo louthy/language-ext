@@ -23,21 +23,8 @@ namespace TestBed.WPF
             InitializeComponent();
 
             // Start the ticking...
-            runTick();
+            ignore(tickIO.RunAsync(runtime));
         }
-
-        async void runTick()
-        {
-            try
-            {
-                await tickIO.RunAsync(runtime);
-            }
-            catch(Exception e)
-            {
-                throw e;
-            }
-        }
-        
 
         async void ButtonOnClick(object? sender, RoutedEventArgs e) =>
             ignore(await buttonOnClickIO.RunAsync(runtime));
