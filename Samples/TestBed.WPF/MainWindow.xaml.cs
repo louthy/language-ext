@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using LanguageExt;
 using LanguageExt.Common;
 using LanguageExt.Effects;
@@ -24,17 +28,29 @@ namespace TestBed.WPF
 
             // Start the ticking...
             ignore(tickIO.RunAsync(runtime));
+
+            // Watch the mouse-position
+            this.MouseMoveIO().Listen(showMousePos)(runtime);
         }
 
         async void ButtonOnClick(object? sender, RoutedEventArgs e) =>
             ignore(await buttonOnClickIO.RunAsync(runtime));
+
+        /// <summary>
+        /// Update the mouse-pos on the view
+        /// </summary>
+        IO<MinimalRT, Error, Unit> showMousePos(MouseEventArgs e) =>
+            post(from p in getPosition(e)
+                 from x in setContent(CursorTextBoxX, $"X: {p.X:F0}")
+                 from y in setContent(CursorTextBoxY, $"Y: {p.Y:F0}")
+                 select unit);
         
         /// <summary>
         /// Infinite loop that ticks every second
         /// </summary>
         IO<MinimalRT, Error, Unit> tickIO =>
             from _1 in modifyCount(x => x + 1)
-            from _2 in post(setButtonText(CounterButton, $"{count}"))
+            from _2 in post(setContent(CounterButton, $"{count}"))
             from _3 in waitFor(1)
             from _4 in tail(tickIO)
             select unit;
@@ -44,15 +60,27 @@ namespace TestBed.WPF
         /// </summary>
         IO<MinimalRT, Error, Unit> buttonOnClickIO =>
             from _1 in resetCount
-            from _2 in post(setButtonText(CounterButton, $"{count}"))
+            from _2 in post(setContent(CounterButton, $"{count}"))
             select unit;
         
         /// <summary>
-        /// Helper IO for setting button text 
+        /// Helper IO for setting control text 
         /// </summary>
-        static IO<MinimalRT, Error, Unit> setButtonText(Button button, string text) =>
-            lift(action: () => button.Content = text);
+        static IO<MinimalRT, Error, Unit> setContent(ContentControl control, string text) =>
+            lift(action: () => control.Content = text);
+        
+        /// <summary>
+        /// Helper IO for setting control text 
+        /// </summary>
+        static IO<MinimalRT, Error, Unit> setContent(TextBlock control, string text) =>
+            lift(action: () => control.Text = text);
 
+        /// <summary>
+        /// Get mouse position
+        /// </summary>
+        IO<MinimalRT, Error, Point> getPosition(MouseEventArgs @event) =>
+            lift(() => @event.GetPosition(this));
+        
         /// <summary>
         /// Set the count value
         /// </summary>

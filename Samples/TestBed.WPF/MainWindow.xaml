@@ -7,6 +7,14 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Button Name="CounterButton" Height="100" Width="300" Click="ButtonOnClick" FontSize="25pt"></Button>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>        
+        
+        <Button Name="CounterButton" Height="100" Width="300" Click="ButtonOnClick" FontSize="25pt" Grid.Row="0"></Button>
+        <TextBlock Name="CursorTextBoxX" FontSize="25pt" Grid.Row="1">100</TextBlock>
+        <TextBlock Name="CursorTextBoxY" FontSize="25pt" Grid.Row="2">200</TextBlock>
     </Grid>
 </Window>

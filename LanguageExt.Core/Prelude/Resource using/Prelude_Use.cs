@@ -11,12 +11,28 @@ namespace LanguageExt
         /// other effect based monads that will automatically clean-up the resource
         /// when the computation is complete.
         /// </summary>
-        /// <param name="generate">Resource generator</param>
+        /// <param name="acquire">Resource generator</param>
         /// <param name="dispose">Resource disposer</param>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>`Use` monad that works with other effect monads</returns>
-        public static Use<A> use<A>(Func<A> generate, Func<A, Unit> dispose) =>
-            Use.New(generate, dispose);
+        public static Use<A> use<A>(Func<A> acquire, Func<A, Unit> release) =>
+            Use.New(acquire, release);
+        
+        /// <summary>
+        /// Create a new resource tracking monad: `Use`.  This monad works with
+        /// other effect based monads that will automatically clean-up the resource
+        /// when the computation is complete.
+        /// </summary>
+        /// <param name="acquire">Resource generator</param>
+        /// <param name="dispose">Resource disposer</param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <returns>`Use` monad that works with other effect monads</returns>
+        public static Use<A> use<A>(Func<A> acquire, Action<A> release) =>
+            Use.New(acquire, x =>
+            {
+                release(x);
+                return unit;
+            });
         
         /// <summary>
         /// Create a new resource tracking monad: `Use`.  This monad works with

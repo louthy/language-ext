@@ -11,6 +11,17 @@ namespace LanguageExt;
 
 public static partial class Prelude
 {
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Runtime helpers
+    //
+
+    /// <summary>
+    /// Make the runtime into the bound value
+    /// </summary>
+    public static IO<RT, E, RT> runtime<RT, E>()
+        where RT : struct, HasIO<RT, E> =>
+        IO<RT, E, RT>.Lift(rt => rt);
    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
