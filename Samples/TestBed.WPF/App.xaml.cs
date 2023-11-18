@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using LanguageExt.Effects;
 
 namespace TestBed.WPF
 {
@@ -13,5 +14,6 @@ namespace TestBed.WPF
     /// </summary>
     public partial class App : Application
     {
+        public static readonly MinimalRT Runtime = new ();
     }
 }

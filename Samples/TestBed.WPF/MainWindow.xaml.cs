@@ -18,23 +18,22 @@ namespace TestBed.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        MinimalRT runtime;
-        AtomIO<MinimalRT, Error, int> count = new (0);
+        readonly WindowIO<MinimalRT, Error> window = new(App.Runtime);
+        readonly AtomIO<MinimalRT, Error, int> count = new (0);
         
         public MainWindow()
         {
-            runtime = new MinimalRT();
             InitializeComponent();
 
-            // Start the ticking...
-            ignore(tickIO.RunAsync(runtime));
+            var startup = from _1 in fork(tickIO)
+                          from _2 in fork(window.OnMouseMove(this).Bind(showMousePos))
+                          select unit;
 
-            // Watch the mouse-position
-            this.MouseMoveIO().Listen(showMousePos)(runtime);
+            startup.Run(App.Runtime).IfLeft(e => e.Throw());
         }
 
         async void ButtonOnClick(object? sender, RoutedEventArgs e) =>
-            ignore(await buttonOnClickIO.RunAsync(runtime));
+            ignore(await buttonOnClickIO.RunAsync(App.Runtime));
 
         /// <summary>
         /// Update the mouse-pos on the view
