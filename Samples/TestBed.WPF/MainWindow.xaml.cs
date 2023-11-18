@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using LanguageExt;
 using LanguageExt.Common;
@@ -31,12 +26,6 @@ namespace TestBed.WPF
             InitializeComponent();
             onStart(startup);
         }
-
-        /// <summary>
-        /// Standard button click-handler
-        /// </summary>
-        async void ButtonOnClick(object? sender, RoutedEventArgs e) =>
-            ignore(await buttonOnClickIO.RunAsync(App.Runtime));
         
         /// <summary>
         /// Register the window events
@@ -45,15 +34,6 @@ namespace TestBed.WPF
             from _1 in fork(tickIO)
             from _2 in fork(onMouseMove(this).Bind(showMousePos))
             select unit;
-
-        /// <summary>
-        /// Update the mouse-pos on the view
-        /// </summary>
-        IO<MinimalRT, Error, Unit> showMousePos(MouseEventArgs e) =>
-            post(from p in getPosition(e)
-                 from x in setContent(CursorTextBoxX, $"X: {p.X:F0}")
-                 from y in setContent(CursorTextBoxY, $"Y: {p.Y:F0}")
-                 select unit);
         
         /// <summary>
         /// Infinite loop that ticks every second
@@ -64,6 +44,21 @@ namespace TestBed.WPF
             from _3 in waitFor(1)
             from _4 in tail(tickIO)
             select unit;
+
+        /// <summary>
+        /// Update the mouse-pos on the view
+        /// </summary>
+        IO<MinimalRT, Error, Unit> showMousePos(MouseEventArgs e) =>
+            post(from p in getPosition(e)
+                 from x in setContent(CursorTextBoxX, $"X: {p.X:F0}")
+                 from y in setContent(CursorTextBoxY, $"Y: {p.Y:F0}")
+                 select unit);
+
+        /// <summary>
+        /// Standard button click-handler
+        /// </summary>
+        async void ButtonOnClick(object? sender, RoutedEventArgs e) =>
+            await handle(buttonOnClickIO);
 
         /// <summary>
         /// Button handler in the IO monad

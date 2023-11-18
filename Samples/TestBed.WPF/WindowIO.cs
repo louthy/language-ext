@@ -31,6 +31,9 @@ public class WindowIO<RT, E> : Window
     protected Unit onStart(IO<RT, E, Unit> operation) =>
         operation.Run(Runtime)
                  .IfLeft(e => Error.New(e?.ToString() ?? "there was an error").Throw());
+    
+    protected async Task<Either<E, A>> handle<A>(IO<RT, E, A> operation) =>
+        await operation.RunAsync(Runtime);
         
     /// <summary>
     /// Helper IO for setting control text 
