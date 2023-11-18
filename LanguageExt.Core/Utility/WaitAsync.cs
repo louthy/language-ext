@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    internal static class WaitAsync
+    public static class WaitAsync
     {
         public static async ValueTask<(A A, B B)> WaitAll<A, B>(ValueTask<A> va, ValueTask<B> vb)
         {
