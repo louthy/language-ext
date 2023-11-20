@@ -134,7 +134,7 @@ namespace LanguageExt
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
         public Either<E, A> Run(RT env, SynchronizationContext? context = null) =>
-            Morphism.Invoke1(env, null, env.CancellationToken, context)
+            Morphism.Invoke1(env, env.CancellationToken, context)
                     .ToEither(errorMap);
 
         /// <summary>
@@ -153,7 +153,6 @@ namespace LanguageExt
                                 SumLeft<E, A> l => reducer(s, Either<E, A>.Left(l.Value)),
                                 _ => TResult.Complete(s)
                             }),
-                        null, 
                         env.CancellationToken, 
                         SynchronizationContext.Current)
                     .ToFin();

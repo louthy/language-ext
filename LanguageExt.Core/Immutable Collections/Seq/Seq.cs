@@ -1180,6 +1180,30 @@ namespace LanguageExt
                 }
             }
         }
+        
+        /// <summary>
+        /// Partition a list into two based on  a predicate
+        /// </summary>
+        /// <param name="predicate">True if the item goes in the first list, false for the second list</param>
+        /// <returns>Pair of lists</returns>
+        public (Seq<A> First, Seq<A> Second) Partition(Func<A, bool> predicate)
+        {
+            var f = Seq<A>();
+            var s = Seq<A>();
+            foreach (var item in this)
+            {
+                if (predicate(item))
+                {
+                    f = f.Add(item);
+                }
+                else
+                {
+                    s = s.Add(item);
+                }
+            }
+            return (f, s);
+        }
+
 
         /// <summary>
         /// Compare to another sequence

@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Threading;
 
 namespace LanguageExt.Transducers;
@@ -11,27 +12,51 @@ record PostTransducer<A, B>(Transducer<A, B> F) : Transducer<A, B>
     public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         Reducer.from<A, S>((st, s, x) =>
         {
-            B? value = default; 
+            var value = TResult.None<B>(); 
             using var wait = new AutoResetEvent(false);
-            
-            st.SynchronizationContext.Post(_ =>
-                F.Invoke(
-                    x, 
-                    s, 
-                    Reducer.from<B, S>((_, s1, v) =>
+
+            try
+            {
+                st.SynchronizationContext.Post(_ =>
                     {
-                        value = v;
-                        return TResult.Complete(s1);
-                    }),
-                    () => wait.Set(),
-                    st.Token, 
-                    st.SynchronizationContext),
-                null);
+                        try
+                        {
+                            var r = F.Invoke(
+                                x,
+                                s,
+                                Reducer.from<B, S>((_, s1, v) =>
+                                {
+                                    value = TResult.Continue(v);
+                                    return TResult.Continue(s1);
+                                }),
+                                st.Token,
+                                st.SynchronizationContext);
 
-            wait.WaitOne();
+                            if (r.Faulted)
+                            {
+                                // Bit of a hacky way to cast the result, but we know that the 
+                                // result is faulted, so the map function never gets invoked.
+                                value = r.Map<B>(_ => throw new NotSupportedException());
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            value = TResult.Fail<B>(e);
+                        }
+                        finally
+                        {
+                            wait.Set();
+                        }
+                    },
+                    null);
+                
+                wait.WaitOne();
+            }
+            catch (Exception e)
+            {
+                value = TResult.Fail<B>(e);
+            }
 
-            return value is not null 
-                ? reduce.Run(st, s, value)
-                : TResult.None<S>();
+            return value.Reduce(st, s, reduce);
         });
 }
