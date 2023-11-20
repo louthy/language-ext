@@ -518,29 +518,37 @@ public static partial class Transducer
     /// <summary>
     /// Fold 
     /// </summary>
-    /// <param name="transducer">Transducer that provides the stream of values</param>
+    /// <param name="schedule">Series of time-spans that dictate the rate of the fold and for how many iterations</param>
     /// <param name="initialState">Initial state for the fold</param>
     /// <param name="folder">Fold function</param>
+    /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
     /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="E">Input type to the transducer</typeparam>
-    /// <typeparam name="A">Value that a successful operation of the transducer will yield</typeparam>
+    /// <typeparam name="A">Input value to the fold operation</typeparam>
     /// <returns>Transducer that folds the stream of values</returns>
-    public static Transducer<E, S> fold<S, E, A>(Transducer<E, A> transducer, S initialState, Func<S, A, S> folder) =>
-        new FoldTransducer1<S, E, A>(transducer, initialState, folder);
+    public static Transducer<A, S> fold<S, A>(
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<(S State, A Value), TResult<Unit>> predicate) =>
+        new FoldTransducer<S, A>(schedule, initialState, folder, predicate);
 
     /// <summary>
     /// Fold 
     /// </summary>
-    /// <param name="transducer">Transducer that provides the stream of values</param>
+    /// <param name="schedule">Series of time-spans that dictate the rate of the fold and for how many iterations</param>
     /// <param name="initialState">Initial state for the fold</param>
     /// <param name="folder">Fold function</param>
+    /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
     /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="E">Input type to the transducer</typeparam>
     /// <typeparam name="X">Alternative type for the transducer result (often the error type)</typeparam>
-    /// <typeparam name="A">Value that a successful operation of the transducer will yield</typeparam>
+    /// <typeparam name="A">Input value to the fold operation</typeparam>
     /// <returns>Transducer that folds the stream of values</returns>
-    public static Transducer<E, Sum<X, S>> fold<S, E, X, A>(Transducer<E, Sum<X, A>> transducer, S initialState, Func<S, A, S> folder) =>
-        new FoldTransducer2<S, E, X, A>(transducer, initialState, folder);
+    public static Transducer<Sum<X, A>, Sum<X, S>> foldSum<S, X, A>(
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<(S State, A Value), TResult<Unit>> predicate) =>
+        new FoldSumTransducer<S, X, A>(schedule, initialState, folder, predicate);
 
     /// <summary>
     /// Choice transducer

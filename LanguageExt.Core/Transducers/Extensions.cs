@@ -188,33 +188,6 @@ public static partial class Transducer
         Filter(f, lift(pred));
 
     /// <summary>
-    /// Fold 
-    /// </summary>
-    /// <param name="transducer">Transducer that provides the stream of values</param>
-    /// <param name="initialState">Initial state for the fold</param>
-    /// <param name="folder">Fold function</param>
-    /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="E">Input type to the transducer</typeparam>
-    /// <typeparam name="A">Value that a successful operation of the transducer will yield</typeparam>
-    /// <returns>Transducer that folds the stream of values</returns>
-    public static Transducer<E, S> Fold<S, E, A>(this Transducer<E, A> transducer, S initialState, Func<S, A, S> folder) =>
-        new FoldTransducer1<S, E, A>(transducer, initialState, folder);
-
-    /// <summary>
-    /// Fold 
-    /// </summary>
-    /// <param name="transducer">Transducer that provides the stream of values</param>
-    /// <param name="initialState">Initial state for the fold</param>
-    /// <param name="folder">Fold function</param>
-    /// <typeparam name="S">State type</typeparam>
-    /// <typeparam name="E">Input type to the transducer</typeparam>
-    /// <typeparam name="X">Alternative type for the transducer result (often the error type)</typeparam>
-    /// <typeparam name="A">Value that a successful operation of the transducer will yield</typeparam>
-    /// <returns>Transducer that folds the stream of values</returns>
-    public static Transducer<E, Sum<X, S>> Fold<S, E, X, A>(this Transducer<E, Sum<X, A>> transducer, S initialState, Func<S, A, S> folder) =>
-        new FoldTransducer2<S, E, X, A>(transducer, initialState, folder);
-
-    /// <summary>
     /// Applicative apply
     /// </summary>
     /// <remarks>

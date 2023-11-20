@@ -32,12 +32,18 @@ public static partial class IOExtensions
     //  Binding extensions
     //
 
+    public static IO<RT, E, B> Bind<RT, E, A, B>(this Fold<RT, A> ma, Func<A, IO<RT, E, B>> f)
+        where RT : struct, HasIO<RT, E> =>
+        IO<RT, E, A>.Lift(ma.ToTransducer()).Bind(f);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  SelectMany extensions
+    //
+
     /// <summary>
     /// Monadic bind and project with paired IO monads
     /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
     public static IO<RT, E, D> SelectMany<RT, E, A, B, C, D>(
         this (IO<RT, E, A> First, IO<RT, E, B> Second) self,
         Func<(A First, B Second), IO<RT, E, C>> bind,
@@ -48,9 +54,6 @@ public static partial class IOExtensions
     /// <summary>
     /// Monadic bind and project with paired IO monads
     /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
     public static IO<RT, E, D> SelectMany<RT, E, A, B, C, D>(
         this IO<RT, E, A> self,
         Func<A, (IO<RT, E, B> First, IO<RT, E, C> Second)> bind,
@@ -61,9 +64,6 @@ public static partial class IOExtensions
     /// <summary>
     /// Monadic bind and project with paired IO monads
     /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
     public static IO<RT, Err, E> SelectMany<RT, Err, A, B, C, D, E>(
         this (IO<RT, Err, A> First, IO<RT, Err, B> Second, IO<RT, Err, C> Third) self,
         Func<(A First, B Second, C Third), IO<RT, Err, D>> bind,
@@ -74,15 +74,22 @@ public static partial class IOExtensions
     /// <summary>
     /// Monadic bind and project with paired IO monads
     /// </summary>
-    /// <remarks>
-    /// Asynchronous operations will run concurrently
-    /// </remarks>
     public static IO<RT, Err, E> SelectMany<RT, Err, A, B, C, D, E>(
         this IO<RT, Err, A> self,
         Func<A, (IO<RT, Err, B> First, IO<RT, Err, C> Second, IO<RT, Err, D> Third)> bind,
         Func<A, (B First, C Second, D Third), E> project)
         where RT : struct, HasIO<RT, Err> =>
         self.Bind(a => bind(a).Zip().Map(cd => project(a, cd)));
+
+    /// <summary>
+    /// Monadic bind and project
+    /// </summary>
+    public static IO<RT, E, C> SelectMany<RT, E, A, B, C>(
+        this Fold<RT, A> ma,
+        Func<A, IO<RT, E, B>> bind,
+        Func<A, B, C> project)
+        where RT : struct, HasIO<RT, E> =>
+        ma.Bind(x => bind(x).Map(y => project(x, y)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

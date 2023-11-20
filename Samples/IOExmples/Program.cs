@@ -11,7 +11,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        repeating.Run(new MinimalRT()).IfLeft(Console.WriteLine);
+        folding.Run(new MinimalRT()).IfLeft(Console.WriteLine);
     }
 
     static IO<MinimalRT, Error, Unit> infiniteLoop(int value) =>
@@ -37,10 +37,15 @@ class Program
         select n;
 
     private static IO<MinimalRT, Error, Unit> folding =>
-        from n in many(Range(1, 10))
-                    .ToIO<MinimalRT, Error>()
-                    .Fold(0, (s, x) => s + x)
-        from _ in writeLine($"Total {n}")
+        from n in many(Range(1, 1000))
+        from _ in writeLine($"item flowing in: {n}")
+        
+                    /* TODO Need to flow `n` into `foldWhile` - it currently is getting a Transparent record */
+        
+        from s in foldWhile(Schedule.spaced(TimeSpan.FromMilliseconds(100)), 0,
+                            (int s, int x) => s + x,
+                            valueIs: x => x % 10 == 0)
+        from r in writeLine($"Total {s}")
         select unit;
 
     static IO<MinimalRT, Error, Unit> retrying =>

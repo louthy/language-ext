@@ -1,11 +1,6 @@
 #nullable enable
-using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using LanguageExt.Effects;
-using LanguageExt.Effects.Traits;
-using LanguageExt.Transducers;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt;

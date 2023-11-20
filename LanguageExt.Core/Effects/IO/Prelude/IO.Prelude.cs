@@ -512,19 +512,6 @@ public static partial class Prelude
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    // Folding
-    //
-
-    /// <summary>
-    /// Fold the effect
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<RT, E, S> foldIO<RT, E, A, S>(IO<RT, E, A> ma, S initialState, Func<S, A, S> folder)
-        where RT : struct, HasIO<RT, E> =>
-        ma.Fold(initialState, folder);
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
     // Synchronisation between contexts
     //
     

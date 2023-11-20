@@ -655,6 +655,21 @@ namespace LanguageExt
         public IO<RT, E, B> Bind<B>(Func<A, Many<B>> f) =>
             Bind(x => f(x).ToIO<RT, E>());
 
+        /// <summary>
+        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+        /// function provided; which in turn returns a new IO monad.  This can be thought of as
+        /// chaining IO operations sequentially.
+        /// </summary>
+        /// <param name="f">Bind operation</param>
+        /// <returns>Composition of this monad and the result of the function provided</returns>
+        public IO<RT, E, B> Bind<B>(Func<A, Fold<A, B>> f) =>
+            new(Transducer.mapRight(
+                Morphism,
+                Transducer.compose(
+                        Transducer.lift(f),
+                        Transducer.lift<Fold<A, B>, Transducer<A, B>>(ff => ff.ToTransducer()))
+                    .Flatten()));
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
         //  Monadic binding and projection
@@ -777,6 +792,16 @@ namespace LanguageExt
                 { Flag: true } => IO<RT, E, C>.Pure(project(x, default)),
                 var g => IO<RT, E, C>.Fail(g.OnFalse().Value)
             });
+
+        /// <summary>
+        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+        /// function provided; which in turn returns a new IO monad.  This can be thought of as
+        /// chaining IO operations sequentially.
+        /// </summary>
+        /// <param name="bind">Bind operation</param>
+        /// <returns>Composition of this monad and the result of the function provided</returns>
+        public IO<RT, E, C> SelectMany<B, C>(Func<A, Fold<A, B>> bind, Func<A, B, C> project) =>
+            Bind(x => bind(x).Map(y => project(x, y)));
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -784,11 +809,148 @@ namespace LanguageExt
         //
 
         /// <summary>
-        /// Fold the effect
+        /// Fold the effect until the predicate returns `true`
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
-        public IO<RT, E, S> Fold<S>(S initialState, Func<S, A, S> folder) =>
-            new(Transducer.fold(Morphism, initialState, folder));
+        public IO<RT, E, S> FoldUntil<S>(
+            Schedule schedule, 
+            S initialState,
+            Func<S, A, S> folder, 
+            Func<(S State, A Value), bool> predicate) =>
+            new(Transducer.compose(
+                Morphism, 
+                Transducer.foldSum<S, E, A>(
+                    schedule,
+                    initialState, 
+                    folder, 
+                    last => predicate(last) ? TResult.Complete(unit) : TResult.Continue(unit))));
+        
+        /// <summary>
+        /// Fold the effect until the predicate returns `true`
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, S> FoldUntil<S>(
+            Schedule schedule, 
+            S initialState,
+            Func<S, A, S> folder, 
+            Func<S, bool> stateIs) =>
+            FoldUntil(schedule, initialState, folder, last => stateIs(last.State));
+
+        /// <summary>
+        /// Fold the effect until the predicate returns `true`
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, S> FoldUntil<S>(
+            Schedule schedule, 
+            S initialState,
+            Func<S, A, S> folder, 
+            Func<A, bool> valueIs) =>
+            FoldUntil(schedule, initialState, folder, last => valueIs(last.Value));
+
+        /// <summary>
+        /// Fold the effect until the predicate returns `true`
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, S> FoldUntil<S>(
+            S initialState,
+            Func<S, A, S> folder, 
+            Func<(S State, A Value), bool> predicate) =>
+            new(Transducer.compose(
+                Morphism, 
+                Transducer.foldSum<S, E, A>(
+                    Schedule.Forever,
+                    initialState, 
+                    folder, 
+                    last => predicate(last) ? TResult.Continue(unit) : TResult.Complete(unit))));
+        
+        /// <summary>
+        /// Fold the effect until the predicate returns `true`
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, S> FoldUntil<S>(
+            S initialState,
+            Func<S, A, S> folder, 
+            Func<S, bool> stateIs) =>
+            FoldUntil(Schedule.Forever, initialState, folder, last => stateIs(last.State));
+
+        /// <summary>
+        /// Fold the effect until the predicate returns `true`
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, S> FoldUntil<S>(
+            S initialState,
+            Func<S, A, S> folder, 
+            Func<A, bool> valueIs) =>
+            FoldUntil(Schedule.Forever, initialState, folder, last => valueIs(last.Value));
+
+        /// <summary>
+        /// Fold the effect while the predicate returns `true`
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, S> FoldWhile<S>(
+            Schedule schedule, 
+            S initialState,
+            Func<S, A, S> folder, 
+            Func<(S State, A Value), bool> predicate) =>
+            new(Transducer.compose(
+                Morphism, 
+                Transducer.foldSum<S, E, A>(
+                    schedule,
+                    initialState, 
+                    folder, 
+                    last => predicate(last) ? TResult.Complete(unit) : TResult.Continue(unit))));
+        
+        /// <summary>
+        /// Fold the effect while the predicate returns `true`
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, S> FoldWhile<S>(
+            Schedule schedule, 
+            S initialState,
+            Func<S, A, S> folder, 
+            Func<S, bool> stateIs) =>
+            FoldUntil(schedule, initialState, folder, last => stateIs(last.State));
+
+        /// <summary>
+        /// Fold the effect while the predicate returns `true`
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, S> FoldWhile<S>(
+            Schedule schedule, 
+            S initialState,
+            Func<S, A, S> folder, 
+            Func<A, bool> valueIs) =>
+            FoldUntil(schedule, initialState, folder, last => valueIs(last.Value));
+
+        /// <summary>
+        /// Fold the effect while the predicate returns `true`
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, S> FoldWhile<S>(
+            S initialState,
+            Func<S, A, S> folder, 
+            Func<(S State, A Value), bool> predicate) =>
+            FoldWhile(Schedule.Forever, initialState, folder, predicate);
+        
+        /// <summary>
+        /// Fold the effect while the predicate returns `true`
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, S> FoldWhile<S>(
+            S initialState,
+            Func<S, A, S> folder, 
+            Func<S, bool> stateIs) =>
+            FoldWhile(Schedule.Forever, initialState, folder, last => stateIs(last.State));
+
+        /// <summary>
+        /// Fold the effect until the predicate returns `true`
+        /// </summary>
+        [Pure, MethodImpl(Opt.Default)]
+        public IO<RT, E, S> FoldWhile<S>(
+            S initialState,
+            Func<S, A, S> folder, 
+            Func<A, bool> valueIs) =>
+            FoldWhile(Schedule.Forever, initialState, folder, last => valueIs(last.Value));        
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //

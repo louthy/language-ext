@@ -110,7 +110,7 @@ public readonly struct Duration :
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override bool Equals(object obj) =>
+    public override bool Equals(object? obj) =>
         obj is Duration other && Equals(other);
 
     [Pure]

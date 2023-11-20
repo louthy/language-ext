@@ -43,7 +43,7 @@ namespace EffectsExamples
             map<ConsoleKeyInfo, char>(k => k.KeyChar);
     
         static Pipe<RT, char, string, Unit> words =>
-            foldUntil("", (word, ch) => word + ch, (char x) => char.IsWhiteSpace(x));
+            Proxy.foldUntil("", (word, ch) => word + ch, (char x) => char.IsWhiteSpace(x));
 
         static Pipe<RT, string, string, Unit> filterEmpty =>
             filter<string>(notEmpty);

@@ -1,5 +1,16 @@
 # Version 5.0.0 Major Release Notes
 
+## New Features
+
+- IO monad
+- Transducers
+- Recursive effects
+- Streaming effects
+- Auto-resource managment (Use / Release)
+- Pure / Fail
+- Improved guards
+
+
 ## Breaking changes
 
 ### Renamed `LanguageExt.ClassInstances.Sum<NUM, A>`
