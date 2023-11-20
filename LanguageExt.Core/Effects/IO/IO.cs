@@ -750,6 +750,34 @@ namespace LanguageExt
         /// <returns>Composition of this monad and the result of the function provided</returns>
         public IO<RT, E, C> SelectMany<B, C>(Func<A, Many<B>> bind, Func<A, B, C> project) =>
             SelectMany(x => bind(x).ToIO<RT, E>(), project);
+
+        /// <summary>
+        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+        /// function provided; which in turn returns a new IO monad.  This can be thought of as
+        /// chaining IO operations sequentially.
+        /// </summary>
+        /// <param name="bind">Bind operation</param>
+        /// <returns>Composition of this monad and the result of the function provided</returns>
+        public IO<RT, E, C> SelectMany<C>(Func<A, Guard<E, Unit>> bind, Func<A, Unit, C> project) =>
+            Bind(x => bind(x) switch
+            {
+                { Flag: true } => IO<RT, E, C>.Pure(project(x, default)),
+                var g => IO<RT, E, C>.Fail(g.OnFalse())
+            });
+
+        /// <summary>
+        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+        /// function provided; which in turn returns a new IO monad.  This can be thought of as
+        /// chaining IO operations sequentially.
+        /// </summary>
+        /// <param name="bind">Bind operation</param>
+        /// <returns>Composition of this monad and the result of the function provided</returns>
+        public IO<RT, E, C> SelectMany<C>(Func<A, Guard<Fail<E>, Unit>> bind, Func<A, Unit, C> project) =>
+            Bind(x => bind(x) switch
+            {
+                { Flag: true } => IO<RT, E, C>.Pure(project(x, default)),
+                var g => IO<RT, E, C>.Fail(g.OnFalse().Value)
+            });
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //

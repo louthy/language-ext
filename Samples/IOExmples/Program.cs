@@ -11,7 +11,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        folding.Run(new MinimalRT());
+        repeating.Run(new MinimalRT()).IfLeft(Console.WriteLine);
     }
 
     static IO<MinimalRT, Error, Unit> infiniteLoop(int value) =>
@@ -47,16 +47,27 @@ class Program
         from ix in many(Range(1, 10))
         from _1 in retry(
             from _2 in writeLine($"Enter a number to add to {ix}")
-            from nm in readLine.Map(int.Parse)
-            from _3 in writeLine($"Number {ix} + {nm} = {ix + nm}")
+            from nm in readLine.Map(parseInt)
+            from _3 in guard(nm.IsSome, Error.New("Please enter a valid integer"))
+            from _4 in writeLine($"Number {ix} + {(int)nm} = {ix + (int)nm}")
             select unit)
         from _4 in waitOneSecond
         select unit;
-    
+
     static IO<MinimalRT, Error, Unit> repeating =>
-        from stopAt in lift(() => DateTime.Now.AddSeconds(10))
-        from _ in writeLine("READ THE TODO AND DO IT") // TODO: Add the repeat functions to IO.Extensions.Repeat and IO.Prelude.Repeat
-        select unit;
+        repeat(
+            from x in readNumber($"Enter the first number to add")
+            from y in readNumber($"Enter the second number to add")
+            from _ in writeLine($"{x} + {y} = {x + y}")
+            from t in waitOneSecond
+            select unit);
+    
+    static IO<MinimalRT, Error, int> readNumber(string question) =>
+        (from _1 in writeLine(question)
+         from nx in readLine.Map(parseInt)
+         select nx)
+        .RepeatWhile(mx => mx.IsNone)
+        .Map(mx => (int)mx);
     
     static readonly IO<MinimalRT, Error, string> readLine =
         lift(() => Console.ReadLine() ?? "");

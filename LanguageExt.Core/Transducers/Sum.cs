@@ -1,5 +1,7 @@
 ﻿#nullable enable
 using System;
+using LanguageExt.Common;
+using LanguageExt.Effects.Traits;
 
 namespace LanguageExt;
 
@@ -73,21 +75,12 @@ public abstract record Sum<X, A>
     public abstract Sum<X, B> Bind<B>(Func<A, Sum<X, B>> f);
 
     /// <summary>
-    /// Monadic bind
-    /// </summary>
-    /// <param name="f">Function that maps the bound value</param>
-    /// <typeparam name="B">Type of the bound value post-mapping</typeparam>
-    /// <returns>Mapped monad</returns>
-    public virtual Sum<X, B> SelectMany<B>(Func<A, Sum<X, B>> f) =>
-        Bind(f);
-
-    /// <summary>
     /// Monadic bind and project
     /// </summary>
     /// <param name="f">Function that maps the bound value</param>
     /// <typeparam name="B">Type of the bound value post-mapping</typeparam>
     /// <returns>Mapped monad</returns>
-    public virtual Sum<X, C> SelectMany<B, C>(Func<A, Sum<X, B>> bind, Func<A, B, C> project) =>
+    public Sum<X, C> SelectMany<B, C>(Func<A, Sum<X, B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     /// <summary>
@@ -95,6 +88,18 @@ public abstract record Sum<X, A>
     /// </summary>
     public virtual Sum<X, B> Cast<B>() =>
         Map<B>(static _ => throw new InvalidCastException());
+
+    /// <summary>
+    /// Convert to a `Sum` 
+    /// </summary>
+    public static implicit operator Sum<X, A>(Pure<A> ma) =>
+        Right(ma.Value);
+
+    /// <summary>
+    /// Convert to a `Sum` 
+    /// </summary>
+    public static implicit operator Sum<X, A>(Fail<X> ma) =>
+        Left(ma.Value);
 }
 
 /// <summary>
@@ -155,6 +160,9 @@ public record SumLeft<X, A>(X Value) : Sum<X, A>
 
     public override string ToString() =>
         $"Left({Value})";
+
+    public override Sum<X, B> Cast<B>() =>
+        new SumLeft<X, B>(Value);
 }
 
 /// <summary>

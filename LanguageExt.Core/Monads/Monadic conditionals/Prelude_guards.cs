@@ -16,8 +16,8 @@ namespace LanguageExt
         /// <returns>Guard</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Guard<E> guard<E>(bool flag, Func<E> False) =>
-            new Guard<E>(flag, False);
+        public static Guard<E, Unit> guard<E>(bool flag, Func<E> False) =>
+            new (flag, False);
 
         /// <summary>
         /// Guard against continuing a monadic expression
@@ -27,8 +27,8 @@ namespace LanguageExt
         /// <returns>Guard</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Guard<E> guard<E>(bool flag, E False) =>
-            new Guard<E>(flag, False);
+        public static Guard<E, Unit> guard<E>(bool flag, E False) =>
+            new (flag, False);
 
         /// <summary>
         /// Guard against continuing a monadic expression
@@ -38,8 +38,8 @@ namespace LanguageExt
         /// <returns>Guard</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Guard<Error> guard(bool flag, Func<Error> False) =>
-            new Guard<Error>(flag, False);
+        public static Guard<Error, Unit> guard(bool flag, Func<Error> False) =>
+            new (flag, False);
 
         /// <summary>
         /// Guard against continuing a monadic expression
@@ -49,8 +49,8 @@ namespace LanguageExt
         /// <returns>Guard</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Guard<Error> guard(bool flag, Error False) =>
-            new Guard<Error>(flag, False);
+        public static Guard<Error, Unit> guard(bool flag, Error False) =>
+            new (flag, False);
         
         /// <summary>
         /// Guard against continuing a monadic expression
@@ -60,8 +60,8 @@ namespace LanguageExt
         /// <returns>Guard</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Guard<E> guardnot<E>(bool flag, Func<E> True) =>
-            new Guard<E>(!flag, True);
+        public static Guard<E, Unit> guardnot<E>(bool flag, Func<E> True) =>
+            new (!flag, True);
 
         /// <summary>
         /// Guard against continuing a monadic expression
@@ -71,8 +71,8 @@ namespace LanguageExt
         /// <returns>Guard</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Guard<E> guardnot<E>(bool flag, E True) =>
-            new Guard<E>(!flag, True);
+        public static Guard<E, Unit> guardnot<E>(bool flag, E True) =>
+            new (!flag, True);
 
         /// <summary>
         /// Guard against continuing a monadic expression
@@ -82,8 +82,8 @@ namespace LanguageExt
         /// <returns>Guard</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Guard<Error> guardnot(bool flag, Func<Error> True) =>
-            new Guard<Error>(!flag, True);
+        public static Guard<Error, Unit> guardnot(bool flag, Func<Error> True) =>
+            new (!flag, True);
 
         /// <summary>
         /// Guard against continuing a monadic expression
@@ -93,7 +93,7 @@ namespace LanguageExt
         /// <returns>Guard</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Guard<Error> guardnot(bool flag, Error True) =>
-            new Guard<Error>(!flag, True);
+        public static Guard<Error, Unit> guardnot(bool flag, Error True) =>
+            new (!flag, True);
     }
 }
