@@ -17,9 +17,7 @@ namespace LanguageExt
     /// for large arrays.
     /// </summary>
     /// <typeparam name="A">Value type</typeparam>
-#if NET8_0_OR_GREATER
     [CollectionBuilder(typeof(Arr), nameof(Arr.create))]
-#endif
     [Serializable]
     public struct Arr<A> :
         IEnumerable<A>,
