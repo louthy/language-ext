@@ -127,7 +127,7 @@ public static partial class Prelude
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        foldWhile(initialState, folder, not(predicate));
+        foldWhile(schedule, initialState, folder, not(predicate));
     
     /// <summary>
     /// Fold operation that on its own doesn't do much, but when combined with the
@@ -145,7 +145,7 @@ public static partial class Prelude
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        foldWhile(initialState, folder, not(stateIs));
+        foldWhile(schedule, initialState, folder, not(stateIs));
     
     /// <summary>
     /// Fold operation that on its own doesn't do much, but when combined with the
@@ -163,7 +163,7 @@ public static partial class Prelude
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        foldWhile(initialState, folder, not(valueIs));
+        foldWhile(schedule, initialState, folder, not(valueIs));
     
     /// <summary>
     /// Fold operation that on its own doesn't do much, but when combined with the
@@ -215,5 +215,4 @@ public static partial class Prelude
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
         foldWhile(initialState, folder, not(valueIs));
-
 }

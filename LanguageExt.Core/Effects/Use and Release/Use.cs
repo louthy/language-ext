@@ -15,7 +15,7 @@ public static class Use
         New(make, x => { x.Dispose(); return default;});
 }
 
-public readonly struct Use<A>
+public readonly struct Use<A> : Transducer<Unit, A>
 {
     readonly Func<A> make;
     readonly Func<A, Unit> dispose;
@@ -38,22 +38,12 @@ public readonly struct Use<A>
     //
     //  Conversion
     //
-
-    public Transducer<Unit, A> ToTransducer()
-    {
-        var mk = make;
-        return Transducer.use(Transducer.lift<Unit, A>(_ => mk()), dispose);
-    }
-    
-    public Transducer<E, A> ToTransducer<E>()
-    {
-        var mk = make;
-        return Transducer.use(Transducer.lift<E, A>(_ => mk()), dispose);
-    }
-
     public IO<RT, E, A> ToIO<RT, E>()
         where RT : struct, HasIO<RT, E> =>
-        new (Transducer.compose(ToTransducer<RT>(), Transducer.mkRight<E, A>()));
+        new (Transducer.compose(
+                Transducer.constant<RT, Unit>(default),
+                Morphism, 
+                Transducer.mkRight<E, A>()));
 
     public Eff<RT, A> ToEff<RT>()
         where RT : struct, HasIO<RT, Error> =>
@@ -93,5 +83,24 @@ public readonly struct Use<A>
 
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
-    
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Monadic binding and projection
+    //
+
+    public Transducer<Unit, A> Morphism
+    {
+        get
+        {
+            var mk = make;
+            return Transducer.use(Transducer.lift<Unit, A>(_ => mk()), dispose);
+        }
+    }
+
+    public Reducer<Unit, S> Transform<S>(Reducer<A, S> reduce) =>
+        Morphism.Transform(reduce);
+
+    public override string ToString() =>
+        "use";
 }
