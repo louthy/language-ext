@@ -42,9 +42,11 @@ class Program
         
                     /* TODO Need to flow `n` into `foldWhile` - it currently is getting a Transparent record */
         
-        from s in foldWhile(Schedule.spaced(TimeSpan.FromMilliseconds(100)), 0,
-                            (int s, int x) => s + x,
-                            valueIs: x => x % 10 == 0)
+        from s in lift(() => n) 
+                    | foldUntil(Schedule.spaced(TimeSpan.FromMilliseconds(100)), 0,
+                        (int s, int x) => s + x,
+                        valueIs: x => x % 10 == 0)
+        
         from r in writeLine($"Total {s}")
         select unit;
 

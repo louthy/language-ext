@@ -662,12 +662,12 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Bind operation</param>
         /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, B> Bind<B>(Func<A, Fold<A, B>> f) =>
+        public IO<RT, E, B> Bind<B>(Func<A, Fold<Unit, B>> f) =>
             new(Transducer.mapRight(
                 Morphism,
                 Transducer.compose(
                         Transducer.lift(f),
-                        Transducer.lift<Fold<A, B>, Transducer<A, B>>(ff => ff.ToTransducer()))
+                        Transducer.lift<Fold<Unit, B>, Transducer<Unit, B>>(ff => ff.Morphism))
                     .Flatten()));
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -800,8 +800,20 @@ namespace LanguageExt
         /// </summary>
         /// <param name="bind">Bind operation</param>
         /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, C> SelectMany<B, C>(Func<A, Fold<A, B>> bind, Func<A, B, C> project) =>
+        public IO<RT, E, C> SelectMany<B, C>(Func<A, Fold<Unit, B>> bind, Func<A, B, C> project) =>
             Bind(x => bind(x).Map(y => project(x, y)));
+
+        /// <summary>
+        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+        /// function provided; which in turn returns a new IO monad.  This can be thought of as
+        /// chaining IO operations sequentially.
+        /// </summary>
+        /// <param name="bind">Bind operation</param>
+        /// <returns>Composition of this monad and the result of the function provided</returns>
+        public IO<RT, E, C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> bind, Func<A, B, C> project) =>
+            new(Transducer.mapRight(
+                    Morphism,
+                    Transducer.lift((A a) => bind(a).Map(b => project(a, b))).Flatten()));
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //

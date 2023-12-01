@@ -34,7 +34,7 @@ public static partial class IOExtensions
 
     public static IO<RT, E, B> Bind<RT, E, A, B>(this Fold<RT, A> ma, Func<A, IO<RT, E, B>> f)
         where RT : struct, HasIO<RT, E> =>
-        IO<RT, E, A>.Lift(ma.ToTransducer()).Bind(f);
+        IO<RT, E, A>.Lift(ma.Morphism).Bind(f);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

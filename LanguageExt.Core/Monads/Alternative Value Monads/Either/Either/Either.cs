@@ -47,9 +47,10 @@ namespace LanguageExt
         IEquatable<Either<L, R>>,
         IEquatable<EitherRight<R>>,
         IEquatable<R>, 
-        ISerializable
+        ISerializable,
+        Transducer<Unit, Sum<L, R>>
     {
-        public readonly static Either<L, R> Bottom = new Either<L, R>();
+        public static readonly Either<L, R> Bottom = new Either<L, R>();
 
         internal readonly R right;
         internal readonly L left;
@@ -485,16 +486,22 @@ namespace LanguageExt
         /// <returns></returns>
         /// <exception cref="BottomException">If the either is in a bottom state then this exception will be thrown</exception>
         [Pure]
-        public Transducer<Unit, Sum<L, R>> ToTransducer()
+        public Transducer<Unit, Sum<L, R>> Morphism
         {
-            var sum = IsRight
-                ? Sum<L, R>.Right(RightValue)
-                : IsLeft
-                    ? Sum<L, R>.Left(LeftValue)
-                    : throw new BottomException();
-
-            return Transducer.lift<Unit, Sum<L, R>>(_ => sum);
+            get
+            {
+                var self = this;
+                return IsRight
+                    ? Transducer.lift<Unit, Sum<L, R>>(_ => Sum<L, R>.Right(self.RightValue))
+                    : IsLeft
+                        ? Transducer.lift<Unit, Sum<L, R>>(_ => Sum<L, R>.Left(self.LeftValue))
+                        : Transducer.Fail<Unit, Sum<L, R>>(Errors.Bottom);
+            }
         }
+
+        [Pure]
+        public Reducer<Unit, S> Transform<S>(Reducer<Sum<L, R>, S> reduce) => 
+            Morphism.Transform(reduce);
 
         /// <summary>
         /// Project the Either into a Lst R

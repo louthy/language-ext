@@ -32,9 +32,6 @@ public readonly record struct Fail<E>(E Value) : Transducer<Unit, E>
     //  Conversion
     //
 
-    public Transducer<Unit, E> ToTransducer() =>
-        Transducer.Pure(Value);
-    
     public Either<E, A> ToEither<A>() =>
         Either<E, A>.Left(Value);
     
@@ -54,10 +51,13 @@ public readonly record struct Fail<E>(E Value) : Transducer<Unit, E>
     //
 
     public Transducer<Unit, E> Morphism =>
-        ToTransducer();
+        Transducer.Pure(Value);
 
     public Reducer<Unit, S> Transform<S>(Reducer<E, S> reduce) =>
-        ToTransducer().Transform(reduce);
+        Morphism.Transform(reduce);
+
+    public override string ToString() =>
+        $"Fail({Value})";
 }
 
 public static class FailExtensions

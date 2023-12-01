@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.Transducers;
 
 namespace LanguageExt;
 
@@ -21,7 +22,7 @@ namespace LanguageExt;
 /// </remarks>
 /// <typeparam name="B">Bound value type</typeparam>
 /// <param name="F">Lifted function</param>
-public readonly record struct Lift<A, B>(Func<A, B> F)
+public readonly record struct Lift<A, B>(Func<A, B> F) : Transducer<A, B>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -68,6 +69,15 @@ public readonly record struct Lift<A, B>(Func<A, B> F)
             var b => project(b, bind(b).F(a))
         });
     }
+
+    public Transducer<A, B> Morphism =>
+        Transducer.lift(F);
+
+    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
+        Morphism.Transform(reduce);
+        
+    public override string ToString() =>
+        "lift";
 }
 
 public static class LiftExtensions

@@ -55,6 +55,7 @@ record FoldTransducer<ST, A>(
                     case FoldState.NotStarted:
                         cstate = InitialState;
                         fstate = FoldState.Folding;
+                        schedule = Schedule.Run().GetEnumerator();
                         break;
 
                     case FoldState.Schedule:
@@ -73,8 +74,9 @@ record FoldTransducer<ST, A>(
                         }
                         else
                         {
+                            var lstate = cstate;
                             Reset();
-                            return TResult.Complete(stateValue);
+                            return Reduce.Run(state, stateValue, lstate);
                         }
                         break;                    
                     
@@ -91,8 +93,9 @@ record FoldTransducer<ST, A>(
                                     return TResult.Continue(stateValue);
 
                                 case TComplete<Unit>:
+                                    var lstate = cstate;
                                     Reset();
-                                    return TResult.Recursive(state, stateValue, cstate, Reduce);
+                                    return Reduce.Run(state, stateValue, lstate);
 
                                 case TFail<Unit> f:
                                     Reset();
@@ -206,8 +209,9 @@ record FoldSumTransducer<ST, X, A>(
                         }
                         else
                         {
+                            var lstate = Sum<X, ST>.Right(cstate);
                             Reset();
-                            return TResult.Complete(stateValue);
+                            return Reduce.Run(state, stateValue, lstate);
                         }
                         break;
                     
@@ -224,12 +228,9 @@ record FoldSumTransducer<ST, X, A>(
                                     return TResult.Continue(stateValue);
 
                                 case TComplete<Unit>:
+                                    var lstate = Sum<X, ST>.Right(cstate);
                                     Reset();
-                                    return TResult.Recursive(
-                                        state, 
-                                        stateValue, 
-                                        Sum<X, ST>.Right(cstate), 
-                                        Reduce);
+                                    return Reduce.Run(state, stateValue, lstate);
 
                                 case TFail<Unit> f:
                                     Reset();

@@ -61,14 +61,24 @@ public readonly record struct Pure<A>(A Value) : Transducer<Unit, A>
     /// <returns>Result of the applying the bind and mapping function to the `Pure` value</returns>
     public Pure<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         new(project(Value, bind(Value).Value));
+
+    /// <summary>
+    /// Monadic bind and project
+    /// </summary>
+    /// <param name="bind">Bind function</param>
+    /// <param name="project">Project function</param>
+    /// <typeparam name="B">Result of the bind operation bound value type</typeparam>
+    /// <typeparam name="C">Result of the mapping operation bound value type</typeparam>
+    /// <returns>Result of the applying the bind and mapping function to the `Pure` value</returns>
+    public Many<C> SelectMany<B, C>(Func<A, Many<B>> bind, Func<A, B, C> project) =>
+        new(from x in Morphism
+            from y in bind(x).Morphism
+            select project(x, y));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Conversion
     //
-    
-    public Transducer<Unit, A> ToTransducer() =>
-        Transducer.Pure(Value);
     
     public Option<A> ToOption() =>
         Value is null 
@@ -183,10 +193,13 @@ public readonly record struct Pure<A>(A Value) : Transducer<Unit, A>
     //
 
     public Transducer<Unit, A> Morphism =>
-        ToTransducer();
+        Transducer.Pure(Value);
     
     public Reducer<Unit, S> Transform<S>(Reducer<A, S> reduce) => 
-        ToTransducer().Transform(reduce);
+        Morphism.Transform(reduce);
+            
+    public override string ToString() =>
+        $"Pure({Value})";
 }
 
 public static class PureExtensions
