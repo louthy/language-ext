@@ -23,7 +23,7 @@ record StreamEnumerableTransducer<A> : Transducer<IEnumerable<A>, A>
                 var result = Go(Reduce.Run(state, stateValue, item));
                 switch(result)
                 {
-                    case TContinue<S> {Value: not null} r:
+                    case TContinue<S> r:
                         stateValue = r.Value;
                         break;
 
