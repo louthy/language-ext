@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using LanguageExt.Transducers;
 
 namespace LanguageExt;
 
@@ -17,12 +18,12 @@ public static partial class Prelude
     /// <param name="predicate">Predicate that indicates whether the fold is complete.  True means continue.</param>
     /// <typeparam name="A">Input value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
-    public static Fold<A, S> foldWhile<A, S>(
+    public static Transducer<A, S> foldWhile<A, S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        Fold<A, S>.New(schedule, initialState, folder, predicate);
+        Transducer.foldWhile(schedule, initialState, folder, predicate);
     
     /// <summary>
     /// Fold operation that on its own doesn't do much, but when combined with the
@@ -35,12 +36,12 @@ public static partial class Prelude
     /// <param name="stateIs">Predicate that indicates whether the fold is complete.  True means continue.</param>
     /// <typeparam name="A">Input value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
-    public static Fold<A, S> foldWhile<A, S>(
+    public static Transducer<A, S> foldWhile<A, S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        Fold<A, S>.New(schedule, initialState, folder, last => stateIs(last.State));
+        Transducer.foldWhile(schedule, initialState, folder, stateIs);
     
     /// <summary>
     /// Fold operation that on its own doesn't do much, but when combined with the
@@ -53,12 +54,12 @@ public static partial class Prelude
     /// <param name="valueIs">Predicate that indicates whether the fold is complete.  True means continue.</param>
     /// <typeparam name="A">Input value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
-    public static Fold<A, S> foldWhile<A, S>(
+    public static Transducer<A, S> foldWhile<A, S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        Fold<A, S>.New(schedule, initialState, folder, last => valueIs(last.Value));
+        Transducer.foldWhile(schedule, initialState, folder, valueIs);
     
     /// <summary>
     /// Fold operation that on its own doesn't do much, but when combined with the
@@ -71,11 +72,11 @@ public static partial class Prelude
     /// <param name="predicate">Predicate that indicates whether the fold is complete.  True means continue.</param>
     /// <typeparam name="A">Input value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
-    public static Fold<A, S> foldWhile<A, S>(
+    public static Transducer<A, S> foldWhile<A, S>(
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        Fold<A, S>.New(Schedule.Forever, initialState, folder, predicate);
+        Transducer.foldWhile(initialState, folder, predicate);
     
     /// <summary>
     /// Fold operation that on its own doesn't do much, but when combined with the
@@ -88,11 +89,11 @@ public static partial class Prelude
     /// <param name="stateIs">Predicate that indicates whether the fold is complete.  True means continue.</param>
     /// <typeparam name="A">Input value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
-    public static Fold<A, S> foldWhile<A, S>(
+    public static Transducer<A, S> foldWhile<A, S>(
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        Fold<A, S>.New(Schedule.Forever, initialState, folder, last => stateIs(last.State));
+        Transducer.foldWhile(initialState, folder, stateIs);
     
     /// <summary>
     /// Fold operation that on its own doesn't do much, but when combined with the
@@ -105,11 +106,11 @@ public static partial class Prelude
     /// <param name="valueIs">Predicate that indicates whether the fold is complete.  True means continue.</param>
     /// <typeparam name="A">Input value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
-    public static Fold<A, S> foldWhile<A, S>(
+    public static Transducer<A, S> foldWhile<A, S>(
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        Fold<A, S>.New(Schedule.Forever, initialState, folder, last => valueIs(last.Value));
+        Transducer.foldWhile(initialState, folder, valueIs);
     
     /// <summary>
     /// Fold operation that on its own doesn't do much, but when combined with the
@@ -122,12 +123,12 @@ public static partial class Prelude
     /// <param name="predicate">Predicate that indicates whether the fold is complete.  True means complete.</param>
     /// <typeparam name="A">Input value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
-    public static Fold<A, S> foldUntil<A, S>(
+    public static Transducer<A, S> foldUntil<A, S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        foldWhile(schedule, initialState, folder, not(predicate));
+        Transducer.foldUntil(schedule, initialState, folder, predicate);
     
     /// <summary>
     /// Fold operation that on its own doesn't do much, but when combined with the
@@ -140,12 +141,12 @@ public static partial class Prelude
     /// <param name="stateIs">Predicate that indicates whether the fold is complete.  True means complete.</param>
     /// <typeparam name="A">Input value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
-    public static Fold<A, S> foldUntil<A, S>(
+    public static Transducer<A, S> foldUntil<A, S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        foldWhile(schedule, initialState, folder, not(stateIs));
+        Transducer.foldUntil(schedule, initialState, folder, stateIs);
     
     /// <summary>
     /// Fold operation that on its own doesn't do much, but when combined with the
@@ -158,12 +159,12 @@ public static partial class Prelude
     /// <param name="valueIs">Predicate that indicates whether the fold is complete.  True means continue.</param>
     /// <typeparam name="A">Input value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
-    public static Fold<A, S> foldUntil<A, S>(
+    public static Transducer<A, S> foldUntil<A, S>(
         Schedule schedule,
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        foldWhile(schedule, initialState, folder, not(valueIs));
+        Transducer.foldUntil(schedule, initialState, folder, valueIs);
     
     /// <summary>
     /// Fold operation that on its own doesn't do much, but when combined with the
@@ -176,11 +177,11 @@ public static partial class Prelude
     /// <param name="predicate">Predicate that indicates whether the fold is complete.  True means complete.</param>
     /// <typeparam name="A">Input value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
-    public static Fold<A, S> foldUntil<A, S>(
+    public static Transducer<A, S> foldUntil<A, S>(
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        foldWhile(initialState, folder, not(predicate));
+        Transducer.foldUntil(initialState, folder, predicate);
     
     /// <summary>
     /// Fold operation that on its own doesn't do much, but when combined with the
@@ -193,11 +194,11 @@ public static partial class Prelude
     /// <param name="stateIs">Predicate that indicates whether the fold is complete.  True means complete.</param>
     /// <typeparam name="A">Input value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
-    public static Fold<A, S> foldUntil<A, S>(
+    public static Transducer<A, S> foldUntil<A, S>(
         S initialState,
         Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        foldWhile(initialState, folder, not(stateIs));
+        Transducer.foldUntil(initialState, folder, stateIs);
     
     /// <summary>
     /// Fold operation that on its own doesn't do much, but when combined with the
@@ -210,9 +211,9 @@ public static partial class Prelude
     /// <param name="valueIs">Predicate that indicates whether the fold is complete.  True means complete.</param>
     /// <typeparam name="A">Input value type</typeparam>
     /// <typeparam name="S">State type</typeparam>
-    public static Fold<A, S> foldUntil<A, S>(
+    public static Transducer<A, S> foldUntil<A, S>(
         S initialState,
         Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        foldWhile(initialState, folder, not(valueIs));
+        Transducer.foldUntil(initialState, folder, valueIs);
 }

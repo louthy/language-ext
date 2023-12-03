@@ -25,14 +25,26 @@ public static partial class IOExtensions
     /// <returns>Flattened IO monad</returns>
     public static IO<RT, E, A> Flatten<RT, E, A>(this IO<RT, E, IO<RT, E, A>> mma)
         where RT : struct, HasIO<RT, E> =>
-        new(mma.Bind(ma => ma));
+        mma.Bind(ma => ma);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Binding extensions
     //
 
-    public static IO<RT, E, B> Bind<RT, E, A, B>(this Fold<RT, A> ma, Func<A, IO<RT, E, B>> f)
+    public static IO<RT, E, B> Bind<RT, E, A, B>(this Transducer<Unit, A> ma, Func<A, IO<RT, E, B>> f)
+        where RT : struct, HasIO<RT, E> =>
+        IO<RT, E, A>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), ma.Morphism)).Bind(f);
+
+    public static IO<RT, E, B> Bind<RT, E, A, B>(this Transducer<Unit, Sum<E, A>> ma, Func<A, IO<RT, E, B>> f)
+        where RT : struct, HasIO<RT, E> =>
+        IO<RT, E, A>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), ma.Morphism)).Bind(f);
+    
+    public static IO<RT, E, B> Bind<RT, E, A, B>(this Transducer<RT, A> ma, Func<A, IO<RT, E, B>> f)
+        where RT : struct, HasIO<RT, E> =>
+        IO<RT, E, A>.Lift(ma.Morphism).Bind(f);
+    
+    public static IO<RT, E, B> Bind<RT, E, A, B>(this Transducer<RT, Sum<E, A>> ma, Func<A, IO<RT, E, B>> f)
         where RT : struct, HasIO<RT, E> =>
         IO<RT, E, A>.Lift(ma.Morphism).Bind(f);
 
@@ -85,11 +97,43 @@ public static partial class IOExtensions
     /// Monadic bind and project
     /// </summary>
     public static IO<RT, E, C> SelectMany<RT, E, A, B, C>(
-        this Fold<RT, A> ma,
+        this Transducer<Unit, A> ma,
         Func<A, IO<RT, E, B>> bind,
         Func<A, B, C> project)
         where RT : struct, HasIO<RT, E> =>
-        ma.Bind(x => bind(x).Map(y => project(x, y)));
+        IO<RT, E, A>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), ma))
+                    .Bind(x => bind(x).Map(y => project(x, y)));
+
+    /// <summary>
+    /// Monadic bind and project
+    /// </summary>
+    public static IO<RT, E, C> SelectMany<RT, E, A, B, C>(
+        this Transducer<RT, A> ma,
+        Func<A, IO<RT, E, B>> bind,
+        Func<A, B, C> project)
+        where RT : struct, HasIO<RT, E> =>
+        IO<RT, E, A>.Lift(ma).Bind(x => bind(x).Map(y => project(x, y)));
+
+    /// <summary>
+    /// Monadic bind and project
+    /// </summary>
+    public static IO<RT, E, C> SelectMany<RT, E, A, B, C>(
+        this Transducer<Unit, Sum<E, A>> ma,
+        Func<A, IO<RT, E, B>> bind,
+        Func<A, B, C> project)
+        where RT : struct, HasIO<RT, E> =>
+        IO<RT, E, A>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), ma))
+                    .Bind(x => bind(x).Map(y => project(x, y)));
+
+    /// <summary>
+    /// Monadic bind and project
+    /// </summary>
+    public static IO<RT, E, C> SelectMany<RT, E, A, B, C>(
+        this Transducer<RT, Sum<E, A>> ma,
+        Func<A, IO<RT, E, B>> bind,
+        Func<A, B, C> project)
+        where RT : struct, HasIO<RT, E> =>
+        IO<RT, E, A>.Lift(ma).Bind(x => bind(x).Map(y => project(x, y)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

@@ -39,13 +39,13 @@ public class WindowIO<RT, E> : Window
     /// Helper IO for setting control text 
     /// </summary>
     protected static IO<RT, E, Unit> setContent(ContentControl control, string text) =>
-        lift(action: () => control.Content = text);
+        lift(action0: () => control.Content = text);
         
     /// <summary>
     /// Helper IO for setting control text 
     /// </summary>
     protected static IO<RT, E, Unit> setContent(TextBlock control, string text) =>
-        lift(action: () => control.Text = text);
+        lift(action0: () => control.Text = text);
 
     /// <summary>
     /// Get mouse position

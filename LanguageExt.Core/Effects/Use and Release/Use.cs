@@ -1,7 +1,9 @@
-﻿#nullable enable
+﻿/*
+#nullable enable
 using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.HKT;
 using LanguageExt.Transducers;
 
 namespace LanguageExt.Effects;
@@ -15,7 +17,7 @@ public static class Use
         New(make, x => { x.Dispose(); return default;});
 }
 
-public readonly struct Use<A> : Transducer<Unit, A>
+public readonly struct Use<A> : KArr<Any, Unit, A>
 {
     readonly Func<A> make;
     readonly Func<A, Unit> dispose;
@@ -104,3 +106,4 @@ public readonly struct Use<A> : Transducer<Unit, A>
     public override string ToString() =>
         "use";
 }
+*/

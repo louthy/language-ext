@@ -12,7 +12,7 @@ namespace LanguageExt.Transducers;
 /// </summary>
 /// <typeparam name="A">Input value type</typeparam>
 /// <typeparam name="B">Output value type</typeparam>
-public interface Transducer<A, B> : KArr<Any, A, B>
+public abstract record Transducer<A, B> : KArr<Any, A, B>
 {
     /// <summary>
     /// Transform the transducer using the reducer provided 
@@ -20,5 +20,26 @@ public interface Transducer<A, B> : KArr<Any, A, B>
     /// <param name="reduce">Reducer</param>
     /// <typeparam name="S">State type</typeparam>
     /// <returns>Reducer that captures the transformation of the `Transducer` and the provided reducer</returns>
-    Reducer<A, S> Transform<S>(Reducer<B, S> reduce);
+    public abstract Reducer<A, S> Transform<S>(Reducer<B, S> reduce);
+
+    /// <summary>
+    /// Transducer from `A` to `B`
+    /// </summary>
+    public virtual Transducer<A, B> Morphism =>
+        this;
+
+    /// <summary>
+    /// Compose this transducer with the one provided
+    /// </summary>
+    public virtual Transducer<A, C> Compose<C>(Transducer<B, C> next) =>
+        new ComposeTransducer<A, B, C>(this, next);
+
+    public static Transducer<Unit, B> operator |(A prev, Transducer<A, B> next) =>
+        Transducer.constant<Unit, A>(prev).Compose(next);
+
+    public static Transducer<A, B> operator |(Transducer<A, B> prev, Transducer<B, B> next) =>
+        prev.Compose(next);
+
+    public static Transducer<A, B> operator |(Transducer<A, A> prev, Transducer<A, B> next) =>
+        prev.Compose(next);
 }

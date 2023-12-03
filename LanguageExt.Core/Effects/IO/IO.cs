@@ -6,8 +6,8 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using LanguageExt.Effects;
 using LanguageExt.Effects.Traits;
+using LanguageExt.HKT;
 using LanguageExt.Transducers;
 
 namespace LanguageExt
@@ -18,7 +18,7 @@ namespace LanguageExt
     /// <typeparam name="RT">Runtime struct</typeparam>
     /// <typeparam name="E">Error value type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
-    public readonly struct IO<RT, E, A> : Transducer<RT, Sum<E, A>>
+    public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
         where RT : struct, HasIO<RT, E>
     {
         /// <summary>
@@ -563,7 +563,7 @@ namespace LanguageExt
         /// <param name="f">Bind operation</param>
         /// <returns>Composition of this monad and the result of the function provided</returns>
         public IO<RT, E, B> Bind<B>(Func<A, IO<RT, E, B>> f) =>
-            new(Transducer.bind(Morphism, x => f(x)));
+            new(Transducer.bind(Morphism, x => f(x).Morphism));
 
         /// <summary>
         /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
@@ -594,7 +594,7 @@ namespace LanguageExt
         /// <returns>Composition of this monad and the result of the function provided</returns>
         public IO<RT, E, A> Bind(Func<A, Fail<E>> f) =>
             Bind(x => f(x).ToIO<RT, A>());
-
+        
         /// <summary>
         /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
         /// function provided; which in turn returns a new IO monad.  This can be thought of as
@@ -602,9 +602,9 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Bind operation</param>
         /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, B> Bind<B>(Func<A, Use<B>> f) =>
-            Bind(x => f(x).ToIO<RT, E>());
-
+        public IO<RT, E, B> Bind<B>(Func<A, Transducer<Unit, B>> f) =>
+            new(Transducer.mapRight(Morphism, Transducer.lift(f).Flatten()));
+        
         /// <summary>
         /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
         /// function provided; which in turn returns a new IO monad.  This can be thought of as
@@ -612,64 +612,9 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Bind operation</param>
         /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, Unit> Bind<B>(Func<A, Release<B>> f) =>
-            Bind(x => f(x).ToIO<RT, E>());
-
-        /// <summary>
-        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-        /// function provided; which in turn returns a new IO monad.  This can be thought of as
-        /// chaining IO operations sequentially.
-        /// </summary>
-        /// <param name="f">Bind operation</param>
-        /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, B> Bind<B>(Func<A, LiftIO<B>> f) =>
-            Bind(x => f(x).ToIO<RT, E>());
-
-        /// <summary>
-        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-        /// function provided; which in turn returns a new IO monad.  This can be thought of as
-        /// chaining IO operations sequentially.
-        /// </summary>
-        /// <param name="f">Bind operation</param>
-        /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, B> Bind<B>(Func<A, Lift<RT, B>> f) =>
-            Bind(x => f(x).ToIO<RT, E, B>());
-
-        /// <summary>
-        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-        /// function provided; which in turn returns a new IO monad.  This can be thought of as
-        /// chaining IO operations sequentially.
-        /// </summary>
-        /// <param name="f">Bind operation</param>
-        /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, B> Bind<B>(Func<A, Lift<Unit, B>> f) =>
-            Map(a => f(a).F(default));
-
-        /// <summary>
-        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-        /// function provided; which in turn returns a new IO monad.  This can be thought of as
-        /// chaining IO operations sequentially.
-        /// </summary>
-        /// <param name="f">Bind operation</param>
-        /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, B> Bind<B>(Func<A, Many<B>> f) =>
-            Bind(x => f(x).ToIO<RT, E>());
-
-        /// <summary>
-        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-        /// function provided; which in turn returns a new IO monad.  This can be thought of as
-        /// chaining IO operations sequentially.
-        /// </summary>
-        /// <param name="f">Bind operation</param>
-        /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, B> Bind<B>(Func<A, Fold<Unit, B>> f) =>
-            new(Transducer.mapRight(
-                Morphism,
-                Transducer.compose(
-                        Transducer.lift(f),
-                        Transducer.lift<Fold<Unit, B>, Transducer<Unit, B>>(ff => ff.Morphism))
-                    .Flatten()));
-
+        public IO<RT, E, B> Bind<B>(Func<A, Transducer<RT, B>> f) =>
+            Bind(x => IO<RT, E, B>.Lift(f(x)));
+        
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
         //  Monadic binding and projection
@@ -712,66 +657,6 @@ namespace LanguageExt
         /// </summary>
         /// <param name="bind">Bind operation</param>
         /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, C> SelectMany<B, C>(Func<A, Use<B>> bind, Func<A, B, C> project) =>
-            SelectMany(x => bind(x).ToIO<RT, E>(), project);
-
-        /// <summary>
-        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-        /// function provided; which in turn returns a new IO monad.  This can be thought of as
-        /// chaining IO operations sequentially.
-        /// </summary>
-        /// <param name="bind">Bind operation</param>
-        /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, C> SelectMany<B, C>(Func<A, Release<B>> bind, Func<A, Unit, C> project) =>
-            SelectMany(x => bind(x).ToIO<RT, E>(), project);
-
-        /// <summary>
-        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-        /// function provided; which in turn returns a new IO monad.  This can be thought of as
-        /// chaining IO operations sequentially.
-        /// </summary>
-        /// <param name="bind">Bind operation</param>
-        /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, C> SelectMany<B, C>(Func<A, LiftIO<B>> bind, Func<A, B, C> project) =>
-            SelectMany(x => bind(x).ToIO<RT, E>(), project);
-
-        /// <summary>
-        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-        /// function provided; which in turn returns a new IO monad.  This can be thought of as
-        /// chaining IO operations sequentially.
-        /// </summary>
-        /// <param name="bind">Bind operation</param>
-        /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, C> SelectMany<B, C>(Func<A, Lift<RT, B>> bind, Func<A, B, C> project) =>
-            SelectMany(x => bind(x).ToIO<RT, E, B>(), project);
-
-        /// <summary>
-        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-        /// function provided; which in turn returns a new IO monad.  This can be thought of as
-        /// chaining IO operations sequentially.
-        /// </summary>
-        /// <param name="bind">Bind operation</param>
-        /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, C> SelectMany<B, C>(Func<A, Lift<Unit, B>> bind, Func<A, B, C> project) =>
-            Map(x => project(x, bind(x).F(unit)));
-
-        /// <summary>
-        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-        /// function provided; which in turn returns a new IO monad.  This can be thought of as
-        /// chaining IO operations sequentially.
-        /// </summary>
-        /// <param name="bind">Bind operation</param>
-        /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, C> SelectMany<B, C>(Func<A, Many<B>> bind, Func<A, B, C> project) =>
-            SelectMany(x => bind(x).ToIO<RT, E>(), project);
-
-        /// <summary>
-        /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-        /// function provided; which in turn returns a new IO monad.  This can be thought of as
-        /// chaining IO operations sequentially.
-        /// </summary>
-        /// <param name="bind">Bind operation</param>
-        /// <returns>Composition of this monad and the result of the function provided</returns>
         public IO<RT, E, C> SelectMany<C>(Func<A, Guard<E, Unit>> bind, Func<A, Unit, C> project) =>
             Bind(x => bind(x) switch
             {
@@ -800,7 +685,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="bind">Bind operation</param>
         /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, C> SelectMany<B, C>(Func<A, Fold<Unit, B>> bind, Func<A, B, C> project) =>
+        public IO<RT, E, C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> bind, Func<A, B, C> project) =>
             Bind(x => bind(x).Map(y => project(x, y)));
 
         /// <summary>
@@ -810,10 +695,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="bind">Bind operation</param>
         /// <returns>Composition of this monad and the result of the function provided</returns>
-        public IO<RT, E, C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> bind, Func<A, B, C> project) =>
-            new(Transducer.mapRight(
-                    Morphism,
-                    Transducer.lift((A a) => bind(a).Map(b => project(a, b))).Flatten()));
+        public IO<RT, E, C> SelectMany<B, C>(Func<A, Transducer<RT, B>> bind, Func<A, B, C> project) =>
+            Bind(x => bind(x).Map(y => project(x, y)));
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -993,13 +876,6 @@ namespace LanguageExt
         /// Convert to an IO monad
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
-        public static implicit operator IO<RT, E, A>(Use<A> ma) =>
-            ma.ToIO<RT, E>();
-
-        /// <summary>
-        /// Convert to an IO monad
-        /// </summary>
-        [Pure, MethodImpl(Opt.Default)]
         public static implicit operator IO<RT, E, A>(Pure<A> ma) =>
             ma.ToIO<RT, E>();
 
@@ -1014,26 +890,29 @@ namespace LanguageExt
         /// Convert to an IO monad
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
-        public static implicit operator IO<RT, E, A>(LiftIO<A> ma) =>
-            ma.ToIO<RT, E>();
+        public static implicit operator IO<RT, E, A>(Transducer<RT, Sum<E, A>> ma) =>
+            Lift(ma);
 
         /// <summary>
         /// Convert to an IO monad
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
-        public static implicit operator IO<RT, E, A>(Lift<RT, A> ma) =>
-            ma.ToIO<RT, E, A>();
+        public static implicit operator IO<RT, E, A>(Transducer<Unit, Sum<E, A>> ma) =>
+            Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), ma));
 
         /// <summary>
         /// Convert to an IO monad
         /// </summary>
         [Pure, MethodImpl(Opt.Default)]
-        public static implicit operator IO<RT, E, A>(Lift<Unit, A> ma) =>
-            Lift(_ => ma.F(unit));
+        public static implicit operator IO<RT, E, A>(Transducer<RT, A> ma) =>
+            Lift(ma);
 
+        /// <summary>
+        /// Convert to an IO monad
+        /// </summary>
         [Pure, MethodImpl(Opt.Default)]
-        public static implicit operator IO<RT, E, A>(Many<A> ma) =>
-            ma.ToIO<RT, E>();
+        public static implicit operator IO<RT, E, A>(Transducer<Unit, A> ma) =>
+            Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), ma));
         
         /// <summary>
         /// Run the first IO operation; if it fails, run the second.  Otherwise return the

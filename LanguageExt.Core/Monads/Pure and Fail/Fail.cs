@@ -2,6 +2,7 @@
 using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.HKT;
 using LanguageExt.Transducers;
 using LanguageExt.TypeClasses;
 
@@ -17,7 +18,7 @@ namespace LanguageExt;
 /// </remarks>
 /// <param name="Value">Bound value</param>
 /// <typeparam name="E">Bound value type</typeparam>
-public readonly record struct Fail<E>(E Value) : Transducer<Unit, E>
+public readonly record struct Fail<E>(E Value) : KArr<Any, Unit, E>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -50,7 +51,7 @@ public readonly record struct Fail<E>(E Value) : Transducer<Unit, E>
     //  Transducer
     //
 
-    public Transducer<Unit, E> Morphism =>
+    public Transducer<Unit, E> Morphism { get; } =
         Transducer.Pure(Value);
 
     public Reducer<Unit, S> Transform<S>(Reducer<E, S> reduce) =>

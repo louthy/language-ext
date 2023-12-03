@@ -1,13 +1,10 @@
 ﻿#nullable enable
-using System.Diagnostics;
-using LanguageExt.Common;
-using LanguageExt.HKT;
 
 namespace LanguageExt.Transducers;
 
 record FlattenTransducer1<A, B>(Transducer<A, Transducer<A, B>> FF) : Transducer<A, B>
 {
-    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Reduce<S>(FF, reduce);
     
     record Reduce<S>(Transducer<A, Transducer<A, B>> FF, Reducer<B, S> Reducer) : Reducer<A, S>
@@ -22,16 +19,13 @@ record FlattenTransducer1<A, B>(Transducer<A, Transducer<A, B>> FF) : Transducer
             f.Transform(Reducer).Run(st, s, Value);
     }
 
-    public Transducer<A, B> Morphism =>
-        this;
-            
     public override string ToString() =>  
         "flatten";
 }
 
 record FlattenTransducer2<A, B>(Transducer<A, Transducer<Unit, B>> FF) : Transducer<A, B>
 {
-    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Reduce<S>(FF, reduce);
     
     record Reduce<S>(Transducer<A, Transducer<Unit, B>> FF, Reducer<B, S> Reducer) : Reducer<A, S>
@@ -45,18 +39,12 @@ record FlattenTransducer2<A, B>(Transducer<A, Transducer<Unit, B>> FF) : Transdu
         public override TResult<S> Run(TState st, S s, Transducer<Unit, B> f) =>
             f.Transform(Reducer).Run(st, s, default);
     }    
-
-    public Transducer<A, B> Morphism =>
-        this;
 }
 
 record FlattenSumTransducer1<Env, X, A>(Transducer<Env, Sum<X, Transducer<Env, Sum<X, A>>>> FF) 
     : Transducer<Env, Sum<X, A>>
 {
-    public Transducer<Env, Sum<X, A>> Morphism => 
-        this;
-
-    public Reducer<Env, S> Transform<S>(Reducer<Sum<X, A>, S> reduce) =>
+    public override Reducer<Env, S> Transform<S>(Reducer<Sum<X, A>, S> reduce) =>
         new Reduce0<S>(FF, reduce);
 
     record Reduce0<S>(Transducer<Env, Sum<X, Transducer<Env, Sum<X, A>>>> FF, Reducer<Sum<X, A>, S> Reducer) 
@@ -85,10 +73,7 @@ record FlattenSumTransducer1<Env, X, A>(Transducer<Env, Sum<X, Transducer<Env, S
 record FlattenSumTransducer2<Env, X, A>(Transducer<Env, Sum<Transducer<Env, Sum<X, A>>, Transducer<Env, Sum<X, A>>>> FF) 
     : Transducer<Env, Sum<X, A>>
 {
-    public Transducer<Env, Sum<X, A>> Morphism => 
-        this;
-
-    public Reducer<Env, S> Transform<S>(Reducer<Sum<X, A>, S> reduce) =>
+    public override Reducer<Env, S> Transform<S>(Reducer<Sum<X, A>, S> reduce) =>
         new Reduce0<S>(FF, reduce);
 
     record Reduce0<S>(Transducer<Env, Sum<Transducer<Env, Sum<X, A>>, Transducer<Env, Sum<X, A>>>> FF, Reducer<Sum<X, A>, S> Reducer) 

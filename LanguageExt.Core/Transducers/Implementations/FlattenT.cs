@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿/*
+#nullable enable
 using LanguageExt.HKT;
 
 namespace LanguageExt.Transducers;
@@ -141,3 +142,4 @@ record FlattenTTransducer2<Env, X, A>(
     public override string ToString() =>  
         "flattenT";
 }
+*/

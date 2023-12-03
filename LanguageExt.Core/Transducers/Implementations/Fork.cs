@@ -7,10 +7,7 @@ namespace LanguageExt.Transducers;
 
 record ForkTransducer1<A, B>(Transducer<A, B> F, Option<TimeSpan> Timeout) : Transducer<A, TFork<B>>
 {
-    public Transducer<A, TFork<B>> Morphism =>
-        this;
-    
-    public Reducer<A, S> Transform<S>(Reducer<TFork<B>, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<TFork<B>, S> reduce) =>
         new Reduce1<S>(F, Timeout, reduce); 
             
     public override string ToString() =>  
@@ -56,10 +53,7 @@ record ForkTransducer1<A, B>(Transducer<A, B> F, Option<TimeSpan> Timeout) : Tra
     record AwaitTransducer(Task<TResult<B>> Task, CancellationToken Token) 
         : Transducer<Unit, B>
     {
-        public Transducer<Unit, B> Morphism =>
-            this;
-
-        public Reducer<Unit, S> Transform<S>(Reducer<B, S> reduce) =>
+        public override Reducer<Unit, S> Transform<S>(Reducer<B, S> reduce) =>
             Reducer.from<Unit, S>((st, s, _) =>
             {
                 var result = TaskAsync<B>.Run(_ => Task, Token);
@@ -78,10 +72,7 @@ record ForkTransducer1<A, B>(Transducer<A, B> F, Option<TimeSpan> Timeout) : Tra
     record CancellationTransducer(CancellationTokenSource Source) 
         : Transducer<Unit, Unit>
     {
-        public Transducer<Unit, Unit> Morphism =>
-            this;
-        
-        public Reducer<Unit, S> Transform<S>(Reducer<Unit, S> reduce) => 
+        public override Reducer<Unit, S> Transform<S>(Reducer<Unit, S> reduce) => 
             Reducer.from<Unit, S>((st, s, u) =>
             {
                 Cancel();
@@ -109,10 +100,7 @@ record ForkTransducer2<FState, A, B>(
         Option<TimeSpan> Timeout) 
     : Transducer<A, TFork<FState>>
 {
-    public Transducer<A, TFork<FState>> Morphism =>
-        this;
-    
-    public Reducer<A, S> Transform<S>(Reducer<TFork<FState>, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<TFork<FState>, S> reduce) =>
         new Reduce1<S>(F, Initial, ForkedReducer, Timeout, reduce); 
             
     public override string ToString() =>  
@@ -163,10 +151,7 @@ record ForkTransducer2<FState, A, B>(
     record AwaitTransducer(Task<TResult<FState>> Task, CancellationToken Token) 
         : Transducer<Unit, FState>
     {
-        public Transducer<Unit, FState> Morphism =>
-            this;
-
-        public Reducer<Unit, S> Transform<S>(Reducer<FState, S> reduce) =>
+        public override Reducer<Unit, S> Transform<S>(Reducer<FState, S> reduce) =>
             Reducer.from<Unit, S>((st, s, _) =>
             {
                 var result = TaskAsync<FState>.Run(_ => Task, Token);
@@ -185,10 +170,7 @@ record ForkTransducer2<FState, A, B>(
     record CancellationTransducer(CancellationTokenSource Source) 
         : Transducer<Unit, Unit>
     {
-        public Transducer<Unit, Unit> Morphism =>
-            this;
-        
-        public Reducer<Unit, S> Transform<S>(Reducer<Unit, S> reduce) => 
+        public override Reducer<Unit, S> Transform<S>(Reducer<Unit, S> reduce) => 
             Reducer.from<Unit, S>((st, s, u) =>
             {
                 Cancel();

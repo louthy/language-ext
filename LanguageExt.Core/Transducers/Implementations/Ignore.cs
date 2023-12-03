@@ -7,7 +7,7 @@ namespace LanguageExt.Transducers;
 record IgnoreTransducer<A, B>(Transducer<Unit, B> Transducer) : 
     Transducer<A, B>
 {
-    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Ignore<S>(Transducer.Transform(reduce));
 
     record Ignore<S>(Reducer<Unit, S> Reducer) : Reducer<A, S>
@@ -18,7 +18,4 @@ record IgnoreTransducer<A, B>(Transducer<Unit, B> Transducer) :
             
     public override string ToString() =>  
         "ignore";
-    
-    public Transducer<A, B> Morphism =>
-        this;
 }

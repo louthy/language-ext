@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.Transducers;
 
 namespace LanguageExt
 {
@@ -11,9 +12,9 @@ namespace LanguageExt
         /// <summary>
         /// Construct identity monad
         /// </summary>
-        public static Identity<A> Id<A>(A value) => 
-            new (value);
-        
+        public static Identity<A> Id<A>(A value) =>
+            new(value);
+
         /// <summary>
         /// Create a new Pure monad.  This monad doesn't do much, but when combined with
         /// other monads, it allows for easier construction of pure lifted values.
@@ -32,8 +33,8 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Pure monad</returns>
         public static Pure<A> Pure<A>(A value) =>
-            new (value);
-        
+            new(value);
+
         /// <summary>
         /// Create a new Fail monad: the monad that always fails.  This monad doesn't do much,
         /// but when combined with other monads, it allows for easier construction of lifted 
@@ -53,160 +54,6 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Pure monad</returns>
         public static Fail<E> Fail<E>(E error) =>
-            new (error);
-
-        /// <summary>
-        /// Represents a lifted IO function.  
-        /// </summary>
-        /// <remarks>
-        /// On its own this doesn't do much, but it allows other monads to convert
-        /// from it and provide binding extensions that mean this will work in
-        /// binding scenarios.
-        ///
-        /// It simplifies certain scenarios where additional generic arguments are
-        /// needed.  This only requires the generic argument of the value which
-        /// means the C# inference system can work.
-        /// </remarks>
-        /// <param name="function">IO function</param>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <returns>Lifted IO function</returns>
-        public static LiftIO<A> liftIO<A>(Func<CancellationToken, Task<A>> function) =>
-            new (function);
-
-        /// <summary>
-        /// Represents a lifted IO function.  
-        /// </summary>
-        /// <remarks>
-        /// On its own this doesn't do much, but it allows other monads to convert
-        /// from it and provide binding extensions that mean this will work in
-        /// binding scenarios.
-        ///
-        /// It simplifies certain scenarios where additional generic arguments are
-        /// needed.  This only requires the generic argument of the value which
-        /// means the C# inference system can work.
-        /// </remarks>
-        /// <param name="action">IO function</param>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <returns>Lifted IO function</returns>
-        public static LiftIO<Unit> liftIO(Func<CancellationToken, Task> action) =>
-            liftIO (async ct =>
-            {
-                await action(ct).ConfigureAwait(false);
-                return unit;
-            });
-
-        /// <summary>
-        /// Represents a lifted IO function.  
-        /// </summary>
-        /// <remarks>
-        /// On its own this doesn't do much, but it allows other monads to convert
-        /// from it and provide binding extensions that mean this will work in
-        /// binding scenarios.
-        ///
-        /// It simplifies certain scenarios where additional generic arguments are
-        /// needed.  This only requires the generic argument of the value which
-        /// means the C# inference system can work.
-        /// </remarks>
-        /// <param name="function">IO function</param>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <returns>Lifted IO function</returns>
-        public static LiftIO<A> liftIO<A>(Func<Task<A>> function) =>
-            new (_ => function());
-
-        /// <summary>
-        /// Represents a lifted IO function.  
-        /// </summary>
-        /// <remarks>
-        /// On its own this doesn't do much, but it allows other monads to convert
-        /// from it and provide binding extensions that mean this will work in
-        /// binding scenarios.
-        ///
-        /// It simplifies certain scenarios where additional generic arguments are
-        /// needed.  This only requires the generic argument of the value which
-        /// means the C# inference system can work.
-        /// </remarks>
-        /// <param name="action">IO function</param>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <returns>Lifted IO function</returns>
-        public static LiftIO<Unit> liftIO(Func<Task> action) =>
-            liftIO(_ => action());        
-
-        /// <summary>
-        /// Represents a lifted function.  
-        /// </summary>
-        /// <remarks>
-        /// On its own this doesn't do much, but it allows other monads to convert
-        /// from it and provide binding extensions that mean this will work in
-        /// binding scenarios.
-        ///
-        /// It simplifies certain scenarios where additional generic arguments are
-        /// needed.  This only requires the generic argument of the value which
-        /// means the C# inference system can work.
-        /// </remarks>
-        /// <param name="funtion">Function to lift</param>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <returns>Lifted function</returns>
-        public static Lift<Unit, A> lift<A>(Func<A> funtion) =>
-            new (_ => funtion());
-
-        /// <summary>
-        /// Represents a lifted function.  
-        /// </summary>
-        /// <remarks>
-        /// On its own this doesn't do much, but it allows other monads to convert
-        /// from it and provide binding extensions that mean this will work in
-        /// binding scenarios.
-        ///
-        /// It simplifies certain scenarios where additional generic arguments are
-        /// needed.  This only requires the generic argument of the value which
-        /// means the C# inference system can work.
-        /// </remarks>
-        /// <param name="action">Function to lift</param>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <returns>Lifted function</returns>
-        public static Lift<Unit, Unit> lift(Action action) =>
-            lift(() =>
-            {
-                action();
-                return unit;
-            });
-
-        /// <summary>
-        /// Represents a lifted function.  
-        /// </summary>
-        /// <remarks>
-        /// On its own this doesn't do much, but it allows other monads to convert
-        /// from it and provide binding extensions that mean this will work in
-        /// binding scenarios.
-        ///
-        /// It simplifies certain scenarios where additional generic arguments are
-        /// needed.  This only requires the generic argument of the value which
-        /// means the C# inference system can work.
-        /// </remarks>
-        /// <param name="function">Function to lift</param>
-        /// <returns>Lifted function</returns>
-        public static Lift<A, B> lift<A, B>(Func<A, B> function) =>
-            new (function);
-
-        /// <summary>
-        /// Represents a lifted function.  
-        /// </summary>
-        /// <remarks>
-        /// On its own this doesn't do much, but it allows other monads to convert
-        /// from it and provide binding extensions that mean this will work in
-        /// binding scenarios.
-        ///
-        /// It simplifies certain scenarios where additional generic arguments are
-        /// needed.  This only requires the generic argument of the value which
-        /// means the C# inference system can work.
-        /// </remarks>
-        /// <param name="action">Function to lift</param>
-        /// <returns>Lifted function</returns>
-        public static Lift<A, Unit> lift<A>(Action<A> action) =>
-            lift<A, Unit>(a =>
-            {
-                action(a);
-                return unit;
-            });
+            new(error);
     }
 }

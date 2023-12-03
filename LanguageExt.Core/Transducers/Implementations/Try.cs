@@ -11,10 +11,7 @@ record TryTransducer<A, B>(
         Transducer<Error, B> Catch) 
     : Transducer<A, B>
 {
-    public Transducer<A, B> Morphism => 
-        this;
-
-    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new MatchReducer<S>(F, Match, Catch, reduce);
 
     record MatchReducer<S>(
@@ -88,10 +85,7 @@ record TryTransducer<RT, X, A>(
     : Transducer<RT, Sum<X, A>>
     where RT : struct, HasFromError<RT, X>
 {
-    public Transducer<RT, Sum<X, A>> Morphism => 
-        this;
-
-    public Reducer<RT, S> Transform<S>(Reducer<Sum<X, A>, S> reduce) =>
+    public override Reducer<RT, S> Transform<S>(Reducer<Sum<X, A>, S> reduce) =>
         new MatchReducer<S>(F, Match, Catch, reduce);
 
     record MatchReducer<S>(

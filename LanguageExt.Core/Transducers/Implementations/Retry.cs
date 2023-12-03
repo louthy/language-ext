@@ -8,10 +8,7 @@ namespace LanguageExt.Transducers;
 
 record RetryTransducer<A, B>(Transducer<A, B> F, Schedule Schedule, Func<Error, bool> Predicate) : Transducer<A, B>
 {
-    public Transducer<A, B> Morphism =>
-        this;
-    
-    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) => 
+    public override Reducer<A, S> Transform<S>(Reducer<B, S> reduce) => 
         new Reduce1<S>(F, Schedule, Predicate, reduce);
     
     record Reduce1<S>(Transducer<A, B> F, Schedule Schedule, Func<Error, bool> Predicate, Reducer<B, S> Reduce) 
@@ -98,10 +95,7 @@ record RetrySumTransducer<RT, X, A>(Transducer<RT, Sum<X, A>> F, Schedule Schedu
     : Transducer<RT, Sum<X, A>>
     where RT : struct, HasFromError<RT, X> 
 {
-    public Transducer<RT, Sum<X, A>> Morphism =>
-        this;
-    
-    public Reducer<RT, S> Transform<S>(Reducer<Sum<X, A>, S> reduce) => 
+    public override Reducer<RT, S> Transform<S>(Reducer<Sum<X, A>, S> reduce) => 
         new Reduce1<S>(F, Schedule, Predicate, reduce);
     
     record Reduce1<S>(Transducer<RT, Sum<X, A>> F, Schedule Schedule, Func<X, bool> Predicate, Reducer<Sum<X, A>, S> Reduce) 

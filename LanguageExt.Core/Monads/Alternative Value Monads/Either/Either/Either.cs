@@ -13,7 +13,9 @@ using LanguageExt.DataTypes.Serialisation;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
+using LanguageExt.HKT;
 using LanguageExt.Transducers;
+using Any = LanguageExt.ClassInstances.Any;
 
 namespace LanguageExt
 {
@@ -48,7 +50,7 @@ namespace LanguageExt
         IEquatable<EitherRight<R>>,
         IEquatable<R>, 
         ISerializable,
-        Transducer<Unit, Sum<L, R>>
+        KArr<Any, Unit, Sum<L, R>>
     {
         public static readonly Either<L, R> Bottom = new Either<L, R>();
 

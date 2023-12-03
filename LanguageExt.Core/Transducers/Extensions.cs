@@ -24,6 +24,48 @@ public static partial class Transducer
         new UseTransducer2<A, B>(transducer);
     
     /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Gets a lifted function and a lifted argument, invokes the function with the argument and re-lifts the result.
+    /// </remarks>
+    /// <returns>Result of applying the function to the argument</returns>
+    public static Transducer<E, B> Apply<E, A, B>(
+        this Transducer<E, Func<A, B>> ff,
+        Transducer<E, A> fa) =>
+        new ApplyTransducer<E, A, B>(ff, fa);
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Gets a lifted function and a lifted argument, invokes the function with the argument and re-lifts the result.
+    /// </remarks>
+    /// <returns>Result of applying the function to the argument</returns>
+    public static Transducer<E, B> Apply<E, A, B>(
+        this Transducer<E, Transducer<A, B>> ff,
+        Transducer<E, A> fa) =>
+        new ApplyTransducer2<E, A, B>(ff, fa);    
+
+    /// <summary>
+    /// Partial application
+    /// </summary>
+    /// <param name="f">Transducer to partially apply</param>
+    /// <param name="value">Value to apply</param>
+    /// <returns>Transducer with the first argument filled</returns>
+    public static Transducer<B, C> Partial<A, B, C>(Transducer<A, Transducer<B, C>> f, A value) =>
+        new PartialTransducer<A, B, C>(value, f);
+
+    /// <summary>
+    /// Partial application
+    /// </summary>
+    /// <param name="f">Transducer to partially apply</param>
+    /// <param name="value">Value to apply</param>
+    /// <returns>Transducer with the first argument filled</returns>
+    public static Transducer<B, C> Partial<A, B, C>(Transducer<A, Func<B, C>> f, A value) =>
+        new PartialFTransducer<A, B, C>(value, f);
+    
+    /// <summary>
     /// Maps every value passing through this transducer
     /// </summary>
     public static Transducer<A, C> Map<A, B, C>(this Transducer<A, B> m, Func<B, C> f) =>
@@ -186,18 +228,6 @@ public static partial class Transducer
     /// <returns>Filtered transducer</returns>
     public static Transducer<A, Sum<X, B>> Filter<X, A, B>(this Transducer<A, Sum<X, B>> f, Func<B, bool> pred) =>
         Filter(f, lift(pred));
-
-    /// <summary>
-    /// Applicative apply
-    /// </summary>
-    /// <remarks>
-    /// Gets a lifted function and a lifted argument, invokes the function with the argument and re-lifts the result.
-    /// </remarks>
-    /// <returns>Result of applying the function to the argument</returns>
-    public static Transducer<A, C> Apply<A, B, C>(
-        this Transducer<A, Func<B, C>> ff,
-        Transducer<A, B> fa) =>
-        new ApplyTransducer<A, B, C>(ff, fa);
     
     /// <summary>
     /// Lifts a unit accepting transducer, ignores the input value.

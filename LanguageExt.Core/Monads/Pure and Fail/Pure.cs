@@ -2,6 +2,7 @@
 using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.HKT;
 using LanguageExt.Transducers;
 using LanguageExt.TypeClasses;
 
@@ -17,7 +18,7 @@ namespace LanguageExt;
 /// </remarks>
 /// <param name="Value">Bound value</param>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly record struct Pure<A>(A Value) : Transducer<Unit, A>
+public readonly record struct Pure<A>(A Value) : KArr<Any, Unit, A>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -70,11 +71,14 @@ public readonly record struct Pure<A>(A Value) : Transducer<Unit, A>
     /// <typeparam name="B">Result of the bind operation bound value type</typeparam>
     /// <typeparam name="C">Result of the mapping operation bound value type</typeparam>
     /// <returns>Result of the applying the bind and mapping function to the `Pure` value</returns>
-    public Many<C> SelectMany<B, C>(Func<A, Many<B>> bind, Func<A, B, C> project) =>
-        new(from x in Morphism
-            from y in bind(x).Morphism
-            select project(x, y));
-    
+    public Transducer<E, C> SelectMany<E, B, C>(Func<A, Transducer<E, B>> bind, Func<A, B, C> project)
+    {
+        var a = Value;
+        return Transducer.compose(
+            bind(a),
+            Transducer.lift<B, C>(b => project(a, b)));
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Conversion
@@ -192,7 +196,7 @@ public readonly record struct Pure<A>(A Value) : Transducer<Unit, A>
     //  Transducer
     //
 
-    public Transducer<Unit, A> Morphism =>
+    public Transducer<Unit, A> Morphism { get; } =
         Transducer.Pure(Value);
     
     public Reducer<Unit, S> Transform<S>(Reducer<A, S> reduce) => 

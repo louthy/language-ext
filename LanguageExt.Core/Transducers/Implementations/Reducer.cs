@@ -25,10 +25,10 @@ public static class Reducer
 
 public static class Reducer<A>
 {
-    public static readonly Reducer<A, A> identity = 
+    public static readonly Reducer<A, A> identity =
         Reducer.from<A, A>((_, _, v) => TResult.Continue(v));
-    
-    public static readonly Reducer<A, Option<A>> optionIdentity = 
+
+    public static readonly Reducer<A, Option<A>> optionIdentity =
         Reducer.from<A, Option<A>>((_, _, v) => TResult.Continue(Prelude.Some(v)));
 }
 

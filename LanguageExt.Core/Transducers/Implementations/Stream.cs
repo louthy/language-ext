@@ -8,10 +8,7 @@ record StreamEnumerableTransducer<A> : Transducer<IEnumerable<A>, A>
 {
     public static Transducer<IEnumerable<A>, A> Default = new StreamEnumerableTransducer<A>();
     
-    public Transducer<IEnumerable<A>, A> Morphism =>
-        this;
-
-    public Reducer<IEnumerable<A>, S> Transform<S>(Reducer<A, S> reduce) =>
+    public override Reducer<IEnumerable<A>, S> Transform<S>(Reducer<A, S> reduce) =>
         new Reduce1<S>(reduce);
 
     record Reduce1<S>(Reducer<A, S> Reduce) : Reducer<IEnumerable<A>, S>
@@ -59,10 +56,7 @@ record StreamSeqTransducer<A> : Transducer<Seq<A>, A>
 {
     public static Transducer<Seq<A>, A> Default = new StreamSeqTransducer<A>();
     
-    public Transducer<Seq<A>, A> Morphism =>
-        this;
-
-    public Reducer<Seq<A>, S> Transform<S>(Reducer<A, S> reduce) =>
+    public override Reducer<Seq<A>, S> Transform<S>(Reducer<A, S> reduce) =>
         new Reduce1<S>(reduce);
 
     record Reduce1<S>(Reducer<A, S> Reduce) : Reducer<Seq<A>, S>
@@ -74,7 +68,7 @@ record StreamSeqTransducer<A> : Transducer<Seq<A>, A>
                 var result = Go(Reduce.Run(state, stateValue, item));
                 switch(result)
                 {
-                    case TContinue<S> {Value: not null} r:
+                    case TContinue<S> r:
                         stateValue = r.Value;
                         break;
 
@@ -110,10 +104,7 @@ record StreamAsyncEnumerableTransducer<A> : Transducer<IAsyncEnumerable<A>, A>
 {
     public static Transducer<IAsyncEnumerable<A>, A> Default = new StreamAsyncEnumerableTransducer<A>();
     
-    public Transducer<IAsyncEnumerable<A>, A> Morphism =>
-        this;
-
-    public Reducer<IAsyncEnumerable<A>, S> Transform<S>(Reducer<A, S> reduce) =>
+    public override Reducer<IAsyncEnumerable<A>, S> Transform<S>(Reducer<A, S> reduce) =>
         new Reduce1<S>(reduce);
 
     record Reduce1<S>(Reducer<A, S> Reduce) : Reducer<IAsyncEnumerable<A>, S>
@@ -128,7 +119,7 @@ record StreamAsyncEnumerableTransducer<A> : Transducer<IAsyncEnumerable<A>, A>
                 var result = Go(Reduce.Run(state, stateValue, item));
                 switch(result)
                 {
-                    case TContinue<S> {Value: not null} r:
+                    case TContinue<S> r:
                         stateValue = r.Value;
                         break;
 

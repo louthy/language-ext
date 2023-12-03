@@ -2,7 +2,6 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using LanguageExt.Effects;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Transducers;
 using System.Diagnostics.Contracts;
@@ -419,95 +418,6 @@ public static partial class Prelude
     public static IO<RT, E, A> filter<RT, E, A>(IO<RT, E, A> ma, Transducer<A, bool> predicate)
         where RT : struct, HasIO<RT, E> =>
         ma.Filter(predicate);
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Monadic binding
-    //
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<RT, E, B> bind<RT, E, A, B>(IO<RT, E, A> ma, Func<A, IO<RT, E, B>> f)
-        where RT : struct, HasIO<RT, E> =>
-        ma.Bind(f);
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// transducer provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the transducer provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<RT, E, B> bind<RT, E, A, B>(IO<RT, E, A> ma, Transducer<A, IO<RT, E, B>> f)
-        where RT : struct, HasIO<RT, E> =>
-        ma.Bind(f);
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<RT, E, B> bind<RT, E, A, B>(IO<RT, E, A> ma, Func<A, Pure<B>> f)
-        where RT : struct, HasIO<RT, E> =>
-        ma.Bind(f);
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<RT, E, A> bind<RT, E, A>(IO<RT, E, A> ma, Func<A, Fail<E>> f)
-        where RT : struct, HasIO<RT, E> =>
-        ma.Bind(f);
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<RT, E, B> bind<RT, E, A, B>(IO<RT, E, A> ma, Func<A, Use<B>> f) 
-        where RT : struct, HasIO<RT, E> =>
-        ma.Bind(f);
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<RT, E, Unit> bind<RT, E, A, B>(IO<RT, E, A> ma, Func<A, Release<B>> f)
-        where RT : struct, HasIO<RT, E> =>
-        ma.Bind(f);
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<RT, E, B> bind<RT, E, A, B>(IO<RT, E, A> ma, Func<A, LiftIO<B>> f)
-        where RT : struct, HasIO<RT, E> =>
-        ma.Bind(f);
 
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

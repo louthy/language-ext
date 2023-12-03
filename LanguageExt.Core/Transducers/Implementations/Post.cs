@@ -6,25 +6,27 @@ namespace LanguageExt.Transducers;
 
 record PostTransducer<A, B>(Transducer<A, B> F) : Transducer<A, B>
 {
-    public Transducer<A, B> Morphism =>
-        this;
-
-    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
-        Reducer.from<A, S>((st, s, x) =>
+    public override Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
+        new Reduce<S>(F, reduce);
+    
+    record Reduce<S>(Transducer<A, B> F, Reducer<B, S> Reducer) : Reducer<A, S>
+    {
+        public override TResult<S> Run(TState st, S s, A x)
         {
             var value = TResult.None<B>(); 
             using var wait = new AutoResetEvent(false);
 
             try
             {
-                st.SynchronizationContext.Post(_ =>
+                st.SynchronizationContext.Post(
+                    _ =>
                     {
                         try
                         {
                             var r = F.Invoke(
                                 x,
                                 s,
-                                Reducer.from<B, S>((_, s1, v) =>
+                                new FReducer<B, S>((_, s1, v) =>
                                 {
                                     value = TResult.Continue(v);
                                     return TResult.Continue(s1);
@@ -57,6 +59,7 @@ record PostTransducer<A, B>(Transducer<A, B> F) : Transducer<A, B>
                 value = TResult.Fail<B>(e);
             }
 
-            return value.Reduce(st, s, reduce);
-        });
+            return value.Reduce(st, s, Reducer);
+        }
+    }
 }

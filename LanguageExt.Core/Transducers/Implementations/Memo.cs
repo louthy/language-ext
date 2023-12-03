@@ -10,10 +10,7 @@ namespace LanguageExt.Transducers;
 record MemoTransducer<EqA, A, B>(Transducer<A, B> Transducer) : Transducer<A, B>
     where EqA : struct, Eq<A>
 {
-    public Transducer<A, B> Morphism =>
-        this;
-
-    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Reduce<S>(Transducer, reduce);
 
     record Reduce<S>(Transducer<A, B> Transducer, Reducer<B, S> Reducer) : Reducer<A, S>
@@ -39,10 +36,7 @@ record Memo1Transducer<EqA, A, B>(Transducer<A, B> Transducer) : Transducer<A, B
 {
     readonly AtomHashMap<EqKey, Key, TResultBase> memos = AtomHashMap<EqKey, Key, TResultBase>(); 
     
-    public Transducer<A, B> Morphism =>
-        this;
-    
-    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Reduce<S>(Transducer, reduce, memos);
 
     record Reduce<S>(Transducer<A, B> Transducer, Reducer<B, S> Reducer, AtomHashMap<EqKey, Key, TResultBase> Memos) 

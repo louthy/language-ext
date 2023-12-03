@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using LanguageExt;
 using LanguageExt.Common;
 using LanguageExt.Effects;
+using LanguageExt.Transducers;
 using static LanguageExt.Prelude;
 
 namespace IOExamples;
@@ -36,17 +37,16 @@ class Program
                               select r)
         select n;
 
-    private static IO<MinimalRT, Error, Unit> folding =>
-        from n in many(Range(1, 1000))
+    static readonly Transducer<int, int> folder =
+        foldUntil(Schedule.spaced(TimeSpan.FromMilliseconds(100)),
+                  0,
+                  (int s, int x) => s + x,
+                  valueIs: x => x % 10 == 0);
+    
+    static IO<MinimalRT, Error, Unit> folding =>
+        from n in many(Range(1, 25))
         from _ in writeLine($"item flowing in: {n}")
-        
-                    /* TODO Need to flow `n` into `foldWhile` - it currently is getting a Transparent record */
-        
-        from s in lift(() => n) 
-                    | foldUntil(Schedule.spaced(TimeSpan.FromMilliseconds(100)), 0,
-                        (int s, int x) => s + x,
-                        valueIs: x => x % 10 == 0)
-        
+        from s in n | folder
         from r in writeLine($"Total {s}")
         select unit;
 

@@ -7,7 +7,7 @@ namespace LanguageExt.Transducers;
 
 record LiftIOTransducer1<A, B>(Func<CancellationToken, A, Task<TResult<B>>> F) : Transducer<A, B>
 {
-    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Reduce<S>(F, reduce);
 
     record Reduce<S>(Func<CancellationToken, A, Task<TResult<B>>> F, Reducer<B, S> Reducer) : Reducer<A, S>
@@ -15,9 +15,6 @@ record LiftIOTransducer1<A, B>(Func<CancellationToken, A, Task<TResult<B>>> F) :
         public override TResult<S> Run(TState st, S s, A x) =>
             TaskAsync<A>.Run(F, x, st.Token).Reduce(st, s, Reducer);
     }
-    
-    public Transducer<A, B> Morphism =>
-        this;
 
     public override string ToString() =>
         "liftIO";
@@ -25,7 +22,7 @@ record LiftIOTransducer1<A, B>(Func<CancellationToken, A, Task<TResult<B>>> F) :
 
 record LiftIOTransducer2<A>(Func<CancellationToken, Task<TResult<A>>> F) : Transducer<Unit, A>
 {
-    public Reducer<Unit, S> Transform<S>(Reducer<A, S> reduce) =>
+    public override Reducer<Unit, S> Transform<S>(Reducer<A, S> reduce) =>
         new Reduce<S>(F, reduce);
 
     record Reduce<S>(Func<CancellationToken, Task<TResult<A>>> F, Reducer<A, S> Reducer) : Reducer<Unit, S>
@@ -33,9 +30,6 @@ record LiftIOTransducer2<A>(Func<CancellationToken, Task<TResult<A>>> F) : Trans
         public override TResult<S> Run(TState st, S s, Unit x) =>
             TaskAsync<A>.Run(F, st.Token).Reduce(st, s, Reducer);
     }
-    
-    public Transducer<Unit, A> Morphism =>
-        this;
 
     public override string ToString() =>
         "liftIO";
@@ -43,7 +37,7 @@ record LiftIOTransducer2<A>(Func<CancellationToken, Task<TResult<A>>> F) : Trans
 
 record LiftIOTransducer3<A, B>(Func<CancellationToken, A, Task<B>> F) : Transducer<A, B>
 {
-    public Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Reduce<S>(F, reduce);
 
     record Reduce<S>(Func<CancellationToken, A, Task<B>> F, Reducer<B, S> Reducer) : Reducer<A, S>
@@ -51,9 +45,6 @@ record LiftIOTransducer3<A, B>(Func<CancellationToken, A, Task<B>> F) : Transduc
         public override TResult<S> Run(TState st, S s, A x) =>
             TaskAsync<A>.Run(F, x, st.Token).Reduce(st, s, Reducer);
     }
-    
-    public Transducer<A, B> Morphism =>
-        this;
 
     public override string ToString() =>
         "liftIO";
@@ -61,7 +52,7 @@ record LiftIOTransducer3<A, B>(Func<CancellationToken, A, Task<B>> F) : Transduc
 
 record LiftIOTransducer4<A>(Func<CancellationToken, Task<A>> F) : Transducer<Unit, A>
 {
-    public Reducer<Unit, S> Transform<S>(Reducer<A, S> reduce) =>
+    public override Reducer<Unit, S> Transform<S>(Reducer<A, S> reduce) =>
         new Reduce<S>(F, reduce);
 
     record Reduce<S>(Func<CancellationToken, Task<A>> F, Reducer<A, S> Reducer) : Reducer<Unit, S>
@@ -69,9 +60,6 @@ record LiftIOTransducer4<A>(Func<CancellationToken, Task<A>> F) : Transducer<Uni
         public override TResult<S> Run(TState st, S s, Unit x) =>
             TaskAsync<A>.Run(F, st.Token).Reduce(st, s, Reducer);
     }
-    
-    public Transducer<Unit, A> Morphism =>
-        this;
 
     public override string ToString() =>
         "liftIO";

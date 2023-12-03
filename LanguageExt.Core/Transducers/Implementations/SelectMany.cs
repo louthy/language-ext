@@ -10,11 +10,8 @@ record SelectManyTransducer1<E, A, B, C>(
     Func<A, B, C> Project) : 
     Transducer<E, C>
 {
-    public Reducer<E, S> Transform<S>(Reducer<C, S> reduce) =>
+    public override Reducer<E, S> Transform<S>(Reducer<C, S> reduce) =>
         new Reduce<S>(F, BindF, Project, reduce);
-    
-    public Transducer<E, C> Morphism =>
-        this;
 
     record Reduce<S>(Transducer<E, A> F, Func<A, Transducer<E, B>> Bind, Func<A, B, C> Project, Reducer<C, S> Reducer) : 
         Reducer<E, S>
@@ -54,11 +51,8 @@ record SelectManyTransducer2<E, A, B, C>(
     Func<A, B, C> Project) : 
     Transducer<E, C>
 {
-    public Reducer<E, S> Transform<S>(Reducer<C, S> reduce) =>
+    public override Reducer<E, S> Transform<S>(Reducer<C, S> reduce) =>
         new Reduce<S>(F, BindF, Project, reduce);
-
-    public Transducer<E, C> Morphism =>
-        this;
 
     record Reduce<S>(Transducer<E, A> F, Transducer<A, Transducer<E, B>> Bind, Func<A, B, C> Project, Reducer<C, S> Reducer) : 
         Reducer<E, S>
@@ -104,11 +98,8 @@ record SelectManySumTransducer1<E, X, A, B, C>(
     Func<A, B, C> Project) : 
     Transducer<E, Sum<X, C>>
 {
-    public Reducer<E, S> Transform<S>(Reducer<Sum<X, C>, S> reduce) =>
+    public override Reducer<E, S> Transform<S>(Reducer<Sum<X, C>, S> reduce) =>
         new Reduce<S>(F, BindF, Project, reduce);
-    
-    public Transducer<E, Sum<X, C>> Morphism =>
-        this;
 
     record Reduce<S>(Transducer<E, Sum<X, A>> F, Func<A, Transducer<E, Sum<X, B>>> Bind, Func<A, B, C> Project, Reducer<Sum<X, C>, S> Reducer) : 
         Reducer<E, S>

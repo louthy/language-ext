@@ -8,7 +8,7 @@ namespace LanguageExt.Transducers;
 record BindTransducer1<A, B, C>(Transducer<A, B> M, Transducer<B, Transducer<A, C>> F) : 
     Transducer<A, C>
 {
-    public Reducer<A, S> Transform<S>(Reducer<C, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<C, S> reduce) =>
         new Reduce<S>(M, F, reduce);
 
     record Reduce<S>(Transducer<A, B> M, Transducer<B, Transducer<A, C>> F, Reducer<C, S> Reducer) : Reducer<A, S>
@@ -28,9 +28,6 @@ record BindTransducer1<A, B, C>(Transducer<A, B> M, Transducer<B, Transducer<A, 
         public override TResult<S> Run(TState st, S s, Transducer<A, C> f) =>
             f.Transform(Reducer).Run(st, s, Value);
     }
-
-    public Transducer<A, C> Morphism =>
-        this;
     
     public override string ToString() =>  
         "bind";
@@ -39,7 +36,7 @@ record BindTransducer1<A, B, C>(Transducer<A, B> M, Transducer<B, Transducer<A, 
 record BindTransducer2<A, B, C>(Transducer<A, B> M, Transducer<B, Func<A, C>> F) : 
     Transducer<A, C>
 {
-    public Reducer<A, S> Transform<S>(Reducer<C, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<C, S> reduce) =>
         new Reduce<S>(M, F, reduce);
     
     record Reduce<S>(Transducer<A, B> M, Transducer<B, Func<A, C>> F, Reducer<C, S> Reducer) : Reducer<A, S>
@@ -59,9 +56,6 @@ record BindTransducer2<A, B, C>(Transducer<A, B> M, Transducer<B, Func<A, C>> F)
         public override TResult<S> Run(TState st, S s, Func<A, C> f) =>
             Reducer.Run(st, s, f(Value));
     }
-
-    public Transducer<A, C> Morphism =>
-        this;
     
     public override string ToString() =>  
         "bind";
@@ -70,7 +64,7 @@ record BindTransducer2<A, B, C>(Transducer<A, B> M, Transducer<B, Func<A, C>> F)
 record BindTransducer3<A, B, C>(Transducer<A, B> M, Func<B, Transducer<A, C>> F) : 
     Transducer<A, C>
 {
-    public Reducer<A, S> Transform<S>(Reducer<C, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<C, S> reduce) =>
         new Reduce<S>(M, F, reduce);
 
     internal record Reduce<S>(Transducer<A, B> M, Func<B, Transducer<A, C>> F, Reducer<C, S> Reducer) : Reducer<A, S>
@@ -84,9 +78,6 @@ record BindTransducer3<A, B, C>(Transducer<A, B> M, Func<B, Transducer<A, C>> F)
         public override TResult<S> Run(TState st, S s, B value) =>
             F(value).Transform(Reducer).Run(st, s, Value);
     }
-
-    public Transducer<A, C> Morphism =>
-        this;
     
     public override string ToString() =>  
         "bind";
@@ -95,7 +86,7 @@ record BindTransducer3<A, B, C>(Transducer<A, B> M, Func<B, Transducer<A, C>> F)
 record BindTransducer3A<A, B, C>(Transducer<A, B> M, Func<B, Transducer<Unit, C>> F) : 
     Transducer<A, C>
 {
-    public Reducer<A, S> Transform<S>(Reducer<C, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<C, S> reduce) =>
         new Reduce<S>(M, F, reduce);
 
     internal record Reduce<S>(Transducer<A, B> M, Func<B, Transducer<Unit, C>> F, Reducer<C, S> Reducer) : Reducer<A, S>
@@ -109,9 +100,6 @@ record BindTransducer3A<A, B, C>(Transducer<A, B> M, Func<B, Transducer<Unit, C>
         public override TResult<S> Run(TState st, S s, B value) =>
             TResult.Recursive(st, s, default, F(value).Transform(Reducer));
     }
-
-    public Transducer<A, C> Morphism =>
-        this;
     
     public override string ToString() =>  
         "bind";
@@ -120,7 +108,7 @@ record BindTransducer3A<A, B, C>(Transducer<A, B> M, Func<B, Transducer<Unit, C>
 record BindTransducer3B<A, B, C>(Transducer<Unit, B> M, Func<B, Transducer<A, C>> F) : 
     Transducer<A, C>
 {
-    public Reducer<A, S> Transform<S>(Reducer<C, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<C, S> reduce) =>
         new Reduce<S>(M, F, reduce);
 
     internal record Reduce<S>(Transducer<Unit, B> M, Func<B, Transducer<A, C>> F, Reducer<C, S> Reducer) : Reducer<A, S>
@@ -134,9 +122,6 @@ record BindTransducer3B<A, B, C>(Transducer<Unit, B> M, Func<B, Transducer<A, C>
         public override TResult<S> Run(TState st, S s, B value) =>
             TResult.Recursive(st, s, Value, F(value).Transform(Reducer));
     }
-
-    public Transducer<A, C> Morphism =>
-        this;
     
     public override string ToString() =>  
         "bind";
@@ -145,7 +130,7 @@ record BindTransducer3B<A, B, C>(Transducer<Unit, B> M, Func<B, Transducer<A, C>
 record BindTransducerSum<X, A, B, C>(Transducer<A, Sum<X, B>> M, Transducer<B, Transducer<A, Sum<X, C>>> F) : 
     Transducer<A, Sum<X, C>>
 {
-    public Reducer<A, S> Transform<S>(Reducer<Sum<X, C>, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<Sum<X, C>, S> reduce) =>
         new Reduce<S>(M, F, reduce);
 
     record Reduce<S>(Transducer<A, Sum<X, B>> M, Transducer<B, Transducer<A, Sum<X, C>>> F, Reducer<Sum<X, C>, S> Reducer) 
@@ -174,9 +159,6 @@ record BindTransducerSum<X, A, B, C>(Transducer<A, Sum<X, B>> M, Transducer<B, T
             f.Transform(Reducer).Run(st, s, Value);
     }
 
-    public Transducer<A, Sum<X, C>> Morphism =>
-        this;
-    
     public override string ToString() =>  
         "bind";
 }
@@ -184,7 +166,7 @@ record BindTransducerSum<X, A, B, C>(Transducer<A, Sum<X, B>> M, Transducer<B, T
 record BindTransducerSum2<X, A, B, C>(Transducer<A, Sum<X, B>> M, Func<B, Transducer<A, Sum<X, C>>> F) : 
     Transducer<A, Sum<X, C>>
 {
-    public Reducer<A, S> Transform<S>(Reducer<Sum<X, C>, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<Sum<X, C>, S> reduce) =>
         new Reduce<S>(M, F, reduce);
 
     record Reduce<S>(Transducer<A, Sum<X, B>> M, Func<B, Transducer<A, Sum<X, C>>> F, Reducer<Sum<X, C>, S> Reducer) 
@@ -206,9 +188,6 @@ record BindTransducerSum2<X, A, B, C>(Transducer<A, Sum<X, B>> M, Func<B, Transd
                 _ => TResult.Complete(s)
             };
     }
-
-    public Transducer<A, Sum<X, C>> Morphism =>
-        this;
     
     public override string ToString() =>  
         "bind";

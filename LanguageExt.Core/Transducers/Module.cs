@@ -103,30 +103,172 @@ public static partial class Transducer
     /// <returns>`Transducer` from `A` to `B`</returns>
     public static Transducer<A, B> constant<A, B>(B value) =>
         new ConstantTransducer<A, B>(value);
+
+    /// <summary>
+    /// Lift a function into a `Transducer`
+    /// </summary>
+    /// <param name="action0">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<Unit, Unit> lift(Action action0) =>
+        lift<Unit, Unit>(x =>
+        {
+            action0();
+            return unit;
+        });
+
+    /// <summary>
+    /// Lift a function into a `Transducer`
+    /// </summary>
+    /// <param name="action1">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, Unit> lift<A>(Action<A> action1) =>
+        lift<A, Unit>(x =>
+        {
+            action1(x);
+            return unit;
+        });
     
-    public static Transducer<A, B> lift<A, B>(Func<A, TResult<B>> f) =>
-        new LiftTransducer1<A, B>(f);
+    /// <summary>
+    /// Lift a function into a `Transducer`
+    /// </summary>
+    /// <param name="function0">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<Unit, A> lift<A>(Func<A> function0) =>
+        new LiftTransducer4<A>(function0);
     
-    public static Transducer<Unit, A> lift<A>(Func<TResult<A>> f) =>
-        new LiftTransducer2<A>(f);
+    /// <summary>
+    /// Lift a function into a `Transducer`
+    /// </summary>
+    /// <param name="tfunction0">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<Unit, A> lift<A>(Func<TResult<A>> tfunction0) =>
+        new LiftTransducer2<A>(tfunction0);
     
-    public static Transducer<A, B> lift<A, B>(Func<A, B> f) =>
-        new LiftTransducer3<A, B>(f);
+    /// <summary>
+    /// Lift a function into a `Transducer`
+    /// </summary>
+    /// <param name="function1">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, B> lift<A, B>(Func<A, B> function1) =>
+        new LiftTransducer3<A, B>(function1);
+
+    /// <summary>
+    /// Lift a function into a `Transducer`
+    /// </summary>
+    /// <param name="tfunction1">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, B> lift<A, B>(Func<A, TResult<B>> tfunction1) =>
+        new LiftTransducer1<A, B>(tfunction1);
+
+    /// <summary>
+    /// Lift a function into a `Transducer`
+    /// </summary>
+    /// <param name="function2">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, Transducer<B, C>> lift<A, B, C>(
+        Func<A, B, C> function2) =>
+        lift(curry(function2)).Map(lift);
+
+    /// <summary>
+    /// Lift a function into a `Transducer`
+    /// </summary>
+    /// <param name="tfunction2">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, Transducer<B, C>> lift<A, B, C>(
+        Func<A, B, TResult<C>> tfunction2) =>
+        lift(curry(tfunction2)).Map(lift);
+
+    /// <summary>
+    /// Lift a function into a `Transducer`
+    /// </summary>
+    /// <param name="function3">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, Transducer<B, Transducer<C, D>>> lift<A, B, C, D>(
+        Func<A, B, C, D> function3) =>
+        lift(curry(function3)).Map(t => lift(t).Map(lift));
+
+    /// <summary>
+    /// Lift a function into a `Transducer`
+    /// </summary>
+    /// <param name="tfunction3">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, Transducer<B, Transducer<C, D>>> lift<A, B, C, D>(
+        Func<A, B, C, TResult<D>> tfunction3) =>
+        lift(curry(tfunction3)).Map(t => lift(t).Map(lift));
+
+    /// <summary>
+    /// Lift a function into a `Transducer`
+    /// </summary>
+    /// <param name="function4">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, Transducer<B, Transducer<C, Transducer<D, E>>>> lift<A, B, C, D, E>(
+        Func<A, B, C, D, E> function4) =>
+        lift(curry(function4)).Map(t1 => lift(t1).Map(t2 => lift(t2).Map(lift)));
+
+    /// <summary>
+    /// Lift a function into a `Transducer`
+    /// </summary>
+    /// <param name="tfunction4">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, Transducer<B, Transducer<C, Transducer<D, E>>>> lift<A, B, C, D, E>(
+        Func<A, B, C, D, TResult<E>> tfunction4) =>
+        lift(curry(tfunction4)).Map(t1 => lift(t1).Map(t2 => lift(t2).Map(lift)));
+
+    /// <summary>
+    /// Lift a asynchronous IO function into a `Transducer`
+    /// </summary>
+    /// <param name="function0">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<Unit, Unit> liftIO(Func<CancellationToken, Task> action0) =>
+        liftIO(async t =>
+        {
+            await action0(t).ConfigureAwait(false);
+            return unit;
+        });
+
+    /// <summary>
+    /// Lift a asynchronous IO function into a `Transducer`
+    /// </summary>
+    /// <param name="function0">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, Unit> liftIO<A>(Func<CancellationToken, A, Task> action1) =>
+        liftIO<A, Unit>(async (t, v) =>
+        {
+            await action1(t, v).ConfigureAwait(false);
+            return unit;
+        });
     
-    public static Transducer<Unit, A> lift<A>(Func<A> f) =>
-        new LiftTransducer4<A>(f);
+    /// <summary>
+    /// Lift a asynchronous IO function into a `Transducer`
+    /// </summary>
+    /// <param name="function0">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<Unit, A> liftIO<A>(Func<CancellationToken, Task<A>> function0) =>
+        new LiftIOTransducer4<A>(function0);
     
-    public static Transducer<A, B> liftIO<A, B>(Func<CancellationToken, A, Task<B>> f) =>
-        new LiftIOTransducer3<A, B>(f);
+    /// <summary>
+    /// Lift a asynchronous IO function into a `Transducer`
+    /// </summary>
+    /// <param name="tfunction0">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<Unit, A> liftIO<A>(Func<CancellationToken, Task<TResult<A>>> tfunction0) =>
+        new LiftIOTransducer2<A>(tfunction0);
     
-    public static Transducer<A, B> liftIO<A, B>(Func<CancellationToken, A, Task<TResult<B>>> f) =>
-        new LiftIOTransducer1<A, B>(f);
+    /// <summary>
+    /// Lift a asynchronous IO function into a `Transducer`
+    /// </summary>
+    /// <param name="function1">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, B> liftIO<A, B>(Func<CancellationToken, A, Task<B>> function1) =>
+        new LiftIOTransducer3<A, B>(function1);
     
-    public static Transducer<Unit, A> liftIO<A>(Func<CancellationToken, Task<A>> f) =>
-        new LiftIOTransducer4<A>(f);
-    
-    public static Transducer<Unit, A> liftIO<A>(Func<CancellationToken, Task<TResult<A>>> f) =>
-        new LiftIOTransducer2<A>(f);
+    /// <summary>
+    /// Lift a asynchronous IO function into a `Transducer`
+    /// </summary>
+    /// <param name="tfunction1">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, B> liftIO<A, B>(Func<CancellationToken, A, Task<TResult<B>>> tfunction1) =>
+        new LiftIOTransducer1<A, B>(tfunction1);
     
     /// <summary>
     /// Transducer composition.  The output of one transducer is fed as the input to the next.
@@ -137,7 +279,7 @@ public static partial class Transducer
     public static Transducer<A, C> compose<A, B, C>(
         Transducer<A, B> f, 
         Transducer<B, C> g) =>
-        new ComposeTransducer<A, B, C>(f, g);
+        f.Compose(g);
     
     /// <summary>
     /// Transducer composition.  The output of one transducer is fed as the input to the next.
@@ -149,7 +291,8 @@ public static partial class Transducer
         Transducer<A, B> f, 
         Transducer<B, C> g, 
         Transducer<C, D> h) =>
-        new ComposeTransducer<A, B, C, D>(f, g, h);
+        f.Compose(g)
+         .Compose(h);
     
     /// <summary>
     /// Transducer composition.  The output of one transducer is fed as the input to the next.
@@ -162,7 +305,9 @@ public static partial class Transducer
         Transducer<B, C> g, 
         Transducer<C, D> h,
         Transducer<D, E> i) =>
-        new ComposeTransducer<A, B, C, D, E>(f, g, h, i);
+        f.Compose(g)
+         .Compose(h)
+         .Compose(i);
     
     /// <summary>
     /// Transducer composition.  The output of one transducer is fed as the input to the next.
@@ -176,7 +321,10 @@ public static partial class Transducer
         Transducer<C, D> h,
         Transducer<D, E> i,
         Transducer<E, F> j) =>
-        new ComposeTransducer<A, B, C, D, E, F>(f, g, h, i, j);
+        f.Compose(g)
+         .Compose(h)
+         .Compose(i)
+         .Compose(j);
     
     /// <summary>
     /// Transducer composition.  The output of one transducer is fed as the input to the next.
@@ -191,7 +339,80 @@ public static partial class Transducer
         Transducer<D, E> i,
         Transducer<E, F> j,
         Transducer<F, G> k) =>
-        new ComposeTransducer<A, B, C, D, E, F, G>(f, g, h, i, j, k);
+        f.Compose(g)
+         .Compose(h)
+         .Compose(i)
+         .Compose(j)
+         .Compose(k);
+    
+    /// <summary>
+    /// Transducer composition.  The output of one transducer is fed as the input to the next.
+    ///
+    /// Resulting im a single transducer that captures the composition
+    /// </summary>
+    /// <returns>Transducer that captures the composition</returns>
+    public static Transducer<A, H> compose<A, B, C, D, E, F, G, H>(
+        Transducer<A, B> f, 
+        Transducer<B, C> g, 
+        Transducer<C, D> h,
+        Transducer<D, E> i,
+        Transducer<E, F> j,
+        Transducer<F, G> k,
+        Transducer<G, H> l) =>
+        f.Compose(g)
+         .Compose(h)
+         .Compose(i)
+         .Compose(j)
+         .Compose(k)
+         .Compose(l);
+    
+    /// <summary>
+    /// Transducer composition.  The output of one transducer is fed as the input to the next.
+    ///
+    /// Resulting im a single transducer that captures the composition
+    /// </summary>
+    /// <returns>Transducer that captures the composition</returns>
+    public static Transducer<A, I> compose<A, B, C, D, E, F, G, H, I>(
+        Transducer<A, B> f, 
+        Transducer<B, C> g, 
+        Transducer<C, D> h,
+        Transducer<D, E> i,
+        Transducer<E, F> j,
+        Transducer<F, G> k,
+        Transducer<G, H> l,
+        Transducer<H, I> m) =>
+        f.Compose(g)
+         .Compose(h)
+         .Compose(i)
+         .Compose(j)
+         .Compose(k)
+         .Compose(l)
+         .Compose(m);
+    
+    /// <summary>
+    /// Transducer composition.  The output of one transducer is fed as the input to the next.
+    ///
+    /// Resulting im a single transducer that captures the composition
+    /// </summary>
+    /// <returns>Transducer that captures the composition</returns>
+    public static Transducer<A, J> compose<A, B, C, D, E, F, G, H, I, J>(
+        Transducer<A, B> f, 
+        Transducer<B, C> g, 
+        Transducer<C, D> h,
+        Transducer<D, E> i,
+        Transducer<E, F> j,
+        Transducer<F, G> k,
+        Transducer<G, H> l,
+        Transducer<H, I> m,
+        Transducer<I, J> n) =>
+        f.Compose(g)
+         .Compose(h)
+         .Compose(i)
+         .Compose(j)
+         .Compose(k)
+         .Compose(l)
+         .Compose(m)
+         .Compose(n);
 
     /// <summary>
     /// Take nested transducers and flatten them
@@ -273,6 +494,36 @@ public static partial class Transducer
         new ApplyTransducer<E, A, B>(ff, fa);
 
     /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Gets a lifted function and a lifted argument, invokes the function with the argument and re-lifts the result.
+    /// </remarks>
+    /// <returns>Result of applying the function to the argument</returns>
+    public static Transducer<E, B> apply<E, A, B>(
+        Transducer<E, Transducer<A, B>> ff,
+        Transducer<E, A> fa) =>
+        new ApplyTransducer2<E, A, B>(ff, fa);
+
+    /// <summary>
+    /// Partial application
+    /// </summary>
+    /// <param name="f">Transducer to partially apply</param>
+    /// <param name="value">Value to apply</param>
+    /// <returns>Transducer with the first argument filled</returns>
+    public static Transducer<B, C> partial<A, B, C>(Transducer<A, Transducer<B, C>> f, A value) =>
+        new PartialTransducer<A, B, C>(value, f);
+
+    /// <summary>
+    /// Partial application
+    /// </summary>
+    /// <param name="f">Transducer to partially apply</param>
+    /// <param name="value">Value to apply</param>
+    /// <returns>Transducer with the first argument filled</returns>
+    public static Transducer<B, C> partial<A, B, C>(Transducer<A, Func<B, C>> f, A value) =>
+        new PartialFTransducer<A, B, C>(value, f);
+
+    /// <summary>
     /// Monadic bind
     /// </summary>
     public static Transducer<E, B> bind<E, A, B>(
@@ -330,6 +581,50 @@ public static partial class Transducer
     /// <summary>
     /// Functor bi-map
     /// </summary>
+    /// <param name="Left">Left mapping transducer</param>
+    /// <param name="Right">Right mapping transducer</param>
+    /// <returns>Composition of first, left, and right transducers</returns>
+    public static Transducer<Sum<X, A>, Sum<Y, B>> bimap<X, Y, A, B>(
+        Transducer<X, Y> Left,
+        Transducer<A, B> Right) =>
+        new BiMapSum<X, Y, A, B>(Left, Right);
+
+    /// <summary>
+    /// Functor bi-map
+    /// </summary>
+    /// <param name="Left">Left mapping transducer</param>
+    /// <param name="Right">Right mapping transducer</param>
+    /// <returns>Composition of first, left, and right transducers</returns>
+    public static Transducer<(X, A), (Y, B)> bimapPair<X, Y, A, B>(
+        Transducer<X, Y> Left,
+        Transducer<A, B> Right) =>
+        new BiMapProduct<X, Y, A, B>(Left, Right);
+
+    /// <summary>
+    /// Functor bi-map
+    /// </summary>
+    /// <param name="Left">Left mapping transducer</param>
+    /// <param name="Right">Right mapping transducer</param>
+    /// <returns>Composition of first, left, and right transducers</returns>
+    public static Transducer<Sum<X, A>, Sum<Y, B>> bimap<X, Y, A, B>(
+        Func<X, Y> Left,
+        Func<A, B> Right) =>
+        new BiMapSum<X, Y, A, B>(lift(Left), lift(Right));
+
+    /// <summary>
+    /// Functor bi-map
+    /// </summary>
+    /// <param name="Left">Left mapping transducer</param>
+    /// <param name="Right">Right mapping transducer</param>
+    /// <returns>Composition of first, left, and right transducers</returns>
+    public static Transducer<(X, A), (Y, B)> bimapPair<X, Y, A, B>(
+        Func<X, Y> Left,
+        Func<A, B> Right) =>
+        new BiMapProduct<X, Y, A, B>(lift(Left), lift(Right));
+
+    /// <summary>
+    /// Functor bi-map
+    /// </summary>
     /// <param name="First">First transducer to run</param>
     /// <param name="Left">Left mapping transducer</param>
     /// <param name="Right">Right mapping transducer</param>
@@ -338,7 +633,7 @@ public static partial class Transducer
         Transducer<E, Sum<X, A>> First,
         Transducer<X, Y> Left,
         Transducer<A, B> Right) =>
-        new BiMap<E, X, Y, A, B>(First, Left, Right);
+        compose(First, bimap(Left, Right));
 
     /// <summary>
     /// Functor bi-map
@@ -351,7 +646,7 @@ public static partial class Transducer
         Transducer<E, Sum<X, A>> First,
         Func<X, Y> Left,
         Func<A, B> Right) =>
-        new BiMap3<E, X, Y, A, B>(First, Left, Right);
+        compose(First, bimap(Left, Right));
 
     /// <summary>
     /// Functor bi-map
@@ -364,7 +659,7 @@ public static partial class Transducer
         Transducer<Sum<X, A>, Sum<Y, B>> First,
         Transducer<Y, Z> Left,
         Transducer<B, C> Right) =>
-        new BiMap2<X, Y, Z, A, B, C>(First, Left, Right);
+        compose(First, bimap(Left, Right));
 
     /// <summary>
     /// Functor bi-map
@@ -377,8 +672,28 @@ public static partial class Transducer
         Transducer<Sum<X, A>, Sum<Y, B>> First,
         Func<Y, Z> Left,
         Func<B, C> Right) =>
-        new BiMap4<X, Y, Z, A, B, C>(First, Left, Right);
+        compose(First, bimap(Left, Right));
 
+    /// <summary>
+    /// Functor bi-map map left
+    /// </summary>
+    /// <param name="First">First transducer to run</param>
+    /// <param name="Left">Left mapping transducer</param>
+    /// <returns>Composition of first and left transducers</returns>
+    public static Transducer<Sum<X, A>, Sum<Y, A>> mapLeft<X, Y, A>(
+        Transducer<X, Y> Left) =>
+        bimap(Left, identity<A>());
+
+    /// <summary>
+    /// Functor bi-map map left
+    /// </summary>
+    /// <param name="First">First transducer to run</param>
+    /// <param name="Left">Left mapping transducer</param>
+    /// <returns>Composition of first and left transducers</returns>
+    public static Transducer<Sum<X, A>, Sum<Y, A>> mapLeft<X, Y, A>(
+        Func<X, Y> Left) =>
+        bimap(lift(Left), identity<A>());
+    
     /// <summary>
     /// Functor bi-map map left
     /// </summary>
@@ -388,7 +703,7 @@ public static partial class Transducer
     public static Transducer<E, Sum<Y, A>> mapLeft<E, X, Y, A>(
         Transducer<E, Sum<X, A>> First,
         Transducer<X, Y> Left) =>
-        new MapLeft<E, X, Y, A>(First, Left);
+        compose(First, mapLeft<X, Y, A>(Left));
 
     /// <summary>
     /// Functor bi-map map left
@@ -399,7 +714,7 @@ public static partial class Transducer
     public static Transducer<E, Sum<Y, A>> mapLeft<E, X, Y, A>(
         Transducer<E, Sum<X, A>> First,
         Func<X, Y> Left) =>
-        new MapLeft2<E, X, Y, A>(First, Left);
+        compose(First, mapLeft<X, Y, A>(Left));
 
     /// <summary>
     /// Functor bi-map map left
@@ -410,7 +725,7 @@ public static partial class Transducer
     public static Transducer<Sum<X, A>, Sum<Z, B>> mapLeft<X, Y, Z, A, B>(
         Transducer<Sum<X, A>, Sum<Y, B>> First,
         Transducer<Y, Z> Left) =>
-        new MapLeft2<X, Y, Z, A, B>(First, Left);
+        compose(First, mapLeft<Y, Z, B>(Left));
 
     /// <summary>
     /// Functor bi-map map left
@@ -421,7 +736,27 @@ public static partial class Transducer
     public static Transducer<Sum<X, A>, Sum<Z, B>> mapLeft<X, Y, Z, A, B>(
         Transducer<Sum<X, A>, Sum<Y, B>> First,
         Func<Y, Z> Left) =>
-        new MapLeft3<X, Y, Z, A, B>(First, Left);
+        compose(First, mapLeft<Y, Z, B>(Left));
+
+    /// <summary>
+    /// Functor bi-map map right
+    /// </summary>
+    /// <param name="First">First transducer to run</param>
+    /// <param name="Right">Right mapping transducer</param>
+    /// <returns>Composition of first and right transducers</returns>
+    public static Transducer<Sum<X, A>, Sum<X, B>> mapRight<X, A, B>(
+        Transducer<A, B> Right) =>
+        bimap(identity<X>(), Right);
+
+    /// <summary>
+    /// Functor bi-map map right
+    /// </summary>
+    /// <param name="First">First transducer to run</param>
+    /// <param name="Right">Right mapping transducer</param>
+    /// <returns>Composition of first and right transducers</returns>
+    public static Transducer<Sum<X, A>, Sum<X, B>> mapRight<X, A, B>(
+        Func<A, B> Right) =>
+        bimap(identity<X>(), lift(Right));
 
     /// <summary>
     /// Functor bi-map map right
@@ -432,7 +767,7 @@ public static partial class Transducer
     public static Transducer<E, Sum<X, B>> mapRight<E, X, A, B>(
         Transducer<E, Sum<X, A>> First,
         Transducer<A, B> Right) =>
-        new MapRight<E, X, A, B>(First, Right);
+        compose(First, mapRight<X, A, B>(Right));
 
     /// <summary>
     /// Functor bi-map map right
@@ -443,7 +778,7 @@ public static partial class Transducer
     public static Transducer<E, Sum<X, B>> mapRight<E, X, A, B>(
         Transducer<E, Sum<X, A>> First,
         Func<A, B> Right) =>
-        new MapRight3<E, X, A, B>(First, Right);
+        compose(First, mapRight<X, A, B>(Right));
 
     /// <summary>
     /// Functor bi-map map right
@@ -454,7 +789,7 @@ public static partial class Transducer
     public static Transducer<Sum<X, A>, Sum<Y, C>> mapRight<X, Y, A, B, C>(
         Transducer<Sum<X, A>, Sum<Y, B>> First,
         Transducer<B, C> Right) =>
-        new MapRight2<X, Y, A, B, C>(First, Right);
+        compose(First, mapRight<Y, B, C>(Right));
 
     /// <summary>
     /// Functor bi-map map right
@@ -465,20 +800,26 @@ public static partial class Transducer
     public static Transducer<Sum<X, A>, Sum<Y, C>> mapRight<X, Y, A, B, C>(
         Transducer<Sum<X, A>, Sum<Y, B>> First,
         Func<B, C> Right) =>
-        new MapRight1<X, Y, A, B, C>(First, Right);
+        compose(First, mapRight<Y, B, C>(Right));
+
+    /// <summary>
+    /// Make a Sum Right from a value
+    /// </summary>
+    public static Transducer<A, (A, A)> mkPair<A>() =>
+        lift((A a) => (a, a));
 
     /// <summary>
     /// Make a Sum Right from a value
     /// </summary>
     public static Transducer<A, Sum<X, A>> mkRight<X, A>() =>
-        lift<A, Sum<X, A>>(a => Sum<X, A>.Right(a));
+        lift((A a) => Sum<X, A>.Right(a));
 
     /// <summary>
     /// Make a Sum Left from a value
     /// </summary>
     public static Transducer<X, Sum<X, A>> mkLeft<X, A>() =>
-        lift<X, Sum<X, A>>(x => Sum<X, A>.Left(x));
-    
+        lift((X x) => Sum<X, A>.Left(x));
+
     /// <summary>
     /// Filter the values in the transducer
     /// </summary>
@@ -540,6 +881,210 @@ public static partial class Transducer
     /// <param name="folder">Fold function</param>
     /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
     /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="A">Input value to the fold operation</typeparam>
+    /// <returns>Transducer that folds the stream of values</returns>
+    public static Transducer<A, S> foldWhile<S, A>(
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<(S State, A Value), bool> predicate) =>
+        fold(schedule,
+             initialState,
+             folder,
+             s => predicate(s) ? TResult.Continue(unit) : TResult.Complete(unit));
+
+    /// <summary>
+    /// Fold 
+    /// </summary>
+    /// <param name="schedule">Series of time-spans that dictate the rate of the fold and for how many iterations</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="A">Input value to the fold operation</typeparam>
+    /// <returns>Transducer that folds the stream of values</returns>
+    public static Transducer<A, S> foldWhile<S, A>(
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<A, bool> valueIs) =>
+        foldWhile(schedule, initialState, folder, s => valueIs(s.Value));
+
+    /// <summary>
+    /// Fold 
+    /// </summary>
+    /// <param name="schedule">Series of time-spans that dictate the rate of the fold and for how many iterations</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="A">Input value to the fold operation</typeparam>
+    /// <returns>Transducer that folds the stream of values</returns>
+    public static Transducer<A, S> foldWhile<S, A>(
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<S, bool> stateIs) =>
+        foldWhile(schedule, initialState, folder, s => stateIs(s.State));
+
+    /// <summary>
+    /// Fold 
+    /// </summary>
+    /// <param name="schedule">Series of time-spans that dictate the rate of the fold and for how many iterations</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="A">Input value to the fold operation</typeparam>
+    /// <returns>Transducer that folds the stream of values</returns>
+    public static Transducer<A, S> foldWhile<S, A>(
+        S initialState,
+        Func<S, A, S> folder,
+        Func<(S State, A Value), bool> predicate) =>
+        fold(Schedule.Forever,
+             initialState,
+             folder,
+             s => predicate(s) ? TResult.Continue(unit) : TResult.Complete(unit));
+
+    /// <summary>
+    /// Fold 
+    /// </summary>
+    /// <param name="schedule">Series of time-spans that dictate the rate of the fold and for how many iterations</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="A">Input value to the fold operation</typeparam>
+    /// <returns>Transducer that folds the stream of values</returns>
+    public static Transducer<A, S> foldWhile<S, A>(
+        S initialState,
+        Func<S, A, S> folder,
+        Func<A, bool> valueIs) =>
+        foldWhile(Schedule.Forever, initialState, folder, s => valueIs(s.Value));
+
+    /// <summary>
+    /// Fold 
+    /// </summary>
+    /// <param name="schedule">Series of time-spans that dictate the rate of the fold and for how many iterations</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="A">Input value to the fold operation</typeparam>
+    /// <returns>Transducer that folds the stream of values</returns>
+    public static Transducer<A, S> foldWhile<S, A>(
+        S initialState,
+        Func<S, A, S> folder,
+        Func<S, bool> stateIs) =>
+        foldWhile(Schedule.Forever, initialState, folder, s => stateIs(s.State));    
+
+    /// <summary>
+    /// Fold 
+    /// </summary>
+    /// <param name="schedule">Series of time-spans that dictate the rate of the fold and for how many iterations</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="A">Input value to the fold operation</typeparam>
+    /// <returns>Transducer that folds the stream of values</returns>
+    public static Transducer<A, S> foldUntil<S, A>(
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<(S State, A Value), bool> predicate) =>
+        foldWhile(schedule, initialState, folder, not(predicate));
+
+    /// <summary>
+    /// Fold 
+    /// </summary>
+    /// <param name="schedule">Series of time-spans that dictate the rate of the fold and for how many iterations</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="A">Input value to the fold operation</typeparam>
+    /// <returns>Transducer that folds the stream of values</returns>
+    public static Transducer<A, S> foldUntil<S, A>(
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<A, bool> valueIs) =>
+        foldWhile(schedule, initialState, folder, not(valueIs));
+
+    /// <summary>
+    /// Fold 
+    /// </summary>
+    /// <param name="schedule">Series of time-spans that dictate the rate of the fold and for how many iterations</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="A">Input value to the fold operation</typeparam>
+    /// <returns>Transducer that folds the stream of values</returns>
+    public static Transducer<A, S> foldUntil<S, A>(
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<S, bool> stateIs) =>
+        foldWhile(schedule, initialState, folder, not(stateIs));
+
+    /// <summary>
+    /// Fold 
+    /// </summary>
+    /// <param name="schedule">Series of time-spans that dictate the rate of the fold and for how many iterations</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="A">Input value to the fold operation</typeparam>
+    /// <returns>Transducer that folds the stream of values</returns>
+    public static Transducer<A, S> foldUntil<S, A>(
+        S initialState,
+        Func<S, A, S> folder,
+        Func<(S State, A Value), bool> predicate) =>
+        foldWhile(Schedule.Forever, initialState, folder, not(predicate));
+
+    /// <summary>
+    /// Fold 
+    /// </summary>
+    /// <param name="schedule">Series of time-spans that dictate the rate of the fold and for how many iterations</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="A">Input value to the fold operation</typeparam>
+    /// <returns>Transducer that folds the stream of values</returns>
+    public static Transducer<A, S> foldUntil<S, A>(
+        S initialState,
+        Func<S, A, S> folder,
+        Func<A, bool> valueIs) =>
+        foldWhile(Schedule.Forever, initialState, folder, not(valueIs));
+
+    /// <summary>
+    /// Fold 
+    /// </summary>
+    /// <param name="schedule">Series of time-spans that dictate the rate of the fold and for how many iterations</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="A">Input value to the fold operation</typeparam>
+    /// <returns>Transducer that folds the stream of values</returns>
+    public static Transducer<A, S> foldUntil<S, A>(
+        S initialState,
+        Func<S, A, S> folder,
+        Func<S, bool> stateIs) =>
+        foldWhile(Schedule.Forever, initialState, folder, not(stateIs));    
+
+    /// <summary>
+    /// Fold 
+    /// </summary>
+    /// <param name="schedule">Series of time-spans that dictate the rate of the fold and for how many iterations</param>
+    /// <param name="initialState">Initial state for the fold</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="predicate">Predicate that decides if the state should be pushed down the stream</param>
+    /// <typeparam name="S">State type</typeparam>
     /// <typeparam name="X">Alternative type for the transducer result (often the error type)</typeparam>
     /// <typeparam name="A">Input value to the fold operation</typeparam>
     /// <returns>Transducer that folds the stream of values</returns>
@@ -548,7 +1093,7 @@ public static partial class Transducer
         S initialState,
         Func<S, A, S> folder,
         Func<(S State, A Value), TResult<Unit>> predicate) =>
-        new FoldSumTransducer<S, X, A>(schedule, initialState, folder, predicate);
+        mapRight<X, A, S>(fold(schedule, initialState, folder, predicate));
 
     /// <summary>
     /// Choice transducer

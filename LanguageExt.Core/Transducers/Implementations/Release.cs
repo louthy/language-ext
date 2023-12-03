@@ -7,10 +7,7 @@ record ReleaseTransducer<A> : Transducer<A, Unit>
 {
     public static Transducer<A, Unit> Default = new ReleaseTransducer<A>();
 
-    public Transducer<A, Unit> Morphism =>
-        this;
-    
-    public Reducer<A, S> Transform<S>(Reducer<Unit, S> reduce) =>
+    public override Reducer<A, S> Transform<S>(Reducer<Unit, S> reduce) =>
         new Reduce1<S>(reduce);
 
     record Reduce1<S>(Reducer<Unit, S> Reduce) : Reducer<A, S>

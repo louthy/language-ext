@@ -2,21 +2,12 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.Contracts;
-using static LanguageExt.Prelude;
+using LanguageExt.Transducers;
 
 namespace LanguageExt;
 
-public static class ManyExtensions
+public static partial class Prelude
 {
-    /// <summary>
-    /// Monadic join
-    /// </summary>
-    /// <param name="mma">Nested `Pure` monad</param>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <returns>Flattened monad</returns>
-    public static Many<A> Flatten<A>(this Many<Many<A>> mma) =>
-        mma.Bind(identity);
-    
     /// <summary>
     /// Lifts a lazy sequence into the `Many` monad
     /// </summary>
@@ -24,8 +15,8 @@ public static class ManyExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>`Many` monad that processes multiple items</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Many<A> Many<A>(this IEnumerable<A> items) =>
-        LanguageExt.Many<A>.From(items);
+    public static Transducer<Unit, A> many<A>(IEnumerable<A> items) =>
+        Transducer.compose(Transducer.constant<Unit, IEnumerable<A>>(items), Transducer.enumerable<A>());
 
     /// <summary>
     /// Lifts a lazy sequence into the `Many` monad
@@ -34,8 +25,8 @@ public static class ManyExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>`Many` monad that processes multiple items</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Many<A> Many<A>(this Seq<A> items) =>
-        LanguageExt.Many<A>.From(items);
+    public static Transducer<Unit, A> many<A>(Seq<A> items) =>
+        Transducer.compose(Transducer.constant<Unit, Seq<A>>(items), Transducer.seq<A>());
 
     /// <summary>
     /// Lifts an asynchronous lazy sequence into the `Many` monad
@@ -44,6 +35,6 @@ public static class ManyExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <returns>`Many` monad that processes multiple items</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Many<A> Many<A>(this IAsyncEnumerable<A> items) =>
-        LanguageExt.Many<A>.From(items);
+    public static Transducer<Unit, A> many<A>(IAsyncEnumerable<A> items) =>
+        Transducer.compose(Transducer.constant<Unit, IAsyncEnumerable<A>>(items), Transducer.asyncEnumerable<A>());
 }

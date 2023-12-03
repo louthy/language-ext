@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿/*
+#nullable enable
 using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
@@ -78,3 +79,4 @@ public readonly struct Release<A>
     public Eff<C> SelectMany<B, C>(Func<Unit, Eff<B>> bind, Func<Unit, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 }
+*/
