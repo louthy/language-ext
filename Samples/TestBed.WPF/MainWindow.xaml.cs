@@ -16,7 +16,7 @@ namespace TestBed.WPF
         /// <summary>
         /// Mutable counter
         /// </summary>
-        readonly AtomIO<MinimalRT, Error, int> count = new (0);
+        readonly AtomIO<MinRT, Error, int> count = new (0);
         
         /// <summary>
         /// Construct the window and register the events
@@ -30,7 +30,7 @@ namespace TestBed.WPF
         /// <summary>
         /// Register the window events
         /// </summary>
-        IO<MinimalRT, Error, Unit> startup =>
+        IO<MinRT, Error, Unit> startup =>
             from _1 in fork(tickIO)
             from _2 in fork(onMouseMove.Bind(showMousePos))
             select unit;
@@ -38,7 +38,7 @@ namespace TestBed.WPF
         /// <summary>
         /// Infinite loop that ticks every second
         /// </summary>
-        IO<MinimalRT, Error, Unit> tickIO =>
+        IO<MinRT, Error, Unit> tickIO =>
             from _1 in modifyCount(x => x + 1)
             from _2 in post(setContent(CounterButton, $"{count}"))
             from _3 in waitFor(1)
@@ -48,7 +48,7 @@ namespace TestBed.WPF
         /// <summary>
         /// Update the mouse-pos on the view
         /// </summary>
-        IO<MinimalRT, Error, Unit> showMousePos(MouseEventArgs e) =>
+        IO<MinRT, Error, Unit> showMousePos(MouseEventArgs e) =>
             post(from p in getPosition(e)
                  from x in setContent(CursorTextBoxX, $"X: {p.X:F0}")
                  from y in setContent(CursorTextBoxY, $"Y: {p.Y:F0}")
@@ -63,7 +63,7 @@ namespace TestBed.WPF
         /// <summary>
         /// Button handler in the IO monad
         /// </summary>
-        IO<MinimalRT, Error, Unit> buttonOnClickIO =>
+        IO<MinRT, Error, Unit> buttonOnClickIO =>
             from _1 in resetCount
             from _2 in post(setContent(CounterButton, $"{count}"))
             select unit;
@@ -71,19 +71,19 @@ namespace TestBed.WPF
         /// <summary>
         /// Set the count value
         /// </summary>
-        IO<MinimalRT, Error, Unit> setCount(int value) =>
+        IO<MinRT, Error, Unit> setCount(int value) =>
             modifyCount(_ => value);
 
         /// <summary>
         /// Reset the count value
         /// </summary>
-        IO<MinimalRT, Error, Unit> resetCount =>
+        IO<MinRT, Error, Unit> resetCount =>
             modifyCount(_ => 0);
 
         /// <summary>
         /// Set the count value
         /// </summary>
-        IO<MinimalRT, Error, Unit> modifyCount(Func<int, int> f) =>
+        IO<MinRT, Error, Unit> modifyCount(Func<int, int> f) =>
             count.Swap(f);
     }
 }

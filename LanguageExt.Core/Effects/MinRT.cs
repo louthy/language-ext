@@ -8,30 +8,30 @@ namespace LanguageExt.Effects;
 /// <summary>
 /// Minimal runtime for running the non-runtime based IO monads
 /// </summary>
-public readonly struct MinimalRT : 
-    HasIO<MinimalRT, Error>
+public readonly struct MinRT : 
+    HasIO<MinRT, Error>
 {
-    public MinimalRT(
+    public MinRT(
         SynchronizationContext syncContext,
         CancellationTokenSource cancellationTokenSource,
         CancellationToken cancellationToken) =>
         (SynchronizationContext, CancellationTokenSource, CancellationToken) = 
             (syncContext, cancellationTokenSource, cancellationToken);
 
-    public MinimalRT(
+    public MinRT(
         SynchronizationContext syncContext,
         CancellationTokenSource cancellationTokenSource) =>
         (SynchronizationContext, CancellationTokenSource, CancellationToken) = 
             (syncContext, cancellationTokenSource, cancellationTokenSource.Token);
 
-    public MinimalRT()
+    public MinRT()
     {
         CancellationTokenSource = new CancellationTokenSource();
         CancellationToken = CancellationTokenSource.Token;
         SynchronizationContext = SynchronizationContext.Current;
     }
 
-    public MinimalRT LocalCancel =>
+    public MinRT LocalCancel =>
         new (SynchronizationContext, CancellationTokenSource);
     
     public SynchronizationContext SynchronizationContext { get; }
@@ -41,7 +41,7 @@ public readonly struct MinimalRT :
     public Error FromError(Error error) => 
         error;
 
-    public MinimalRT WithSyncContext(SynchronizationContext syncContext) =>
+    public MinRT WithSyncContext(SynchronizationContext syncContext) =>
         new (syncContext, CancellationTokenSource);
 
 

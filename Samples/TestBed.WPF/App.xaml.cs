@@ -14,6 +14,6 @@ namespace TestBed.WPF
     /// </summary>
     public partial class App : Application
     {
-        public static readonly MinimalRT Runtime = new ();
+        public static readonly MinRT Runtime = new ();
     }
 }

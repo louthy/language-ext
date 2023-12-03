@@ -3,9 +3,9 @@ using LanguageExt.Effects;
 
 namespace TestBed.WPF;
 
-public class WindowRT : WindowIO<MinimalRT, Error>
+public class WindowRT : WindowIO<MinRT, Error>
 {
-    public WindowRT(MinimalRT runtime) : base(runtime)
+    public WindowRT(MinRT runtime) : base(runtime)
     {
     }
 }
