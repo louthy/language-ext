@@ -4,7 +4,7 @@ using System.Threading;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record RetryTransducer<A, B>(Transducer<A, B> F, Schedule Schedule, Func<Error, bool> Predicate) : Transducer<A, B>
 {

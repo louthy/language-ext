@@ -1,3 +1,4 @@
+/*
 #nullable enable
 
 using System;
@@ -217,3 +218,4 @@ public static partial class Prelude
         Func<A, bool> valueIs) =>
         Transducer.foldUntil(initialState, folder, valueIs);
 }
+*/

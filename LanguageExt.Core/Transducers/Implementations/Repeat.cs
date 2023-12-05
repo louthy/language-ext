@@ -4,7 +4,7 @@ using System.Threading;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record RepeatTransducer<A, B>(Transducer<A, B> F, Schedule Schedule, Func<B, bool> Predicate) : Transducer<A, B>
 {

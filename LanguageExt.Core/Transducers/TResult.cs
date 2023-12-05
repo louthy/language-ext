@@ -2,7 +2,7 @@
 using System;
 using LanguageExt.Common;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 public static class TResult
 {

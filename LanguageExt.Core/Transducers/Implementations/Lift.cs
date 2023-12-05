@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record LiftTransducer1<A, B>(Func<A, TResult<B>> F) : Transducer<A, B>
 {

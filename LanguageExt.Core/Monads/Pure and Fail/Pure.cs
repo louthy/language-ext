@@ -3,7 +3,6 @@ using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.HKT;
-using LanguageExt.Transducers;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt;
@@ -197,13 +196,16 @@ public readonly record struct Pure<A>(A Value) : KArr<Any, Unit, A>
     //
 
     public Transducer<Unit, A> Morphism { get; } =
-        Transducer.Pure(Value);
+        Transducer.pure(Value);
     
     public Reducer<Unit, S> Transform<S>(Reducer<A, S> reduce) => 
         Morphism.Transform(reduce);
             
     public override string ToString() =>
         $"Pure({Value})";
+
+    public static implicit operator Transducer<Unit, A>(Pure<A> ma) =>
+        Transducer.pure(ma.Value);
 }
 
 public static class PureExtensions

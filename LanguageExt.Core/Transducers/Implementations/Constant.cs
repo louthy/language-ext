@@ -1,5 +1,5 @@
 ﻿#nullable enable
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record ConstantTransducer<A, B>(B Value) : Transducer<A, B>
 {

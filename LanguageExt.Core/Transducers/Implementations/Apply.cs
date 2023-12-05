@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 /// <summary>
 /// Applicative apply transducer

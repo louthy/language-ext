@@ -14,8 +14,6 @@ using System.Collections;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
 using LanguageExt.HKT;
-using LanguageExt.Transducers;
-using Any = LanguageExt.ClassInstances.Any;
 
 namespace LanguageExt
 {
@@ -50,7 +48,7 @@ namespace LanguageExt
         IEquatable<EitherRight<R>>,
         IEquatable<R>, 
         ISerializable,
-        KArr<Any, Unit, Sum<L, R>>
+        KArr<HKT.Any, Unit, Sum<L, R>>
     {
         public static readonly Either<L, R> Bottom = new Either<L, R>();
 
@@ -497,7 +495,7 @@ namespace LanguageExt
                     ? Transducer.lift<Unit, Sum<L, R>>(_ => Sum<L, R>.Right(self.RightValue))
                     : IsLeft
                         ? Transducer.lift<Unit, Sum<L, R>>(_ => Sum<L, R>.Left(self.LeftValue))
-                        : Transducer.Fail<Unit, Sum<L, R>>(Errors.Bottom);
+                        : Transducer.fail<Unit, Sum<L, R>>(Errors.Bottom);
             }
         }
 

@@ -1,5 +1,5 @@
 ﻿#nullable enable
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record ComposeTransducer<TA, TB, TC>(
     Transducer<TA, TB> F, 

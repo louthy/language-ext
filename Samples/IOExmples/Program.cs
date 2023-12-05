@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using LanguageExt;
 using LanguageExt.Common;
 using LanguageExt.Effects;
-using LanguageExt.Transducers;
 using static LanguageExt.Prelude;
+using static LanguageExt.Transducer;
 
 namespace IOExamples;
 
@@ -49,15 +49,14 @@ class Program
         from s in n | folder
         from r in writeLine($"Total {s}")
         select unit;
-
+    
     static IO<MinRT, Error, Unit> retrying =>
         from ix in many(Range(1, 10))
-        from _1 in retry(
-            from _2 in writeLine($"Enter a number to add to {ix}")
-            from nm in readLine.Map(parseInt)
-            from _3 in guard(nm.IsSome, Error.New("Please enter a valid integer"))
-            from _4 in writeLine($"Number {ix} + {(int)nm} = {ix + (int)nm}")
-            select unit)
+        from _1 in retry(from _2 in writeLine($"Enter a number to add to {ix}")
+                         from nm in readLine.Map(parseInt)
+                         from _3 in guard(nm.IsSome, Error.New("Please enter a valid integer"))
+                         from _4 in writeLine($"Number {ix} + {(int)nm} = {ix + (int)nm}")
+                         select unit)
         from _4 in waitOneSecond
         select unit;
 
@@ -92,6 +91,6 @@ class Program
             return unit;
         });
     
-    static IO<MinRT, Error, DateTime> now =>
+    static Transducer<Unit, DateTime> now =>
         lift(() => DateTime.Now);
 }

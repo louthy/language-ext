@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics;
 using LanguageExt.Common;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record BindTransducer1<A, B, C>(Transducer<A, B> M, Transducer<B, Transducer<A, C>> F) : 
     Transducer<A, C>

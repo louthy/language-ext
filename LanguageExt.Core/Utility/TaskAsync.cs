@@ -3,7 +3,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
-using LanguageExt.Transducers;
 
 namespace LanguageExt;
 

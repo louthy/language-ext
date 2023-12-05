@@ -3,7 +3,6 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LanguageExt.Effects.Traits;
-using LanguageExt.Transducers;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt;

@@ -1,6 +1,6 @@
 ﻿#nullable enable
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record ChoiceTransducer<E, X, B>(Seq<Transducer<E, Sum<X, B>>> Transducers) : Transducer<E, Sum<X, B>>
 {

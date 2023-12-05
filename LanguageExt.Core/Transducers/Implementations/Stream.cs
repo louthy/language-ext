@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record StreamEnumerableTransducer<A> : Transducer<IEnumerable<A>, A>
 {

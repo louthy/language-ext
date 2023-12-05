@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using LanguageExt.HKT;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 /// <summary>
 /// Transducers are composable algorithmic transformations. They are independent from the context of their input and

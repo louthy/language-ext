@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using System;
-using LanguageExt.Transducers;
 
 namespace LanguageExt.HKT;
 

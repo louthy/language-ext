@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using LanguageExt.Common;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record FailTransducer<A, B>(Error Error) : Transducer<A, B>
 {

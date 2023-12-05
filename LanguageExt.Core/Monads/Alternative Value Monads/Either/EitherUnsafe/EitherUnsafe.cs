@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using static LanguageExt.ChoiceUnsafe;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
-using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using System.Runtime.Serialization;
 using LanguageExt.DataTypes.Serialisation;
 using System.Collections;
 using LanguageExt.Common;
-using LanguageExt.Transducers;
 
 namespace LanguageExt
 {

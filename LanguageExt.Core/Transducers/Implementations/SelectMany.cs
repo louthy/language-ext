@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 
 record SelectManyTransducer1<E, A, B, C>(

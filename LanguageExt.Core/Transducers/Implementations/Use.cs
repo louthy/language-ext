@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record UseTransducer1<A, B>(Transducer<A, B> F, Func<B, Unit> CleanUp) : Transducer<A, B>
 {

@@ -3,7 +3,7 @@ using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record TryTransducer<A, B>(
         Transducer<A, B> F, 

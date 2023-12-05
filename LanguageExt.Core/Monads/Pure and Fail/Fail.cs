@@ -3,7 +3,6 @@ using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.HKT;
-using LanguageExt.Transducers;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt;
@@ -52,7 +51,7 @@ public readonly record struct Fail<E>(E Value) : KArr<Any, Unit, E>
     //
 
     public Transducer<Unit, E> Morphism { get; } =
-        Transducer.Pure(Value);
+        Transducer.pure(Value);
 
     public Reducer<Unit, S> Transform<S>(Reducer<E, S> reduce) =>
         Morphism.Transform(reduce);

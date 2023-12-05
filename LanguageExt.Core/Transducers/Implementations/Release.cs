@@ -1,7 +1,6 @@
 ﻿#nullable enable
-using System;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record ReleaseTransducer<A> : Transducer<A, Unit>
 {

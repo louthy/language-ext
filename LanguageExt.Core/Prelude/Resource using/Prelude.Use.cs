@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
-using LanguageExt.Effects;
-using LanguageExt.Pipes;
-using LanguageExt.Transducers;
 
 namespace LanguageExt
 {

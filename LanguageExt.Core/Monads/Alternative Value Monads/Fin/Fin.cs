@@ -3,12 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
-using LanguageExt.DataTypes.Serialisation;
-using LanguageExt.Transducers;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt

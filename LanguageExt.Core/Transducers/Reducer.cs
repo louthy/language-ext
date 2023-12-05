@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 /// <summary>
 /// Reducer is an encapsulation of a fold operation.  It also takes a `TState` which can be

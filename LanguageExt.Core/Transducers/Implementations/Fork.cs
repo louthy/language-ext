@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record ForkTransducer1<A, B>(Transducer<A, B> F, Option<TimeSpan> Timeout) : Transducer<A, TFork<B>>
 {

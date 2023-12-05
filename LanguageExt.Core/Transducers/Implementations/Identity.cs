@@ -1,5 +1,5 @@
 ﻿#nullable enable
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 /// <summary>
 /// Identity transducer, simply passes the value through 

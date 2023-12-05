@@ -12,7 +12,6 @@ using System.Runtime.Serialization;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
-using LanguageExt.Transducers;
 
 namespace LanguageExt
 {

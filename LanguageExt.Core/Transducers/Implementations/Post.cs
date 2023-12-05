@@ -2,7 +2,7 @@
 using System;
 using System.Threading;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record PostTransducer<A, B>(Transducer<A, B> F) : Transducer<A, B>
 {

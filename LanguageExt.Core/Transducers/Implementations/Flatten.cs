@@ -1,6 +1,6 @@
 ﻿#nullable enable
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record FlattenTransducer1<A, B>(Transducer<A, Transducer<A, B>> FF) : Transducer<A, B>
 {

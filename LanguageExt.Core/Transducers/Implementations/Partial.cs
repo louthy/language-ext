@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record PartialTransducer<A, B, C>(A Value, Transducer<A, Transducer<B, C>> F) : Transducer<B, C>
 {

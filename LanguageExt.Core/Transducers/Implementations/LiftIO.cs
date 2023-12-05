@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record LiftIOTransducer1<A, B>(Func<CancellationToken, A, Task<TResult<B>>> F) : Transducer<A, B>
 {

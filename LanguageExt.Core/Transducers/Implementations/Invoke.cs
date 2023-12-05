@@ -1,5 +1,5 @@
 ﻿#nullable enable
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record Invoke1Reducer<A> : Reducer<A, A?>
 {

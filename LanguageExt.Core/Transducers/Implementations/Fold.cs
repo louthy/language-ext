@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record FoldTransducer<ST, A>(
         Schedule Schedule, 

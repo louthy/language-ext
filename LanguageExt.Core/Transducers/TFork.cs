@@ -1,7 +1,7 @@
 #nullable enable
 using LanguageExt.Effects.Traits;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 /// <summary>
 /// Result of forking a transducer

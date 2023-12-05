@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using LanguageExt.Effects.Traits;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -42,6 +43,11 @@ namespace LanguageExt
         //
         //  Natural transformations for the types supporting guards
         // 
+
+        public Transducer<Unit, Sum<E, Unit>> ToTransducer() =>
+            Transducer.compose(
+                Transducer.constant<Unit, Guard<E, A>>(this),
+                Transducer.guard<E, A>());
         
         /// <summary>
         /// Natural transformation to `Either`

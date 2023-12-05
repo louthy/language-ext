@@ -1,5 +1,5 @@
 ﻿#nullable enable
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 /// <summary>
 /// Ignore transducer.  Lifts a unit accepting transducer, ignores the input value.

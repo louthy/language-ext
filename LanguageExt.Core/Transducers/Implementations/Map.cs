@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record MapTransducer<A, B, C>(Transducer<A, B> F, Func<B, C> G) : 
     Transducer<A, C>

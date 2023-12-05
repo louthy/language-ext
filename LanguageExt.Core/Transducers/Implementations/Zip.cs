@@ -2,7 +2,7 @@
 
 using System;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record ZipTransducer2<E, A, B>(Transducer<E, A> First, Transducer<E, B> Second)
     : Transducer<E, (A First, B Second)>

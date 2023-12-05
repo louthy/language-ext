@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record MemoTransducer<EqA, A, B>(Transducer<A, B> Transducer) : Transducer<A, B>
     where EqA : struct, Eq<A>

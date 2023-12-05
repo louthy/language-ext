@@ -5,12 +5,31 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
+using LanguageExt.Effects.Traits;
 using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 public static partial class Transducer
 {
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Recursion
+    //
+    
+    /// <summary>
+    /// Wrap this around a tail recursive call to mark it as the end of a recursive expression.
+    /// </summary>
+    public static Transducer<A, B> Tail<A, B>(this Transducer<A, B> recursive) =>
+        new TailTransducer<A, B>(recursive);
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Resource use
+    //
+    
     /// <summary>
     /// Resource tracking transducer
     /// </summary>
@@ -22,6 +41,11 @@ public static partial class Transducer
     /// </summary>
     public static Transducer<A, B> Use<A, B>(this Transducer<A, B> transducer) where B : IDisposable =>
         new UseTransducer2<A, B>(transducer);
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Applicatives
+    //
     
     /// <summary>
     /// Applicative apply
@@ -47,13 +71,18 @@ public static partial class Transducer
         Transducer<E, A> fa) =>
         new ApplyTransducer2<E, A, B>(ff, fa);    
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Partial application
+    //
+    
     /// <summary>
     /// Partial application
     /// </summary>
     /// <param name="f">Transducer to partially apply</param>
     /// <param name="value">Value to apply</param>
     /// <returns>Transducer with the first argument filled</returns>
-    public static Transducer<B, C> Partial<A, B, C>(Transducer<A, Transducer<B, C>> f, A value) =>
+    public static Transducer<B, C> Partial<A, B, C>(this Transducer<A, Transducer<B, C>> f, A value) =>
         new PartialTransducer<A, B, C>(value, f);
 
     /// <summary>
@@ -62,8 +91,14 @@ public static partial class Transducer
     /// <param name="f">Transducer to partially apply</param>
     /// <param name="value">Value to apply</param>
     /// <returns>Transducer with the first argument filled</returns>
-    public static Transducer<B, C> Partial<A, B, C>(Transducer<A, Func<B, C>> f, A value) =>
+    public static Transducer<B, C> Partial<A, B, C>(this Transducer<A, Func<B, C>> f, A value) =>
         new PartialFTransducer<A, B, C>(value, f);
+        
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Map (compose)
+    //
     
     /// <summary>
     /// Maps every value passing through this transducer
@@ -71,6 +106,11 @@ public static partial class Transducer
     public static Transducer<A, C> Map<A, B, C>(this Transducer<A, B> m, Func<B, C> f) =>
         new MapTransducer<A, B, C>(m, f);
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Map right
+    //
+    
     /// <summary>
     /// Maps every right value passing through this transducer
     /// </summary>
@@ -83,6 +123,11 @@ public static partial class Transducer
     public static Transducer<E, Sum<X, B>> MapRight<E, X, A, B>(this Transducer<E, Sum<X, A>> m, Transducer<A, B> f) =>
         mapRight(m, f);
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Map left
+    //
+    
     /// <summary>
     /// Maps every left value passing through this transducer
     /// </summary>
@@ -95,6 +140,11 @@ public static partial class Transducer
     public static Transducer<E, Sum<Y, A>> MapLeft<E, X, Y, A>(this Transducer<E, Sum<X, A>> m, Transducer<X, Y> f) =>
         mapLeft(m, f);
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Bi-mapping
+    //
+    
     /// <summary>
     /// Maps every left value passing through this transducer
     /// </summary>
@@ -113,43 +163,22 @@ public static partial class Transducer
         Transducer<A, B> Right) =>
         bimap(transducer, Left, Right);
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Select
+    //
+    
     /// <summary>
     /// Maps every value passing through this transducer
     /// </summary>
     public static Transducer<A, C> Select<A, B, C>(this Transducer<A, B> m, Func<B, C> g) =>
         new MapTransducer<A, B, C>(m, g);
 
-    /// <summary>
-    /// Projects every value into the monadic bind function provided. 
-    /// </summary>
-    /// <returns>Monadic bound transducer</returns>
-    public static Transducer<A, C> Bind<A, B, C>(this Transducer<A, B> m, Func<B, Transducer<A, C>> g) =>
-        new BindTransducer3<A, B, C>(m, g);
-
-    /// <summary>
-    /// Projects every value into the monadic bind function provided. 
-    /// </summary>
-    /// <returns>Monadic bound transducer</returns>
-    public static Transducer<A, C> Bind<A, B, C>(this Transducer<A, B> m, Transducer<B, Transducer<A, C>> g) =>
-        new BindTransducer1<A, B, C>(m, g);
-
-    /// <summary>
-    /// Projects every value into the monadic bind function provided. 
-    /// </summary>
-    /// <returns>Monadic bound transducer</returns>
-    public static Transducer<A, C> SelectMany<A, B, C>(this Transducer<A, B> m, Func<B, Transducer<A, C>> g) =>
-        new BindTransducer3<A, B, C>(m, g);
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Flatten
+    //
     
-    /// <summary>
-    /// Projects every value into the monadic bind function provided. 
-    /// </summary>
-    /// <returns>Monadic bound transducer</returns>
-    public static Transducer<A, D> SelectMany<A, B, C, D>(
-        this Transducer<A, B> m, 
-        Func<B, Transducer<A, C>> g,
-        Func<B, C, D> h) =>
-        new SelectManyTransducer1<A, B, C, D>(m, g, h);    
-
     /// <summary>
     /// Take nested transducers and flatten them
     /// </summary>
@@ -193,6 +222,176 @@ public static partial class Transducer
         this Transducer<Env, Sum<Transducer<Env, Sum<X, A>>, Transducer<Env, Sum<X, A>>>> ff) =>
         new FlattenSumTransducer2<Env, X, A>(ff);
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Binding
+    //
+    
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<A, C> Bind<A, B, C>(this Transducer<A, B> m, Func<B, Transducer<A, C>> g) =>
+        new BindTransducer3<A, B, C>(m, g);
+
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<A, C> Bind<A, B, C>(this Transducer<Unit, B> m, Func<B, Transducer<A, C>> g) =>
+        new BindTransducer3<A, B, C>(compose(constant<A, Unit>(default), m), g);
+
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<A, C> Bind<A, B, C>(this Transducer<A, B> m, Transducer<B, Transducer<A, C>> g) =>
+        new BindTransducer1<A, B, C>(m, g);
+
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<A, C> Bind<A, B, C>(this Transducer<Unit, B> m, Transducer<B, Transducer<A, C>> g) =>
+        new BindTransducer1<A, B, C>(compose(constant<A, Unit>(default), m), g);
+
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<E, Sum<X, Unit>> Bind<E, X, A>(this Transducer<E, A> ma, Transducer<A, Guard<X, Unit>> f) =>
+        ma.Bind(f.Map(g => compose(constant<E, Guard<X, Unit>>(g), guard<X>())));
+
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<E, Sum<X, Unit>> Bind<E, X, A>(this Transducer<E, A> ma, Func<A, Guard<X, Unit>> f) =>
+        ma.Bind(lift(f));
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Binding (Sum types)
+    //
+    
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<E, Sum<X, B>> BindSum<E, X, A, B>(this Transducer<E, Sum<X, A>> ma, Transducer<A, Transducer<E, Sum<X, B>>> f) =>
+        new BindTransducerSum<X, E, A, B>(ma, f);
+    
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<E, Sum<X, B>> BindSum<E, X, A, B>(this Transducer<Unit, Sum<X, A>> ma, Transducer<A, Transducer<E, Sum<X, B>>> f) =>
+        BindSum(compose(constant<E, Unit>(default), ma), f);
+
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<E, Sum<X, B>> BindSum<E, X, A, B>(this Transducer<E, Sum<X, A>> ma, Func<A, Transducer<E, Sum<X, B>>> f) =>
+        new BindTransducerSum2<X, E, A, B>(ma, f);
+
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<E, Sum<X, B>> BindSum<E, X, A, B>(this Transducer<Unit, Sum<X, A>> ma, Func<A, Transducer<E, Sum<X, B>>> f) =>
+        new BindTransducerSum2<X, E, A, B>(compose(constant<E, Unit>(default), ma), f);
+
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<E, Sum<X, B>> BindSum<E, X, A, B>(this Transducer<E, Sum<X, A>> ma, Transducer<A, Transducer<E, B>> f) =>
+        BindSum(ma, lift<A, Transducer<E, Sum<X, B>>>(x => compose(partial(f, x), mkRight<X, B>())));
+    
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<E, Sum<X, B>> BindSum<E, X, A, B>(this Transducer<Unit, Sum<X, A>> ma, Transducer<A, Transducer<E, B>> f) =>
+        BindSum(compose(constant<E, Unit>(default), ma), f);
+
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<E, Sum<X, B>> BindSum<E, X, A, B>(this Transducer<E, Sum<X, A>> ma, Func<A, Transducer<E, B>> f) =>
+        new BindTransducerSum2<X, E, A, B>(ma, a => compose(f(a), mkRight<X, B>()));
+
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<E, Sum<X, B>> BindSum<E, X, A, B>(this Transducer<Unit, Sum<X, A>> ma, Func<A, Transducer<E, B>> f) =>
+        new BindTransducerSum2<X, E, A, B>(compose(constant<E, Unit>(default), ma), a => compose(f(a), mkRight<X, B>()));
+    
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<E, Sum<X, Unit>> BindSum<E, X, A>(this Transducer<E, Sum<X, A>> ma, Transducer<A, Guard<X, Unit>> f) =>
+        ma.BindSum(f.Map(g => compose(constant<E, Guard<X, Unit>>(g), guard<X>())));
+
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<Unit, Sum<X, Unit>> BindSum<X, A>(this Transducer<Unit, Sum<X, A>> ma, Transducer<A, Guard<X, Unit>> f) =>
+        ma.BindSum(f.Map(g => compose(constant<Unit, Guard<X, Unit>>(g), guard<X>())));
+
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<E, Sum<X, Unit>> BindSum<E, X, A>(this Transducer<E, Sum<X, A>> ma, Func<A, Guard<X, Unit>> f) =>
+        ma.BindSum(lift(f));
+
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<Unit, Sum<X, Unit>> BindSum<X, A>(this Transducer<Unit, Sum<X, A>> ma, Func<A, Guard<X, Unit>> f) =>
+        ma.BindSum(lift(f));
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // SelectMany
+    //
+    
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<A, D> SelectMany<A, B, C, D>(
+        this Transducer<A, B> ma, 
+        Func<B, Transducer<A, C>> bind,
+        Func<B, C, D> project) =>
+        new SelectManyTransducer1<A, B, C, D>(ma, bind, project);
+
+    /// <summary>
+    /// Projects every value into the monadic bind function provided. 
+    /// </summary>
+    /// <returns>Monadic bound transducer</returns>
+    public static Transducer<A, Sum<X, C>> SelectMany<X, A, B, C>(
+        this Transducer<A, B> ma,
+        Func<B, Guard<X, Unit>> bind,
+        Func<B, Unit, C> project) =>
+        compose(ma, mkRight<X, B>())
+           .BindSum(b => compose(
+                     constant<A, Unit>(default), 
+                     bind(b).ToTransducer())
+                    .MapRight(_ => project(b, default)));    
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Filtering
+    //
+    
     /// <summary>
     /// Filter the values in the transducer
     /// </summary>
@@ -228,6 +427,11 @@ public static partial class Transducer
     /// <returns>Filtered transducer</returns>
     public static Transducer<A, Sum<X, B>> Filter<X, A, B>(this Transducer<A, Sum<X, B>> f, Func<B, bool> pred) =>
         Filter(f, lift(pred));
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Ignoring and memoisation
+    //
     
     /// <summary>
     /// Lifts a unit accepting transducer, ignores the input value.
@@ -319,6 +523,10 @@ public static partial class Transducer
         where EqA : struct, Eq<A> =>
         new Memo1Transducer<EqA, A, B>(transducer);
     
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Zipping
+    //
 
     /// <summary>
     /// Zips transducers together so their results are combined.  
@@ -380,6 +588,12 @@ public static partial class Transducer
         Transducer<E, Sum<X, C>> Third) =>
         new ZipSumTransducer3<E, X, A, B, C>(First, Second, Third);    
 
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Forking
+    //
+    
     /// <summary>
     /// Create a transducer that is queued to run on the thread-pool. 
     /// </summary>
@@ -405,6 +619,336 @@ public static partial class Transducer
         Reducer<B, S> reducer,
         Option<TimeSpan> timeout = default) =>
         new ForkTransducer2<S, A, B>(transducer, initialState, reducer, timeout);
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Retry
+    //
+    
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <returns>A transducer that retries</returns>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    public static Transducer<A, B> Retry<A, B>(
+        this Transducer<A, B> transducer, 
+        Schedule schedule) =>
+        retryUntil(schedule, transducer, _ => false);
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each failure.  If it returns
+    /// `true` then the retying stops and the `Error` is yielded.</param>
+    /// <returns>A transducer that retries</returns>
+    public static Transducer<A, B> RetryUntil<A, B>(
+        this Transducer<A, B> transducer, 
+        Schedule schedule, 
+        Func<Error, bool> predicate) =>
+        new RetryTransducer<A, B>(transducer, schedule, predicate);
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each failure.  If it returns
+    /// `false` then the retying stops and the `Error` is yielded.</param>
+    /// <returns>A transducer that retries</returns>
+    public static Transducer<A, B> RetryWhile<A, B>(
+        this Transducer<A, B> transducer,
+        Schedule schedule,
+        Func<Error, bool> predicate) =>
+        retryUntil(schedule, transducer, not(predicate));
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <returns>A transducer that retries</returns>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    public static Transducer<RT, Sum<X, A>> Retry<RT, X, A>(
+        this Transducer<RT, Sum<X, A>> transducer,
+        Schedule schedule) 
+        where RT : struct, HasFromError<RT, X> =>
+        retryUntil<RT, X, A>(schedule, transducer, _ => false);
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each failure.  If it returns
+    /// `true` then the retying stops and the `Error` is yielded.</param>
+    /// <returns>A transducer that retries</returns>
+    public static Transducer<RT, Sum<X, A>> RetryUntil<RT, X, A>(
+        this Transducer<RT, Sum<X, A>> transducer, 
+        Schedule schedule, 
+        Func<X, bool> predicate) 
+        where RT : struct, HasFromError<RT, X> =>
+        new RetrySumTransducer<RT, X, A>(transducer, schedule, predicate);
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `false` then the repeating stops and the latest value is yielded.</param>
+    /// <returns>A transducer that retries</returns>
+    public static Transducer<RT, Sum<X, A>> RetryWhile<RT, X, A>(
+        this Transducer<RT, Sum<X, A>> transducer,
+        Schedule schedule,
+        Func<X, bool> predicate) 
+        where RT : struct, HasFromError<RT, X> =>
+        retryUntil(schedule, transducer, not(predicate));
+    
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <returns>A transducer that retries</returns>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    public static Transducer<A, B> Retry<A, B>(
+        this Transducer<A, B> transducer) =>
+        retryUntil(Schedule.Forever, transducer, _ => false);
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each failure.  If it returns
+    /// `true` then the retying stops and the `Error` is yielded.</param>
+    /// <returns>A transducer that retries</returns>
+    public static Transducer<A, B> RetryUntil<A, B>(
+        this Transducer<A, B> transducer, 
+        Func<Error, bool> predicate) =>
+        new RetryTransducer<A, B>(transducer, Schedule.Forever, predicate);
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each failure.  If it returns
+    /// `false` then the retying stops and the `Error` is yielded.</param>
+    /// <returns>A transducer that retries</returns>
+    public static Transducer<A, B> RetryWhile<A, B>(
+        this Transducer<A, B> transducer,
+        Func<Error, bool> predicate) =>
+        retryUntil(Schedule.Forever, transducer, not(predicate));
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <returns>A transducer that retries</returns>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    public static Transducer<RT, Sum<X, A>> Retry<RT, X, A>(
+        this Transducer<RT, Sum<X, A>> transducer) 
+        where RT : struct, HasFromError<RT, X> =>
+        retryUntil<RT, X, A>(Schedule.Forever, transducer, _ => false);
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each failure.  If it returns
+    /// `true` then the retying stops and the `Error` is yielded.</param>
+    /// <returns>A transducer that retries</returns>
+    public static Transducer<RT, Sum<X, A>> RetryUntil<RT, X, A>(
+        this Transducer<RT, Sum<X, A>> transducer, 
+        Func<X, bool> predicate) 
+        where RT : struct, HasFromError<RT, X> =>
+        new RetrySumTransducer<RT, X, A>(transducer, Schedule.Forever, predicate);
+
+    /// <summary>
+    /// Keep retrying if the transducer fails
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep retrying</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `false` then the repeating stops and the latest value is yielded.</param>
+    /// <returns>A transducer that retries</returns>
+    public static Transducer<RT, Sum<X, A>> RetryWhile<RT, X, A>(
+        this Transducer<RT, Sum<X, A>> transducer,
+        Func<X, bool> predicate) 
+        where RT : struct, HasFromError<RT, X> =>
+        retryUntil(Schedule.Forever, transducer, not(predicate));
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Repeat
+    //
+    
+    /// <summary>
+    /// Keep repeating the transducer
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of repeats and the time-gap between each one</param>
+    /// <returns>A transducer that repeats</returns>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<A, B> Repeat<A, B>(
+        this Transducer<A, B> transducer,
+        Schedule schedule) =>
+        repeatUntil(schedule, transducer, _ => false);
+
+    /// <summary>
+    /// Keep repeating the transducer until a condition is met
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of repeats and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `true` then the repeating stops and the latest value is yielded.</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<A, B> RepeatUntil<A, B>(
+        this Transducer<A, B> transducer, 
+        Schedule schedule, 
+        Func<B, bool> predicate) =>
+        new RepeatTransducer<A, B>(transducer, schedule, predicate);
+
+    /// <summary>
+    /// Keep repeating the transducer until a condition is met
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `false` then the repeating stops and the latest value is yielded.</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<A, B> RepeatWhile<A, B>(
+        this Transducer<A, B> transducer,
+        Schedule schedule,
+        Func<B, bool> predicate) =>
+        repeatUntil(schedule, transducer, not(predicate));
+
+    /// <summary>
+    /// Keep repeating the transducer 
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <returns>A transducer that retries</returns>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<RT, Sum<X, A>> Repeat<RT, X, A>(
+        this Transducer<RT, Sum<X, A>> transducer,
+        Schedule schedule)
+        where RT : struct, HasFromError<RT, X> =>
+        repeatUntil<RT, X, A>(schedule, transducer, _ => false);
+
+    /// <summary>
+    /// Keep repeating the transducer until a condition is met
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `true` then the repeating stops and the latest value is yielded.</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<RT, Sum<X, A>> RepeatUntil<RT, X, A>(
+        this Transducer<RT, Sum<X, A>> transducer, 
+        Schedule schedule, 
+        Func<A, bool> predicate) 
+        where RT : struct, HasFromError<RT, X> =>
+        new RepeatSumTransducer<RT, X, A>(transducer, schedule, predicate);
+
+    /// <summary>
+    /// Keep repeating the transducer until a condition is met
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of repeats and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `false` then the repeating stops and the latest value is yielded.</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<RT, Sum<X, A>> RepeatWhile<RT, X, A>(
+        this Transducer<RT, Sum<X, A>> transducer,
+        Schedule schedule,
+        Func<A, bool> predicate) 
+        where RT : struct, HasFromError<RT, X> =>
+        repeatUntil(schedule, transducer, not(predicate));    
+    
+    /// <summary>
+    /// Keep repeating the transducer
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of repeats and the time-gap between each one</param>
+    /// <returns>A transducer that repeats</returns>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<A, B> Repeat<A, B>(
+        this Transducer<A, B> transducer) =>
+        repeatUntil(Schedule.Forever, transducer, _ => false);
+
+    /// <summary>
+    /// Keep repeating the transducer until a condition is met
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of repeats and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `true` then the repeating stops and the latest value is yielded.</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<A, B> RepeatUntil<A, B>(
+        this Transducer<A, B> transducer, 
+        Func<B, bool> predicate) =>
+        new RepeatTransducer<A, B>(transducer, Schedule.Forever, predicate);
+
+    /// <summary>
+    /// Keep repeating the transducer until a condition is met
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `false` then the repeating stops and the latest value is yielded.</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<A, B> RepeatWhile<A, B>(
+        this Transducer<A, B> transducer,
+        Func<B, bool> predicate) =>
+        repeatUntil(Schedule.Forever, transducer, not(predicate));
+
+    /// <summary>
+    /// Keep repeating the transducer 
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <returns>A transducer that retries</returns>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<RT, Sum<X, A>> Repeat<RT, X, A>(
+        this Transducer<RT, Sum<X, A>> transducer)
+        where RT : struct, HasFromError<RT, X> =>
+        repeatUntil<RT, X, A>(Schedule.Forever, transducer, _ => false);
+
+    /// <summary>
+    /// Keep repeating the transducer until a condition is met
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of retries and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `true` then the repeating stops and the latest value is yielded.</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<RT, Sum<X, A>> RepeatUntil<RT, X, A>(
+        this Transducer<RT, Sum<X, A>> transducer, 
+        Func<A, bool> predicate) 
+        where RT : struct, HasFromError<RT, X> =>
+        new RepeatSumTransducer<RT, X, A>(transducer, Schedule.Forever, predicate);
+
+    /// <summary>
+    /// Keep repeating the transducer until a condition is met
+    /// </summary>
+    /// <param name="schedule">Schedule that dictates the number of repeats and the time-gap between each one</param>
+    /// <param name="transducer">Transducer to keep repeating</param>
+    /// <param name="predicate">Predicate that decides whether to continue on each repeat.  If it returns
+    /// `false` then the repeating stops and the latest value is yielded.</param>
+    /// <returns>A transducer that repeats</returns>
+    public static Transducer<RT, Sum<X, A>> RepeatWhile<RT, X, A>(
+        this Transducer<RT, Sum<X, A>> transducer,
+        Func<A, bool> predicate) 
+        where RT : struct, HasFromError<RT, X> =>
+        repeatUntil(Schedule.Forever, transducer, not(predicate));        
+    
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Invoking
+    //
     
     /// <summary>
     /// Invoke the transducer, reducing to a single value only

@@ -1,7 +1,7 @@
 #nullable enable
 using System;
 
-namespace LanguageExt.Transducers;
+namespace LanguageExt;
 
 record BiMapSum<X, Y, A, B>(Transducer<X, Y> Left, Transducer<A, B> Right) : Transducer<Sum<X, A>, Sum<Y, B>>
 {
@@ -54,4 +54,3 @@ record BiMapProduct<X, Y, A, B>(Transducer<X, Y> Left, Transducer<A, B> Right) :
             reducer.Run(state, stateValue, (Left, right));
     }
 }
-

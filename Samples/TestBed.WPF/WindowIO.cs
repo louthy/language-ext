@@ -10,6 +10,7 @@ using LanguageExt;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
+using static LanguageExt.Transducer;
 
 
 namespace TestBed.WPF;
