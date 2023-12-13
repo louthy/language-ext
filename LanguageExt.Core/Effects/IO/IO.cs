@@ -703,6 +703,31 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     //
 
     /// <summary>
+    /// Fold the effect forever or until the schedule expires
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public IO<RT, E, S> Fold<S>(
+        Schedule schedule, 
+        S initialState,
+        Func<S, A, S> folder) =>
+        new(Transducer.compose(
+            Morphism, 
+            Transducer.foldSum<S, E, A>(
+                schedule,
+                initialState, 
+                folder, 
+                _ => TResult.Continue(unit))));
+    
+    /// <summary>
+    /// Fold the effect forever
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public IO<RT, E, S> Fold<S>(
+        S initialState,
+        Func<S, A, S> folder) =>
+        Fold(Schedule.Forever, initialState, folder);
+
+    /// <summary>
     /// Fold the effect until the predicate returns `true`
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
@@ -845,7 +870,77 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
         Func<S, A, S> folder, 
         Func<A, bool> valueIs) =>
         FoldWhile(Schedule.Forever, initialState, folder, last => valueIs(last.Value));        
+
     
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Folding, where each fold is monadic
+    //
+
+    /// <summary>
+    /// Fold the effect forever or until the schedule expires
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public IO<RT, E, S> FoldM<S>(
+        Schedule schedule, 
+        S initialState,
+        Func<S, A, IO<RT, E, S>> folder) =>
+        Fold(schedule, IO<RT, E, S>.Pure(initialState), (ms, a) => ms.Bind(s => folder(s, a)))
+            .Flatten();
+
+    /// <summary>
+    /// Fold the effect forever
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public IO<RT, E, S> FoldM<S>(
+        S initialState,
+        Func<S, A, IO<RT, E, S>> folder) =>
+        FoldM(Schedule.Forever, initialState, folder);
+
+    /// <summary>
+    /// Fold the effect until the predicate returns `true`
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public IO<RT, E, S> FoldMUntil<S>(
+        Schedule schedule, 
+        S initialState,
+        Func<S, A, IO<RT, E, S>> folder, 
+        Func<A, bool> valueIs) =>
+        FoldUntil(schedule, IO<RT, E, S>.Pure(initialState), (ms, a) => ms.Bind(s => folder(s, a)), valueIs)
+            .Flatten();
+
+    /// <summary>
+    /// Fold the effect until the predicate returns `true`
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public IO<RT, E, S> FoldMUntil<S>(
+        S initialState,
+        Func<S, A, IO<RT, E, S>> folder, 
+        Func<A, bool> valueIs) =>
+        FoldMUntil(Schedule.Forever, initialState, folder, valueIs);
+
+    /// <summary>
+    /// Fold the effect while the predicate returns `true`
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public IO<RT, E, S> FoldMWhile<S>(
+        Schedule schedule, 
+        S initialState,
+        Func<S, A, IO<RT, E, S>> folder, 
+        Func<A, bool> valueIs) =>
+        FoldWhile(schedule, IO<RT, E, S>.Pure(initialState), (ms, a) => ms.Bind(s => folder(s, a)), valueIs)
+            .Flatten();
+
+    /// <summary>
+    /// Fold the effect while the predicate returns `true`
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public IO<RT, E, S> FoldMWhile<S>(
+        S initialState,
+        Func<S, A, IO<RT, E, S>> folder, 
+        Func<A, bool> valueIs) =>
+        FoldMWhile(Schedule.Forever, initialState, folder, valueIs);
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Synchronisation between contexts
