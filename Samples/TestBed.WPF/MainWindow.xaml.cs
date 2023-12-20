@@ -26,7 +26,7 @@ namespace TestBed.WPF
             InitializeComponent();
             onStart(startup);
         }
-        
+
         /// <summary>
         /// Register the window events
         /// </summary>

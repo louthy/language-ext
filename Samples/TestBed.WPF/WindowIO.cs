@@ -28,7 +28,7 @@ public class WindowIO<RT, E> : Window
     /// Constructor
     /// </summary>
     protected WindowIO(RT runtime) =>
-        Runtime = runtime;
+        Runtime = runtime.LocalCancel;
     
     /// <summary>
     /// Startup launch
@@ -36,7 +36,16 @@ public class WindowIO<RT, E> : Window
     protected Unit onStart(IO<RT, E, Unit> operation) =>
         operation.Run(Runtime)
                  .IfLeft(e => Error.New(e?.ToString() ?? "there was an error").Throw());
-    
+
+    /// <summary>
+    /// Closes any forks created by the window
+    /// </summary>
+    protected override void OnClosed(EventArgs e)
+    {
+        Runtime.CancellationTokenSource.Cancel();
+        base.OnClosed(e);
+    }
+
     /// <summary>
     /// Turns an IO operation into a task that is run
     /// </summary>
