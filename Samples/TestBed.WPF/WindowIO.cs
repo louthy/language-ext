@@ -15,6 +15,10 @@ using static LanguageExt.Transducer;
 
 namespace TestBed.WPF;
 
+/// <summary>
+/// A window base-type that supports some common IO behaviours for use in
+/// derived window-types. 
+/// </summary>
 public class WindowIO<RT, E> : Window
     where RT : struct, HasIO<RT, E>
 {
@@ -33,6 +37,12 @@ public class WindowIO<RT, E> : Window
         operation.Run(Runtime)
                  .IfLeft(e => Error.New(e?.ToString() ?? "there was an error").Throw());
     
+    /// <summary>
+    /// Turns an IO operation into a task that is run
+    /// </summary>
+    /// <remarks>
+    /// Useful for wrapping IO event-handlers into a Task base event-handler
+    /// </remarks>
     protected async Task<Either<E, A>> handle<A>(IO<RT, E, A> operation) =>
         await operation.RunAsync(Runtime);
         

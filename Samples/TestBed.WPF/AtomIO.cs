@@ -7,7 +7,7 @@ using static LanguageExt.Transducer;
 namespace TestBed.WPF;
 
 /// <summary>
-/// Placeholder implementation waiting for the real one to be implemented in LanguageExt.Core
+/// Placeholder implementation: waiting for the real one to be implemented in LanguageExt.Core
 /// </summary>
 public class AtomIO<RT, E, A>
     where RT : struct, HasIO<RT, E>

@@ -4,7 +4,7 @@
     <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <LangVersion>default</LangVersion>
     <RoslynCodeGenVersion>0.6.1</RoslynCodeGenVersion>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="dotnet-codegen" Version="$(RoslynCodeGenVersion)" />

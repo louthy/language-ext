@@ -9,7 +9,7 @@ using static LanguageExt.Prelude;
 namespace TestBed.WPF
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Main application window
     /// </summary>
     public partial class MainWindow : WindowRT
     {
