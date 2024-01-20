@@ -111,7 +111,7 @@ namespace LanguageExt
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public Eff<A> SwapEff(Func<A, Eff<A>> f) =>
-            EffMaybe<A>(() =>
+            lift(() =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -148,35 +148,35 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) where RT : struct =>
-            EffMaybe<RT, A>(env =>
-        {
-            f = f ?? throw new ArgumentNullException(nameof(f));
-
-            SpinWait sw = default;
-            while (true)
+        public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
+            lift((RT env) =>
             {
-                var current = value;
-                var newValueFinA = f(Box<A>.GetValue(value)).Run(env);
-                if (newValueFinA.IsFail)
-                {
-                    return newValueFinA;
-                }
+                f = f ?? throw new ArgumentNullException(nameof(f));
 
-                var newValueA = newValueFinA.Value;
-                var newValue = Box<A>.New(newValueA);
-                if (!validator(newValueA))
+                SpinWait sw = default;
+                while (true)
                 {
-                    return FinFail<A>(Error.New("Validation failed for swap"));
+                    var current = value;
+                    var newValueFinA = f(Box<A>.GetValue(value)).Run(env);
+                    if (newValueFinA.IsFail)
+                    {
+                        return newValueFinA;
+                    }
+
+                    var newValueA = newValueFinA.Value;
+                    var newValue = Box<A>.New(newValueA);
+                    if (!validator(newValueA))
+                    {
+                        return FinFail<A>(Error.New("Validation failed for swap"));
+                    }
+                    if(Interlocked.CompareExchange(ref value, newValue, current) == current)
+                    {
+                        Change?.Invoke(newValueA);
+                        return newValueFinA;
+                    }
+                    sw.SpinOnce();
                 }
-                if(Interlocked.CompareExchange(ref value, newValue, current) == current)
-                {
-                    Change?.Invoke(newValueA);
-                    return newValueFinA;
-                }
-                sw.SpinOnce();
-            }
-        });
+            });
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -219,7 +219,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public Aff<A> SwapAff(Func<A, Aff<A>> f) =>
-            AffMaybe<A>(async () =>
+            AffMaybe(async () =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -258,7 +258,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public Aff<A> SwapAff(Func<A, ValueTask<A>> f) =>
-            AffMaybe<A>(async () =>
+            AffMaybe(async () =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -277,7 +277,7 @@ namespace LanguageExt
                     if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                     {
                         Change?.Invoke(newValueA);
-                        return FinSucc<A>(newValueA);
+                        return FinSucc(newValueA);
                     }
                     sw.SpinOnce();
                 }
@@ -291,7 +291,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public Aff<RT, A> SwapAff<RT>(Func<A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+        public Aff<RT, A> SwapAff<RT>(Func<A, Aff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
             AffMaybe<RT, A>(async env =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -367,7 +367,7 @@ namespace LanguageExt
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public Eff<A> SwapEff<X>(X x, Func<X, A, Eff<A>> f) =>
-            EffMaybe<A>(() =>
+            lift(() =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -405,8 +405,8 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public Eff<RT, A> SwapEff<RT, X>(X x, Func<X, A, Eff<RT, A>> f) where RT : struct =>
-            EffMaybe<RT, A>(env =>
+        public Eff<RT, A> SwapEff<RT, X>(X x, Func<X, A, Eff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
+            lift((RT env) =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -477,7 +477,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public Aff<A> SwapAff<X>(X x, Func<X, A, Aff<A>> f) =>
-            AffMaybe<A>(async () =>
+            AffMaybe(async () =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -517,7 +517,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public Aff<A> SwapAff<X>(X x, Func<X, A, ValueTask<A>> f) =>
-            AffMaybe<A>(async () =>
+            AffMaybe(async () =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -536,7 +536,7 @@ namespace LanguageExt
                     if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                     {
                         Change?.Invoke(newValueA);
-                        return FinSucc<A>(newValueA);
+                        return FinSucc(newValueA);
                     }
                     sw.SpinOnce();
                 }
@@ -551,7 +551,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public Aff<RT, A> SwapAff<RT, X>(X x, Func<X, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+        public Aff<RT, A> SwapAff<RT, X>(X x, Func<X, A, Aff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
             AffMaybe<RT, A>(async env =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -628,7 +628,7 @@ namespace LanguageExt
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public Eff<A> SwapEff<X, Y>(X x, Y y, Func<X, Y, A, Eff<A>> f) =>
-            EffMaybe<A>(() =>
+            lift(() =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -667,8 +667,8 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public Eff<RT, A> SwapEff<RT, X, Y>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) where RT : struct =>
-            EffMaybe<RT, A>(env =>
+        public Eff<RT, A> SwapEff<RT, X, Y>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
+            lift((RT env) =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -741,7 +741,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public Aff<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, Aff<A>> f) =>
-            AffMaybe<A>(async () =>
+            AffMaybe(async () =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -783,7 +783,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public Aff<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, ValueTask<A>> f) =>
-            AffMaybe<A>(async () =>
+            AffMaybe(async () =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
 
@@ -802,7 +802,7 @@ namespace LanguageExt
                     if (Interlocked.CompareExchange(ref value, newValue, current) == current)
                     {
                         Change?.Invoke(newValueA);
-                        return FinSucc<A>(newValueA);
+                        return FinSucc(newValueA);
                     }
                     sw.SpinOnce();
                 }
@@ -818,7 +818,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public Aff<RT, A> SwapAff<RT, X, Y>(X x, Y y, Func<X, Y, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+        public Aff<RT, A> SwapAff<RT, X, Y>(X x, Y y, Func<X, Y, A, Aff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
             AffMaybe<RT, A>(async env =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));

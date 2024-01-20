@@ -44,6 +44,9 @@ public readonly record struct Fail<E>(E Value) : KArr<Any, Unit, E>
     public IO<RT, E, A> ToIO<RT, A>()
         where RT : struct, HasIO<RT, E> =>
         IO<RT, E, A>.Fail(Value);
+    
+    public IO<E, A> ToIO<A>() =>
+        IO<E, A>.Fail(Value);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

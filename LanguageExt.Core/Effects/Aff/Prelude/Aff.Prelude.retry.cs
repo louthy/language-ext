@@ -1,11 +1,6 @@
 using System;
-using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
-using LanguageExt.Thunks;
 
 namespace LanguageExt
 {
@@ -18,7 +13,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<RT, A> retry<RT, A>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> retry<RT, A>(Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
             ScheduleAff<RT, A>.Retry(ma, Schedule.Forever);
         
         /// <summary>
@@ -39,7 +34,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<RT, A> retry<RT, A>(Schedule schedule, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> retry<RT, A>(Schedule schedule, Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
             ScheduleAff<RT, A>.Retry(ma, schedule);
         
         /// <summary>
@@ -61,7 +56,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<RT, A> retryWhile<RT, A>(Aff<RT, A> ma, Func<Error, bool> predicate) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> retryWhile<RT, A>(Aff<RT, A> ma, Func<Error, bool> predicate) where RT : struct, HasIO<RT, Error> =>
             ScheduleAff<RT, A>.RetryWhile(ma, Schedule.Forever, predicate);
         
         /// <summary>
@@ -82,7 +77,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<RT, A> retryWhile<RT, A>(Schedule schedule, Aff<RT, A> ma, Func<Error, bool> predicate) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> retryWhile<RT, A>(Schedule schedule, Aff<RT, A> ma, Func<Error, bool> predicate) where RT : struct, HasIO<RT, Error> =>
             ScheduleAff<RT, A>.RetryWhile(ma, schedule, predicate);
         
         /// <summary>
@@ -104,7 +99,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<RT, A> retryUntil<RT, A>(Aff<RT, A> ma, Func<Error, bool> predicate) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> retryUntil<RT, A>(Aff<RT, A> ma, Func<Error, bool> predicate) where RT : struct, HasIO<RT, Error> =>
             ScheduleAff<RT, A>.RetryUntil(ma, Schedule.Forever, predicate);
         
         /// <summary>
@@ -125,7 +120,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<RT, A> retryUntil<RT, A>(Schedule schedule, Aff<RT, A> ma, Func<Error, bool> predicate) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> retryUntil<RT, A>(Schedule schedule, Aff<RT, A> ma, Func<Error, bool> predicate) where RT : struct, HasIO<RT, Error> =>
             ScheduleAff<RT, A>.RetryUntil(ma, schedule, predicate);
         
         /// <summary>

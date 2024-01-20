@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
@@ -81,7 +81,7 @@ namespace LanguageExt
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
-        internal static Aff<RT, R> DoTransaction<RT, R>(Aff<RT, R> op, Isolation isolation) where RT : struct, HasCancel<RT> =>
+        internal static Aff<RT, R> DoTransaction<RT, R>(Aff<RT, R> op, Isolation isolation) where RT : struct, HasIO<RT, Error> =>
             transaction.Value == null
                 ? RunTransaction(op, isolation)
                 : op;
@@ -99,7 +99,8 @@ namespace LanguageExt
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
-        internal static Eff<RT, R> DoTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) where RT : struct =>
+        internal static Eff<RT, R> DoTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) 
+            where RT : struct, HasIO<RT, Error> =>
             transaction.Value == null
                 ? RunTransaction(op, isolation)
                 : op;
@@ -149,7 +150,7 @@ namespace LanguageExt
         /// <summary>
         /// Runs the transaction
         /// </summary>
-        static Aff<RT, R> RunTransaction<RT, R>(Aff<RT, R> op, Isolation isolation) where RT : struct, HasCancel<RT> =>
+        static Aff<RT, R> RunTransaction<RT, R>(Aff<RT, R> op, Isolation isolation) where RT : struct, HasIO<RT, Error> =>
             AffMaybe<RT, R>(async env =>
             {
                 SpinWait sw = default;
@@ -187,8 +188,9 @@ namespace LanguageExt
         /// <summary>
         /// Runs the transaction
         /// </summary>
-        static Eff<RT, R> RunTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) where RT : struct =>
-            EffMaybe<RT, R>(env =>
+        static Eff<RT, R> RunTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) 
+            where RT : struct, HasIO<RT, Error> =>
+            lift((RT env) =>
             {
                 SpinWait sw = default;
                 while (true)
@@ -264,7 +266,7 @@ namespace LanguageExt
         /// Runs the transaction
         /// </summary>
         static Eff<R> RunTransaction<R>(Eff<R> op, Isolation isolation) =>
-            EffMaybe(() =>
+            lift(() =>
             {
                 SpinWait sw = default;
                 while (true)
@@ -347,7 +349,7 @@ namespace LanguageExt
                     var cref = op();
 
                     // Try to do the operations of the transaction
-                    return ValidateAndCommit<R>(t, isolation, (R)t.state[cref.Ref.Id].UntypedValue, cref.Ref.Id);
+                    return ValidateAndCommit(t, isolation, (R)t.state[cref.Ref.Id].UntypedValue, cref.Ref.Id);
                 }
                 catch (ConflictException)
                 {
@@ -385,7 +387,7 @@ namespace LanguageExt
             {
                 if (isolation == Isolation.Serialisable)
                 {
-                    ValidateReads(t, s, isolation);
+                    ValidateReads(t, s);
                 }
 
                 s = anyWrites
@@ -400,7 +402,7 @@ namespace LanguageExt
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void ValidateReads(Transaction t, TrieMap<EqLong, long, RefState> s, Isolation isolation)
+        static void ValidateReads(Transaction t, TrieMap<EqLong, long, RefState> s)
         {
             var tlocal = t;
             var slocal = tlocal.state;
@@ -579,28 +581,14 @@ namespace LanguageExt
         /// <summary>
         /// Conflict exception for internal use
         /// </summary>
-        class ConflictException : Exception
-        { }
-
-        /// <summary>
-        /// Predicate that always returns true
-        /// </summary>
-        static readonly Func<object, bool> True =
-            _ => true;
-
-        /// <summary>
-        /// Wraps a (A -> bool) predicate as (object -> bool)
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static Func<object, bool> CastPredicate<A>(Func<A, bool> validator) =>
-            obj => validator((A)obj);
+        class ConflictException : Exception;
 
         /// <summary>
         /// Wraps a (A -> A) predicate as (object -> object)
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static Func<object, object> CastCommute<A>(Func<A, A> f) =>
-            obj => (A)f((A)obj);
+            obj => f((A)obj);
 
         /// <summary>
         /// Get the currently running TransactionId

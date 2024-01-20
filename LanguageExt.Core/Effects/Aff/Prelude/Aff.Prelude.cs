@@ -1,5 +1,5 @@
+#nullable enable
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Pipes;
-using LanguageExt.Thunks;
 
 namespace LanguageExt
 {
@@ -20,7 +19,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Asynchronous IO monad that captures the effect</returns>
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> AffMaybe<RT, A>(Func<RT, ValueTask<Fin<A>>> f) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> AffMaybe<RT, A>(Func<RT, ValueTask<Fin<A>>> f) where RT : struct, HasIO<RT, Error> =>
             LanguageExt.Aff<RT, A>.EffectMaybe(f);
 
         /// <summary>
@@ -40,7 +39,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Asynchronous IO monad that captures the effect</returns>
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Aff<RT, A>(Func<RT, ValueTask<A>> f) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> Aff<RT, A>(Func<RT, ValueTask<A>> f) where RT : struct, HasIO<RT, Error> =>
             LanguageExt.Aff<RT, A>.Effect(f);
 
         /// <summary>
@@ -70,7 +69,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Asynchronous IO monad that captures the pure value</returns>
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> SuccessAff<RT, A>(A value) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> SuccessAff<RT, A>(A value) where RT : struct, HasIO<RT, Error> =>
             LanguageExt.Aff<RT, A>.Success(value);
 
         /// <summary>
@@ -90,7 +89,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>Synchronous IO monad that captures the failure</returns>
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> FailAff<RT, A>(Error error) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> FailAff<RT, A>(Error error) where RT : struct, HasIO<RT, Error> =>
             LanguageExt.Aff<RT, A>.Fail(error);
 
         /// <summary>
@@ -101,16 +100,9 @@ namespace LanguageExt
         /// <param name="ma">IO monad to run in the new context</param>
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<OuterRT, A> localAff<OuterRT, InnerRT, A>(Func<OuterRT, InnerRT> f, Aff<InnerRT, A> ma)
-            where OuterRT : struct, HasCancel<OuterRT>
-            where InnerRT : struct, HasCancel<InnerRT> =>
+            where OuterRT : struct, HasIO<OuterRT, Error>
+            where InnerRT : struct, HasIO<InnerRT, Error> =>
             new(oenv => ma.Thunk(f(oenv)));
-
-        /// <summary>
-        /// Runtime
-        /// </summary>
-        [Pure, MethodImpl(Opt.Default)]
-        public static Eff<RT, RT> runtime<RT>() where RT : struct =>
-            new (Fin<RT>.Succ);
 
         /// <summary>
         /// Launch the async computation without awaiting the result
@@ -124,7 +116,7 @@ namespace LanguageExt
         /// </remarks>
         /// <returns>Returns an `Eff Unit` as its bound value.  If it runs, it will cancel the
         /// forked child expression</returns>
-        public static Eff<RT, Eff<Unit>> fork<RT, A>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
+        public static Eff<RT, Eff<Unit>> fork<RT, A>(Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
             ma.Fork();
 
         /// <summary>
@@ -139,7 +131,7 @@ namespace LanguageExt
         /// </remarks>
         /// <returns>Returns an `Eff Unit` as its bound value.  If it runs, it will cancel the
         /// forked child expression</returns>
-        public static Eff<RT, Eff<Unit>> fork<RT, A>(Effect<RT, A> ma) where RT : struct, HasCancel<RT> =>
+        public static Eff<RT, Eff<Unit>> fork<RT, A>(Effect<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
             ma.RunEffect().Fork();
 
         /// <summary>
@@ -155,7 +147,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime environment</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>An asynchronous effect that captures the operation running in context</returns>
-        public static Aff<RT, A> localCancel<RT, A>(Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> localCancel<RT, A>(Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
             AffMaybe<RT, A>(async rt =>
                             {
                                 var rt1 = rt.LocalCancel;
@@ -172,7 +164,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime environment</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>An asynchronous effect that captures the operation running in context</returns>
-        public static Eff<RT, A> localCancel<RT, A>(Eff<RT, A> ma) where RT : struct, HasCancel<RT> =>
+        public static Eff<RT, A> localCancel<RT, A>(Eff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
             EffMaybe<RT, A>(rt =>
                             {
                                 var rt1 = rt.LocalCancel;
@@ -187,7 +179,7 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="RT">Runtime</typeparam>
         /// <returns>Unit</returns>
-        public static Aff<RT, Unit> cancel<RT>() where RT : struct, HasCancel<RT> =>            
+        public static Aff<RT, Unit> cancel<RT>() where RT : struct, HasIO<RT, Error> =>            
             AffMaybe<RT, Unit>(static env =>
                                 {
                                     if (env.CancellationTokenSource == null)
@@ -207,7 +199,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime environment</typeparam>
         /// <returns>CancellationToken</returns>
         public static Eff<RT, CancellationToken> cancelToken<RT>()
-            where RT : struct, HasCancel<RT> =>
+            where RT : struct, HasIO<RT, Error> =>
             Eff<RT, CancellationToken>(static env => env.CancellationToken);
 
         /// <summary>
@@ -216,7 +208,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime environment</typeparam>
         /// <returns>CancellationTokenSource</returns>
         public static Eff<RT, CancellationTokenSource> cancelTokenSource<RT>()
-            where RT : struct, HasCancel<RT> =>
+            where RT : struct, HasIO<RT, Error> =>
             Eff<RT, CancellationTokenSource>(static env => env.CancellationTokenSource);
 
         /// <summary>
@@ -225,7 +217,7 @@ namespace LanguageExt
         /// <param name="timeoutDelay">Delay for the time out</param>
         /// <returns>Either success if the operation completed before the timeout, or Errors.TimedOut</returns>
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> timeout<RT, A>(TimeSpan timeoutDelay, Aff<RT, A> ma) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> timeout<RT, A>(TimeSpan timeoutDelay, Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
             ma.Timeout(timeoutDelay);
 
 
@@ -265,7 +257,7 @@ namespace LanguageExt
         public static Aff<RT, R> aff<RT, A, R>(
             Aff<RT, A> ma,
             Aff<RT, R> mr) 
-            where RT : struct, HasCancel<RT> =>
+            where RT : struct, HasIO<RT, Error> =>
             from a in ma
             from r in mr
             select r;
@@ -277,7 +269,7 @@ namespace LanguageExt
             Aff<RT, A> ma,
             Aff<RT, B> mb,
             Aff<RT, R> mr) 
-            where RT : struct, HasCancel<RT> =>
+            where RT : struct, HasIO<RT, Error> =>
             from a in ma
             from b in mb
             from r in mr
@@ -291,7 +283,7 @@ namespace LanguageExt
             Aff<RT, B> mb,
             Aff<RT, C> mc,
             Aff<RT, R> mr) 
-            where RT : struct, HasCancel<RT> =>
+            where RT : struct, HasIO<RT, Error> =>
             from a in ma
             from b in mb
             from c in mc
@@ -307,7 +299,7 @@ namespace LanguageExt
             Aff<RT, C> mc,
             Aff<RT, D> md,
             Aff<RT, R> mr) 
-            where RT : struct, HasCancel<RT> =>
+            where RT : struct, HasIO<RT, Error> =>
             from a in ma
             from b in mb
             from c in mc
@@ -325,7 +317,7 @@ namespace LanguageExt
             Aff<RT, D> md,
             Aff<RT, E> me,
             Aff<RT, R> mr) 
-            where RT : struct, HasCancel<RT> =>
+            where RT : struct, HasIO<RT, Error> =>
             from a in ma
             from b in mb
             from c in mc
@@ -345,7 +337,7 @@ namespace LanguageExt
             Aff<RT, E> me,
             Aff<RT, F> mf,
             Aff<RT, R> mr) 
-            where RT : struct, HasCancel<RT> =>
+            where RT : struct, HasIO<RT, Error> =>
             from a in ma
             from b in mb
             from c in mc
@@ -367,7 +359,7 @@ namespace LanguageExt
             Aff<RT, F> mf,
             Aff<RT, G> mg,
             Aff<RT, R> mr) 
-            where RT : struct, HasCancel<RT> =>
+            where RT : struct, HasIO<RT, Error> =>
             from a in ma
             from b in mb
             from c in mc
@@ -386,7 +378,7 @@ namespace LanguageExt
         public static Eff<RT, R> eff<RT, A, R>(
             Eff<RT, A> ma,
             Eff<RT, R> mr) 
-            where RT : struct =>
+            where RT : struct, HasIO<RT, Error> =>
             from a in ma
             from r in mr
             select r;
@@ -398,7 +390,7 @@ namespace LanguageExt
             Eff<RT, A> ma,
             Eff<RT, B> mb,
             Eff<RT, R> mr) 
-            where RT : struct =>
+            where RT : struct, HasIO<RT, Error> =>
             from a in ma
             from b in mb
             from r in mr
@@ -412,7 +404,7 @@ namespace LanguageExt
             Eff<RT, B> mb,
             Eff<RT, C> mc,
             Eff<RT, R> mr)
-            where RT : struct =>
+            where RT : struct, HasIO<RT, Error> =>
             from a in ma
             from b in mb
             from c in mc
@@ -428,7 +420,7 @@ namespace LanguageExt
             Eff<RT, C> mc,
             Eff<RT, D> md,
             Eff<RT, R> mr) 
-            where RT : struct =>
+            where RT : struct, HasIO<RT, Error> =>
             from a in ma
             from b in mb
             from c in mc
@@ -445,7 +437,7 @@ namespace LanguageExt
             Eff<RT, C> mc,
             Eff<RT, D> md,
             Eff<RT, E> me,
-            Eff<RT, R> mr) where RT : struct =>
+            Eff<RT, R> mr) where RT : struct, HasIO<RT, Error> =>
             from a in ma
             from b in mb
             from c in mc
@@ -465,7 +457,7 @@ namespace LanguageExt
             Eff<RT, E> me,
             Eff<RT, F> mf,
             Eff<RT, R> mr) 
-            where RT : struct =>
+            where RT : struct, HasIO<RT, Error> =>
             from a in ma
             from b in mb
             from c in mc
@@ -487,7 +479,7 @@ namespace LanguageExt
             Eff<RT, F> mf,
             Eff<RT, G> mg,
             Eff<RT, R> mr) 
-            where RT : struct =>
+            where RT : struct, HasIO<RT, Error> =>
             from a in ma
             from b in mb
             from c in mc

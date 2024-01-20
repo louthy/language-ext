@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
+using static LanguageExt.Transducer;
 
 namespace LanguageExt
 {
@@ -124,7 +126,7 @@ namespace LanguageExt
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
         public Eff<A> SwapEff(Func<A, Eff<A>> f) =>
-            EffMaybe(() =>
+            lift(() =>
             {
                 var fv = f(Value).Run();
                 if (fv.IsFail) return fv;
@@ -138,7 +140,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public Aff<RT, A> SwapAff<RT>(Func<A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+        public Aff<RT, A> SwapAff<RT>(Func<A, Aff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
             AffMaybe<RT, A>(async env =>
             {
                 var fv = await f(Value).Run(env).ConfigureAwait(false);
@@ -153,8 +155,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) where RT : struct =>
-            EffMaybe<RT, A>(env =>
+        public Eff<RT, A> SwapEff<RT>(Func<A, Eff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
+            lift((RT env) =>
             {
                 var fv = f(Value).Run(env);
                 if (fv.IsFail) return fv;
@@ -210,7 +212,7 @@ namespace LanguageExt
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
         public Eff<A> SwapEff<X, Y>(X x, Y y, Func<X, Y, A, Eff<A>> f) =>
-            EffMaybe(() =>
+            lift(() =>
             {
                 var fv = f(x, y, Value).Run();
                 if (fv.IsFail) return fv;
@@ -224,7 +226,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public Aff<RT, A> SwapAff<X, Y, RT>(X x, Y y, Func<X, Y, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+        public Aff<RT, A> SwapAff<X, Y, RT>(X x, Y y, Func<X, Y, A, Aff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
             AffMaybe<RT, A>(async env =>
             {
                 var fv = await f(x, y, Value).Run(env).ConfigureAwait(false);
@@ -239,8 +241,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public Eff<RT, A> SwapEff<X, Y, RT>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) where RT : struct =>
-            EffMaybe<RT, A>(env =>
+        public Eff<RT, A> SwapEff<X, Y, RT>(X x, Y y, Func<X, Y, A, Eff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
+            lift((RT env) =>
             {
                 var fv = f(x, y, Value).Run(env);
                 if (fv.IsFail) return fv;
@@ -296,7 +298,7 @@ namespace LanguageExt
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
         public Eff<A> SwapEff<X>(X x, Func<X, A, Eff<A>> f) =>
-            EffMaybe(() =>
+            lift(() =>
             {
                 var fv = f(x, Value).Run();
                 if (fv.IsFail) return fv;
@@ -310,7 +312,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public Aff<RT, A> SwapAff<X, RT>(X x, Func<X, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+        public Aff<RT, A> SwapAff<X, RT>(X x, Func<X, A, Aff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
             AffMaybe<RT, A>(async env =>
             {
                 var fv = await f(x, Value).Run(env).ConfigureAwait(false);
@@ -325,8 +327,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Swap function</param>
         /// <returns>The value returned from `f`</returns>
-        public Eff<RT, A> SwapEff<X, RT>(X x, Func<X, A, Eff<RT, A>> f) where RT : struct =>
-            EffMaybe<RT, A>(env =>
+        public Eff<RT, A> SwapEff<X, RT>(X x, Func<X, A, Eff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
+            lift((RT env) =>
             {
                 var fv = f(x, Value).Run(env);
                 if (fv.IsFail) return fv;

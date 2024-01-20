@@ -162,8 +162,8 @@ public abstract record Error
     /// </summary>
     /// <param name="thisException">Exception</param>
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Error New(Exception thisException) =>
-        new Exceptional(thisException);
+    public static Error New(Exception? thisException) =>
+        new Exceptional(thisException ?? new BottomException());
 
     /// <summary>
     /// Create a `Exceptional` error with an overriden message.  This can be useful for sanitising the display message
@@ -172,8 +172,8 @@ public abstract record Error
     /// <param name="message">Error message</param>
     /// <param name="thisException">Exception</param>
     [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Error New(string message, Exception thisException) =>
-        new Exceptional(message, thisException);
+    public static Error New(string message, Exception? thisException) =>
+        new Exceptional(message, thisException ?? new BottomException());
 
     /// <summary>
     /// Create an `Expected` error 

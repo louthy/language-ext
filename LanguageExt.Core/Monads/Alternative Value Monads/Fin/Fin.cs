@@ -596,7 +596,7 @@ namespace LanguageExt
                     ? Sum<Error, A>.Left(Error)
                     : throw new BottomException();
 
-            return Transducer.lift<Unit, Sum<Error, A>>(_ => sum);
+            return lift<Unit, Sum<Error, A>>(_ => sum);
         }
         
         [Pure, MethodImpl(Opt.Default)]

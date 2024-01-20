@@ -1,3 +1,4 @@
+/*
 using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
@@ -250,3 +251,4 @@ namespace LanguageExt
             ma | matchError(static _ => true, Fail);
     }
 }
+*/

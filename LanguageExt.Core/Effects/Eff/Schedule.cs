@@ -1,3 +1,4 @@
+/*
 #nullable enable
 
 using System;
@@ -65,3 +66,4 @@ namespace LanguageExt
             schedule.Run(ma, state, fold, x => x.Case is A a && !pred(a));
     }
 }
+*/

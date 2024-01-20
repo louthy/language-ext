@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Threading;
 using LanguageExt.Common;
@@ -178,3 +179,4 @@ namespace LanguageExt
             ScheduleEff<A>.FoldUntil(ma, Schedule.Forever, state, fold, pred);  
     }
 }
+*/

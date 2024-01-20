@@ -6,6 +6,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
@@ -235,6 +236,7 @@ public abstract partial record Schedule
     static Fin<S> FinalResult<A, S>(Fin<A> effectResult, S state) =>
         effectResult.IsSucc ? state : FinFail<S>(effectResult.Error);
 
+    /*
     [Pure]
     internal Eff<S> Run<A, S>(Eff<A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
     {
@@ -272,7 +274,7 @@ public abstract partial record Schedule
 
     [Pure]
     internal Eff<RT, S> Run<RT, A, S>(Eff<RT, A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
-        where RT : struct
+        where RT : struct, HasIO<RT, Error>
     {
         var durations = Run();
         return EffMaybe<RT, S>(env =>
@@ -303,8 +305,9 @@ public abstract partial record Schedule
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal Eff<RT, A> Run<RT, A>(Eff<RT, A> effect, Func<Fin<A>, bool> pred) where RT : struct =>
+    internal Eff<RT, A> Run<RT, A>(Eff<RT, A> effect, Func<Fin<A>, bool> pred) where RT : struct, HasIO<RT, Error> =>
         Run(effect, default(A), static (_, result) => result, pred)!;
+        */
 
     [Pure]
     internal Aff<S> Run<A, S>(Aff<A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
@@ -346,7 +349,7 @@ public abstract partial record Schedule
 
     [Pure]
     internal Aff<RT, S> Run<RT, A, S>(Aff<RT, A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
-        where RT : struct, HasCancel<RT>
+        where RT : struct, HasIO<RT, Error>
     {
         var durations = Run();
         return AffMaybe<RT, S>(async env =>
@@ -384,6 +387,6 @@ public abstract partial record Schedule
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal Aff<RT, A> Run<RT, A>(Aff<RT, A> effect, Func<Fin<A>, bool> pred) where RT : struct, HasCancel<RT> =>
+    internal Aff<RT, A> Run<RT, A>(Aff<RT, A> effect, Func<Fin<A>, bool> pred) where RT : struct, HasIO<RT, Error> =>
         Run(effect, default(A), static (_, result) => result, pred)!;
 }

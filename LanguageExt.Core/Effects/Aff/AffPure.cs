@@ -173,7 +173,7 @@ namespace LanguageExt
                 var ra = await ma.Run().ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
-                    : mb.Run(ra.Error);
+                    : mb.Run(ra.Error).Run();
             });
 
         [Pure, MethodImpl(Opt.Default)]
@@ -243,7 +243,7 @@ namespace LanguageExt
         }        
 
         [Pure, MethodImpl(Opt.Default)]
-        public Aff<RT, A> WithRuntime<RT>() where RT : struct, HasCancel<RT>
+        public Aff<RT, A> WithRuntime<RT>() where RT : struct, HasIO<RT, Error>
         {
             var self = this;
             return Aff<RT, A>.EffectMaybe(_ => self.Run());
@@ -277,5 +277,8 @@ namespace LanguageExt
         /// </summary>
         public static implicit operator Aff<A>(Eff<A> ma) =>
             EffectMaybe(() => ma.Run().AsValueTask());
+
+        public static implicit operator Aff<A>(Transducer<Unit, A> t) =>
+            t.ToAff();
     }
 }

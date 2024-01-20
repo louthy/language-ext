@@ -111,12 +111,15 @@ public readonly record struct Pure<A>(A Value) : KArr<Any, Unit, A>
         where RT : struct, HasIO<RT, E> =>
         IO<RT, E, A>.Pure(Value);
     
+    public IO<E, A> ToIO<E>() =>
+        IO<E, A>.Pure(Value);
+    
     public Eff<RT, A> ToEff<RT>()
         where RT : struct, HasIO<RT, Error> =>
-        Eff<RT, A>.Success(Value);
+        Eff<RT, A>.Pure(Value);
     
     public Eff<A> ToEff() =>
-        Eff<A>.Success(Value);
+        Eff<A>.Pure(Value);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

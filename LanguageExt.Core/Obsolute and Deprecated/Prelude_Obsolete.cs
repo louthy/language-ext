@@ -6,6 +6,7 @@ using System.Linq;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LSeq = LanguageExt.Seq;
 
@@ -467,7 +468,7 @@ namespace LanguageExt
         /// </summary>
         [Obsolete("use `atomic` instead of `sync`")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, R> sync<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct =>
+        public static Eff<RT, R> sync<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct, HasIO<RT, Error> =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>
@@ -485,7 +486,7 @@ namespace LanguageExt
         /// </summary>
         [Obsolete("use `atomic` instead of `sync`")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Aff<RT, R> sync<RT, R>(Aff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, R> sync<RT, R>(Aff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct, HasIO<RT, Error> =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>

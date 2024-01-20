@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt
@@ -176,7 +177,8 @@ namespace LanguageExt
         /// ... would fail if something wrote to `y`.  
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, R> atomic<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct =>
+        public static Eff<RT, R> atomic<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) 
+            where RT : struct, HasIO<RT, Error> =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>
@@ -248,7 +250,8 @@ namespace LanguageExt
         /// ... would fail if something wrote to `y`.  
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Aff<RT, R> atomic<RT, R>(Aff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, R> atomic<RT, R>(Aff<RT, R> op, Isolation isolation = Isolation.Snapshot) 
+            where RT : struct, HasIO<RT, Error> =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>
@@ -468,7 +471,8 @@ namespace LanguageExt
         /// the transaction is rolled back and retried (using the latest 'world' state). 
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, R> snapshot<RT, R>(Eff<RT, R> op) where RT : struct =>
+        public static Eff<RT, R> snapshot<RT, R>(Eff<RT, R> op) 
+            where RT : struct, HasIO<RT, Error> =>
             STM.DoTransaction(op, Isolation.Snapshot);
 
         /// <summary>
@@ -495,7 +499,8 @@ namespace LanguageExt
         /// the transaction is rolled back and retried (using the latest 'world' state). 
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Aff<RT, R> snapshot<RT, R>(Aff<RT, R> op) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, R> snapshot<RT, R>(Aff<RT, R> op) 
+            where RT : struct, HasIO<RT, Error> =>
             STM.DoTransaction(op, Isolation.Snapshot);
 
         /// <summary>
@@ -654,7 +659,8 @@ namespace LanguageExt
         /// ... would fail if something wrote to `y`.  
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, R> serial<RT, R>(Eff<RT, R> op) where RT : struct =>
+        public static Eff<RT, R> serial<RT, R>(Eff<RT, R> op) 
+            where RT : struct, HasIO<RT, Error> =>
             STM.DoTransaction(op, Isolation.Snapshot);
 
         /// <summary>
@@ -716,7 +722,8 @@ namespace LanguageExt
         /// ... would fail if something wrote to `y`.  
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Aff<RT, R> serial<RT, R>(Aff<RT, R> op) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, R> serial<RT, R>(Aff<RT, R> op) 
+            where RT : struct, HasIO<RT, Error> =>
             STM.DoTransaction(op, Isolation.Snapshot);
 
         /// <summary>
@@ -927,7 +934,8 @@ namespace LanguageExt
         /// <param name="f">Function to update the `Ref`</param>
         /// <returns>The value returned from `f`</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Aff<RT, A> swapAff<RT, A>(Ref<A> r, Func<A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> swapAff<RT, A>(Ref<A> r, Func<A, Aff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
             r.SwapAff(f);
 
         /// <summary>
@@ -938,7 +946,8 @@ namespace LanguageExt
         /// <param name="f">Function to update the `Ref`</param>
         /// <returns>The value returned from `f`</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, A> swapEff<RT, A>(Ref<A> r, Func<A, Eff<RT, A>> f) where RT : struct =>
+        public static Eff<RT, A> swapEff<RT, A>(Ref<A> r, Func<A, Eff<RT, A>> f)
+            where RT : struct, HasIO<RT, Error> =>
             r.SwapEff(f);
 
         /// <summary>
@@ -993,7 +1002,8 @@ namespace LanguageExt
         /// <param name="f">Function to update the `Ref`</param>
         /// <returns>The value returned from `f`</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Aff<RT, A> swapAff<RT, X, A>(Ref<A> r, X x, Func<X, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> swapAff<RT, X, A>(Ref<A> r, X x, Func<X, A, Aff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
             r.SwapAff(x, f);
 
         /// <summary>
@@ -1004,7 +1014,8 @@ namespace LanguageExt
         /// <param name="f">Function to update the `Ref`</param>
         /// <returns>The value returned from `f`</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, A> swapEff<RT, X, A>(Ref<A> r, X x, Func<X, A, Eff<RT, A>> f) where RT : struct =>
+        public static Eff<RT, A> swapEff<RT, X, A>(Ref<A> r, X x, Func<X, A, Eff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
             r.SwapEff(x, f);
 
         /// <summary>
@@ -1059,7 +1070,8 @@ namespace LanguageExt
         /// <param name="f">Function to update the `Ref`</param>
         /// <returns>The value returned from `f`</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Aff<RT, A> swapAff<RT, X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, A> swapAff<RT, X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, Aff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
             r.SwapAff(x, y, f);
 
         /// <summary>
@@ -1070,7 +1082,8 @@ namespace LanguageExt
         /// <param name="f">Function to update the `Ref`</param>
         /// <returns>The value returned from `f`</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, A> swapEff<RT, X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) where RT : struct =>
+        public static Eff<RT, A> swapEff<RT, X, Y, A>(Ref<A> r, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
             r.SwapEff(x, y, f);        
         
         /// <summary>
@@ -1290,8 +1303,9 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Eff<RT, A> swapEff<RT, A>(Atom<A> ma, Func<A, Eff<RT, A>> f) where RT : struct =>
-            ma.SwapEff<RT>(f);
+        public static Eff<RT, A> swapEff<RT, A>(Atom<A> ma, Func<A, Eff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
+            ma.SwapEff(f);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1334,8 +1348,9 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Aff<RT, A> swapAff<RT, A>(Atom<A> ma, Func<A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
-            ma.SwapAff<RT>(f);
+        public static Aff<RT, A> swapAff<RT, A>(Atom<A> ma, Func<A, Aff<RT, A>> f)
+            where RT : struct, HasIO<RT, Error> =>
+            ma.SwapAff(f);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1347,7 +1362,7 @@ namespace LanguageExt
         /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
         /// and its validation passed. None otherwise</returns>
         public static Option<A> swap<X, A>(Atom<A> ma, X x, Func<X, A, A> f) =>
-            ma.Swap<X>(x, f);
+            ma.Swap(x, f);
         
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1359,7 +1374,7 @@ namespace LanguageExt
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public static Eff<A> swapEff<X, A>(Atom<A> ma, X x, Func<X, A, Eff<A>> f) =>
-            ma.SwapEff<X>(x, f);
+            ma.SwapEff(x, f);
         
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1370,8 +1385,9 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Eff<RT, A> swapEff<RT, X, A>(Atom<A> ma, X x, Func<X, A, Eff<RT, A>> f) where RT : struct =>
-            ma.SwapEff<RT, X>(x, f);
+        public static Eff<RT, A> swapEff<RT, X, A>(Atom<A> ma, X x, Func<X, A, Eff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
+            ma.SwapEff(x, f);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1383,7 +1399,7 @@ namespace LanguageExt
         /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
         /// and its validation passed. None otherwise</returns>
         public static ValueTask<Option<A>> swapAsync<X, A>(Atom<A> ma, X x, Func<X, A, ValueTask<A>> f) =>
-            ma.SwapAsync<X>(x, f);
+            ma.SwapAsync(x, f);
         
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1395,7 +1411,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public static Aff<A> swapAff<X, A>(Atom<A> ma, X x, Func<X, A, Aff<A>> f) =>
-            ma.SwapAff<X>(x, f);
+            ma.SwapAff(x, f);
                 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1407,7 +1423,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public static Aff<A> swapAff<X, A>(Atom<A> ma, X x, Func<X, A, ValueTask<A>> f) =>
-            ma.SwapAff<X>(x, f);
+            ma.SwapAff(x, f);
         
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1418,8 +1434,9 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Aff<RT, A> swapAff<RT, X, A>(Atom<A> ma, X x, Func<X, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
-            ma.SwapAff<RT, X>(x, f);
+        public static Aff<RT, A> swapAff<RT, X, A>(Atom<A> ma, X x, Func<X, A, Aff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
+            ma.SwapAff(x, f);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1432,7 +1449,7 @@ namespace LanguageExt
         /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
         /// and its validation passed. None otherwise</returns>
         public static Option<A> swap<X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, A> f) =>
-            ma.Swap<X, Y>(x, y, f);
+            ma.Swap(x, y, f);
                 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1445,7 +1462,7 @@ namespace LanguageExt
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public static Eff<A> swapEff<X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, Eff<A>> f) =>
-            ma.SwapEff<X, Y>(x, y, f);
+            ma.SwapEff(x, y, f);
         
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1457,8 +1474,9 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Eff<RT, A> swapEff<RT, X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) where RT : struct =>
-            ma.SwapEff<RT, X, Y>(x, y, f);
+        public static Eff<RT, A> swapEff<RT, X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, Eff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
+            ma.SwapEff(x, y, f);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1471,7 +1489,7 @@ namespace LanguageExt
         /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
         /// and its validation passed. None otherwise</returns>
         public static ValueTask<Option<A>> swapAsync<X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, ValueTask<A>> f) =>
-            ma.SwapAsync<X, Y>(x, y, f);
+            ma.SwapAsync(x, y, f);
         
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1484,7 +1502,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public static Aff<A> swapAff<X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, Aff<A>> f) =>
-            ma.SwapAff<X, Y>(x, y, f);
+            ma.SwapAff(x, y, f);
                 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1497,7 +1515,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public static Aff<A> swapAff<X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, ValueTask<A>> f) =>
-            ma.SwapAff<X, Y>(x, y, f);
+            ma.SwapAff(x, y, f);
         
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1509,8 +1527,9 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Aff<RT, A> swapAff<RT, X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
-            ma.SwapAff<RT, X, Y>(x, y, f);
+        public static Aff<RT, A> swapAff<RT, X, Y, A>(Atom<A> ma, X x, Y y, Func<X, Y, A, Aff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
+            ma.SwapAff(x, y, f);
 
 
         /// <summary>
@@ -1543,8 +1562,9 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Eff<RT, A> swapEff<RT, M, A>(Atom<M, A> ma, Func<M, A, Eff<RT, A>> f) where RT : struct =>
-            ma.SwapEff<RT>(f);
+        public static Eff<RT, A> swapEff<RT, M, A>(Atom<M, A> ma, Func<M, A, Eff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
+            ma.SwapEff(f);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1587,8 +1607,9 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Aff<RT, A> swapAff<RT, M, A>(Atom<M, A> ma, Func<M, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
-            ma.SwapAff<RT>(f);
+        public static Aff<RT, A> swapAff<RT, M, A>(Atom<M, A> ma, Func<M, A, Aff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
+            ma.SwapAff(f);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1600,7 +1621,7 @@ namespace LanguageExt
         /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
         /// and its validation passed. None otherwise</returns>
         public static Option<A> swap<M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, A> f) =>
-            ma.Swap<X>(x, f);
+            ma.Swap(x, f);
                 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1612,7 +1633,7 @@ namespace LanguageExt
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public static Eff<A> swapEff<M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, Eff<A>> f) =>
-            ma.SwapEff<X>(x, f);
+            ma.SwapEff(x, f);
         
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1623,8 +1644,9 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Eff<RT, A> swapEff<RT, M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, Eff<RT, A>> f) where RT : struct =>
-            ma.SwapEff<RT, X>(x, f);
+        public static Eff<RT, A> swapEff<RT, M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, Eff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
+            ma.SwapEff(x, f);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1636,7 +1658,7 @@ namespace LanguageExt
         /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
         /// and its validation passed. None otherwise</returns>
         public static ValueTask<Option<A>> swapAsync<M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, ValueTask<A>> f) =>
-            ma.SwapAsync<X>(x, f);
+            ma.SwapAsync(x, f);
         
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1648,7 +1670,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public static Aff<A> swapAff<M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, Aff<A>> f) =>
-            ma.SwapAff<X>(x, f);
+            ma.SwapAff(x, f);
                 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1660,7 +1682,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public static Aff<A> swapAff<M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, ValueTask<A>> f) =>
-            ma.SwapAff<X>(x, f);
+            ma.SwapAff(x, f);
         
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1671,8 +1693,9 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Aff<RT, A> swapAff<RT, M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
-            ma.SwapAff<RT, X>(x, f);
+        public static Aff<RT, A> swapAff<RT, M, X, A>(Atom<M, A> ma, X x, Func<M, X, A, Aff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
+            ma.SwapAff(x, f);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1685,7 +1708,7 @@ namespace LanguageExt
         /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
         /// and its validation passed. None otherwise</returns>
         public static Option<A> swap<M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, A> f) =>
-            ma.Swap<X, Y>(x, y, f);
+            ma.Swap(x, y, f);
                 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1698,7 +1721,7 @@ namespace LanguageExt
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public static Eff<A> swapEff<M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, Eff<A>> f) =>
-            ma.SwapEff<X, Y>(x, y, f);
+            ma.SwapEff(x, y, f);
         
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1710,8 +1733,9 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Eff<RT, A> swapEff<RT, M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, Eff<RT, A>> f) where RT : struct =>
-            ma.SwapEff<RT, X, Y>(x, y, f);
+        public static Eff<RT, A> swapEff<RT, M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, Eff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
+            ma.SwapEff(x, y, f);
 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1724,7 +1748,7 @@ namespace LanguageExt
         /// <returns>Option in a Some state, with the result of the invocation of `f`, if the swap succeeded
         /// and its validation passed. None otherwise</returns>
         public static ValueTask<Option<A>> swapAsync<M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, ValueTask<A>> f) =>
-            ma.SwapAsync<X, Y>(x, y, f);
+            ma.SwapAsync(x, y, f);
         
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1737,7 +1761,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public static Aff<A> swapAff<X, M, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, Aff<A>> f) =>
-            ma.SwapAff<X, Y>(x, y, f);
+            ma.SwapAff(x, y, f);
                 
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1750,7 +1774,7 @@ namespace LanguageExt
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
         public static Aff<A> swapAff<X, M, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, ValueTask<A>> f) =>
-            ma.SwapAff<X, Y>(x, y, f);
+            ma.SwapAff(x, y, f);
         
         /// <summary>
         /// Atomically updates the value by passing the old value to `f` and updating
@@ -1762,7 +1786,8 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public static Aff<RT, A> swapAff<RT, M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, Aff<RT, A>> f) where RT : struct, HasCancel<RT> =>
-            ma.SwapAff<RT, X, Y>(x, y, f);
+        public static Aff<RT, A> swapAff<RT, M, X, Y, A>(Atom<M, A> ma, X x, Y y, Func<M, X, Y, A, Aff<RT, A>> f) 
+            where RT : struct, HasIO<RT, Error> =>
+            ma.SwapAff(x, y, f);
     }
 }

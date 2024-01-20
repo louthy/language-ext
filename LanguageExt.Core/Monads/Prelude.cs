@@ -29,7 +29,7 @@ namespace LanguageExt
         /// <returns>Pure monad</returns>
         public static Pure<A> Pure<A>(A value) =>
             new(value);
-
+        
         /// <summary>
         /// Create a new Fail monad: the monad that always fails.  This monad doesn't do much,
         /// but when combined with other monads, it allows for easier construction of lifted 

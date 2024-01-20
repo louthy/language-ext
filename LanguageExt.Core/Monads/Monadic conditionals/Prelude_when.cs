@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.TypeClasses;
 
@@ -21,7 +22,7 @@ namespace LanguageExt
         ///     select x;
         /// 
         /// </example>
-        public static Aff<RT, Unit> when<RT>(bool flag, Aff<RT, Unit> alternative) where RT : struct, HasCancel<RT> =>
+        public static Aff<RT, Unit> when<RT>(bool flag, Aff<RT, Unit> alternative) where RT : struct, HasIO<RT, Error> =>
             flag
                 ? alternative
                 : SuccessEff(unit);
@@ -39,7 +40,7 @@ namespace LanguageExt
         ///     select x;
         /// 
         /// </example>
-        public static Eff<RT, Unit> when<RT>(bool flag, Eff<RT, Unit> alternative) where RT : struct, HasCancel<RT> =>
+        public static Eff<RT, Unit> when<RT>(bool flag, Eff<RT, Unit> alternative) where RT : struct, HasIO<RT, Error> =>
             flag
                 ? alternative
                 : SuccessEff(unit);
