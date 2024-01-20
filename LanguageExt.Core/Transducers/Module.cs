@@ -296,6 +296,62 @@ public static partial class Transducer
     /// </summary>
     /// <param name="function0">Function</param>
     /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<Unit, Unit> liftIO(Func<Task> action0) =>
+        liftIO(async _ =>
+        {
+            await action0().ConfigureAwait(false);
+            return unit;
+        });
+
+    /// <summary>
+    /// Lift a asynchronous IO function into a `Transducer`
+    /// </summary>
+    /// <param name="function0">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, Unit> liftIO<A>(Func<A, Task> action1) =>
+        liftIO<A, Unit>(async (_, v) =>
+        {
+            await action1(v).ConfigureAwait(false);
+            return unit;
+        });
+    
+    /// <summary>
+    /// Lift a asynchronous IO function into a `Transducer`
+    /// </summary>
+    /// <param name="function0">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<Unit, A> liftIO<A>(Func<Task<A>> function0) =>
+        new LiftIOTransducer4<A>(_ => function0());
+    
+    /// <summary>
+    /// Lift a asynchronous IO function into a `Transducer`
+    /// </summary>
+    /// <param name="tfunction0">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<Unit, A> liftIO<A>(Func<Task<TResult<A>>> tfunction0) =>
+        new LiftIOTransducer2<A>(_ => tfunction0());
+    
+    /// <summary>
+    /// Lift a asynchronous IO function into a `Transducer`
+    /// </summary>
+    /// <param name="function1">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, B> liftIO<A, B>(Func<A, Task<B>> function1) =>
+        new LiftIOTransducer3<A, B>((_, x) => function1(x));
+    
+    /// <summary>
+    /// Lift a asynchronous IO function into a `Transducer`
+    /// </summary>
+    /// <param name="tfunction1">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
+    public static Transducer<A, B> liftIO<A, B>(Func<A, Task<TResult<B>>> tfunction1) =>
+        new LiftIOTransducer1<A, B>((_, x) => tfunction1(x));    
+    
+    /// <summary>
+    /// Lift a asynchronous IO function into a `Transducer`
+    /// </summary>
+    /// <param name="function0">Function</param>
+    /// <returns>Transducer that wraps the lifted function</returns>
     public static Transducer<Unit, Unit> liftIO(Func<CancellationToken, Task> action0) =>
         liftIO(async t =>
         {
@@ -525,6 +581,30 @@ public static partial class Transducer
         Transducer<E, Transducer<A, B>> ff,
         Transducer<E, A> fa) =>
         new ApplyTransducer2<E, A, B>(ff, fa);
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Gets a lifted function and a lifted argument, invokes the function with the argument and re-lifts the result.
+    /// </remarks>
+    /// <returns>Result of applying the function to the argument</returns>
+    public static Transducer<E, Sum<X, B>> apply<E, X, A, B>(
+        Transducer<E, Sum<X, Func<A, B>>> ff,
+        Transducer<E, Sum<X, A>> fa) =>
+        new ApplySumTransducer<E, X, A, B>(ff, fa);
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Gets a lifted function and a lifted argument, invokes the function with the argument and re-lifts the result.
+    /// </remarks>
+    /// <returns>Result of applying the function to the argument</returns>
+    public static Transducer<E, Sum<X, B>> apply<E, X, A, B>(
+        Transducer<E, Sum<X, Transducer<A, B>>> ff,
+        Transducer<E, Sum<X, A>> fa) =>
+        new ApplySumTransducer2<E, X, A, B>(ff, fa);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

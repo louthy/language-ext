@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
@@ -141,3 +142,4 @@ namespace LanguageExt
             ScheduleEff<A>.RetryUntil(ma, schedule, predicate);  
     }
 }
+*/

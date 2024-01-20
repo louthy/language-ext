@@ -63,7 +63,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// </summary>
     [MethodImpl(Opt.Default)]
     IO(Transducer<RT, A> thunk) 
-        : this(Transducer.compose(thunk, Transducer.lift<A, Sum<E, A>>(x => Sum<E, A>.Right(x))))
+        : this(Transducer.compose(thunk, Transducer.mkRight<E, A>()))
     { }
 
     /// <summary>
@@ -132,8 +132,8 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// Invoke the effect
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public Either<E, A> Run(RT env, SynchronizationContext? context = null) =>
-        Morphism.Invoke1(env, env.CancellationToken, context)
+    public Either<E, A> Run(RT env) =>
+        Morphism.Invoke1(env, env.CancellationToken, env.SynchronizationContext)
                 .ToEither(errorMap);
 
     /// <summary>
@@ -153,7 +153,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
                             _ => TResult.Complete(s)
                         }),
                     env.CancellationToken, 
-                    SynchronizationContext.Current)
+                    env.SynchronizationContext)
                 .ToFin();
 
     /// <summary>
@@ -220,6 +220,48 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
             .Map(r => r.Match(
                 Succ: v => v,
                 Fail: e => default(RT).FromError(e)));
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Timeout
+    //
+
+    /// <summary>
+    /// Cancel the operation if it takes too long
+    /// </summary>
+    /// <param name="timeoutDelay">Timeout period</param>
+    /// <returns>An IO operation that will timeout if it takes too long</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public IO<RT, E, A> Timeout(TimeSpan timeoutDelay)
+    {
+        var self = this;
+        return LiftIO(async rt =>
+        {
+            using var delayTokSrc = new CancellationTokenSource();
+            var lenv       = rt.LocalCancel;
+            var delay      = Task.Delay(timeoutDelay, delayTokSrc.Token);
+            var task       = self.RunAsync(lenv);
+            var completed  = await Task.WhenAny(delay, task).ConfigureAwait(false);
+
+            if (completed == delay)
+            {
+                try
+                {
+                    lenv.CancellationTokenSource.Cancel();
+                }
+                catch
+                {
+                    // The token-source might have already been disposed, so let's ignore that error
+                }
+                return Left<E, A>(default(RT).FromError(Errors.TimedOut));
+            }
+            else
+            {
+                delayTokSrc.Cancel();
+                return await task.ConfigureAwait(false);
+            }
+        });
+    }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -828,7 +870,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
         S initialState,
         Func<S, A, S> folder, 
         Func<S, bool> stateIs) =>
-        FoldUntil(schedule, initialState, folder, last => stateIs(last.State));
+        FoldWhile(schedule, initialState, folder, last => stateIs(last.State));
 
     /// <summary>
     /// Fold the effect while the predicate returns `true`
@@ -839,7 +881,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
         S initialState,
         Func<S, A, S> folder, 
         Func<A, bool> valueIs) =>
-        FoldUntil(schedule, initialState, folder, last => valueIs(last.Value));
+        FoldWhile(schedule, initialState, folder, last => valueIs(last.Value));
 
     /// <summary>
     /// Fold the effect while the predicate returns `true`
@@ -901,7 +943,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// Fold the effect until the predicate returns `true`
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public IO<RT, E, S> FoldMUntil<S>(
+    public IO<RT, E, S> FoldUntilM<S>(
         Schedule schedule, 
         S initialState,
         Func<S, A, IO<RT, E, S>> folder, 
@@ -913,17 +955,17 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// Fold the effect until the predicate returns `true`
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public IO<RT, E, S> FoldMUntil<S>(
+    public IO<RT, E, S> FoldUntilM<S>(
         S initialState,
         Func<S, A, IO<RT, E, S>> folder, 
         Func<A, bool> valueIs) =>
-        FoldMUntil(Schedule.Forever, initialState, folder, valueIs);
+        FoldUntilM(Schedule.Forever, initialState, folder, valueIs);
 
     /// <summary>
     /// Fold the effect while the predicate returns `true`
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public IO<RT, E, S> FoldMWhile<S>(
+    public IO<RT, E, S> FoldWhileM<S>(
         Schedule schedule, 
         S initialState,
         Func<S, A, IO<RT, E, S>> folder, 
@@ -935,11 +977,11 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// Fold the effect while the predicate returns `true`
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public IO<RT, E, S> FoldMWhile<S>(
+    public IO<RT, E, S> FoldWhileM<S>(
         S initialState,
         Func<S, A, IO<RT, E, S>> folder, 
         Func<A, bool> valueIs) =>
-        FoldMWhile(Schedule.Forever, initialState, folder, valueIs);
+        FoldWhileM(Schedule.Forever, initialState, folder, valueIs);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

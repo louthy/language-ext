@@ -10,6 +10,9 @@ namespace LanguageExt
 
         public CatchValue(Func<Error, bool> match, Func<Error, A> value) =>
             (Match, Value) = (match, value);
+
+        public CatchValue<Error, A> As() =>
+            new (Match, Value);
     }
 
     public readonly struct CatchValue<E, A>
@@ -28,6 +31,9 @@ namespace LanguageExt
 
         public CatchError(Func<Error, bool> match, Func<Error, Error> value) =>
             (Match, Value) = (match, value);
+
+        public CatchError<Error> As() =>
+            new (Match, Value);
     }
 
     public readonly struct CatchError<E>

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -87,6 +88,14 @@ namespace LanguageExt
         /// </summary>
         public IO<RT, E, Unit> ToIO<RT>() 
             where RT : struct, HasIO<RT, E> =>
+            Flag
+                ? Pure(unit)
+                : Fail(OnFalse());
+        
+        /// <summary>
+        /// Natural transformation to `IO`
+        /// </summary>
+        public IO<E, Unit> ToIO() =>
             Flag
                 ? Pure(unit)
                 : Fail(OnFalse());

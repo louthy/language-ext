@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
@@ -176,3 +177,4 @@ namespace LanguageExt
             ScheduleEff<A>.FoldUntil(ma, Schedule.Forever, state, fold, pred);  
     }
 }
+*/

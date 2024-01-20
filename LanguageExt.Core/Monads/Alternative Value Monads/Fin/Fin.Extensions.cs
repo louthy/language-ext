@@ -18,6 +18,12 @@ using LanguageExt.Common;
 public static class FinExtensions
 {
     /// <summary>
+    /// Natural transformation from `Either` to `Fin`
+    /// </summary>
+    public static Fin<A> ToFin<A>(this Either<Error, A> ma) =>
+        ma.Match(Right: FinSucc, Left: FinFail<A>, Bottom: () => FinFail<A>(Errors.Bottom));
+    
+    /// <summary>
     /// Monadic join
     /// </summary>
     [Pure]

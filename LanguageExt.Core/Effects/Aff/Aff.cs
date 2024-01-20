@@ -14,7 +14,7 @@ namespace LanguageExt
     /// Asynchronous effect monad
     /// </summary>
     public readonly struct Aff<RT, A> 
-        where RT : struct, HasCancel<RT>
+        where RT : struct, HasIO<RT, Error>
     {
         internal Func<RT, ValueTask<Fin<A>>> Thunk => thunk ?? (_ => FinFail<A>(Errors.Bottom).AsValueTask());
         readonly Func<RT, ValueTask<Fin<A>>> thunk;
@@ -297,7 +297,7 @@ namespace LanguageExt
                 var ra = await ma.Run(env).ConfigureAwait(false);
                 return ra.IsSucc
                     ? ra
-                    : mb.Run(ra.Error);
+                    : mb.Run(ra.Error).Run();
             });
 
         [Pure, MethodImpl(Opt.Default)]

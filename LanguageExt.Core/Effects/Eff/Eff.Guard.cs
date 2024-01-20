@@ -1,3 +1,4 @@
+/*
 using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
@@ -50,3 +51,4 @@ namespace LanguageExt
             ma.Bind(a => bind(a).ToEff().Map(_ => project(a, default)));
     }
 }
+*/

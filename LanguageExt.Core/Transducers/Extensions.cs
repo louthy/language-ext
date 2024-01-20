@@ -71,6 +71,30 @@ public static partial class Transducer
         Transducer<E, A> fa) =>
         new ApplyTransducer2<E, A, B>(ff, fa);    
 
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Gets a lifted function and a lifted argument, invokes the function with the argument and re-lifts the result.
+    /// </remarks>
+    /// <returns>Result of applying the function to the argument</returns>
+    public static Transducer<E, Sum<X, B>> Apply<E, X, A, B>(
+        this Transducer<E, Sum<X, Func<A, B>>> ff,
+        Transducer<E, Sum<X, A>> fa) =>
+        new ApplySumTransducer<E, X, A, B>(ff, fa);
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    /// <remarks>
+    /// Gets a lifted function and a lifted argument, invokes the function with the argument and re-lifts the result.
+    /// </remarks>
+    /// <returns>Result of applying the function to the argument</returns>
+    public static Transducer<E, Sum<X, B>> Apply<E, X, A, B>(
+        this Transducer<E, Sum<X, Transducer<A, B>>> ff,
+        Transducer<E, Sum<X, A>> fa) =>
+        new ApplySumTransducer2<E, X, A, B>(ff, fa);
+    
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Partial application
