@@ -40,7 +40,7 @@ namespace LanguageExt.Sys.IO
         public static Aff<RT, Unit> appendAllLines(string path, IEnumerable<string> contents) =>
             from ct in cancelToken<RT>()
             from en in Enc<RT>.encoding
-            from rs in default(RT).FileEff.MapAsync(e => e.AppendAllLines(path, contents, en, ct))
+            from rs in default(RT).FileEff.Map(liftIO(async (FileIO e) => await e.AppendAllLines(path, contents, en, ct)))
             select rs;
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace LanguageExt.Sys.IO
         public static Aff<RT, Seq<string>> readAllLines(string path) =>
             from ct in cancelToken<RT>()
             from en in Enc<RT>.encoding
-            from rs in default(RT).FileEff.MapAsync(e => e.ReadAllLines(path, en, ct))
+            from rs in default(RT).FileEff.Map(liftIO(async (FileIO e) => await e.ReadAllLines(path, en, ct)))
             select rs;
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace LanguageExt.Sys.IO
         public static Aff<RT, Unit> writeAllLines(string path, Seq<string> lines) =>
             from ct in cancelToken<RT>()
             from en in Enc<RT>.encoding
-            from rs in default(RT).FileEff.MapAsync(e => e.WriteAllLines(path, lines, en, ct))
+            from rs in default(RT).FileEff.Map(liftIO(async (FileIO e) => await e.WriteAllLines(path, lines, en, ct)))
             select rs;
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace LanguageExt.Sys.IO
         public static Aff<RT, string> readAllText(string path) =>
             from ct in cancelToken<RT>()
             from en in Enc<RT>.encoding
-            from rs in default(RT).FileEff.MapAsync(e => e.ReadAllText(path, en, ct))
+            from rs in default(RT).FileEff.Map(liftIO(async (FileIO e) => await e.ReadAllText(path, en, ct)))
             select rs;
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace LanguageExt.Sys.IO
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<RT, byte[]> readAllBytes(string path) =>
             from ct in cancelToken<RT>()
-            from rs in default(RT).FileEff.MapAsync(e => e.ReadAllBytes(path, ct))
+            from rs in default(RT).FileEff.Map(liftIO(async (FileIO e) => await e.ReadAllBytes(path, ct)))
             select rs;
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace LanguageExt.Sys.IO
         public static Aff<RT, Unit> writeAllText(string path, string text) =>
             from ct in cancelToken<RT>()
             from en in Enc<RT>.encoding
-            from rs in default(RT).FileEff.MapAsync(e => e.WriteAllText(path, text, en, ct))
+            from rs in default(RT).FileEff.Map(liftIO(async (FileIO e) => await e.WriteAllText(path, text, en, ct)))
             select rs;
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace LanguageExt.Sys.IO
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<RT, Unit> writeAllBytes(string path, byte[] data) =>
             from ct in cancelToken<RT>()
-            from rs in default(RT).FileEff.MapAsync(e => e.WriteAllBytes(path, data, ct))
+            from rs in default(RT).FileEff.Map(liftIO(async (FileIO e) => await e.WriteAllBytes(path, data, ct)))
             select rs;
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace LanguageExt.Sys.IO
         /// </summary>
         public static Producer<RT, Stream, Unit> openRead(string path) =>
             from s in Proxy.use(openReadInternal(path))
-            from _ in Proxy.yield(s as Stream)
+            from _ in Proxy.yield(s)
             select unit;
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace LanguageExt.Sys.IO
         [Pure, MethodImpl(AffOpt.mops)]
         public static Producer<RT, Stream, Unit> open(string path, FileMode mode) =>
             from s in Proxy.use(openInternal(path, mode))
-            from _ in Proxy.yield(s as Stream)
+            from _ in Proxy.yield(s)
             select unit;
         
         /// <summary>
@@ -161,7 +161,7 @@ namespace LanguageExt.Sys.IO
         [Pure, MethodImpl(AffOpt.mops)]
         public static Producer<RT, Stream, Unit> open(string path, FileMode mode, FileAccess access) =>
             from s in Proxy.use(openInternal(path, mode, access))
-            from _ in Proxy.yield(s as Stream)
+            from _ in Proxy.yield(s)
             select unit;
         
         /// <summary>
@@ -170,7 +170,7 @@ namespace LanguageExt.Sys.IO
         [Pure, MethodImpl(AffOpt.mops)]
         public static Producer<RT, Stream, Unit> openWrite(string path) =>
             from s in Proxy.use(openWriteInternal(path))
-            from _ in Proxy.yield(s as Stream)
+            from _ in Proxy.yield(s)
             select unit;
 
         // -- Internal ------------------------------------------------------------------------------------------------- 

@@ -49,7 +49,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// </summary>
     [MethodImpl(Opt.Default)]
     IO(Func<RT, Sum<E, A>> thunk) =>
-        this.thunk = Transducer.lift(thunk);
+        this.thunk = lift(thunk);
 
     /// <summary>
     /// Constructor
@@ -80,7 +80,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// </summary>
     [MethodImpl(Opt.Default)]
     IO(Transducer<RT, Either<E, A>> thunk) 
-        : this(Transducer.compose(thunk, Transducer.lift<Either<E, A>, Sum<E, A>>(x => x.ToSum())))
+        : this(Transducer.compose(thunk, lift<Either<E, A>, Sum<E, A>>(x => x.ToSum())))
     { }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -330,7 +330,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> LiftIO(Func<RT, Task<A>> f) =>
-        new (Transducer.liftIO<RT, Sum<E, A>>(
+        new (liftIO<RT, Sum<E, A>>(
             async (_, rt) => Sum<E, A>.Right(await f(rt).ConfigureAwait(false))));
 
     /// <summary>
@@ -338,7 +338,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> LiftIO(Func<RT, Task<Sum<E, A>>> f) =>
-        new(Transducer.liftIO<RT, Sum<E, A>>(
+        new(liftIO<RT, Sum<E, A>>(
             async (_, rt) => await f(rt).ConfigureAwait(false)));
 
     /// <summary>
@@ -346,7 +346,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> LiftIO(Func<RT, Task<Either<E, A>>> f) =>
-        new (Transducer.liftIO<RT, Sum<E, A>>(
+        new (liftIO<RT, Sum<E, A>>(
             async (_, rt) => (await f(rt).ConfigureAwait(false)).ToSum()));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -387,7 +387,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// <returns>IO operation that's marked ready for tail recursion</returns>        
     [Pure, MethodImpl(Opt.Default)]
     public IO<RT, E, A> Tail() =>
-        new(Transducer.tail(Morphism));
+        new(tail(Morphism));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
@@ -495,7 +495,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// <returns>IO in a success state</returns>
     [Pure]
     public IO<RT, E, B> Match<B>(Func<A, B> Succ, Func<E, B> Fail) =>
-        Match(Transducer.lift(Succ), Transducer.lift(Fail));
+        Match(lift(Succ), lift(Fail));
 
     /// <summary>
     /// Pattern match the success or failure values and collapse them down to a success value
@@ -507,7 +507,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     public IO<RT, E, B> Match<B>(Transducer<A, B> Succ, Transducer<E, B> Fail) =>
         new(Transducer.compose(
                 Transducer.bimap(Morphism, Fail, Succ),
-                Transducer.lift<Sum<B, B>, Sum<E, B>>(s => s switch
+                lift<Sum<B, B>, Sum<E, B>>(s => s switch
                 {
                     SumRight<B, B> r => Sum<E, B>.Right(r.Value),
                     SumLeft<B, B> l => Sum<E, B>.Right(l.Value),
@@ -521,7 +521,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public IO<RT, E, A> IfFail(Func<E, A> Fail) =>
-        IfFail(Transducer.lift(Fail));
+        IfFail(lift(Fail));
 
     /// <summary>
     /// Map the failure to a success value
@@ -574,7 +574,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// <param name="predicate">Predicate to apply to the bound value></param>
     /// <returns>Filtered IO</returns>
     public IO<RT, E, A> Filter(Func<A, bool> predicate) =>
-        Filter(Transducer.lift(predicate));
+        Filter(lift(predicate));
 
     /// <summary>
     /// Only allow values through the effect if the predicate returns `true` for the bound value
@@ -590,7 +590,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// <param name="predicate">Predicate to apply to the bound value></param>
     /// <returns>Filtered IO</returns>
     public IO<RT, E, A> Where(Func<A, bool> predicate) =>
-        Filter(Transducer.lift(predicate));
+        Filter(lift(predicate));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -645,7 +645,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// <param name="f">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     public IO<RT, E, B> Bind<B>(Func<A, Transducer<Unit, B>> f) =>
-        new(Transducer.mapRight(Morphism, Transducer.lift(f).Flatten()));
+        new(Transducer.mapRight(Morphism, lift(f).Flatten()));
     
     /// <summary>
     /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
@@ -1103,7 +1103,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
         new(Transducer.@try(
             ma.Morphism,
             mb.Match,
-            Transducer.compose(Transducer.lift(mb.Value), Transducer.mkLeft<E, A>())));
+            Transducer.compose(lift(mb.Value), Transducer.mkLeft<E, A>())));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1117,7 +1117,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
         new(Transducer.@try(
             ma.Morphism,
             mb.Match,
-            Transducer.compose(Transducer.lift(mb.Value), Transducer.mkRight<E, A>())));
+            Transducer.compose(lift(mb.Value), Transducer.mkRight<E, A>())));
     
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1213,7 +1213,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<RT, Sum<Error, A>> mb) =>
-        ma.Try() | new IO<RT, E, A>(Transducer.mapLeft(mb, Transducer.lift<Error, E>(e => default(RT).FromError(e))));
+        ma.Try() | new IO<RT, E, A>(Transducer.mapLeft(mb, lift<Error, E>(e => default(RT).FromError(e))));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1227,7 +1227,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
         ma.Try() | new IO<RT, E, A>(
             Transducer.compose(
                 Transducer.constant<RT, Unit>(default), 
-                Transducer.mapLeft(mb, Transducer.lift<Error, E>(e => default(RT).FromError(e)))));
+                Transducer.mapLeft(mb, lift<Error, E>(e => default(RT).FromError(e)))));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1312,7 +1312,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> operator |(Transducer<RT, Sum<Error, A>> ma, IO<RT, E, A> mb) =>
-        new IO<RT, E, A>(Transducer.mapLeft(ma, Transducer.lift<Error, E>(e => default(RT).FromError(e)))).Try() | mb;
+        new IO<RT, E, A>(Transducer.mapLeft(ma, lift<Error, E>(e => default(RT).FromError(e)))).Try() | mb;
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1326,5 +1326,5 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
         new IO<RT, E, A>(
             Transducer.compose(
                 Transducer.constant<RT, Unit>(default),
-                Transducer.mapLeft(ma, Transducer.lift<Error, E>(e => default(RT).FromError(e))))).Try() | mb;
+                Transducer.mapLeft(ma, lift<Error, E>(e => default(RT).FromError(e))))).Try() | mb;
 }

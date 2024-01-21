@@ -1,5 +1,6 @@
 using System;
 using LanguageExt.Attributes;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Sys.Traits
@@ -28,8 +29,8 @@ namespace LanguageExt.Sys.Traits
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
     [Typeclass("*")]
-    public interface HasConsole<RT> : HasCancel<RT>
-        where RT : struct, HasCancel<RT>
+    public interface HasConsole<RT> : HasIO<RT, Error>
+        where RT : struct, HasConsole<RT>
     {
         /// <summary>
         /// Access the console synchronous effect environment

@@ -1,5 +1,6 @@
 using System;
 using LanguageExt.Attributes;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Sys.Traits
@@ -49,8 +50,8 @@ namespace LanguageExt.Sys.Traits
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
     [Typeclass("*")]
-    public interface HasEnvironment<RT> : HasCancel<RT>
-        where RT : struct, HasEnvironment<RT>, HasCancel<RT>
+    public interface HasEnvironment<RT> : HasIO<RT, Error>
+        where RT : struct, HasEnvironment<RT>
     {
         /// <summary>
         /// Access the environment synchronous effect environment

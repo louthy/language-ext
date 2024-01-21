@@ -1,10 +1,5 @@
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
@@ -27,7 +22,7 @@ namespace LanguageExt.Pipes
     ///                |
     ///                A
     /// </remarks>
-    public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where RT : struct, HasCancel<RT>
+    public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where RT : struct, HasIO<RT, Error>
     {
         public readonly Proxy<RT, Void, Unit, REQ, RES, A> Value;
     

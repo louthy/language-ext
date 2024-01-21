@@ -11,10 +11,11 @@ using static LanguageExt.Prelude;
 using System.Collections.Generic;
 using static LanguageExt.Pipes.Proxy;
 using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 
 namespace LanguageExt.Pipes
 {
-    public abstract class ProducerLift<RT, OUT, A> where RT : struct, HasCancel<RT>
+    public abstract class ProducerLift<RT, OUT, A> where RT : struct, HasIO<RT, Error>
     {
         public abstract ProducerLift<RT, OUT, B> Select<B>(Func<A, B> f);
         public abstract ProducerLift<RT, OUT, B> SelectMany<B>(Func<A, Producer<OUT, B>> f);

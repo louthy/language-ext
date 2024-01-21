@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 using System.Threading;
-using LanguageExt.Effects.Traits;
+using LanguageExt.Common;
 using LanguageExt.Sys.Traits;
 using static LanguageExt.Prelude;
 
@@ -11,10 +11,9 @@ namespace LanguageExt.Sys.Test
     /// Test IO runtime
     /// </summary>
     public readonly struct Runtime : 
-        HasCancel<Runtime>,
+        HasActivitySource<Runtime>,
         HasConsole<Runtime>,
         HasFile<Runtime>,
-        HasEncoding<Runtime>,
         HasTextRead<Runtime>,
         HasTime<Runtime>,
         HasEnvironment<Runtime>,
@@ -39,8 +38,9 @@ namespace LanguageExt.Sys.Test
         /// </summary>
         /// <param name="timeSpec">Defines how time works in the runtime</param>
         public static Runtime New(TestTimeSpec? timeSpec = default) =>
-            new Runtime(new RuntimeEnv(new CancellationTokenSource(),
-                                       System.Text.Encoding.Default,
+            new Runtime(new RuntimeEnv(SynchronizationContext.Current,
+                                       new CancellationTokenSource(),
+                                       Encoding.Default,
                                        new MemoryConsole(),
                                        new MemoryFS(),
                                        timeSpec,
@@ -52,9 +52,10 @@ namespace LanguageExt.Sys.Test
         /// <param name="source">Cancellation token source</param>
         /// <param name="timeSpec">Defines how time works in the runtime</param>
         public static Runtime New(CancellationTokenSource source, TestTimeSpec? timeSpec = default) =>
-            new Runtime(new RuntimeEnv(source, 
-                                       System.Text.Encoding.Default, 
-                                       new MemoryConsole(), 
+            new Runtime(new RuntimeEnv(SynchronizationContext.Current,
+                                       source,
+                                       Encoding.Default,
+                                       new MemoryConsole(),
                                        new MemoryFS(),
                                        timeSpec,
                                        MemorySystemEnvironment.InitFromSystem()));
@@ -65,9 +66,10 @@ namespace LanguageExt.Sys.Test
         /// <param name="encoding">Text encoding</param>
         /// <param name="timeSpec">Defines how time works in the runtime</param>
         public static Runtime New(Encoding encoding, TestTimeSpec? timeSpec = default) =>
-            new Runtime(new RuntimeEnv(new CancellationTokenSource(), 
-                                       encoding, 
-                                       new MemoryConsole(), 
+            new Runtime(new RuntimeEnv(SynchronizationContext.Current,
+                                       new CancellationTokenSource(),
+                                       encoding,
+                                       new MemoryConsole(),
                                        new MemoryFS(),
                                        timeSpec,
                                        MemorySystemEnvironment.InitFromSystem()));
@@ -79,13 +81,72 @@ namespace LanguageExt.Sys.Test
         /// <param name="source">Cancellation token source</param>
         /// <param name="timeSpec">Defines how time works in the runtime</param>
         public static Runtime New(Encoding encoding, CancellationTokenSource source, TestTimeSpec? timeSpec = default) =>
-            new Runtime(new RuntimeEnv(source, 
-                                       encoding, 
-                                       new MemoryConsole(), 
+            new Runtime(new RuntimeEnv(SynchronizationContext.Current,
+                                       source,
+                                       encoding,
+                                       new MemoryConsole(),
                                        new MemoryFS(),
                                        timeSpec,
                                        MemorySystemEnvironment.InitFromSystem()));
 
+
+        /// <summary>
+        /// Constructor function
+        /// </summary>
+        /// <param name="timeSpec">Defines how time works in the runtime</param>
+        public static Runtime New(SynchronizationContext syncContext, TestTimeSpec? timeSpec = default) =>
+            new Runtime(new RuntimeEnv(syncContext,
+                                       new CancellationTokenSource(),
+                                       Encoding.Default,
+                                       new MemoryConsole(),
+                                       new MemoryFS(),
+                                       timeSpec,
+                                       MemorySystemEnvironment.InitFromSystem()));
+
+        /// <summary>
+        /// Constructor function
+        /// </summary>
+        /// <param name="source">Cancellation token source</param>
+        /// <param name="timeSpec">Defines how time works in the runtime</param>
+        public static Runtime New(SynchronizationContext syncContext, CancellationTokenSource source, TestTimeSpec? timeSpec = default) =>
+            new Runtime(new RuntimeEnv(syncContext,
+                                       source,
+                                       Encoding.Default,
+                                       new MemoryConsole(),
+                                       new MemoryFS(),
+                                       timeSpec,
+                                       MemorySystemEnvironment.InitFromSystem()));
+
+        /// <summary>
+        /// Constructor function
+        /// </summary>
+        /// <param name="encoding">Text encoding</param>
+        /// <param name="timeSpec">Defines how time works in the runtime</param>
+        public static Runtime New(SynchronizationContext syncContext, Encoding encoding, TestTimeSpec? timeSpec = default) =>
+            new Runtime(new RuntimeEnv(syncContext,
+                                       new CancellationTokenSource(),
+                                       encoding,
+                                       new MemoryConsole(),
+                                       new MemoryFS(),
+                                       timeSpec,
+                                       MemorySystemEnvironment.InitFromSystem()));
+
+        /// <summary>
+        /// Constructor function
+        /// </summary>
+        /// <param name="encoding">Text encoding</param>
+        /// <param name="source">Cancellation token source</param>
+        /// <param name="timeSpec">Defines how time works in the runtime</param>
+        public static Runtime New(SynchronizationContext syncContext, Encoding encoding, CancellationTokenSource source,
+            TestTimeSpec? timeSpec = default) =>
+            new Runtime(new RuntimeEnv(syncContext,
+                                       source,
+                                       encoding,
+                                       new MemoryConsole(),
+                                       new MemoryFS(),
+                                       timeSpec,
+                                       MemorySystemEnvironment.InitFromSystem()));        
+        
         /// <summary>
         /// Create a new Runtime with a fresh cancellation token
         /// </summary>
@@ -119,7 +180,7 @@ namespace LanguageExt.Sys.Test
         /// </summary>
         /// <returns>Console environment</returns>
         public Eff<Runtime, Traits.ConsoleIO> ConsoleEff =>
-            Eff<Runtime, Traits.ConsoleIO>(rt => new Test.ConsoleIO(rt.Env.Console));
+            lift<Runtime, Traits.ConsoleIO>(rt => new ConsoleIO(rt.Env.Console));
 
         /// <summary>
         /// Access the file environment
@@ -127,7 +188,7 @@ namespace LanguageExt.Sys.Test
         /// <returns>File environment</returns>
         public Eff<Runtime, Traits.FileIO> FileEff =>
             from n in Time<Runtime>.now
-            from r in Eff<Runtime, Traits.FileIO>(rt => new Test.FileIO(rt.Env.FileSystem, n))
+            from r in lift<Runtime, Traits.FileIO>(rt => new FileIO(rt.Env.FileSystem, n))
             select r;
 
         /// <summary>
@@ -136,7 +197,7 @@ namespace LanguageExt.Sys.Test
         /// <returns>Directory environment</returns>
         public Eff<Runtime, Traits.DirectoryIO> DirectoryEff =>
             from n in Time<Runtime>.now
-            from r in Eff<Runtime, Traits.DirectoryIO>(rt => new Test.DirectoryIO(rt.Env.FileSystem, n))
+            from r in lift<Runtime, Traits.DirectoryIO>(rt => new DirectoryIO(rt.Env.FileSystem, n))
             select r;
         
         /// <summary>
@@ -144,63 +205,55 @@ namespace LanguageExt.Sys.Test
         /// </summary>
         /// <returns>TextReader environment</returns>
         public Eff<Runtime, Traits.TextReadIO> TextReadEff =>
-            SuccessEff(Test.TextReadIO.Default);
+            SuccessEff(TextReadIO.Default);
 
         /// <summary>
         /// Access the time environment
         /// </summary>
         /// <returns>Time environment</returns>
         public Eff<Runtime, Traits.TimeIO> TimeEff  =>
-            Eff<Runtime, Traits.TimeIO>(rt => new Test.TimeIO(rt.Env.TimeSpec));
+            Eff<Runtime, Traits.TimeIO>(rt => new TimeIO(rt.Env.TimeSpec));
 
         /// <summary>
         /// Access the operating-system environment
         /// </summary>
         /// <returns>Operating-system environment environment</returns>
         public Eff<Runtime, Traits.EnvironmentIO> EnvironmentEff =>
-            Eff<Runtime, Traits.EnvironmentIO>(rt => new Test.EnvironmentIO(rt.Env.SysEnv));
+            Eff<Runtime, Traits.EnvironmentIO>(rt => new EnvironmentIO(rt.Env.SysEnv));
+
+        public Runtime WithSyncContext(SynchronizationContext syncContext) =>
+            new(Env with { SyncContext = syncContext });
+
+        public SynchronizationContext SynchronizationContext =>
+            Env.SyncContext;
+        
+        public Error FromError(Error error) =>
+            error;
     }
     
-    public class RuntimeEnv
+    public record RuntimeEnv(
+        SynchronizationContext SyncContext,
+        CancellationTokenSource Source,
+        CancellationToken Token,
+        Encoding Encoding,
+        MemoryConsole Console,
+        MemoryFS FileSystem,
+        TestTimeSpec? TimeSpec,
+        MemorySystemEnvironment SysEnv)
     {
-        public readonly CancellationTokenSource Source;
-        public readonly CancellationToken Token;
-        public readonly Encoding Encoding;
-        public readonly MemoryConsole Console;
-        public readonly MemoryFS FileSystem;
-        public readonly TestTimeSpec TimeSpec;
-        public readonly MemorySystemEnvironment SysEnv;
-
         public RuntimeEnv(
-            CancellationTokenSource source, 
-            CancellationToken token, 
-            Encoding encoding, 
-            MemoryConsole console, 
-            MemoryFS fileSystem, 
-            TestTimeSpec? timeSpec,
-            MemorySystemEnvironment sysEnv)
-        {
-            Source     = source;
-            Token      = token;
-            Encoding   = encoding;
-            Console    = console;
-            FileSystem = fileSystem;
-            TimeSpec   = timeSpec ?? TestTimeSpec.RunningFromNow();
-            SysEnv     = sysEnv;
-        }
-
-        public RuntimeEnv(
+            SynchronizationContext syncContext,
             CancellationTokenSource source, 
             Encoding encoding, 
             MemoryConsole console,
             MemoryFS fileSystem, 
             TestTimeSpec? timeSpec,
             MemorySystemEnvironment sysEnv) : 
-            this(source, source.Token, encoding, console, fileSystem, timeSpec, sysEnv)
+            this(syncContext, source, source.Token, encoding, console, fileSystem, timeSpec, sysEnv)
         {
         }
 
         public RuntimeEnv LocalCancel =>
-            new RuntimeEnv(new CancellationTokenSource(), Encoding, Console, FileSystem, TimeSpec, SysEnv); 
+            new (SyncContext, new CancellationTokenSource(), Encoding, Console, FileSystem, TimeSpec, SysEnv); 
     }
 }

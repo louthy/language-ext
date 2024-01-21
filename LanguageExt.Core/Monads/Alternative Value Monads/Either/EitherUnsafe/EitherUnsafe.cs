@@ -404,7 +404,7 @@ namespace LanguageExt
                     ? Sum<L, R>.Left(LeftValue)
                     : throw new BottomException();
 
-            return Transducer.lift<Unit, Sum<L, R>>(_ => sum);
+            return lift<Unit, Sum<L, R>>(_ => sum);
         }
         
         /// <summary>

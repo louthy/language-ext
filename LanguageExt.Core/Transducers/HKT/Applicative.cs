@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.HKT;
 
@@ -34,7 +35,7 @@ public static class ApplicativeExtensions
     /// </summary>
     public static KArr<F, Unit, A> Lift<F, A>(this Applicative<F> self, Func<Unit, A> f) 
         where F : struct, Applicative<F> =>
-        default(F).Lift(Transducer.lift(f));
+        default(F).Lift(lift(f));
 
     /// <summary>
     /// Pure constructor
@@ -48,7 +49,7 @@ public static class ApplicativeExtensions
     /// </summary>
     public static KArr<F, A, B> Lift<F, A, B>(this Applicative<F, A> self, Func<A, B> f)
         where F : struct, Applicative<F, A> =>
-        default(F).Lift(Transducer.lift(f));
+        default(F).Lift(lift(f));
 
     /// <summary>
     /// Pure constructor

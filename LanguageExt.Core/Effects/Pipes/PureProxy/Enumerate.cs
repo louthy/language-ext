@@ -8,6 +8,7 @@
 using System;
 using LanguageExt.Effects.Traits;
 using System.Collections.Generic;
+using LanguageExt.Common;
 
 namespace LanguageExt.Pipes
 {
@@ -17,11 +18,11 @@ namespace LanguageExt.Pipes
         public abstract Enumerate<OUT, B> SelectMany<B>(Func<A, Enumerate<OUT, B>> f);
         public abstract Enumerate<OUT, B> SelectMany<B>(Func<A, Pipes.Release<B>> f);
         public abstract Producer<OUT, B> SelectMany<B>(Func<A, Producer<OUT, B>> f);
-        public abstract Producer<RT, OUT, B> SelectMany<RT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT>;
+        public abstract Producer<RT, OUT, B> SelectMany<RT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasIO<RT, Error>;
         public abstract Pipe<IN, OUT, B> SelectMany<IN, B>(Func<A, Pipe<IN, OUT, B>> f);
-        public abstract Pipe<RT, IN, OUT, B> SelectMany<RT, IN, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasCancel<RT>;
-        public abstract Producer<RT, OUT, A> Interpret<RT>() where RT : struct, HasCancel<RT>;
-        public abstract Pipe<RT, IN, OUT, A> Interpret<RT, IN>() where RT : struct, HasCancel<RT>;
+        public abstract Pipe<RT, IN, OUT, B> SelectMany<RT, IN, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasIO<RT, Error>;
+        public abstract Producer<RT, OUT, A> Interpret<RT>() where RT : struct, HasIO<RT, Error>;
+        public abstract Pipe<RT, IN, OUT, A> Interpret<RT, IN>() where RT : struct, HasIO<RT, Error>;
         
         public Enumerate<OUT, B> Map<B>(Func<A, B> f) => 
             Select(f);
@@ -35,10 +36,10 @@ namespace LanguageExt.Pipes
         public Producer<OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) => 
             SelectMany(f);
         
-        public Producer<RT, OUT, B> Bind<RT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT> => 
+        public Producer<RT, OUT, B> Bind<RT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasIO<RT, Error> => 
             SelectMany(f);
         
-        public Pipe<RT, IN, OUT, B> Bind<RT, IN, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasCancel<RT> => 
+        public Pipe<RT, IN, OUT, B> Bind<RT, IN, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasIO<RT, Error> => 
             SelectMany(f);
         
         public Enumerate<OUT, C> SelectMany<B, C>(Func<A, Enumerate<OUT, B>> f, Func<A, B, C> project) => 
@@ -50,13 +51,13 @@ namespace LanguageExt.Pipes
         public Producer<OUT, C> SelectMany<B, C>(Func<A, Producer<OUT, B>> f, Func<A, B, C> project) => 
             SelectMany(a => f(a).Select(b => project(a, b)));
         
-        public Producer<RT, OUT, C> SelectMany<RT, B, C>(Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> => 
+        public Producer<RT, OUT, C> SelectMany<RT, B, C>(Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> => 
             SelectMany(a => f(a).Select(b => project(a, b)));
         
         public Pipe<IN, OUT, C> SelectMany<IN, B, C>(Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) => 
             SelectMany(a => f(a).Select(b => project(a, b)));
         
-        public Pipe<RT, IN, OUT, C> SelectMany<RT, IN, B, C>(Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> => 
+        public Pipe<RT, IN, OUT, C> SelectMany<RT, IN, B, C>(Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> => 
             SelectMany(a => f(a).Select(b => project(a, b)));
                 
         public static implicit operator Enumerate<OUT, A>(Pure<A> ma) =>

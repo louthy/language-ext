@@ -518,7 +518,7 @@ namespace LanguageExt
                 ? Sum<Unit, A>.Right(Value)
                 : Sum<Unit, A>.Left(default);
 
-            return Transducer.lift<Unit, Sum<Unit, A>>(_ => sum);
+            return lift<Unit, Sum<Unit, A>>(_ => sum);
         }
         
         /// <summary>

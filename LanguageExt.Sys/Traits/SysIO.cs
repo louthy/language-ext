@@ -1,3 +1,4 @@
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Sys.Traits
@@ -7,16 +8,14 @@ namespace LanguageExt.Sys.Traits
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
     public interface HasSys<RT> : 
-        HasCancel<RT>, 
         HasConsole<RT>, 
-        HasEncoding<RT>,
         HasFile<RT>, 
         HasDirectory<RT>,
         HasTextRead<RT>, 
         HasTime<RT>
         where RT : 
             struct, 
-            HasCancel<RT>, 
+            HasIO<RT, Error>, 
             HasConsole<RT>, 
             HasFile<RT>,
             HasDirectory<RT>,

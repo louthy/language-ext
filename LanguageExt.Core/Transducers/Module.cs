@@ -1167,6 +1167,40 @@ public static partial class Transducer
         Transducer<E, Sum<X, C>> Third) =>
         new ZipSumTransducer3<E, X, A, B, C>(First, Second, Third);
 
+    /// <summary>
+    /// Zips transducers together so their results are combined.  
+    /// </summary>
+    /// <remarks>
+    /// Asynchronous transducers will run concurrently
+    /// </remarks>
+    /// <param name="First">First transducer</param>
+    /// <param name="Second">Second transducer</param>
+    /// <param name="Third">Third transducer</param>
+    /// <returns>A transducer that contains the results of all provided</returns>
+    public static Transducer<E, (A First, B Second, C Third, D Fourth)> zip<E, A, B, C, D>(
+        Transducer<E, A> First, 
+        Transducer<E, B> Second,
+        Transducer<E, C> Third,
+        Transducer<E, D> Fourth) =>
+        new ZipTransducer4<E, A, B, C, D>(First, Second, Third, Fourth);
+
+    /// <summary>
+    /// Zips transducers together so their results are combined.  
+    /// </summary>
+    /// <remarks>
+    /// Asynchronous transducers will run concurrently
+    /// </remarks>
+    /// <param name="First">First transducer</param>
+    /// <param name="Second">Second transducer</param>
+    /// <param name="Third">Third transducer</param>
+    /// <returns>A transducer that contains the results of all provided</returns>
+    public static Transducer<E, Sum<X, (A First, B Second, C Third, D Fourth)>> zip<E, X, A, B, C, D>(
+        Transducer<E, Sum<X, A>> First, 
+        Transducer<E, Sum<X, B>> Second, 
+        Transducer<E, Sum<X, C>> Third, 
+        Transducer<E, Sum<X, D>> Fourth) =>
+        new ZipSumTransducer4<E, X, A, B, C, D>(First, Second, Third, Fourth);
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Forking

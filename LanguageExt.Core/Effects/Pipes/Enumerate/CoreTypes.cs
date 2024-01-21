@@ -7,7 +7,7 @@ using LanguageExt.Effects.Traits;
 namespace LanguageExt.Pipes
 {
     internal abstract class Enumerate<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>
-        where RT : struct, HasCancel<RT>
+        where RT : struct, HasIO<RT, Error>
     {
         public readonly Func<Unit, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next;
         
@@ -25,7 +25,7 @@ namespace LanguageExt.Pipes
     }
 
     internal class Enumerate<RT, UOut, UIn, DIn, DOut, X, A> : Enumerate<RT, UOut, UIn, DIn, DOut, A>
-        where RT : struct, HasCancel<RT>
+        where RT : struct, HasIO<RT, Error>
     {
         internal readonly EnumerateData<X> Items;
         internal readonly Func<X, Proxy<RT, UOut, UIn, DIn, DOut, Unit>> Yield;
@@ -112,7 +112,7 @@ namespace LanguageExt.Pipes
 
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
-            new M<RT, UOut, UIn, DIn, DOut, A>(Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>>.Success(this));
+            new M<RT, UOut, UIn, DIn, DOut, A>(Transducer.constant<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>>(this));
 
         [Pure]
         internal void Deconstruct(

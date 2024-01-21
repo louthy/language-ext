@@ -4,6 +4,7 @@ using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.HKT;
 using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -73,9 +74,7 @@ public readonly record struct Pure<A>(A Value) : KArr<Any, Unit, A>
     public Transducer<E, C> SelectMany<E, B, C>(Func<A, Transducer<E, B>> bind, Func<A, B, C> project)
     {
         var a = Value;
-        return Transducer.compose(
-            bind(a),
-            Transducer.lift<B, C>(b => project(a, b)));
+        return Transducer.compose(bind(a), lift<B, C>(b => project(a, b)));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

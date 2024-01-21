@@ -1,17 +1,12 @@
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Pipes
 {
     public class Queue<RT, OUT, A> : Producer<RT, OUT, A> 
-        where RT : struct, HasCancel<RT>
+        where RT : struct, HasIO<RT, Error>
     {
         /// <summary>
         /// Single queue channel

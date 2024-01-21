@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using LanguageExt.Attributes;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Sys.Traits
@@ -102,8 +103,8 @@ namespace LanguageExt.Sys.Traits
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
     [Typeclass("*")]
-    public interface HasFile<RT> : HasCancel<RT>, HasEncoding<RT>
-        where RT : struct, HasCancel<RT>, HasEncoding<RT>
+    public interface HasFile<RT> : HasIO<RT, Error>, HasEncoding<RT>
+        where RT : struct, HasIO<RT, Error>, HasEncoding<RT>
     {
         /// <summary>
         /// Access the file synchronous effect environment

@@ -1,12 +1,6 @@
 ﻿using System;
-using System.IO;
 using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
-using LanguageExt.TypeClasses;
-using System.Collections.Generic;
 using static LanguageExt.Prelude;
-using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
 using LanguageExt.Pipes;
 using LanguageExt.Sys.Traits;
 
@@ -23,14 +17,14 @@ namespace LanguageExt.Sys
         /// </summary>
         public static Eff<RT, ConsoleKeyInfo> readKey =>
             default(RT).ConsoleEff.Bind(static e => e.ReadKey()
-                                                     .Match(Some: SuccessEff<ConsoleKeyInfo>, 
+                                                     .Match(Some: SuccessEff, 
                                                             None: () => FailEff<ConsoleKeyInfo>(Error.New("end of stream"))));
 
         /// <summary>
         /// Read keys from the console and push them downstream 
         /// </summary>
         public static Producer<RT, ConsoleKeyInfo, Unit> readKeys =>
-            from ln in Console<RT>.readKey
+            from ln in readKey
             from __ in Proxy.yield(ln)
             select unit;
 
@@ -45,14 +39,14 @@ namespace LanguageExt.Sys
         /// </summary>
         public static Eff<RT, int> read =>
             default(RT).ConsoleEff.Bind(static e => e.Read()
-                                                     .Match(Some: SuccessEff<int>, 
+                                                     .Match(Some: SuccessEff, 
                                                             None: () => FailEff<int>(Error.New("end of stream"))));
 
         /// <summary>
         /// Read chars from the console and push them downstream 
         /// </summary>
         public static Producer<RT, int, Unit> reads =>
-            from ln in Console<RT>.read
+            from ln in read
             from __ in Proxy.yield(ln)
             select unit;
 

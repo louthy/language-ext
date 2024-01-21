@@ -8,6 +8,7 @@
 using System;
 using LanguageExt.Effects.Traits;
 using System.Collections.Generic;
+using LanguageExt.Common;
 
 namespace LanguageExt.Pipes
 {
@@ -15,25 +16,25 @@ namespace LanguageExt.Pipes
     {
         public abstract Producer<OUT, B> Select<B>(Func<A, B> f);
         public abstract Producer<OUT, B> SelectMany<B>(Func<A, Producer<OUT, B>> f);
-        public abstract Producer<RT, OUT, B> SelectMany<RT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT>;
-        public abstract Producer<RT, OUT, A> Interpret<RT>() where RT : struct, HasCancel<RT>;
+        public abstract Producer<RT, OUT, B> SelectMany<RT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasIO<RT, Error>;
+        public abstract Producer<RT, OUT, A> Interpret<RT>() where RT : struct, HasIO<RT, Error>;
         public abstract Pipe<IN, OUT, A> ToPipe<IN>();
-        public abstract ProducerLift<RT, OUT, A> ToProducerLift<RT>() where RT : struct, HasCancel<RT>;
+        public abstract ProducerLift<RT, OUT, A> ToProducerLift<RT>() where RT : struct, HasIO<RT, Error>;
 
         public Producer<OUT, B> Map<B>(Func<A, B> f) => Select(f);
         public Producer<OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) => SelectMany(f);
-        public Producer<RT, OUT, B> Bind<RT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT> => SelectMany(f);
+        public Producer<RT, OUT, B> Bind<RT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasIO<RT, Error> => SelectMany(f);
 
         public Producer<OUT, C> SelectMany<B, C>(Func<A, Producer<OUT, B>> f, Func<A, B, C> project) =>
             SelectMany(a => f(a).Select(b => project(a, b)));
         
-        public ProducerLift<RT, OUT, B> SelectMany<RT, B>(Func<A, ProducerLift<RT, OUT, B>> f) where RT : struct, HasCancel<RT> =>
+        public ProducerLift<RT, OUT, B> SelectMany<RT, B>(Func<A, ProducerLift<RT, OUT, B>> f) where RT : struct, HasIO<RT, Error> =>
             ToProducerLift<RT>().SelectMany(f);
 
-        public ProducerLift<RT, OUT, C> SelectMany<RT, B, C>(Func<A, ProducerLift<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+        public ProducerLift<RT, OUT, C> SelectMany<RT, B, C>(Func<A, ProducerLift<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
             SelectMany(a => f(a).Select(b => project(a, b)));
         
-        public Producer<RT, OUT, C> SelectMany<RT, B, C>(Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+        public Producer<RT, OUT, C> SelectMany<RT, B, C>(Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
             SelectMany(a => f(a).Select(b => project(a, b)));
                         
         public static implicit operator Producer<OUT, A>(Pure<A> ma) =>

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using LanguageExt.Effects;
 using LanguageExt.Effects.Traits;
 using LanguageExt.HKT;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -53,7 +54,7 @@ public readonly struct IO<E, A> : KArr<Any, MinRT<E>, Sum<E, A>>
     /// </summary>
     [MethodImpl(Opt.Default)]
     IO(Func<MinRT<E>, Sum<E, A>> thunk)
-        : this(Transducer.lift(thunk))
+        : this(lift(thunk))
     { }
 
     /// <summary>
@@ -85,7 +86,7 @@ public readonly struct IO<E, A> : KArr<Any, MinRT<E>, Sum<E, A>>
     /// </summary>
     [MethodImpl(Opt.Default)]
     IO(Transducer<MinRT<E>, Either<E, A>> thunk) 
-        : this(Transducer.compose(thunk, Transducer.lift<Either<E, A>, Sum<E, A>>(x => x.ToSum())))
+        : this(Transducer.compose(thunk, lift<Either<E, A>, Sum<E, A>>(x => x.ToSum())))
     { }
     
     /// <summary>
@@ -101,7 +102,7 @@ public readonly struct IO<E, A> : KArr<Any, MinRT<E>, Sum<E, A>>
     /// </summary>
     [MethodImpl(Opt.Default)]
     IO(Func<Sum<E, A>> thunk)
-        : this (Transducer.lift(thunk))
+        : this (lift(thunk))
     { }
 
     /// <summary>
@@ -133,7 +134,7 @@ public readonly struct IO<E, A> : KArr<Any, MinRT<E>, Sum<E, A>>
     /// </summary>
     [MethodImpl(Opt.Default)]
     IO(Transducer<Unit, Either<E, A>> thunk) 
-        : this(Transducer.compose(thunk, Transducer.lift<Either<E, A>, Sum<E, A>>(x => x.ToSum())))
+        : this(Transducer.compose(thunk, lift<Either<E, A>, Sum<E, A>>(x => x.ToSum())))
     { }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1151,7 +1152,7 @@ public readonly struct IO<E, A> : KArr<Any, MinRT<E>, Sum<E, A>>
         new(Transducer.@try(
             ma.Morphism,
             mb.Match,
-            Transducer.compose(Transducer.lift(mb.Value), Transducer.mkRight<E, A>())));
+            Transducer.compose(lift(mb.Value), Transducer.mkRight<E, A>())));
     
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the

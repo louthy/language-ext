@@ -11,10 +11,11 @@ using static LanguageExt.Prelude;
 using System.Collections.Generic;
 using static LanguageExt.Pipes.Proxy;
 using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 
 namespace LanguageExt.Pipes
 {
-    public abstract class ConsumerLift<RT, IN, A> where RT: struct, HasCancel<RT>
+    public abstract class ConsumerLift<RT, IN, A> where RT: struct, HasIO<RT, Error>
     {
         public abstract ConsumerLift<RT, IN, B> Select<B>(Func<A, B> f);
         public abstract ConsumerLift<RT, IN, B> SelectMany<B>(Func<A, ConsumerLift<RT, IN, B>> f);

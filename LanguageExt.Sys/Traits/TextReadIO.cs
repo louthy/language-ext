@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using LanguageExt.Attributes;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Sys.Traits
@@ -35,8 +36,8 @@ namespace LanguageExt.Sys.Traits
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
     [Typeclass("*")]
-    public interface HasTextRead<RT> : HasCancel<RT>
-        where RT : struct, HasCancel<RT>
+    public interface HasTextRead<RT> : HasIO<RT, Error>
+        where RT : struct, HasTextRead<RT>
     {
         /// <summary>
         /// Access the TextReader synchronous effect environment

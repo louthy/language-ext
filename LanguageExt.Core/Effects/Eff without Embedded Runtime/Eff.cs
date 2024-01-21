@@ -47,7 +47,7 @@ public readonly struct Eff<A> : KArr<Any, MinRT, Sum<Error, A>>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(Func<MinRT, Sum<Error, A>> thunk) =>
-        effect = Transducer.lift(thunk);
+        effect = lift(thunk);
 
     /// <summary>
     /// Constructor
@@ -78,7 +78,7 @@ public readonly struct Eff<A> : KArr<Any, MinRT, Sum<Error, A>>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(Transducer<MinRT, Either<Error, A>> thunk) 
-        : this(Transducer.compose(thunk, Transducer.lift<Either<Error, A>, Sum<Error, A>>(x => x.ToSum())))
+        : this(Transducer.compose(thunk, lift<Either<Error, A>, Sum<Error, A>>(x => x.ToSum())))
     { }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -337,15 +337,15 @@ public readonly struct Eff<A> : KArr<Any, MinRT, Sum<Error, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> LiftIO(Func<Task<A>> f) =>
-        new (Transducer.liftIO<MinRT, Sum<Error, A>>(
-            async (_, rt) => Sum<Error, A>.Right(await f().ConfigureAwait(false))));
+        new (liftIO<MinRT, Sum<Error, A>>(
+            async (_, _) => Sum<Error, A>.Right(await f().ConfigureAwait(false))));
 
     /// <summary>
     /// Lift a asynchronous effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> LiftIO(Func<MinRT, Task<A>> f) =>
-        new (Transducer.liftIO<MinRT, Sum<Error, A>>(
+        new (liftIO<MinRT, Sum<Error, A>>(
             async (_, rt) => Sum<Error, A>.Right(await f(rt).ConfigureAwait(false))));
 
     /// <summary>
@@ -353,15 +353,14 @@ public readonly struct Eff<A> : KArr<Any, MinRT, Sum<Error, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> LiftIO(Func<Task<Sum<Error, A>>> f) =>
-        new(Transducer.liftIO<MinRT, Sum<Error, A>>(
-            async (_, rt) => await f().ConfigureAwait(false)));
+        new(liftIO<MinRT, Sum<Error, A>>(async (_, _) => await f().ConfigureAwait(false)));
 
     /// <summary>
     /// Lift a asynchronous effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> LiftIO(Func<MinRT, Task<Sum<Error, A>>> f) =>
-        new(Transducer.liftIO<MinRT, Sum<Error, A>>(
+        new(liftIO<MinRT, Sum<Error, A>>(
             async (_, rt) => await f(rt).ConfigureAwait(false)));
 
     /// <summary>
@@ -369,7 +368,7 @@ public readonly struct Eff<A> : KArr<Any, MinRT, Sum<Error, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> LiftIO(Func<Task<Either<Error, A>>> f) =>
-        new (Transducer.liftIO<MinRT, Sum<Error, A>>(
+        new (liftIO<MinRT, Sum<Error, A>>(
             async (_, rt) => (await f().ConfigureAwait(false)).ToSum()));
 
     /// <summary>
@@ -377,7 +376,7 @@ public readonly struct Eff<A> : KArr<Any, MinRT, Sum<Error, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> LiftIO(Func<MinRT, Task<Either<Error, A>>> f) =>
-        new (Transducer.liftIO<MinRT, Sum<Error, A>>(
+        new (liftIO<MinRT, Sum<Error, A>>(
             async (_, rt) => (await f(rt).ConfigureAwait(false)).ToSum()));
 
     /// <summary>
@@ -385,7 +384,7 @@ public readonly struct Eff<A> : KArr<Any, MinRT, Sum<Error, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> LiftIO(Func<Task<Fin<A>>> f) =>
-        new (Transducer.liftIO<MinRT, Sum<Error, A>>(
+        new (liftIO<MinRT, Sum<Error, A>>(
             async (_, rt) => (await f().ConfigureAwait(false)).ToSum()));
 
     /// <summary>
@@ -393,7 +392,7 @@ public readonly struct Eff<A> : KArr<Any, MinRT, Sum<Error, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> LiftIO(Func<MinRT, Task<Fin<A>>> f) =>
-        new (Transducer.liftIO<MinRT, Sum<Error, A>>(
+        new (liftIO<MinRT, Sum<Error, A>>(
             async (_, rt) => (await f(rt).ConfigureAwait(false)).ToSum()));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1363,7 +1362,7 @@ public readonly struct Eff<A> : KArr<Any, MinRT, Sum<Error, A>>
     /// <summary>
     /// Lift a value into the `Eff` monad 
     /// </summary>
-    [Obsolete("Use either: `Eff<A>.Lift`, `Prelude.liftEff`, or `Transducer.lift`")]
+    [Obsolete("Use either: `Eff<A>.Lift`, `Prelude.liftEff`, or `lift`")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> Success(A value) =>
         Pure(value);
@@ -1371,7 +1370,7 @@ public readonly struct Eff<A> : KArr<Any, MinRT, Sum<Error, A>>
     /// <summary>
     /// Lift a synchronous effect into the `Eff` monad
     /// </summary>
-    [Obsolete("Use either: `Eff<A>.Lift`, `Prelude.liftEff`, or `Transducer.lift`")]
+    [Obsolete("Use either: `Eff<A>.Lift`, `Prelude.liftEff`, or `lift`")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> Effect(Func<A> f) =>
         Lift(_ => f());
@@ -1379,7 +1378,7 @@ public readonly struct Eff<A> : KArr<Any, MinRT, Sum<Error, A>>
     /// <summary>
     /// Lift a synchronous effect into the `Eff` monad
     /// </summary>
-    [Obsolete("Use either: `Eff<A>.Lift`, `Prelude.liftEff`, or `Transducer.lift`")]
+    [Obsolete("Use either: `Eff<A>.Lift`, `Prelude.liftEff`, or `lift`")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> EffectMaybe(Func<Fin<A>> f) =>
         Lift(_ => f());

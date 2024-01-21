@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.HKT;
 
@@ -35,12 +36,12 @@ public static class FunctorExtensions
     /// </summary>
     public static KArr<F, Unit, B> Map<F, A, B>(this KArr<F, Unit, A> fab, Func<A, B> f) 
         where F : struct, Functor<F> =>
-        default(F).Map(fab, Transducer.lift(f));
+        default(F).Map(fab, lift(f));
     
     /// <summary>
     /// Map from `A->B` to `A->C` 
     /// </summary>
     public static KArr<F, A, C> Map<F, A, B, C>(this KArr<F, A, B> fab, Func<B, C> f)
         where F : struct, Functor<F, A> =>
-        default(F).Map(fab, Transducer.lift(f));
+        default(F).Map(fab, lift(f));
 }

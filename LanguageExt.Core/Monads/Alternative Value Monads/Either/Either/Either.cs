@@ -492,9 +492,9 @@ namespace LanguageExt
             {
                 var self = this;
                 return IsRight
-                    ? Transducer.lift<Unit, Sum<L, R>>(_ => Sum<L, R>.Right(self.RightValue))
+                    ? lift<Unit, Sum<L, R>>(_ => Sum<L, R>.Right(self.RightValue))
                     : IsLeft
-                        ? Transducer.lift<Unit, Sum<L, R>>(_ => Sum<L, R>.Left(self.LeftValue))
+                        ? lift<Unit, Sum<L, R>>(_ => Sum<L, R>.Left(self.LeftValue))
                         : Transducer.fail<Unit, Sum<L, R>>(Errors.Bottom);
             }
         }

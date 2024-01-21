@@ -1,6 +1,7 @@
 using System.Text;
 using System.Threading;
 using LanguageExt.Attributes;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Sys.Traits
@@ -10,8 +11,8 @@ namespace LanguageExt.Sys.Traits
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
     [Typeclass("*")]
-    public interface HasEncoding<RT> : HasCancel<RT>
-        where RT : struct, HasCancel<RT>
+    public interface HasEncoding<out RT> : HasIO<RT, Error>
+        where RT : struct, HasEncoding<RT>
     {
         /// <summary>
         /// Access the text encoding

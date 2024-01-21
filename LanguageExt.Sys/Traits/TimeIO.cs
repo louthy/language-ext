@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Attributes;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Sys.Traits
@@ -39,8 +40,8 @@ namespace LanguageExt.Sys.Traits
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
     [Typeclass("*")]
-    public interface HasTime<RT> : HasCancel<RT> 
-        where RT : struct, HasCancel<RT>
+    public interface HasTime<RT> : HasIO<RT, Error> 
+        where RT : struct, HasTime<RT>
     {
         /// <summary>
         /// Access the time synchronous effect environment

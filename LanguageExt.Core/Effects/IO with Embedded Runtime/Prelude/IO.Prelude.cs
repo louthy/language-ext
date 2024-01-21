@@ -223,7 +223,7 @@ public static partial class Prelude
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> tail<RT, E, A>(IO<RT, E, A> ma)
         where RT : struct, HasIO<RT, E> =>
-        new(Transducer.tail(ma.Morphism));
+        new(tail(ma.Morphism));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 

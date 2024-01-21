@@ -3,6 +3,7 @@ using System;
 using System.Threading;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Effects;
 
@@ -26,7 +27,7 @@ public readonly struct MinRT :
     /// </summary>
     public static Transducer<RT, MinRT> convert<RT>() 
         where RT : struct, HasIO<RT, Error> =>
-        Transducer.lift<RT, MinRT>(rt => rt.ToMin());
+        lift<RT, MinRT>(rt => rt.ToMin());
     
     public MinRT(
         SynchronizationContext syncContext,
@@ -73,7 +74,7 @@ public readonly struct MinRT<E> :
     /// </summary>
     public static Transducer<RT, MinRT<E>> convert<RT>() 
         where RT : struct, HasIO<RT, E> =>
-        Transducer.lift<RT, MinRT<E>>(rt => rt.ToMin<RT, E>());
+        lift<RT, MinRT<E>>(rt => rt.ToMin<RT, E>());
     
     public MinRT(
         Func<Error, E> errorMap,

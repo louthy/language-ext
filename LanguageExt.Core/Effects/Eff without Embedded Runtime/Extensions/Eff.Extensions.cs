@@ -173,6 +173,27 @@ public static partial class EffExtensions
     /// <typeparam name="E">Error type</typeparam>
     /// <typeparam name="A">First IO monad bound value type</typeparam>
     /// <typeparam name="B">Second IO monad bound value type</typeparam>
+    /// <typeparam name="C">Third IO monad bound value type</typeparam>
+    /// <typeparam name="D">Fourth IO monad bound value type</typeparam>
+    /// <returns>IO monad</returns>
+    public static Eff<(A First, B Second, C Third, D Fourth)> Zip<A, B, C, D>(
+        this (Eff<A> First,
+            Eff<B> Second,
+            Eff<C> Third,
+            Eff<D> Fourth) tuple) =>
+        new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism, tuple.Third.Morphism, tuple.Fourth.Morphism));    
+
+    /// <summary>
+    /// Takes two IO monads and zips their result
+    /// </summary>
+    /// <remarks>
+    /// Asynchronous operations will run concurrently
+    /// </remarks>
+    /// <param name="tuple">Tuple of IO monads to run</param>
+    /// <typeparam name="RT">Runtime type</typeparam>
+    /// <typeparam name="E">Error type</typeparam>
+    /// <typeparam name="A">First IO monad bound value type</typeparam>
+    /// <typeparam name="B">Second IO monad bound value type</typeparam>
     /// <returns>IO monad</returns>
     public static Eff<(A First, B Second)> Zip<A, B>(
         this Eff<A> First,
@@ -197,4 +218,25 @@ public static partial class EffExtensions
         Eff<B> Second, 
         Eff<C> Third) =>
         (First, Second, Third).Zip();
+    
+    /// <summary>
+    /// Takes two IO monads and zips their result
+    /// </summary>
+    /// <remarks>
+    /// Asynchronous operations will run concurrently
+    /// </remarks>
+    /// <param name="tuple">Tuple of IO monads to run</param>
+    /// <typeparam name="RT">Runtime type</typeparam>
+    /// <typeparam name="E">Error type</typeparam>
+    /// <typeparam name="A">First IO monad bound value type</typeparam>
+    /// <typeparam name="B">Second IO monad bound value type</typeparam>
+    /// <typeparam name="C">Third IO monad bound value type</typeparam>
+    /// <typeparam name="D">Fourth IO monad bound value type</typeparam>
+    /// <returns>IO monad</returns>
+    public static Eff<(A First, B Second, C Third, D Fourth)> Zip<A, B, C, D>(
+        this Eff<A> First,
+        Eff<B> Second,
+        Eff<C> Third,
+        Eff<D> Fourth) =>
+        new(Transducer.zip(First.Morphism, Second.Morphism, Third.Morphism, Fourth.Morphism)); 
 }

@@ -11,5 +11,5 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Transducer<RT, RT> runtime<RT>() =>
-        Transducer.lift<RT, RT>(x => x);
+        lift<RT, RT>(x => x);
 }

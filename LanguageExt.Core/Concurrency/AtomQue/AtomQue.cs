@@ -330,7 +330,7 @@ public class AtomQue<A> :
         items.GetHashCode();
 
     [Pure]
-    public override bool Equals(object obj) =>
+    public override bool Equals(object? obj) =>
         obj switch
         {
             AtomQue<A> q => this == q,

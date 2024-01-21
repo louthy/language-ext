@@ -1,12 +1,7 @@
 ﻿using System;
-using System.IO;
-using LanguageExt.Common;
-using LanguageExt.TypeClasses;
-using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Sys.Traits;
 
 namespace LanguageExt.Sys
@@ -50,7 +45,7 @@ namespace LanguageExt.Sys
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<RT, Unit> sleepUntil(DateTime dt) =>
             cancelToken<RT>().Bind(t =>
-                default(RT).TimeEff.MapAsync(e => e.SleepUntil(dt, t)));
+                default(RT).TimeEff.Map(liftIO(async (TimeIO e) => await e.SleepUntil(dt, t))));
 
         /// <summary>
         /// Pause a task until for a specified length of time
@@ -58,6 +53,6 @@ namespace LanguageExt.Sys
         [Pure, MethodImpl(AffOpt.mops)]
         public static Aff<RT, Unit> sleepFor(TimeSpan ts) =>
             cancelToken<RT>().Bind(t =>
-                default(RT).TimeEff.MapAsync(e => e.SleepFor(ts, t)));
+                default(RT).TimeEff.Map(liftIO(async (TimeIO e) => await e.SleepFor(ts, t))));
     }
 }

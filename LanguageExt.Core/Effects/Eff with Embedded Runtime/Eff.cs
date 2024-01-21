@@ -42,7 +42,7 @@ public readonly struct Eff<RT, A> : KArr<Any, RT, Sum<Error, A>>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(Func<RT, Sum<Error, A>> thunk) =>
-        effect = Transducer.lift(thunk);
+        effect = lift(thunk);
 
     /// <summary>
     /// Constructor
@@ -73,7 +73,7 @@ public readonly struct Eff<RT, A> : KArr<Any, RT, Sum<Error, A>>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(Transducer<RT, Either<Error, A>> thunk) 
-        : this(Transducer.compose(thunk, Transducer.lift<Either<Error, A>, Sum<Error, A>>(x => x.ToSum())))
+        : this(Transducer.compose(thunk, lift<Either<Error, A>, Sum<Error, A>>(x => x.ToSum())))
     { }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -260,7 +260,7 @@ public readonly struct Eff<RT, A> : KArr<Any, RT, Sum<Error, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> LiftIO(Func<RT, Task<A>> f) =>
-        new (Transducer.liftIO<RT, Sum<Error, A>>(
+        new (liftIO<RT, Sum<Error, A>>(
             async (_, rt) => Sum<Error, A>.Right(await f(rt).ConfigureAwait(false))));
 
     /// <summary>
@@ -268,7 +268,7 @@ public readonly struct Eff<RT, A> : KArr<Any, RT, Sum<Error, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> LiftIO(Func<RT, Task<Sum<Error, A>>> f) =>
-        new(Transducer.liftIO<RT, Sum<Error, A>>(
+        new(liftIO<RT, Sum<Error, A>>(
             async (_, rt) => await f(rt).ConfigureAwait(false)));
 
     /// <summary>
@@ -276,7 +276,7 @@ public readonly struct Eff<RT, A> : KArr<Any, RT, Sum<Error, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> LiftIO(Func<RT, Task<Either<Error, A>>> f) =>
-        new (Transducer.liftIO<RT, Sum<Error, A>>(
+        new (liftIO<RT, Sum<Error, A>>(
             async (_, rt) => (await f(rt).ConfigureAwait(false)).ToSum()));
 
     /// <summary>
@@ -284,7 +284,7 @@ public readonly struct Eff<RT, A> : KArr<Any, RT, Sum<Error, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> LiftIO(Func<RT, Task<Fin<A>>> f) =>
-        new (Transducer.liftIO<RT, Sum<Error, A>>(
+        new (liftIO<RT, Sum<Error, A>>(
             async (_, rt) => (await f(rt).ConfigureAwait(false)).ToSum()));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -552,6 +552,17 @@ public readonly struct Eff<RT, A> : KArr<Any, RT, Sum<Error, A>>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, B> Bind<B>(Transducer<A, Eff<RT, B>> f) =>
         Map(f).Flatten();
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, B> Bind<B>(Func<A, Eff<B>> f) =>
+        Bind(a => f(a).WithRuntime<RT>());
 
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
@@ -1119,6 +1130,17 @@ public readonly struct Eff<RT, A> : KArr<Any, RT, Sum<Error, A>>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> operator |(in Eff<RT, A> ma, in EffCatch<RT, A> mb) =>
         new(ma.effect | mb.As());
+    
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="mb">Alternative IO operation</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> operator |(in Eff<RT, A> ma, in EffCatch<A> mb) =>
+        new(ma.effect | mb.As<RT>());
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1260,7 +1282,7 @@ public readonly struct Eff<RT, A> : KArr<Any, RT, Sum<Error, A>>
     /// <summary>
     /// Lift a value into the `Eff` monad 
     /// </summary>
-    [Obsolete("Use either: `Eff<RT, A>.Lift`, `Prelude.liftEff`, or `Transducer.lift`")]
+    [Obsolete("Use either: `Eff<RT, A>.Lift`, `Prelude.liftEff`, or `lift`")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> Success(A value) =>
         Pure(value);
@@ -1268,7 +1290,7 @@ public readonly struct Eff<RT, A> : KArr<Any, RT, Sum<Error, A>>
     /// <summary>
     /// Lift a synchronous effect into the `Eff` monad
     /// </summary>
-    [Obsolete("Use either: `Eff<RT, A>.Lift`, `Prelude.liftEff`, or `Transducer.lift`")]
+    [Obsolete("Use either: `Eff<RT, A>.Lift`, `Prelude.liftEff`, or `lift`")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> Effect(Func<RT, A> f) =>
         Lift(f);
@@ -1276,7 +1298,7 @@ public readonly struct Eff<RT, A> : KArr<Any, RT, Sum<Error, A>>
     /// <summary>
     /// Lift a synchronous effect into the `Eff` monad
     /// </summary>
-    [Obsolete("Use either: `Eff<RT, A>.Lift`, `Prelude.liftEff`, or `Transducer.lift`")]
+    [Obsolete("Use either: `Eff<RT, A>.Lift`, `Prelude.liftEff`, or `lift`")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> EffectMaybe(Func<RT, Fin<A>> f) =>
         Lift(f);

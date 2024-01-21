@@ -13,6 +13,11 @@
 
 ## Breaking changes
 
+### `netstandard2.0` no longer supported
+
+I held off for as long as I could, but there are lots of new C# features that this library can make use of, so it's time to lead .NET Framework behind and focus on .NET Core.  This version jumps straight to `net8.0` support.
+
+
 ### Renamed `LanguageExt.ClassInstances.Sum<NUM, A>`
 
 Renamed to `LanguageExt.ClassInstances.Addition<SUM, A>`
@@ -40,4 +45,5 @@ Simply search and replace: `HasCancel<RT>` for `HasIO<RT, Error>`.  This will wo
 ## Types made obsolete
 
 * `Aff<RT, A>`, `Aff<A>`, `OptionAsync`, `EitherAsync`, `TryAsync`, `TryOptionAsync` have all been made obsolete, in line with this proposal: https://github.com/louthy/language-ext/discussions/1269.  See the _Type mapping_ table in the proposal of how to migrate.
+	* `runtime<RT>()` now returns a `Transducer`, to continue to use it with `Aff` call `runtime<RT>().ToAff()`
 

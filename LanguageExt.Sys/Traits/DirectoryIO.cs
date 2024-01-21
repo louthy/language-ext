@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using LanguageExt.Attributes;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Sys.Traits
@@ -164,7 +165,7 @@ namespace LanguageExt.Sys.Traits
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
     [Typeclass("*")]
-    public interface HasDirectory<RT>
+    public interface HasDirectory<RT> : HasIO<RT, Error>
         where RT : struct, HasDirectory<RT>
     {
         /// <summary>

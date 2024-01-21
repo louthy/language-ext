@@ -14,7 +14,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>`Use` monad that works with other effect monads</returns>
         public static Transducer<Unit, A> use<A>(Func<A> acquire, Func<A, Unit> release) =>
-            Transducer.use(Transducer.lift<Unit, A>(_ => acquire()), release);
+            Transducer.use(lift<Unit, A>(_ => acquire()), release);
         
         /// <summary>
         /// Create a new resource tracking monad: `Use`.  This monad works with
@@ -26,7 +26,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>`Use` monad that works with other effect monads</returns>
         public static Transducer<Unit, A> use<A>(Func<A> acquire, Action<A> release) =>
-            Transducer.use(Transducer.lift<Unit, A>(_ => acquire()), x =>
+            Transducer.use(lift<Unit, A>(_ => acquire()), x =>
             {
                 release(x);
                 return unit;
@@ -42,7 +42,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>`Use` monad that works with other effect monads</returns>
         public static Transducer<Unit, A> use<A>(Func<A> acquire) where A : IDisposable =>
-            Transducer.use(Transducer.lift<Unit, A>(_ => acquire()));
+            Transducer.use(lift<Unit, A>(_ => acquire()));
 
         /// <summary>
         /// Create a new `Release` monad that works with other, effectful, resource tracking

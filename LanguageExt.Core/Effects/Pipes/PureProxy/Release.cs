@@ -11,6 +11,7 @@ using static LanguageExt.Prelude;
 using System.Collections.Generic;
 using static LanguageExt.Pipes.Proxy;
 using System.Runtime.CompilerServices;
+using LanguageExt.Common;
 
 namespace LanguageExt.Pipes
 {
@@ -20,24 +21,24 @@ namespace LanguageExt.Pipes
         public abstract Release<B> SelectMany<B>(Func<A, Release<B>> f);
         public abstract Enumerate<OUT, B> SelectMany<OUT, B>(Func<A, Enumerate<OUT, B>> f);
         public abstract Consumer<IN, B> SelectMany<IN, B>(Func<A, Consumer<IN, B>> f);
-        public abstract Consumer<RT, IN, B> SelectMany<RT, IN, B>(Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasCancel<RT>;
-        public abstract ConsumerLift<RT, IN, B> SelectMany<RT, IN, B>(Func<A, ConsumerLift<RT, IN, B>> f) where RT : struct, HasCancel<RT>;
+        public abstract Consumer<RT, IN, B> SelectMany<RT, IN, B>(Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasIO<RT, Error>;
+        public abstract ConsumerLift<RT, IN, B> SelectMany<RT, IN, B>(Func<A, ConsumerLift<RT, IN, B>> f) where RT : struct, HasIO<RT, Error>;
         public abstract Producer<OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f);
-        public abstract Producer<RT, OUT, B> SelectMany<RT, OUT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT>;
+        public abstract Producer<RT, OUT, B> SelectMany<RT, OUT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasIO<RT, Error>;
         public abstract Pipe<IN, OUT, B> SelectMany<IN, OUT, B>(Func<A, Pipe<IN, OUT, B>> f);
-        public abstract Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasCancel<RT>;
+        public abstract Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasIO<RT, Error>;
 
         public abstract Enumerate<OUT, A> ToEnumerate<OUT>();
         public abstract Consumer<IN, A> ToConsumer<IN>();
         public abstract Producer<OUT, A> ToProducer<OUT>();
         public abstract Pipe<IN, OUT, A> ToPipe<IN, OUT>();
-        public abstract ConsumerLift<RT, IN, A> ToConsumerLift<RT, IN>() where RT : struct, HasCancel<RT>;
+        public abstract ConsumerLift<RT, IN, A> ToConsumerLift<RT, IN>() where RT : struct, HasIO<RT, Error>;
 
-        public abstract Consumer<RT, IN, A> InterpretConsumer<RT, IN>() where RT : struct, HasCancel<RT>;
-        public abstract Producer<RT, OUT, A> InterpretProducer<RT, OUT>() where RT : struct, HasCancel<RT>;
-        public abstract Pipe<RT, IN, OUT, A> InterpretPipe<RT, IN, OUT>() where RT : struct, HasCancel<RT>;
-        public abstract Client<RT, REQ, RES, A> InterpretClient<RT, REQ, RES>() where RT : struct, HasCancel<RT>;
-        public abstract Server<RT, REQ, RES, A> InterpretServer<RT, REQ, RES>() where RT : struct, HasCancel<RT>;
+        public abstract Consumer<RT, IN, A> InterpretConsumer<RT, IN>() where RT : struct, HasIO<RT, Error>;
+        public abstract Producer<RT, OUT, A> InterpretProducer<RT, OUT>() where RT : struct, HasIO<RT, Error>;
+        public abstract Pipe<RT, IN, OUT, A> InterpretPipe<RT, IN, OUT>() where RT : struct, HasIO<RT, Error>;
+        public abstract Client<RT, REQ, RES, A> InterpretClient<RT, REQ, RES>() where RT : struct, HasIO<RT, Error>;
+        public abstract Server<RT, REQ, RES, A> InterpretServer<RT, REQ, RES>() where RT : struct, HasIO<RT, Error>;
             
         public static implicit operator Release<A>(Pure<A> ma) =>
             new Pure(ma.Value);
@@ -54,19 +55,19 @@ namespace LanguageExt.Pipes
         public Consumer<IN, B> Bind<IN, B>(Func<A, Consumer<IN, B>> f) =>
             SelectMany(f);
         
-        public Consumer<RT, IN, B> Bind<RT, IN, B>(Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasCancel<RT> =>
+        public Consumer<RT, IN, B> Bind<RT, IN, B>(Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasIO<RT, Error> =>
             SelectMany(f);
         
         public Producer<OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f) =>
             SelectMany(f);
         
-        public Producer<RT, OUT, B> Bind<RT, OUT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasCancel<RT> =>
+        public Producer<RT, OUT, B> Bind<RT, OUT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : struct, HasIO<RT, Error> =>
             SelectMany(f);
         
         public Pipe<IN, OUT, B> Bind<IN, OUT, B>(Func<A, Pipe<IN, OUT, B>> f) =>
             SelectMany(f);
         
-        public Pipe<RT, IN, OUT, B> Bind<RT, IN, OUT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasCancel<RT> =>
+        public Pipe<RT, IN, OUT, B> Bind<RT, IN, OUT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasIO<RT, Error> =>
             SelectMany(f);
 
         public Release<C> SelectMany<B, C>(Func<A, Release<B>> f, Func<A, B, C> project) =>
@@ -78,19 +79,19 @@ namespace LanguageExt.Pipes
         public Consumer<IN, C> SelectMany<IN, B, C>(Func<A, Consumer<IN, B>> f, Func<A, B, C> project) =>
             SelectMany(a => f(a).Select(b => project(a, b)));    
         
-        public Consumer<RT, IN, C> SelectMany<RT, IN, B, C>(Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+        public Consumer<RT, IN, C> SelectMany<RT, IN, B, C>(Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
             SelectMany(a => f(a).Select(b => project(a, b)));    
         
         public Producer<OUT, C> SelectMany<OUT, B, C>(Func<A, Producer<OUT, B>> f, Func<A, B, C> project) =>
             SelectMany(a => f(a).Select(b => project(a, b)));    
         
-        public Producer<RT, OUT, C> SelectMany<RT, OUT, B, C>(Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+        public Producer<RT, OUT, C> SelectMany<RT, OUT, B, C>(Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
             SelectMany(a => f(a).Select(b => project(a, b)));    
         
         public Pipe<IN, OUT, C> SelectMany<IN, OUT, B, C>(Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) =>
             SelectMany(a => f(a).Select(b => project(a, b)));    
         
-        public Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, B, C>(Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasCancel<RT> =>
+        public Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, B, C>(Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
             SelectMany(a => f(a).Select(b => project(a, b)));
 
         public class Pure : Release<A>

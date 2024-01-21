@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Pipes
@@ -16,7 +17,7 @@ namespace LanguageExt.Pipes
     /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
     ///
     /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-    public class Request<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasCancel<RT>
+    public class Request<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasIO<RT, Error>
     {
         public readonly UOut Value;
         public readonly Func<UIn, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next;
@@ -111,7 +112,7 @@ namespace LanguageExt.Pipes
     ///
     /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
     public class Respond<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> 
-        where RT : struct, HasCancel<RT>
+        where RT : struct, HasIO<RT, Error>
     {
         public readonly DOut Value;
         public readonly Func<DIn, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next;

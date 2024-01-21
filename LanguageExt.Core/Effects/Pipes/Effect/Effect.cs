@@ -32,11 +32,14 @@ namespace LanguageExt.Pipes
     public static class Effect
     {
         /*
+         
+         REFERENCE IMPLEMENTATION
+         
         [Pure]
         internal static Aff<RT, R> RunEffect<RT, R>(
             this Proxy<RT, Void, Unit, Unit, Void, R> ma, 
             ConcurrentDictionary<object, IDisposable> disps) 
-            where RT : struct, HasCancel<RT> 
+            where RT : struct, HasIO<RT, Error> 
         {
             return Go(ma);
             
@@ -56,93 +59,91 @@ namespace LanguageExt.Pipes
         */
 
         [Pure]
-        public static Aff<RT, Unit> RunEffectUnit<RT>(this Proxy<RT, Void, Unit, Unit, Void, Unit> ma) where RT : struct, HasCancel<RT> =>
+        public static Eff<RT, Unit> RunEffectUnit<RT>(this Proxy<RT, Void, Unit, Unit, Void, Unit> ma) where RT : struct, HasIO<RT, Error> =>
             ma.RunEffect() | @catch(Errors.SequenceEmpty, unitEff);
 
         [Pure]
-        public static Aff<RT, R> RunEffect<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma) where RT : struct, HasCancel<RT> =>
-            AffMaybe<RT, R>(async env =>
-                            {
-                                var disps = new ConcurrentDictionary<object, IDisposable>(new ReferenceEqualityComparer<object>());
-                                try
-                                {
-                                    return await RunEffect(ma, disps).Run(env);
-                                }
-                                finally
-                                {
-                                    foreach (var disp in disps)
-                                    {
-                                        disp.Value?.Dispose();
-                                    }
-                                }
-                            });
+        public static Eff<RT, R> RunEffect<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma) where RT : struct, HasIO<RT, Error> =>
+            liftIO(async (RT env) =>
+            {
+                var disps = new ConcurrentDictionary<object, IDisposable>(new ReferenceEqualityComparer<object>());
+                try
+                {
+                    return await RunEffect(ma, disps).RunAsync(env);
+                }
+                finally
+                {
+                    foreach (var disp in disps)
+                    {
+                        disp.Value?.Dispose();
+                    }
+                }
+            });
 
-
-        static Aff<RT, R> EnumerateCase<RT, R>(
+        static Eff<RT, R> EnumerateCase<RT, R>(
             Enumerate<RT, Void, Unit, Unit, Void, R> me,
             ConcurrentDictionary<object, IDisposable> disps)
-            where RT : struct, HasCancel<RT> =>
-            AffMaybe<RT, R>(
-                async env =>
+            where RT : struct, HasIO<RT, Error> =>
+            liftIO(async (RT env) =>
+            {
+                Fin<Unit> lastResult = Errors.SequenceEmpty;
+
+                switch (me.Type)
                 {
-                    Fin<Unit> lastResult = Errors.SequenceEmpty;
-
-                    switch (me.Type)
-                    {
-                        case EnumerateDataType.AsyncEnumerable:
-                            await foreach (var f in me.MakeEffectsAsync().ConfigureAwait(false))
-                            {
-                                if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
-                                lastResult = await f.RunEffect(disps).Run(env).ConfigureAwait(false);
-                                if (lastResult.IsFail) return lastResult.Error;
-                            }
-
-                            return await me.Next(default).RunEffect(disps).Run(env).ConfigureAwait(false);
-
-                        case EnumerateDataType.Enumerable:
-                            foreach (var f in me.MakeEffects())
-                            {
-                                if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
-                                lastResult = await f.RunEffect(disps).Run(env).ConfigureAwait(false);
-                                if (lastResult.IsFail) return lastResult.Error;
-                            }
-
-                            return await me.Next(default).RunEffect(disps).Run(env).ConfigureAwait(false);
-
-                        case EnumerateDataType.Observable:
+                    case EnumerateDataType.AsyncEnumerable:
+                        await foreach (var f in me.MakeEffectsAsync().ConfigureAwait(false))
                         {
-                            using var wait = new AutoResetEvent(false);
-                            var lastTask = unit.AsValueTask();
-                            Fin<Unit> last = Errors.Cancelled;
-
-                            using (var sub = me.Subscribe(
-                                       onNext: fx =>
-                                           lastTask = fx.RunEffect(disps).Run(env).Iter(r => last = r),
-                                       onError: err =>
-                                       {
-                                           last = err;
-                                           wait.Set();
-                                       },
-                                       onCompleted: () => wait.Set()))
-                            {
-                                await wait.WaitOneAsync(env.CancellationToken).ConfigureAwait(false);
-                                await lastTask.ConfigureAwait(false);
-                                return await me.Next(default).RunEffect(disps).Run(env).ConfigureAwait(false);
-                            }
+                            if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
+                            lastResult = await f.RunEffect(disps).RunAsync(env).ConfigureAwait(false);
+                            if (lastResult.IsFail) return lastResult.Error;
                         }
 
-                        default:
-                            throw new NotSupportedException();
+                        return await me.Next(default).RunEffect(disps).RunAsync(env).ConfigureAwait(false);
+
+                    case EnumerateDataType.Enumerable:
+                        foreach (var f in me.MakeEffects())
+                        {
+                            if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
+                            lastResult = await f.RunEffect(disps).RunAsync(env).ConfigureAwait(false);
+                            if (lastResult.IsFail) return lastResult.Error;
+                        }
+
+                        return await me.Next(default).RunEffect(disps).RunAsync(env).ConfigureAwait(false);
+
+                    case EnumerateDataType.Observable:
+                    {
+                        using var wait = new AutoResetEvent(false);
+                        var lastTask = unit.AsTask();
+                        Fin<Unit> last = Errors.Cancelled;
+
+                        using (var sub = me.Subscribe(
+                                   onNext: fx =>
+                                       lastTask = fx.RunEffect(disps).RunAsync(env).Iter(r => last = r),
+                                   onError: err =>
+                                   {
+                                       last = err;
+                                       wait.Set();
+                                   },
+                                   onCompleted: () => wait.Set()))
+                        {
+                            await wait.WaitOneAsync(env.CancellationToken).ConfigureAwait(false);
+                            await lastTask.ConfigureAwait(false);
+                            return await me.Next(default).RunEffect(disps).RunAsync(env).ConfigureAwait(false);
+                        }
                     }
-                });
+
+                    default:
+                        throw new NotSupportedException();
+                }
+            });
 
         [Pure]
-        static Aff<RT, R> RunEffect<RT, R>(
+        static Eff<RT, R> RunEffect<RT, R>(
             this Proxy<RT, Void, Unit, Unit, Void, R> ma,
             ConcurrentDictionary<object, IDisposable> disps) 
-            where RT : struct, HasCancel<RT> =>
-            AffMaybe<RT, R>(
-                async env =>
+            where RT : struct, HasIO<RT, Error> =>
+            liftIO(
+                async (RT env) =>
                 {
                     var p = ma;
 
@@ -169,7 +170,7 @@ namespace LanguageExt.Pipes
                                         await foreach (var f in me.MakeEffectsAsync().ConfigureAwait(false))
                                         {
                                             if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
-                                            lastResult = await f.RunEffect(disps).Run(env).ConfigureAwait(false);
+                                            lastResult = await f.RunEffect(disps).RunAsync(env).ConfigureAwait(false);
                                             if (lastResult.IsFail) return lastResult.Error;
                                         }
 
@@ -180,7 +181,7 @@ namespace LanguageExt.Pipes
                                         foreach (var f in me.MakeEffects())
                                         {
                                             if (env.CancellationToken.IsCancellationRequested) return Errors.Cancelled;
-                                            lastResult = await f.RunEffect(disps).Run(env).ConfigureAwait(false);
+                                            lastResult = await f.RunEffect(disps).RunAsync(env).ConfigureAwait(false);
                                             if (lastResult.IsFail) return lastResult.Error;
                                         }
                                         p = me.Next(default);
@@ -189,12 +190,12 @@ namespace LanguageExt.Pipes
                                     case EnumerateDataType.Observable:
                                     {
                                         using var wait = new AutoResetEvent(false);
-                                        var lastTask = unit.AsValueTask();
+                                        var lastTask = unit.AsTask();
                                         Fin<Unit> last = Errors.Cancelled;
 
                                         using (var sub = me.Subscribe(
                                                    onNext: fx =>
-                                                       lastTask = fx.RunEffect(disps).Run(env).Iter(r => last = r),
+                                                       lastTask = fx.RunEffect(disps).RunAsync(env).Iter(r => last = r),
                                                    onError: err =>
                                                    {
                                                        last = err;
@@ -223,10 +224,10 @@ namespace LanguageExt.Pipes
                                 p = mu.Run(disps);
                                 break;
 
-                            case Request<RT, Void, Unit, Unit, Void, R> (var v, var _):
+                            case Request<RT, Void, Unit, Unit, Void, R>:
                                 return Errors.Closed;
 
-                            case Respond<RT, Void, Unit, Unit, Void, R> (var v, var _):
+                            case Respond<RT, Void, Unit, Unit, Void, R>:
                                 return Errors.Closed;
                         }
                     }
@@ -235,20 +236,20 @@ namespace LanguageExt.Pipes
                 });
 
         
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<RT, R> lift<RT, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
+        [Pure, MethodImpl(mops)]
+        public static Effect<RT, R> lift<RT, R>(Aff<R> ma) where RT : struct, HasIO<RT, Error> =>
             lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<RT, R> lift<RT, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
+        [Pure, MethodImpl(mops)]
+        public static Effect<RT, R> lift<RT, R>(Eff<R> ma) where RT : struct, HasIO<RT, Error> =>
             lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<RT, R> lift<RT, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
+        [Pure, MethodImpl(mops)]
+        public static Effect<RT, R> lift<RT, R>(Aff<RT, R> ma) where RT : struct, HasIO<RT, Error> =>
             lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
 
-        [Pure, MethodImpl(Proxy.mops)]
-        public static Effect<RT, R> lift<RT, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
+        [Pure, MethodImpl(mops)]
+        public static Effect<RT, R> lift<RT, R>(Eff<RT, R> ma) where RT : struct, HasIO<RT, Error> =>
             lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
     }
 }

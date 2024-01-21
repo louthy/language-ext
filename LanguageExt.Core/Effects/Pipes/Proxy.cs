@@ -1,6 +1,9 @@
 using System;
 using System.Diagnostics.Contracts;
+using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using static LanguageExt.Prelude;
+using static LanguageExt.Transducer;
 
 namespace LanguageExt.Pipes
 {
@@ -183,7 +186,7 @@ namespace LanguageExt.Pipes
     ///
     /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
     public class Pure<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> 
-        where RT : struct, HasCancel<RT>
+        where RT : struct, HasIO<RT, Error>
     {
         public readonly A Value;
 
@@ -296,7 +299,9 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
-            new M<RT, UOut, UIn, DIn, DOut, A>(Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>>.Success(this));
+            new M<RT, UOut, UIn, DIn, DOut, A>(
+                constant<RT, Sum<Error, Proxy<RT, UOut, UIn, DIn, DOut, A>>>(
+                    Sum<Error, Proxy<RT, UOut, UIn, DIn, DOut, A>>.Right(this)));
 
         [Pure]
         public void Deconstruct(out A value) =>
@@ -316,11 +321,13 @@ namespace LanguageExt.Pipes
     /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
     ///
     /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-    public class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>  where RT : struct, HasCancel<RT>
+    public class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>  
+        where RT : struct, HasIO<RT, Error>
     {
-        public readonly Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>> Value;
+        //public readonly Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>> Value;
+        public readonly Transducer<RT, Sum<Error, Proxy<RT, UOut, UIn, DIn, DOut, A>>> Value;
         
-        public M(Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>> value) =>
+        public M(Transducer<RT, Sum<Error, Proxy<RT, UOut, UIn, DIn, DOut, A>>> value) =>
             Value = value;
         
         /// <summary>
@@ -338,7 +345,7 @@ namespace LanguageExt.Pipes
         /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
-            new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Bind(f)));
+            new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Map(x => x.Bind(f))));
 
         /// <summary>
         /// Lifts a pure function into the `Proxy` domain, causing it to map the bound value within
@@ -348,7 +355,7 @@ namespace LanguageExt.Pipes
         /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<A, S> f) =>
-            new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Map(f)));
+            new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Map(x => x.Map(f))));
 
         /// <summary>
         /// `For(body)` loops over the `Proxy p` replacing each `yield` with `body`
@@ -369,7 +376,7 @@ namespace LanguageExt.Pipes
         /// <param name="r">`Proxy` to run after this one</param>
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
-            new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Action(r)));
+            new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Map(x => x.Action(r))));
 
         /// <summary>
         /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
@@ -381,7 +388,7 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(
             Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
-            new M<RT, UOutA, AUInA, DIn, DOut, A>(Value.Map(p1 => p1.PairEachRequestWithRespond(fb1)));
+            new M<RT, UOutA, AUInA, DIn, DOut, A>(Value.Map(mp1 => mp1.Map(p1 => p1.PairEachRequestWithRespond(fb1))));
 
         /// <summary>
         /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
@@ -390,7 +397,7 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(
             Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
-            new M<RT, UOutA, AUInA, DIn, DOut, A>(Value.Map(x => x.ReplaceRequest(lhs)));
+            new M<RT, UOutA, AUInA, DIn, DOut, A>(Value.Map(mx => mx.Map(x => x.ReplaceRequest(lhs))));
 
         /// <summary>
         /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
@@ -399,7 +406,7 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(
             Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
-            new M<RT, UOut, UIn, DInC, DOutC, A>(Value.Map(p1 => p1.PairEachRespondWithRequest(rhs)));
+            new M<RT, UOut, UIn, DInC, DOutC, A>(Value.Map(mp1 => mp1.Map(p1 => p1.PairEachRespondWithRequest(rhs))));
 
         /// <summary>
         /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
@@ -408,7 +415,7 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(
             Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
-            new M<RT, UOut, UIn, DInC, DOutC, A>(Value.Map(x => x.ReplaceRespond(rhs)));
+            new M<RT, UOut, UIn, DInC, DOutC, A>(Value.Map(mx => mx.Map(x => x.ReplaceRespond(rhs))));
 
         /// <summary>
         /// Reverse the arrows of the `Proxy` to find its dual.  
@@ -416,8 +423,8 @@ namespace LanguageExt.Pipes
         /// <returns>The dual of `this1</returns>
         [Pure]
         public override Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect() =>
-            new M<RT, DOut, DIn, UIn, UOut, A>(Value.Map(x => x.Reflect()));
-         
+            new M<RT, DOut, DIn, UIn, UOut, A>(Value.Map(mx => mx.Map(x => x.Reflect())));
+
         /// <summary>
         /// 
         ///     Observe(lift (Pure(r))) = Observe(Pure(r))
@@ -430,10 +437,10 @@ namespace LanguageExt.Pipes
         [Pure]
         public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
             new M<RT, UOut, UIn, DIn, DOut, A>(
-                Value.Bind(x => ((M<RT, UOut, UIn, DIn, DOut, A>)x.Observe()).Value));
+                Value.Map(mx => mx.Map(x => ((M<RT, UOut, UIn, DIn, DOut, A>)x.Observe()).Value)).Flatten());
         
         [Pure]
-        public void Deconstruct(out Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>> value) =>
+        public void Deconstruct(out Transducer<RT, Sum<Error, Proxy<RT, UOut, UIn, DIn, DOut, A>>> value) =>
             value = Value;
     }
 }

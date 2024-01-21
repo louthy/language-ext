@@ -121,6 +121,28 @@ public static partial class Prelude
     /// <typeparam name="E">Error type</typeparam>
     /// <typeparam name="A">First IO monad bound value type</typeparam>
     /// <typeparam name="B">Second IO monad bound value type</typeparam>
+    /// <typeparam name="C">Third IO monad bound value type</typeparam>
+    /// <typeparam name="D">Fourth IO monad bound value type</typeparam>
+    /// <returns>IO monad</returns>
+    public static Eff<RT, (A First, B Second, C Third, D Fourth)> zip<RT, A, B, C, D>(
+        (Eff<RT, A> First,
+            Eff<RT, B> Second,
+            Eff<RT, C> Third,
+            Eff<RT, D> Fourth) tuple)
+        where RT : struct, HasIO<RT, Error> =>
+        new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism, tuple.Third.Morphism, tuple.Fourth.Morphism));
+    
+    /// <summary>
+    /// Takes two IO monads and zips their result
+    /// </summary>
+    /// <remarks>
+    /// Asynchronous operations will run concurrently
+    /// </remarks>
+    /// <param name="tuple">Tuple of IO monads to run</param>
+    /// <typeparam name="RT">Runtime type</typeparam>
+    /// <typeparam name="E">Error type</typeparam>
+    /// <typeparam name="A">First IO monad bound value type</typeparam>
+    /// <typeparam name="B">Second IO monad bound value type</typeparam>
     /// <returns>IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, (A First, B Second)> zip<RT, A, B>(
@@ -149,7 +171,29 @@ public static partial class Prelude
         Eff<RT, C> Third)
         where RT : struct, HasIO<RT, Error> =>
         (First, Second, Third).Zip();
-
+    
+    /// <summary>
+    /// Takes two IO monads and zips their result
+    /// </summary>
+    /// <remarks>
+    /// Asynchronous operations will run concurrently
+    /// </remarks>
+    /// <param name="tuple">Tuple of IO monads to run</param>
+    /// <typeparam name="RT">Runtime type</typeparam>
+    /// <typeparam name="E">Error type</typeparam>
+    /// <typeparam name="A">First IO monad bound value type</typeparam>
+    /// <typeparam name="B">Second IO monad bound value type</typeparam>
+    /// <typeparam name="C">Third IO monad bound value type</typeparam>
+    /// <typeparam name="D">Fourth IO monad bound value type</typeparam>
+    /// <returns>IO monad</returns>
+    public static Eff<RT, (A First, B Second, C Third, D Fourth)> zip<RT, A, B, C, D>(
+        Eff<RT, A> First, 
+        Eff<RT, B> Second, 
+        Eff<RT, C> Third, 
+        Eff<RT, D> Fourth)
+        where RT : struct, HasIO<RT, Error> =>
+        (First, Second, Third, Fourth).Zip();
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Lifting
