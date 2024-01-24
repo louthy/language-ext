@@ -83,7 +83,7 @@ record TryTransducer<RT, X, A>(
         Func<X, bool> Match, 
         Transducer<X, Sum<X, A>> Catch) 
     : Transducer<RT, Sum<X, A>>
-    where RT : struct, HasFromError<RT, X>
+    where RT : HasFromError<RT, X>
 {
     public override Reducer<RT, S> Transform<S>(Reducer<Sum<X, A>, S> reduce) =>
         new MatchReducer<S>(F, Match, Catch, reduce);

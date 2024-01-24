@@ -453,7 +453,7 @@ namespace LanguageExt
         }
         
         public static EitherAsync<Fail, Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, EitherAsync<Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             return new EitherAsync<Fail, Validation<MonoidFail, Fail, B>>(Go(ma, f));
             async Task<EitherData<Fail, Validation<MonoidFail, Fail, B>>> Go(Validation<MonoidFail, Fail, EitherAsync<Fail, A>> ma, Func<A, B> f)
@@ -467,7 +467,7 @@ namespace LanguageExt
         }
         
         public static EitherAsync<L, Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, L, A, B>(this Validation<MonoidFail, Fail, EitherAsync<L, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             return new EitherAsync<L, Validation<MonoidFail, Fail, B>>(Go(ma, f));
             async Task<EitherData<L, Validation<MonoidFail, Fail, B>>> Go(Validation<MonoidFail, Fail, EitherAsync<L, A>> ma, Func<A, B> f)

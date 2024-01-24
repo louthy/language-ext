@@ -274,7 +274,7 @@ public abstract partial record Schedule
 
     [Pure]
     internal Eff<RT, S> Run<RT, A, S>(Eff<RT, A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
-        where RT : struct, HasIO<RT, Error>
+        where RT : HasIO<RT, Error>
     {
         var durations = Run();
         return EffMaybe<RT, S>(env =>
@@ -305,7 +305,7 @@ public abstract partial record Schedule
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal Eff<RT, A> Run<RT, A>(Eff<RT, A> effect, Func<Fin<A>, bool> pred) where RT : struct, HasIO<RT, Error> =>
+    internal Eff<RT, A> Run<RT, A>(Eff<RT, A> effect, Func<Fin<A>, bool> pred) where RT : HasIO<RT, Error> =>
         Run(effect, default(A), static (_, result) => result, pred)!;
         */
 
@@ -349,7 +349,7 @@ public abstract partial record Schedule
 
     [Pure]
     internal Aff<RT, S> Run<RT, A, S>(Aff<RT, A> effect, S state, Func<S, A, S> fold, Func<Fin<A>, bool> pred)
-        where RT : struct, HasIO<RT, Error>
+        where RT : HasIO<RT, Error>
     {
         var durations = Run();
         return AffMaybe<RT, S>(async env =>
@@ -387,6 +387,6 @@ public abstract partial record Schedule
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal Aff<RT, A> Run<RT, A>(Aff<RT, A> effect, Func<Fin<A>, bool> pred) where RT : struct, HasIO<RT, Error> =>
+    internal Aff<RT, A> Run<RT, A>(Aff<RT, A> effect, Func<Fin<A>, bool> pred) where RT : HasIO<RT, Error> =>
         Run(effect, default(A), static (_, result) => result, pred)!;
 }

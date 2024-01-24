@@ -19,7 +19,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the fold operation</returns>
         public static Aff<RT, S> fold<RT, S, A>(Schedule schedule, Aff<RT, A> ma, S state, Func<S, A, S> fold)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             ScheduleAff<RT, A>.Fold(ma, schedule, state, fold);
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the fold operation</returns>
         public static Aff<RT, S> foldWhile<RT, S, A>(Schedule schedule, Aff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             ScheduleAff<RT, A>.FoldWhile(ma, schedule, state, fold, pred);
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the fold operation</returns>
         public static Aff<RT, S> foldUntil<RT, S, A>(Schedule schedule, Aff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             ScheduleAff<RT, A>.FoldUntil(ma, schedule, state, fold, pred);
         
         /// <summary>
@@ -65,7 +65,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the fold operation</returns>
         public static Aff<RT, S> fold<RT, S, A>(Aff<RT, A> ma, S state, Func<S, A, S> fold)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             ScheduleAff<RT, A>.Fold(ma, Schedule.Forever, state, fold);
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the fold operation</returns>
         public static Aff<RT, S> foldWhile<RT, S, A>(Aff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             ScheduleAff<RT, A>.FoldWhile(ma, Schedule.Forever, state, fold, pred);
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <returns>The result of the fold operation</returns>
         public static Aff<RT, S> foldUntil<RT, S, A>(Aff<RT, A> ma, S state, Func<S, A, S> fold, Func<A, bool> pred)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             ScheduleAff<RT, A>.FoldUntil(ma, Schedule.Forever, state, fold, pred);  
         
         /// <summary>

@@ -15,7 +15,7 @@ using LanguageExt.Common;
 
 namespace LanguageExt.Pipes
 {
-    public abstract class ProducerLift<RT, OUT, A> where RT : struct, HasIO<RT, Error>
+    public abstract class ProducerLift<RT, OUT, A> where RT : HasIO<RT, Error>
     {
         public abstract ProducerLift<RT, OUT, B> Select<B>(Func<A, B> f);
         public abstract ProducerLift<RT, OUT, B> SelectMany<B>(Func<A, Producer<OUT, B>> f);
@@ -164,10 +164,10 @@ namespace LanguageExt.Pipes
         
         public class Lift<X> : ProducerLift<RT, OUT, A> 
         {
-            public readonly Aff<RT, X> Value;
+            public readonly Transducer<RT, Sum<Error, X>> Value;
             public readonly Func<X, ProducerLift<RT, OUT, A>> Next;
 
-            public Lift(Aff<RT, X> value, Func<X, ProducerLift<RT, OUT, A>> next) =>
+            public Lift(Transducer<RT, Sum<Error, X>> value, Func<X, ProducerLift<RT, OUT, A>> next) =>
                 (Value, Next) = (value, next);
 
             public override ProducerLift<RT, OUT, B> Select<B>(Func<A, B> f) =>

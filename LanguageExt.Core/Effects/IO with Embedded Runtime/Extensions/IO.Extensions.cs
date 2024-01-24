@@ -25,7 +25,7 @@ public static partial class IOExtensions
     /// <typeparam name="A">Bound value</typeparam>
     /// <returns>Flattened IO monad</returns>
     public static IO<RT, E, A> Flatten<RT, E, A>(this IO<RT, E, IO<RT, E, A>> mma)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         mma.Bind(ma => ma);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,19 +34,19 @@ public static partial class IOExtensions
     //
 
     public static IO<RT, E, B> Bind<RT, E, A, B>(this Transducer<Unit, A> ma, Func<A, IO<RT, E, B>> f)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), ma.Morphism)).Bind(f);
 
     public static IO<RT, E, B> Bind<RT, E, A, B>(this Transducer<Unit, Sum<E, A>> ma, Func<A, IO<RT, E, B>> f)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), ma.Morphism)).Bind(f);
     
     public static IO<RT, E, B> Bind<RT, E, A, B>(this Transducer<RT, A> ma, Func<A, IO<RT, E, B>> f)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Lift(ma.Morphism).Bind(f);
     
     public static IO<RT, E, B> Bind<RT, E, A, B>(this Transducer<RT, Sum<E, A>> ma, Func<A, IO<RT, E, B>> f)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Lift(ma.Morphism).Bind(f);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ public static partial class IOExtensions
         this (IO<RT, E, A> First, IO<RT, E, B> Second) self,
         Func<(A First, B Second), IO<RT, E, C>> bind,
         Func<(A First, B Second), C, D> project)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         self.Zip().Bind(ab => bind(ab).Map(c => project(ab, c)));
 
     /// <summary>
@@ -71,7 +71,7 @@ public static partial class IOExtensions
         this IO<RT, E, A> self,
         Func<A, (IO<RT, E, B> First, IO<RT, E, C> Second)> bind,
         Func<A, (B First, C Second), D> project)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         self.Bind(a => bind(a).Zip().Map(cd => project(a, cd)));
 
     /// <summary>
@@ -81,7 +81,7 @@ public static partial class IOExtensions
         this (IO<RT, Err, A> First, IO<RT, Err, B> Second, IO<RT, Err, C> Third) self,
         Func<(A First, B Second, C Third), IO<RT, Err, D>> bind,
         Func<(A First, B Second, C Third), D, E> project)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         self.Zip().Bind(ab => bind(ab).Map(c => project(ab, c)));
 
     /// <summary>
@@ -91,7 +91,7 @@ public static partial class IOExtensions
         this IO<RT, Err, A> self,
         Func<A, (IO<RT, Err, B> First, IO<RT, Err, C> Second, IO<RT, Err, D> Third)> bind,
         Func<A, (B First, C Second, D Third), E> project)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         self.Bind(a => bind(a).Zip().Map(cd => project(a, cd)));
 
     /// <summary>
@@ -101,7 +101,7 @@ public static partial class IOExtensions
         this Transducer<Unit, A> ma,
         Func<A, IO<RT, E, B>> bind,
         Func<A, B, C> project)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), ma))
                     .Bind(x => bind(x).Map(y => project(x, y)));
 
@@ -112,7 +112,7 @@ public static partial class IOExtensions
         this Transducer<RT, A> ma,
         Func<A, IO<RT, E, B>> bind,
         Func<A, B, C> project)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Lift(ma).Bind(x => bind(x).Map(y => project(x, y)));
 
     /// <summary>
@@ -122,7 +122,7 @@ public static partial class IOExtensions
         this Transducer<Unit, Sum<E, A>> ma,
         Func<A, IO<RT, E, B>> bind,
         Func<A, B, C> project)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), ma))
                     .Bind(x => bind(x).Map(y => project(x, y)));
 
@@ -133,7 +133,7 @@ public static partial class IOExtensions
         this Transducer<RT, Sum<E, A>> ma,
         Func<A, IO<RT, E, B>> bind,
         Func<A, B, C> project)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Lift(ma).Bind(x => bind(x).Map(y => project(x, y)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,7 +155,7 @@ public static partial class IOExtensions
     /// <returns>IO monad</returns>
     public static IO<RT, E, (A First, B Second)> Zip<RT, E, A, B>(
          this (IO<RT, E, A> First, IO<RT, E, B> Second) tuple)
-         where RT : struct, HasIO<RT, E> =>
+         where RT : HasIO<RT, E> =>
          new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism));
 
     /// <summary>
@@ -175,7 +175,7 @@ public static partial class IOExtensions
         this (IO<RT, E, A> First, 
               IO<RT, E, B> Second, 
               IO<RT, E, C> Third) tuple)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism, tuple.Third.Morphism));
 
     /// <summary>
@@ -193,7 +193,7 @@ public static partial class IOExtensions
     public static IO<RT, E, (A First, B Second)> Zip<RT, E, A, B>(
         this IO<RT, E, A> First,
         IO<RT, E, B> Second)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         (First, Second).Zip();
 
     /// <summary>
@@ -213,7 +213,7 @@ public static partial class IOExtensions
         this IO<RT, E, A> First, 
         IO<RT, E, B> Second, 
         IO<RT, E, C> Third)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         (First, Second, Third).Zip();
             
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -225,7 +225,7 @@ public static partial class IOExtensions
     /// Natural transformation to `Eff`
     /// </summary>
     public static Eff<RT, Unit> ToEff<RT, A>(this Guard<Error, A> guard) 
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         guard.Flag
             ? Pure(unit)
             : Fail(guard.OnFalse());

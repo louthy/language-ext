@@ -6,7 +6,7 @@ using LanguageExt.Effects.Traits;
 
 namespace LanguageExt
 {
-    internal static class ScheduleAff<RT, A> where RT : struct, HasIO<RT, Error>
+    internal static class ScheduleAff<RT, A> where RT : HasIO<RT, Error>
     {
         public static Aff<RT, A> Repeat(Aff<RT, A> ma, Schedule schedule) =>
             schedule.Run(ma, static x => x.IsSucc);

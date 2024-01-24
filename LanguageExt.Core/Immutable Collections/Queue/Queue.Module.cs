@@ -128,7 +128,7 @@ namespace LanguageExt
             queue.Distinct();
 
         [Pure]
-        public static Que<T> distinct<EQ, T>(Que<T> queue) where EQ : struct, Eq<T> =>
+        public static Que<T> distinct<EQ, T>(Que<T> queue) where EQ : Eq<T> =>
             queue.Distinct<EQ, T>();
 
         [Pure]
@@ -245,7 +245,7 @@ namespace LanguageExt
             toQueue(LanguageExt.List.distinct(queue));
 
         [Pure]
-        public static Que<T> Distinct<EQ, T>(this Que<T> list) where EQ : struct, Eq<T> =>
+        public static Que<T> Distinct<EQ, T>(this Que<T> list) where EQ : Eq<T> =>
             toQueue(LanguageExt.List.distinct<EQ, T>(list));
 
         [Pure]

@@ -21,7 +21,7 @@ namespace LanguageExt
         /// <typeparam name="T">Element type</typeparam>
         /// <returns>True if the set has no elements</returns>
         [Pure]
-        public static bool isEmpty<OrdT, T>(Set<OrdT, T> set) where OrdT : struct, Ord<T> =>
+        public static bool isEmpty<OrdT, T>(Set<OrdT, T> set) where OrdT : Ord<T> =>
             set.IsEmpty;
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace LanguageExt
         /// <typeparam name="T">Element type</typeparam>
         /// <returns>Empty set</returns>
         [Pure]
-        public static Set<OrdT, T> create<OrdT, T>() where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> create<OrdT, T>() where OrdT : Ord<T> =>
             Set<OrdT, T>.Empty;
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace LanguageExt
         /// <param name="range">Range of items</param>
         /// <returns>Set</returns>
         [Pure]
-        public static Set<OrdT, T> createRange<OrdT, T>(IEnumerable<T> range) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> createRange<OrdT, T>(IEnumerable<T> range) where OrdT : Ord<T> =>
             new Set<OrdT, T>(range);
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace LanguageExt
         /// <typeparam name="T">Element type</typeparam>
         /// <returns>Empty set</returns>
         [Pure]
-        public static Set<OrdT, T> empty<OrdT, T>() where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> empty<OrdT, T>() where OrdT : Ord<T> =>
             Set<OrdT, T>.Empty;
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace LanguageExt
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item added</returns>
         [Pure]
-        public static Set<OrdT, T> add<OrdT, T>(Set<OrdT, T> set, T value) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> add<OrdT, T>(Set<OrdT, T> set, T value) where OrdT : Ord<T> =>
             set.Add(value);
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace LanguageExt
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
         [Pure]
-        public static Set<OrdT, T> tryAdd<OrdT, T>(Set<OrdT, T> set, T value) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> tryAdd<OrdT, T>(Set<OrdT, T> set, T value) where OrdT : Ord<T> =>
             set.TryAdd(value);
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace LanguageExt
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
         [Pure]
-        public static Set<OrdT, T> addOrUpdate<OrdT, T>(Set<OrdT, T> set, T value) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> addOrUpdate<OrdT, T>(Set<OrdT, T> set, T value) where OrdT : Ord<T> =>
             set.AddOrUpdate(value);
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException if any of the keys are null</exception>
         /// <returns>New Set with the items added</returns>
         [Pure]
-        public static Set<OrdT, T> addRange<OrdT, T>(Set<OrdT, T> set, IEnumerable<T> range) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> addRange<OrdT, T>(Set<OrdT, T> set, IEnumerable<T> range) where OrdT : Ord<T> =>
             set.AddRange(range);
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException if any of the keys are null</exception>
         /// <returns>New Set with the items added</returns>
         [Pure]
-        public static Set<OrdT, T> tryAddRange<OrdT, T>(Set<OrdT, T> set, IEnumerable<T> range) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> tryAddRange<OrdT, T>(Set<OrdT, T> set, IEnumerable<T> range) where OrdT : Ord<T> =>
             set.TryAddRange(range);
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException if any of the keys are null</exception>
         /// <returns>New Set with the items added</returns>
         [Pure]
-        public static Set<OrdT, T> addOrUpdateRange<OrdT, T>(Set<OrdT, T> set, IEnumerable<T> range) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> addOrUpdateRange<OrdT, T>(Set<OrdT, T> set, IEnumerable<T> range) where OrdT : Ord<T> =>
             set.AddOrUpdateRange(range);
 
 
@@ -130,7 +130,7 @@ namespace LanguageExt
         /// <param name="value">Value to find</param>
         /// <returns>Some(T) if found, None otherwise</returns>
         [Pure]
-        public static Option<T> find<OrdT, T>(Set<OrdT, T> set, T value) where OrdT : struct, Ord<T> =>
+        public static Option<T> find<OrdT, T>(Set<OrdT, T> set, T value) where OrdT : Ord<T> =>
             set.Find(value);
 
         /// <summary>
@@ -143,14 +143,14 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if predicate returns true for any item</returns>
         [Pure]
-        public static bool exists<OrdT, T>(Set<OrdT, T> set, Func<T, bool> pred) where OrdT : struct, Ord<T> =>
+        public static bool exists<OrdT, T>(Set<OrdT, T> set, Func<T, bool> pred) where OrdT : Ord<T> =>
             set.Exists(pred);
 
         /// <summary>
         /// Returns true if both sets contain the same elements
         /// </summary>
         [Pure]
-        public static bool equals<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : struct, Ord<T> =>
+        public static bool equals<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : Ord<T> =>
             setA.SetEquals(setB);
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace LanguageExt
         /// <param name="set">Set</param>
         /// <returns>Number of elements</returns>
         [Pure]
-        public static int length<OrdT, T>(Set<OrdT, T> set) where OrdT : struct, Ord<T> =>
+        public static int length<OrdT, T>(Set<OrdT, T> set) where OrdT : Ord<T> =>
             set.Count();
 
         /// <summary>
@@ -168,7 +168,7 @@ namespace LanguageExt
         /// setB will be returned.
         /// </summary>
         [Pure]
-        public static Set<OrdT, T> subtract<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> subtract<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : Ord<T> =>
             setA.Except(setB);
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace LanguageExt
         /// <param name="setB">Set A</param>
         /// <returns>A set which contains all items from both sets</returns>
         [Pure]
-        public static Set<OrdT, T> union<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> union<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : Ord<T> =>
             setA.Union(setB);
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>Filtered enumerable</returns>
         [Pure]
-        public static Set<OrdT, T> filter<OrdT, T>(Set<OrdT, T> set, Func<T, bool> pred) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> filter<OrdT, T>(Set<OrdT, T> set, Func<T, bool> pred) where OrdT : Ord<T> =>
             set.Filter(pred);
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <returns>Aggregate value</returns>
         [Pure]
-        public static S fold<OrdT, T, S>(Set<OrdT, T> set, S state, Func<S, T, S> folder) where OrdT : struct, Ord<T> =>
+        public static S fold<OrdT, T, S>(Set<OrdT, T> set, S state, Func<S, T, S> folder) where OrdT : Ord<T> =>
             set.Fold(state, folder);
 
         /// <summary>
@@ -227,14 +227,14 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <returns>Aggregate value</returns>
         [Pure]
-        public static S foldBack<OrdT, T, S>(Set<OrdT, T> set, S state, Func<S, T, S> folder) where OrdT : struct, Ord<T> =>
+        public static S foldBack<OrdT, T, S>(Set<OrdT, T> set, S state, Func<S, T, S> folder) where OrdT : Ord<T> =>
             set.FoldBack(state, folder);
 
         /// <summary>
         /// Returns the elements that are in both setA and setB
         /// </summary>
         [Pure]
-        public static Set<OrdT, T> intersect<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> intersect<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : Ord<T> =>
             setA.Intersect(setB);
 
         /// <summary>
@@ -242,7 +242,7 @@ namespace LanguageExt
         /// other will be returned.
         /// </summary>
         [Pure]
-        public static Set<OrdT, T> except<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> except<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : Ord<T> =>
             setA.Except(setB);
 
         /// <summary>
@@ -250,7 +250,7 @@ namespace LanguageExt
         /// If an item is in both, it is dropped.
         /// </summary>
         [Pure]
-        public static Set<OrdT, T> symmetricExcept<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> symmetricExcept<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : Ord<T> =>
             setA.SymmetricExcept(setB);
 
         /// <summary>
@@ -264,8 +264,8 @@ namespace LanguageExt
         /// <returns>Mapped enumerable</returns>
         [Pure]
         public static Set<OrdR, R> map<OrdT, OrdR, T, R>(Set<OrdT, T> set, Func<T, R> mapper) 
-            where OrdT : struct, Ord<T>
-            where OrdR : struct, Ord<R> =>
+            where OrdT : Ord<T>
+            where OrdR : Ord<R> =>
                 set.Map<OrdR, R>(mapper);
 
         /// <summary>
@@ -278,7 +278,7 @@ namespace LanguageExt
         /// <param name="mapper">Mapping function</param>
         /// <returns>Mapped enumerable</returns>
         [Pure]
-        public static Set<OrdT, T> map<OrdT, T>(Set<OrdT, T> set, Func<T, T> mapper) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> map<OrdT, T>(Set<OrdT, T> set, Func<T, T> mapper) where OrdT : Ord<T> =>
             set.Map(mapper);
 
         /// <summary>
@@ -289,7 +289,7 @@ namespace LanguageExt
         /// <param name="value">Value to check</param>
         /// <returns>True if the item 'value' is in the Set 'set'</returns>
         [Pure]
-        public static bool contains<OrdT, T>(Set<OrdT, T> set, T value) where OrdT : struct, Ord<T> =>
+        public static bool contains<OrdT, T>(Set<OrdT, T> set, T value) where OrdT : Ord<T> =>
             set.Contains(value);
 
         /// <summary>
@@ -300,7 +300,7 @@ namespace LanguageExt
         /// <param name="value">Value to check</param>
         /// <returns>New set with item removed</returns>
         [Pure]
-        public static Set<OrdT, T> remove<OrdT, T>(Set<OrdT, T> set, T value) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> remove<OrdT, T>(Set<OrdT, T> set, T value) where OrdT : Ord<T> =>
             set.Remove(value);
 
         /// <summary>
@@ -311,7 +311,7 @@ namespace LanguageExt
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a subset of setA</returns>
         [Pure]
-        public static bool isSubset<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : struct, Ord<T> =>
+        public static bool isSubset<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : Ord<T> =>
             setA.IsSubsetOf(setB);
 
         /// <summary>
@@ -322,7 +322,7 @@ namespace LanguageExt
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a superset of setA</returns>
         [Pure]
-        public static bool isSuperset<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : struct, Ord<T> =>
+        public static bool isSuperset<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : Ord<T> =>
             setA.IsSupersetOf(setB);
 
         /// <summary>
@@ -333,7 +333,7 @@ namespace LanguageExt
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a proper subset of setA</returns>
         [Pure]
-        public static bool isProperSubset<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : struct, Ord<T> =>
+        public static bool isProperSubset<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : Ord<T> =>
             setA.IsProperSubsetOf(setB);
 
         /// <summary>
@@ -344,7 +344,7 @@ namespace LanguageExt
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a proper subset of setA</returns>
         [Pure]
-        public static bool isProperSuperset<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : struct, Ord<T> =>
+        public static bool isProperSuperset<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : Ord<T> =>
             setA.IsProperSupersetOf(setB);
 
         /// <summary>
@@ -355,7 +355,7 @@ namespace LanguageExt
         /// <param name="setB">Set B</param>
         /// <returns>True if setA overlaps setB</returns>
         [Pure]
-        public static bool overlaps<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : struct, Ord<T> =>
+        public static bool overlaps<OrdT, T>(Set<OrdT, T> setA, Set<OrdT, T> setB) where OrdT : Ord<T> =>
             setA.Overlaps(setB);
     }
 }

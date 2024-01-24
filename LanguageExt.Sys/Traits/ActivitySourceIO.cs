@@ -59,9 +59,9 @@ namespace LanguageExt.SysX.Traits
     /// Type-class giving a struct the trait of supporting ActivitySource IO
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
-    [Typeclass("*")]
+    [Trait("*")]
     public interface HasActivitySource<RT>
-        where RT : struct, HasActivitySource<RT>
+        where RT : HasActivitySource<RT>
     {
         /// <summary>
         /// Access the activity-source synchronous effect environment

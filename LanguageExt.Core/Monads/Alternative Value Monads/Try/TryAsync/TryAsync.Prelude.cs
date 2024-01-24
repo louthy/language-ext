@@ -77,7 +77,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs ++ rhs</returns>
         [Pure]
-        public static TryAsync<A> append<SEMI, A>(TryAsync<A> lhs, TryAsync<A> rhs) where SEMI : struct, Semigroup<A> =>
+        public static TryAsync<A> append<SEMI, A>(TryAsync<A> lhs, TryAsync<A> rhs) where SEMI : Semigroup<A> =>
             lhs.Append<SEMI, A>(rhs);
     
         /// <summary>
@@ -88,7 +88,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
         [Pure]
-        public static TryAsync<A> add<NUM, A>(TryAsync<A> lhs, TryAsync<A> rhs) where NUM : struct, Num<A> =>
+        public static TryAsync<A> add<NUM, A>(TryAsync<A> lhs, TryAsync<A> rhs) where NUM : Num<A> =>
             lhs.Add<NUM, A>(rhs);
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public static TryAsync<T> subtract<NUM, T>(TryAsync<T> lhs, TryAsync<T> rhs) where NUM : struct, Num<T> =>
+        public static TryAsync<T> subtract<NUM, T>(TryAsync<T> lhs, TryAsync<T> rhs) where NUM : Num<T> =>
             lhs.Subtract<NUM, T>(rhs);
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         [Pure]
-        public static TryAsync<T> product<NUM, T>(TryAsync<T> lhs, TryAsync<T> rhs) where NUM : struct, Num<T> =>
+        public static TryAsync<T> product<NUM, T>(TryAsync<T> lhs, TryAsync<T> rhs) where NUM : Num<T> =>
             lhs.Product<NUM, T>(rhs);
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static TryAsync<T> divide<NUM, T>(TryAsync<T> lhs, TryAsync<T> rhs) where NUM : struct, Num<T> =>
+        public static TryAsync<T> divide<NUM, T>(TryAsync<T> lhs, TryAsync<T> rhs) where NUM : Num<T> =>
             lhs.Divide<NUM, T>(rhs);
 
         /// <summary>

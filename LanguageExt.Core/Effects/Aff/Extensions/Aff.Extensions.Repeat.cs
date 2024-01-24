@@ -14,7 +14,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<RT, A> Repeat<RT, A>(this Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Repeat<RT, A>(this Aff<RT, A> ma) where RT : HasIO<RT, Error> =>
             ScheduleAff<RT, A>.Repeat(ma, Schedule.Forever);
         
         /// <summary>
@@ -34,7 +34,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<RT, A> Repeat<RT, A>(this Aff<RT, A> ma, Schedule schedule) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Repeat<RT, A>(this Aff<RT, A> ma, Schedule schedule) where RT : HasIO<RT, Error> =>
             ScheduleAff<RT, A>.Repeat(ma, schedule);
         
         /// <summary>
@@ -55,7 +55,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<RT, A> RepeatWhile<RT, A>(this Aff<RT, A> ma, Func<A, bool> predicate) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> RepeatWhile<RT, A>(this Aff<RT, A> ma, Func<A, bool> predicate) where RT : HasIO<RT, Error> =>
             ScheduleAff<RT, A>.RepeatWhile(ma, Schedule.Forever, predicate);
         
         /// <summary>
@@ -75,7 +75,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<RT, A> RepeatWhile<RT, A>(this Aff<RT, A> ma, Schedule schedule, Func<A, bool> predicate) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> RepeatWhile<RT, A>(this Aff<RT, A> ma, Schedule schedule, Func<A, bool> predicate) where RT : HasIO<RT, Error> =>
             ScheduleAff<RT, A>.RepeatWhile(ma, schedule, predicate);
         
         /// <summary>
@@ -97,7 +97,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<RT, A> RepeatUntil<RT, A>(this Aff<RT, A> ma, Func<A, bool> predicate) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> RepeatUntil<RT, A>(this Aff<RT, A> ma, Func<A, bool> predicate) where RT : HasIO<RT, Error> =>
             ScheduleAff<RT, A>.RepeatUntil(ma, Schedule.Forever, predicate);
         
         /// <summary>
@@ -117,7 +117,7 @@ namespace LanguageExt
         /// <typeparam name="RT">Runtime</typeparam>
         /// <typeparam name="A">Computation bound value type</typeparam>
         /// <returns>The result of the last invocation of ma</returns>
-        public static Aff<RT, A> RepeatUntil<RT, A>(this Aff<RT, A> ma, Schedule schedule, Func<A, bool> predicate) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> RepeatUntil<RT, A>(this Aff<RT, A> ma, Schedule schedule, Func<A, bool> predicate) where RT : HasIO<RT, Error> =>
             ScheduleAff<RT, A>.RepeatUntil(ma, schedule, predicate);
         
         /// <summary>

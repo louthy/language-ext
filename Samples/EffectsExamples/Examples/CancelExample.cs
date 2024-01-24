@@ -15,7 +15,7 @@ namespace EffectsExamples
     /// When Enter is pressed it calls `cancel<RT>()` to trigger the cancellation token
     /// </remarks>
     public class CancelExample<RT>
-        where RT: struct, 
+        where RT: 
         HasCancel<RT>, 
         HasConsole<RT>
     {

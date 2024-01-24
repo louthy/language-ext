@@ -24,8 +24,8 @@ namespace LanguageExt
         IComparable<Lst<PredList, PredItem, A>>,
         IComparable,
         ListInfo
-        where PredList : struct, Pred<ListInfo>
-        where PredItem : struct, Pred<A>
+        where PredList : Pred<ListInfo>
+        where PredItem : Pred<A>
     {
         readonly LstInternal<A> value;
 
@@ -95,7 +95,7 @@ namespace LanguageExt
             new Lst<PredList, PredItem, A>(list);
 
         static Lst<PredList, PREDITEM, T> Wrap<PREDITEM, T>(LstInternal<T> list) 
-            where PREDITEM : struct, Pred<T> =>
+            where PREDITEM : Pred<T> =>
                 new Lst<PredList, PREDITEM, T>(list);
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace LanguageExt
         /// <param name="value">Value to test</param>
         /// <returns>True if collection contains value</returns>
         [Pure]
-        public bool Contains<EqA>(A value) where EqA : struct, Eq<A> =>
+        public bool Contains<EqA>(A value) where EqA : Eq<A> =>
             Value.Find(a => default(EqA).Equals(a, value)).IsSome;
 
         /// <summary>
@@ -332,7 +332,7 @@ namespace LanguageExt
         /// Map
         /// </summary>
         [Pure]
-        public Lst<PredList, PREDU, U> Map<PREDU, U>(Func<A, U> map) where PREDU : struct, Pred<U> =>
+        public Lst<PredList, PREDU, U> Map<PREDU, U>(Func<A, U> map) where PREDU : Pred<U> =>
             Wrap<PREDU, U>(Value.Map(a =>
             {
                 var u = map(a);

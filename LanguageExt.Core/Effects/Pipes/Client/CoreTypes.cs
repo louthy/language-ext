@@ -23,7 +23,7 @@ namespace LanguageExt.Pipes
     ///                |
     ///                A
     /// </remarks>
-    public class Client<RT, REQ, RES, A> : Proxy<RT, REQ, RES, Unit, Void, A> where RT : struct, HasIO<RT, Error>
+    public class Client<RT, REQ, RES, A> : Proxy<RT, REQ, RES, Unit, Void, A> where RT : HasIO<RT, Error>
     {
         public readonly Proxy<RT, REQ, RES, Unit, Void, A> Value;
 

@@ -8,28 +8,29 @@ namespace LanguageExt.ClassInstances
     /// Either type hashing
     /// </summary>
     public struct EqEitherUnsafe<EqL, EqR, L, R> : Eq<EitherUnsafe<L, R>>
-        where EqL : struct, Eq<L>
-        where EqR : struct, Eq<R>
+        where EqL : Eq<L?>
+        where EqR : Eq<R?>
     {
         /// <summary>
         /// Equality test
         /// </summary>
         [Pure]
-        public bool Equals(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) => x.State switch
-        {
-            EitherStatus.IsRight => y.State switch
+        public static bool Equals(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) =>
+            x.State switch
             {
-                EitherStatus.IsRight => default(EqR).Equals(x.RightValue, y.RightValue),
-                _ => false
-            },
-            EitherStatus.IsLeft => y.State switch
-            {
-                EitherStatus.IsLeft => default(EqL).Equals(x.LeftValue, y.LeftValue),
-                _ => false
-            },
-            EitherStatus.IsBottom => y.State == EitherStatus.IsBottom,
-            _ => false
-        };
+                EitherStatus.IsRight => y.State switch
+                                        {
+                                            EitherStatus.IsRight => EqR.Equals(x.RightValue, y.RightValue),
+                                            _                    => false
+                                        },
+                EitherStatus.IsLeft => y.State switch
+                                       {
+                                           EitherStatus.IsLeft => EqL.Equals(x.LeftValue, y.LeftValue),
+                                           _                   => false
+                                       },
+                EitherStatus.IsBottom => y.State == EitherStatus.IsBottom,
+                _                     => false
+            };
 
 
         /// <summary>
@@ -38,8 +39,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         [Pure]
-        public int GetHashCode(EitherUnsafe<L, R> x) => 
-            default(HashableEitherUnsafe<EqL, EqR, L, R>).GetHashCode(x);
+        public static int GetHashCode(EitherUnsafe<L, R> x) => 
+            HashableEitherUnsafe<EqL, EqR, L, R>.GetHashCode(x);
 
         /// <summary>
         /// Get hash code of the value
@@ -47,14 +48,14 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         [Pure]
-        public Task<int> GetHashCodeAsync(EitherUnsafe<L, R> x) =>
+        public static Task<int> GetHashCodeAsync(EitherUnsafe<L, R> x) =>
             GetHashCode(x).AsTask();
 
         /// <summary>
         /// Equality test
         /// </summary>
         [Pure]
-        public Task<bool> EqualsAsync(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) => 
+        public static Task<bool> EqualsAsync(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) => 
             Equals(x, y).AsTask();
     }
     
@@ -67,8 +68,8 @@ namespace LanguageExt.ClassInstances
         /// Equality test
         /// </summary>
         [Pure]
-        public bool Equals(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) => 
-            default(EqEitherUnsafe<EqDefault<L>, EqDefault<R>, L, R>).Equals(x, y);
+        public static bool Equals(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) => 
+            EqEitherUnsafe<EqDefault<L?>, EqDefault<R?>, L, R>.Equals(x, y);
         
         /// <summary>
         /// Get hash code of the value
@@ -76,23 +77,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         [Pure] 
-        public int GetHashCode(EitherUnsafe<L, R> x) =>
-            default(HashableEitherUnsafe<HashableDefault<L>, HashableDefault<R>, L, R>).GetHashCode(x);
-
-        /// <summary>
-        /// Get hash code of the value
-        /// </summary>
-        /// <param name="x">Value to get the hash code of</param>
-        /// <returns>The hash code of x</returns>
-        [Pure]
-        public Task<int> GetHashCodeAsync(EitherUnsafe<L, R> x) =>
-            GetHashCode(x).AsTask();
-
-        /// <summary>
-        /// Equality test
-        /// </summary>
-        [Pure]
-        public Task<bool> EqualsAsync(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) => 
-            Equals(x, y).AsTask();    
+        public static int GetHashCode(EitherUnsafe<L, R> x) =>
+            HashableEitherUnsafe<HashableDefault<L?>, HashableDefault<R?>, L, R>.GetHashCode(x);
     }
 }

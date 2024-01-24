@@ -366,7 +366,7 @@ namespace LanguageExt
         }
         
         public static Validation<Fail, Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Validation<Fail, A>> ma, Func<A, B> f) 
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail)
             {

@@ -20,7 +20,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RWS<MonoidW, Env, W, S, Arr<B>> Sequence<MonoidW, Env, W, S, A, B>(this Arr<A> ta, Func<A, RWS<MonoidW, Env,  W, S, B>> f) 
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
             ta.Map(f).Sequence();
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RWS<MonoidW, Env, W, S, IEnumerable<B>> Sequence<MonoidW, Env, W, S, A, B>(this IEnumerable<A> ta, Func<A, RWS<MonoidW, Env,  W, S, B>> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -48,7 +48,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RWS<MonoidW, Env, W, S, Set<B>> Sequence<MonoidW, Env, W, S, A, B>(this Set<A> ta, Func<A, RWS<MonoidW, Env,  W, S, B>> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -62,7 +62,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RWS<MonoidW, Env, W, S, Seq<B>> Sequence<MonoidW, Env, W, S, A, B>(this Seq<A> ta, Func<A, RWS<MonoidW, Env,  W, S, B>> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -76,7 +76,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RWS<MonoidW, Env, W, S, Lst<B>> Sequence<MonoidW, Env, W, S, A, B>(this Lst<A> ta, Func<A, RWS<MonoidW, Env,  W, S, B>> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -90,7 +90,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RWS<MonoidW, Env, W, S, HashSet<B>> Sequence<MonoidW, Env, W, S, A, B>(this HashSet<A> ta, Func<A, RWS<MonoidW, Env,  W, S, B>> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -104,7 +104,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RWS<MonoidW, Env, W, S, Stck<B>> Sequence<MonoidW, Env, W, S, A, B>(this Stck<A> ta, Func<A, RWS<MonoidW, Env,  W, S, B>> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
             ta.Map(f).Sequence();
     }
 }

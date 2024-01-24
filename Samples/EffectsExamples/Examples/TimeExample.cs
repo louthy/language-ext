@@ -14,7 +14,7 @@ namespace EffectsExamples
     /// and then it's clamped
     /// </remarks>
     public class TimeExample<RT>
-        where RT : struct, 
+        where RT : 
         HasTime<RT>, 
         HasCancel<RT>, 
         HasConsole<RT>

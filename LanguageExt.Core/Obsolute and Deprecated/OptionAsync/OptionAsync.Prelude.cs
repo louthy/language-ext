@@ -27,14 +27,14 @@ namespace LanguageExt
         /// <returns>lhs - rhs</returns>
         [Pure]
         [Obsolete(Change.UseEffMonadInstead)]
-        public static OptionAsync<T> subtract<NUM, T>(OptionAsync<T> lhs, OptionAsync<T> rhs) where NUM : struct, Num<T> =>
+        public static OptionAsync<T> subtract<NUM, T>(OptionAsync<T> lhs, OptionAsync<T> rhs) where NUM : Num<T> =>
             lhs.Subtract<NUM, T>(rhs);
 
         /// <summary>
         /// Find the product of the Ts
         [Pure]
         [Obsolete(Change.UseEffMonadInstead)]
-        public static OptionAsync<T> product<NUM, T>(OptionAsync<T> lhs, OptionAsync<T> rhs) where NUM : struct, Num<T> =>
+        public static OptionAsync<T> product<NUM, T>(OptionAsync<T> lhs, OptionAsync<T> rhs) where NUM : Num<T> =>
             lhs.Product<NUM, T>(rhs);
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace LanguageExt
         /// <returns>lhs / rhs</returns>
         [Pure]
         [Obsolete(Change.UseEffMonadInstead)]
-        public static OptionAsync<T> divide<NUM, T>(OptionAsync<T> lhs, OptionAsync<T> rhs) where NUM : struct, Num<T> =>
+        public static OptionAsync<T> divide<NUM, T>(OptionAsync<T> lhs, OptionAsync<T> rhs) where NUM : Num<T> =>
             lhs.Divide<NUM, T>(rhs);
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace LanguageExt
         /// <returns>lhs / rhs</returns>
         [Pure]
         [Obsolete(Change.UseEffMonadInstead)]
-        public static OptionAsync<T> add<NUM, T>(OptionAsync<T> lhs, OptionAsync<T> rhs) where NUM : struct, Num<T> =>
+        public static OptionAsync<T> add<NUM, T>(OptionAsync<T> lhs, OptionAsync<T> rhs) where NUM : Num<T> =>
             lhs.Add<NUM, T>(rhs);
 
         /// <summary>

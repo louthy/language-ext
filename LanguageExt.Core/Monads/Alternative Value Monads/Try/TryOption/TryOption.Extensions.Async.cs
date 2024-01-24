@@ -733,7 +733,7 @@ public static class TryOptionExtensionsAsync
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOptionAsync<A> AddAsync<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : struct, Num<A> =>
+    public static TryOptionAsync<A> AddAsync<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Add<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -744,7 +744,7 @@ public static class TryOptionExtensionsAsync
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOptionAsync<A> SubtractAsync<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : struct, Num<A> =>
+    public static TryOptionAsync<A> SubtractAsync<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Subtract<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -755,7 +755,7 @@ public static class TryOptionExtensionsAsync
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOptionAsync<A> ProductAsync<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : struct, Num<A> =>
+    public static TryOptionAsync<A> ProductAsync<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Product<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -766,7 +766,7 @@ public static class TryOptionExtensionsAsync
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOptionAsync<A> DivideAsync<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : struct, Num<A> =>
+    public static TryOptionAsync<A> DivideAsync<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Divide<NUM, A>(rhs.ToAsync());
 
     /// <summary>

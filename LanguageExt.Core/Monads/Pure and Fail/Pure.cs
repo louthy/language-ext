@@ -103,18 +103,18 @@ public readonly record struct Pure<A>(A Value) : KArr<Any, Unit, A>
         Validation<FAIL, A>.Success(Value);
     
     public Validation<MonadFail, FAIL, A> ToValidation<MonadFail, FAIL>() 
-        where MonadFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+        where MonadFail : Monoid<FAIL>, Eq<FAIL> =>
         Validation<MonadFail, FAIL, A>.Success(Value);
     
     public IO<RT, E, A> ToIO<RT, E>()
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Pure(Value);
     
     public IO<E, A> ToIO<E>() =>
         IO<E, A>.Pure(Value);
     
     public Eff<RT, A> ToEff<RT>()
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         Eff<RT, A>.Pure(Value);
     
     public Eff<A> ToEff() =>
@@ -144,15 +144,15 @@ public readonly record struct Pure<A>(A Value) : KArr<Any, Unit, A>
         bind(Value);
 
     public Validation<MonoidFail, FAIL, B> Bind<MonoidFail, FAIL, B>(Func<A, Validation<MonoidFail, FAIL, B>> bind)
-        where MonoidFail : struct, Eq<FAIL>, Monoid<FAIL> =>
+        where MonoidFail : Eq<FAIL>, Monoid<FAIL> =>
         bind(Value);
 
     public IO<RT, E, B> Bind<RT, E, B>(Func<A, IO<RT, E, B>> bind)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         bind(Value);
 
     public Eff<RT, B> Bind<RT, B>(Func<A, Eff<RT, B>> bind)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         bind(Value);
 
     public Eff<B> Bind<B>(Func<A, Eff<B>> bind) =>
@@ -178,15 +178,15 @@ public readonly record struct Pure<A>(A Value) : KArr<Any, Unit, A>
     public Validation<MonoidFail, FAIL, C> SelectMany<MonoidFail, FAIL, B, C>(
         Func<A, Validation<MonoidFail, FAIL, B>> bind, 
         Func<A, B, C> project)
-        where MonoidFail : struct, Eq<FAIL>, Monoid<FAIL> =>
+        where MonoidFail : Eq<FAIL>, Monoid<FAIL> =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public IO<RT, E, C> SelectMany<RT, E, B, C>(Func<A, IO<RT, E, B>> bind, Func<A, B, C> project)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>

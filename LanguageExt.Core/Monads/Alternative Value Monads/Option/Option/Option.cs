@@ -22,7 +22,7 @@ namespace LanguageExt
     ///     Some(a)
     ///     None
     ///     
-    /// Typeclass instances available for this type:
+    /// Trait instances available for this type:
     /// 
     ///     BiFoldable  : MOption
     ///     Eq          : EqOpt
@@ -69,7 +69,7 @@ namespace LanguageExt
         internal Option(A value)
         {
             Value = value;
-            this.isSome = true;
+            isSome = true;
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace LanguageExt
         /// <returns>`True` if `this` and `other` are equal</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals<EqA>(Option<A> other) where EqA : struct, Eq<A>
+        public bool Equals<EqA>(Option<A> other) where EqA : Eq<A>
         {
             var yIsSome = other.IsSome;
             var xIsNone = !isSome;
@@ -171,7 +171,7 @@ namespace LanguageExt
         /// <param name="other">The `Option` type to compare `this` type with</param>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo<OrdA>(Option<A> other) where OrdA : struct, Ord<A>
+        public int CompareTo<OrdA>(Option<A> other) where OrdA : Ord<A>
         {
             var yIsSome = other.IsSome;
             var xIsNone = !isSome;
@@ -290,7 +290,7 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>
         /// This uses the EqDefault instance for comparison of the A value.  
-        /// The EqDefault type-class wraps up the .NET EqualityComparer.Default 
+        /// The EqDefault trait wraps up the .NET EqualityComparer.Default 
         /// behaviour.  For more control over equality you can call:
         /// 
         ///     !equals<EQ, A>(lhs, rhs);

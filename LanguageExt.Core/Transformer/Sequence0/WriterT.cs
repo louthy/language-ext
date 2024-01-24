@@ -18,7 +18,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Writer<MonoidW, W, Seq<A>> Sequence<MonoidW, W, A>(this Seq<Writer<MonoidW, W, A>> ta) where MonoidW : struct, Monoid<W> =>
+        public static Writer<MonoidW, W, Seq<A>> Sequence<MonoidW, W, A>(this Seq<Writer<MonoidW, W, A>> ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta).Map(toSeq);
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Writer<MonoidW, W, Lst<A>> Sequence<MonoidW, W, A>(this Lst<Writer<MonoidW, W, A>> ta) where MonoidW : struct, Monoid<W> =>
+        public static Writer<MonoidW, W, Lst<A>> Sequence<MonoidW, W, A>(this Lst<Writer<MonoidW, W, A>> ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta).Map(toList);
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Writer<MonoidW, W, Arr<A>> Sequence<MonoidW, W, A>(this Arr<Writer<MonoidW, W, A>> ta) where MonoidW : struct, Monoid<W> =>
+        public static Writer<MonoidW, W, Arr<A>> Sequence<MonoidW, W, A>(this Arr<Writer<MonoidW, W, A>> ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta).Map(toArray);
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Writer<MonoidW, W, A[]> Sequence<MonoidW, W, A>(this Writer<MonoidW, W, A>[] ta) where MonoidW : struct, Monoid<W> =>
+        public static Writer<MonoidW, W, A[]> Sequence<MonoidW, W, A>(this Writer<MonoidW, W, A>[] ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta).Map(x => x.ToArray());
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Writer<MonoidW, W, Set<A>> Sequence<MonoidW, W, A>(this Set<Writer<MonoidW, W, A>> ta) where MonoidW : struct, Monoid<W> =>
+        public static Writer<MonoidW, W, Set<A>> Sequence<MonoidW, W, A>(this Set<Writer<MonoidW, W, A>> ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta).Map(toSet);
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Writer<MonoidW, W, HashSet<A>> Sequence<MonoidW, W, A>(this HashSet<Writer<MonoidW, W, A>> ta) where MonoidW : struct, Monoid<W> =>
+        public static Writer<MonoidW, W, HashSet<A>> Sequence<MonoidW, W, A>(this HashSet<Writer<MonoidW, W, A>> ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta).Map(toHashSet);
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Writer<MonoidW, W, Stck<A>> Sequence<MonoidW, W, A>(this Stck<Writer<MonoidW, W, A>> ta) where MonoidW : struct, Monoid<W> =>
+        public static Writer<MonoidW, W, Stck<A>> Sequence<MonoidW, W, A>(this Stck<Writer<MonoidW, W, A>> ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta.Reverse()).Map(toStack);
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Writer<MonoidW, W, IEnumerable<A>> Sequence<MonoidW, W, A>(this IEnumerable<Writer<MonoidW, W, A>> ta) where MonoidW : struct, Monoid<W> =>
+        public static Writer<MonoidW, W, IEnumerable<A>> Sequence<MonoidW, W, A>(this IEnumerable<Writer<MonoidW, W, A>> ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta).Map(Enumerable.AsEnumerable);
     }
 }

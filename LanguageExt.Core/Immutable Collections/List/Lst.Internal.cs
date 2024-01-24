@@ -489,7 +489,7 @@ namespace LanguageExt
 
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo<OrdA>(LstInternal<A> other) where OrdA : struct, Ord<A>
+        public int CompareTo<OrdA>(LstInternal<A> other) where OrdA : Ord<A>
         {
             var cmp = Count.CompareTo(other.Count);
             if (cmp != 0) return cmp;

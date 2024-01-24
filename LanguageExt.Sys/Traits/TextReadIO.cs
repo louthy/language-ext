@@ -35,9 +35,9 @@ namespace LanguageExt.Sys.Traits
     /// Type-class giving a struct the trait of supporting TextReader IO
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
-    [Typeclass("*")]
+    [Trait("*")]
     public interface HasTextRead<RT> : HasIO<RT, Error>
-        where RT : struct, HasTextRead<RT>
+        where RT : HasTextRead<RT>
     {
         /// <summary>
         /// Access the TextReader synchronous effect environment

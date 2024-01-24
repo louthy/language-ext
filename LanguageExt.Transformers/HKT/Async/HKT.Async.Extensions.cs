@@ -110,7 +110,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionAsync&lt;OptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this OptionAsync<OptionAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MOptionAsync<OptionAsync<A>>, OptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -331,7 +331,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionAsync<OptionAsync<A>> PlusT<NUM,  A>(this OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<OptionAsync<A>> PlusT<NUM,  A>(this OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -343,7 +343,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionAsync<OptionAsync<A>> SubtractT<NUM,  A>(this OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<OptionAsync<A>> SubtractT<NUM,  A>(this OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -355,7 +355,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionAsync<OptionAsync<A>> ProductT<NUM,  A>(this OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<OptionAsync<A>> ProductT<NUM,  A>(this OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -367,7 +367,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionAsync<OptionAsync<A>> DivideT<NUM,  A>(this OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<OptionAsync<A>> DivideT<NUM,  A>(this OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -379,7 +379,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionAsync<OptionAsync<A>> AppendT<SEMI,  A>(this OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionAsync<OptionAsync<A>> AppendT<SEMI,  A>(this OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -391,7 +391,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -403,7 +403,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this OptionAsync<OptionAsync<A>> x, OptionAsync<OptionAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -532,7 +532,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, OptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, OptionAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MEitherAsync<L, OptionAsync<A>>, EitherAsync<L, OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -753,7 +753,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, OptionAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherAsync<L, OptionAsync<A>> PlusT<NUM, L, A>(this EitherAsync<L, OptionAsync<A>> x, EitherAsync<L, OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, OptionAsync<A>> PlusT<NUM, L, A>(this EitherAsync<L, OptionAsync<A>> x, EitherAsync<L, OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -765,7 +765,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, OptionAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherAsync<L, OptionAsync<A>> SubtractT<NUM, L, A>(this EitherAsync<L, OptionAsync<A>> x, EitherAsync<L, OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, OptionAsync<A>> SubtractT<NUM, L, A>(this EitherAsync<L, OptionAsync<A>> x, EitherAsync<L, OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -777,7 +777,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, OptionAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherAsync<L, OptionAsync<A>> ProductT<NUM, L, A>(this EitherAsync<L, OptionAsync<A>> x, EitherAsync<L, OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, OptionAsync<A>> ProductT<NUM, L, A>(this EitherAsync<L, OptionAsync<A>> x, EitherAsync<L, OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -789,7 +789,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, OptionAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherAsync<L, OptionAsync<A>> DivideT<NUM, L, A>(this EitherAsync<L, OptionAsync<A>> x, EitherAsync<L, OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, OptionAsync<A>> DivideT<NUM, L, A>(this EitherAsync<L, OptionAsync<A>> x, EitherAsync<L, OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -801,7 +801,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, OptionAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherAsync<L, OptionAsync<A>> AppendT<SEMI, L, A>(this EitherAsync<L, OptionAsync<A>> x, EitherAsync<L, OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherAsync<L, OptionAsync<A>> AppendT<SEMI, L, A>(this EitherAsync<L, OptionAsync<A>> x, EitherAsync<L, OptionAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -813,7 +813,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, OptionAsync<A>> x, EitherAsync<L, OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, OptionAsync<A>> x, EitherAsync<L, OptionAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -825,7 +825,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, OptionAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, OptionAsync<A>> x, EitherAsync<L, OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, OptionAsync<A>> x, EitherAsync<L, OptionAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -954,7 +954,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Task&lt;OptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this Task<OptionAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTask<OptionAsync<A>>, Task<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -1175,7 +1175,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Task<OptionAsync<A>> PlusT<NUM,  A>(this Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static Task<OptionAsync<A>> PlusT<NUM,  A>(this Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -1187,7 +1187,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Task<OptionAsync<A>> SubtractT<NUM,  A>(this Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static Task<OptionAsync<A>> SubtractT<NUM,  A>(this Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -1199,7 +1199,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Task<OptionAsync<A>> ProductT<NUM,  A>(this Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static Task<OptionAsync<A>> ProductT<NUM,  A>(this Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -1211,7 +1211,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Task<OptionAsync<A>> DivideT<NUM,  A>(this Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static Task<OptionAsync<A>> DivideT<NUM,  A>(this Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -1223,7 +1223,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Task<OptionAsync<A>> AppendT<SEMI,  A>(this Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Task<OptionAsync<A>> AppendT<SEMI,  A>(this Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -1235,7 +1235,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -1247,7 +1247,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this Task<OptionAsync<A>> x, Task<OptionAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -1376,7 +1376,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `ValueTask&lt;OptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this ValueTask<OptionAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MValueTask<OptionAsync<A>>, ValueTask<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -1597,7 +1597,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static ValueTask<OptionAsync<A>> PlusT<NUM,  A>(this ValueTask<OptionAsync<A>> x, ValueTask<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<OptionAsync<A>> PlusT<NUM,  A>(this ValueTask<OptionAsync<A>> x, ValueTask<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -1609,7 +1609,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static ValueTask<OptionAsync<A>> SubtractT<NUM,  A>(this ValueTask<OptionAsync<A>> x, ValueTask<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<OptionAsync<A>> SubtractT<NUM,  A>(this ValueTask<OptionAsync<A>> x, ValueTask<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -1621,7 +1621,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static ValueTask<OptionAsync<A>> ProductT<NUM,  A>(this ValueTask<OptionAsync<A>> x, ValueTask<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<OptionAsync<A>> ProductT<NUM,  A>(this ValueTask<OptionAsync<A>> x, ValueTask<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -1633,7 +1633,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static ValueTask<OptionAsync<A>> DivideT<NUM,  A>(this ValueTask<OptionAsync<A>> x, ValueTask<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<OptionAsync<A>> DivideT<NUM,  A>(this ValueTask<OptionAsync<A>> x, ValueTask<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -1645,7 +1645,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static ValueTask<OptionAsync<A>> AppendT<SEMI,  A>(this ValueTask<OptionAsync<A>> x, ValueTask<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static ValueTask<OptionAsync<A>> AppendT<SEMI,  A>(this ValueTask<OptionAsync<A>> x, ValueTask<OptionAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -1657,7 +1657,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this ValueTask<OptionAsync<A>> x, ValueTask<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<OptionAsync<A>> x, ValueTask<OptionAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -1669,7 +1669,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<OptionAsync<A>> x, ValueTask<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<OptionAsync<A>> x, ValueTask<OptionAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -1798,7 +1798,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryAsync&lt;OptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryAsync<OptionAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTryAsync<OptionAsync<A>>, TryAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -2019,7 +2019,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryAsync<OptionAsync<A>> PlusT<NUM,  A>(this TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<OptionAsync<A>> PlusT<NUM,  A>(this TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -2031,7 +2031,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryAsync<OptionAsync<A>> SubtractT<NUM,  A>(this TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<OptionAsync<A>> SubtractT<NUM,  A>(this TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -2043,7 +2043,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryAsync<OptionAsync<A>> ProductT<NUM,  A>(this TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<OptionAsync<A>> ProductT<NUM,  A>(this TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -2055,7 +2055,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryAsync<OptionAsync<A>> DivideT<NUM,  A>(this TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<OptionAsync<A>> DivideT<NUM,  A>(this TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -2067,7 +2067,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryAsync<OptionAsync<A>> AppendT<SEMI,  A>(this TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryAsync<OptionAsync<A>> AppendT<SEMI,  A>(this TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -2079,7 +2079,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -2091,7 +2091,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this TryAsync<OptionAsync<A>> x, TryAsync<OptionAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -2220,7 +2220,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOptionAsync&lt;OptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryOptionAsync<OptionAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTryOptionAsync<OptionAsync<A>>, TryOptionAsync<OptionAsync<A>>, MOptionAsync<A>, OptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -2441,7 +2441,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOptionAsync<OptionAsync<A>> PlusT<NUM,  A>(this TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<OptionAsync<A>> PlusT<NUM,  A>(this TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -2453,7 +2453,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOptionAsync<OptionAsync<A>> SubtractT<NUM,  A>(this TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<OptionAsync<A>> SubtractT<NUM,  A>(this TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -2465,7 +2465,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOptionAsync<OptionAsync<A>> ProductT<NUM,  A>(this TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<OptionAsync<A>> ProductT<NUM,  A>(this TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -2477,7 +2477,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOptionAsync<OptionAsync<A>> DivideT<NUM,  A>(this TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<OptionAsync<A>> DivideT<NUM,  A>(this TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -2489,7 +2489,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOptionAsync<OptionAsync<A>> AppendT<SEMI,  A>(this TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOptionAsync<OptionAsync<A>> AppendT<SEMI,  A>(this TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -2501,7 +2501,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -2513,7 +2513,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;OptionAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this TryOptionAsync<OptionAsync<A>> x, TryOptionAsync<OptionAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -2650,7 +2650,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this OptionAsync<EitherAsync<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MOptionAsync<EitherAsync<L, A>>, OptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -2871,7 +2871,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionAsync<EitherAsync<L, A>> PlusT<NUM, L, A>(this OptionAsync<EitherAsync<L, A>> x, OptionAsync<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<EitherAsync<L, A>> PlusT<NUM, L, A>(this OptionAsync<EitherAsync<L, A>> x, OptionAsync<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -2883,7 +2883,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionAsync<EitherAsync<L, A>> SubtractT<NUM, L, A>(this OptionAsync<EitherAsync<L, A>> x, OptionAsync<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<EitherAsync<L, A>> SubtractT<NUM, L, A>(this OptionAsync<EitherAsync<L, A>> x, OptionAsync<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -2895,7 +2895,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionAsync<EitherAsync<L, A>> ProductT<NUM, L, A>(this OptionAsync<EitherAsync<L, A>> x, OptionAsync<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<EitherAsync<L, A>> ProductT<NUM, L, A>(this OptionAsync<EitherAsync<L, A>> x, OptionAsync<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -2907,7 +2907,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionAsync<EitherAsync<L, A>> DivideT<NUM, L, A>(this OptionAsync<EitherAsync<L, A>> x, OptionAsync<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<EitherAsync<L, A>> DivideT<NUM, L, A>(this OptionAsync<EitherAsync<L, A>> x, OptionAsync<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -2919,7 +2919,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionAsync<EitherAsync<L, A>> AppendT<SEMI, L, A>(this OptionAsync<EitherAsync<L, A>> x, OptionAsync<EitherAsync<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionAsync<EitherAsync<L, A>> AppendT<SEMI, L, A>(this OptionAsync<EitherAsync<L, A>> x, OptionAsync<EitherAsync<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -2931,7 +2931,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD, L, A>(this OptionAsync<EitherAsync<L, A>> x, OptionAsync<EitherAsync<L, A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD, L, A>(this OptionAsync<EitherAsync<L, A>> x, OptionAsync<EitherAsync<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -2943,7 +2943,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ, L, A>(this OptionAsync<EitherAsync<L, A>> x, OptionAsync<EitherAsync<L, A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ, L, A>(this OptionAsync<EitherAsync<L, A>> x, OptionAsync<EitherAsync<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -3072,7 +3072,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, EitherAsync&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, EitherAsync<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MEitherAsync<L, EitherAsync<L, A>>, EitherAsync<L, EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -3293,7 +3293,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, EitherAsync&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherAsync<L, EitherAsync<L, A>> PlusT<NUM, L, A>(this EitherAsync<L, EitherAsync<L, A>> x, EitherAsync<L, EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, EitherAsync<L, A>> PlusT<NUM, L, A>(this EitherAsync<L, EitherAsync<L, A>> x, EitherAsync<L, EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -3305,7 +3305,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, EitherAsync&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherAsync<L, EitherAsync<L, A>> SubtractT<NUM, L, A>(this EitherAsync<L, EitherAsync<L, A>> x, EitherAsync<L, EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, EitherAsync<L, A>> SubtractT<NUM, L, A>(this EitherAsync<L, EitherAsync<L, A>> x, EitherAsync<L, EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -3317,7 +3317,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherAsync<L, EitherAsync<L, A>> ProductT<NUM, L, A>(this EitherAsync<L, EitherAsync<L, A>> x, EitherAsync<L, EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, EitherAsync<L, A>> ProductT<NUM, L, A>(this EitherAsync<L, EitherAsync<L, A>> x, EitherAsync<L, EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -3329,7 +3329,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherAsync<L, EitherAsync<L, A>> DivideT<NUM, L, A>(this EitherAsync<L, EitherAsync<L, A>> x, EitherAsync<L, EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, EitherAsync<L, A>> DivideT<NUM, L, A>(this EitherAsync<L, EitherAsync<L, A>> x, EitherAsync<L, EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -3341,7 +3341,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherAsync<L, EitherAsync<L, A>> AppendT<SEMI, L, A>(this EitherAsync<L, EitherAsync<L, A>> x, EitherAsync<L, EitherAsync<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherAsync<L, EitherAsync<L, A>> AppendT<SEMI, L, A>(this EitherAsync<L, EitherAsync<L, A>> x, EitherAsync<L, EitherAsync<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -3353,7 +3353,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, EitherAsync<L, A>> x, EitherAsync<L, EitherAsync<L, A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, EitherAsync<L, A>> x, EitherAsync<L, EitherAsync<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -3365,7 +3365,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, EitherAsync<L, A>> x, EitherAsync<L, EitherAsync<L, A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, EitherAsync<L, A>> x, EitherAsync<L, EitherAsync<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -3494,7 +3494,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Task&lt;EitherAsync&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this Task<EitherAsync<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTask<EitherAsync<L, A>>, Task<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -3715,7 +3715,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Task<EitherAsync<L, A>> PlusT<NUM, L, A>(this Task<EitherAsync<L, A>> x, Task<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static Task<EitherAsync<L, A>> PlusT<NUM, L, A>(this Task<EitherAsync<L, A>> x, Task<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -3727,7 +3727,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Task<EitherAsync<L, A>> SubtractT<NUM, L, A>(this Task<EitherAsync<L, A>> x, Task<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static Task<EitherAsync<L, A>> SubtractT<NUM, L, A>(this Task<EitherAsync<L, A>> x, Task<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -3739,7 +3739,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Task<EitherAsync<L, A>> ProductT<NUM, L, A>(this Task<EitherAsync<L, A>> x, Task<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static Task<EitherAsync<L, A>> ProductT<NUM, L, A>(this Task<EitherAsync<L, A>> x, Task<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -3751,7 +3751,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Task<EitherAsync<L, A>> DivideT<NUM, L, A>(this Task<EitherAsync<L, A>> x, Task<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static Task<EitherAsync<L, A>> DivideT<NUM, L, A>(this Task<EitherAsync<L, A>> x, Task<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -3763,7 +3763,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Task<EitherAsync<L, A>> AppendT<SEMI, L, A>(this Task<EitherAsync<L, A>> x, Task<EitherAsync<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Task<EitherAsync<L, A>> AppendT<SEMI, L, A>(this Task<EitherAsync<L, A>> x, Task<EitherAsync<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -3775,7 +3775,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD, L, A>(this Task<EitherAsync<L, A>> x, Task<EitherAsync<L, A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD, L, A>(this Task<EitherAsync<L, A>> x, Task<EitherAsync<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -3787,7 +3787,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ, L, A>(this Task<EitherAsync<L, A>> x, Task<EitherAsync<L, A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ, L, A>(this Task<EitherAsync<L, A>> x, Task<EitherAsync<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -3916,7 +3916,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `ValueTask&lt;EitherAsync&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this ValueTask<EitherAsync<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MValueTask<EitherAsync<L, A>>, ValueTask<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -4137,7 +4137,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static ValueTask<EitherAsync<L, A>> PlusT<NUM, L, A>(this ValueTask<EitherAsync<L, A>> x, ValueTask<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<EitherAsync<L, A>> PlusT<NUM, L, A>(this ValueTask<EitherAsync<L, A>> x, ValueTask<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -4149,7 +4149,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static ValueTask<EitherAsync<L, A>> SubtractT<NUM, L, A>(this ValueTask<EitherAsync<L, A>> x, ValueTask<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<EitherAsync<L, A>> SubtractT<NUM, L, A>(this ValueTask<EitherAsync<L, A>> x, ValueTask<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -4161,7 +4161,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static ValueTask<EitherAsync<L, A>> ProductT<NUM, L, A>(this ValueTask<EitherAsync<L, A>> x, ValueTask<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<EitherAsync<L, A>> ProductT<NUM, L, A>(this ValueTask<EitherAsync<L, A>> x, ValueTask<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -4173,7 +4173,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static ValueTask<EitherAsync<L, A>> DivideT<NUM, L, A>(this ValueTask<EitherAsync<L, A>> x, ValueTask<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<EitherAsync<L, A>> DivideT<NUM, L, A>(this ValueTask<EitherAsync<L, A>> x, ValueTask<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -4185,7 +4185,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static ValueTask<EitherAsync<L, A>> AppendT<SEMI, L, A>(this ValueTask<EitherAsync<L, A>> x, ValueTask<EitherAsync<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static ValueTask<EitherAsync<L, A>> AppendT<SEMI, L, A>(this ValueTask<EitherAsync<L, A>> x, ValueTask<EitherAsync<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -4197,7 +4197,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD, L, A>(this ValueTask<EitherAsync<L, A>> x, ValueTask<EitherAsync<L, A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD, L, A>(this ValueTask<EitherAsync<L, A>> x, ValueTask<EitherAsync<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -4209,7 +4209,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ, L, A>(this ValueTask<EitherAsync<L, A>> x, ValueTask<EitherAsync<L, A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ, L, A>(this ValueTask<EitherAsync<L, A>> x, ValueTask<EitherAsync<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -4338,7 +4338,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryAsync&lt;EitherAsync&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this TryAsync<EitherAsync<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTryAsync<EitherAsync<L, A>>, TryAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -4559,7 +4559,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryAsync<EitherAsync<L, A>> PlusT<NUM, L, A>(this TryAsync<EitherAsync<L, A>> x, TryAsync<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<EitherAsync<L, A>> PlusT<NUM, L, A>(this TryAsync<EitherAsync<L, A>> x, TryAsync<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -4571,7 +4571,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryAsync<EitherAsync<L, A>> SubtractT<NUM, L, A>(this TryAsync<EitherAsync<L, A>> x, TryAsync<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<EitherAsync<L, A>> SubtractT<NUM, L, A>(this TryAsync<EitherAsync<L, A>> x, TryAsync<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -4583,7 +4583,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryAsync<EitherAsync<L, A>> ProductT<NUM, L, A>(this TryAsync<EitherAsync<L, A>> x, TryAsync<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<EitherAsync<L, A>> ProductT<NUM, L, A>(this TryAsync<EitherAsync<L, A>> x, TryAsync<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -4595,7 +4595,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryAsync<EitherAsync<L, A>> DivideT<NUM, L, A>(this TryAsync<EitherAsync<L, A>> x, TryAsync<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<EitherAsync<L, A>> DivideT<NUM, L, A>(this TryAsync<EitherAsync<L, A>> x, TryAsync<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -4607,7 +4607,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryAsync<EitherAsync<L, A>> AppendT<SEMI, L, A>(this TryAsync<EitherAsync<L, A>> x, TryAsync<EitherAsync<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryAsync<EitherAsync<L, A>> AppendT<SEMI, L, A>(this TryAsync<EitherAsync<L, A>> x, TryAsync<EitherAsync<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -4619,7 +4619,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD, L, A>(this TryAsync<EitherAsync<L, A>> x, TryAsync<EitherAsync<L, A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD, L, A>(this TryAsync<EitherAsync<L, A>> x, TryAsync<EitherAsync<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -4631,7 +4631,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ, L, A>(this TryAsync<EitherAsync<L, A>> x, TryAsync<EitherAsync<L, A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ, L, A>(this TryAsync<EitherAsync<L, A>> x, TryAsync<EitherAsync<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -4760,7 +4760,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this TryOptionAsync<EitherAsync<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTryOptionAsync<EitherAsync<L, A>>, TryOptionAsync<EitherAsync<L, A>>, MEitherAsync<L, A>, EitherAsync<L, A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -4981,7 +4981,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOptionAsync<EitherAsync<L, A>> PlusT<NUM, L, A>(this TryOptionAsync<EitherAsync<L, A>> x, TryOptionAsync<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<EitherAsync<L, A>> PlusT<NUM, L, A>(this TryOptionAsync<EitherAsync<L, A>> x, TryOptionAsync<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -4993,7 +4993,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOptionAsync<EitherAsync<L, A>> SubtractT<NUM, L, A>(this TryOptionAsync<EitherAsync<L, A>> x, TryOptionAsync<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<EitherAsync<L, A>> SubtractT<NUM, L, A>(this TryOptionAsync<EitherAsync<L, A>> x, TryOptionAsync<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -5005,7 +5005,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOptionAsync<EitherAsync<L, A>> ProductT<NUM, L, A>(this TryOptionAsync<EitherAsync<L, A>> x, TryOptionAsync<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<EitherAsync<L, A>> ProductT<NUM, L, A>(this TryOptionAsync<EitherAsync<L, A>> x, TryOptionAsync<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -5017,7 +5017,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOptionAsync<EitherAsync<L, A>> DivideT<NUM, L, A>(this TryOptionAsync<EitherAsync<L, A>> x, TryOptionAsync<EitherAsync<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<EitherAsync<L, A>> DivideT<NUM, L, A>(this TryOptionAsync<EitherAsync<L, A>> x, TryOptionAsync<EitherAsync<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -5029,7 +5029,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOptionAsync<EitherAsync<L, A>> AppendT<SEMI, L, A>(this TryOptionAsync<EitherAsync<L, A>> x, TryOptionAsync<EitherAsync<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOptionAsync<EitherAsync<L, A>> AppendT<SEMI, L, A>(this TryOptionAsync<EitherAsync<L, A>> x, TryOptionAsync<EitherAsync<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -5041,7 +5041,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD, L, A>(this TryOptionAsync<EitherAsync<L, A>> x, TryOptionAsync<EitherAsync<L, A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD, L, A>(this TryOptionAsync<EitherAsync<L, A>> x, TryOptionAsync<EitherAsync<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -5053,7 +5053,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;EitherAsync&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ, L, A>(this TryOptionAsync<EitherAsync<L, A>> x, TryOptionAsync<EitherAsync<L, A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ, L, A>(this TryOptionAsync<EitherAsync<L, A>> x, TryOptionAsync<EitherAsync<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -5190,7 +5190,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionAsync&lt;Task&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this OptionAsync<Task<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MOptionAsync<Task<A>>, OptionAsync<Task<A>>, MTask<A>, Task<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -5411,7 +5411,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionAsync<Task<A>> PlusT<NUM,  A>(this OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<Task<A>> PlusT<NUM,  A>(this OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -5423,7 +5423,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionAsync<Task<A>> SubtractT<NUM,  A>(this OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<Task<A>> SubtractT<NUM,  A>(this OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -5435,7 +5435,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionAsync<Task<A>> ProductT<NUM,  A>(this OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<Task<A>> ProductT<NUM,  A>(this OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -5447,7 +5447,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionAsync<Task<A>> DivideT<NUM,  A>(this OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<Task<A>> DivideT<NUM,  A>(this OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -5459,7 +5459,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionAsync<Task<A>> AppendT<SEMI,  A>(this OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionAsync<Task<A>> AppendT<SEMI,  A>(this OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -5471,7 +5471,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -5483,7 +5483,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this OptionAsync<Task<A>> x, OptionAsync<Task<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -5612,7 +5612,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, Task&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, Task<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MEitherAsync<L, Task<A>>, EitherAsync<L, Task<A>>, MTask<A>, Task<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -5833,7 +5833,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, Task&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherAsync<L, Task<A>> PlusT<NUM, L, A>(this EitherAsync<L, Task<A>> x, EitherAsync<L, Task<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, Task<A>> PlusT<NUM, L, A>(this EitherAsync<L, Task<A>> x, EitherAsync<L, Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -5845,7 +5845,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, Task&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherAsync<L, Task<A>> SubtractT<NUM, L, A>(this EitherAsync<L, Task<A>> x, EitherAsync<L, Task<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, Task<A>> SubtractT<NUM, L, A>(this EitherAsync<L, Task<A>> x, EitherAsync<L, Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -5857,7 +5857,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, Task&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherAsync<L, Task<A>> ProductT<NUM, L, A>(this EitherAsync<L, Task<A>> x, EitherAsync<L, Task<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, Task<A>> ProductT<NUM, L, A>(this EitherAsync<L, Task<A>> x, EitherAsync<L, Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -5869,7 +5869,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, Task&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherAsync<L, Task<A>> DivideT<NUM, L, A>(this EitherAsync<L, Task<A>> x, EitherAsync<L, Task<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, Task<A>> DivideT<NUM, L, A>(this EitherAsync<L, Task<A>> x, EitherAsync<L, Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -5881,7 +5881,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, Task&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherAsync<L, Task<A>> AppendT<SEMI, L, A>(this EitherAsync<L, Task<A>> x, EitherAsync<L, Task<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherAsync<L, Task<A>> AppendT<SEMI, L, A>(this EitherAsync<L, Task<A>> x, EitherAsync<L, Task<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -5893,7 +5893,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, Task<A>> x, EitherAsync<L, Task<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, Task<A>> x, EitherAsync<L, Task<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -5905,7 +5905,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, Task&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, Task<A>> x, EitherAsync<L, Task<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, Task<A>> x, EitherAsync<L, Task<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -6034,7 +6034,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Task&lt;Task&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this Task<Task<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTask<Task<A>>, Task<Task<A>>, MTask<A>, Task<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -6255,7 +6255,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;Task&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Task<Task<A>> PlusT<NUM,  A>(this Task<Task<A>> x, Task<Task<A>> y) where NUM : struct, Num<A> =>
+        public static Task<Task<A>> PlusT<NUM,  A>(this Task<Task<A>> x, Task<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -6267,7 +6267,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;Task&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Task<Task<A>> SubtractT<NUM,  A>(this Task<Task<A>> x, Task<Task<A>> y) where NUM : struct, Num<A> =>
+        public static Task<Task<A>> SubtractT<NUM,  A>(this Task<Task<A>> x, Task<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -6279,7 +6279,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;Task&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Task<Task<A>> ProductT<NUM,  A>(this Task<Task<A>> x, Task<Task<A>> y) where NUM : struct, Num<A> =>
+        public static Task<Task<A>> ProductT<NUM,  A>(this Task<Task<A>> x, Task<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -6291,7 +6291,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;Task&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Task<Task<A>> DivideT<NUM,  A>(this Task<Task<A>> x, Task<Task<A>> y) where NUM : struct, Num<A> =>
+        public static Task<Task<A>> DivideT<NUM,  A>(this Task<Task<A>> x, Task<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -6303,7 +6303,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;Task&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Task<Task<A>> AppendT<SEMI,  A>(this Task<Task<A>> x, Task<Task<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Task<Task<A>> AppendT<SEMI,  A>(this Task<Task<A>> x, Task<Task<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -6315,7 +6315,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this Task<Task<A>> x, Task<Task<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this Task<Task<A>> x, Task<Task<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -6327,7 +6327,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;Task&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this Task<Task<A>> x, Task<Task<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this Task<Task<A>> x, Task<Task<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -6456,7 +6456,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `ValueTask&lt;Task&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this ValueTask<Task<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MValueTask<Task<A>>, ValueTask<Task<A>>, MTask<A>, Task<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -6677,7 +6677,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;Task&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static ValueTask<Task<A>> PlusT<NUM,  A>(this ValueTask<Task<A>> x, ValueTask<Task<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<Task<A>> PlusT<NUM,  A>(this ValueTask<Task<A>> x, ValueTask<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -6689,7 +6689,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;Task&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static ValueTask<Task<A>> SubtractT<NUM,  A>(this ValueTask<Task<A>> x, ValueTask<Task<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<Task<A>> SubtractT<NUM,  A>(this ValueTask<Task<A>> x, ValueTask<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -6701,7 +6701,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;Task&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static ValueTask<Task<A>> ProductT<NUM,  A>(this ValueTask<Task<A>> x, ValueTask<Task<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<Task<A>> ProductT<NUM,  A>(this ValueTask<Task<A>> x, ValueTask<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -6713,7 +6713,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;Task&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static ValueTask<Task<A>> DivideT<NUM,  A>(this ValueTask<Task<A>> x, ValueTask<Task<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<Task<A>> DivideT<NUM,  A>(this ValueTask<Task<A>> x, ValueTask<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -6725,7 +6725,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;Task&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static ValueTask<Task<A>> AppendT<SEMI,  A>(this ValueTask<Task<A>> x, ValueTask<Task<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static ValueTask<Task<A>> AppendT<SEMI,  A>(this ValueTask<Task<A>> x, ValueTask<Task<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -6737,7 +6737,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this ValueTask<Task<A>> x, ValueTask<Task<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<Task<A>> x, ValueTask<Task<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -6749,7 +6749,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;Task&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<Task<A>> x, ValueTask<Task<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<Task<A>> x, ValueTask<Task<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -6878,7 +6878,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryAsync&lt;Task&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryAsync<Task<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTryAsync<Task<A>>, TryAsync<Task<A>>, MTask<A>, Task<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -7099,7 +7099,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryAsync<Task<A>> PlusT<NUM,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<Task<A>> PlusT<NUM,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -7111,7 +7111,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryAsync<Task<A>> SubtractT<NUM,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<Task<A>> SubtractT<NUM,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -7123,7 +7123,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryAsync<Task<A>> ProductT<NUM,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<Task<A>> ProductT<NUM,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -7135,7 +7135,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryAsync<Task<A>> DivideT<NUM,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<Task<A>> DivideT<NUM,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -7147,7 +7147,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryAsync<Task<A>> AppendT<SEMI,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryAsync<Task<A>> AppendT<SEMI,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -7159,7 +7159,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -7171,7 +7171,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this TryAsync<Task<A>> x, TryAsync<Task<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -7300,7 +7300,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOptionAsync&lt;Task&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryOptionAsync<Task<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTryOptionAsync<Task<A>>, TryOptionAsync<Task<A>>, MTask<A>, Task<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -7521,7 +7521,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOptionAsync<Task<A>> PlusT<NUM,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<Task<A>> PlusT<NUM,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -7533,7 +7533,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOptionAsync<Task<A>> SubtractT<NUM,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<Task<A>> SubtractT<NUM,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -7545,7 +7545,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOptionAsync<Task<A>> ProductT<NUM,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<Task<A>> ProductT<NUM,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -7557,7 +7557,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOptionAsync<Task<A>> DivideT<NUM,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<Task<A>> DivideT<NUM,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -7569,7 +7569,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOptionAsync<Task<A>> AppendT<SEMI,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOptionAsync<Task<A>> AppendT<SEMI,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -7581,7 +7581,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -7593,7 +7593,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;Task&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this TryOptionAsync<Task<A>> x, TryOptionAsync<Task<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -7730,7 +7730,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionAsync&lt;ValueTask&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this OptionAsync<ValueTask<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MOptionAsync<ValueTask<A>>, OptionAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -7951,7 +7951,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionAsync<ValueTask<A>> PlusT<NUM,  A>(this OptionAsync<ValueTask<A>> x, OptionAsync<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<ValueTask<A>> PlusT<NUM,  A>(this OptionAsync<ValueTask<A>> x, OptionAsync<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -7963,7 +7963,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionAsync<ValueTask<A>> SubtractT<NUM,  A>(this OptionAsync<ValueTask<A>> x, OptionAsync<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<ValueTask<A>> SubtractT<NUM,  A>(this OptionAsync<ValueTask<A>> x, OptionAsync<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -7975,7 +7975,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionAsync<ValueTask<A>> ProductT<NUM,  A>(this OptionAsync<ValueTask<A>> x, OptionAsync<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<ValueTask<A>> ProductT<NUM,  A>(this OptionAsync<ValueTask<A>> x, OptionAsync<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -7987,7 +7987,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionAsync<ValueTask<A>> DivideT<NUM,  A>(this OptionAsync<ValueTask<A>> x, OptionAsync<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<ValueTask<A>> DivideT<NUM,  A>(this OptionAsync<ValueTask<A>> x, OptionAsync<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -7999,7 +7999,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionAsync<ValueTask<A>> AppendT<SEMI,  A>(this OptionAsync<ValueTask<A>> x, OptionAsync<ValueTask<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionAsync<ValueTask<A>> AppendT<SEMI,  A>(this OptionAsync<ValueTask<A>> x, OptionAsync<ValueTask<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -8011,7 +8011,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this OptionAsync<ValueTask<A>> x, OptionAsync<ValueTask<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this OptionAsync<ValueTask<A>> x, OptionAsync<ValueTask<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -8023,7 +8023,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this OptionAsync<ValueTask<A>> x, OptionAsync<ValueTask<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this OptionAsync<ValueTask<A>> x, OptionAsync<ValueTask<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -8152,7 +8152,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, ValueTask&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, ValueTask<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MEitherAsync<L, ValueTask<A>>, EitherAsync<L, ValueTask<A>>, MValueTask<A>, ValueTask<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -8373,7 +8373,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, ValueTask&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherAsync<L, ValueTask<A>> PlusT<NUM, L, A>(this EitherAsync<L, ValueTask<A>> x, EitherAsync<L, ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, ValueTask<A>> PlusT<NUM, L, A>(this EitherAsync<L, ValueTask<A>> x, EitherAsync<L, ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -8385,7 +8385,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, ValueTask&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherAsync<L, ValueTask<A>> SubtractT<NUM, L, A>(this EitherAsync<L, ValueTask<A>> x, EitherAsync<L, ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, ValueTask<A>> SubtractT<NUM, L, A>(this EitherAsync<L, ValueTask<A>> x, EitherAsync<L, ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -8397,7 +8397,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, ValueTask&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherAsync<L, ValueTask<A>> ProductT<NUM, L, A>(this EitherAsync<L, ValueTask<A>> x, EitherAsync<L, ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, ValueTask<A>> ProductT<NUM, L, A>(this EitherAsync<L, ValueTask<A>> x, EitherAsync<L, ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -8409,7 +8409,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, ValueTask&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherAsync<L, ValueTask<A>> DivideT<NUM, L, A>(this EitherAsync<L, ValueTask<A>> x, EitherAsync<L, ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, ValueTask<A>> DivideT<NUM, L, A>(this EitherAsync<L, ValueTask<A>> x, EitherAsync<L, ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -8421,7 +8421,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, ValueTask&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherAsync<L, ValueTask<A>> AppendT<SEMI, L, A>(this EitherAsync<L, ValueTask<A>> x, EitherAsync<L, ValueTask<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherAsync<L, ValueTask<A>> AppendT<SEMI, L, A>(this EitherAsync<L, ValueTask<A>> x, EitherAsync<L, ValueTask<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -8433,7 +8433,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, ValueTask<A>> x, EitherAsync<L, ValueTask<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, ValueTask<A>> x, EitherAsync<L, ValueTask<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -8445,7 +8445,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, ValueTask&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, ValueTask<A>> x, EitherAsync<L, ValueTask<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, ValueTask<A>> x, EitherAsync<L, ValueTask<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -8574,7 +8574,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Task&lt;ValueTask&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this Task<ValueTask<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTask<ValueTask<A>>, Task<ValueTask<A>>, MValueTask<A>, ValueTask<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -8795,7 +8795,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Task<ValueTask<A>> PlusT<NUM,  A>(this Task<ValueTask<A>> x, Task<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static Task<ValueTask<A>> PlusT<NUM,  A>(this Task<ValueTask<A>> x, Task<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -8807,7 +8807,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Task<ValueTask<A>> SubtractT<NUM,  A>(this Task<ValueTask<A>> x, Task<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static Task<ValueTask<A>> SubtractT<NUM,  A>(this Task<ValueTask<A>> x, Task<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -8819,7 +8819,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Task<ValueTask<A>> ProductT<NUM,  A>(this Task<ValueTask<A>> x, Task<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static Task<ValueTask<A>> ProductT<NUM,  A>(this Task<ValueTask<A>> x, Task<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -8831,7 +8831,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Task<ValueTask<A>> DivideT<NUM,  A>(this Task<ValueTask<A>> x, Task<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static Task<ValueTask<A>> DivideT<NUM,  A>(this Task<ValueTask<A>> x, Task<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -8843,7 +8843,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Task<ValueTask<A>> AppendT<SEMI,  A>(this Task<ValueTask<A>> x, Task<ValueTask<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Task<ValueTask<A>> AppendT<SEMI,  A>(this Task<ValueTask<A>> x, Task<ValueTask<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -8855,7 +8855,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this Task<ValueTask<A>> x, Task<ValueTask<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this Task<ValueTask<A>> x, Task<ValueTask<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -8867,7 +8867,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this Task<ValueTask<A>> x, Task<ValueTask<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this Task<ValueTask<A>> x, Task<ValueTask<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -8996,7 +8996,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `ValueTask&lt;ValueTask&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this ValueTask<ValueTask<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MValueTask<ValueTask<A>>, ValueTask<ValueTask<A>>, MValueTask<A>, ValueTask<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -9217,7 +9217,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static ValueTask<ValueTask<A>> PlusT<NUM,  A>(this ValueTask<ValueTask<A>> x, ValueTask<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<ValueTask<A>> PlusT<NUM,  A>(this ValueTask<ValueTask<A>> x, ValueTask<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -9229,7 +9229,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static ValueTask<ValueTask<A>> SubtractT<NUM,  A>(this ValueTask<ValueTask<A>> x, ValueTask<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<ValueTask<A>> SubtractT<NUM,  A>(this ValueTask<ValueTask<A>> x, ValueTask<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -9241,7 +9241,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static ValueTask<ValueTask<A>> ProductT<NUM,  A>(this ValueTask<ValueTask<A>> x, ValueTask<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<ValueTask<A>> ProductT<NUM,  A>(this ValueTask<ValueTask<A>> x, ValueTask<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -9253,7 +9253,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static ValueTask<ValueTask<A>> DivideT<NUM,  A>(this ValueTask<ValueTask<A>> x, ValueTask<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<ValueTask<A>> DivideT<NUM,  A>(this ValueTask<ValueTask<A>> x, ValueTask<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -9265,7 +9265,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static ValueTask<ValueTask<A>> AppendT<SEMI,  A>(this ValueTask<ValueTask<A>> x, ValueTask<ValueTask<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static ValueTask<ValueTask<A>> AppendT<SEMI,  A>(this ValueTask<ValueTask<A>> x, ValueTask<ValueTask<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -9277,7 +9277,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this ValueTask<ValueTask<A>> x, ValueTask<ValueTask<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<ValueTask<A>> x, ValueTask<ValueTask<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -9289,7 +9289,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<ValueTask<A>> x, ValueTask<ValueTask<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<ValueTask<A>> x, ValueTask<ValueTask<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -9418,7 +9418,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryAsync&lt;ValueTask&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryAsync<ValueTask<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTryAsync<ValueTask<A>>, TryAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -9639,7 +9639,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryAsync<ValueTask<A>> PlusT<NUM,  A>(this TryAsync<ValueTask<A>> x, TryAsync<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<ValueTask<A>> PlusT<NUM,  A>(this TryAsync<ValueTask<A>> x, TryAsync<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -9651,7 +9651,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryAsync<ValueTask<A>> SubtractT<NUM,  A>(this TryAsync<ValueTask<A>> x, TryAsync<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<ValueTask<A>> SubtractT<NUM,  A>(this TryAsync<ValueTask<A>> x, TryAsync<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -9663,7 +9663,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryAsync<ValueTask<A>> ProductT<NUM,  A>(this TryAsync<ValueTask<A>> x, TryAsync<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<ValueTask<A>> ProductT<NUM,  A>(this TryAsync<ValueTask<A>> x, TryAsync<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -9675,7 +9675,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryAsync<ValueTask<A>> DivideT<NUM,  A>(this TryAsync<ValueTask<A>> x, TryAsync<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<ValueTask<A>> DivideT<NUM,  A>(this TryAsync<ValueTask<A>> x, TryAsync<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -9687,7 +9687,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryAsync<ValueTask<A>> AppendT<SEMI,  A>(this TryAsync<ValueTask<A>> x, TryAsync<ValueTask<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryAsync<ValueTask<A>> AppendT<SEMI,  A>(this TryAsync<ValueTask<A>> x, TryAsync<ValueTask<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -9699,7 +9699,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this TryAsync<ValueTask<A>> x, TryAsync<ValueTask<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this TryAsync<ValueTask<A>> x, TryAsync<ValueTask<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -9711,7 +9711,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this TryAsync<ValueTask<A>> x, TryAsync<ValueTask<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this TryAsync<ValueTask<A>> x, TryAsync<ValueTask<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -9840,7 +9840,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOptionAsync&lt;ValueTask&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryOptionAsync<ValueTask<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTryOptionAsync<ValueTask<A>>, TryOptionAsync<ValueTask<A>>, MValueTask<A>, ValueTask<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -10061,7 +10061,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOptionAsync<ValueTask<A>> PlusT<NUM,  A>(this TryOptionAsync<ValueTask<A>> x, TryOptionAsync<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<ValueTask<A>> PlusT<NUM,  A>(this TryOptionAsync<ValueTask<A>> x, TryOptionAsync<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -10073,7 +10073,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOptionAsync<ValueTask<A>> SubtractT<NUM,  A>(this TryOptionAsync<ValueTask<A>> x, TryOptionAsync<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<ValueTask<A>> SubtractT<NUM,  A>(this TryOptionAsync<ValueTask<A>> x, TryOptionAsync<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -10085,7 +10085,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOptionAsync<ValueTask<A>> ProductT<NUM,  A>(this TryOptionAsync<ValueTask<A>> x, TryOptionAsync<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<ValueTask<A>> ProductT<NUM,  A>(this TryOptionAsync<ValueTask<A>> x, TryOptionAsync<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -10097,7 +10097,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOptionAsync<ValueTask<A>> DivideT<NUM,  A>(this TryOptionAsync<ValueTask<A>> x, TryOptionAsync<ValueTask<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<ValueTask<A>> DivideT<NUM,  A>(this TryOptionAsync<ValueTask<A>> x, TryOptionAsync<ValueTask<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -10109,7 +10109,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOptionAsync<ValueTask<A>> AppendT<SEMI,  A>(this TryOptionAsync<ValueTask<A>> x, TryOptionAsync<ValueTask<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOptionAsync<ValueTask<A>> AppendT<SEMI,  A>(this TryOptionAsync<ValueTask<A>> x, TryOptionAsync<ValueTask<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -10121,7 +10121,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this TryOptionAsync<ValueTask<A>> x, TryOptionAsync<ValueTask<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this TryOptionAsync<ValueTask<A>> x, TryOptionAsync<ValueTask<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -10133,7 +10133,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;ValueTask&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this TryOptionAsync<ValueTask<A>> x, TryOptionAsync<ValueTask<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this TryOptionAsync<ValueTask<A>> x, TryOptionAsync<ValueTask<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -10270,7 +10270,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionAsync&lt;TryAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this OptionAsync<TryAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MOptionAsync<TryAsync<A>>, OptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -10491,7 +10491,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionAsync<TryAsync<A>> PlusT<NUM,  A>(this OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<TryAsync<A>> PlusT<NUM,  A>(this OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -10503,7 +10503,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionAsync<TryAsync<A>> SubtractT<NUM,  A>(this OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<TryAsync<A>> SubtractT<NUM,  A>(this OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -10515,7 +10515,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionAsync<TryAsync<A>> ProductT<NUM,  A>(this OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<TryAsync<A>> ProductT<NUM,  A>(this OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -10527,7 +10527,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionAsync<TryAsync<A>> DivideT<NUM,  A>(this OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<TryAsync<A>> DivideT<NUM,  A>(this OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -10539,7 +10539,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionAsync<TryAsync<A>> AppendT<SEMI,  A>(this OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionAsync<TryAsync<A>> AppendT<SEMI,  A>(this OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -10551,7 +10551,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -10563,7 +10563,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this OptionAsync<TryAsync<A>> x, OptionAsync<TryAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -10692,7 +10692,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, TryAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, TryAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MEitherAsync<L, TryAsync<A>>, EitherAsync<L, TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -10913,7 +10913,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, TryAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherAsync<L, TryAsync<A>> PlusT<NUM, L, A>(this EitherAsync<L, TryAsync<A>> x, EitherAsync<L, TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, TryAsync<A>> PlusT<NUM, L, A>(this EitherAsync<L, TryAsync<A>> x, EitherAsync<L, TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -10925,7 +10925,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, TryAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherAsync<L, TryAsync<A>> SubtractT<NUM, L, A>(this EitherAsync<L, TryAsync<A>> x, EitherAsync<L, TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, TryAsync<A>> SubtractT<NUM, L, A>(this EitherAsync<L, TryAsync<A>> x, EitherAsync<L, TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -10937,7 +10937,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, TryAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherAsync<L, TryAsync<A>> ProductT<NUM, L, A>(this EitherAsync<L, TryAsync<A>> x, EitherAsync<L, TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, TryAsync<A>> ProductT<NUM, L, A>(this EitherAsync<L, TryAsync<A>> x, EitherAsync<L, TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -10949,7 +10949,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, TryAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherAsync<L, TryAsync<A>> DivideT<NUM, L, A>(this EitherAsync<L, TryAsync<A>> x, EitherAsync<L, TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, TryAsync<A>> DivideT<NUM, L, A>(this EitherAsync<L, TryAsync<A>> x, EitherAsync<L, TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -10961,7 +10961,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, TryAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherAsync<L, TryAsync<A>> AppendT<SEMI, L, A>(this EitherAsync<L, TryAsync<A>> x, EitherAsync<L, TryAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherAsync<L, TryAsync<A>> AppendT<SEMI, L, A>(this EitherAsync<L, TryAsync<A>> x, EitherAsync<L, TryAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -10973,7 +10973,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, TryAsync<A>> x, EitherAsync<L, TryAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, TryAsync<A>> x, EitherAsync<L, TryAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -10985,7 +10985,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, TryAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, TryAsync<A>> x, EitherAsync<L, TryAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, TryAsync<A>> x, EitherAsync<L, TryAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -11114,7 +11114,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Task&lt;TryAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this Task<TryAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTask<TryAsync<A>>, Task<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -11335,7 +11335,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Task<TryAsync<A>> PlusT<NUM,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static Task<TryAsync<A>> PlusT<NUM,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -11347,7 +11347,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Task<TryAsync<A>> SubtractT<NUM,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static Task<TryAsync<A>> SubtractT<NUM,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -11359,7 +11359,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Task<TryAsync<A>> ProductT<NUM,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static Task<TryAsync<A>> ProductT<NUM,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -11371,7 +11371,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Task<TryAsync<A>> DivideT<NUM,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static Task<TryAsync<A>> DivideT<NUM,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -11383,7 +11383,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Task<TryAsync<A>> AppendT<SEMI,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Task<TryAsync<A>> AppendT<SEMI,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -11395,7 +11395,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -11407,7 +11407,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this Task<TryAsync<A>> x, Task<TryAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -11536,7 +11536,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `ValueTask&lt;TryAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this ValueTask<TryAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MValueTask<TryAsync<A>>, ValueTask<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -11757,7 +11757,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static ValueTask<TryAsync<A>> PlusT<NUM,  A>(this ValueTask<TryAsync<A>> x, ValueTask<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<TryAsync<A>> PlusT<NUM,  A>(this ValueTask<TryAsync<A>> x, ValueTask<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -11769,7 +11769,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static ValueTask<TryAsync<A>> SubtractT<NUM,  A>(this ValueTask<TryAsync<A>> x, ValueTask<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<TryAsync<A>> SubtractT<NUM,  A>(this ValueTask<TryAsync<A>> x, ValueTask<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -11781,7 +11781,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static ValueTask<TryAsync<A>> ProductT<NUM,  A>(this ValueTask<TryAsync<A>> x, ValueTask<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<TryAsync<A>> ProductT<NUM,  A>(this ValueTask<TryAsync<A>> x, ValueTask<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -11793,7 +11793,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static ValueTask<TryAsync<A>> DivideT<NUM,  A>(this ValueTask<TryAsync<A>> x, ValueTask<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<TryAsync<A>> DivideT<NUM,  A>(this ValueTask<TryAsync<A>> x, ValueTask<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -11805,7 +11805,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static ValueTask<TryAsync<A>> AppendT<SEMI,  A>(this ValueTask<TryAsync<A>> x, ValueTask<TryAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static ValueTask<TryAsync<A>> AppendT<SEMI,  A>(this ValueTask<TryAsync<A>> x, ValueTask<TryAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -11817,7 +11817,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this ValueTask<TryAsync<A>> x, ValueTask<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<TryAsync<A>> x, ValueTask<TryAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -11829,7 +11829,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<TryAsync<A>> x, ValueTask<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<TryAsync<A>> x, ValueTask<TryAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -11958,7 +11958,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryAsync&lt;TryAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryAsync<TryAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTryAsync<TryAsync<A>>, TryAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -12179,7 +12179,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryAsync<TryAsync<A>> PlusT<NUM,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<TryAsync<A>> PlusT<NUM,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -12191,7 +12191,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryAsync<TryAsync<A>> SubtractT<NUM,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<TryAsync<A>> SubtractT<NUM,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -12203,7 +12203,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryAsync<TryAsync<A>> ProductT<NUM,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<TryAsync<A>> ProductT<NUM,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -12215,7 +12215,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryAsync<TryAsync<A>> DivideT<NUM,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<TryAsync<A>> DivideT<NUM,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -12227,7 +12227,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryAsync<TryAsync<A>> AppendT<SEMI,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryAsync<TryAsync<A>> AppendT<SEMI,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -12239,7 +12239,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -12251,7 +12251,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this TryAsync<TryAsync<A>> x, TryAsync<TryAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -12380,7 +12380,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOptionAsync&lt;TryAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryOptionAsync<TryAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTryOptionAsync<TryAsync<A>>, TryOptionAsync<TryAsync<A>>, MTryAsync<A>, TryAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -12601,7 +12601,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOptionAsync<TryAsync<A>> PlusT<NUM,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<TryAsync<A>> PlusT<NUM,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -12613,7 +12613,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOptionAsync<TryAsync<A>> SubtractT<NUM,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<TryAsync<A>> SubtractT<NUM,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -12625,7 +12625,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOptionAsync<TryAsync<A>> ProductT<NUM,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<TryAsync<A>> ProductT<NUM,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -12637,7 +12637,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOptionAsync<TryAsync<A>> DivideT<NUM,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<TryAsync<A>> DivideT<NUM,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -12649,7 +12649,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOptionAsync<TryAsync<A>> AppendT<SEMI,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOptionAsync<TryAsync<A>> AppendT<SEMI,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -12661,7 +12661,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -12673,7 +12673,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;TryAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this TryOptionAsync<TryAsync<A>> x, TryOptionAsync<TryAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -12810,7 +12810,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this OptionAsync<TryOptionAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MOptionAsync<TryOptionAsync<A>>, OptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -13031,7 +13031,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionAsync<TryOptionAsync<A>> PlusT<NUM,  A>(this OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<TryOptionAsync<A>> PlusT<NUM,  A>(this OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -13043,7 +13043,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionAsync<TryOptionAsync<A>> SubtractT<NUM,  A>(this OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<TryOptionAsync<A>> SubtractT<NUM,  A>(this OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -13055,7 +13055,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionAsync<TryOptionAsync<A>> ProductT<NUM,  A>(this OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<TryOptionAsync<A>> ProductT<NUM,  A>(this OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -13067,7 +13067,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionAsync<TryOptionAsync<A>> DivideT<NUM,  A>(this OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static OptionAsync<TryOptionAsync<A>> DivideT<NUM,  A>(this OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -13079,7 +13079,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionAsync<TryOptionAsync<A>> AppendT<SEMI,  A>(this OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionAsync<TryOptionAsync<A>> AppendT<SEMI,  A>(this OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -13091,7 +13091,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -13103,7 +13103,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this OptionAsync<TryOptionAsync<A>> x, OptionAsync<TryOptionAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -13232,7 +13232,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherAsync&lt;L, TryOptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA, L, A>(this EitherAsync<L, TryOptionAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MEitherAsync<L, TryOptionAsync<A>>, EitherAsync<L, TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -13453,7 +13453,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, TryOptionAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherAsync<L, TryOptionAsync<A>> PlusT<NUM, L, A>(this EitherAsync<L, TryOptionAsync<A>> x, EitherAsync<L, TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, TryOptionAsync<A>> PlusT<NUM, L, A>(this EitherAsync<L, TryOptionAsync<A>> x, EitherAsync<L, TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -13465,7 +13465,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, TryOptionAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherAsync<L, TryOptionAsync<A>> SubtractT<NUM, L, A>(this EitherAsync<L, TryOptionAsync<A>> x, EitherAsync<L, TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, TryOptionAsync<A>> SubtractT<NUM, L, A>(this EitherAsync<L, TryOptionAsync<A>> x, EitherAsync<L, TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -13477,7 +13477,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherAsync<L, TryOptionAsync<A>> ProductT<NUM, L, A>(this EitherAsync<L, TryOptionAsync<A>> x, EitherAsync<L, TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, TryOptionAsync<A>> ProductT<NUM, L, A>(this EitherAsync<L, TryOptionAsync<A>> x, EitherAsync<L, TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -13489,7 +13489,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherAsync<L, TryOptionAsync<A>> DivideT<NUM, L, A>(this EitherAsync<L, TryOptionAsync<A>> x, EitherAsync<L, TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static EitherAsync<L, TryOptionAsync<A>> DivideT<NUM, L, A>(this EitherAsync<L, TryOptionAsync<A>> x, EitherAsync<L, TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -13501,7 +13501,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherAsync<L, TryOptionAsync<A>> AppendT<SEMI, L, A>(this EitherAsync<L, TryOptionAsync<A>> x, EitherAsync<L, TryOptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherAsync<L, TryOptionAsync<A>> AppendT<SEMI, L, A>(this EitherAsync<L, TryOptionAsync<A>> x, EitherAsync<L, TryOptionAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -13513,7 +13513,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, TryOptionAsync<A>> x, EitherAsync<L, TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD, L, A>(this EitherAsync<L, TryOptionAsync<A>> x, EitherAsync<L, TryOptionAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -13525,7 +13525,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherAsync&lt;L, TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, TryOptionAsync<A>> x, EitherAsync<L, TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ, L, A>(this EitherAsync<L, TryOptionAsync<A>> x, EitherAsync<L, TryOptionAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -13654,7 +13654,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Task&lt;TryOptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this Task<TryOptionAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTask<TryOptionAsync<A>>, Task<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -13875,7 +13875,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Task<TryOptionAsync<A>> PlusT<NUM,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static Task<TryOptionAsync<A>> PlusT<NUM,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -13887,7 +13887,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Task<TryOptionAsync<A>> SubtractT<NUM,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static Task<TryOptionAsync<A>> SubtractT<NUM,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -13899,7 +13899,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Task<TryOptionAsync<A>> ProductT<NUM,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static Task<TryOptionAsync<A>> ProductT<NUM,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -13911,7 +13911,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Task<TryOptionAsync<A>> DivideT<NUM,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static Task<TryOptionAsync<A>> DivideT<NUM,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -13923,7 +13923,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Task<TryOptionAsync<A>> AppendT<SEMI,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Task<TryOptionAsync<A>> AppendT<SEMI,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -13935,7 +13935,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -13947,7 +13947,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Task&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this Task<TryOptionAsync<A>> x, Task<TryOptionAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -14076,7 +14076,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `ValueTask&lt;TryOptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this ValueTask<TryOptionAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MValueTask<TryOptionAsync<A>>, ValueTask<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -14297,7 +14297,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static ValueTask<TryOptionAsync<A>> PlusT<NUM,  A>(this ValueTask<TryOptionAsync<A>> x, ValueTask<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<TryOptionAsync<A>> PlusT<NUM,  A>(this ValueTask<TryOptionAsync<A>> x, ValueTask<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -14309,7 +14309,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static ValueTask<TryOptionAsync<A>> SubtractT<NUM,  A>(this ValueTask<TryOptionAsync<A>> x, ValueTask<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<TryOptionAsync<A>> SubtractT<NUM,  A>(this ValueTask<TryOptionAsync<A>> x, ValueTask<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -14321,7 +14321,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static ValueTask<TryOptionAsync<A>> ProductT<NUM,  A>(this ValueTask<TryOptionAsync<A>> x, ValueTask<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<TryOptionAsync<A>> ProductT<NUM,  A>(this ValueTask<TryOptionAsync<A>> x, ValueTask<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -14333,7 +14333,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static ValueTask<TryOptionAsync<A>> DivideT<NUM,  A>(this ValueTask<TryOptionAsync<A>> x, ValueTask<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static ValueTask<TryOptionAsync<A>> DivideT<NUM,  A>(this ValueTask<TryOptionAsync<A>> x, ValueTask<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -14345,7 +14345,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static ValueTask<TryOptionAsync<A>> AppendT<SEMI,  A>(this ValueTask<TryOptionAsync<A>> x, ValueTask<TryOptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static ValueTask<TryOptionAsync<A>> AppendT<SEMI,  A>(this ValueTask<TryOptionAsync<A>> x, ValueTask<TryOptionAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -14357,7 +14357,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this ValueTask<TryOptionAsync<A>> x, ValueTask<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this ValueTask<TryOptionAsync<A>> x, ValueTask<TryOptionAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -14369,7 +14369,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`ValueTask&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<TryOptionAsync<A>> x, ValueTask<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this ValueTask<TryOptionAsync<A>> x, ValueTask<TryOptionAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -14498,7 +14498,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryAsync&lt;TryOptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryAsync<TryOptionAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTryAsync<TryOptionAsync<A>>, TryAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -14719,7 +14719,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryAsync<TryOptionAsync<A>> PlusT<NUM,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<TryOptionAsync<A>> PlusT<NUM,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -14731,7 +14731,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryAsync<TryOptionAsync<A>> SubtractT<NUM,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<TryOptionAsync<A>> SubtractT<NUM,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -14743,7 +14743,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryAsync<TryOptionAsync<A>> ProductT<NUM,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<TryOptionAsync<A>> ProductT<NUM,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -14755,7 +14755,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryAsync<TryOptionAsync<A>> DivideT<NUM,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryAsync<TryOptionAsync<A>> DivideT<NUM,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -14767,7 +14767,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryAsync<TryOptionAsync<A>> AppendT<SEMI,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryAsync<TryOptionAsync<A>> AppendT<SEMI,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -14779,7 +14779,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -14791,7 +14791,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this TryAsync<TryOptionAsync<A>> x, TryAsync<TryOptionAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -14920,7 +14920,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;`</returns>
         [Pure]
         public static Task<A> SumT<NumA,  A>(this TryOptionAsync<TryOptionAsync<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 default(TransAsync<MTryOptionAsync<TryOptionAsync<A>>, TryOptionAsync<TryOptionAsync<A>>, MTryOptionAsync<A>, TryOptionAsync<A>, NumA, A>).Sum(ma);
 
         /// <summary>
@@ -15141,7 +15141,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOptionAsync<TryOptionAsync<A>> PlusT<NUM,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<TryOptionAsync<A>> PlusT<NUM,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -15153,7 +15153,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOptionAsync<TryOptionAsync<A>> SubtractT<NUM,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<TryOptionAsync<A>> SubtractT<NUM,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -15165,7 +15165,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOptionAsync<TryOptionAsync<A>> ProductT<NUM,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<TryOptionAsync<A>> ProductT<NUM,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -15177,7 +15177,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOptionAsync<TryOptionAsync<A>> DivideT<NUM,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<TryOptionAsync<A>> DivideT<NUM,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -15189,7 +15189,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOptionAsync<TryOptionAsync<A>> AppendT<SEMI,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOptionAsync<TryOptionAsync<A>> AppendT<SEMI,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -15201,7 +15201,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static Task<int> CompareT<ORD,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where ORD : struct, Ord<A> =>
+        public static Task<int> CompareT<ORD,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -15213,7 +15213,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOptionAsync&lt;TryOptionAsync&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static Task<bool> EqualsT<EQ,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where EQ : struct, Eq<A> =>
+        public static Task<bool> EqualsT<EQ,  A>(this TryOptionAsync<TryOptionAsync<A>> x, TryOptionAsync<TryOptionAsync<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>

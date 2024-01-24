@@ -6,7 +6,7 @@ using LanguageExt.Effects.Traits;
 namespace LanguageExt.Pipes
 {
     public class Queue<RT, OUT, A> : Producer<RT, OUT, A> 
-        where RT : struct, HasIO<RT, Error>
+        where RT : HasIO<RT, Error>
     {
         /// <summary>
         /// Single queue channel

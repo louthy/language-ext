@@ -19,8 +19,8 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     [Obsolete(Change.UseEffMonadInstead)]
     public struct HashableEitherAsync<HashL, HashR, L, R> : HashableAsync<EitherAsync<L, R>>
-        where HashL : struct, HashableAsync<L>
-        where HashR : struct, HashableAsync<R>
+        where HashL : HashableAsync<L>
+        where HashR : HashableAsync<R>
     {
         public async Task<int> GetHashCodeAsync(EitherAsync<L, R> x)
         {

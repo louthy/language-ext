@@ -1,59 +1,37 @@
-﻿using LanguageExt;
-using LanguageExt.TypeClasses;
+﻿using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
-using static LanguageExt.TypeClass;
 
-namespace LanguageExt.ClassInstances
+namespace LanguageExt.ClassInstances;
+
+/// <summary>
+/// Hash of any type in the Optional trait
+/// </summary>
+public struct HashableOptionalUnsafe<HashA, OPTION, OA, A> : Hashable<OA>
+    where HashA  : Hashable<A?>
+    where OPTION : OptionalUnsafe<OA, A>
 {
     /// <summary>
-    /// Hash of any type in the Optional type-class
+    /// Get hash code of the value
     /// </summary>
-    public struct HashableOptionalUnsafe<HashA, OPTION, OA, A> : Hashable<OA>
-        where HashA  : struct, Hashable<A>
-        where OPTION : struct, OptionalUnsafe<OA, A>
-    {
-        /// <summary>
-        /// Get hash code of the value
-        /// </summary>
-        /// <param name="x">Value to get the hash code of</param>
-        /// <returns>The hash code of x</returns>
-        [Pure]
-        public int GetHashCode(OA x) =>
-            default(OPTION).MatchUnsafe(x, default(HashA).GetHashCode, 0);
+    /// <param name="x">Value to get the hash code of</param>
+    /// <returns>The hash code of x</returns>
+    [Pure]
+    public static int GetHashCode(OA x) =>
+        OPTION.MatchUnsafe(x, HashA.GetHashCode, 0);
+}
 
-        /// <summary>
-        /// Get hash code of the value
-        /// </summary>
-        /// <param name="x">Value to get the hash code of</param>
-        /// <returns>The hash code of x</returns>
-        [Pure]
-        public Task<int> GetHashCodeAsync(OA x) =>
-            GetHashCode(x).AsTask();
-    }
-
+/// <summary>
+/// Hash of any type in the Optional trait
+/// </summary>
+public struct HashableOptionalUnsafe<OPTION, OA, A> : Hashable<OA>
+    where OPTION : OptionalUnsafe<OA, A>
+{
     /// <summary>
-    /// Hash of any type in the Optional type-class
+    /// Get hash code of the value
     /// </summary>
-    public struct HashableOptionalUnsafe<OPTION, OA, A> : Hashable<OA>
-        where OPTION : struct, OptionalUnsafe<OA, A>
-    {
-        /// <summary>
-        /// Get hash code of the value
-        /// </summary>
-        /// <param name="x">Value to get the hash code of</param>
-        /// <returns>The hash code of x</returns>
-        [Pure]
-        public int GetHashCode(OA x) =>
-            default(HashableOptionalUnsafe<HashableDefault<A>, OPTION, OA, A>).GetHashCode(x);
-
-        /// <summary>
-        /// Get hash code of the value
-        /// </summary>
-        /// <param name="x">Value to get the hash code of</param>
-        /// <returns>The hash code of x</returns>
-        [Pure]
-        public Task<int> GetHashCodeAsync(OA x) =>
-            GetHashCode(x).AsTask();
-    }
+    /// <param name="x">Value to get the hash code of</param>
+    /// <returns>The hash code of x</returns>
+    [Pure]
+    public static int GetHashCode(OA x) =>
+        HashableOptionalUnsafe<HashableDefault<A?>, OPTION, OA, A>.GetHashCode(x);
 }

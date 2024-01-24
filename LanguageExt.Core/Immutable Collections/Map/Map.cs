@@ -968,7 +968,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals<EqV>(Map<K, V> y) where EqV : struct, Eq<V> =>
+        public bool Equals<EqV>(Map<K, V> y) where EqV : Eq<V> =>
             Value.Equals<EqV>(y.Value);
 
         /// <summary>
@@ -1363,7 +1363,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo<OrdV>(Map<K, V> other) where OrdV : struct, Ord<V> =>
+        public int CompareTo<OrdV>(Map<K, V> other) where OrdV : Ord<V> =>
             Value.CompareTo<OrdV>(other.Value);
 
         /// <summary>

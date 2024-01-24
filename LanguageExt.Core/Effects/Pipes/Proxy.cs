@@ -49,7 +49,7 @@ namespace LanguageExt.Pipes
     /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
     ///
     /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-    public abstract class Proxy<RT, UOut, UIn, DIn, DOut, A>  where RT : struct, HasCancel<RT>
+    public abstract class Proxy<RT, UOut, UIn, DIn, DOut, A>  where RT : HasCancel<RT>
     {
         /// <summary>
         /// When working with sub-types, like `Producer`, calling this will effectively cast the sub-type to the base.
@@ -186,7 +186,7 @@ namespace LanguageExt.Pipes
     ///
     /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
     public class Pure<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> 
-        where RT : struct, HasIO<RT, Error>
+        where RT : HasIO<RT, Error>
     {
         public readonly A Value;
 
@@ -322,7 +322,7 @@ namespace LanguageExt.Pipes
     ///
     /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
     public class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>  
-        where RT : struct, HasIO<RT, Error>
+        where RT : HasIO<RT, Error>
     {
         //public readonly Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>> Value;
         public readonly Transducer<RT, Sum<Error, Proxy<RT, UOut, UIn, DIn, DOut, A>>> Value;

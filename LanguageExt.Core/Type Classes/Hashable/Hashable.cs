@@ -1,25 +1,22 @@
-﻿using System;
+﻿#nullable enable
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 using LanguageExt.Attributes;
-using LanguageExt.TypeClasses;
 
-namespace LanguageExt
+namespace LanguageExt;
+
+/// <summary>
+/// Hashable trait
+/// </summary>
+/// <typeparam name="A">
+/// The type for which GetHashCode is defined
+/// </typeparam>
+[Trait("Hashable*")]
+public interface Hashable<A>
 {
     /// <summary>
-    /// Hashable type-class
+    /// Get the hash-code of the provided value
     /// </summary>
-    /// <typeparam name="A">
-    /// The type for which GetHashCode is defined
-    /// </typeparam>
-    [Typeclass("Hashable*")]
-    public interface Hashable<A> : HashableAsync<A>, Typeclass
-    {
-        /// <summary>
-        /// Get the hash-code of the provided value
-        /// </summary>
-        /// <returns>Hash code of x</returns>
-        [Pure]
-        int GetHashCode(A x);
-    }
+    /// <returns>Hash code of x</returns>
+    [Pure]
+    public static abstract int GetHashCode(A x);
 }

@@ -1,48 +1,36 @@
-﻿using LanguageExt.TypeClasses;
-using static LanguageExt.Prelude;
+﻿using static LanguageExt.Prelude;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System;
-using System.Threading.Tasks;
 
-namespace LanguageExt.ClassInstances
+namespace LanguageExt.ClassInstances;
+
+/// <summary>
+/// Enumerable hashing
+/// </summary>
+public struct HashableEnumerable<HashA, A> : Hashable<IEnumerable<A>>
+    where HashA : Hashable<A>
 {
     /// <summary>
-    /// Enumerable hashing
+    /// Get hash code of the value
     /// </summary>
-    public struct HashableEnumerable<HashA, A> : Hashable<IEnumerable<A>>
-        where HashA : struct, Hashable<A>
-    {
-        /// <summary>
-        /// Get hash code of the value
-        /// </summary>
-        /// <param name="x">Value to get the hash code of</param>
-        /// <returns>The hash code of x</returns>
-        [Pure]
-        public int GetHashCode(IEnumerable<A> x) =>
-            hash<HashA, A>(x);
+    /// <param name="x">Value to get the hash code of</param>
+    /// <returns>The hash code of x</returns>
+    [Pure]
+    public static int GetHashCode(IEnumerable<A> x) =>
+        hash<HashA, A>(x);
+}
 
-        [Pure]
-        public Task<int> GetHashCodeAsync(IEnumerable<A> x) =>
-            GetHashCode(x).AsTask();
-    }
-
+/// <summary>
+/// Enumerable hashing
+/// </summary>
+public struct HashableEnumerable<A> : Hashable<IEnumerable<A>>
+{
     /// <summary>
-    /// Enumerable hashing
+    /// Get hash code of the value
     /// </summary>
-    public struct HashableEnumerable<A> : Hashable<IEnumerable<A>>
-    {
-        /// <summary>
-        /// Get hash code of the value
-        /// </summary>
-        /// <param name="x">Value to get the hash code of</param>
-        /// <returns>The hash code of x</returns>
-        [Pure]
-        public int GetHashCode(IEnumerable<A> x) =>
-            default(HashableEnumerable<HashableDefault<A>, A>).GetHashCode(x);
-
-        [Pure]
-        public Task<int> GetHashCodeAsync(IEnumerable<A> x) =>
-            GetHashCode(x).AsTask();
-    }
+    /// <param name="x">Value to get the hash code of</param>
+    /// <returns>The hash code of x</returns>
+    [Pure]
+    public static int GetHashCode(IEnumerable<A> x) =>
+        HashableEnumerable<HashableDefault<A>, A>.GetHashCode(x);
 }

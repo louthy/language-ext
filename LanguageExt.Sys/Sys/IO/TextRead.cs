@@ -14,7 +14,7 @@ using static LanguageExt.Pipes.Proxy;
 namespace LanguageExt.Sys.IO
 {
     public static class TextRead<RT>
-        where RT : struct, HasTextRead<RT>
+        where RT : HasTextRead<RT>
     {
         /// <summary>
         /// Open a text file and streams the lines through the pipe

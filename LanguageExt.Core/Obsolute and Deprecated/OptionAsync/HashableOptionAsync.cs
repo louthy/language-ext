@@ -22,7 +22,7 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     [Obsolete(Change.UseEffMonadInstead)]
     public struct HashableOptionAsync<HashA, A> : HashableAsync<OptionAsync<A>> 
-        where HashA : struct, HashableAsync<A>
+        where HashA : HashableAsync<A>
     {
         public async Task<int> GetHashCodeAsync(OptionAsync<A> x)
         {

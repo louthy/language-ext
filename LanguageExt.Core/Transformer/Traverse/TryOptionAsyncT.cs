@@ -476,7 +476,7 @@ namespace LanguageExt
         }
         
         public static TryOptionAsync<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, TryOptionAsync<A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             return ToTry(() => Go(ma, f));
             async Task<OptionalResult<Validation<MonoidFail, Fail, B>>> Go(Validation<MonoidFail, Fail, TryOptionAsync<A>> ma, Func<A, B> f)

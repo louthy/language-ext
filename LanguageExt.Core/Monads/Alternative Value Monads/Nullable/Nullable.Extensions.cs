@@ -184,7 +184,7 @@ namespace LanguageExt
         /// <returns>lhs + rhs</returns>
         [Pure]
         public static T? Append<SEMI, T>(this T? lhs, T? rhs)
-            where SEMI : struct, Semigroup<T>
+            where SEMI : Semigroup<T>
             where T : struct 
         {
             if (!lhs.HasValue && !rhs.HasValue) return lhs;  // None  + None  = None

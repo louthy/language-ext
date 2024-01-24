@@ -264,7 +264,7 @@ namespace LanguageExt
 
         public static OptionUnsafe<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(
             this Validation<MonoidFail, Fail, OptionUnsafe<A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail)
             {

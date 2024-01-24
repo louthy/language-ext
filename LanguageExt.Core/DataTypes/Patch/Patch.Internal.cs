@@ -25,7 +25,7 @@ namespace LanguageExt
         }
 
         public static (C, Seq<O>) leastChanges<MonoidC, V, O, C>(PatchParams<V, O, C> p, SpanArray<V> ss, SpanArray<V> tt)
-            where MonoidC : struct, Monoid<C>, Ord<C>
+            where MonoidC : Monoid<C>, Ord<C>
         {
             var rawChanges = rawChanges<MonoidC, V, O, C>(p, ss, tt);
             var changes = rawChanges.Last;
@@ -57,7 +57,7 @@ namespace LanguageExt
         }
 
         public static SpanArray<(C, Seq<Option<O>>)> rawChanges<MonoidC, V, O, C>(PatchParams<V, O, C> p, SpanArray<V> src, SpanArray<V> dst)
-            where MonoidC : struct, Monoid<C>, Ord<C>
+            where MonoidC : Monoid<C>, Ord<C>
         {
             var lenX = 1 + dst.Count;
             var lenY = 1 + src.Count;

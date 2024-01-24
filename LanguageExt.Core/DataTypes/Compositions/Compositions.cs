@@ -39,7 +39,7 @@ namespace LanguageExt
         /// <summary>
         /// Returns true if the given tree is appropriately right-biased.
         /// </summary>
-        public bool WellFormed<MonoidEqA>() where MonoidEqA : struct, Monoid<A>, Eq<A> =>
+        public bool WellFormed<MonoidEqA>() where MonoidEqA : Monoid<A>, Eq<A> =>
             Compositions.wellFormed<MonoidEqA, A>(this);
 
         /// <summary>
@@ -54,28 +54,28 @@ namespace LanguageExt
         /// in order to maintain the right-associative bias.  If you wish to run `composed`
         /// on the result of `take`, use `takeComposed` for better performance.
         /// </summary>
-        public Compositions<A> Take<MonoidA>(int amount) where MonoidA : struct, Monoid<A> =>
+        public Compositions<A> Take<MonoidA>(int amount) where MonoidA : Monoid<A> =>
             Compositions.take<MonoidA, A>(amount, this);
 
         /// <summary>
         /// Returns the composition of the first `k` elements of the compositions list, doing only `O(log k)` compositions.
         /// Faster than simply using `take` and then `composed` separately.
         /// </summary>
-        public A TakeComposed<MonoidA>(int amount) where MonoidA : struct, Monoid<A> =>
+        public A TakeComposed<MonoidA>(int amount) where MonoidA : Monoid<A> =>
             Compositions.takeComposed<MonoidA, A>(amount, this);
 
         /// <summary>
         /// A convenience alias for 'take' and 'skip'
         /// </summary>
         public (Compositions<A> taken, Compositions<A> skipped) SplitAt<MonoidA>(int i)
-            where MonoidA : struct, Monoid<A> =>
+            where MonoidA : Monoid<A> =>
                 Compositions.splitAt<MonoidA, A>(i, this);
 
         /// <summary>
         /// Compose every element in the compositions list. Performs only `O(log n)` compositions.
         /// </summary>
         public A Composed<MonoidA>()
-            where MonoidA : struct, Monoid<A> =>
+            where MonoidA : Monoid<A> =>
                 Compositions.composed<MonoidA, A>(this);
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace LanguageExt
         /// is provided in the 'Data.Foldable.Foldable' instance.This will perform O(n log n) element compositions.
         /// </summary>
         public static Compositions<A> FromList<MonoidA>(IEnumerable<A> ma)
-            where MonoidA : struct, Monoid<A> =>
+            where MonoidA : Monoid<A> =>
                 Compositions.fromList<MonoidA, A>(ma);
 
         /// <summary>

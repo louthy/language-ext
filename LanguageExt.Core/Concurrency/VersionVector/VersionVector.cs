@@ -15,9 +15,9 @@ namespace LanguageExt
     /// <typeparam name="Clock">Clock type</typeparam>
     /// <typeparam name="A">Value to version type</typeparam>
     public record VersionVector<ConflictA, OrdActor, NumClock, Actor, Clock, A>(Option<A> Value, long TimeStamp, VectorClock<OrdActor, NumClock, Actor, Clock> Vector) 
-        where OrdActor  : struct, Ord<Actor>
-        where NumClock  : struct, Num<Clock>
-        where ConflictA : struct, Conflict<A>
+        where OrdActor  : Ord<Actor>
+        where NumClock  : Num<Clock>
+        where ConflictA : Conflict<A>
     {
         /// <summary>
         /// Register a write from any actor
@@ -59,7 +59,7 @@ namespace LanguageExt
     
     public record VersionVector<ConflictA, Actor, A>(Option<A> Value, long TimeStamp, VectorClock<Actor> Vector) 
         where Actor : IComparable<Actor>
-        where ConflictA : struct, Conflict<A>
+        where ConflictA : Conflict<A>
     {
         /// <summary>
         /// Register a write from any actor

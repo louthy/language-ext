@@ -26,8 +26,8 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     [Obsolete(Change.UseEffMonadInstead)]
     public struct OrdEitherAsync<OrdL, OrdA, L, A> : OrdAsync<EitherAsync<L, A>> 
-        where OrdL : struct, OrdAsync<L>
-        where OrdA : struct, OrdAsync<A>
+        where OrdL : OrdAsync<L>
+        where OrdA : OrdAsync<A>
     {
         public async Task<int> CompareAsync(EitherAsync<L, A> x, EitherAsync<L, A> y)
         {

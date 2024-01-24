@@ -485,7 +485,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(F Fail) where MonoidFail : struct, Monoid<F>, Eq<F> =>
+        public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(F Fail) where MonoidFail : Monoid<F>, Eq<F> =>
             IsEmpty
                 ? Validation<MonoidFail, F, A>.Fail(Fail)
                 : Validation<MonoidFail, F, A>.Success(Last);
@@ -495,7 +495,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(Func<F> Fail) where MonoidFail : struct, Monoid<F>, Eq<F> =>
+        public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(Func<F> Fail) where MonoidFail : Monoid<F>, Eq<F> =>
             IsEmpty
                 ? Validation<MonoidFail, F, A>.Fail(Fail())
                 : Validation<MonoidFail, F, A>.Success(Last);
@@ -518,7 +518,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Validation<MonoidFail, Fail, A> HeadOrInvalid<MonoidFail, Fail>(Fail fail) where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+        public Validation<MonoidFail, Fail, A> HeadOrInvalid<MonoidFail, Fail>(Fail fail) where MonoidFail : Monoid<Fail>, Eq<Fail> =>
             IsEmpty
                 ? Fail<MonoidFail, Fail, A>(fail)
                 : Success<MonoidFail, Fail, A>(Head);
@@ -983,7 +983,7 @@ namespace LanguageExt
         /// Equality test
         /// </summary>
         [Pure]
-        public bool Equals<EqA>(Seq<A> rhs) where EqA : struct, Eq<A>
+        public bool Equals<EqA>(Seq<A> rhs) where EqA : Eq<A>
         {
             // Differing lengths?
             if(Count != rhs.Count) return false;
@@ -1218,7 +1218,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [Obsolete(ISeqObsolete.Message)]
-        public int CompareTo<OrdA>(ISeq<A> rhs) where OrdA : struct, Ord<A>
+        public int CompareTo<OrdA>(ISeq<A> rhs) where OrdA : Ord<A>
         {
             if (rhs == null) return 1;
 
@@ -1249,7 +1249,7 @@ namespace LanguageExt
         /// Compare to another sequence
         /// </summary>
         [Pure]
-        public int CompareTo<OrdA>(Seq<A> rhs) where OrdA : struct, Ord<A>
+        public int CompareTo<OrdA>(Seq<A> rhs) where OrdA : Ord<A>
         {
             // Differing lengths?
             var cmp = Count.CompareTo(rhs.Count);

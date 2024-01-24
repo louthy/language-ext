@@ -16,12 +16,12 @@ public static class HashMapEqExtensions
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int Count<EqK, K, V>(this HashMap<EqK, K, V> self) where EqK : struct, Eq<K> =>
+    public static int Count<EqK, K, V>(this HashMap<EqK, K, V> self) where EqK : Eq<K> =>
         self.Count;
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int Sum<EqK, K>(this HashMap<EqK, K, int> self) where EqK : struct, Eq<K> =>
+    public static int Sum<EqK, K>(this HashMap<EqK, K, int> self) where EqK : Eq<K> =>
         self.Values.Sum();
 
 }

@@ -12,12 +12,12 @@ namespace LanguageExt.ClassInstances
 {
     public class ClassInstancesAssembly
     {
-        public static ClassInstancesAssembly singleton;
+        public static ClassInstancesAssembly? singleton;
         
-        public List<Type> Types;
-        public List<Type> Structs;
-        public List<Type> AllClassInstances;
-        public Dict ClassInstances;
+        public List<Type>? Types;
+        public List<Type>? Structs;
+        public List<Type>? AllClassInstances;
+        public Dict? ClassInstances;
         
         /// <summary>
         /// If the caching throws an error, this will be set.
@@ -28,7 +28,7 @@ namespace LanguageExt.ClassInstances
         /// Singleton access
         /// </summary>
         public static ClassInstancesAssembly Default =>
-            singleton ?? (singleton = new ClassInstancesAssembly());
+            singleton ??= new ClassInstancesAssembly();
         
         /// <summary>
         /// Force the caching of class instances.  If you run this at start-up then
@@ -49,14 +49,14 @@ namespace LanguageExt.ClassInstances
 
                 var asms = GetAssemblies().ToList();
 
-                Debug.WriteLine($"Assemblies collected");
+                Debug.WriteLine("Assemblies collected");
 
                 var asmNames = (from nam in asms
                                 where nam != null && nam.Name != "mscorlib" && !nam.Name.StartsWith("System.") && !nam.Name.StartsWith("Microsoft.")
                                 select nam)
                                .ToList();
 
-                Debug.WriteLine($"Assemblies filtered");
+                Debug.WriteLine("Assemblies filtered");
 
                 var loadedAsms = (from nam in asmNames
                                   let asm = SafeLoadAsm(nam)
@@ -64,36 +64,36 @@ namespace LanguageExt.ClassInstances
                                   select asm)
                                  .ToList();
 
-                Debug.WriteLine($"Assemblies loaded");
+                Debug.WriteLine("Assemblies loaded");
 
                 var allTypes = (from asm in loadedAsms
                                 from typ in SafeGetTypes(asm)
                                 select typ)
                                .ToList();
                 
-                Debug.WriteLine($"Types collected");
+                Debug.WriteLine("Types collected");
                 
                 Types = (from typ in allTypes
-                         where typ != null && !typ.FullName.StartsWith("<") && !typ.FullName.Contains("+<")
+                         where typ != null && !typ.FullName.StartsWith('<') && !typ.FullName.Contains("+<")
                          select typ)
                         .ToList();
 
                 Debug.WriteLine($"Types found: {Types.Count}");
 
-                Structs = Types.Filter(t => t?.IsValueType ?? false).ToList();
+                Structs = Types.Filter(t => t.IsValueType).ToList();
                 
                 Debug.WriteLine($"Structs found: {Structs.Count}");
                 
-                AllClassInstances = Structs.Filter(t => t?.GetTypeInfo().ImplementedInterfaces?.Exists(i => i == typeof(Typeclass)) ?? false).ToList();
+                AllClassInstances = Structs.Filter(t => t.GetTypeInfo().ImplementedInterfaces.Exists(i => i == typeof(Trait))).ToList();
 
                 Debug.WriteLine($"AllClassInstances found: {AllClassInstances.Count}");
                 
                 ClassInstances = new Dict();
-                foreach (var ci in AllClassInstances)
+                foreach (var ci in AllClassInstances ?? [])
                 {
-                    var typeClasses = ci?.GetTypeInfo().ImplementedInterfaces
-                        ?.Filter(i => typeof(Typeclass).GetTypeInfo().IsAssignableFrom(i.GetTypeInfo()))
-                        ?.ToList() ?? new List<Type>();
+                    var typeClasses = ci.GetTypeInfo().ImplementedInterfaces
+                        .Filter(i => typeof(Trait).GetTypeInfo().IsAssignableFrom(i.GetTypeInfo()))
+                        .ToList();
 
                     foreach (var typeClass in typeClasses)
                     {
@@ -119,7 +119,7 @@ namespace LanguageExt.ClassInstances
             }
         }
 
-        Assembly SafeLoadAsm(AssemblyName name)
+        Assembly? SafeLoadAsm(AssemblyName name)
         {
             try
             {
@@ -132,7 +132,7 @@ namespace LanguageExt.ClassInstances
         }
         
         
-        Type[] SafeGetTypes(Assembly asm)
+        IEnumerable<Type> SafeGetTypes(Assembly asm)
         {
             try
             {
@@ -140,28 +140,31 @@ namespace LanguageExt.ClassInstances
             }
             catch (ReflectionTypeLoadException e)
             {
-                return e.Types.Where(t => t != null).ToArray();
+                return e.Types.Choose(Prelude.Optional);
             }
             catch
             {
-                return new Type[0];
+                return [];
             }
         }
 
         IEnumerable<AssemblyName> GetAssemblies()
         {
-            var asmNames = Enumerable.Concat(
-                    Assembly.GetEntryAssembly()?.GetReferencedAssemblies() ?? new AssemblyName[0],
-                    Enumerable.Concat(
-                        Assembly.GetCallingAssembly()?.GetReferencedAssemblies() ?? new AssemblyName[0],
-                        Assembly.GetExecutingAssembly()?.GetReferencedAssemblies() ?? new AssemblyName[0]))
-                .Distinct();
+            var asmNames = (Assembly.GetEntryAssembly()?.GetReferencedAssemblies() ?? [])
+                                .Concat(Assembly.GetCallingAssembly().GetReferencedAssemblies())
+                                .Concat(Assembly.GetExecutingAssembly().GetReferencedAssemblies())
+                                .Distinct();
 
-            var init = new[] {Assembly.GetEntryAssembly()?.GetName(), Assembly.GetCallingAssembly()?.GetName(), Assembly.GetExecutingAssembly()?.GetName()};
+            var init = new[]
+                       {
+                           Assembly.GetEntryAssembly()?.GetName(), 
+                           Assembly.GetCallingAssembly().GetName(), 
+                           Assembly.GetExecutingAssembly().GetName()
+                       };
 
-            foreach (var asm in Enumerable.Concat(init, asmNames).Where(n => n != null).Distinct())
+            foreach (var asm in init.Concat(asmNames).Where(n => n != null).Distinct())
             {
-                yield return asm;
+                if( asm is not null) yield return asm;
             }
         }
     }

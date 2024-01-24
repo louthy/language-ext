@@ -15,7 +15,7 @@ public static partial class TrackingHashMapExtensions
     /// </summary>
     [Pure]
     public static TrackingHashMap<EqK, K, V> ToTrackingHashMap<EqK, K, V>(this IEnumerable<(K, V)> items) 
-        where EqK : struct, Eq<K> =>
+        where EqK : Eq<K> =>
         LanguageExt.TrackingHashMap.createRange<EqK, K, V>(items);
 
     /// <summary>
@@ -23,7 +23,7 @@ public static partial class TrackingHashMapExtensions
     /// </summary>
     [Pure]
     public static TrackingHashMap<EqK, K, V> ToTrackingHashMap<EqK, K, V>(this IEnumerable<Tuple<K, V>> items)
-        where EqK : struct, Eq<K> =>
+        where EqK : Eq<K> =>
         LanguageExt.TrackingHashMap.createRange<EqK, K, V>(items);
 
     /// <summary>
@@ -31,6 +31,6 @@ public static partial class TrackingHashMapExtensions
     /// </summary>
     [Pure]
     public static TrackingHashMap<EqK, K, V> ToTrackingHashMap<EqK, K, V>(this IEnumerable<KeyValuePair<K, V>> items)
-        where EqK : struct, Eq<K> =>
+        where EqK : Eq<K> =>
         LanguageExt.TrackingHashMap.createRange<EqK, K, V>(items);
 }

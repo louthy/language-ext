@@ -18,7 +18,7 @@ namespace LanguageExt
         /// <typeparam name="T">Element type</typeparam>
         /// <returns>True if the set has no elements</returns>
         [Pure]
-        public static bool isEmpty<EqT, T>(HashSet<EqT, T> set) where EqT : struct, Eq<T> =>
+        public static bool isEmpty<EqT, T>(HashSet<EqT, T> set) where EqT : Eq<T> =>
             set.IsEmpty;
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace LanguageExt
         /// <typeparam name="T">Element type</typeparam>
         /// <returns>Empty HSet</returns>
         [Pure]
-        public static HashSet<EqT, T> create<EqT, T>() where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> create<EqT, T>() where EqT : Eq<T> =>
             HashSet<EqT, T>.Empty;
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace LanguageExt
         /// <param name="range">Range of items</param>
         /// <returns>HSet</returns>
         [Pure]
-        public static HashSet<EqT, T> createRange<EqT, T>(IEnumerable<T> range) where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> createRange<EqT, T>(IEnumerable<T> range) where EqT : Eq<T> =>
             new HashSet<EqT, T>(range);
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace LanguageExt
         /// <typeparam name="T">Element type</typeparam>
         /// <returns>Empty HSet</returns>
         [Pure]
-        public static HashSet<EqT, T> empty<EqT, T>() where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> empty<EqT, T>() where EqT : Eq<T> =>
             HashSet<EqT, T>.Empty;
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace LanguageExt
         /// <param name="value">Value to add to the HSet</param>
         /// <returns>New set with the item added</returns>
         [Pure]
-        public static HashSet<EqT, T> add<EqT, T>(HashSet<EqT, T> set, T value) where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> add<EqT, T>(HashSet<EqT, T> set, T value) where EqT : Eq<T> =>
             set.Add(value);
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace LanguageExt
         /// <param name="value">Value to add to the HSet</param>
         /// <returns>New set with the item maybe added</returns>
         [Pure]
-        public static HashSet<EqT, T> tryAdd<EqT, T>(HashSet<EqT, T> set, T value) where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> tryAdd<EqT, T>(HashSet<EqT, T> set, T value) where EqT : Eq<T> =>
             set.TryAdd(value);
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace LanguageExt
         /// <param name="value">Value to add to the HSet</param>
         /// <returns>New set with the item maybe added</returns>
         [Pure]
-        public static HashSet<EqT, T> addOrUpdate<EqT, T>(HashSet<EqT, T> set, T value) where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> addOrUpdate<EqT, T>(HashSet<EqT, T> set, T value) where EqT : Eq<T> =>
             set.AddOrUpdate(value);
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace LanguageExt
         /// <param name="value">Value to find</param>
         /// <returns>Some(T) if found, None otherwise</returns>
         [Pure]
-        public static Option<T> find<EqT, T>(HashSet<EqT, T> set, T value) where EqT : struct, Eq<T> =>
+        public static Option<T> find<EqT, T>(HashSet<EqT, T> set, T value) where EqT : Eq<T> =>
             set.Find(value);
 
         /// <summary>
@@ -105,14 +105,14 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if predicate returns true for any item</returns>
         [Pure]
-        public static bool exists<EqT, T>(HashSet<EqT, T> set, Func<T, bool> pred) where EqT : struct, Eq<T> =>
+        public static bool exists<EqT, T>(HashSet<EqT, T> set, Func<T, bool> pred) where EqT : Eq<T> =>
             set.Exists(pred);
 
         /// <summary>
         /// Returns true if both sets contain the same elements
         /// </summary>
         [Pure]
-        public static bool equals<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : struct, Eq<T> =>
+        public static bool equals<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
             setA.Equals(setB);
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace LanguageExt
         /// <param name="set">HSet</param>
         /// <returns>Number of elements</returns>
         [Pure]
-        public static int length<EqT, T>(HashSet<EqT, T> set) where EqT : struct, Eq<T> =>
+        public static int length<EqT, T>(HashSet<EqT, T> set) where EqT : Eq<T> =>
             set.Count();
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace LanguageExt
         /// setB will be returned.
         /// </summary>
         [Pure]
-        public static HashSet<EqT, T> subtract<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> subtract<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
             setA.Except(setB);
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace LanguageExt
         /// <param name="setB">Set A</param>
         /// <returns>A set which contains all items from both sets</returns>
         [Pure]
-        public static HashSet<EqT, T> union<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> union<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
             setA.Union(setB);
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>Filtered enumerable</returns>
         [Pure]
-        public static HashSet<EqT, T> filter<EqT, T>(HashSet<EqT, T> set, Func<T, bool> pred) where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> filter<EqT, T>(HashSet<EqT, T> set, Func<T, bool> pred) where EqT : Eq<T> =>
             set.Filter(pred);
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <returns>Aggregate value</returns>
         [Pure]
-        public static S fold<EqT, T, S>(HashSet<EqT, T> set, S state, Func<S, T, S> folder) where EqT : struct, Eq<T> =>
+        public static S fold<EqT, T, S>(HashSet<EqT, T> set, S state, Func<S, T, S> folder) where EqT : Eq<T> =>
             set.Fold(state, folder);
 
         /// <summary>
@@ -189,21 +189,21 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <returns>Aggregate value</returns>
         [Pure]
-        public static S foldBack<EqT, T, S>(HashSet<EqT, T> set, S state, Func<S, T, S> folder) where EqT : struct, Eq<T> =>
+        public static S foldBack<EqT, T, S>(HashSet<EqT, T> set, S state, Func<S, T, S> folder) where EqT : Eq<T> =>
             set.FoldBack(state, folder);
 
         /// <summary>
         /// Returns the elements that are in both setA and setB
         /// </summary>
         [Pure]
-        public static HashSet<EqT, T> intersect<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> intersect<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
             setA.Intersect(setB);
 
         /// <summary>
         /// Returns the elements that are in both setA and setB
         /// </summary>
         [Pure]
-        public static HashSet<EqT, T> except<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> except<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
             setA.Except(setB);
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace LanguageExt
         /// If an item is in both, it is dropped.
         /// </summary>
         [Pure]
-        public static HashSet<EqT, T> symmetricExcept<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> symmetricExcept<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
             setA.SymmetricExcept(setB);
 
         /// <summary>
@@ -225,8 +225,8 @@ namespace LanguageExt
         /// <returns>Mapped enumerable</returns>
         [Pure]
         public static HashSet<EqR, R> map<EqT, EqR, T, R>(HashSet<EqT, T> set, Func<T, R> mapper) 
-            where EqT : struct, Eq<T>
-            where EqR : struct, Eq<R>  =>
+            where EqT : Eq<T>
+            where EqR : Eq<R>  =>
             set.Map<EqR, R>(mapper);
 
         /// <summary>
@@ -239,7 +239,7 @@ namespace LanguageExt
         /// <param name="mapper">Mapping function</param>
         /// <returns>Mapped enumerable</returns>
         [Pure]
-        public static HashSet<EqT, T> map<EqT, T>(HashSet<EqT, T> set, Func<T, T> mapper) where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> map<EqT, T>(HashSet<EqT, T> set, Func<T, T> mapper) where EqT : Eq<T> =>
             set.Map(mapper);
 
         /// <summary>
@@ -250,7 +250,7 @@ namespace LanguageExt
         /// <param name="value">Value to check</param>
         /// <returns>True if the item 'value' is in the Set 'set'</returns>
         [Pure]
-        public static bool contains<EqT, T>(HashSet<EqT, T> set, T value) where EqT : struct, Eq<T> =>
+        public static bool contains<EqT, T>(HashSet<EqT, T> set, T value) where EqT : Eq<T> =>
             set.Contains(value);
 
         /// <summary>
@@ -261,7 +261,7 @@ namespace LanguageExt
         /// <param name="value">Value to check</param>
         /// <returns>New set with item removed</returns>
         [Pure]
-        public static HashSet<EqT, T> remove<EqT, T>(HashSet<EqT, T> set, T value) where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> remove<EqT, T>(HashSet<EqT, T> set, T value) where EqT : Eq<T> =>
             set.Remove(value);
 
         /// <summary>
@@ -272,7 +272,7 @@ namespace LanguageExt
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a subset of setA</returns>
         [Pure]
-        public static bool isSubHSet<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : struct, Eq<T> =>
+        public static bool isSubHSet<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
             setA.IsSubsetOf(setB);
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace LanguageExt
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a superset of setA</returns>
         [Pure]
-        public static bool isSuperHSet<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : struct, Eq<T> =>
+        public static bool isSuperHSet<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
             setA.IsSupersetOf(setB);
 
         /// <summary>
@@ -294,7 +294,7 @@ namespace LanguageExt
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a proper subset of setA</returns>
         [Pure]
-        public static bool isProperSubHSet<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : struct, Eq<T> =>
+        public static bool isProperSubHSet<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
             setA.IsProperSubsetOf(setB);
 
         /// <summary>
@@ -305,7 +305,7 @@ namespace LanguageExt
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a proper subset of setA</returns>
         [Pure]
-        public static bool isProperSuperHSet<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : struct, Eq<T> =>
+        public static bool isProperSuperHSet<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
             setA.IsProperSupersetOf(setB);
 
         /// <summary>
@@ -316,7 +316,7 @@ namespace LanguageExt
         /// <param name="setB">Set B</param>
         /// <returns>True if setA overlaps setB</returns>
         [Pure]
-        public static bool overlaps<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : struct, Eq<T> =>
+        public static bool overlaps<EqT, T>(HashSet<EqT, T> setA, HashSet<EqT, T> setB) where EqT : Eq<T> =>
             setA.Overlaps(setB);
     }
 }

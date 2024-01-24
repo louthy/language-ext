@@ -23,7 +23,7 @@ public static partial class EffExtensions
     /// <typeparam name="A">Bound value</typeparam>
     /// <returns>Flattened IO monad</returns>
     public static Eff<RT, A> Flatten<RT, A>(this Eff<RT, Eff<RT, A>> mma)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         mma.Bind(ma => ma);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,19 +32,19 @@ public static partial class EffExtensions
     //
 
     public static Eff<RT, B> Bind<RT, A, B>(this Transducer<Unit, A> ma, Func<A, Eff<RT, B>> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         Eff<RT, A>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), ma.Morphism)).Bind(f);
 
     public static Eff<RT, B> Bind<RT, A, B>(this Transducer<Unit, Sum<Error, A>> ma, Func<A, Eff<RT, B>> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         Eff<RT, A>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), ma.Morphism)).Bind(f);
     
     public static Eff<RT, B> Bind<RT, A, B>(this Transducer<RT, A> ma, Func<A, Eff<RT, B>> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         Eff<RT, A>.Lift(ma.Morphism).Bind(f);
     
     public static Eff<RT, B> Bind<RT, A, B>(this Transducer<RT, Sum<Error, A>> ma, Func<A, Eff<RT, B>> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         Eff<RT, A>.Lift(ma.Morphism).Bind(f);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ public static partial class EffExtensions
         this (Eff<RT, A> First, Eff<RT, B> Second) self,
         Func<(A First, B Second), Eff<RT, C>> bind,
         Func<(A First, B Second), C, D> project)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         self.Zip().Bind(ab => bind(ab).Map(c => project(ab, c)));
 
     /// <summary>
@@ -69,7 +69,7 @@ public static partial class EffExtensions
         this Eff<RT, A> self,
         Func<A, (Eff<RT, B> First, Eff<RT, C> Second)> bind,
         Func<A, (B First, C Second), D> project)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         self.Bind(a => bind(a).Zip().Map(cd => project(a, cd)));
 
     /// <summary>
@@ -79,7 +79,7 @@ public static partial class EffExtensions
         this (Eff<RT, A> First, Eff<RT, B> Second, Eff<RT, C> Third) self,
         Func<(A First, B Second, C Third), Eff<RT, D>> bind,
         Func<(A First, B Second, C Third), D, E> project)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         self.Zip().Bind(ab => bind(ab).Map(c => project(ab, c)));
 
     /// <summary>
@@ -89,7 +89,7 @@ public static partial class EffExtensions
         this Eff<RT, A> self,
         Func<A, (Eff<RT, B> First, Eff<RT, C> Second, Eff<RT, D> Third)> bind,
         Func<A, (B First, C Second, D Third), E> project)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         self.Bind(a => bind(a).Zip().Map(cd => project(a, cd)));
 
     /// <summary>
@@ -99,7 +99,7 @@ public static partial class EffExtensions
         this Transducer<Unit, A> ma,
         Func<A, Eff<RT, B>> bind,
         Func<A, B, C> project)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         Eff<RT, A>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), ma))
                     .Bind(x => bind(x).Map(y => project(x, y)));
 
@@ -110,7 +110,7 @@ public static partial class EffExtensions
         this Transducer<RT, A> ma,
         Func<A, Eff<RT, B>> bind,
         Func<A, B, C> project)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         Eff<RT, A>.Lift(ma).Bind(x => bind(x).Map(y => project(x, y)));
 
     /// <summary>
@@ -120,7 +120,7 @@ public static partial class EffExtensions
         this Transducer<Unit, Sum<Error, A>> ma,
         Func<A, Eff<RT, B>> bind,
         Func<A, B, C> project)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         Eff<RT, A>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), ma))
                     .Bind(x => bind(x).Map(y => project(x, y)));
 
@@ -131,7 +131,7 @@ public static partial class EffExtensions
         this Transducer<RT, Sum<Error, A>> ma,
         Func<A, Eff<RT, B>> bind,
         Func<A, B, C> project)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         Eff<RT, A>.Lift(ma).Bind(x => bind(x).Map(y => project(x, y)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -153,7 +153,7 @@ public static partial class EffExtensions
     /// <returns>IO monad</returns>
     public static Eff<RT, (A First, B Second)> Zip<RT, A, B>(
          this (Eff<RT, A> First, Eff<RT, B> Second) tuple)
-         where RT : struct, HasIO<RT, Error> =>
+         where RT : HasIO<RT, Error> =>
          new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism));
 
     /// <summary>
@@ -173,7 +173,7 @@ public static partial class EffExtensions
         this (Eff<RT, A> First, 
               Eff<RT, B> Second, 
               Eff<RT, C> Third) tuple)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism, tuple.Third.Morphism));
 
     /// <summary>
@@ -195,7 +195,7 @@ public static partial class EffExtensions
             Eff<RT, B> Second, 
             Eff<RT, C> Third, 
             Eff<RT, D> Fourth) tuple)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism, tuple.Third.Morphism, tuple.Fourth.Morphism));
 
     /// <summary>
@@ -213,7 +213,7 @@ public static partial class EffExtensions
     public static Eff<RT, (A First, B Second)> Zip<RT, A, B>(
         this Eff<RT, A> First,
         Eff<RT, B> Second)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         (First, Second).Zip();
 
     /// <summary>
@@ -233,7 +233,7 @@ public static partial class EffExtensions
         this Eff<RT, A> First, 
         Eff<RT, B> Second, 
         Eff<RT, C> Third)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         (First, Second, Third).Zip();
     
     /// <summary>
@@ -255,6 +255,6 @@ public static partial class EffExtensions
         Eff<RT, B> Second, 
         Eff<RT, C> Third, 
         Eff<RT, D> Fourth)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         (First, Second, Third, Fourth).Zip();
 }

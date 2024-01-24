@@ -164,9 +164,9 @@ namespace LanguageExt.Sys.Traits
     /// Type-class giving a struct the trait of supporting File IO
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
-    [Typeclass("*")]
+    [Trait("*")]
     public interface HasDirectory<RT> : HasIO<RT, Error>
-        where RT : struct, HasDirectory<RT>
+        where RT : HasDirectory<RT>
     {
         /// <summary>
         /// Access the directory synchronous effect environment

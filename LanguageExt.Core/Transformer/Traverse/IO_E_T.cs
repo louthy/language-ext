@@ -22,12 +22,12 @@ namespace LanguageExt
 
         [Pure]
         public static IO<RT, E, Arr<B>> TraverseParallel<RT, E, A, B>(this Arr<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             TraverseParallel(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static IO<RT, E, Arr<B>> TraverseParallel<RT, E, A, B>(this Arr<IO<RT, E, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, Arr<B>>.LiftIO(async env =>
             {
                 var rs = await ma.AsEnumerable()
@@ -43,7 +43,7 @@ namespace LanguageExt
 
         [Pure]
         public static IO<RT, E, Arr<B>> TraverseSerial<RT, E, A, B>(this Arr<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, Arr<B>>.Lift(env =>
             {
                 var rs = new List<B>();
@@ -58,12 +58,12 @@ namespace LanguageExt
 
         [Pure]
         public static IO<RT, E, HashSet<B>> TraverseParallel<RT, E, A, B>(this HashSet<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             TraverseParallel(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static IO<RT, E, HashSet<B>> TraverseParallel<RT, E, A, B>(this HashSet<IO<RT, E, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, HashSet<B>>.LiftIO(async env =>
             {
                 var rs = await ma.AsEnumerable()
@@ -78,7 +78,7 @@ namespace LanguageExt
 
         [Pure]
         public static IO<RT, E, HashSet<B>> TraverseSerial<RT, E, A, B>(this HashSet<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, HashSet<B>>.Lift(env =>
             {
                 var rs = new List<B>();
@@ -94,12 +94,12 @@ namespace LanguageExt
 
         [Pure]
         public static IO<RT, E, IEnumerable<B>> TraverseParallel<RT, E, A, B>(this IEnumerable<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             TraverseParallel(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static IO<RT, E, IEnumerable<B>> TraverseParallel<RT, E, A, B>(this IEnumerable<IO<RT, E, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, IEnumerable<B>>.LiftIO(async env =>
             {
                 var rs = await ma.AsEnumerable()
@@ -115,7 +115,7 @@ namespace LanguageExt
 
         [Pure]
         public static IO<RT, E, IEnumerable<B>> TraverseSerial<RT, E, A, B>(this IEnumerable<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, IEnumerable<B>>.Lift(env =>
             {
                 var rs = new List<B>();
@@ -131,12 +131,12 @@ namespace LanguageExt
         
         [Pure]
         public static IO<RT, E, Lst<B>> TraverseParallel<RT, E, A, B>(this Lst<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             TraverseParallel(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static IO<RT, E, Lst<B>> TraverseParallel<RT, E, A, B>(this Lst<IO<RT, E, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, Lst<B>>.LiftIO(async env =>
             {
                 var rs = await ma.AsEnumerable()
@@ -152,7 +152,7 @@ namespace LanguageExt
 
         [Pure]
         public static IO<RT, E, Lst<B>> TraverseSerial<RT, E, A, B>(this Lst<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, Lst<B>>.Lift(env =>
             {
                 var rs = new List<B>();
@@ -167,12 +167,12 @@ namespace LanguageExt
  
         [Pure]
         public static IO<RT, E, Que<B>> TraverseParallel<RT, E, A, B>(this Que<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             TraverseParallel(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static IO<RT, E, Que<B>> TraverseParallel<RT, E, A, B>(this Que<IO<RT, E, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, Que<B>>.LiftIO(async env =>
             {
                 var rs = await ma.AsEnumerable()
@@ -188,7 +188,7 @@ namespace LanguageExt
 
         [Pure]
         public static IO<RT, E, Que<B>> TraverseSerial<RT, E, A, B>(this Que<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, Que<B>>.Lift(env =>
             {
                 var rs = new List<B>();
@@ -203,12 +203,12 @@ namespace LanguageExt
         
         [Pure]
         public static IO<RT, E, Seq<B>> TraverseParallel<RT, E, A, B>(this Seq<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             TraverseParallel(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static IO<RT, E, Seq<B>> TraverseParallel<RT, E, A, B>(this Seq<IO<RT, E, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, Seq<B>>.LiftIO(async env =>
             {
                 var rs = await ma.AsEnumerable()
@@ -224,7 +224,7 @@ namespace LanguageExt
 
         [Pure]
         public static IO<RT, E, Seq<B>> TraverseSerial<RT, E, A, B>(this Seq<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, Seq<B>>.Lift(env =>
             {
                 var rs = new List<B>();
@@ -239,12 +239,12 @@ namespace LanguageExt
  
         [Pure]
         public static IO<RT, E, Set<B>> TraverseParallel<RT, E, A, B>(this Set<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             TraverseParallel(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static IO<RT, E, Set<B>> TraverseParallel<RT, E, A, B>(this Set<IO<RT, E, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, Set<B>>.LiftIO(async env =>
             {
                 var rs = await ma.AsEnumerable()
@@ -260,7 +260,7 @@ namespace LanguageExt
 
         [Pure]
         public static IO<RT, E, Set<B>> TraverseSerial<RT, E, A, B>(this Set<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, Set<B>>.Lift(env =>
             {
                 var rs = new List<B>();
@@ -275,12 +275,12 @@ namespace LanguageExt
  
         [Pure]
         public static IO<RT, E, Stck<B>> TraverseParallel<RT, E, A, B>(this Stck<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             TraverseParallel(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static IO<RT, E, Stck<B>> TraverseParallel<RT, E, A, B>(this Stck<IO<RT, E, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, Stck<B>>.LiftIO(async env =>
             {
                 var rs = await ma.AsEnumerable()
@@ -296,7 +296,7 @@ namespace LanguageExt
 
         [Pure]
         public static IO<RT, E, Stck<B>> TraverseSerial<RT, E, A, B>(this Stck<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             IO<RT, E, Stck<B>>.Lift(env =>
             {
                 var rs = new List<B>();
@@ -314,7 +314,7 @@ namespace LanguageExt
         //
 
         public static IO<RT, E, Task<B>> Traverse<RT, E, A, B>(this Task<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E>
+            where RT : HasIO<RT, E>
         {
             return IO<RT, E, Task<B>>.LiftIO(env => Go(env, ma, f));
             async Task<Either<E, Task<B>>> Go(RT env, Task<IO<RT, E, A>> ma, Func<A, B> f)
@@ -327,7 +327,7 @@ namespace LanguageExt
         }
 
         public static IO<RT, E, ValueTask<B>> Traverse<RT, E, A, B>(this ValueTask<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E>
+            where RT : HasIO<RT, E>
         {
             return IO<RT, E, ValueTask<B>>.LiftIO(env => Go(env, ma, f));
             async Task<Either<E, ValueTask<B>>> Go(RT env, ValueTask<IO<RT, E, A>> ma, Func<A, B> f)
@@ -344,7 +344,7 @@ namespace LanguageExt
         // 
         
         public static IO<RT, L, Either<L, B>> Traverse<RT, L, A, B>(this Either<L, IO<RT, L, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, L>
+            where RT : HasIO<RT, L>
         {
             return IO<RT, L, Either<L, B>>.Lift(env => Go(env, ma, f));
             Either <L, Either<L, B>> Go(RT env, Either<L, IO<RT, L, A>> ma, Func<A, B> f)
@@ -358,7 +358,7 @@ namespace LanguageExt
         }
 
         public static IO<RT, L, EitherUnsafe<L, B>> Traverse<RT, L, A, B>(this EitherUnsafe<L, IO<RT, L, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, L>
+            where RT : HasIO<RT, L>
         {
             return IO<RT, L, EitherUnsafe<L, B>>.Lift(env => Go(env, ma, f));
 
@@ -373,7 +373,7 @@ namespace LanguageExt
         }
 
         public static IO<RT, E, Identity<B>> Traverse<RT, E, A, B>(this Identity<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E>
+            where RT : HasIO<RT, E>
         {
             return IO<RT, E, Identity<B>>.Lift(env => Go(env, ma, f));
             Either<E, Identity<B>> Go(RT env, Identity<IO<RT, E, A>> ma, Func<A, B> f)
@@ -386,7 +386,7 @@ namespace LanguageExt
         }
 
         public static IO<RT, E, Fin<B>> Traverse<RT, E, A, B>(this Fin<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E>
+            where RT : HasIO<RT, E>
         {
             return IO<RT, E, Fin<B>>.Lift(env => Go(env, ma, f));
             Either<E, Fin<B>> Go(RT env, Fin<IO<RT, E, A>> ma, Func<A, B> f)
@@ -399,7 +399,7 @@ namespace LanguageExt
         }
 
         public static IO<RT, E, Option<B>> Traverse<RT, E, A, B>(this Option<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E>
+            where RT : HasIO<RT, E>
         {
             return IO<RT, E, Option<B>>.Lift(env => Go(env, ma, f));
             Either<E, Option<B>> Go(RT env, Option<IO<RT, E, A>> ma, Func<A, B> f)
@@ -412,7 +412,7 @@ namespace LanguageExt
         }
         
         public static IO<RT, E, OptionUnsafe<B>> Traverse<RT, E, A, B>(this OptionUnsafe<IO<RT, E, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, E>
+            where RT : HasIO<RT, E>
         {
             return IO<RT, E, OptionUnsafe<B>>.Lift(env => Go(env, ma, f));
             Either<E, OptionUnsafe<B>> Go(RT env, OptionUnsafe<IO<RT, E, A>> ma, Func<A, B> f)
@@ -427,7 +427,7 @@ namespace LanguageExt
         
         public static IO<RT, Fail, Validation<Fail, B>> Traverse<RT, Fail, A, B>(
             this Validation<Fail, IO<RT, Fail, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Fail>
+            where RT : HasIO<RT, Fail>
         {
             return IO<RT, Fail, Validation<Fail, B>>.Lift(env => Go(env, ma, f));
             Either<Fail, Validation<Fail, B>> Go(RT env, Validation<Fail, IO<RT, Fail, A>> ma, Func<A, B> f)
@@ -441,8 +441,8 @@ namespace LanguageExt
         
         public static IO<RT, Fail, Validation<MonoidFail, Fail, B>> Traverse<RT, MonoidFail, Fail, A, B>(
             this Validation<MonoidFail, Fail, IO<RT, Fail, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Fail>
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where RT : HasIO<RT, Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             return IO<RT, Fail, Validation<MonoidFail, Fail, B>>.Lift(env => Go(env, ma, f));
             Either<Fail, Validation<MonoidFail, Fail, B>> Go(RT env, Validation<MonoidFail, Fail, IO<RT, Fail, A>> ma, Func<A, B> f)

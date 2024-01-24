@@ -28,9 +28,9 @@ namespace LanguageExt.Sys.Traits
     /// Type-class giving a struct the trait of supporting Console IO
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
-    [Typeclass("*")]
+    [Trait("*")]
     public interface HasConsole<RT> : HasIO<RT, Error>
-        where RT : struct, HasConsole<RT>
+        where RT : HasConsole<RT>
     {
         /// <summary>
         /// Access the console synchronous effect environment

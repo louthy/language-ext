@@ -26,7 +26,7 @@ namespace LanguageExt
     /// <typeparam name="PRED">Predicate instance to run when the type is constructed</typeparam>
     [Serializable]
     public abstract class NewType<NEWTYPE, A, PRED> : NewType<NEWTYPE, A, PRED, OrdDefault<A>>
-        where PRED    : struct, Pred<A>
+        where PRED    : Pred<A>
         where NEWTYPE : NewType<NEWTYPE, A, PRED>
     {
         /// <summary>

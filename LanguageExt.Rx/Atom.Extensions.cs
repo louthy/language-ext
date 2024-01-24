@@ -70,7 +70,7 @@ namespace LanguageExt
         [Pure]
         public static IObservable<HashMapPatch<EqK, K, V>> OnChange<EqK, K, V>(
             this AtomHashMap<EqK, K, V> atom)
-            where EqK : struct, Eq<K> =>
+            where EqK : Eq<K> =>
             Observable.FromEvent<HashMapPatch<EqK, K, V>>(
                 add => atom.Change += new AtomHashMapChangeEvent<EqK, K, V>(add),
                 remove => atom.Change -= new AtomHashMapChangeEvent<EqK, K, V>(remove));
@@ -97,7 +97,7 @@ namespace LanguageExt
         /// <returns>Observable `(K, Change<V>)`</returns>
         [Pure]
         public static IObservable<(K, Change<V>)> OnEntryChange<EqK, K, V>(this AtomHashMap<EqK, K, V> atom)
-            where EqK : struct, Eq<K> =>
+            where EqK : Eq<K> =>
             atom.OnChange()
                 .SelectMany(static p =>
                     p.Changes
@@ -113,7 +113,7 @@ namespace LanguageExt
         /// <returns>Observable `HashMap`</returns>
         [Pure]
         public static IObservable<HashMap<EqK, K, V>> OnMapChange<EqK, K, V>(this AtomHashMap<EqK, K, V> atom)
-            where EqK : struct, Eq<K> =>
+            where EqK : Eq<K> =>
             atom.OnChange().Select(p => p.To);
     }
 }

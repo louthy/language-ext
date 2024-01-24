@@ -97,7 +97,7 @@ public static class SeqExtensions
     /// <param name="list">List to sum</param>
     /// <returns>Sum total</returns>
     [Pure]
-    public static A Sum<MonoidA, A>(this Seq<A> list) where MonoidA : struct, Monoid<A> =>
+    public static A Sum<MonoidA, A>(this Seq<A> list) where MonoidA : Monoid<A> =>
         mconcat<MonoidA, A>(list.AsEnumerable());
 
     /// <summary>
@@ -465,7 +465,7 @@ public static class SeqExtensions
     /// <param name="list">sequence</param>
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
-    public static Seq<T> Distinct<EQ, T>(this Seq<T> list) where EQ : struct, Eq<T> =>
+    public static Seq<T> Distinct<EQ, T>(this Seq<T> list) where EQ : Eq<T> =>
         toSeq(Enumerable.Distinct(list, new EqCompare<T>(static (x, y) => default(EQ).Equals(x, y), static x => default(EQ).GetHashCode(x))));
 
     /// <summary>

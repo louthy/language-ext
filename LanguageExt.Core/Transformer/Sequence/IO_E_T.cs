@@ -22,7 +22,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Arr<B>> SequenceParallel<RT, E, A, B>(this Arr<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel();
         
         /// <summary>
@@ -36,7 +36,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Arr<B>> SequenceParallel<RT, E, A, B>(this Arr<A> ta, Func<A, IO<RT, E, B>> f, int windowSize) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel(windowSize);
         
         /// <summary>
@@ -50,7 +50,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Arr<B>> SequenceSerial<RT, E, A, B>(this Arr<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceSerial();
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, L, Either<L, B>> Sequence<RT, L, A, B>(this Either<L, A> ta, Func<A, IO<RT, L, B>> f) 
-            where RT : struct, HasIO<RT, L> =>
+            where RT : HasIO<RT, L> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -78,7 +78,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, L, EitherUnsafe<L, B>> Sequence<RT, L, A, B>(this EitherUnsafe<L, A> ta, Func<A, IO<RT, L, B>> f) 
-            where RT : struct, HasIO<RT, L> =>
+            where RT : HasIO<RT, L> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -92,7 +92,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Identity<B>> Sequence<RT, E, A, B>(this Identity<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).Traverse(Prelude.identity);
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, IEnumerable<B>> SequenceSerial<RT, E, A, B>(this IEnumerable<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceSerial();
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, IEnumerable<B>> SequenceParallel<RT, E, A, B>(this IEnumerable<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel();
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, IEnumerable<B>> SequenceParallel<RT, E, A, B>(this IEnumerable<A> ta, Func<A, IO<RT, E, B>> f, int windowSize) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel(windowSize);
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Lst<B>> SequenceParallel<RT, E, A, B>(this Lst<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel();
         
         /// <summary>
@@ -162,7 +162,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Lst<B>> SequenceParallel<RT, E, A, B>(this Lst<A> ta, Func<A, IO<RT, E, B>> f, int windowSize) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel(windowSize);
         
         /// <summary>
@@ -176,7 +176,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Lst<B>> SequenceSerial<RT, E, A, B>(this Lst<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceSerial();
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Fin<B>> Sequence<RT, E, A, B>(this Fin<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -204,7 +204,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Option<B>> Sequence<RT, E, A, B>(this Option<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -218,7 +218,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, OptionUnsafe<B>> Sequence<RT, E, A, B>(this OptionUnsafe<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -232,7 +232,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Seq<B>> SequenceSerial<RT, E, A, B>(this Seq<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceSerial();
         
         /// <summary>
@@ -246,7 +246,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Seq<B>> SequenceParallel<RT, E, A, B>(this Seq<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel();
         
         /// <summary>
@@ -260,7 +260,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Seq<B>> SequenceParallel<RT, E, A, B>(this Seq<A> ta, Func<A, IO<RT, E, B>> f, int windowSize) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel(windowSize);
         
         /// <summary>
@@ -274,7 +274,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Set<B>> SequenceSerial<RT, E, A, B>(this Set<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceSerial();
         
         /// <summary>
@@ -288,7 +288,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Set<B>> SequenceParallel<RT, E, A, B>(this Set<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel();
         
         /// <summary>
@@ -302,7 +302,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Set<B>> SequenceParallel<RT, E, A, B>(this Set<A> ta, Func<A, IO<RT, E, B>> f, int windowSize) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel(windowSize);
         
         /// <summary>
@@ -316,7 +316,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, HashSet<B>> SequenceSerial<RT, E, A, B>(this HashSet<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceSerial();
         
         /// <summary>
@@ -330,7 +330,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, HashSet<B>> SequenceParallel<RT, E, A, B>(this HashSet<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel();
         
         /// <summary>
@@ -344,7 +344,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, HashSet<B>> SequenceParallel<RT, E, A, B>(this HashSet<A> ta, Func<A, IO<RT, E, B>> f, int windowSize) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel(windowSize);
         
         /// <summary>
@@ -358,7 +358,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Que<B>> SequenceSerial<RT, E, A, B>(this Que<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceSerial();
         
         /// <summary>
@@ -372,7 +372,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Que<B>> SequenceParallel<RT, E, A, B>(this Que<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel();
         
         /// <summary>
@@ -386,7 +386,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Que<B>> SequenceParallel<RT, E, A, B>(this Que<A> ta, Func<A, IO<RT, E, B>> f, int windowSize) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel(windowSize);
         
         /// <summary>
@@ -400,7 +400,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Stck<B>> SequenceSerial<RT, E, A, B>(this Stck<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceSerial();
         
         /// <summary>
@@ -414,7 +414,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Stck<B>> SequenceParallel<RT, E, A, B>(this Stck<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel();
         
         /// <summary>
@@ -428,7 +428,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Stck<B>> SequenceParallel<RT, E, A, B>(this Stck<A> ta, Func<A, IO<RT, E, B>> f, int windowSize) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).SequenceParallel(windowSize);
         
         /// <summary>
@@ -442,7 +442,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, FAIL, Validation<FAIL, B>> Sequence<RT, FAIL, A, B>(this Validation<FAIL, A> ta, Func<A, IO<RT, FAIL, B>> f) 
-            where RT : struct, HasIO<RT, FAIL> => 
+            where RT : HasIO<RT, FAIL> => 
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -457,8 +457,8 @@ namespace LanguageExt
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, FAIL, Validation<MonoidFail, FAIL, B>> Sequence<RT, MonoidFail, FAIL, A, B>(
             this Validation<MonoidFail, FAIL, A> ta, Func<A, IO<RT, FAIL, B>> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> 
-            where RT : struct, HasIO<RT, FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> 
+            where RT : HasIO<RT, FAIL> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -472,7 +472,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IO<RT, E, Task<B>> Sequence<RT, E, A, B>(this Task<A> ta, Func<A, IO<RT, E, B>> f) 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             ta.Map(f).Sequence();
     }
 }

@@ -1,42 +1,29 @@
 ﻿using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 
-namespace LanguageExt.ClassInstances
+namespace LanguageExt.ClassInstances;
+
+/// <summary>
+/// Integer equality
+/// </summary>
+public struct EqLong : Eq<long>
 {
     /// <summary>
-    /// Integer equality
+    /// Equality test
     /// </summary>
-    public struct EqLong : Eq<long>
-    {
-        public static readonly EqLong Inst = default(EqLong);
+    /// <param name="x">The left hand side of the equality operation</param>
+    /// <param name="y">The right hand side of the equality operation</param>
+    /// <returns>True if x and y are equal</returns>
+    [Pure]
+    public static bool Equals(long a, long b) =>
+        a == b;
 
-        /// <summary>
-        /// Equality test
-        /// </summary>
-        /// <param name="x">The left hand side of the equality operation</param>
-        /// <param name="y">The right hand side of the equality operation</param>
-        /// <returns>True if x and y are equal</returns>
-        [Pure]
-        public bool Equals(long a, long b) =>
-            a == b;
-
-
-        /// <summary>
-        /// Get hash code of the value
-        /// </summary>
-        /// <param name="x">Value to get the hash code of</param>
-        /// <returns>The hash code of x</returns>
-        [Pure]
-        public int GetHashCode(long x) =>
-            default(HashableLong).GetHashCode(x);
-  
-        [Pure]
-        public Task<bool> EqualsAsync(long x, long y) =>
-            Equals(x, y).AsTask();
-
-        [Pure]
-        public Task<int> GetHashCodeAsync(long x) => 
-            GetHashCode(x).AsTask();      
-    }
+    /// <summary>
+    /// Get hash code of the value
+    /// </summary>
+    /// <param name="x">Value to get the hash code of</param>
+    /// <returns>The hash code of x</returns>
+    [Pure]
+    public static int GetHashCode(long x) =>
+        HashableLong.GetHashCode(x);
 }

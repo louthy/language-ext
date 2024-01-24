@@ -81,7 +81,7 @@ namespace LanguageExt
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
     public sealed class HashMapPatch<EqK, K, V>
-        where EqK : struct, Eq<K>
+        where EqK : Eq<K>
     {
         readonly TrieMap<EqK, K, V> prev;
         readonly TrieMap<EqK, K, V> curr;

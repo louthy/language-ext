@@ -24,7 +24,7 @@ namespace LanguageExt.ClassInstances
     /// Option type equality
     /// </summary>
     [Obsolete(Change.UseEffMonadInstead)]
-    public struct OrdOptionAsync<OrdA, A> : OrdAsync<OptionAsync<A>> where OrdA : struct, OrdAsync<A>
+    public struct OrdOptionAsync<OrdA, A> : OrdAsync<OptionAsync<A>> where OrdA : OrdAsync<A>
     {
         public async Task<int> CompareAsync(OptionAsync<A> x, OptionAsync<A> y)
         {

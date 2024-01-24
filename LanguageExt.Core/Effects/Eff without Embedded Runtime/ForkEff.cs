@@ -23,5 +23,5 @@ namespace LanguageExt;
 public readonly record struct ForkEff<RT, A>(
     Eff<RT, Unit> Cancel,
     Eff<RT, A> Await)
-    where RT : struct, HasIO<RT, Error>;
+    where RT : HasIO<RT, Error>;
 

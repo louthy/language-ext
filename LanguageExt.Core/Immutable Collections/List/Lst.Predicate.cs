@@ -24,7 +24,7 @@ namespace LanguageExt
         IEquatable<Lst<PRED, A>>,
         IComparable<Lst<PRED, A>>,
         IComparable
-        where PRED : struct, Pred<ListInfo>
+        where PRED : Pred<ListInfo>
     {
         readonly LstInternal<A> value;
 
@@ -146,7 +146,7 @@ namespace LanguageExt
         /// <param name="value">Value to test</param>
         /// <returns>True if collection contains value</returns>
         [Pure]
-        public bool Contains<EqA>(A value) where EqA : struct, Eq<A> =>
+        public bool Contains<EqA>(A value) where EqA : Eq<A> =>
             Value.Find(a => default(EqA).Equals(a, value)).IsSome;
 
         /// <summary>

@@ -6,7 +6,7 @@
         /// <returns>Total of all `Num<A>`s in `OUTER_A`</returns>
         [Pure]
         public static A SumT<NumA, GENS, A>(this OUTER_A ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 TRANS<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -153,7 +153,7 @@
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OUTER_A` which is the result of performing x + y</returns>
         [Pure]
-        public static OUTER_A PlusT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+        public static OUTER_A PlusT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -165,7 +165,7 @@
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OUTER_A` which is the result of performing x - y</returns>
         [Pure]
-        public static OUTER_A SubtractT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+        public static OUTER_A SubtractT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -177,7 +177,7 @@
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OUTER_A` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OUTER_A ProductT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+        public static OUTER_A ProductT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -189,7 +189,7 @@
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OUTER_A` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OUTER_A DivideT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+        public static OUTER_A DivideT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -201,7 +201,7 @@
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OUTER_A` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OUTER_A AppendT<SEMI, GENS, A>(this OUTER_A x, OUTER_A y) where SEMI : struct, Semigroup<A> =>
+        public static OUTER_A AppendT<SEMI, GENS, A>(this OUTER_A x, OUTER_A y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -213,7 +213,7 @@
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, GENS, A>(this OUTER_A x, OUTER_A y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, GENS, A>(this OUTER_A x, OUTER_A y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -225,7 +225,7 @@
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OUTER_A` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, GENS, A>(this OUTER_A x, OUTER_A y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, GENS, A>(this OUTER_A x, OUTER_A y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>

@@ -22,8 +22,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Tuple<A, B> append<SemiA, SemiB, A, B>(Tuple<A, B> a, Tuple<A, B> b)
-            where SemiA : struct, Semigroup<A>
-            where SemiB : struct, Semigroup<B> =>
+            where SemiA : Semigroup<A>
+            where SemiB : Semigroup<B> =>
             Tuple(default(SemiA).Append(a.Item1, b.Item1),
                   default(SemiB).Append(a.Item2, b.Item2));
 
@@ -32,7 +32,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static A append<SemiA, A>(Tuple<A, A> a)
-            where SemiA : struct, Semigroup<A> =>
+            where SemiA : Semigroup<A> =>
             default(SemiA).Append(a.Item1, a.Item2);
 
         /// <summary>
@@ -40,8 +40,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Tuple<A, B> concat<MonoidA, MonoidB, A, B>(Tuple<A, B> a, Tuple<A, B> b)
-            where MonoidA : struct, Monoid<A>
-            where MonoidB : struct, Monoid<B> =>
+            where MonoidA : Monoid<A>
+            where MonoidB : Monoid<B> =>
             Tuple(mconcat<MonoidA, A>(a.Item1, b.Item1),
                   mconcat<MonoidB, B>(a.Item2, b.Item2));
 
@@ -50,7 +50,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static A concat<MonoidA, A>(Tuple<A, A> a)
-            where MonoidA : struct, Monoid<A> =>
+            where MonoidA : Monoid<A> =>
             mconcat<MonoidA, A>(a.Item1, a.Item2);
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static A sum<NUM, A>(this Tuple<A, A> self)
-            where NUM : struct, Num<A> =>
+            where NUM : Num<A> =>
             default(NUM).Plus(self.Item1, self.Item2);
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static A product<NUM, A>(this Tuple<A, A> self)
-            where NUM : struct, Num<A> =>
+            where NUM : Num<A> =>
             default(NUM).Product(self.Item1, self.Item2);
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static bool contains<EQ, A>(this Tuple<A, A> self, A value)
-            where EQ : struct, Eq<A> =>
+            where EQ : Eq<A> =>
             default(EQ).Equals(self.Item1, value) ||
             default(EQ).Equals(self.Item2, value);
 

@@ -6,7 +6,7 @@ using static LanguageExt.Prelude;
 namespace LanguageExt.Sys
 {
     public static class Enc<RT>
-        where RT : struct, HasEncoding<RT> 
+        where RT : HasEncoding<RT> 
     {
         /// <summary>
         /// Encoding

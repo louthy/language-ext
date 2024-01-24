@@ -352,7 +352,7 @@ namespace LanguageExt
         }
         
         public static Either<Fail, Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Either<Fail, A>> ma, Func<A, B> f) 
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail)
             {
@@ -394,7 +394,7 @@ namespace LanguageExt
         }
         
         public static EitherUnsafe<L, Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, L, A, B>(this Validation<MonoidFail, Fail, EitherUnsafe<L, A>> ma, Func<A, B> f) 
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail)
             {

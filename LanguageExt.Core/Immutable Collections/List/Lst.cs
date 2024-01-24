@@ -254,7 +254,7 @@ namespace LanguageExt
         /// <returns>True if collection contains value</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains<EqA>(A value) where EqA : struct, Eq<A> =>
+        public bool Contains<EqA>(A value) where EqA : Eq<A> =>
             Value.Find(a => default(EqA).Equals(a, value)).IsSome;
 
         /// <summary>

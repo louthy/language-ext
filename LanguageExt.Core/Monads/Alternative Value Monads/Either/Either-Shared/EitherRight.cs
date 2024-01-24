@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿#nullable enable
+using LanguageExt;
 using static LanguageExt.Prelude;
 using System;
 using System.Diagnostics.Contracts;
@@ -23,11 +24,11 @@ namespace LanguageExt
 
         EitherRight(SerializationInfo info, StreamingContext context)
         {
-            var state = (EitherStatus)info.GetValue("State", typeof(EitherStatus));
+            var state = (EitherStatus?)info.GetValue("State", typeof(EitherStatus)) ?? throw new SerializationException();
             switch (state)
             {
                 case EitherStatus.IsRight:
-                    Value = (R)info.GetValue("Right", typeof(R));
+                    Value = (R?)info.GetValue("Right", typeof(R)) ?? throw new SerializationException();
                     break;
                 default:
                     throw new NotSupportedException();
@@ -48,7 +49,7 @@ namespace LanguageExt
 
         [Pure]
         public EitherRight<B> Select<B>(Func<R, B> f) =>
-            new EitherRight<B>(f(Value));
+            new (f(Value));
 
         [Pure]
         public EitherRight<B> SelectMany<B>(Func<R, EitherRight<B>> f) =>
@@ -116,8 +117,7 @@ namespace LanguageExt
             Value?.GetHashCode() ?? 0;
 
         [Pure]
-        public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) &&
+        public override bool Equals(object? obj) =>
             obj is EitherRight<R> other &&
             Equals(other);
 
@@ -170,11 +170,11 @@ namespace LanguageExt
             default(OrdDefault<R>).Compare(Value, other.Value);
 
         [Pure]
-        public int CompareTo(R other) =>
+        public int CompareTo(R? other) =>
             default(OrdDefault<R>).Compare(Value, other);
 
         [Pure]
-        public bool Equals(R other) =>
+        public bool Equals(R? other) =>
             default(EqDefault<R>).Equals(Value, other);
 
         [Pure]
@@ -232,7 +232,7 @@ namespace LanguageExt
             f(Value);
 
         [Pure]
-        public TResult MatchUntyped<TResult>(Func<object, TResult> Right, Func<object, TResult> Left) =>
+        public Res? MatchUntyped<Res>(Func<object?, Res?> Right, Func<object?, Res?> Left) =>
             Right(Value);
 
         [Pure]

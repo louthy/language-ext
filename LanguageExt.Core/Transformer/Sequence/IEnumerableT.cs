@@ -228,7 +228,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<Validation<MonoidFail, Fail, B>> Sequence<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, A> ta, Func<A, IEnumerable<B>> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+            where MonoidFail : Monoid<Fail>, Eq<Fail> =>
             ta.Map(f).Traverse(Prelude.identity);
          
         /// <summary>

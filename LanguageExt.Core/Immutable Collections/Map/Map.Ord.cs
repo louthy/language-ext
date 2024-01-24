@@ -1,8 +1,6 @@
 ﻿using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
 using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -26,18 +24,18 @@ namespace LanguageExt
         IEquatable<Map<OrdK, K, V>>,
         IComparable<Map<OrdK, K, V>>,
         IComparable
-        where OrdK : struct, Ord<K>
+        where OrdK : Ord<K>
     {
         readonly MapInternal<OrdK, K, V> value;
 
         internal static Map<OrdK, K, V> Wrap(MapInternal<OrdK, K, V> map) =>
-            new Map<OrdK, K, V>(map);
+            new (map);
 
         public Map(IEnumerable<(K Key, V Value)> items) : this(items, true)
         { }
 
         public Map(IEnumerable<(K Key, V Value)> items, bool tryAdd) =>
-            this.value = new MapInternal<OrdK, K, V>(items, tryAdd
+            value = new MapInternal<OrdK, K, V>(items, tryAdd
                 ? MapModuleM.AddOpt.TryAdd
                 : MapModuleM.AddOpt.ThrowOnDuplicate);
 
@@ -69,7 +67,7 @@ namespace LanguageExt
         /// 
         /// </remarks>
         [Pure]
-        public object Case =>
+        public object? Case =>
             IsEmpty 
                 ? null
                 : toSeq(this).Case;
@@ -725,7 +723,7 @@ namespace LanguageExt
         /// Equality of keys and values with `EqDefault<V>` used for values
         /// </summary>
         [Pure]
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is Map<OrdK, K, V> m && Equals(m);
 
         /// <summary>
@@ -739,7 +737,7 @@ namespace LanguageExt
         /// Equality of keys and values
         /// </summary>
         [Pure]
-        public bool Equals<EqV>(Map<OrdK, K, V> y) where EqV : struct, Eq<V> =>
+        public bool Equals<EqV>(Map<OrdK, K, V> y) where EqV : Eq<V> =>
             Value.Equals<EqV>(y.Value);
 
         /// <summary>
@@ -765,7 +763,7 @@ namespace LanguageExt
         /// </returns>
         public Map<OrdK, K, V> Do(Action<V> f)
         {
-            this.Iter(f);
+            Iter(f);
             return this;
         }
 
@@ -776,7 +774,7 @@ namespace LanguageExt
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Map<OrdK, K, U> Select<U>(Func<V, U> mapper) =>
-            new Map<OrdK, K, U>(MapModule.Map(Value.Root, mapper), Value.Rev);
+            new (MapModule.Map(Value.Root, mapper), Value.Rev);
 
         /// <summary>
         /// Atomically maps the map to a new map
@@ -785,7 +783,7 @@ namespace LanguageExt
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Map<OrdK, K, U> Select<U>(Func<K, V, U> mapper) =>
-            new Map<OrdK, K, U>(MapModule.Map(Value.Root, mapper), Value.Rev);
+            new (MapModule.Map(Value.Root, mapper), Value.Rev);
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -795,7 +793,7 @@ namespace LanguageExt
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Map<OrdK, K, V> Where(Func<V, bool> valuePred) =>
-            new Map<OrdK, K, V>(Value.Filter(valuePred));
+            new (Value.Filter(valuePred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -805,7 +803,7 @@ namespace LanguageExt
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Map<OrdK, K, V> Where(Func<K, V, bool> keyValuePred) =>
-            new Map<OrdK, K, V>(Value.Filter(keyValuePred));
+            new (Value.Filter(keyValuePred));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -1165,7 +1163,7 @@ namespace LanguageExt
         /// Compare keys and values (values use `OrdV` for ordering)
         /// </summary>
         [Pure]
-        public int CompareTo<OrdV>(Map<OrdK, K, V> other) where OrdV : struct, Ord<V> =>
+        public int CompareTo<OrdV>(Map<OrdK, K, V> other) where OrdV : Ord<V> =>
             Value.CompareTo<OrdV>(other.Value);
 
         /// <summary>

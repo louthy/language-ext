@@ -51,15 +51,15 @@ namespace LanguageExt
     internal static class Version
     {
         public static Version<Actor, K, V> ToVersion<ConflictV, OrdActor, Actor, K, V>(this VersionVector<ConflictV, OrdActor, TLong, Actor, long, V> vector, K key)
-            where OrdActor   : struct, Ord<Actor>
-            where ConflictV : struct, Conflict<V> =>
+            where OrdActor   : Ord<Actor>
+            where ConflictV : Conflict<V> =>
             vector.Value.IsSome
                 ? new VersionValueVector<ConflictV, OrdActor, Actor, K, V>(key, vector)
                 : new VersionDeletedVector<ConflictV, OrdActor, Actor, K, V>(key, vector);
 
         public static VersionVector<ConflictV, OrdActor, TLong, Actor, long, V>? ToVector<ConflictV, OrdActor, Actor, K, V>(this Version<Actor, K, V> version)
-            where OrdActor : struct, Ord<Actor>
-            where ConflictV : struct, Conflict<V> =>
+            where OrdActor : Ord<Actor>
+            where ConflictV : Conflict<V> =>
             version switch
             {
                 VersionValueVector<ConflictV, OrdActor, Actor, K, V> vv   => vv.Vector,
@@ -103,8 +103,8 @@ namespace LanguageExt
     /// <typeparam name="Actor">Actor type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
     internal record VersionNeverExistedVector<ConflictV, OrdActor, Actor, K, V>(K Key) : VersionNone<Actor, K, V>(Key)
-        where OrdActor  : struct, Ord<Actor>
-        where ConflictV : struct, Conflict<V>
+        where OrdActor  : Ord<Actor>
+        where ConflictV : Conflict<V>
     {
         public static Version<Actor, K, V> New(K key) => new VersionNeverExistedVector<ConflictV, OrdActor, Actor, K, V>(key);
 
@@ -134,8 +134,8 @@ namespace LanguageExt
     /// <typeparam name="Actor">Actor type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
     internal record VersionDeletedVector<ConflictV, OrdActor, Actor, K, V>(K Key, VersionVector<ConflictV, OrdActor, TLong, Actor, long, V> Vector) : VersionNone<Actor, K, V>(Key)
-        where OrdActor : struct, Ord<Actor>
-        where ConflictV : struct, Conflict<V>
+        where OrdActor : Ord<Actor>
+        where ConflictV : Conflict<V>
     {
         /// <summary>
         /// Perform a write to the vector.  This increases the vector-clock by 1 for the `actor` provided.
@@ -159,8 +159,8 @@ namespace LanguageExt
     /// <typeparam name="V">Value type</typeparam>
     internal record VersionValueVector<ConflictV, OrdActor, Actor, K, V>(K Key, VersionVector<ConflictV, OrdActor, TLong, Actor, long, V> Vector) : 
         VersionSome<Actor, K, V>(Key, Vector.Value.Value ?? throw new ArgumentNullException(nameof(Vector.Value.Value)))
-        where OrdActor : struct, Ord<Actor>
-        where ConflictV : struct, Conflict<V>
+        where OrdActor : Ord<Actor>
+        where ConflictV : Conflict<V>
     {
         /// <summary>
         /// Perform a write to the vector.  This increases the vector-clock by 1 for the `actor` provided.

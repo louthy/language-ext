@@ -72,7 +72,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
         [Pure]
-        public static TryOption<A> add<NUM, A>(TryOption<A> lhs, TryOption<A> rhs) where NUM : struct, Num<A> =>
+        public static TryOption<A> add<NUM, A>(TryOption<A> lhs, TryOption<A> rhs) where NUM : Num<A> =>
             lhs.Add<NUM, A>(rhs);
     
         /// <summary>
@@ -87,7 +87,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public static TryOption<T> subtract<NUM, T>(TryOption<T> lhs, TryOption<T> rhs) where NUM : struct, Num<T> =>
+        public static TryOption<T> subtract<NUM, T>(TryOption<T> lhs, TryOption<T> rhs) where NUM : Num<T> =>
             lhs.Subtract<NUM, T>(rhs);
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         [Pure]
-        public static TryOption<T> product<NUM, T>(TryOption<T> lhs, TryOption<T> rhs) where NUM : struct, Num<T> =>
+        public static TryOption<T> product<NUM, T>(TryOption<T> lhs, TryOption<T> rhs) where NUM : Num<T> =>
             lhs.Product<NUM, T>(rhs);
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static TryOption<T> divide<NUM, T>(TryOption<T> lhs, TryOption<T> rhs) where NUM : struct, Num<T> =>
+        public static TryOption<T> divide<NUM, T>(TryOption<T> lhs, TryOption<T> rhs) where NUM : Num<T> =>
             lhs.Divide<NUM, T>(rhs);
 
         /// <summary>

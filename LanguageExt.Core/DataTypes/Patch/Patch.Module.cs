@@ -31,14 +31,14 @@ namespace LanguageExt
         /// Convert a list of edits to a patch, making sure to eliminate conflicting edits 
         /// and sorting by index.
         /// </summary>
-        public static Patch<EqA, A> unsafeFromSeq<EqA, A>(Seq<Edit<EqA, A>> edits) where EqA : struct, Eq<A> =>
+        public static Patch<EqA, A> unsafeFromSeq<EqA, A>(Seq<Edit<EqA, A>> edits) where EqA : Eq<A> =>
             new Patch<EqA, A>(edits);
 
         /// <summary>
         /// Convert a list of edits to a patch, making sure to eliminate conflicting edits 
         /// and sorting by index.
         /// </summary>
-        public static Patch<EqA, A> fromSeq<EqA, A>(Seq<Edit<EqA, A>> edits) where EqA : struct, Eq<A> =>
+        public static Patch<EqA, A> fromSeq<EqA, A>(Seq<Edit<EqA, A>> edits) where EqA : Eq<A> =>
             new Patch<EqA, A>(
                 toSeq((from es in normalise(edits)
                        group es by es.Position into eg
@@ -49,7 +49,7 @@ namespace LanguageExt
         /// <summary>
         /// Internal: Eliminate conflicting edits
         /// </summary>
-        internal static Seq<Edit<EqA, A>> normalise<EqA, A>(Seq<Edit<EqA, A>> edits) where EqA : struct, Eq<A>
+        internal static Seq<Edit<EqA, A>> normalise<EqA, A>(Seq<Edit<EqA, A>> edits) where EqA : Eq<A>
         {
             var (inss, dels, repls) = partition3(edits);
             return normalise1(inss, dels, repls);
@@ -91,13 +91,13 @@ namespace LanguageExt
         /// Monoid append: produces a patch is a merged version of both provided
         /// patches.  
         /// </summary>
-        public static Patch<EqA, A> append<EqA, A>(Patch<EqA, A> px, Patch<EqA, A> py) where EqA : struct, Eq<A> =>
+        public static Patch<EqA, A> append<EqA, A>(Patch<EqA, A> px, Patch<EqA, A> py) where EqA : Eq<A> =>
             default(MPatch<EqA, A>).Append(px, py);
 
         /// <summary>
         /// Compute the inverse of a patch
         /// </summary>
-        public static Patch<EqA, A> inverse<EqA, A>(Patch<EqA, A> patch) where EqA : struct, Eq<A>
+        public static Patch<EqA, A> inverse<EqA, A>(Patch<EqA, A> patch) where EqA : Eq<A>
         {
             return new Patch<EqA, A>(PatchInternal.mapAccumL(go, 0, patch.Edits).Item2);
             
@@ -115,7 +115,7 @@ namespace LanguageExt
         /// Returns true if a patch can be safely applied to a document, that is,
         /// `applicable(p, d)` holds when `d` is a valid source document for the patch `p`.
         /// </summary>
-        public static bool applicable<EqA, A>(Patch<EqA, A> pa, IEnumerable<A> va) where EqA : struct, Eq<A>
+        public static bool applicable<EqA, A>(Patch<EqA, A> pa, IEnumerable<A> va) where EqA : Eq<A>
         {
             var i = SpanArray<A>.New(va);
 
@@ -136,7 +136,7 @@ namespace LanguageExt
         /// Returns true if a patch can be validly composed with another.
         /// That is, `composable(p, q)` holds if `q` can be validly applied after `p`.
         /// </summary>
-        public static bool composable<EqA, A>(Patch<EqA, A> pa, Patch<EqA, A> pb) where EqA : struct, Eq<A>
+        public static bool composable<EqA, A>(Patch<EqA, A> pa, Patch<EqA, A> pb) where EqA : Eq<A>
         {
             return go(pa.Edits, pb.Edits, 0);
             
@@ -207,7 +207,7 @@ namespace LanguageExt
         /// <summary>
         /// Build the default parameters for building a patch
         /// </summary>
-        static PatchParams<A, Edit<EqA, A>, int> parms<EqA, A>() where EqA : struct, Eq<A> =>
+        static PatchParams<A, Edit<EqA, A>, int> parms<EqA, A>() where EqA : Eq<A> =>
             new PatchParams<A, Edit<EqA, A>, int>(
                 default(EqA).Equals,
                 Edit<EqA, A>.Delete.New,
@@ -220,7 +220,7 @@ namespace LanguageExt
         /// Returns the delta of the document's size when a patch is applied.
         /// Essentially the number of `Insert` minus the number of `Delete`.
         /// </summary>
-        public static int sizeChange<EqA, A>(Patch<EqA, A> patch) where EqA : struct, Eq<A>
+        public static int sizeChange<EqA, A>(Patch<EqA, A> patch) where EqA : Eq<A>
         {
             var count = 0;
             foreach (var item in patch.Edits)
@@ -241,43 +241,43 @@ namespace LanguageExt
         /// <summary>
         /// Apply a patch to a document, returning the transformed document.
         /// </summary>
-        public static Lst<A> apply<EqA, A>(Patch<EqA, A> patch, Lst<A> va) where EqA : struct, Eq<A> =>
+        public static Lst<A> apply<EqA, A>(Patch<EqA, A> patch, Lst<A> va) where EqA : Eq<A> =>
             toList(apply(patch, va.AsEnumerable()));
 
         /// <summary>
         /// Apply a patch to a document, returning the transformed document.
         /// </summary>
-        public static Seq<A> apply<EqA, A>(Patch<EqA, A> patch, Seq<A> va) where EqA : struct, Eq<A> =>
+        public static Seq<A> apply<EqA, A>(Patch<EqA, A> patch, Seq<A> va) where EqA : Eq<A> =>
             toSeq(apply(patch, va.AsEnumerable()));
 
         /// <summary>
         /// Apply a patch to a document, returning the transformed document.
         /// </summary>
-        public static Arr<A> apply<EqA, A>(Patch<EqA, A> patch, Arr<A> va) where EqA : struct, Eq<A> =>
+        public static Arr<A> apply<EqA, A>(Patch<EqA, A> patch, Arr<A> va) where EqA : Eq<A> =>
             apply(patch, va.AsEnumerable()).ToArr();
 
         /// <summary>
         /// Apply a patch to a document, returning the transformed document.
         /// </summary>
-        public static A[] apply<EqA, A>(Patch<EqA, A> patch, A[] va) where EqA : struct, Eq<A> =>
+        public static A[] apply<EqA, A>(Patch<EqA, A> patch, A[] va) where EqA : Eq<A> =>
             apply(patch, va.AsEnumerable()).ToArray();
 
         /// <summary>
         /// Apply a patch to a document, returning the transformed document.
         /// </summary>
-        public static SpanArray<A> apply<EqA, A>(Patch<EqA, A> patch, SpanArray<A> va) where EqA : struct, Eq<A> =>
+        public static SpanArray<A> apply<EqA, A>(Patch<EqA, A> patch, SpanArray<A> va) where EqA : Eq<A> =>
             SpanArray<A>.New(apply(patch, va.AsEnumerable()));
 
         /// <summary>
         /// Apply a patch to a document, returning the transformed document.
         /// </summary>
-        public static List<A> apply<EqA, A>(Patch<EqA, A> patch, List<A> va) where EqA : struct, Eq<A> =>
+        public static List<A> apply<EqA, A>(Patch<EqA, A> patch, List<A> va) where EqA : Eq<A> =>
             new List<A>(apply(patch, va.AsEnumerable()));
 
         /// <summary>
         /// Apply a patch to a document, returning the transformed document.
         /// </summary>
-        public static IEnumerable<A> apply<EqA, A>(Patch<EqA, A> patch, IEnumerable<A> va) where EqA : struct, Eq<A>
+        public static IEnumerable<A> apply<EqA, A>(Patch<EqA, A> patch, IEnumerable<A> va) where EqA : Eq<A>
         {
             if (patch.Edits.Count == 0) return va;
             var i = SpanArray<A>.New(va);
@@ -345,7 +345,7 @@ namespace LanguageExt
         /// <summary>
         /// Empty patch
         /// </summary>
-        public static Patch<EqA, A> empty<EqA, A>() where EqA : struct, Eq<A> =>
+        public static Patch<EqA, A> empty<EqA, A>() where EqA : Eq<A> =>
             Patch<EqA, A>.Empty;
 
         /// <summary>
@@ -364,7 +364,7 @@ namespace LanguageExt
         /// A convenience version of `transformWith` which resolves conflicts using `append`.
         /// </summary>
         public static (Patch<MonoidEqA, A> a, Patch<MonoidEqA, A> b) transform<MonoidEqA, A>(Patch<MonoidEqA, A> p, Patch<MonoidEqA, A> q)
-            where MonoidEqA : struct, Monoid<A>, Eq<A> =>
+            where MonoidEqA : Monoid<A>, Eq<A> =>
                 transformWith(default(MonoidEqA).Append, p, q);
 
         /// <summary>
@@ -378,7 +378,7 @@ namespace LanguageExt
         /// patch resolution techniques, and can be thought of as the pushout
         /// of two diverging patches within the patch groupoid.
         /// </summary>
-        public static (Patch<EqA, A> a, Patch<EqA, A> b) transformWith<EqA, A>(Func<A, A, A> conflict, Patch<EqA, A> p, Patch<EqA, A> q) where EqA : struct, Eq<A>
+        public static (Patch<EqA, A> a, Patch<EqA, A> b) transformWith<EqA, A>(Func<A, A, A> conflict, Patch<EqA, A> p, Patch<EqA, A> q) where EqA : Eq<A>
         {
             var (pi, qi) = go(p.Edits, 0, q.Edits, 0, conflict);
             return (new Patch<EqA, A>(pi), new Patch<EqA, A>(qi));
@@ -490,7 +490,7 @@ namespace LanguageExt
         ///     applicable(diff(a, b) a)
         /// 
         /// </summary>
-        public static Patch<EqA, A> diff<EqA, A>(IEnumerable<A> va, IEnumerable<A> vb) where EqA : struct, Eq<A>
+        public static Patch<EqA, A> diff<EqA, A>(IEnumerable<A> va, IEnumerable<A> vb) where EqA : Eq<A>
         {
             var (_, s) = PatchInternal.leastChanges<TInt, A, Edit<EqA, A>, int>(parms<EqA, A>(), SpanArray<A>.New(va), SpanArray<A>.New(vb));
             return new Patch<EqA, A>(adjust(0, s));

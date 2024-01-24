@@ -13,7 +13,7 @@ namespace LanguageExt
     public static partial class ValidationT
     {
         public static Validation<MonoidFail, Fail, Arr<B>> Traverse<MonoidFail, Fail, A, B>(this Arr<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             var res = new B[ma.Count];
             var errs = default(MonoidFail).Empty();
@@ -39,7 +39,7 @@ namespace LanguageExt
         }
         
         public static Validation<MonoidFail, Fail, Either<Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Either<Fail, Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsLeft)
             {
@@ -60,7 +60,7 @@ namespace LanguageExt
         }
         
         public static Validation<MonoidFail, Fail, EitherUnsafe<Fail, B>> Traverse<MonoidFail, Fail, A, B>(this EitherUnsafe<Fail, Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsLeft)
             {
@@ -81,7 +81,7 @@ namespace LanguageExt
         }
         
         public static Validation<MonoidFail, Fail, HashSet<B>> Traverse<MonoidFail, Fail, A, B>(this HashSet<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             var res = new B[ma.Count];
             var errs = default(MonoidFail).Empty();
@@ -107,7 +107,7 @@ namespace LanguageExt
         }
 
         public static Validation<MonoidFail, Fail, Identity<B>> Traverse<MonoidFail, Fail, A, B>(this Identity<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             if (ma.Value.IsFail)
             {
@@ -120,7 +120,7 @@ namespace LanguageExt
         }
 
         public static Validation<MonoidFail, Fail, Lst<B>> Traverse<MonoidFail, Fail, A, B>(this Lst<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             var res = new B[ma.Count];
             var errs = default(MonoidFail).Empty();
@@ -146,7 +146,7 @@ namespace LanguageExt
         }
         
         public static Validation<MonoidFail, Fail, Fin<B>> Traverse<MonoidFail, Fail, A, B>(this Fin<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail)
             {
@@ -167,7 +167,7 @@ namespace LanguageExt
         }        
         
         public static Validation<MonoidFail, Fail, Option<B>> Traverse<MonoidFail, Fail, A, B>(this Option<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsNone)
             {
@@ -188,7 +188,7 @@ namespace LanguageExt
         }        
         
         public static Validation<MonoidFail, Fail, OptionUnsafe<B>> Traverse<MonoidFail, Fail, A, B>(this OptionUnsafe<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsNone)
             {
@@ -209,7 +209,7 @@ namespace LanguageExt
         }        
         
         public static Validation<MonoidFail, Fail, Que<B>> Traverse<MonoidFail, Fail, A, B>(this Que<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             var res = new B[ma.Count];
             var errs = default(MonoidFail).Empty();
@@ -235,7 +235,7 @@ namespace LanguageExt
         }
         
         public static Validation<MonoidFail, Fail, Seq<B>> Traverse<MonoidFail, Fail, A, B>(this Seq<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             var res = new B[ma.Count];
             var errs = default(MonoidFail).Empty();
@@ -261,7 +261,7 @@ namespace LanguageExt
         }
                 
         public static Validation<MonoidFail, Fail, IEnumerable<B>> Traverse<MonoidFail, Fail, A, B>(this IEnumerable<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             var res = new List<B>();
             var errs = default(MonoidFail).Empty();
@@ -285,7 +285,7 @@ namespace LanguageExt
         }
         
         public static Validation<MonoidFail, Fail, Set<B>> Traverse<MonoidFail, Fail, A, B>(this Set<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             var res = new B[ma.Count];
             var errs = default(MonoidFail).Empty();
@@ -311,7 +311,7 @@ namespace LanguageExt
         }
         
         public static Validation<MonoidFail, Fail, Stck<B>> Traverse<MonoidFail, Fail, A, B>(this Stck<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             var res = new B[ma.Count];
             var errs = default(MonoidFail).Empty();
@@ -337,7 +337,7 @@ namespace LanguageExt
         }
         
         public static Validation<MonoidFail, Fail, Try<B>> Traverse<MonoidFail, Fail, A, B>(this Try<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             var tres = ma.Try();
             
@@ -356,7 +356,7 @@ namespace LanguageExt
         }
         
         public static Validation<MonoidFail, Fail, TryOption<B>> Traverse<MonoidFail, Fail, A, B>(this TryOption<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             var tres = ma.Try();
             
@@ -379,7 +379,7 @@ namespace LanguageExt
         }
         
         public static Validation<MonoidFail, Fail, Validation<Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<Fail, Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail)
             {
@@ -400,7 +400,7 @@ namespace LanguageExt
         }
         
         public static Validation<MonoidFail, Fail, Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Validation<MonoidFail, Fail, A>> ma, Func<A, B> f) 
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail)
             {
@@ -421,7 +421,7 @@ namespace LanguageExt
         }
         
         public static Validation<MonoidFail, Fail, Eff<B>> Traverse<MonoidFail, Fail, A, B>(this Eff<Validation<MonoidFail, Fail, A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             var tres = ma.Run();
             

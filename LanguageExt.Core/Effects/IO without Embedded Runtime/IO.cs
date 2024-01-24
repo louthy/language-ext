@@ -1047,7 +1047,7 @@ public readonly struct IO<E, A> : KArr<Any, MinRT<E>, Sum<E, A>>
     /// Convert to an `IO` monad that has a runtime
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public IO<RT, E, A> WithRuntime<RT>() where RT : struct, HasIO<RT, E> =>
+    public IO<RT, E, A> WithRuntime<RT>() where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Lift(Transducer.compose(MinRT<E>.convert<RT>(), Morphism));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

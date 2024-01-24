@@ -76,7 +76,7 @@ namespace LanguageExt.ClassInstances
             ma.BiFoldAsync(state, fb, fa);
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(EitherAsync<L, R> ma, Func<R, MB> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B> =>
+        public MB Bind<MONADB, MB, B>(EitherAsync<L, R> ma, Func<R, MB> f) where MONADB : MonadAsync<Unit, Unit, MB, B> =>
             default(MONADB).RunAsync(_ =>
                 ma.Match(
                     Left: l => default(MONADB).Fail(l),
@@ -84,7 +84,7 @@ namespace LanguageExt.ClassInstances
                     Bottom: () => default(MONADB).Fail(BottomException.Default)));
 
         [Pure]
-        public MB BindAsync<MONADB, MB, B>(EitherAsync<L, R> ma, Func<R, Task<MB>> f) where MONADB : struct, MonadAsync<Unit, Unit, MB, B>
+        public MB BindAsync<MONADB, MB, B>(EitherAsync<L, R> ma, Func<R, Task<MB>> f) where MONADB : MonadAsync<Unit, Unit, MB, B>
         {
             Task<MB> Do(Unit _) =>
                 ma.MatchAsync(

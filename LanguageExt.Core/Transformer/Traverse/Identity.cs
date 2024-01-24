@@ -149,7 +149,7 @@ namespace LanguageExt
                 Fail: e => new Identity<Validation<Fail, B>>(Validation<Fail, B>.Fail(e)));
         
         public static Identity<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Identity<A>> ma, Func<A, B> f) 
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+            where MonoidFail : Monoid<Fail>, Eq<Fail> =>
             ma.Match(
                 Succ: x => new Identity<Validation<MonoidFail, Fail, B>>(f(x.Value)),
                 Fail: e => new Identity<Validation<MonoidFail, Fail, B>>(Validation<MonoidFail, Fail, B>.Fail(e)));

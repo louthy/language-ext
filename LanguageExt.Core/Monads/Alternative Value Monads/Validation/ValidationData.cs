@@ -8,7 +8,7 @@ namespace LanguageExt.DataTypes.Serialisation
     [Serializable]
     public class ValidationData<MonoidFail, FAIL, SUCCESS> : 
         Record<ValidationData<MonoidFail, FAIL, SUCCESS>>
-        where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL>
+        where MonoidFail : Monoid<FAIL>, Eq<FAIL>
     {
         public readonly Validation.StateType State;
         public readonly SUCCESS Success;

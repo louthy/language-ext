@@ -2421,7 +2421,7 @@ public static class TryOptionAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>1 if lhs > rhs, 0 if lhs == rhs, -1 if lhs < rhs</returns>
     [Pure]
-    public static async Task<int> Compare<ORD, A>(this TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where ORD : struct, Ord<A> 
+    public static async Task<int> Compare<ORD, A>(this TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where ORD : Ord<A> 
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -2444,7 +2444,7 @@ public static class TryOptionAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs ++ rhs</returns>
     [Pure]
-    public static TryOptionAsync<A> Append<SEMI, A>(this TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where SEMI : struct, Semigroup<A> => Memo<A>(async () =>
+    public static TryOptionAsync<A> Append<SEMI, A>(this TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where SEMI : Semigroup<A> => Memo<A>(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -2462,7 +2462,7 @@ public static class TryOptionAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOptionAsync<A> Add<NUM, A>(this TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where NUM : struct, Num<A> => Memo<A>(async () =>
+    public static TryOptionAsync<A> Add<NUM, A>(this TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where NUM : Num<A> => Memo<A>(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -2480,7 +2480,7 @@ public static class TryOptionAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOptionAsync<A> Subtract<NUM, A>(this TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where NUM : struct, Num<A> => Memo<A>(async () =>
+    public static TryOptionAsync<A> Subtract<NUM, A>(this TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where NUM : Num<A> => Memo<A>(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -2498,7 +2498,7 @@ public static class TryOptionAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOptionAsync<A> Product<NUM, A>(this TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where NUM : struct, Num<A> => Memo<A>(async () =>
+    public static TryOptionAsync<A> Product<NUM, A>(this TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where NUM : Num<A> => Memo<A>(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -2516,7 +2516,7 @@ public static class TryOptionAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOptionAsync<A> Divide<NUM, A>(this TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where NUM : struct, Num<A> => Memo<A>(async () =>
+    public static TryOptionAsync<A> Divide<NUM, A>(this TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where NUM : Num<A> => Memo<A>(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();

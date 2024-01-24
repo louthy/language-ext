@@ -1046,14 +1046,14 @@ public readonly struct Eff<A> : KArr<Any, MinRT, Sum<Error, A>>
     /// </summary>
     [Pure]
     [MethodImpl(Opt.Default)]
-    public IO<RT, Error, A> ToIO<RT>() where RT : struct, HasIO<RT, Error> =>
+    public IO<RT, Error, A> ToIO<RT>() where RT : HasIO<RT, Error> =>
         IO<RT, Error, A>.Lift(Transducer.compose(MinRT.convert<RT>(), Morphism));
 
     /// <summary>
     /// Convert to an `Eff` monad that has a runtime
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, A> WithRuntime<RT>() where RT : struct, HasIO<RT, Error> =>
+    public Eff<RT, A> WithRuntime<RT>() where RT : HasIO<RT, Error> =>
         Eff<RT, A>.Lift(Transducer.compose(MinRT.convert<RT>(), Morphism));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

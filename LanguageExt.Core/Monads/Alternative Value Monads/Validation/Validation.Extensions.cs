@@ -18,7 +18,7 @@ namespace LanguageExt
         public static Validation<MonoidFail, FAIL, B> Apply<MonoidFail, FAIL, A, B>(
             this Validation<MonoidFail, FAIL, Func<A, B>> mf, 
             Validation<MonoidFail, FAIL, A> ma) 
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             mf.Disjunction(ma).Map(_ => mf.SuccessValue(ma.SuccessValue));
         
         /// <summary>
@@ -33,7 +33,7 @@ namespace LanguageExt
             this Validation<MonoidFail, FAIL, Func<A, B, C>> mf, 
             Validation<MonoidFail, FAIL, A> ma, 
             Validation<MonoidFail, FAIL, B> mb)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             mf.Disjunction(ma)
               .Disjunction(mb)
               .Map(_ => mf.SuccessValue(ma.SuccessValue, mb.SuccessValue));
@@ -49,7 +49,7 @@ namespace LanguageExt
         public static Validation<MonoidFail, FAIL, Func<B, C>> Apply<MonoidFail, FAIL, A, B, C>(
             this Validation<MonoidFail, FAIL, Func<A, B, C>> mf, 
             Validation<MonoidFail, FAIL, A> ma) 
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             mf.Disjunction(ma)
               .Map(_ => curry(mf.SuccessValue)(ma.SuccessValue));
 
@@ -63,7 +63,7 @@ namespace LanguageExt
         public static Validation<MonoidFail, FAIL, B> Apply<MonoidFail, FAIL, A, B>(
             this Func<A, B> mf, 
             Validation<MonoidFail, FAIL, A> ma) 
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             ma.Map(mf);
         
         /// <summary>
@@ -78,7 +78,7 @@ namespace LanguageExt
             this  Func<A, B, C> mf, 
             Validation<MonoidFail, FAIL, A> ma, 
             Validation<MonoidFail, FAIL, B> mb)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             ma.Disjunction(mb)
               .Map(_ => mf(ma.SuccessValue, mb.SuccessValue));
         
@@ -93,7 +93,7 @@ namespace LanguageExt
         public static Validation<MonoidFail, FAIL, Func<B, C>> Apply<MonoidFail, FAIL, A, B, C>(
             this Func<A, B, C> mf, 
             Validation<MonoidFail, FAIL, A> ma) 
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             ma.Map(a => curry(mf)(a));
         
         
@@ -107,7 +107,7 @@ namespace LanguageExt
         public static Validation<MonoidFail, FAIL, B> ApplyM<MonoidFail, FAIL, A, B>(
             this Validation<MonoidFail, FAIL, Func<A, Validation<MonoidFail, FAIL, B>>> mf, 
             Validation<MonoidFail, FAIL, A> ma) 
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             mf.Disjunction(ma).Bind(_ => mf.SuccessValue(ma.SuccessValue));
         
         /// <summary>
@@ -122,7 +122,7 @@ namespace LanguageExt
             this Validation<MonoidFail, FAIL, Func<A, B, Validation<MonoidFail, FAIL, C>>> mf, 
             Validation<MonoidFail, FAIL, A> ma, 
             Validation<MonoidFail, FAIL, B> mb)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             mf.Disjunction(ma)
               .Disjunction(mb)
               .Bind(_ => mf.SuccessValue(ma.SuccessValue, mb.SuccessValue));
@@ -138,7 +138,7 @@ namespace LanguageExt
         public static Validation<MonoidFail, FAIL, Func<B, Validation<MonoidFail, FAIL, C>>> ApplyM<MonoidFail, FAIL, A, B, C>(
             this Validation<MonoidFail, FAIL, Func<A, B, Validation<MonoidFail, FAIL, C>>> mf, 
             Validation<MonoidFail, FAIL, A> ma) 
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             mf.Disjunction(ma)
               .Map(_ => curry(mf.SuccessValue)(ma.SuccessValue));
 
@@ -152,7 +152,7 @@ namespace LanguageExt
         public static Validation<MonoidFail, FAIL, B> ApplyM<MonoidFail, FAIL, A, B>(
             this Func<A, Validation<MonoidFail, FAIL, B>> mf, 
             Validation<MonoidFail, FAIL, A> ma) 
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             ma.Bind(mf);
         
         /// <summary>
@@ -167,7 +167,7 @@ namespace LanguageExt
             this  Func<A, B, Validation<MonoidFail, FAIL, C>> mf, 
             Validation<MonoidFail, FAIL, A> ma, 
             Validation<MonoidFail, FAIL, B> mb)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             ma.Disjunction(mb)
               .Bind(_ => mf(ma.SuccessValue, mb.SuccessValue));
         
@@ -182,7 +182,7 @@ namespace LanguageExt
         public static Validation<MonoidFail, FAIL, Func<B, Validation<MonoidFail, FAIL,C>>> ApplyM<MonoidFail, FAIL, A, B, C>(
             this Func<A, B, Validation<MonoidFail, FAIL, C>> mf, 
             Validation<MonoidFail, FAIL, A> ma) 
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             ma.Map(a => curry(mf)(a));
         
         /// <summary>
@@ -191,7 +191,7 @@ namespace LanguageExt
         [Pure]
         public static Validation<MonoidFail, FAIL, SUCCESS> Flatten<MonoidFail, FAIL, SUCCESS>(
             this Validation<MonoidFail, FAIL, Validation<MonoidFail, FAIL, SUCCESS>> self)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             self.Bind(identity);
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace LanguageExt
         /// <returns>Enumerable of successes</returns>
         [Pure]
         public static IEnumerable<S> Successes<MonoidF, F, S>(this IEnumerable<Validation<MonoidF, F, S>> vs)
-            where MonoidF : struct, Monoid<F>, Eq<F> 
+            where MonoidF : Monoid<F>, Eq<F> 
         {
             foreach(var v in vs)
             {
@@ -220,7 +220,7 @@ namespace LanguageExt
         /// <returns>Enumerable of failures</returns>
         [Pure]
         public static IEnumerable<F> Fails<MonoidF, F, S>(this IEnumerable<Validation<MonoidF, F, S>> vs)
-            where MonoidF : struct, Monoid<F>, Eq<F> 
+            where MonoidF : Monoid<F>, Eq<F> 
         {
             foreach(var v in vs)
             {
@@ -237,7 +237,7 @@ namespace LanguageExt
         /// <returns>Enumerable of successes</returns>
         [Pure]
         public static Seq<S> Successes<MonoidF, F, S>(this Seq<Validation<MonoidF, F, S>> vs)
-            where MonoidF : struct, Monoid<F>, Eq<F> =>
+            where MonoidF : Monoid<F>, Eq<F> =>
             toSeq(Successes(vs.AsEnumerable()));
 
         /// <summary>
@@ -249,12 +249,12 @@ namespace LanguageExt
         /// <returns>Enumerable of failures</returns>
         [Pure]
         public static Seq<F> Fails<MonoidF, F, S>(this Seq<Validation<MonoidF, F, S>> vs)
-            where MonoidF : struct, Monoid<F>, Eq<F> => 
+            where MonoidF : Monoid<F>, Eq<F> => 
             toSeq(Fails(vs.AsEnumerable()));
         
 
         public static Validation<MonoidFail, FAIL, R> Apply<MonoidFail, FAIL, A, R>(this ValueTuple<Validation<MonoidFail, FAIL, A>> items, Func<A, R> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             items.Item1.Match(
                 Succ: s => f(s),
                 Fail: e => Validation<MonoidFail, FAIL, R>.Fail(e));
@@ -264,7 +264,7 @@ namespace LanguageExt
                 Validation<MonoidFail, FAIL, A>,
                 Validation<MonoidFail, FAIL, B>> items,
             Func<A, B, R> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             items.Item1
                  .Disjunction(items.Item2)
                  .Map(_ => f(items.Item1.SuccessValue, items.Item2.SuccessValue));
@@ -276,7 +276,7 @@ namespace LanguageExt
                 Validation<MonoidFail, FAIL, C>
                 > items,
             Func<A, B, C, R> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             items.Item1
                  .Disjunction(items.Item2)
                  .Disjunction(items.Item3)
@@ -294,7 +294,7 @@ namespace LanguageExt
                 Validation<MonoidFail, FAIL, D>
                 > items,
             Func<A, B, C, D, R> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             items.Item1
                  .Disjunction(items.Item2)
                  .Disjunction(items.Item3)
@@ -315,7 +315,7 @@ namespace LanguageExt
                 Validation<MonoidFail, FAIL, E>
                 > items,
             Func<A, B, C, D, E, R> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             items.Item1
                  .Disjunction(items.Item2)
                  .Disjunction(items.Item3)
@@ -339,7 +339,7 @@ namespace LanguageExt
                 Validation<MonoidFail, FAIL, F>
                 > items,
             Func<A, B, C, D, E, F, R> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             items.Item1
                  .Disjunction(items.Item2)
                  .Disjunction(items.Item3)
@@ -366,7 +366,7 @@ namespace LanguageExt
                 Validation<MonoidFail, FAIL, G>
                 > items,
             Func<A, B, C, D, E, F, G, R> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             items.Item1
                  .Disjunction(items.Item2)
                  .Disjunction(items.Item3)
@@ -386,7 +386,7 @@ namespace LanguageExt
         
         
         public static Validation<MonoidFail, FAIL, R> ApplyM<MonoidFail, FAIL, A, R>(this ValueTuple<Validation<MonoidFail, FAIL, A>> items, Func<A, Validation<MonoidFail, FAIL, R>> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             items.Item1.Match(
                 Succ: s => f(s),
                 Fail: e => Validation<MonoidFail, FAIL, R>.Fail(e));
@@ -396,7 +396,7 @@ namespace LanguageExt
                 Validation<MonoidFail, FAIL, A>,
                 Validation<MonoidFail, FAIL, B>> items,
             Func<A, B, Validation<MonoidFail, FAIL, R>> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             items.Item1
                  .Disjunction(items.Item2)
                  .Bind(_ => f(items.Item1.SuccessValue, items.Item2.SuccessValue));
@@ -408,7 +408,7 @@ namespace LanguageExt
                 Validation<MonoidFail, FAIL, C>
                 > items,
             Func<A, B, C, Validation<MonoidFail, FAIL, R>> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             items.Item1
                  .Disjunction(items.Item2)
                  .Disjunction(items.Item3)
@@ -426,7 +426,7 @@ namespace LanguageExt
                 Validation<MonoidFail, FAIL, D>
                 > items,
             Func<A, B, C, D, Validation<MonoidFail, FAIL, R>> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             items.Item1
                  .Disjunction(items.Item2)
                  .Disjunction(items.Item3)
@@ -447,7 +447,7 @@ namespace LanguageExt
                 Validation<MonoidFail, FAIL, E>
                 > items,
             Func<A, B, C, D, E, Validation<MonoidFail, FAIL, R>> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             items.Item1
                  .Disjunction(items.Item2)
                  .Disjunction(items.Item3)
@@ -471,7 +471,7 @@ namespace LanguageExt
                 Validation<MonoidFail, FAIL, F>
                 > items,
             Func<A, B, C, D, E, F, Validation<MonoidFail, FAIL, R>> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             items.Item1
                  .Disjunction(items.Item2)
                  .Disjunction(items.Item3)
@@ -498,7 +498,7 @@ namespace LanguageExt
                 Validation<MonoidFail, FAIL, G>
                 > items,
             Func<A, B, C, D, E, F, G, Validation<MonoidFail, FAIL, R>> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             items.Item1
                  .Disjunction(items.Item2)
                  .Disjunction(items.Item3)

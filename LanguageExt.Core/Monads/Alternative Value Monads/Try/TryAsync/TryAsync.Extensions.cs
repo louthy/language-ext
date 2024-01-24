@@ -1362,7 +1362,7 @@ public static class TryAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>1 if lhs > rhs, 0 if lhs == rhs, -1 if lhs < rhs</returns>
     [Pure]
-    public static async Task<int> Compare<ORD, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where ORD : struct, Ord<A>
+    public static async Task<int> Compare<ORD, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where ORD : Ord<A>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -1385,7 +1385,7 @@ public static class TryAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs ++ rhs</returns>
     [Pure]
-    public static TryAsync<A> Append<SEMI, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where SEMI : struct, Semigroup<A> => Memo(async () =>
+    public static TryAsync<A> Append<SEMI, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where SEMI : Semigroup<A> => Memo(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -1403,7 +1403,7 @@ public static class TryAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Add<ARITH, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where ARITH : struct, Arithmetic<A> => Memo(async () =>
+    public static TryAsync<A> Add<ARITH, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where ARITH : Arithmetic<A> => Memo(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -1421,7 +1421,7 @@ public static class TryAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Subtract<ARITH, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where ARITH : struct, Arithmetic<A> => Memo(async () =>
+    public static TryAsync<A> Subtract<ARITH, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where ARITH : Arithmetic<A> => Memo(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -1439,7 +1439,7 @@ public static class TryAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Product<ARITH, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where ARITH : struct, Arithmetic<A> => Memo(async () =>
+    public static TryAsync<A> Product<ARITH, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where ARITH : Arithmetic<A> => Memo(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -1457,7 +1457,7 @@ public static class TryAsyncExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Divide<NUM, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where NUM : struct, Num<A> => Memo(async () =>
+    public static TryAsync<A> Divide<NUM, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where NUM : Num<A> => Memo(async () =>
     {
         var x = lhs.Try();
         var y = rhs.Try();

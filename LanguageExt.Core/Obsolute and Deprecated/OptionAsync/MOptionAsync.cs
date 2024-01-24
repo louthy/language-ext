@@ -23,14 +23,14 @@ namespace LanguageExt.ClassInstances
         public OptionAsync<A> None => OptionAsync<A>.None;
 
         [Pure]
-        public MB Bind<MonadB, MB, B>(OptionAsync<A> ma, Func<A, MB> f) where MonadB : struct, MonadAsync<Unit, Unit, MB, B> =>
+        public MB Bind<MonadB, MB, B>(OptionAsync<A> ma, Func<A, MB> f) where MonadB : MonadAsync<Unit, Unit, MB, B> =>
             default(MonadB).RunAsync(async _ =>
                 (await ma.IsSome.ConfigureAwait(false))
                     ? f(await ma.Value.ConfigureAwait(false))
                     : default(MonadB).Fail(ValueIsNoneException.Default));
 
         [Pure]
-        public MB BindAsync<MonadB, MB, B>(OptionAsync<A> ma, Func<A, Task<MB>> f) where MonadB : struct, MonadAsync<Unit, Unit, MB, B> =>
+        public MB BindAsync<MonadB, MB, B>(OptionAsync<A> ma, Func<A, Task<MB>> f) where MonadB : MonadAsync<Unit, Unit, MB, B> =>
             default(MonadB).RunAsync(async _ =>
                 (await ma.IsSome.ConfigureAwait(false))
                     ? await f(await ma.Value.ConfigureAwait(false)).ConfigureAwait(false)

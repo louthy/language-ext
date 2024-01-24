@@ -21,7 +21,7 @@ public static class TFork
     /// Convert a `TFork` to a `ForkIO`
     /// </summary>
     public static ForkIO<RT, E, A> ToIO<RT, E, A>(this TFork<Sum<E, A>> fork)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new (IO<RT, E, Unit>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), fork.Cancel)),
              IO<RT, E, A>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), fork.Await)));
     
@@ -36,7 +36,7 @@ public static class TFork
     /// Convert a `TFork` to a `ForkEff`
     /// </summary>
     public static ForkEff<RT, A> ToEff<RT, A>(this TFork<Sum<Error, A>> fork)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new (Eff<RT, Unit>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), fork.Cancel)),
              Eff<RT, A>.Lift(Transducer.compose(Transducer.constant<RT, Unit>(default), fork.Await)));
     

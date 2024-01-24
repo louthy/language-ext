@@ -468,7 +468,7 @@ namespace LanguageExt
         /// </summary>
         [Obsolete("use `atomic` instead of `sync`")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, R> sync<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct, HasIO<RT, Error> =>
+        public static Eff<RT, R> sync<RT, R>(Eff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : HasIO<RT, Error> =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>
@@ -486,7 +486,7 @@ namespace LanguageExt
         /// </summary>
         [Obsolete("use `atomic` instead of `sync`")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Aff<RT, R> sync<RT, R>(Aff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, R> sync<RT, R>(Aff<RT, R> op, Isolation isolation = Isolation.Snapshot) where RT : HasIO<RT, Error> =>
             STM.DoTransaction(op, isolation);
 
         /// <summary>

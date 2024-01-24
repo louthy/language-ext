@@ -176,8 +176,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public async Task<bool> Equals<EqL, EqR>(EitherAsync<L, R> rhs) 
-            where EqL : struct, EqAsync<L>
-            where EqR : struct, EqAsync<R>
+            where EqL : EqAsync<L>
+            where EqR : EqAsync<R>
         {
             var a = await Data.ConfigureAwait(false);
             var b = await rhs.Data.ConfigureAwait(false);
@@ -212,8 +212,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public async Task<int> CompareTo<OrdL, OrdR>(EitherAsync<L, R> rhs) 
-            where OrdL : struct, Ord<L>
-            where OrdR : struct, Ord<R>
+            where OrdL : Ord<L>
+            where OrdR : Ord<R>
         {
             var a = await Data.ConfigureAwait(false);
             var b = await rhs.Data.ConfigureAwait(false);

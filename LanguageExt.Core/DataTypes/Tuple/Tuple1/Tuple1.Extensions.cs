@@ -20,7 +20,7 @@ public static class Tuple1Extensions
     /// </summary>
     [Pure]
     public static Tuple<A> Append<SemiA, A>(this Tuple<A> a, Tuple<A> b)
-        where SemiA : struct, Semigroup<A> =>
+        where SemiA : Semigroup<A> =>
         Tuple(default(SemiA).Append(a.Item1, b.Item1));
 
     /// <summary>
@@ -28,7 +28,7 @@ public static class Tuple1Extensions
     /// </summary>
     [Pure]
     public static Tuple<A> Concat<MonoidA, A>(this Tuple<A> a, Tuple<A> b)
-        where MonoidA : struct, Monoid<A> =>
+        where MonoidA : Monoid<A> =>
         Tuple(mconcat<MonoidA, A>(a.Item1, b.Item1));
 
     /// <summary>
@@ -50,7 +50,7 @@ public static class Tuple1Extensions
     /// </summary>
     [Pure]
     public static A Sum<NUM, A>(this Tuple<A> self)
-        where NUM : struct, Num<A> =>
+        where NUM : Num<A> =>
         self.Item1;
 
     /// <summary>
@@ -58,7 +58,7 @@ public static class Tuple1Extensions
     /// </summary>
     [Pure]
     public static A Product<NUM, A>(this Tuple<A> self)
-        where NUM : struct, Num<A> =>
+        where NUM : Num<A> =>
         self.Item1;
 
     /// <summary>
@@ -66,7 +66,7 @@ public static class Tuple1Extensions
     /// </summary>
     [Pure]
     public static bool Contains<EQ, A>(this Tuple<A> self, A value)
-        where EQ : struct, Eq<A> =>
+        where EQ : Eq<A> =>
         default(EQ).Equals(self.Item1, value);
 
     /// <summary>

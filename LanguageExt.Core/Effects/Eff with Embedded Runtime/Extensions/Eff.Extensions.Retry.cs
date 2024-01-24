@@ -16,7 +16,7 @@ public static partial class EffExtensions
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> Retry<RT, A>(
         this Eff<RT, A> ma)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(ma.As.Retry());
 
     /// <summary>
@@ -30,7 +30,7 @@ public static partial class EffExtensions
     public static Eff<RT, A> Retry<RT, A>(
         this Eff<RT, A> ma, 
         Schedule schedule)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(ma.As.Retry(schedule));
 
     /// <summary>
@@ -43,7 +43,7 @@ public static partial class EffExtensions
     public static Eff<RT, A> RetryWhile<RT, A>(
         this Eff<RT, A> ma, 
         Func<Error, bool> predicate) 
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(ma.As.RetryWhile(predicate));
 
     /// <summary>
@@ -58,7 +58,7 @@ public static partial class EffExtensions
         this Eff<RT, A> ma,
         Schedule schedule,
         Func<Error, bool> predicate)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(ma.As.RetryWhile(schedule, predicate));
 
     /// <summary>
@@ -71,7 +71,7 @@ public static partial class EffExtensions
     public static Eff<RT, A> RetryUntil<RT, A>(
         this Eff<RT, A> ma,
         Func<Error, bool> predicate)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(ma.As.RetryUntil(predicate));
 
     /// <summary>
@@ -86,6 +86,6 @@ public static partial class EffExtensions
         this Eff<RT, A> ma,
         Schedule schedule,
         Func<Error, bool> predicate)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(ma.As.RetryUntil(schedule, predicate));
 }

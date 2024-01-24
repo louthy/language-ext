@@ -19,7 +19,7 @@ namespace LanguageExt
     /// </remarks>
     public static partial class AtomHashMap
     {
-        public static AtomHashMap<EqK, K, V> ToAtom<EqK, K, V>(this HashMap<EqK, K, V> self) where EqK : struct, Eq<K> =>
+        public static AtomHashMap<EqK, K, V> ToAtom<EqK, K, V>(this HashMap<EqK, K, V> self) where EqK : Eq<K> =>
             new AtomHashMap<EqK, K, V>(self);
     }
 }

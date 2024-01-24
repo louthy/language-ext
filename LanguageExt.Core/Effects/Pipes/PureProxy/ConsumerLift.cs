@@ -15,7 +15,7 @@ using LanguageExt.Common;
 
 namespace LanguageExt.Pipes
 {
-    public abstract class ConsumerLift<RT, IN, A> where RT: struct, HasIO<RT, Error>
+    public abstract class ConsumerLift<RT, IN, A> where RT: HasIO<RT, Error>
     {
         public abstract ConsumerLift<RT, IN, B> Select<B>(Func<A, B> f);
         public abstract ConsumerLift<RT, IN, B> SelectMany<B>(Func<A, ConsumerLift<RT, IN, B>> f);
@@ -39,7 +39,7 @@ namespace LanguageExt.Pipes
             SelectMany(a => f(a).Select(b => project(a, b)));
         
         public static implicit operator ConsumerLift<RT, IN, A>(Pipes.Pure<A> ma) =>
-            new ConsumerLift<RT, IN, A>.Pure(ma.Value);
+            new Pure(ma.Value);
         
         public static ConsumerLift<RT, IN, A> operator &(
             ConsumerLift<RT, IN, A> lhs,
@@ -73,10 +73,10 @@ namespace LanguageExt.Pipes
         
         public class Lift<X> : ConsumerLift<RT, IN, A> 
         {
-            public readonly Aff<RT, X> Value;
+            public readonly Transducer<RT, Sum<Error, X>> Value;
             public readonly Func<X, ConsumerLift<RT, IN, A>> Next;
 
-            public Lift(Aff<RT, X> value, Func<X, ConsumerLift<RT, IN, A>> next) =>
+            public Lift(Transducer<RT, Sum<Error, X>> value, Func<X, ConsumerLift<RT, IN, A>> next) =>
                 (Value, Next) = (value, next);
 
             public override ConsumerLift<RT, IN, B> Select<B>(Func<A, B> f) =>

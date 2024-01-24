@@ -19,7 +19,7 @@ namespace LanguageExt.Sys.IO
     /// File IO 
     /// </summary>
     public static class File<RT>
-        where RT : struct, HasFile<RT>
+        where RT : HasFile<RT>
     {
         /// <summary>
         /// Copy file 

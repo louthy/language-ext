@@ -26,7 +26,7 @@ namespace LanguageExt
             list.Take(1).AsEnumerable().HeadOrInvalid(fail);
 
         public static Validation<MonoidFail, Fail, Success> headOrInvalid<MonoidFail, Fail, Success>(IQueryable<Success> list, Fail fail)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+            where MonoidFail : Monoid<Fail>, Eq<Fail> =>
                 list.Take(1).AsEnumerable().HeadOrInvalid<MonoidFail, Fail, Success>(fail);
 
         public static IQueryable<T> tail<T>(IQueryable<T> list) =>

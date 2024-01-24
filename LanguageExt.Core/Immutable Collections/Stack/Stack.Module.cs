@@ -464,7 +464,7 @@ namespace LanguageExt
         /// <param name="stack">Stack</param>
         /// <returns>An enumerable with all duplicate values removed</returns>
         [Pure]
-        public static Stck<T> distinct<EQ, T>(Stck<T> stack) where EQ : struct, Eq<T> =>
+        public static Stck<T> distinct<EQ, T>(Stck<T> stack) where EQ : Eq<T> =>
             toStackRev(List.distinct<EQ,T>(stack));
 
         /// <summary>
@@ -851,7 +851,7 @@ public static class StackExtensions
     /// <param name="stack">Stack</param>
     /// <returns>An enumerable with all duplicate values removed</returns>
     [Pure]
-    public static Stck<T> Distinct<EQ,T>(this Stck<T> stack) where EQ : struct, Eq<T> =>
+    public static Stck<T> Distinct<EQ,T>(this Stck<T> stack) where EQ : Eq<T> =>
         toStackRev(LanguageExt.List.distinct<EQ,T>(stack));
 
     /// <summary>

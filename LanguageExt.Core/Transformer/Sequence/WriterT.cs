@@ -20,7 +20,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Writer<MonoidW, W, Arr<B>> Sequence<MonoidW, W, A, B>(this Arr<A> ta, Func<A, Writer<MonoidW, W, B>> f) 
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
             ta.Map(f).Sequence();
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Writer<MonoidW, W, IEnumerable<B>> Sequence<MonoidW, W, A, B>(this IEnumerable<A> ta, Func<A, Writer<MonoidW, W, B>> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -48,7 +48,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Writer<MonoidW, W, Set<B>> Sequence<MonoidW, W, A, B>(this Set<A> ta, Func<A, Writer<MonoidW, W, B>> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -62,7 +62,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Writer<MonoidW, W, Seq<B>> Sequence<MonoidW, W, A, B>(this Seq<A> ta, Func<A, Writer<MonoidW, W, B>> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -76,7 +76,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Writer<MonoidW, W, Lst<B>> Sequence<MonoidW, W, A, B>(this Lst<A> ta, Func<A, Writer<MonoidW, W, B>> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -90,7 +90,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Writer<MonoidW, W, HashSet<B>> Sequence<MonoidW, W, A, B>(this HashSet<A> ta, Func<A, Writer<MonoidW, W, B>> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
             ta.Map(f).Sequence();
         
         /// <summary>
@@ -104,7 +104,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Writer<MonoidW, W, Stck<B>> Sequence<MonoidW, W, A, B>(this Stck<A> ta, Func<A, Writer<MonoidW, W, B>> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
             ta.Map(f).Sequence();
     }
 }

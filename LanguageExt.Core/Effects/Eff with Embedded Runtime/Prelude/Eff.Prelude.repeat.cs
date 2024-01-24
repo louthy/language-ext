@@ -15,7 +15,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> repeat<RT, A>(Eff<RT, A> ma)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(repeat(ma.As));
 
     /// <summary>
@@ -27,7 +27,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> repeat<RT, A>(Schedule schedule, Eff<RT, A> ma)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(repeat(schedule, ma.As));
 
     /// <summary>
@@ -39,7 +39,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> repeatWhile<RT, A>(
         Eff<RT, A> ma,
-        Func<A, bool> predicate) where RT : struct, HasIO<RT, Error> =>
+        Func<A, bool> predicate) where RT : HasIO<RT, Error> =>
         new(repeatWhile(ma.As, predicate));
 
     /// <summary>
@@ -54,7 +54,7 @@ public static partial class Prelude
         Schedule schedule,
         Eff<RT, A> ma,
         Func<A, bool> predicate)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(repeatWhile(schedule, ma.As, predicate));
 
     /// <summary>
@@ -67,7 +67,7 @@ public static partial class Prelude
     public static Eff<RT, A> repeatUntil<RT, A>(
         Eff<RT, A> ma,
         Func<A, bool> predicate)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(repeatUntil(ma.As, predicate));
 
     /// <summary>
@@ -82,6 +82,6 @@ public static partial class Prelude
         Schedule schedule,
         Eff<RT, A> ma,
         Func<A, bool> predicate)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(repeatUntil(schedule, ma.As, predicate));
 }

@@ -14,5 +14,5 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
-    public delegate void AtomHashMapChangeEvent<EqK, K, V>(HashMapPatch<EqK, K, V> Patch) where EqK : struct, Eq<K>;
+    public delegate void AtomHashMapChangeEvent<EqK, K, V>(HashMapPatch<EqK, K, V> Patch) where EqK : Eq<K>;
 }

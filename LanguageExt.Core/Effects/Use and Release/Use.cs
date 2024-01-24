@@ -41,14 +41,14 @@ public readonly struct Use<A> : KArr<Any, Unit, A>
     //  Conversion
     //
     public IO<RT, E, A> ToIO<RT, E>()
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new (Transducer.compose(
                 Transducer.constant<RT, Unit>(default),
                 Morphism, 
                 Transducer.mkRight<E, A>()));
 
     public Eff<RT, A> ToEff<RT>()
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         throw new NotImplementedException("TODO");
 
     public Eff<A> ToEff() =>
@@ -60,11 +60,11 @@ public readonly struct Use<A> : KArr<Any, Unit, A>
     //
 
     public IO<RT, E, B> Bind<RT, E, B>(Func<A, IO<RT, E, B>> bind)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ToIO<RT, E>().Bind(bind);
 
     public Eff<RT, B> Bind<RT, B>(Func<A, Eff<RT, B>> bind)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ToEff<RT>().Bind(bind);
 
     public Eff<B> Bind<B>(Func<A, Eff<B>> bind) =>
@@ -76,11 +76,11 @@ public readonly struct Use<A> : KArr<Any, Unit, A>
     //
 
     public IO<RT, E, C> SelectMany<RT, E, B, C>(Func<A, IO<RT, E, B>> bind, Func<A, B, C> project)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>

@@ -23,7 +23,7 @@ namespace LanguageExt
         IEnumerable<(K Key, V Value)>,
         IEquatable<TrieMap<EqK, K, V>>,
         IReadOnlyDictionary<K, V>
-        where EqK : struct, Eq<K>
+        where EqK : Eq<K>
     {
         internal enum UpdateType
         {
@@ -951,7 +951,7 @@ namespace LanguageExt
         /// Returns the whether the `value` exists in the map
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains<EqV>(V value) where EqV: struct, Eq<V> =>
+        public bool Contains<EqV>(V value) where EqV: Eq<V> =>
             Values.Exists(v => default(EqV).Equals(v, value));
 
         /// <summary>
@@ -965,7 +965,7 @@ namespace LanguageExt
         /// Returns the whether the `key` exists in the map
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains<EqV>(K key, V Value) where EqV : struct, Eq<V> =>
+        public bool Contains<EqV>(K key, V Value) where EqV : Eq<V> =>
             Find(key).Map(v => default(EqV).Equals(v, Value)).IfNone(false);
 
         /// <summary>
@@ -1382,7 +1382,7 @@ namespace LanguageExt
         /// Equality
         /// </summary>
         public bool Equals<EqV>(TrieMap<EqK, K, V> rhs)
-            where EqV : struct, Eq<V>
+            where EqV : Eq<V>
         {
             if (ReferenceEquals(this, rhs)) return true;
             if (ReferenceEquals(rhs, null)) return false;
@@ -1894,7 +1894,7 @@ namespace LanguageExt
             return (self, changes);
         }
 
-        public TrieMap<EqK, K, V> Merge<SemigroupV>(TrieMap<EqK, K, V> rhs) where SemigroupV : struct, Semigroup<V>
+        public TrieMap<EqK, K, V> Merge<SemigroupV>(TrieMap<EqK, K, V> rhs) where SemigroupV : Semigroup<V>
         {
             var self = this;
             foreach (var iy in rhs)

@@ -20,7 +20,7 @@ namespace LanguageExt.Pipes
     ///                |
     ///                A
     /// </remarks>
-    public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT : struct, HasIO<RT, Error>
+    public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT : HasIO<RT, Error>
     {
         public readonly Proxy<RT, Unit, IN, Unit, OUT, A> Value;
         

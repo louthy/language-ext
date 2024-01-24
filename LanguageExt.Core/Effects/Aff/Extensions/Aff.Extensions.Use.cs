@@ -21,7 +21,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static Aff<RT, R> Use<RT, H, R>(this Aff<H> Acq, Func<H, Aff<RT, R>> Use)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
             where H : IDisposable =>
             Prelude.use(Acq, Use);
         
@@ -39,7 +39,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static Aff<RT, R> Use<RT, H, R>(this Aff<H> Acq, Func<H, Eff<RT, R>> Use)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
             where H : IDisposable =>
             Prelude.use(Acq, Use);
         
@@ -49,7 +49,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static Aff<RT, R> Use<RT, H, R>(this Aff<RT, H> Acq, Func<H, Aff<R>> Use) 
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
             where H : IDisposable =>
             Prelude.use(Acq, Use);
 
@@ -59,7 +59,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static Aff<RT, R> Use<RT, H, R>(this Aff<RT, H> Acq, Func<H, Aff<RT, R>> Use)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
             where H : IDisposable =>
             Prelude.use(Acq, Use);
         
@@ -69,7 +69,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static Aff<RT, R> Use<RT, H, R>(this Aff<RT, H> Acq, Func<H, Eff<R>> Use) 
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
             where H : IDisposable =>
             Prelude.use(Acq, Use);
 
@@ -79,7 +79,7 @@ namespace LanguageExt
         /// <param name="Acq">Acquire resource</param>
         /// <param name="Use">Use resource</param>
         public static Aff<RT, R> Use<RT, H, R>(this Aff<RT, H> Acq, Func<H, Eff<RT, R>> Use)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
             where H : IDisposable =>
             Prelude.use(Acq, Use);
     }

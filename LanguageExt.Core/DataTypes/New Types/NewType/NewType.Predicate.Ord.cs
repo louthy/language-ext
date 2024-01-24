@@ -30,9 +30,9 @@ namespace LanguageExt
         IEquatable<NEWTYPE>,
         IComparable<NEWTYPE>,
         IComparable
-        where PRED    : struct, Pred<A>
+        where PRED    : Pred<A>
         where NEWTYPE : NewType<NEWTYPE, A, PRED, ORD>
-        where ORD     : struct, Ord<A>
+        where ORD     : Ord<A>
     {
         public readonly A Value;
 

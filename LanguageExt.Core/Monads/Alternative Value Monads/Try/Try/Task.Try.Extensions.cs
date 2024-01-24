@@ -564,7 +564,7 @@ public static class TaskTryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>1 if lhs > rhs, 0 if lhs == rhs, -1 if lhs < rhs</returns>
     [Pure]
-    public static Task<int> Compare<ORD, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where ORD : struct, Ord<A> =>
+    public static Task<int> Compare<ORD, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where ORD : Ord<A> =>
         lhs.ToAsync().Compare<ORD, A>(rhs.ToAsync());
 
     /// <summary>
@@ -575,7 +575,7 @@ public static class TaskTryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Add<NUM, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where NUM : struct, Num<A> =>
+    public static TryAsync<A> Add<NUM, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Add<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -586,7 +586,7 @@ public static class TaskTryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Subtract<NUM, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where NUM : struct, Num<A> =>
+    public static TryAsync<A> Subtract<NUM, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Subtract<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -597,7 +597,7 @@ public static class TaskTryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Product<NUM, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where NUM : struct, Num<A> =>
+    public static TryAsync<A> Product<NUM, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Product<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -608,7 +608,7 @@ public static class TaskTryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Divide<NUM, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where NUM : struct, Num<A> =>
+    public static TryAsync<A> Divide<NUM, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Divide<NUM, A>(rhs.ToAsync());
 
     /// <summary>

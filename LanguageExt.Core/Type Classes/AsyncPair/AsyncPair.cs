@@ -1,12 +1,12 @@
-﻿
+﻿#nullable enable
+
 using LanguageExt.Attributes;
 using LanguageExt.TypeClasses;
 
-namespace LanguageExt
+namespace LanguageExt;
+
+[Trait("AsyncPair*")]
+public interface AsyncPair<in SyncA, out AsyncA> : Trait
 {
-    [Typeclass("AsyncPair*")]
-    public interface AsyncPair<SyncA, AsyncA> : Typeclass
-    {
-        AsyncA ToAsync(SyncA sa);
-    }
+    public static abstract AsyncA ToAsync(SyncA sa);
 }

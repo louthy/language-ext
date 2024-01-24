@@ -503,7 +503,7 @@ public static partial class Transducer
     /// <param name="transducer">Transducer to memoise</param>
     /// <returns>Memoised transducer</returns>
     public static Transducer<A, B> MemoStream<EqA, A, B>(this Transducer<A, B> transducer)
-        where EqA : struct, Eq<A> =>
+        where EqA : Eq<A> =>
         new MemoTransducer<EqA, A, B>(transducer);
     
     /// <summary>
@@ -544,7 +544,7 @@ public static partial class Transducer
     /// <param name="transducer">Transducer to memoise</param>
     /// <returns>Memoised transducer</returns>
     public static Transducer<A, B> Memo<EqA, A, B>(this Transducer<A, B> transducer)
-        where EqA : struct, Eq<A> =>
+        where EqA : Eq<A> =>
         new Memo1Transducer<EqA, A, B>(transducer);
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -697,7 +697,7 @@ public static partial class Transducer
     public static Transducer<RT, Sum<X, A>> Retry<RT, X, A>(
         this Transducer<RT, Sum<X, A>> transducer,
         Schedule schedule) 
-        where RT : struct, HasFromError<RT, X> =>
+        where RT : HasFromError<RT, X> =>
         retryUntil<RT, X, A>(schedule, transducer, _ => false);
 
     /// <summary>
@@ -712,7 +712,7 @@ public static partial class Transducer
         this Transducer<RT, Sum<X, A>> transducer, 
         Schedule schedule, 
         Func<X, bool> predicate) 
-        where RT : struct, HasFromError<RT, X> =>
+        where RT : HasFromError<RT, X> =>
         new RetrySumTransducer<RT, X, A>(transducer, schedule, predicate);
 
     /// <summary>
@@ -727,7 +727,7 @@ public static partial class Transducer
         this Transducer<RT, Sum<X, A>> transducer,
         Schedule schedule,
         Func<X, bool> predicate) 
-        where RT : struct, HasFromError<RT, X> =>
+        where RT : HasFromError<RT, X> =>
         retryUntil(schedule, transducer, not(predicate));
     
     /// <summary>
@@ -774,7 +774,7 @@ public static partial class Transducer
     /// <param name="transducer">Transducer to keep retrying</param>
     public static Transducer<RT, Sum<X, A>> Retry<RT, X, A>(
         this Transducer<RT, Sum<X, A>> transducer) 
-        where RT : struct, HasFromError<RT, X> =>
+        where RT : HasFromError<RT, X> =>
         retryUntil<RT, X, A>(Schedule.Forever, transducer, _ => false);
 
     /// <summary>
@@ -788,7 +788,7 @@ public static partial class Transducer
     public static Transducer<RT, Sum<X, A>> RetryUntil<RT, X, A>(
         this Transducer<RT, Sum<X, A>> transducer, 
         Func<X, bool> predicate) 
-        where RT : struct, HasFromError<RT, X> =>
+        where RT : HasFromError<RT, X> =>
         new RetrySumTransducer<RT, X, A>(transducer, Schedule.Forever, predicate);
 
     /// <summary>
@@ -802,7 +802,7 @@ public static partial class Transducer
     public static Transducer<RT, Sum<X, A>> RetryWhile<RT, X, A>(
         this Transducer<RT, Sum<X, A>> transducer,
         Func<X, bool> predicate) 
-        where RT : struct, HasFromError<RT, X> =>
+        where RT : HasFromError<RT, X> =>
         retryUntil(Schedule.Forever, transducer, not(predicate));
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -859,7 +859,7 @@ public static partial class Transducer
     public static Transducer<RT, Sum<X, A>> Repeat<RT, X, A>(
         this Transducer<RT, Sum<X, A>> transducer,
         Schedule schedule)
-        where RT : struct, HasFromError<RT, X> =>
+        where RT : HasFromError<RT, X> =>
         repeatUntil<RT, X, A>(schedule, transducer, _ => false);
 
     /// <summary>
@@ -874,7 +874,7 @@ public static partial class Transducer
         this Transducer<RT, Sum<X, A>> transducer, 
         Schedule schedule, 
         Func<A, bool> predicate) 
-        where RT : struct, HasFromError<RT, X> =>
+        where RT : HasFromError<RT, X> =>
         new RepeatSumTransducer<RT, X, A>(transducer, schedule, predicate);
 
     /// <summary>
@@ -889,7 +889,7 @@ public static partial class Transducer
         this Transducer<RT, Sum<X, A>> transducer,
         Schedule schedule,
         Func<A, bool> predicate) 
-        where RT : struct, HasFromError<RT, X> =>
+        where RT : HasFromError<RT, X> =>
         repeatUntil(schedule, transducer, not(predicate));    
     
     /// <summary>
@@ -937,7 +937,7 @@ public static partial class Transducer
     /// <returns>A transducer that repeats</returns>
     public static Transducer<RT, Sum<X, A>> Repeat<RT, X, A>(
         this Transducer<RT, Sum<X, A>> transducer)
-        where RT : struct, HasFromError<RT, X> =>
+        where RT : HasFromError<RT, X> =>
         repeatUntil<RT, X, A>(Schedule.Forever, transducer, _ => false);
 
     /// <summary>
@@ -951,7 +951,7 @@ public static partial class Transducer
     public static Transducer<RT, Sum<X, A>> RepeatUntil<RT, X, A>(
         this Transducer<RT, Sum<X, A>> transducer, 
         Func<A, bool> predicate) 
-        where RT : struct, HasFromError<RT, X> =>
+        where RT : HasFromError<RT, X> =>
         new RepeatSumTransducer<RT, X, A>(transducer, Schedule.Forever, predicate);
 
     /// <summary>
@@ -965,7 +965,7 @@ public static partial class Transducer
     public static Transducer<RT, Sum<X, A>> RepeatWhile<RT, X, A>(
         this Transducer<RT, Sum<X, A>> transducer,
         Func<A, bool> predicate) 
-        where RT : struct, HasFromError<RT, X> =>
+        where RT : HasFromError<RT, X> =>
         repeatUntil(Schedule.Forever, transducer, not(predicate));        
     
     

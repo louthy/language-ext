@@ -20,7 +20,7 @@ namespace LanguageExt
         IEnumerable<A>,
         IEquatable<Set<OrdA, A>>,
         IComparable<Set<OrdA, A>>
-        where OrdA : struct, Ord<A>
+        where OrdA : Ord<A>
     {
         public static readonly Set<OrdA, A> Empty = new Set<OrdA, A>(SetInternal<OrdA, A>.Empty);
 
@@ -62,7 +62,7 @@ namespace LanguageExt
         static Set<OrdA, A> Wrap(SetInternal<OrdA, A> set) =>
             new Set<OrdA, A>(set);
 
-        static Set<OrdB, B> Wrap<OrdB, B>(SetInternal<OrdB, B> set) where OrdB : struct, Ord<B>  =>
+        static Set<OrdB, B> Wrap<OrdB, B>(SetInternal<OrdB, B> set) where OrdB : Ord<B>  =>
             new Set<OrdB, B>(set);
 
         /// <summary>
@@ -339,7 +339,7 @@ namespace LanguageExt
         /// <param name="mapper">Mapping function</param>
         /// <returns>Mapped Set</returns>
         [Pure]
-        public Set<OrdB, B> Map<OrdB, B>(Func<A, B> map) where OrdB : struct, Ord<B> =>
+        public Set<OrdB, B> Map<OrdB, B>(Func<A, B> map) where OrdB : Ord<B> =>
             Wrap(Value.Map<OrdB, B>(map));
 
         /// <summary>
@@ -599,7 +599,7 @@ namespace LanguageExt
             Filter(pred);
 
         [Pure]
-        public Set<OrdB, B> Bind<OrdB, B>(Func<A, Set<OrdB, B>> f) where OrdB : struct, Ord<B>
+        public Set<OrdB, B> Bind<OrdB, B>(Func<A, Set<OrdB, B>> f) where OrdB : Ord<B>
         {
             var self = this;
 

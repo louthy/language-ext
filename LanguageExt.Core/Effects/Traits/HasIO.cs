@@ -9,7 +9,7 @@ namespace LanguageExt.Effects.Traits;
 /// </summary>
 /// <typeparam name="RT">Runtime</typeparam>
 /// <typeparam name="E">User specified error type</typeparam>
-[Typeclass("*")]
+[Trait("*")]
 public interface HasIO<out RT> : HasCancel<RT>, HasSyncContext<RT>
     where RT : struct,
     HasCancel<RT>,
@@ -20,7 +20,7 @@ public interface HasIO<out RT> : HasCancel<RT>, HasSyncContext<RT>
 /// </summary>
 /// <typeparam name="RT">Runtime</typeparam>
 /// <typeparam name="E">User specified error type</typeparam>
-[Typeclass("*")]
+[Trait("*")]
 public interface HasIO<out RT, out E> : HasIO<RT>, HasFromError<RT, E>
     where RT : struct,
     HasCancel<RT>,

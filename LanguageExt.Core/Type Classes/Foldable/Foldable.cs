@@ -1,16 +1,15 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Diagnostics.Contracts;
 using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses
 {
-    [Typeclass("Fold*")]
-    public interface Foldable<FA, A> : Foldable<Unit, FA, A>
-    {
-    }
+    [Trait("Fold*")]
+    public interface Foldable<in FA, out A> : Foldable<Unit, FA, A>;
 
-    [Typeclass("Fold*")]
-    public interface Foldable<Env, FA, A> : Typeclass
+    [Trait("Fold*")]
+    public interface Foldable<in Env, in FA, out A> : Trait
     {
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary
@@ -27,7 +26,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="f">Folder function, applied for each item in fa</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        Func<Env, S> Fold<S>(FA fa, S state, Func<S, A, S> f);
+        public static abstract Func<Env, S> Fold<S>(FA fa, S state, Func<S, A, S> f);
 
         /// <summary>
         /// In the case of lists, 'FoldBack', when applied to a binary
@@ -43,13 +42,13 @@ namespace LanguageExt.TypeClasses
         /// <param name="f">Folder function, applied for each item in fa</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        Func<Env, S> FoldBack<S>(FA fa, S state, Func<S, A, S> f);
+        public static abstract Func<Env, S> FoldBack<S>(FA fa, S state, Func<S, A, S> f);
 
         /// <summary>
         /// Number of items in the foldable
         /// </summary>
         /// <returns>Total number of items </returns>
         [Pure]
-        Func<Env, int> Count(FA fa);
+        public static abstract Func<Env, int> Count(FA fa);
     }
 }

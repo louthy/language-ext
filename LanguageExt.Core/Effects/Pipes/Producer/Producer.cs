@@ -33,7 +33,7 @@ namespace LanguageExt.Pipes
         /// Monad return / pure
         /// </summary>
         [Pure, MethodImpl(mops)]
-        public static Producer<RT, OUT, R> Pure<RT, OUT, R>(R value) where RT : struct, HasIO<RT, Error> =>
+        public static Producer<RT, OUT, R> Pure<RT, OUT, R>(R value) where RT : HasIO<RT, Error> =>
             new Pure<RT, Void, Unit, Unit, OUT, R>(value).ToProducer();
         
         /// <summary>
@@ -44,12 +44,12 @@ namespace LanguageExt.Pipes
         /// for producers. 
         /// </remarks>
         [Pure, MethodImpl(mops)]
-        public static Producer<RT, OUT, Unit> yield<RT, OUT>(OUT value) where RT : struct, HasIO<RT, Error> =>
+        public static Producer<RT, OUT, Unit> yield<RT, OUT>(OUT value) where RT : HasIO<RT, Error> =>
             respond<RT, Void, Unit, Unit, OUT>(value).ToProducer();
 
         [Pure, MethodImpl(mops)]
         internal static Producer<RT, X, Unit> yieldAll<RT, X>(EnumerateData<X> xs)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             new Enumerate<RT, Void, Unit, Unit, X, X, Unit>(
                 xs, 
                 yield<RT, X>,
@@ -57,45 +57,45 @@ namespace LanguageExt.Pipes
 
         [Pure, MethodImpl(mops)]
         public static Producer<RT, X, Unit> yieldAll<RT, X>(IEnumerable<X> xs)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             yieldAll<RT, X>(new EnumerateEnumerable<X>(xs));
         
         [Pure, MethodImpl(mops)]
         public static Producer<RT, X, Unit> yieldAll<RT, X>(IAsyncEnumerable<X> xs)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             yieldAll<RT, X>(new EnumerateAsyncEnumerable<X>(xs));
         
         [Pure, MethodImpl(mops)]
         public static Producer<RT, X, Unit> yieldAll<RT, X>(IObservable<X> xs)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             yieldAll<RT, X>(new EnumerateObservable<X>(xs));
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(mops)]
-        public static Producer<RT, A, Unit> repeatM<RT, A>(Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
+        public static Producer<RT, A, Unit> repeatM<RT, A>(Aff<RT, A> ma) where RT : HasIO<RT, Error> =>
             repeat(lift<RT, A, A>(ma).Bind(yield<RT, A>));
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(mops)]
-        public static Producer<RT, A, Unit> repeatM<RT, A>(Eff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
+        public static Producer<RT, A, Unit> repeatM<RT, A>(Eff<RT, A> ma) where RT : HasIO<RT, Error> =>
             repeat(lift<RT, A, A>(ma).Bind(yield<RT, A>));
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(mops)]
-        public static Producer<RT, A, Unit> repeatM<RT, A>(Aff<A> ma) where RT : struct, HasIO<RT, Error> =>
+        public static Producer<RT, A, Unit> repeatM<RT, A>(Aff<A> ma) where RT : HasIO<RT, Error> =>
             repeat(lift<RT, A, A>(ma).Bind(yield<RT, A>));
 
         /// <summary>
         /// Repeat a monadic action indefinitely, yielding each result
         /// </summary>
         [Pure, MethodImpl(mops)]
-        public static Producer<RT, A, Unit> repeatM<RT, A>(Eff<A> ma) where RT : struct, HasIO<RT, Error> =>
+        public static Producer<RT, A, Unit> repeatM<RT, A>(Eff<A> ma) where RT : HasIO<RT, Error> =>
             repeat(lift<RT, A, A>(ma).Bind(yield<RT, A>));
 
         
@@ -103,28 +103,28 @@ namespace LanguageExt.Pipes
         /// Lift the IO monad into the Producer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(mops)]
-        public static Producer<RT, OUT, R> lift<RT, OUT, R>(Eff<R> ma) where RT : struct, HasIO<RT, Error> =>
+        public static Producer<RT, OUT, R> lift<RT, OUT, R>(Eff<R> ma) where RT : HasIO<RT, Error> =>
             lift<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
 
         /// <summary>
         /// Lift the IO monad into the Producer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(mops)]
-        public static Producer<RT, OUT, R> lift<RT, OUT, R>(Aff<R> ma) where RT : struct, HasIO<RT, Error> =>
+        public static Producer<RT, OUT, R> lift<RT, OUT, R>(Aff<R> ma) where RT : HasIO<RT, Error> =>
             lift<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
 
         /// <summary>
         /// Lift the IO monad into the Producer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(mops)]
-        public static Producer<RT, OUT, R> lift<RT, OUT, R>(Eff<RT, R> ma) where RT : struct, HasIO<RT, Error> =>
+        public static Producer<RT, OUT, R> lift<RT, OUT, R>(Eff<RT, R> ma) where RT : HasIO<RT, Error> =>
             lift<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
 
         /// <summary>
         /// Lift the IO monad into the Producer monad transformer (a specialism of the Proxy monad transformer)
         /// </summary>
         [Pure, MethodImpl(mops)]
-        public static Producer<RT, OUT, R> lift<RT, OUT, R>(Aff<RT, R> ma) where RT : struct, HasIO<RT, Error> =>
+        public static Producer<RT, OUT, R> lift<RT, OUT, R>(Aff<RT, R> ma) where RT : HasIO<RT, Error> =>
             lift<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
         
         /// <summary>
@@ -132,7 +132,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, OUT, R> use<RT, OUT, R>(Aff<R> ma) 
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
             where R : IDisposable =>
             use<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
 
@@ -141,7 +141,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, OUT, R> use<RT, OUT, R>(Eff<R> ma) 
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
             where R : IDisposable =>
             use<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
 
@@ -150,7 +150,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, OUT, R> use<RT, OUT, R>(Aff<RT, R> ma) 
-            where RT : struct, HasIO<RT, Error> 
+            where RT : HasIO<RT, Error> 
             where R : IDisposable =>
             use<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
 
@@ -159,7 +159,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, OUT, R> use<RT, OUT, R>(Eff<RT, R> ma) 
-            where RT : struct, HasIO<RT, Error> 
+            where RT : HasIO<RT, Error> 
             where R : IDisposable =>
             use<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
         
@@ -169,7 +169,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, OUT, R> use<RT, OUT, R>(Aff<R> ma, Func<R, Unit> dispose) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             use<RT, Void, Unit, Unit, OUT, R>(ma, dispose).ToProducer();
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, OUT, R> use<RT, OUT, R>(Eff<R> ma, Func<R, Unit> dispose) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             use<RT, Void, Unit, Unit, OUT, R>(ma, dispose).ToProducer();
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, OUT, R> use<RT, OUT, R>(Aff<RT, R> ma, Func<R, Unit> dispose) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             use<RT, Void, Unit, Unit, OUT, R>(ma, dispose).ToProducer();
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, OUT, R> use<RT, OUT, R>(Eff<RT, R> ma, Func<R, Unit> dispose) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             use<RT, Void, Unit, Unit, OUT, R>(ma, dispose).ToProducer();        
 
         /// <summary>
@@ -201,7 +201,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(mops)]
         public static Producer<RT, OUT, Unit> release<RT, OUT, R>(R dispose) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             Proxy.release<RT, Void, Unit, Unit, OUT, R>(dispose).ToProducer();
  
         /// <summary>
@@ -212,7 +212,7 @@ namespace LanguageExt.Pipes
         /// <param name="UntilValue">Predicate</param>
         /// <returns>A pipe that folds</returns>
         public static Producer<RT, S, Unit> FoldUntil<RT, S, A>(this Producer<RT, S, A> ma, S Initial, Func<S, A, S> Fold, Func<A, bool> UntilValue)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             var state = Initial;
             return ma.Bind(
@@ -240,7 +240,7 @@ namespace LanguageExt.Pipes
         /// <param name="UntilValue">Predicate</param>
         /// <returns>A pipe that folds</returns>
         public static Producer<RT, S, Unit> FoldWhile<RT, S, A>(this Producer<RT, S, A> ma, S Initial, Func<S, A, S> Fold, Func<A, bool> WhileValue)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             var state = Initial;
             return ma.Bind(
@@ -268,7 +268,7 @@ namespace LanguageExt.Pipes
         /// <param name="UntilValue">Predicate</param>
         /// <returns>A pipe that folds</returns>
         public static Producer<RT, S, Unit> FoldUntil<RT, S, A>(this Producer<RT, S, A> ma, S Initial, Func<S, A, S> Fold, Func<S, bool> UntilState)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             var state = Initial;
             return ma.Bind(
@@ -296,7 +296,7 @@ namespace LanguageExt.Pipes
         /// <param name="UntilValue">Predicate</param>
         /// <returns>A pipe that folds</returns>
         public static Producer<RT, S, Unit> FoldWhile<RT, S, A>(this Producer<RT, S, A> ma, S Initial, Func<S, A, S> Fold, Func<S, bool> WhileState)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             var state = Initial;
             return ma.Bind(
@@ -323,7 +323,7 @@ namespace LanguageExt.Pipes
         /// <remarks>The merged producer completes when all component producers have completed</remarks>
         /// <param name="ms">Sequence of producers to merge</param>
         /// <returns>Merged producers</returns>
-        public static Producer<RT, OUT, Unit> merge<RT, OUT>(Seq<Producer<RT, OUT, Unit>> ms) where RT : struct, HasIO<RT, Error>
+        public static Producer<RT, OUT, Unit> merge<RT, OUT>(Seq<Producer<RT, OUT, Unit>> ms) where RT : HasIO<RT, Error>
         {
             var prod = from e in lift<RT, Fin<OUT>, RT>(runtime<RT>())
                        from x in yieldAll<RT, Fin<OUT>>(go(e))
@@ -429,7 +429,7 @@ namespace LanguageExt.Pipes
         /// <param name="ms">Sequence of queues to merge</param>
         /// <returns>Queues merged into a single producer</returns>
         public static Producer<RT, OUT, Unit> merge<RT, OUT>(params Queue<RT, OUT, Unit>[] ms) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             merge(toSeq(ms.Map(m => (Producer<RT, OUT, Unit>)m)));
  
         /// <summary>
@@ -439,7 +439,7 @@ namespace LanguageExt.Pipes
         /// <param name="ms">Sequence of producers to merge</param>
         /// <returns>Merged producers</returns>
         public static Producer<RT, OUT, Unit> merge<RT, OUT>(params Producer<RT, OUT, Unit>[] ms) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             merge(toSeq(ms));
  
         /// <summary>
@@ -449,7 +449,7 @@ namespace LanguageExt.Pipes
         /// <param name="ms">Sequence of producers to merge</param>
         /// <returns>Merged producers</returns>
         public static Producer<RT, OUT, Unit> merge<RT, OUT>(params Proxy<RT, Void, Unit, Unit, OUT, Unit>[] ms) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             merge(toSeq(ms).Map(m => m.ToProducer()));
  
         /// <summary>
@@ -459,7 +459,7 @@ namespace LanguageExt.Pipes
         /// <param name="ms">Sequence of queues to merge</param>
         /// <returns>Queues merged into a single producer</returns>
         public static Producer<RT, OUT, Unit> merge<RT, OUT>(Seq<Queue<RT, OUT, Unit>> ms) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             merge(ms.Map(m => (Producer<RT, OUT, Unit>)m));
  
         /// <summary>
@@ -469,7 +469,7 @@ namespace LanguageExt.Pipes
         /// <param name="ms">Sequence of producers to merge</param>
         /// <returns>Merged producers</returns>
         public static Producer<RT, OUT, Unit> merge<RT, OUT>(Seq<Proxy<RT, Void, Unit, Unit, OUT, Unit>> ms) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             merge(ms.Map(m => m.ToProducer()));
     }
 }

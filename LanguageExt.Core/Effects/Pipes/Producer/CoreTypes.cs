@@ -20,7 +20,7 @@ namespace LanguageExt.Pipes
     ///                |
     ///                A
     /// </remarks>
-    public class Producer<RT, OUT, A> : Proxy<RT, Void, Unit, Unit, OUT, A> where RT : struct, HasIO<RT, Error>
+    public class Producer<RT, OUT, A> : Proxy<RT, Void, Unit, Unit, OUT, A> where RT : HasIO<RT, Error>
     {
         public readonly Proxy<RT, Void, Unit, Unit, OUT, A> Value;
         

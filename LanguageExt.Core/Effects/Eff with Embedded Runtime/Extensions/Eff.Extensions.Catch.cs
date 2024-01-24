@@ -12,28 +12,28 @@ public static partial class EffExtensions
     /// Catch an error if the error matches the argument provided 
     /// </summary>
     public static Eff<RT, A> Catch<RT, A>(this Eff<RT, A> ma, Error Error, Func<Error, Eff<RT, A>> Fail)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma | @catch(Error, Fail);
     
     /// <summary>
     /// Catch an error if the error matches the argument provided 
     /// </summary>
     public static Eff<RT, A> Catch<RT, A>(this Eff<RT, A> ma, Error Error, Eff<RT, A> Fail) 
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma | @catch(Error, Fail);
 
     /// <summary>
     /// Catch all errors
     /// </summary>
     public static Eff<RT, A> Catch<RT, A>(this Eff<RT, A> ma, Eff<RT, A> Fail)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma | @catch(Fail);
 
     /// <summary>
     /// Catch all errors
     /// </summary>
     public static Eff<RT, A> Catch<RT, A>(this Eff<RT, A> ma, Func<Error, Eff<RT, A>> Fail) 
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma | @catch(Fail);
 
     /// <summary>
@@ -42,7 +42,7 @@ public static partial class EffExtensions
     public static Eff<RT, A> CatchOf<RT, A, MATCH_ERROR>(
         this Eff<RT, A> ma, 
         Func<MATCH_ERROR, Eff<RT, A>> Fail)
-        where RT : struct, HasIO<RT, Error>
+        where RT : HasIO<RT, Error>
         where MATCH_ERROR : Error =>
         ma | @catchOf(Fail);
 }

@@ -17,7 +17,7 @@ namespace LanguageExt
     [Serializable]
     public class Range<SELF, MonoidOrdA, A> : IEnumerable<A>
         where SELF : Range<SELF, MonoidOrdA, A>
-        where MonoidOrdA : struct, Monoid<A>, Ord<A>, Arithmetic<A>
+        where MonoidOrdA : Monoid<A>, Ord<A>, Arithmetic<A>
     {
         static Func<A, A, A, SELF> Ctor = IL.Ctor<A, A, A, SELF>();
         static MonoidOrdA M = new MonoidOrdA();

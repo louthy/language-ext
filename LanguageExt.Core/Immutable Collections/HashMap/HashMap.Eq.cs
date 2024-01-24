@@ -1,5 +1,4 @@
-﻿#nullable enable
-using LanguageExt.TypeClasses;
+﻿using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System;
 using System.Collections;
@@ -20,9 +19,9 @@ namespace LanguageExt
     public readonly struct HashMap<EqK, K, V> :
         IEnumerable<(K Key, V Value)>,
         IEquatable<HashMap<EqK, K, V>>
-        where EqK : struct, Eq<K>
+        where EqK : Eq<K>
     {
-        public static readonly HashMap<EqK, K, V> Empty = new HashMap<EqK, K, V>(TrieMap<EqK, K, V>.Empty);
+        public static readonly HashMap<EqK, K, V> Empty = new (TrieMap<EqK, K, V>.Empty);
 
         readonly TrieMap<EqK, K, V> value;
 
@@ -480,7 +479,7 @@ namespace LanguageExt
         /// <returns>True if an item with the key supplied is in the map</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains<EqV>(K key, V value) where EqV : struct, Eq<V> =>
+        public bool Contains<EqV>(K key, V value) where EqV : Eq<V> =>
             Value.Contains<EqV>(key, value);
 
         /// <summary>
@@ -610,7 +609,7 @@ namespace LanguageExt
         /// <returns>True if exists, false otherwise</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains<EqV>(KeyValuePair<K, V> pair) where EqV : struct, Eq<V> =>
+        public bool Contains<EqV>(KeyValuePair<K, V> pair) where EqV : Eq<V> =>
             Value.Contains<EqV>(pair.Key, pair.Value);
 
         /// <summary>
@@ -1014,7 +1013,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals<EqV>(HashMap<EqK, K, V> other) where EqV : struct, Eq<V> =>
+        public bool Equals<EqV>(HashMap<EqK, K, V> other) where EqV : Eq<V> =>
             Value.Equals<EqV>(other.Value);
 
         /// <summary>

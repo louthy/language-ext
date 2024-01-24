@@ -35,8 +35,8 @@ namespace LanguageExt
         IEquatable<SELF>,
         IComparable<SELF>,
         IComparable
-        where NUM : struct, Num<A>
-        where PRED : struct, Pred<A>
+        where NUM : Num<A>
+        where PRED : Pred<A>
         where SELF : NumType<SELF, NUM, A, PRED>
     {
         public readonly A Value;

@@ -4,43 +4,34 @@ using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 
-namespace LanguageExt.ClassInstances
+namespace LanguageExt.ClassInstances;
+
+/// <summary>
+/// Array hash
+/// </summary>
+public struct HashableArray<HashA, A> : Hashable<A[]> where HashA : Hashable<A>
 {
     /// <summary>
-    /// Array hash
+    /// Get hash code of the value
     /// </summary>
-    public struct HashableArray<HashA, A> : Hashable<A[]> where HashA : struct, Hashable<A>
-    {
-        /// <summary>
-        /// Get hash code of the value
-        /// </summary>
-        /// <param name="x">Value to get the hash code of</param>
-        /// <returns>The hash code of x</returns>
-        [Pure]
-        public int GetHashCode(A[] x) =>
-            hash<HashA, A>(x);
+    /// <param name="x">Value to get the hash code of</param>
+    /// <returns>The hash code of x</returns>
+    [Pure]
+    public static int GetHashCode(A[] x) =>
+        hash<HashA, A>(x);
+}
 
-        [Pure]
-        public Task<int> GetHashCodeAsync(A[] x) =>
-            GetHashCode(x).AsTask();
-    }
-
+/// <summary>
+/// Array hash
+/// </summary>
+public struct HashableArray<A> : Hashable<A[]>
+{
     /// <summary>
-    /// Array hash
+    /// Get hash code of the value
     /// </summary>
-    public struct HashableArray<A> : Hashable<A[]>
-    {
-        /// <summary>
-        /// Get hash code of the value
-        /// </summary>
-        /// <param name="x">Value to get the hash code of</param>
-        /// <returns>The hash code of x</returns>
-        [Pure]
-        public int GetHashCode(A[] x) =>
-            default(HashableArray<HashableDefault<A>, A>).GetHashCode(x);
-
-        [Pure]
-        public Task<int> GetHashCodeAsync(A[] x) =>
-            GetHashCode(x).AsTask();
-    }
+    /// <param name="x">Value to get the hash code of</param>
+    /// <returns>The hash code of x</returns>
+    [Pure]
+    public static int GetHashCode(A[] x) =>
+        HashableArray<HashableDefault<A>, A>.GetHashCode(x);
 }

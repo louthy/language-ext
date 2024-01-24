@@ -66,8 +66,8 @@ namespace LanguageExt.Tests
         /// General purpose maximum value operation
         /// </summary>
         static A Max<MONAD, MA, MONOID, A>(MA ma)
-            where MONAD  : struct, Monad<MA, A>
-            where MONOID : struct, Ord<A>, Monoid<A> =>
+            where MONAD  : Monad<MA, A>
+            where MONOID : Ord<A>, Monoid<A> =>
             fold<MONAD, MA, A, A>(ma, default(MONOID).Empty(), default(Max<MONOID, A>).Append);
     }
 }

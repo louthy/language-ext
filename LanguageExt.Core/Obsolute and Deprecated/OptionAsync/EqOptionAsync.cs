@@ -9,7 +9,7 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     [Obsolete(Change.UseEffMonadInstead)]
     public struct EqOptionAsync<EqA, A> : EqAsync<OptionAsync<A>>
-        where EqA : struct, EqAsync<A>
+        where EqA : EqAsync<A>
     {
         public async Task<bool> EqualsAsync(OptionAsync<A> x, OptionAsync<A> y)
         {

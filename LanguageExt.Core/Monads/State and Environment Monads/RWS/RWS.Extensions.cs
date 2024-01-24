@@ -17,7 +17,7 @@ public static class RWSExtensions
     /// </summary>
     [Pure]
     public static RWS<MonoidW, R, W, S, A> Flatten<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, RWS<MonoidW, R, W, S, A>> ma)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
         ma.Bind(identity);
 
     /// <summary>
@@ -25,7 +25,7 @@ public static class RWSExtensions
     /// Match, IfSucc, IfNone, etc to extract.
     /// </summary>
     public static RWSResult<MonoidW, R, W, S, A> Run<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, R env, S state)
-        where MonoidW : struct, Monoid<W>
+        where MonoidW : Monoid<W>
     {
         if (self == null) throw new ArgumentNullException(nameof(self));
         if (state == null) throw new ArgumentNullException(nameof(state));
@@ -41,19 +41,19 @@ public static class RWSExtensions
 
     [Pure]
     public static RWS<MonoidW, R, W, S, int> Sum<MonoidW, R, W, S>(this RWS<MonoidW, R, W, S, int> self)
-        where MonoidW : struct, Monoid<W> => self;
+        where MonoidW : Monoid<W> => self;
 
     [Pure]
     public static RWS<MonoidW, R, W, S, Seq<A>> ToSeq<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self)
-       where MonoidW : struct, Monoid<W> => self.Map(x => x.Cons());
+       where MonoidW : Monoid<W> => self.Map(x => x.Cons());
 
     [Pure]
     public static RWS<MonoidW, R, W, S, Seq<A>> AsEnumerable<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self)
-       where MonoidW : struct, Monoid<W> => ToSeq(self);
+       where MonoidW : Monoid<W> => ToSeq(self);
 
     [Pure]
     public static Seq<A> ToSeq<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, R env, S state)
-       where MonoidW : struct, Monoid<W>
+       where MonoidW : Monoid<W>
     {
         IEnumerable<A> Yield()
         {
@@ -68,11 +68,11 @@ public static class RWSExtensions
 
     [Pure]
     public static Seq<A> AsEnumerable<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, R env, S state)
-       where MonoidW : struct, Monoid<W> => ToSeq(self, env, state);
+       where MonoidW : Monoid<W> => ToSeq(self, env, state);
 
     [Pure]
     public static RWS<MonoidW, R, W, S, int> Count<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self)
-        where MonoidW : struct, Monoid<W> => (env, state) =>
+        where MonoidW : Monoid<W> => (env, state) =>
         {
             var res = self(env, state);
             return res.IsFaulted
@@ -82,7 +82,7 @@ public static class RWSExtensions
 
     [Pure]
     public static RWS<MonoidW, R, W, S, bool> Exists<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, Func<A, bool> pred)
-        where MonoidW : struct, Monoid<W> => (env, state) =>
+        where MonoidW : Monoid<W> => (env, state) =>
         {
             var res = self(env, state);
             return res.IsFaulted
@@ -92,11 +92,11 @@ public static class RWSExtensions
 
     [Pure]
     public static RWS<MonoidW, R, W, S, bool> ForAll<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, Func<A, bool> pred)
-        where MonoidW : struct, Monoid<W> => Exists(self, pred);
+        where MonoidW : Monoid<W> => Exists(self, pred);
 
     [Pure]
     public static RWS<MonoidW, R, W, S, B> Fold<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A> self, B initialValue, Func<B, A, B> f)
-        where MonoidW : struct, Monoid<W> => (env, state) =>
+        where MonoidW : Monoid<W> => (env, state) =>
         {
             var res = self(env, state);
             return res.IsFaulted
@@ -106,7 +106,7 @@ public static class RWSExtensions
 
     [Pure]
     public static RWS<MonoidW, R, W, S, R> Fold<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, Func<R, A, R> f)
-        where MonoidW : struct, Monoid<W> => (env, state) =>
+        where MonoidW : Monoid<W> => (env, state) =>
         {
             var res = self(env, state);
             return res.IsFaulted
@@ -118,7 +118,7 @@ public static class RWSExtensions
     /// Force evaluation of the monad (once only)
     /// </summary>
     [Pure]
-    public static RWS<MonoidW, R, W, S, A> Strict<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> ma) where MonoidW : struct, Monoid<W>
+    public static RWS<MonoidW, R, W, S, A> Strict<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> ma) where MonoidW : Monoid<W>
     {
         Option<RWSResult<MonoidW, R, W, S, A>> cache = default;
         object sync = new object();
@@ -140,7 +140,7 @@ public static class RWSExtensions
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    public static RWS<MonoidW, R, W, S, A> Do<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> ma, Action<A> f) where MonoidW : struct, Monoid<W> =>
+    public static RWS<MonoidW, R, W, S, A> Do<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> ma, Action<A> f) where MonoidW : Monoid<W> =>
         (env, state) =>
         {
             var r = ma(env, state);
@@ -157,12 +157,12 @@ public static class RWSExtensions
     /// </summary>
     [Pure]
     public static RWS<MonoidW, R, W, S, Unit> Modify<MonoidW, R, W, S, A>(RWS<MonoidW, R, W, S, A> self, Func<S, S> f)
-        where MonoidW : struct, Monoid<W> => (env, state) =>
+        where MonoidW : Monoid<W> => (env, state) =>
             RWSResult<MonoidW, R, W, S, Unit>.New(default(MonoidW).Empty(), f(state), unit);
 
     [Pure]
     public static RWS<MonoidW, R, W, S, B> Map<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A> self, Func<A, B> project)
-        where MonoidW: struct, Monoid<W> => self.Select(project);
+        where MonoidW: Monoid<W> => self.Select(project);
 
     /// <summary>
     /// Pass is an action that executes the monad, which
@@ -171,7 +171,7 @@ public static class RWSExtensions
     /// </summary>
     [Pure]
     public static RWS<MonoidW, R, W, S, A> Pass<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, (A, Func<W, W>)> self)
-        where MonoidW : struct, Monoid<W> => (env, state) =>
+        where MonoidW : Monoid<W> => (env, state) =>
         {
             var res = self(env, state);
             return res.IsFaulted
@@ -185,7 +185,7 @@ public static class RWSExtensions
     /// </summary>
     [Pure]
     public static RWS<MonoidW, R, W, S, (A, B)> Listen<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A> ma, Func<W, B> f)
-        where MonoidW : struct, Monoid<W> => (env, state) =>
+        where MonoidW : Monoid<W> => (env, state) =>
     {
         var res = ma(env, state);
         return res.IsFaulted
@@ -199,12 +199,12 @@ public static class RWSExtensions
     /// </summary>
     [Pure]
     public static RWS<MonoidW, R, W, S, A> Censor<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> ma, Func<W, W> f)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             Pass(ma.Bind(a => RWS<MonoidW, R, W, S, (A, Func<W, W>)>((a, f))));
 
     [Pure]
     public static RWS<MonoidW, R, W, S, B> Bind<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A> ma, Func<A, RWS<MonoidW, R, W, S, B>> f)
-        where MonoidW : struct, Monoid<W> => (env, state) =>
+        where MonoidW : Monoid<W> => (env, state) =>
     {
         var ra = ma(env, state);
         if (ra.IsFaulted) return RWSResult<MonoidW, R, W, S, B>.New(ra.Output, ra.State, ra.Error);
@@ -220,7 +220,7 @@ public static class RWSExtensions
 
     [Pure]
     public static RWS<MonoidW, R, W, S, B> Select<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A> ma, Func<A, B> f)
-        where MonoidW : struct, Monoid<W> => (env, state) =>
+        where MonoidW : Monoid<W> => (env, state) =>
         {
             var ra = ma(env, state);
             return ra.IsFaulted
@@ -233,7 +233,7 @@ public static class RWSExtensions
         this RWS<MonoidW, R, W, S, A> ma,
         Func<A, RWS<MonoidW, R, W, S, B>> bind,
         Func<A, B, C> project)
-        where MonoidW : struct, Monoid<W> => (env, state) =>
+        where MonoidW : Monoid<W> => (env, state) =>
         {
             var ra = ma(env, state);
             if (ra.IsFaulted) return RWSResult<MonoidW, R, W, S, C>.New(ra.Output, ra.State, ra.Error);
@@ -249,7 +249,7 @@ public static class RWSExtensions
 
     [Pure]
     public static RWS<MonoidW, R, W, S, A> Filter<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, Func<A, bool> pred)
-        where MonoidW : struct, Monoid<W> => (env, state) =>
+        where MonoidW : Monoid<W> => (env, state) =>
         {
             var res = self(env, state);
             if (res.IsFaulted) return res;
@@ -260,10 +260,10 @@ public static class RWSExtensions
 
     [Pure]
     public static RWS<MonoidW, R, W, S, A> Where<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, Func<A, bool> pred)
-        where MonoidW : struct, Monoid<W> => Filter(self, pred);
+        where MonoidW : Monoid<W> => Filter(self, pred);
 
     public static RWS<MonoidW, R, W, S, Unit> Iter<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, Action<A> action)
-        where MonoidW : struct, Monoid<W> => (env, state) =>
+        where MonoidW : Monoid<W> => (env, state) =>
         {
             var res = self(env, state);
             return res.IsFaulted

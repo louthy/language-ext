@@ -25,7 +25,7 @@ namespace LanguageExt
     internal class MapInternal<OrdK, K, V> :
         IEnumerable<(K Key, V Value)>,
         IReadOnlyDictionary<K, V>
-        where OrdK : struct, Ord<K>
+        where OrdK : Ord<K>
     {
         public static readonly MapInternal<OrdK, K, V> Empty = new MapInternal<OrdK, K, V>(MapItem<K, V>.Empty, false);
 
@@ -1449,7 +1449,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public bool Equals<EqV>(MapInternal<OrdK, K, V> rhs) where EqV : struct, Eq<V>
+        public bool Equals<EqV>(MapInternal<OrdK, K, V> rhs) where EqV : Eq<V>
         {
             if (ReferenceEquals(this, rhs)) return true;
             if (Count != rhs.Count) return false;
@@ -1470,7 +1470,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public int CompareTo<OrdV>(MapInternal<OrdK, K, V> other) where OrdV : struct, Ord<V>
+        public int CompareTo<OrdV>(MapInternal<OrdK, K, V> other) where OrdV : Ord<V>
         {
             var cmp = Count.CompareTo(other.Count);
             if (cmp != 0) return cmp;
@@ -1582,7 +1582,7 @@ namespace LanguageExt
         }
 
         public static MapItem<K, V> Add<OrdK, K, V>(MapItem<K, V> node, K key, V value, AddOpt option)
-            where OrdK : struct, Ord<K>
+            where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1737,7 +1737,7 @@ namespace LanguageExt
                 : new MapItem<K, U>(node.Height, node.Count, (node.KeyValue.Key, mapper(node.KeyValue.Key, node.KeyValue.Value)), Map(node.Left, mapper), Map(node.Right, mapper));
 
         public static MapItem<K, V> Add<OrdK, K, V>(MapItem<K, V> node, K key, V value)
-            where OrdK : struct, Ord<K>
+            where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1759,7 +1759,7 @@ namespace LanguageExt
         }
 
         public static MapItem<K, V> SetItem<OrdK, K, V>(MapItem<K, V> node, K key, V value)
-            where OrdK : struct, Ord<K>
+            where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1781,7 +1781,7 @@ namespace LanguageExt
         }
 
         public static MapItem<K, V> TrySetItem<OrdK, K, V>(MapItem<K, V> node, K key, V value)
-            where OrdK : struct, Ord<K>
+            where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1803,7 +1803,7 @@ namespace LanguageExt
         }
 
         public static MapItem<K, V> TryAdd<OrdK, K, V>(MapItem<K, V> node, K key, V value)
-            where OrdK : struct, Ord<K>
+            where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1825,7 +1825,7 @@ namespace LanguageExt
         }
 
         public static MapItem<K, V> AddOrUpdate<OrdK, K, V>(MapItem<K, V> node, K key, V value)
-            where OrdK : struct, Ord<K>
+            where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1847,7 +1847,7 @@ namespace LanguageExt
         }
 
         public static MapItem<K, V> Remove<OrdK, K, V>(MapItem<K, V> node, K key)
-            where OrdK : struct, Ord<K>
+            where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1896,7 +1896,7 @@ namespace LanguageExt
         }
 
         public static V Find<OrdK, K, V>(MapItem<K, V> node, K key)
-            where OrdK : struct, Ord<K>
+            where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1922,7 +1922,7 @@ namespace LanguageExt
         /// that maintains a stack of nodes to retrace.
         /// </summary>
         public static IEnumerable<V> FindRange<OrdK, K, V>(MapItem<K, V> node, K a, K b)
-            where OrdK : struct, Ord<K>
+            where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1961,7 +1961,7 @@ namespace LanguageExt
         /// that maintains a stack of nodes to retrace.
         /// </summary>
         public static IEnumerable<(K, V)> FindRangePairs<OrdK, K, V>(MapItem<K, V> node, K a, K b)
-            where OrdK : struct, Ord<K>
+            where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1996,7 +1996,7 @@ namespace LanguageExt
         }
 
         public static Option<V> TryFind<OrdK, K, V>(MapItem<K, V> node, K key)
-            where OrdK : struct, Ord<K>
+            where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -2106,7 +2106,7 @@ namespace LanguageExt
                 ? node.KeyValue
                 : Min(node.Left);
 
-        internal static Option<(K, V)> TryFindPredecessor<OrdK, K, V>(MapItem<K, V> root, K key) where OrdK : struct, Ord<K>
+        internal static Option<(K, V)> TryFindPredecessor<OrdK, K, V>(MapItem<K, V> root, K key) where OrdK : Ord<K>
         {
             Option<(K, V)> predecessor = None;
             var current = root;
@@ -2143,7 +2143,7 @@ namespace LanguageExt
             return predecessor;
         }
 
-        internal static Option<(K, V)> TryFindOrPredecessor<OrdK, K, V>(MapItem<K, V> root, K key) where OrdK : struct, Ord<K>
+        internal static Option<(K, V)> TryFindOrPredecessor<OrdK, K, V>(MapItem<K, V> root, K key) where OrdK : Ord<K>
         {
             Option<(K, V)> predecessor = None;
             var current = root;
@@ -2180,7 +2180,7 @@ namespace LanguageExt
             return predecessor;
         }
 
-        internal static Option<(K, V)> TryFindSuccessor<OrdK, K, V>(MapItem<K, V> root, K key) where OrdK : struct, Ord<K>
+        internal static Option<(K, V)> TryFindSuccessor<OrdK, K, V>(MapItem<K, V> root, K key) where OrdK : Ord<K>
         {
             Option<(K, V)> successor = None;
             var current = root;
@@ -2216,7 +2216,7 @@ namespace LanguageExt
 
             return successor;        }
 
-        internal static Option<(K, V)> TryFindOrSuccessor<OrdK, K, V>(MapItem<K, V> root, K key) where OrdK : struct, Ord<K>
+        internal static Option<(K, V)> TryFindOrSuccessor<OrdK, K, V>(MapItem<K, V> root, K key) where OrdK : Ord<K>
         {
             Option<(K, V)> successor = None;
             var current = root;

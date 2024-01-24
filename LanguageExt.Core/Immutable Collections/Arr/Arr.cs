@@ -304,7 +304,7 @@ namespace LanguageExt
         /// Find the index of an item
         /// </summary>
         [Pure]
-        public int IndexOf<EQ>(A item, int index = 0, int count = -1) where EQ : struct, Eq<A>
+        public int IndexOf<EQ>(A item, int index = 0, int count = -1) where EQ : Eq<A>
         {
             var eq = default(EQ);
 
@@ -320,7 +320,7 @@ namespace LanguageExt
         /// Find the index of an item
         /// </summary>
         [Pure]
-        public int LastIndexOf<EQ>(A item, int index = -1, int count = -1) where EQ : struct, Eq<A>
+        public int LastIndexOf<EQ>(A item, int index = -1, int count = -1) where EQ : Eq<A>
         {
             var eq = default(EQ);
 
@@ -425,7 +425,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Arr<A> Remove<EQ>(A value) where EQ : struct, Eq<A>
+        public Arr<A> Remove<EQ>(A value) where EQ : Eq<A>
         {
             int index = IndexOf<EQ>(value);
             return index < 0

@@ -162,7 +162,7 @@ namespace LanguageExt
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static OptionAsync<Validation<MonoidFail, FAIL, A>> Sequence<MonoidFail, FAIL, A>(
             this Validation<MonoidFail, FAIL, OptionAsync<A>> ta)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             ta.Traverse(identity);
         
         /// <summary>

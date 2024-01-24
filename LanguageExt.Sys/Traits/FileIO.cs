@@ -102,9 +102,9 @@ namespace LanguageExt.Sys.Traits
     /// Type-class giving a struct the trait of supporting File IO
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
-    [Typeclass("*")]
+    [Trait("*")]
     public interface HasFile<RT> : HasIO<RT, Error>, HasEncoding<RT>
-        where RT : struct, HasIO<RT, Error>, HasEncoding<RT>
+        where RT : HasIO<RT, Error>, HasEncoding<RT>
     {
         /// <summary>
         /// Access the file synchronous effect environment

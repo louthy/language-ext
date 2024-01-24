@@ -113,35 +113,35 @@ namespace LanguageExt
         /// Provide a sorted enumerable
         /// </summary>
         [Pure]
-        public static IEnumerable<A> Sort<OrdA, A>(this IEnumerable<A> xs) where OrdA : struct, Ord<A> =>
+        public static IEnumerable<A> Sort<OrdA, A>(this IEnumerable<A> xs) where OrdA : Ord<A> =>
             xs.OrderBy(identity, default(OrdA).ToComparer());
 
         /// <summary>
         /// Provide a sorted Seq
         /// </summary>
         [Pure]
-        public static Seq<A> Sort<OrdA, A>(this Seq<A> xs) where OrdA : struct, Ord<A> =>
+        public static Seq<A> Sort<OrdA, A>(this Seq<A> xs) where OrdA : Ord<A> =>
             xs.OrderBy(identity, default(OrdA).ToComparer()).ToSeq();
 
         /// <summary>
         /// Provide a sorted Lst
         /// </summary>
         [Pure]
-        public static Lst<A> Sort<OrdA, A>(this Lst<A> xs) where OrdA : struct, Ord<A> =>
+        public static Lst<A> Sort<OrdA, A>(this Lst<A> xs) where OrdA : Ord<A> =>
             xs.OrderBy(identity, default(OrdA).ToComparer()).Freeze();
 
         /// <summary>
         /// Provide a sorted Arr
         /// </summary>
         [Pure]
-        public static Arr<A> Sort<OrdA, A>(this Arr<A> xs) where OrdA : struct, Ord<A> =>
+        public static Arr<A> Sort<OrdA, A>(this Arr<A> xs) where OrdA : Ord<A> =>
             xs.OrderBy(identity, default(OrdA).ToComparer()).ToArr();
 
         /// <summary>
         /// Provide a sorted array
         /// </summary>
         [Pure]
-        public static A[] Sort<OrdA, A>(this A[] xs) where OrdA : struct, Ord<A> =>
+        public static A[] Sort<OrdA, A>(this A[] xs) where OrdA : Ord<A> =>
             xs.OrderBy(identity, default(OrdA).ToComparer()).ToArray();
 
         /// <summary>
@@ -276,49 +276,49 @@ namespace LanguageExt
         /// Create an immutable map
         /// </summary>
         [Pure]
-        public static Map<OrdK, K, V> Map<OrdK, K, V>() where OrdK : struct, Ord<K> =>
+        public static Map<OrdK, K, V> Map<OrdK, K, V>() where OrdK : Ord<K> =>
             LanguageExt.Map.empty<OrdK, K, V>();
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
         [Pure]
-        public static Map<OrdK, K, V> Map<OrdK, K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) where OrdK : struct, Ord<K> =>
+        public static Map<OrdK, K, V> Map<OrdK, K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) where OrdK : Ord<K> =>
             LanguageExt.Map.create<OrdK, K, V>(head, tail);
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
         [Pure]
-        public static Map<OrdK, K, V> Map<OrdK, K, V>((K, V) head, params (K, V)[] tail) where OrdK : struct, Ord<K> =>
+        public static Map<OrdK, K, V> Map<OrdK, K, V>((K, V) head, params (K, V)[] tail) where OrdK : Ord<K> =>
             LanguageExt.Map.create<OrdK, K, V>(head, tail);
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
         [Pure]
-        public static Map<OrdK, K, V> toMap<OrdK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where OrdK : struct, Ord<K> =>
+        public static Map<OrdK, K, V> toMap<OrdK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where OrdK : Ord<K> =>
             LanguageExt.Map.create<OrdK, K, V>(head, tail);
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
         [Pure]
-        public static Map<OrdK, K, V> toMap<OrdK, K, V>(IEnumerable<(K, V)> items) where OrdK : struct, Ord<K> =>
+        public static Map<OrdK, K, V> toMap<OrdK, K, V>(IEnumerable<(K, V)> items) where OrdK : Ord<K> =>
             LanguageExt.Map.createRange<OrdK, K, V>(items);
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
         [Pure]
-        public static Map<OrdK, K, V> toMap<OrdK, K, V>(IEnumerable<Tuple<K, V>> items) where OrdK : struct, Ord<K> =>
+        public static Map<OrdK, K, V> toMap<OrdK, K, V>(IEnumerable<Tuple<K, V>> items) where OrdK : Ord<K> =>
             LanguageExt.Map.createRange<OrdK, K, V>(items);
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
         [Pure]
-        public static Map<OrdK, K, V> toMap<OrdK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where OrdK : struct, Ord<K> =>
+        public static Map<OrdK, K, V> toMap<OrdK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where OrdK : Ord<K> =>
             LanguageExt.Map.createRange<OrdK, K, V>(items);
 
 
@@ -378,49 +378,49 @@ namespace LanguageExt
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> HashMap<EqK, K, V>() where EqK : struct, Eq<K> =>
+        public static HashMap<EqK, K, V> HashMap<EqK, K, V>() where EqK : Eq<K> =>
             LanguageExt.HashMap.empty<EqK, K, V>();
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> HashMap<EqK, K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) where EqK : struct, Eq<K> =>
+        public static HashMap<EqK, K, V> HashMap<EqK, K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) where EqK : Eq<K> =>
             LanguageExt.HashMap.create<EqK, K, V>(head, tail);
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> HashMap<EqK, K, V>((K, V) head, params (K, V)[] tail) where EqK : struct, Eq<K> =>
+        public static HashMap<EqK, K, V> HashMap<EqK, K, V>((K, V) head, params (K, V)[] tail) where EqK : Eq<K> =>
             LanguageExt.HashMap.create<EqK, K, V>(head, tail);
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> HashMap<EqK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where EqK : struct, Eq<K> =>
+        public static HashMap<EqK, K, V> HashMap<EqK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where EqK : Eq<K> =>
             LanguageExt.HashMap.create<EqK, K, V>(head, tail);
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> toHashMap<EqK, K, V>(IEnumerable<Tuple<K, V>> items) where EqK : struct, Eq<K> =>
+        public static HashMap<EqK, K, V> toHashMap<EqK, K, V>(IEnumerable<Tuple<K, V>> items) where EqK : Eq<K> =>
             LanguageExt.HashMap.createRange<EqK, K, V>(items);
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> toHashMap<EqK, K, V>(IEnumerable<(K, V)> items) where EqK : struct, Eq<K> =>
+        public static HashMap<EqK, K, V> toHashMap<EqK, K, V>(IEnumerable<(K, V)> items) where EqK : Eq<K> =>
             LanguageExt.HashMap.createRange<EqK, K, V>(items);
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> toHashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : struct, Eq<K> =>
+        public static HashMap<EqK, K, V> toHashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : Eq<K> =>
             LanguageExt.HashMap.createRange<EqK, K, V>(items);
 
 
@@ -483,49 +483,49 @@ namespace LanguageExt
         /// Create an immutable tracking hash-map
         /// </summary>
         [Pure]
-        public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>() where EqK : struct, Eq<K> =>
+        public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>() where EqK : Eq<K> =>
             LanguageExt.TrackingHashMap.empty<EqK, K, V>();
 
         /// <summary>
         /// Create an immutable tracking hash-map
         /// </summary>
         [Pure]
-        public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) where EqK : struct, Eq<K> =>
+        public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) where EqK : Eq<K> =>
             LanguageExt.TrackingHashMap.create<EqK, K, V>(head, tail);
 
         /// <summary>
         /// Create an immutable tracking hash-map
         /// </summary>
         [Pure]
-        public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>((K, V) head, params (K, V)[] tail) where EqK : struct, Eq<K> =>
+        public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>((K, V) head, params (K, V)[] tail) where EqK : Eq<K> =>
             LanguageExt.TrackingHashMap.create<EqK, K, V>(head, tail);
 
         /// <summary>
         /// Create an immutable tracking hash-map
         /// </summary>
         [Pure]
-        public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where EqK : struct, Eq<K> =>
+        public static TrackingHashMap<EqK, K, V> TrackingHashMap<EqK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where EqK : Eq<K> =>
             LanguageExt.TrackingHashMap.create<EqK, K, V>(head, tail);
 
         /// <summary>
         /// Create an immutable tracking hash-map
         /// </summary>
         [Pure]
-        public static TrackingHashMap<EqK, K, V> toTrackingHashMap<EqK, K, V>(IEnumerable<Tuple<K, V>> items) where EqK : struct, Eq<K> =>
+        public static TrackingHashMap<EqK, K, V> toTrackingHashMap<EqK, K, V>(IEnumerable<Tuple<K, V>> items) where EqK : Eq<K> =>
             LanguageExt.TrackingHashMap.createRange<EqK, K, V>(items);
 
         /// <summary>
         /// Create an immutable tracking hash-map
         /// </summary>
         [Pure]
-        public static TrackingHashMap<EqK, K, V> toTrackingHashMap<EqK, K, V>(IEnumerable<(K, V)> items) where EqK : struct, Eq<K> =>
+        public static TrackingHashMap<EqK, K, V> toTrackingHashMap<EqK, K, V>(IEnumerable<(K, V)> items) where EqK : Eq<K> =>
             LanguageExt.TrackingHashMap.createRange<EqK, K, V>(items);
 
         /// <summary>
         /// Create an immutable tracking hash-map
         /// </summary>
         [Pure]
-        public static TrackingHashMap<EqK, K, V> toTrackingHashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : struct, Eq<K> =>
+        public static TrackingHashMap<EqK, K, V> toTrackingHashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : Eq<K> =>
             LanguageExt.TrackingHashMap.createRange<EqK, K, V>(items);
 
         
@@ -579,42 +579,42 @@ namespace LanguageExt
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static AtomHashMap<EqK, K, V> AtomHashMap<EqK, K, V>() where EqK : struct, Eq<K> =>
+        public static AtomHashMap<EqK, K, V> AtomHashMap<EqK, K, V>() where EqK : Eq<K> =>
             LanguageExt.AtomHashMap<EqK, K, V>.Empty;
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static AtomHashMap<EqK, K, V> AtomHashMap<EqK, K, V>((K, V) head, params (K, V)[] tail) where EqK : struct, Eq<K> =>
+        public static AtomHashMap<EqK, K, V> AtomHashMap<EqK, K, V>((K, V) head, params (K, V)[] tail) where EqK : Eq<K> =>
             LanguageExt.HashMap.create<EqK, K, V>(head, tail).ToAtom();
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static AtomHashMap<EqK, K, V> AtomHashMap<EqK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where EqK : struct, Eq<K> =>
+        public static AtomHashMap<EqK, K, V> AtomHashMap<EqK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where EqK : Eq<K> =>
             LanguageExt.HashMap.create<EqK, K, V>(head, tail).ToAtom();
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static AtomHashMap<EqK, K, V> AtomHashMap<EqK, K, V>(HashMap<EqK, K, V> items) where EqK : struct, Eq<K> =>
+        public static AtomHashMap<EqK, K, V> AtomHashMap<EqK, K, V>(HashMap<EqK, K, V> items) where EqK : Eq<K> =>
             new (items);
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static AtomHashMap<EqK, K, V> toAtomHashMap<EqK, K, V>(IEnumerable<(K, V)> items) where EqK : struct, Eq<K> =>
+        public static AtomHashMap<EqK, K, V> toAtomHashMap<EqK, K, V>(IEnumerable<(K, V)> items) where EqK : Eq<K> =>
             LanguageExt.HashMap.createRange<EqK, K, V>(items).ToAtom();
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static AtomHashMap<EqK, K, V> toAtomHashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : struct, Eq<K> =>
+        public static AtomHashMap<EqK, K, V> toAtomHashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : Eq<K> =>
             LanguageExt.HashMap.createRange<EqK, K, V>(items).ToAtom();
         
         /// <summary>
@@ -664,28 +664,28 @@ namespace LanguageExt
         /// Create an immutable list
         /// </summary>
         [Pure]
-        public static Lst<PredList, T> List<PredList, T>() where PredList : struct, Pred<ListInfo> =>
+        public static Lst<PredList, T> List<PredList, T>() where PredList : Pred<ListInfo> =>
             new Lst<PredList, T>(Enumerable.Empty<T>());
 
         /// <summary>
         /// Create an immutable list
         /// </summary>
         [Pure]
-        public static Lst<PredList, T> List<PredList, T>(T x, params T[] xs) where PredList : struct, Pred<ListInfo> =>
+        public static Lst<PredList, T> List<PredList, T>(T x, params T[] xs) where PredList : Pred<ListInfo> =>
             new Lst<PredList, T>(x.Cons(xs));
 
         /// <summary>
         /// Create an immutable list
         /// </summary>
         [Pure]
-        public static Lst<PredList, T> toList<PredList, T>(Arr<T> items) where PredList : struct, Pred<ListInfo> =>
+        public static Lst<PredList, T> toList<PredList, T>(Arr<T> items) where PredList : Pred<ListInfo> =>
             new Lst<PredList, T>(items.Value);
 
         /// <summary>
         /// Create an immutable list
         /// </summary>
         [Pure]
-        public static Lst<PredList, T> toList<PredList, T>(IEnumerable<T> items) where PredList : struct, Pred<ListInfo> =>
+        public static Lst<PredList, T> toList<PredList, T>(IEnumerable<T> items) where PredList : Pred<ListInfo> =>
             items is Lst<PredList, T>
                 ? (Lst<PredList, T>)items
                 : new Lst<PredList, T>(items);
@@ -697,8 +697,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Lst<PredList, PredItem, T> List<PredList, PredItem, T>() 
-            where PredItem : struct, Pred<T>
-            where PredList : struct, Pred<ListInfo>  =>
+            where PredItem : Pred<T>
+            where PredList : Pred<ListInfo>  =>
             new Lst<PredList, PredItem, T>(Enumerable.Empty<T>());
 
         /// <summary>
@@ -706,8 +706,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Lst<PredList, PredItem, T> List<PredList, PredItem, T>(T x, params T[] xs) 
-            where PredItem : struct, Pred<T>
-            where PredList : struct, Pred<ListInfo>  =>
+            where PredItem : Pred<T>
+            where PredList : Pred<ListInfo>  =>
             new Lst<PredList, PredItem, T>(x.Cons(xs));
 
         /// <summary>
@@ -715,8 +715,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Lst<PredList, PredItem, T> toList<PredList, PredItem, T>(Arr<T> items) 
-            where PredItem : struct, Pred<T>
-            where PredList : struct, Pred<ListInfo>  =>
+            where PredItem : Pred<T>
+            where PredList : Pred<ListInfo>  =>
             new Lst<PredList, PredItem, T>(items.Value);
 
         /// <summary>
@@ -724,8 +724,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Lst<PredList, PredItem, T> toList<PredList, PredItem, T>(IEnumerable<T> items) 
-            where PredItem : struct, Pred<T>
-            where PredList : struct, Pred<ListInfo>  =>
+            where PredItem : Pred<T>
+            where PredList : Pred<ListInfo>  =>
             items is Lst<PredList, PredItem, T> lst
                 ? lst
                 : new Lst<PredList, PredItem, T>(items);
@@ -745,7 +745,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Arr<T> Array<T>(T x, params T[] xs) =>
-            new Arr<T>(x.Cons(xs).ToArray());
+            new (x.Cons(xs).ToArray());
 
         /// <summary>
         /// Create an immutable array
@@ -897,21 +897,21 @@ namespace LanguageExt
         /// Create an immutable set
         /// </summary>
         [Pure]
-        public static Set<OrdT, T> Set<OrdT, T>() where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> Set<OrdT, T>() where OrdT : Ord<T> =>
             LanguageExt.Set.create<OrdT, T>();
 
         /// <summary>
         /// Create an immutable set
         /// </summary>
         [Pure]
-        public static Set<OrdT, T> Set<OrdT, T>(T head, params T[] tail) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> Set<OrdT, T>(T head, params T[] tail) where OrdT : Ord<T> =>
             LanguageExt.Set.createRange<OrdT, T>(head.Cons(tail));
 
         /// <summary>
         /// Create an immutable set
         /// </summary>
         [Pure]
-        public static Set<OrdT, T> toSet<OrdT, T>(IEnumerable<T> items) where OrdT : struct, Ord<T> =>
+        public static Set<OrdT, T> toSet<OrdT, T>(IEnumerable<T> items) where OrdT : Ord<T> =>
             items is Set<OrdT, T> s
                 ? s
                 : LanguageExt.Set.createRange<OrdT, T>(items);
@@ -948,21 +948,21 @@ namespace LanguageExt
         /// Create an immutable hash-set
         /// </summary>
         [Pure]
-        public static HashSet<EqT, T> HashSet<EqT, T>() where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> HashSet<EqT, T>() where EqT : Eq<T> =>
             LanguageExt.HashSet.create<EqT, T>();
 
         /// <summary>
         /// Create an immutable hash-set
         /// </summary>
         [Pure]
-        public static HashSet<EqT, T> HashSet<EqT, T>(T head, params T[] tail) where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> HashSet<EqT, T>(T head, params T[] tail) where EqT : Eq<T> =>
             LanguageExt.HashSet.createRange<EqT, T>(head.Cons(tail));
 
         /// <summary>
         /// Create an immutable hash-set
         /// </summary>
         [Pure]
-        public static HashSet<EqT, T> toHashSet<EqT, T>(IEnumerable<T> items) where EqT : struct, Eq<T> =>
+        public static HashSet<EqT, T> toHashSet<EqT, T>(IEnumerable<T> items) where EqT : Eq<T> =>
             items is HashSet<EqT, T> hs
                 ? hs
                 : LanguageExt.HashSet.createRange<EqT, T>(items);
@@ -1524,56 +1524,56 @@ namespace LanguageExt
         ///     applicable(diff(a, b) a)
         /// 
         /// </summary>
-        public static Patch<EqA, A> Diff<EqA, A>(this IEnumerable<A> va, IEnumerable<A> vb) where EqA : struct, Eq<A> =>
+        public static Patch<EqA, A> Diff<EqA, A>(this IEnumerable<A> va, IEnumerable<A> vb) where EqA : Eq<A> =>
             Patch.diff<EqA, A>(va, vb);
 
         /// <summary>
         /// Apply the supplied patch to this collection
         /// </summary>
-        public static IEnumerable<A> Apply<EqA, A>(this IEnumerable<A> va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+        public static IEnumerable<A> Apply<EqA, A>(this IEnumerable<A> va, Patch<EqA, A> patch) where EqA : Eq<A> =>
             Patch.apply(patch, va);
 
         /// <summary>
         /// Apply the supplied patch to this collection
         /// </summary>
-        public static Lst<A> Apply<EqA, A>(this Lst<A> va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+        public static Lst<A> Apply<EqA, A>(this Lst<A> va, Patch<EqA, A> patch) where EqA : Eq<A> =>
             Patch.apply(patch, va);
 
         /// <summary>
         /// Apply the supplied patch to this collection
         /// </summary>
-        public static Seq<A> Apply<EqA, A>(this Seq<A> va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+        public static Seq<A> Apply<EqA, A>(this Seq<A> va, Patch<EqA, A> patch) where EqA : Eq<A> =>
             Patch.apply(patch, va);
 
         /// <summary>
         /// Apply the supplied patch to this collection
         /// </summary>
-        public static SpanArray<A> Apply<EqA, A>(this SpanArray<A> va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+        public static SpanArray<A> Apply<EqA, A>(this SpanArray<A> va, Patch<EqA, A> patch) where EqA : Eq<A> =>
             Patch.apply(patch, va);
 
         /// <summary>
         /// Apply the supplied patch to this collection
         /// </summary>
-        public static A[] Apply<EqA, A>(this A[] va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+        public static A[] Apply<EqA, A>(this A[] va, Patch<EqA, A> patch) where EqA : Eq<A> =>
             Patch.apply(patch, va);
 
         /// <summary>
         /// Apply the supplied patch to this collection
         /// </summary>
-        public static Arr<A> Apply<EqA, A>(this Arr<A> va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+        public static Arr<A> Apply<EqA, A>(this Arr<A> va, Patch<EqA, A> patch) where EqA : Eq<A> =>
             Patch.apply(patch, va);
 
         /// <summary>
         /// Apply the supplied patch to this collection
         /// </summary>
-        public static List<A> Apply<EqA, A>(this List<A> va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+        public static List<A> Apply<EqA, A>(this List<A> va, Patch<EqA, A> patch) where EqA : Eq<A> =>
             Patch.apply(patch, va);
 
         /// <summary>
         /// Returns true if a patch can be safely applied to a document, that is,
         /// `applicable(p, d)` holds when `d` is a valid source document for the patch `p`.
         /// </summary>
-        public static bool Applicable<EqA, A>(this IEnumerable<A> va, Patch<EqA, A> patch) where EqA : struct, Eq<A> =>
+        public static bool Applicable<EqA, A>(this IEnumerable<A> va, Patch<EqA, A> patch) where EqA : Eq<A> =>
             Patch.applicable(patch, va);
     }
 }

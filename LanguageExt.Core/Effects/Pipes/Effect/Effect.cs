@@ -35,36 +35,33 @@ namespace LanguageExt.Pipes
          
          REFERENCE IMPLEMENTATION
          
+         */
+         
         [Pure]
-        internal static Aff<RT, R> RunEffect<RT, R>(
-            this Proxy<RT, Void, Unit, Unit, Void, R> ma, 
-            ConcurrentDictionary<object, IDisposable> disps) 
-            where RT : struct, HasIO<RT, Error> 
+        internal static Transducer<RT, Sum<Error, R>> RunEffect_REFERENCE<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma) 
+            where RT : HasIO<RT, Error> 
         {
             return Go(ma);
             
-            Aff<RT, R> Go(Proxy<RT, Void, Unit, Unit, Void, R> p) =>
+            Transducer<RT, Sum<Error, R>> Go(Proxy<RT, Void, Unit, Unit, Void, R> p) =>
                 p.ToProxy() switch
                 {
-                    M<RT, Void, Unit, Unit, Void, R> (var m)          => m.Bind(Go),
-                    Pure<RT, Void, Unit, Unit, Void, R> (var r)       => Aff<RT, R>.Success(r),                                                                                
+                    M<RT, Void, Unit, Unit, Void, R> (var mmx)        => mmx.Map(mx => mx.Map(Go)).Flatten(),
+                    Pure<RT, Void, Unit, Unit, Void, R> (var r)       => Transducer.constant<RT, Sum<Error, R>>(Sum<Error, R>.Right(r)),                                                                                
                     Enumerate<RT, Void, Unit, Unit, Void, R> me       => EnumerateCase(me, disps),
-                    Use<RT, Void, Unit, Unit, Void, R> mu             => mu.Run(disps).RunEffect(disps),
-                    Release<RT, Void, Unit, Unit, Void, R> mu         => mu.Run(disps).RunEffect(disps),
-                    Request<RT, Void, Unit, Unit, Void, R> (var v, _) => closed<Aff<RT, R>>(v),
-                    Respond<RT, Void, Unit, Unit, Void, R> (var v, _) => closed<Aff<RT, R>>(v),
+                    Request<RT, Void, Unit, Unit, Void, R> (var v, _) => closed<Transducer<RT, Sum<Error, R>>>(v),
+                    Respond<RT, Void, Unit, Unit, Void, R> (var v, _) => closed<Transducer<RT, Sum<Error, R>>>(v),
                     _                                                 => throw new NotSupportedException()
                 };
         }        
-        */
 
         [Pure]
-        public static Eff<RT, Unit> RunEffectUnit<RT>(this Proxy<RT, Void, Unit, Unit, Void, Unit> ma) where RT : struct, HasIO<RT, Error> =>
+        public static Eff<RT, Unit> RunEffectUnit<RT>(this Proxy<RT, Void, Unit, Unit, Void, Unit> ma) where RT : HasIO<RT, Error> =>
             ma.RunEffect() | @catch(Errors.SequenceEmpty, unitEff);
 
         [Pure]
-        public static Eff<RT, R> RunEffect<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma) where RT : struct, HasIO<RT, Error> =>
-            liftIO(async (RT env) =>
+        public static Transducer<RT, Sum<Error, R>> RunEffect<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma) where RT : HasIO<RT, Error> =>
+            Eff<RT, R>.LiftIO(async env =>
             {
                 var disps = new ConcurrentDictionary<object, IDisposable>(new ReferenceEqualityComparer<object>());
                 try
@@ -78,13 +75,13 @@ namespace LanguageExt.Pipes
                         disp.Value?.Dispose();
                     }
                 }
-            });
+            }).Morphism;
 
-        static Eff<RT, R> EnumerateCase<RT, R>(
+        /*static Transducer<RT, Sum<Error, R>> EnumerateCase<RT, R>(
             Enumerate<RT, Void, Unit, Unit, Void, R> me,
             ConcurrentDictionary<object, IDisposable> disps)
-            where RT : struct, HasIO<RT, Error> =>
-            liftIO(async (RT env) =>
+            where RT : HasIO<RT, Error> =>
+            Eff<RT, R>.LiftIO(async (RT env) =>
             {
                 Fin<Unit> lastResult = Errors.SequenceEmpty;
 
@@ -135,15 +132,15 @@ namespace LanguageExt.Pipes
                     default:
                         throw new NotSupportedException();
                 }
-            });
+            });*/
 
         [Pure]
-        static Eff<RT, R> RunEffect<RT, R>(
+        static Transducer<RT, Sum<Error, R>> RunEffect<RT, R>(
             this Proxy<RT, Void, Unit, Unit, Void, R> ma,
             ConcurrentDictionary<object, IDisposable> disps) 
-            where RT : struct, HasIO<RT, Error> =>
-            liftIO(
-                async (RT env) =>
+            where RT : HasIO<RT, Error> =>
+            Eff<RT, R>.LiftIO(
+                async env =>
                 {
                     var p = ma;
 
@@ -216,14 +213,6 @@ namespace LanguageExt.Pipes
                             } 
                             break;
 
-                            case Use<RT, Void, Unit, Unit, Void, R> mu:
-                                p = mu.Run(disps);
-                                break;
-
-                            case Release<RT, Void, Unit, Unit, Void, R> mu:
-                                p = mu.Run(disps);
-                                break;
-
                             case Request<RT, Void, Unit, Unit, Void, R>:
                                 return Errors.Closed;
 
@@ -233,23 +222,23 @@ namespace LanguageExt.Pipes
                     }
 
                     return Errors.Cancelled;
-                });
+                }).Morphism;
 
         
         [Pure, MethodImpl(mops)]
-        public static Effect<RT, R> lift<RT, R>(Aff<R> ma) where RT : struct, HasIO<RT, Error> =>
+        public static Effect<RT, R> lift<RT, R>(Aff<R> ma) where RT : HasIO<RT, Error> =>
             lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
 
         [Pure, MethodImpl(mops)]
-        public static Effect<RT, R> lift<RT, R>(Eff<R> ma) where RT : struct, HasIO<RT, Error> =>
+        public static Effect<RT, R> lift<RT, R>(Eff<R> ma) where RT : HasIO<RT, Error> =>
             lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
 
         [Pure, MethodImpl(mops)]
-        public static Effect<RT, R> lift<RT, R>(Aff<RT, R> ma) where RT : struct, HasIO<RT, Error> =>
+        public static Effect<RT, R> lift<RT, R>(Aff<RT, R> ma) where RT : HasIO<RT, Error> =>
             lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
 
         [Pure, MethodImpl(mops)]
-        public static Effect<RT, R> lift<RT, R>(Eff<RT, R> ma) where RT : struct, HasIO<RT, Error> =>
+        public static Effect<RT, R> lift<RT, R>(Eff<RT, R> ma) where RT : HasIO<RT, Error> =>
             lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
     }
 }

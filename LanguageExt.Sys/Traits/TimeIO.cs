@@ -39,9 +39,9 @@ namespace LanguageExt.Sys.Traits
     /// Type-class giving a struct the trait of supporting time IO
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
-    [Typeclass("*")]
+    [Trait("*")]
     public interface HasTime<RT> : HasIO<RT, Error> 
-        where RT : struct, HasTime<RT>
+        where RT : HasTime<RT>
     {
         /// <summary>
         /// Access the time synchronous effect environment

@@ -50,7 +50,7 @@ namespace LanguageExt
             new (e => ma.Run(e) | mb.fail(e));
     }
 
-    public readonly struct AffCatch<RT, A> where RT : struct, HasIO<RT, Error>
+    public readonly struct AffCatch<RT, A> where RT : HasIO<RT, Error>
     {
         internal readonly Func<Error, Aff<RT, A>> fail;
 

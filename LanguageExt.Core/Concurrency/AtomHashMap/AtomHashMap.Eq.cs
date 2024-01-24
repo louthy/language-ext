@@ -25,7 +25,7 @@ namespace LanguageExt
         IEnumerable<(K Key, V Value)>,
         IEquatable<HashMap<EqK, K, V>>,
         IEquatable<AtomHashMap<EqK, K, V>>
-        where EqK : struct, Eq<K>
+        where EqK : Eq<K>
     {
         internal volatile TrieMap<EqK, K, V> Items;
         public event AtomHashMapChangeEvent<EqK, K, V>? Change;
@@ -1037,7 +1037,7 @@ namespace LanguageExt
         /// <param name="value">Value to check</param>
         /// <returns>True if an item with the value supplied is in the map</returns>
         [Pure]
-        public bool Contains<EqV>(V value) where EqV : struct, Eq<V> =>
+        public bool Contains<EqV>(V value) where EqV : Eq<V> =>
             Items.Contains<EqV>(value);
 
         /// <summary>
@@ -1046,7 +1046,7 @@ namespace LanguageExt
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
         [Pure]
-        public bool Contains<EqV>(K key, V value) where EqV : struct, Eq<V> =>
+        public bool Contains<EqV>(K key, V value) where EqV : Eq<V> =>
             Items.Contains<EqV>(key, value);
 
         /// <summary>

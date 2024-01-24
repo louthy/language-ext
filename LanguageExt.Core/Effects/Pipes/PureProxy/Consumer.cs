@@ -19,27 +19,27 @@ namespace LanguageExt.Pipes
     {
         public abstract Consumer<IN, B> Select<B>(Func<A, B> f);
         public abstract Consumer<IN, B> SelectMany<B>(Func<A, Consumer<IN, B>> f);
-        public abstract ConsumerLift<RT, IN, B> SelectMany<RT, B>(Func<A, ConsumerLift<RT, IN, B>> f) where RT : struct, HasIO<RT, Error>;
-        public abstract Consumer<RT, IN, B> SelectMany<RT, B>(Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasIO<RT, Error>;
+        public abstract ConsumerLift<RT, IN, B> SelectMany<RT, B>(Func<A, ConsumerLift<RT, IN, B>> f) where RT : HasIO<RT, Error>;
+        public abstract Consumer<RT, IN, B> SelectMany<RT, B>(Func<A, Consumer<RT, IN, B>> f) where RT : HasIO<RT, Error>;
         public abstract Pipe<IN, OUT, B> SelectMany<OUT, B>(Func<A, Producer<OUT, B>> f);
-        public abstract Pipe<RT, IN, OUT, B> SelectMany<RT, OUT, B>(Func<A, ProducerLift<RT, OUT, B>> f) where RT : struct, HasIO<RT, Error>;
-        public abstract Consumer<RT, IN, A> Interpret<RT>() where RT : struct, HasIO<RT, Error>;
-        public abstract ConsumerLift<RT, IN, A> ToConsumerLift<RT>() where RT : struct, HasIO<RT, Error>;
+        public abstract Pipe<RT, IN, OUT, B> SelectMany<RT, OUT, B>(Func<A, ProducerLift<RT, OUT, B>> f) where RT : HasIO<RT, Error>;
+        public abstract Consumer<RT, IN, A> Interpret<RT>() where RT : HasIO<RT, Error>;
+        public abstract ConsumerLift<RT, IN, A> ToConsumerLift<RT>() where RT : HasIO<RT, Error>;
         public abstract Pipe<IN, OUT, A> ToPipe<OUT>();
         
         public Consumer<IN, B> Map<B>(Func<A, B> f) => Select(f);
         public Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> f) => SelectMany(f);
-        public ConsumerLift<RT, IN, B> Bind<RT, B>(Func<A, ConsumerLift<RT, IN, B>> f) where RT : struct, HasIO<RT, Error> => SelectMany(f);
-        public Consumer<RT, IN, B> Bind<RT, B>(Func<A, Consumer<RT, IN, B>> f) where RT : struct, HasIO<RT, Error> => SelectMany(f);
+        public ConsumerLift<RT, IN, B> Bind<RT, B>(Func<A, ConsumerLift<RT, IN, B>> f) where RT : HasIO<RT, Error> => SelectMany(f);
+        public Consumer<RT, IN, B> Bind<RT, B>(Func<A, Consumer<RT, IN, B>> f) where RT : HasIO<RT, Error> => SelectMany(f);
         public Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f) => SelectMany(f);
  
         public Consumer<IN, C> SelectMany<B, C>(Func<A, Consumer<IN, B>> f, Func<A, B, C> project) =>
             SelectMany(a => f(a).Select(b => project(a, b)));
         
-        public ConsumerLift<RT, IN, C> SelectMany<RT, B, C>(Func<A, ConsumerLift<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
+        public ConsumerLift<RT, IN, C> SelectMany<RT, B, C>(Func<A, ConsumerLift<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
             SelectMany(a => f(a).Select(b => project(a, b)));
         
-        public Consumer<RT, IN, C> SelectMany<RT, B, C>(Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
+        public Consumer<RT, IN, C> SelectMany<RT, B, C>(Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
             SelectMany(a => f(a).Select(b => project(a, b)));
         
         public Pipe<IN, OUT, C> SelectMany<OUT, B, C>(Func<A, Producer<OUT, B>> f, Func<A, B, C> project) =>

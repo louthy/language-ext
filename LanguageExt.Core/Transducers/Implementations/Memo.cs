@@ -8,7 +8,7 @@ using static LanguageExt.Prelude;
 namespace LanguageExt;
 
 record MemoTransducer<EqA, A, B>(Transducer<A, B> Transducer) : Transducer<A, B>
-    where EqA : struct, Eq<A>
+    where EqA : Eq<A>
 {
     public override Reducer<A, S> Transform<S>(Reducer<B, S> reduce) =>
         new Reduce<S>(Transducer, reduce);
@@ -32,7 +32,7 @@ record MemoTransducer<EqA, A, B>(Transducer<A, B> Transducer) : Transducer<A, B>
 }
 
 record Memo1Transducer<EqA, A, B>(Transducer<A, B> Transducer) : Transducer<A, B>
-    where EqA : struct, Eq<A>
+    where EqA : Eq<A>
 {
     readonly AtomHashMap<EqKey, Key, TResultBase> memos = AtomHashMap<EqKey, Key, TResultBase>(); 
     

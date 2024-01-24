@@ -12,7 +12,7 @@ namespace LanguageExt;
 public readonly record struct ForkIO<RT, E, A>(
     IO<RT, E, Unit> Cancel,
     IO<RT, E, A> Await)
-    where RT : struct, HasIO<RT, E>;
+    where RT : HasIO<RT, E>;
 
 
 /// <summary>

@@ -13,7 +13,7 @@ public static partial class Prelude
     public static IO<RT, Err, B> apply<RT, Err, A, B>(
         IO<RT, Err, Func<A, B>> mf,
         IO<RT, Err, A> ma)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         new(mf.Morphism.Apply(ma.Morphism));
 
     /// <summary>
@@ -24,7 +24,7 @@ public static partial class Prelude
         IO<RT, Err, Func<A, B, C>> mf,
         IO<RT, Err, A> ma,
         IO<RT, Err, B> mb)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         mf.Map(curry).Apply(ma).Apply(mb);
 
     /// <summary>
@@ -34,7 +34,7 @@ public static partial class Prelude
     public static IO<RT, Err, Func<B, C>> apply<RT, Err, A, B, C>(
         IO<RT, Err, Func<A, B, C>> mf,
         IO<RT, Err, A> ma)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         mf.Map(curry).Apply(ma);
 
     /// <summary>
@@ -46,7 +46,7 @@ public static partial class Prelude
         IO<RT, Err, A> ma,
         IO<RT, Err, B> mb,
         IO<RT, Err, C> mc)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         mf.Map(curry).Apply(ma).Apply(mb).Apply(mc);
 
     /// <summary>
@@ -57,7 +57,7 @@ public static partial class Prelude
         IO<RT, Err, Func<A, B, C, D>> mf,
         IO<RT, Err, A> ma,
         IO<RT, Err, B> mb)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         mf.Map(curry).Apply(ma).Apply(mb);
 
     /// <summary>
@@ -67,7 +67,7 @@ public static partial class Prelude
     public static IO<RT, Err, Func<B, Func<C, D>>> apply<RT, Err, A, B, C, D>(
         IO<RT, Err, Func<A, B, C, D>> mf,
         IO<RT, Err, A> ma)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         mf.Map(curry).Apply(ma);
 
     /// <summary>
@@ -80,7 +80,7 @@ public static partial class Prelude
         IO<RT, Err, B> mb,
         IO<RT, Err, C> mc,
         IO<RT, Err, D> md)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         mf.Map(curry).Apply(ma).Apply(mb).Apply(mc).Apply(md);
 
     /// <summary>
@@ -92,7 +92,7 @@ public static partial class Prelude
         IO<RT, Err, A> ma,
         IO<RT, Err, B> mb,
         IO<RT, Err, C> mc)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         mf.Map(curry).Apply(ma).Apply(mb).Apply(mc);
 
     /// <summary>
@@ -103,7 +103,7 @@ public static partial class Prelude
         IO<RT, Err, Func<A, B, C, D, E>> mf,
         IO<RT, Err, A> ma,
         IO<RT, Err, B> mb)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         mf.Map(curry).Apply(ma).Apply(mb);
 
     /// <summary>
@@ -113,7 +113,7 @@ public static partial class Prelude
     public static IO<RT, Err, Func<B, Func<C, Func<D, E>>>> apply<RT, Err, A, B, C, D, E>(
         IO<RT, Err, Func<A, B, C, D, E>> mf,
         IO<RT, Err, A> ma)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         mf.Map(curry).Apply(ma);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,7 +128,7 @@ public static partial class Prelude
     public static IO<RT, Err, B> apply<RT, Err, A, B>(
         Func<A, B> f,
         IO<RT, Err, A> ma)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         IO<RT, Err, Func<A, B>>.Pure(f).Apply(ma);
 
     /// <summary>
@@ -139,7 +139,7 @@ public static partial class Prelude
         Func<A, B, C> f,
         IO<RT, Err, A> ma,
         IO<RT, Err, B> mb)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         IO<RT, Err, Func<A, B, C>>.Pure(f).Apply(ma, mb);
 
     /// <summary>
@@ -149,7 +149,7 @@ public static partial class Prelude
     public static IO<RT, Err, Func<B, C>> apply<RT, Err, A, B, C>(
         Func<A, B, C> f,
         IO<RT, Err, A> ma)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         IO<RT, Err, Func<A, B, C>>.Pure(f).Apply(ma);
 
     /// <summary>
@@ -161,7 +161,7 @@ public static partial class Prelude
         IO<RT, Err, A> ma,
         IO<RT, Err, B> mb,
         IO<RT, Err, C> mc)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         IO<RT, Err, Func<A, B, C, D>>.Pure(f).Apply(ma, mb, mc);
 
     /// <summary>
@@ -172,7 +172,7 @@ public static partial class Prelude
         Func<A, B, C, D> f,
         IO<RT, Err, A> ma,
         IO<RT, Err, B> mb)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         IO<RT, Err, Func<A, B, C, D>>.Pure(f).Apply(ma, mb);
 
     /// <summary>
@@ -182,7 +182,7 @@ public static partial class Prelude
     public static IO<RT, Err, Func<B, Func<C, D>>> apply<RT, Err, A, B, C, D>(
         Func<A, B, C, D> f,
         IO<RT, Err, A> ma)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         IO<RT, Err, Func<A, B, C, D>>.Pure(f).Apply(ma);
 
     /// <summary>
@@ -195,7 +195,7 @@ public static partial class Prelude
         IO<RT, Err, B> mb,
         IO<RT, Err, C> mc,
         IO<RT, Err, D> md)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         IO<RT, Err, Func<A, B, C, D, E>>.Pure(f).Apply(ma, mb, mc, md);
 
     /// <summary>
@@ -207,7 +207,7 @@ public static partial class Prelude
         IO<RT, Err, A> ma,
         IO<RT, Err, B> mb,
         IO<RT, Err, C> mc)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         IO<RT, Err, Func<A, B, C, D, E>>.Pure(f).Apply(ma, mb, mc);
 
     /// <summary>
@@ -218,7 +218,7 @@ public static partial class Prelude
         Func<A, B, C, D, E> f,
         IO<RT, Err, A> ma,
         IO<RT, Err, B> mb)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         IO<RT, Err, Func<A, B, C, D, E>>.Pure(f).Apply(ma, mb);
 
     /// <summary>
@@ -228,6 +228,6 @@ public static partial class Prelude
     public static IO<RT, Err, Func<B, Func<C, Func<D, E>>>> apply<RT, Err, A, B, C, D, E>(
         Func<A, B, C, D, E> f,
         IO<RT, Err, A> ma)
-        where RT : struct, HasIO<RT, Err> =>
+        where RT : HasIO<RT, Err> =>
         IO<RT, Err, Func<A, B, C, D, E>>.Pure(f).Apply(ma);
 }    

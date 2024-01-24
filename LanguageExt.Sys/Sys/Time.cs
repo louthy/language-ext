@@ -10,7 +10,7 @@ namespace LanguageExt.Sys
     /// DateTime IO 
     /// </summary>
     public static class Time<RT>
-        where RT : struct, HasTime<RT>
+        where RT : HasTime<RT>
     {
         /// <summary>
         /// Current local date time

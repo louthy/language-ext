@@ -59,7 +59,7 @@ public static class OptionUnsafeExtensions
     }
 
     /// <summary>
-    /// Add the bound values of x and y, uses an Add type-class to provide the add
+    /// Add the bound values of x and y, uses an Add trait to provide the add
     /// operation for type A.  For example x.Add<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="ADD">Add of A</typeparam>
@@ -68,13 +68,13 @@ public static class OptionUnsafeExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
-    public static OptionUnsafe<A> Add<ARITH, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where ARITH : struct, Arithmetic<A> =>
+    public static OptionUnsafe<A> Add<ARITH, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where ARITH : Arithmetic<A> =>
         from a in x
         from b in y
         select plus<ARITH, A>(a, b);
 
     /// <summary>
-    /// Find the subtract between the two bound values of x and y, uses a Subtract type-class
+    /// Find the subtract between the two bound values of x and y, uses a Subtract trait
     /// to provide the subtract operation for type A.  For example x.Subtract<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="DIFF">Subtract of A</typeparam>
@@ -83,13 +83,13 @@ public static class OptionUnsafeExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An OptionUnsafe with the subtract between x and y</returns>
     [Pure]
-    public static OptionUnsafe<A> Subtract<ARITH, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where ARITH : struct, Arithmetic<A> =>
+    public static OptionUnsafe<A> Subtract<ARITH, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where ARITH : Arithmetic<A> =>
         from a in x
         from b in y
         select subtract<ARITH, A>(a, b);
 
     /// <summary>
-    /// Find the product between the two bound values of x and y, uses a Product type-class
+    /// Find the product between the two bound values of x and y, uses a Product trait
     /// to provide the product operation for type A.  For example x.Product<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="PROD">Product of A</typeparam>
@@ -98,13 +98,13 @@ public static class OptionUnsafeExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An OptionUnsafe with the product of x and y</returns>
     [Pure]
-    public static OptionUnsafe<A> Product<ARITH, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where ARITH : struct, Arithmetic<A> =>
+    public static OptionUnsafe<A> Product<ARITH, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where ARITH : Arithmetic<A> =>
         from a in x
         from b in y
         select product<ARITH, A>(a, b);
 
     /// <summary>
-    /// Divide the two bound values of x and y, uses a Divide type-class to provide the divide
+    /// Divide the two bound values of x and y, uses a Divide trait to provide the divide
     /// operation for type A.  For example x.Divide<TDouble,double>(y)
     /// </summary>
     /// <typeparam name="DIV">Divide of A</typeparam>
@@ -113,7 +113,7 @@ public static class OptionUnsafeExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An OptionUnsafe x / y</returns>
     [Pure]
-    public static OptionUnsafe<A> Divide<NUM, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where NUM : struct, Num<A> =>
+    public static OptionUnsafe<A> Divide<NUM, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where NUM : Num<A> =>
         from a in x
         from b in y
         select divide<NUM, A>(a, b);
@@ -295,10 +295,10 @@ public static class OptionUnsafeExtensions
     /// Sum the bound value
     /// </summary>
     /// <remarks>This is a legacy method for backwards compatibility</remarks>
-    /// <param name="self">Option of A that is from the type-class NUM</param>
+    /// <param name="self">Option of A that is from the trait NUM</param>
     /// <returns>The bound value or 0 if None</returns>
     public static A Sum<NUM, A>(this OptionUnsafe<A> self)
-        where NUM : struct, Num<A> =>
+        where NUM : Num<A> =>
         sum<NUM, MOptionUnsafe<A>, OptionUnsafe<A>, A>(self);
 
     /// <summary>

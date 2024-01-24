@@ -15,7 +15,7 @@ public static partial class EffExtensions
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> Repeat<RT, A>(this Eff<RT, A> ma)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(ma.As.Repeat());
 
     /// <summary>
@@ -27,7 +27,7 @@ public static partial class EffExtensions
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> Repeat<RT, A>(this Eff<RT, A> ma, Schedule schedule)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(ma.As.Repeat(schedule));
 
     /// <summary>
@@ -38,7 +38,7 @@ public static partial class EffExtensions
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> RepeatWhile<RT, A>(this Eff<RT, A> ma, Func<A, bool> predicate) 
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(ma.As.RepeatWhile(predicate));
 
     /// <summary>
@@ -53,7 +53,7 @@ public static partial class EffExtensions
         this Eff<RT, A> ma,
         Schedule schedule,
         Func<A, bool> predicate)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(ma.As.RepeatWhile(schedule, predicate));
 
     /// <summary>
@@ -66,7 +66,7 @@ public static partial class EffExtensions
     public static Eff<RT, A> RepeatUntil<RT, A>(
         this Eff<RT, A> ma,
         Func<A, bool> predicate)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(ma.As.RepeatUntil(predicate));
 
     /// <summary>
@@ -81,6 +81,6 @@ public static partial class EffExtensions
         this Eff<RT, A> ma,
         Schedule schedule,
         Func<A, bool> predicate)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(ma.As.RepeatUntil(schedule, predicate));
 }

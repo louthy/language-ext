@@ -15,7 +15,7 @@ public static partial class IOExtensions
     /// <returns>The result of the last invocation of ma</returns>
     public static IO<RT, E, A> Retry<RT, E, A>(
         this IO<RT, E, A> ma)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.retry(Schedule.Forever, ma.Morphism));
 
     /// <summary>
@@ -29,7 +29,7 @@ public static partial class IOExtensions
     public static IO<RT, E, A> Retry<RT, E, A>(
         this IO<RT, E, A> ma, 
         Schedule schedule)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.retry(schedule, ma.Morphism));
 
     /// <summary>
@@ -42,7 +42,7 @@ public static partial class IOExtensions
     public static IO<RT, E, A> RetryWhile<RT, E, A>(
         this IO<RT, E, A> ma, 
         Func<E, bool> predicate) 
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.retryWhile(Schedule.Forever, ma.Morphism, predicate));
 
     /// <summary>
@@ -57,7 +57,7 @@ public static partial class IOExtensions
         this IO<RT, E, A> ma,
         Schedule schedule,
         Func<E, bool> predicate)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.retryWhile(schedule, ma.Morphism, predicate));
 
     /// <summary>
@@ -70,7 +70,7 @@ public static partial class IOExtensions
     public static IO<RT, E, A> RetryUntil<RT, E, A>(
         this IO<RT, E, A> ma,
         Func<E, bool> predicate)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.retryUntil(Schedule.Forever, ma.Morphism, predicate));
 
     /// <summary>
@@ -85,6 +85,6 @@ public static partial class IOExtensions
         this IO<RT, E, A> ma,
         Schedule schedule,
         Func<E, bool> predicate)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.retryUntil(schedule, ma.Morphism, predicate));
 }

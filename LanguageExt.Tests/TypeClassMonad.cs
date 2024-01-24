@@ -74,28 +74,28 @@ namespace LanguageExt.Tests
         }
 
         public static MA Add<MonadA, MA, NumA, A>(MA ma, MA mb)
-            where MonadA : struct, Monad<MA, A>
-            where NumA : struct, Num<A> =>
+            where MonadA : Monad<MA, A>
+            where NumA : Num<A> =>
                 default(MonadA).Bind<MonadA, MA, A>(ma, a =>
                 default(MonadA).Bind<MonadA, MA, A>(mb, b =>
                 default(MonadA).Return(default(NumA).Plus(a, b))));
 
         public static MA DoubleAndLift<MONAD, MA, NUM, A>(A num)
-            where MONAD : struct, Monad<MA, A>
-            where NUM   : struct, Num<A> =>
+            where MONAD : Monad<MA, A>
+            where NUM   : Num<A> =>
             Return<MONAD, MA, A>(product<NUM, A>(num, fromInteger<NUM, A>(2)));
 
         public static MA DoubleAndLift<MONAD, MA>(int num)
-            where MONAD : struct, Monad<MA, int> =>
+            where MONAD : Monad<MA, int> =>
             Return<MONAD, MA, int>(product<TInt, int>(num, 2));
 
         public static MA DoubleGenericMonad<MONAD, MA>(MA ma)
-            where MONAD : struct, Monad<MA, int> =>
+            where MONAD : Monad<MA, int> =>
             bind<MONAD, MONAD, MA, MA, int, int>(ma, a => Return<MONAD, MA, int>(a * 2));
 
         public static MA DoubleGenericMonad<MONAD, MA, NUM, A>(MA ma)
-            where MONAD : struct, Monad<MA, A>
-            where NUM   : struct, Num<A> =>
+            where MONAD : Monad<MA, A>
+            where NUM   : Num<A> =>
             bind<MONAD, MONAD, MA, MA, A, A>(ma, a => Return<MONAD, MA, A>(product<NUM, A>(a, fromInteger<NUM, A>(2))));
     }
 }

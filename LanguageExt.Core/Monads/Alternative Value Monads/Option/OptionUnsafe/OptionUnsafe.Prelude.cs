@@ -26,13 +26,13 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public static OptionUnsafe<T> subtract<NUM, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where NUM : struct, Num<T> =>
+        public static OptionUnsafe<T> subtract<NUM, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where NUM : Num<T> =>
             lhs.Subtract<NUM, T>(rhs);
 
         /// <summary>
         /// Find the product of the Ts
         [Pure]
-        public static OptionUnsafe<T> product<NUM, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where NUM : struct, Num<T> =>
+        public static OptionUnsafe<T> product<NUM, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where NUM : Num<T> =>
             lhs.Product<NUM, T>(rhs);
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static OptionUnsafe<T> divide<NUM, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where NUM : struct, Num<T> =>
+        public static OptionUnsafe<T> divide<NUM, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where NUM : Num<T> =>
             lhs.Divide<NUM, T>(rhs);
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static OptionUnsafe<T> add<NUM, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where NUM : struct, Num<T> =>
+        public static OptionUnsafe<T> add<NUM, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where NUM : Num<T> =>
             lhs.Add<NUM, T>(rhs);
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace LanguageExt
         /// <returns>OptionUnsafe<T> in a Some state or throws ValueIsNullException
         /// if isnull(value).</returns>
         [Pure]
-        public static OptionUnsafe<T> SomeUnsafe<T>(T value) =>
+        public static OptionUnsafe<T> SomeUnsafe<T>(T? value) =>
             default(MOptionUnsafe<T>).Return(value);
 
         /// <summary>

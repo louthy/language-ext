@@ -18,7 +18,7 @@ public static partial class Prelude
     /// <returns>Synchronous IO monad that captures the pure value</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> SuccessEff<RT, A>(A value) 
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         LanguageExt.Eff<RT, A>.Pure(value);
 
     /// <summary>
@@ -29,7 +29,7 @@ public static partial class Prelude
     /// <returns>Synchronous IO monad that captures the failure</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> FailEff<RT, A>(Error error) 
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         LanguageExt.Eff<RT, A>.Fail(error);    
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, RT> runtimeEff<RT>()
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         LanguageExt.Eff<RT, RT>.Lift(rt => rt);
    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ public static partial class Prelude
     /// <returns>Flattened IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> flatten<RT, A>(Eff<RT, Eff<RT, A>> mma)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(mma.Morphism.Map(ma => ma.Map(r => r.Morphism)).Flatten());
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ public static partial class Prelude
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, (A First, B Second)> zip<RT, A, B>(
          (Eff<RT, A> First, Eff<RT, B> Second) tuple)
-         where RT : struct, HasIO<RT, Error> =>
+         where RT : HasIO<RT, Error> =>
          new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism));
 
     /// <summary>
@@ -107,7 +107,7 @@ public static partial class Prelude
         (Eff<RT, A> First, 
               Eff<RT, B> Second, 
               Eff<RT, C> Third) tuple)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism, tuple.Third.Morphism));
 
     /// <summary>
@@ -129,7 +129,7 @@ public static partial class Prelude
             Eff<RT, B> Second,
             Eff<RT, C> Third,
             Eff<RT, D> Fourth) tuple)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism, tuple.Third.Morphism, tuple.Fourth.Morphism));
     
     /// <summary>
@@ -148,7 +148,7 @@ public static partial class Prelude
     public static Eff<RT, (A First, B Second)> zip<RT, A, B>(
         Eff<RT, A> First,
         Eff<RT, B> Second)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         (First, Second).Zip();
 
     /// <summary>
@@ -169,7 +169,7 @@ public static partial class Prelude
         Eff<RT, A> First, 
         Eff<RT, B> Second, 
         Eff<RT, C> Third)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         (First, Second, Third).Zip();
     
     /// <summary>
@@ -191,7 +191,7 @@ public static partial class Prelude
         Eff<RT, B> Second, 
         Eff<RT, C> Third, 
         Eff<RT, D> Fourth)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         (First, Second, Third, Fourth).Zip();
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -204,7 +204,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(Func<RT, Either<Error, A>> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         LanguageExt.Eff<RT, A>.Lift(f);
 
     /// <summary>
@@ -212,7 +212,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(Func<RT, Fin<A>> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         LanguageExt.Eff<RT, A>.Lift(f);
 
     /// <summary>
@@ -220,7 +220,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(Transducer<RT, Either<Error, A>> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         LanguageExt.Eff<RT, A>.Lift(f);
 
     /// <summary>
@@ -228,7 +228,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(Transducer<RT, Fin<A>> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         LanguageExt.Eff<RT, A>.Lift(f);
 
     /// <summary>
@@ -236,7 +236,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(Func<RT, Sum<Error, A>> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         LanguageExt.Eff<RT, A>.Lift(f);
 
     /// <summary>
@@ -244,7 +244,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(Transducer<RT, Sum<Error, A>> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         LanguageExt.Eff<RT, A>.Lift(f);
 
     /// <summary>
@@ -252,7 +252,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(Func<RT, Task<Sum<Error, A>>> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         LanguageExt.Eff<RT, A>.LiftIO(f);
 
     /// <summary>
@@ -260,7 +260,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(Func<RT, Task<Either<Error, A>>> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         LanguageExt.Eff<RT, A>.LiftIO(f);
 
     /// <summary>
@@ -268,7 +268,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> liftEff<RT, A>(Func<RT, Task<Fin<A>>> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         LanguageExt.Eff<RT, A>.LiftIO(f);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -281,7 +281,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> memo<RT, A>(Eff<RT, A> ma)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.Memo();
     
     /// <summary>
@@ -314,7 +314,7 @@ public static partial class Prelude
     /// <returns>IO operation that's marked ready for tail recursion</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> tail<RT, A>(Eff<RT, A> ma)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(tail(ma.Morphism));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -331,7 +331,7 @@ public static partial class Prelude
     /// </returns>
     [MethodImpl(Opt.Default)]
     public static Eff<RT, ForkEff<RT, A>> fork<RT, A>(Eff<RT, A> ma, Option<TimeSpan> timeout = default) 
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.Fork(timeout);    
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -346,7 +346,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, B> map<RT, A, B>(Eff<RT, A> ma, Func<A, B> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.Map(f);
 
     /// <summary>
@@ -356,7 +356,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, B> map<RT, A, B>(Eff<RT, A> ma, Transducer<A, B> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.Map(f);
 
     /// <summary>
@@ -366,7 +366,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> mapFail<RT, A>(Eff<RT, A> ma, Func<Error, Error> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.MapFail(f);
 
     /// <summary>
@@ -376,7 +376,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> mapFail<RT, A>(Eff<RT, A> ma, Transducer<Error, Error> f)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.MapFail(f);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -393,7 +393,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, B> bimap<RT, A, B>(Eff<RT, A> ma, Func<A, B> Succ, Func<Error, Error> Fail)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.BiMap(Succ, Fail);
 
     /// <summary>
@@ -405,7 +405,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, B> bimap<RT, A, B>(Eff<RT, A> ma, Transducer<A, B> Succ, Transducer<Error, Error> Fail)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.BiMap(Succ, Fail);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -421,7 +421,7 @@ public static partial class Prelude
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, B> match<RT, A, B>(Eff<RT, A> ma, Func<A, B> Succ, Func<Error, B> Fail)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.Match(Succ, Fail);
 
     /// <summary>
@@ -432,7 +432,7 @@ public static partial class Prelude
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, B> match<RT, A, B>(Eff<RT, A> ma, Transducer<A, B> Succ, Transducer<Error, B> Fail)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.Match(Succ, Fail);
 
     /// <summary>
@@ -442,7 +442,7 @@ public static partial class Prelude
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> ifFail<RT, A>(Eff<RT, A> ma, Func<Error, A> Fail)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.IfFail(Fail);
 
     /// <summary>
@@ -452,7 +452,7 @@ public static partial class Prelude
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> ifFail<RT, A>(Eff<RT, A> ma, Transducer<Error, A> Fail)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.IfFail(Fail);
 
     /// <summary>
@@ -462,7 +462,7 @@ public static partial class Prelude
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> ifFail<RT, A>(Eff<RT, A> ma, A Fail)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.IfFail(Fail);
 
     /// <summary>
@@ -472,7 +472,7 @@ public static partial class Prelude
     /// <returns>IO that encapsulates that IfFail</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> ifFailEff<RT, A>(Eff<RT, A> ma, Func<Error, Eff<RT, A>> Fail)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.IfFailEff(Fail);
 
     /// <summary>
@@ -482,7 +482,7 @@ public static partial class Prelude
     /// <returns>IO that encapsulates that IfFail</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> ifFailEff<RT, A>(Eff<RT, A> ma, Eff<RT, A> Fail)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.IfFailEff(Fail);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -497,7 +497,7 @@ public static partial class Prelude
     /// <returns>Filtered IO</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> filter<RT, A>(Eff<RT, A> ma, Func<A, bool> predicate)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.Filter(predicate);
 
     /// <summary>
@@ -507,7 +507,7 @@ public static partial class Prelude
     /// <returns>Filtered IO</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> filter<RT, A>(Eff<RT, A> ma, Transducer<A, bool> predicate)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ma.Filter(predicate);
 
     
@@ -529,7 +529,7 @@ public static partial class Prelude
     /// <param name="f">Transducer</param>
     /// <returns></returns>
     public static Eff<RT, A> post<RT, A>(Eff<RT, A> ma)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         new(Transducer.post(ma.Morphism));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -546,7 +546,7 @@ public static partial class Prelude
     [Obsolete("Use either: `Eff<RT, A>.Lift`, `Prelude.liftEff`, or `Transducer.lift`")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> EffMaybe<RT, A>(Func<RT, Fin<A>> f) 
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         LanguageExt.Eff<RT, A>.Lift(f);
     
     /// <summary>
@@ -558,6 +558,6 @@ public static partial class Prelude
     [Obsolete("Use either: `Eff<RT, A>.Lift`, `Prelude.liftEff`, or `Transducer.lift`")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> Eff<RT, A>(Func<RT, A> f) 
-        where RT : struct, HasIO<RT, Error>  =>
+        where RT : HasIO<RT, Error>  =>
         LanguageExt.Eff<RT, A>.Lift(f);
 }

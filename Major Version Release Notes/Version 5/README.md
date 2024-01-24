@@ -17,6 +17,25 @@
 
 I held off for as long as I could, but there are lots of new C# features that this library can make use of, so it's time to lead .NET Framework behind and focus on .NET Core.  This version jumps straight to `net8.0` support.
 
+### 'Trait' types now use static interface methods
+
+Before static interface methods existed, the technique was to rely on the non-nullable nature of structs to get access to 'static' methods, by calling `default(TRAIT_TYPE).StaticMethod()`.
+
+Language-ext has many of these 'trait types', like `Eq<A>`, `HasCancel<A>`, etc.  They have all been updated to use `static abstract` methods.
+
+So, where before you might call: `default(EqA).Equals(x, y)` (where `EqA` is `struct, Eq<A>`) - you now need to call `EqA.Equals(x, y)`.  
+
+This is obviously much more elegant and removes the need for the `struct` constraint.
+
+If you have implemented any of these traits, as instances, then you'll need to implement these changes:
+
+* Remove the `struct` from any constraints (`where X : struct`)
+* Add `static` to trait-method implementations
+* Any default `Inst` implementaions should be removed
+* The types can still be implemented as structs, so that doesn't need to change, but they can be implemented with any instance type.
+
+* Impact: Medium - your code will throw up lots of 'Cannot access static method' errors.  It is a fairly mechanical processes to fix them up.  
+
 
 ### Renamed `LanguageExt.ClassInstances.Sum<NUM, A>`
 

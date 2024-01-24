@@ -7,12 +7,12 @@ namespace LanguageExt
 {
     /// <summary>
     /// Provides a fluent context when calling the Some(Action) method from
-    /// Optional<A> type-class.  Must call None(Action) or None(Value) on this 
+    /// Optional<A> trait.  Must call None(Action) or None(Value) on this 
     /// context to complete the matching operation.
     /// </summary>
     /// <typeparam name="A">Bound optional value type</typeparam>
     public class SomeUnitContext<OPT, OA, A> 
-        where OPT  : struct, Optional<OA, A>
+        where OPT  : Optional<OA, A>
     {
         readonly OA option;
         readonly Action<A> someHandler;
@@ -49,12 +49,12 @@ namespace LanguageExt
 
     /// <summary>
     /// Provides a fluent context when calling the Some(Action) method from
-    /// OptionalUnsafe<A> type-class.  Must call None(Action) or None(Value) on this 
+    /// OptionalUnsafe<A> trait.  Must call None(Action) or None(Value) on this 
     /// context to complete the matching operation.
     /// </summary>
     /// <typeparam name="A">Bound optional value type</typeparam>
     public class SomeUnsafeUnitContext<OPT, OA, A>
-        where OPT : struct, OptionalUnsafe<OA, A>
+        where OPT : OptionalUnsafe<OA, A>
     {
         readonly OA option;
         readonly Action<A> someHandler;

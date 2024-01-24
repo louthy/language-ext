@@ -90,7 +90,7 @@ namespace LanguageExt.Tests
             Assert.True(max<OrdInt, int>(1, 1, 1, 1) == 1);
         }
 
-        private struct OrdDesc<ORD, T> : Ord<T> where ORD : struct, Ord<T>
+        private struct OrdDesc<ORD, T> : Ord<T> where ORD : Ord<T>
         {
             public int GetHashCode(T x) => default(ORD).GetHashCode(x);
 

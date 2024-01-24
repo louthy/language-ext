@@ -14,7 +14,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="EqA"></typeparam>
     /// <typeparam name="A"></typeparam>
-    public abstract class Edit<EqA, A> : IEquatable<Edit<EqA, A>> where EqA : struct, Eq<A>
+    public abstract class Edit<EqA, A> : IEquatable<Edit<EqA, A>> where EqA : Eq<A>
     {
         public readonly int Position;
         public readonly A Element;

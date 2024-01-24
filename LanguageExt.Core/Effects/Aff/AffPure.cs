@@ -243,7 +243,7 @@ namespace LanguageExt
         }        
 
         [Pure, MethodImpl(Opt.Default)]
-        public Aff<RT, A> WithRuntime<RT>() where RT : struct, HasIO<RT, Error>
+        public Aff<RT, A> WithRuntime<RT>() where RT : HasIO<RT, Error>
         {
             var self = this;
             return Aff<RT, A>.EffectMaybe(_ => self.Run());

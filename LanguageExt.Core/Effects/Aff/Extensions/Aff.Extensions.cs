@@ -16,7 +16,7 @@ namespace LanguageExt
 {
     public static partial class AffExtensions
     {
-        public static Aff<RT, A> ToAff<RT, A>(this Transducer<RT, A> t) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> ToAff<RT, A>(this Transducer<RT, A> t) where RT : HasIO<RT, Error> =>
             Aff<RT, A>.EffectMaybe(async env =>
             {
                 var tr = await t.Invoke1Async(env, null, env.CancellationToken, SynchronizationContext.Current)
@@ -55,7 +55,7 @@ namespace LanguageExt
         /// <summary>
         /// Run the two effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
         /// </summary>
-        public static Aff<RT, (A, B)> Sequence<RT, A, B>(this (Aff<RT, A>, Aff<RT, B>) ms) where RT : struct, HasIO<RT, Error> => 
+        public static Aff<RT, (A, B)> Sequence<RT, A, B>(this (Aff<RT, A>, Aff<RT, B>) ms) where RT : HasIO<RT, Error> => 
             AffMaybe<RT,(A, B)>(async env =>
             {
                 var t1 = ms.Item1.Run(env).AsTask();
@@ -71,7 +71,7 @@ namespace LanguageExt
         /// <summary>
         /// Run the three effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
         /// </summary>
-        public static Aff<RT, (A, B, C)> Sequence<RT, A, B, C>(this (Aff<RT, A>, Aff<RT, B>, Aff<RT, C>) ms) where RT : struct, HasIO<RT, Error> => 
+        public static Aff<RT, (A, B, C)> Sequence<RT, A, B, C>(this (Aff<RT, A>, Aff<RT, B>, Aff<RT, C>) ms) where RT : HasIO<RT, Error> => 
             AffMaybe<RT,(A, B, C)>(async env =>
             {
                 var t1 = ms.Item1.Run(env).AsTask();
@@ -89,7 +89,7 @@ namespace LanguageExt
         /// <summary>
         /// Run the four effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
         /// </summary>
-        public static Aff<RT, (A, B, C, D)> Sequence<RT, A, B, C, D>(this (Aff<RT, A>, Aff<RT, B>, Aff<RT, C>, Aff<RT, D>) ms) where RT : struct, HasIO<RT, Error> => 
+        public static Aff<RT, (A, B, C, D)> Sequence<RT, A, B, C, D>(this (Aff<RT, A>, Aff<RT, B>, Aff<RT, C>, Aff<RT, D>) ms) where RT : HasIO<RT, Error> => 
             AffMaybe<RT,(A, B, C, D)>(async env =>
             {
                 var t1 = ms.Item1.Run(env).AsTask();
@@ -109,7 +109,7 @@ namespace LanguageExt
         /// <summary>
         /// Run the five effects in the tuple in parallel, wait for them all to finish, then return a tuple of the results
         /// </summary>
-        public static Aff<RT, (A, B, C, D, E)> Sequence<RT, A, B, C, D, E>(this (Aff<RT, A>, Aff<RT, B>, Aff<RT, C>, Aff<RT, D>, Aff<RT, E>) ms) where RT : struct, HasIO<RT, Error> => 
+        public static Aff<RT, (A, B, C, D, E)> Sequence<RT, A, B, C, D, E>(this (Aff<RT, A>, Aff<RT, B>, Aff<RT, C>, Aff<RT, D>, Aff<RT, E>) ms) where RT : HasIO<RT, Error> => 
             AffMaybe<RT,(A, B, C, D, E)>(async env =>
             {
                 var t1 = ms.Item1.Run(env).AsTask();
@@ -133,11 +133,11 @@ namespace LanguageExt
         //
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> Map<RT, A, B>(this Aff<RT, A> ma, Func<A, B> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> Map<RT, A, B>(this Aff<RT, A> ma, Func<A, B> f) where RT : HasIO<RT, Error> =>
             new (async rt => (await ma.Run(rt).ConfigureAwait(false)).Map(f));
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> MapAsync<RT, A, B>(this Aff<RT, A> ma, Func<A, ValueTask<B>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> MapAsync<RT, A, B>(this Aff<RT, A> ma, Func<A, ValueTask<B>> f) where RT : HasIO<RT, Error> =>
             new(async rt => (await ma.Run(rt).ConfigureAwait(false)).Case switch
             {
                 A x     => FinSucc(await f(x).ConfigureAwait(false)),
@@ -146,11 +146,11 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> MapFail<RT, A>(this Aff<RT, A> ma, Func<Error, Error> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> MapFail<RT, A>(this Aff<RT, A> ma, Func<Error, Error> f) where RT : HasIO<RT, Error> =>
             ma.BiMap(identity, f);
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> MapFailAsync<RT, A>(this Aff<RT, A> ma, Func<Error, ValueTask<Error>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> MapFailAsync<RT, A>(this Aff<RT, A> ma, Func<Error, ValueTask<Error>> f) where RT : HasIO<RT, Error> =>
             ma.BiMapAsync(x => x.AsValueTask(), f);
 
         //
@@ -158,7 +158,7 @@ namespace LanguageExt
         //
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> BiMap<RT, A, B>(this Aff<RT, A> ma, Func<A, B> Succ, Func<Error, Error> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> BiMap<RT, A, B>(this Aff<RT, A> ma, Func<A, B> Succ, Func<Error, Error> Fail) where RT : HasIO<RT, Error> =>
             new(async rt => (await ma.Run(rt).ConfigureAwait(false)).Case switch
             {
                 A x     => FinSucc(Succ(x)),
@@ -167,7 +167,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> BiMapAsync<RT, A, B>(this Aff<RT, A> ma, Func<A, ValueTask<B>> Succ, Func<Error, ValueTask<Error>> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> BiMapAsync<RT, A, B>(this Aff<RT, A> ma, Func<A, ValueTask<B>> Succ, Func<Error, ValueTask<Error>> Fail) where RT : HasIO<RT, Error> =>
             new(async rt => (await ma.Run(rt).ConfigureAwait(false)).Case switch
             {
                 A x     => FinSucc(await Succ(x).ConfigureAwait(false)),
@@ -180,7 +180,7 @@ namespace LanguageExt
         //
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> Match<RT, A, B>(this Aff<RT, A> ma, Func<A, B> Succ, Func<Error, B> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> Match<RT, A, B>(this Aff<RT, A> ma, Func<A, B> Succ, Func<Error, B> Fail) where RT : HasIO<RT, Error> =>
             Aff<RT, B>(async env =>
             {
                 var r = await ma.Run(env).ConfigureAwait(false);
@@ -190,7 +190,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<RT, A> ma, Func<A, B> Succ, Aff<RT, B> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<RT, A> ma, Func<A, B> Succ, Aff<RT, B> Fail) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, B>(async env =>
                             {
                                 var r = await ma.Run(env).ConfigureAwait(false);
@@ -200,7 +200,7 @@ namespace LanguageExt
                             });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<RT, A> ma, Func<A, B> Succ, Func<Error, Aff<RT, B>> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<RT, A> ma, Func<A, B> Succ, Func<Error, Aff<RT, B>> Fail) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, B>(async env =>
                              {
                                  var r = await ma.Run(env).ConfigureAwait(false);
@@ -210,7 +210,7 @@ namespace LanguageExt
                              });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<RT, A> ma, Aff<RT, B> Succ, Func<Error, B> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<RT, A> ma, Aff<RT, B> Succ, Func<Error, B> Fail) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, B>(async env =>
             {
                 var r = await ma.Run(env).ConfigureAwait(false);
@@ -220,7 +220,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, B> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, B> Fail) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, B>(async env =>
                              {
                                  var r = await ma.Run(env).ConfigureAwait(false);
@@ -230,7 +230,7 @@ namespace LanguageExt
                              });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<RT, A> ma, Aff<RT, B> Succ, Aff<RT, B> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<RT, A> ma, Aff<RT, B> Succ, Aff<RT, B> Fail) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, B>(async env =>
             {
                 var r = await ma.Run(env).ConfigureAwait(false);
@@ -240,7 +240,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, Aff<RT, B>> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, Aff<RT, B>> Fail) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, B>(async env =>
                              {
                                  var r = await ma.Run(env).ConfigureAwait(false);
@@ -250,7 +250,7 @@ namespace LanguageExt
                              });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> Match<RT, A, B>(this Aff<RT, A> ma, B Succ, Func<Error, B> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> Match<RT, A, B>(this Aff<RT, A> ma, B Succ, Func<Error, B> Fail) where RT : HasIO<RT, Error> =>
             Aff<RT, B>(async env =>
             {
                 var r = await ma.Run(env).ConfigureAwait(false);
@@ -260,7 +260,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> Match<RT, A, B>(this Aff<RT, A> ma, Func<A, B> Succ, B Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> Match<RT, A, B>(this Aff<RT, A> ma, Func<A, B> Succ, B Fail) where RT : HasIO<RT, Error> =>
             Aff<RT, B>(async env =>
                         {
                             var r = await ma.Run(env).ConfigureAwait(false);
@@ -270,7 +270,7 @@ namespace LanguageExt
                         });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> Match<RT, A, B>(this Aff<RT, A> ma, B Succ, B Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> Match<RT, A, B>(this Aff<RT, A> ma, B Succ, B Fail) where RT : HasIO<RT, Error> =>
             Aff<RT, B>(async env =>
                         {
                             var r = await ma.Run(env).ConfigureAwait(false);
@@ -284,7 +284,7 @@ namespace LanguageExt
         //
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> IfFail<RT, A>(this Aff<RT, A> ma, Func<Error, A> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> IfFail<RT, A>(this Aff<RT, A> ma, Func<Error, A> f) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -295,7 +295,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> IfFail<RT, A>(this Aff<RT, A> ma, A alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> IfFail<RT, A>(this Aff<RT, A> ma, A alternative) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -306,7 +306,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Aff<RT, A> alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Aff<RT, A> alternative) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -317,7 +317,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Func<Error, Aff<RT, A>> alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Func<Error, Aff<RT, A>> alternative) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -328,7 +328,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Aff<A> alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Aff<A> alternative) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -339,7 +339,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Func<Error, Aff<A>> alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Func<Error, Aff<A>> alternative) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -350,7 +350,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Eff<RT, A> alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Eff<RT, A> alternative) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -361,7 +361,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Func<Error, Eff<RT, A>> alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Func<Error, Eff<RT, A>> alternative) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -372,7 +372,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Eff<A> alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Eff<A> alternative) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -383,7 +383,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Func<Error, Eff<A>> alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<RT, A> ma, Func<Error, Eff<A>> alternative) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -398,7 +398,7 @@ namespace LanguageExt
         //
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, Unit> Iter<RT, A>(this Aff<RT, A> ma, Func<A, Unit> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, Unit> Iter<RT, A>(this Aff<RT, A> ma, Func<A, Unit> f) where RT : HasIO<RT, Error> =>
             Aff<RT, Unit>(
                 async env =>
                 {
@@ -411,7 +411,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, Unit> Iter<RT, A>(this Aff<RT, A> ma, Func<A, Aff<RT, Unit>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, Unit> Iter<RT, A>(this Aff<RT, A> ma, Func<A, Aff<RT, Unit>> f) where RT : HasIO<RT, Error> =>
             Aff<RT, Unit>(
                 async env =>
                 {
@@ -424,7 +424,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, Unit> Iter<RT, A>(this Aff<RT, A> ma, Func<A, Aff<Unit>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, Unit> Iter<RT, A>(this Aff<RT, A> ma, Func<A, Aff<Unit>> f) where RT : HasIO<RT, Error> =>
             Aff<RT, Unit>(
                 async env =>
                 {
@@ -437,7 +437,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, Unit> Iter<RT, A>(this Aff<RT, A> ma, Func<A, Eff<RT, Unit>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, Unit> Iter<RT, A>(this Aff<RT, A> ma, Func<A, Eff<RT, Unit>> f) where RT : HasIO<RT, Error> =>
             Aff<RT, Unit>(
                 async env =>
                 {
@@ -450,7 +450,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, Unit> Iter<RT, A>(this Aff<RT, A> ma, Func<A, Eff<Unit>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, Unit> Iter<RT, A>(this Aff<RT, A> ma, Func<A, Eff<Unit>> f) where RT : HasIO<RT, Error> =>
             Aff<RT, Unit>(
                 async env =>
                 {
@@ -463,7 +463,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Do<RT, A>(this Aff<RT, A> ma, Func<A, Unit> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Do<RT, A>(this Aff<RT, A> ma, Func<A, Unit> f) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -476,7 +476,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Do<RT, A>(this Aff<RT, A> ma, Func<A, Aff<RT, Unit>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Do<RT, A>(this Aff<RT, A> ma, Func<A, Aff<RT, Unit>> f) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -492,7 +492,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Do<RT, A>(this Aff<RT, A> ma, Func<A, Eff<RT, Unit>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Do<RT, A>(this Aff<RT, A> ma, Func<A, Eff<RT, Unit>> f) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -508,7 +508,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Do<RT, A>(this Aff<RT, A> ma, Func<A, Aff<Unit>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Do<RT, A>(this Aff<RT, A> ma, Func<A, Aff<Unit>> f) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -524,7 +524,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Do<RT, A>(this Aff<RT, A> ma, Func<A, Eff<Unit>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Do<RT, A>(this Aff<RT, A> ma, Func<A, Eff<Unit>> f) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -544,12 +544,12 @@ namespace LanguageExt
         //
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Filter<RT, A>(this Aff<RT, A> ma, Func<A, bool> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Filter<RT, A>(this Aff<RT, A> ma, Func<A, bool> f) where RT : HasIO<RT, Error> =>
             ma.Bind(x => f(x) ? SuccessEff(x) : FailEff<A>(Errors.Cancelled));
 
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Where<RT, A>(this Aff<RT, A> ma, Func<A, bool> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Where<RT, A>(this Aff<RT, A> ma, Func<A, bool> f) where RT : HasIO<RT, Error> =>
             Filter(ma, f);
 
         //
@@ -557,7 +557,7 @@ namespace LanguageExt
         //
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, B> Bind<RT, A, B>(this Aff<RT, A> ma, Func<A, Eff<B>> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             new (async env =>
             {
                 var fa = await ma.Run(env).ConfigureAwait(false);
@@ -568,7 +568,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, B> Bind<RT, A, B>(this Aff<RT, A> ma, Func<A, Eff<RT, B>> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             new (async env =>
             {
                 var fa = await ma.Run(env).ConfigureAwait(false);
@@ -579,7 +579,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, B> Bind<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<B>> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             new(async env =>
             {
                 var fa = await ma.Run(env).ConfigureAwait(false);
@@ -590,7 +590,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, B> Bind<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<RT, B>> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             new(async env =>
             {
                 var fa = await ma.Run(env).ConfigureAwait(false);
@@ -604,22 +604,22 @@ namespace LanguageExt
         //
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> BiBind<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, Aff<RT, B>> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> BiBind<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, Aff<RT, B>> Fail) where RT : HasIO<RT, Error> =>
             ma.Match(Succ, Fail)
                 .Flatten();
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> BiBind<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<B>> Succ, Func<Error, Aff<B>> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> BiBind<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<B>> Succ, Func<Error, Aff<B>> Fail) where RT : HasIO<RT, Error> =>
             ma.Match(Succ, Fail)
                 .Flatten();
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> BiBind<RT, A, B>(this Aff<RT, A> ma, Func<A, Eff<RT, B>> Succ, Func<Error, Eff<RT, B>> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> BiBind<RT, A, B>(this Aff<RT, A> ma, Func<A, Eff<RT, B>> Succ, Func<Error, Eff<RT, B>> Fail) where RT : HasIO<RT, Error> =>
             ma.Match(Succ, Fail)
                 .Flatten();
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> BiBind<RT, A, B>(this Aff<RT, A> ma, Func<A, Eff<B>> Succ, Func<Error, Eff<B>> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> BiBind<RT, A, B>(this Aff<RT, A> ma, Func<A, Eff<B>> Succ, Func<Error, Eff<B>> Fail) where RT : HasIO<RT, Error> =>
             ma.Match(Succ, Fail)
                 .Flatten();
 
@@ -628,7 +628,7 @@ namespace LanguageExt
         //
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Flatten<RT, A>(this Aff<RT, Aff<RT, A>> mma) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Flatten<RT, A>(this Aff<RT, Aff<RT, A>> mma) where RT : HasIO<RT, Error> =>
             new (async rt =>
             {
                 var ma = await mma.Run(rt).ConfigureAwait(false);
@@ -637,7 +637,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Flatten<RT, A>(this Aff<RT, Aff<A>> mma) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Flatten<RT, A>(this Aff<RT, Aff<A>> mma) where RT : HasIO<RT, Error> =>
             new (async rt =>
             {
                 var ma = await mma.Run(rt).ConfigureAwait(false);
@@ -646,7 +646,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Flatten<RT, A>(this Aff<RT, Eff<RT, A>> mma) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Flatten<RT, A>(this Aff<RT, Eff<RT, A>> mma) where RT : HasIO<RT, Error> =>
             new (async rt =>
             {
                 var ma = await mma.Run(rt).ConfigureAwait(false);
@@ -655,7 +655,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Flatten<RT, A>(this Aff<RT, Eff<A>> mma) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Flatten<RT, A>(this Aff<RT, Eff<A>> mma) where RT : HasIO<RT, Error> =>
             new (async rt =>
             {
                 var ma = await mma.Run(rt).ConfigureAwait(false);
@@ -668,7 +668,7 @@ namespace LanguageExt
         //
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> Select<RT, A, B>(this Aff<RT, A> ma, Func<A, B> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> Select<RT, A, B>(this Aff<RT, A> ma, Func<A, B> f) where RT : HasIO<RT, Error> =>
             Map(ma, f);
 
         //
@@ -676,39 +676,39 @@ namespace LanguageExt
         //
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> SelectMany<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> SelectMany<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<RT, B>> f) where RT : HasIO<RT, Error> =>
             Bind(ma, f);
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> SelectMany<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<B>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> SelectMany<RT, A, B>(this Aff<RT, A> ma, Func<A, Aff<B>> f) where RT : HasIO<RT, Error> =>
             Bind(ma, f);
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> SelectMany<RT, A, B>(this Aff<RT, A> ma, Func<A, Eff<RT, B>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> SelectMany<RT, A, B>(this Aff<RT, A> ma, Func<A, Eff<RT, B>> f) where RT : HasIO<RT, Error> =>
             Bind(ma, f);
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> SelectMany<RT, A, B>(this Aff<RT, A> ma, Func<A, Eff<B>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> SelectMany<RT, A, B>(this Aff<RT, A> ma, Func<A, Eff<B>> f) where RT : HasIO<RT, Error> =>
             Bind(ma, f);
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<RT, A> ma, Func<A, Aff<RT, B>> bind, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<RT, A> ma, Func<A, Aff<RT, B>> bind, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<RT, A> ma, Func<A, Aff<B>> bind, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<RT, A> ma, Func<A, Aff<B>> bind, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<RT, A> ma, Func<A, Eff<RT, B>> bind, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<RT, A> ma, Func<A, Eff<RT, B>> bind, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
             Bind(ma, x => bind(x).Map(y => project(x, y)));
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<RT, A> ma, Func<A, Eff<B>> bind, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<RT, A> ma, Func<A, Eff<B>> bind, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
             Bind(ma, x => bind(x).Map(y => project(x, y)));
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<RT, A> ma, Func<A, Effect<RT, B>> bind, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<RT, A> ma, Func<A, Effect<RT, B>> bind, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
             Bind(ma, x => bind(x).RunEffect().Map(y => project(x, y)));
 
         //
@@ -717,7 +717,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<RT, A> ma, Aff<RT, B> mb)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             new (async e =>
             {
                 var ta = ma.Run(e).AsTask();
@@ -742,7 +742,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<RT, A> ma, Aff<B> mb) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<RT, A> ma, Aff<B> mb) where RT : HasIO<RT, Error> =>
             new (async e =>
             {
                 var ta = ma.Run(e).AsTask();
@@ -767,7 +767,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<A> ma, Aff<RT, B> mb) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<A> ma, Aff<RT, B> mb) where RT : HasIO<RT, Error> =>
             new (async e =>
             {
                 var ta = ma.Run().AsTask();
@@ -792,7 +792,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<RT, A> ma, Eff<B> mb) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<RT, A> ma, Eff<B> mb) where RT : HasIO<RT, Error> =>
             new (async e =>
             {
                 var ta = ma.Run(e).AsTask();
@@ -809,7 +809,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, (A, B)> Zip<RT, A, B>(this Eff<A> ma, Aff<RT, B> mb) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, (A, B)> Zip<RT, A, B>(this Eff<A> ma, Aff<RT, B> mb) where RT : HasIO<RT, Error> =>
             new (async e =>
             {
                 var ra = ma.Run();
@@ -827,7 +827,7 @@ namespace LanguageExt
 
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<RT, A> ma, Eff<RT, B> mb) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, (A, B)> Zip<RT, A, B>(this Aff<RT, A> ma, Eff<RT, B> mb) where RT : HasIO<RT, Error> =>
             new (async e =>
             {
                 var ta = ma.Run(e).AsTask();
@@ -844,7 +844,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, (A, B)> Zip<RT, A, B>(this Eff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, (A, B)> Zip<RT, A, B>(this Eff<RT, A> ma, Aff<RT, B> mb) where RT : HasIO<RT, Error> =>
             new (async e =>
             {
                 var ra = ma.Run(e);
@@ -1005,7 +1005,7 @@ namespace LanguageExt
             });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<A> ma, Func<A, B> Succ, Aff<RT, B> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<A> ma, Func<A, B> Succ, Aff<RT, B> Fail) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, B>(async env => {
                 var r = await ma.Run().ConfigureAwait(false);
                 return r.IsSucc
@@ -1014,7 +1014,7 @@ namespace LanguageExt
             });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<A> ma, Func<A, B> Succ, Func<Error, Aff<RT, B>> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<A> ma, Func<A, B> Succ, Func<Error, Aff<RT, B>> Fail) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, B>(async env => {
                                  var r = await ma.Run().ConfigureAwait(false);
                                  return r.IsSucc
@@ -1023,7 +1023,7 @@ namespace LanguageExt
                              });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<A> ma, Aff<RT, B> Succ, Func<Error, B> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<A> ma, Aff<RT, B> Succ, Func<Error, B> Fail) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, B>(async env => {
                 var r = await ma.Run().ConfigureAwait(false);
                 return r.IsSucc
@@ -1032,7 +1032,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, B> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, B> Fail) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, B>(async env => {
                                  var r = await ma.Run().ConfigureAwait(false);
                                  return r.IsSucc
@@ -1061,7 +1061,7 @@ namespace LanguageExt
                         });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<A> ma, Aff<RT, B> Succ, Aff<RT, B> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<A> ma, Aff<RT, B> Succ, Aff<RT, B> Fail) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, B>(async env =>
             {
                 var r = await ma.Run().ConfigureAwait(false);
@@ -1071,7 +1071,7 @@ namespace LanguageExt
             });
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, Aff<RT, B>> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> MatchAff<RT, A, B>(this Aff<A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, Aff<RT, B>> Fail) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, B>(async env =>
                              {
                                  var r = await ma.Run().ConfigureAwait(false);
@@ -1157,7 +1157,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<A> ma, Aff<RT, A> alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<A> ma, Aff<RT, A> alternative) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -1168,7 +1168,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<A> ma, Func<Error, Aff<RT, A>> alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<A> ma, Func<Error, Aff<RT, A>> alternative) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -1201,7 +1201,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<A> ma, Eff<RT, A> alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<A> ma, Eff<RT, A> alternative) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -1212,7 +1212,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<A> ma, Func<Error, Eff<RT, A>> alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> IfFailAff<RT, A>(this Aff<A> ma, Func<Error, Eff<RT, A>> alternative) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -1261,7 +1261,7 @@ namespace LanguageExt
             });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, Unit> Iter<RT, A>(this Aff<A> ma, Func<A, Aff<RT, Unit>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, Unit> Iter<RT, A>(this Aff<A> ma, Func<A, Aff<RT, Unit>> f) where RT : HasIO<RT, Error> =>
             Aff<RT, Unit>(
                 async env =>
                 {
@@ -1286,7 +1286,7 @@ namespace LanguageExt
             });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, Unit> Iter<RT, A>(this Aff<A> ma, Func<A, Eff<RT, Unit>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, Unit> Iter<RT, A>(this Aff<A> ma, Func<A, Eff<RT, Unit>> f) where RT : HasIO<RT, Error> =>
             Aff<RT, Unit>(
                 async env =>
                 {
@@ -1323,7 +1323,7 @@ namespace LanguageExt
             });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Do<RT, A>(this Aff<A> ma, Func<A, Aff<RT, Unit>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Do<RT, A>(this Aff<A> ma, Func<A, Aff<RT, Unit>> f) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -1339,7 +1339,7 @@ namespace LanguageExt
                 });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Do<RT, A>(this Aff<A> ma, Func<A, Eff<RT, Unit>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Do<RT, A>(this Aff<A> ma, Func<A, Eff<RT, Unit>> f) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(
                 async env =>
                 {
@@ -1410,7 +1410,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, B> Bind<RT, A, B>(this Aff<A> ma, Func<A, Eff<RT, B>> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             new (async env =>
             {
                 var fa = await ma.Run().ConfigureAwait(false);
@@ -1431,7 +1431,7 @@ namespace LanguageExt
 
         [Pure, MethodImpl(Opt.Default)]
         public static Aff<RT, B> Bind<RT, A, B>(this Aff<A> ma, Func<A, Aff<RT, B>> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             new (async env =>
             {
                 var fa = await ma.Run().ConfigureAwait(false);
@@ -1445,7 +1445,7 @@ namespace LanguageExt
         //
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> BiBind<RT, A, B>(this Aff<A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, Aff<RT, B>> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> BiBind<RT, A, B>(this Aff<A> ma, Func<A, Aff<RT, B>> Succ, Func<Error, Aff<RT, B>> Fail) where RT : HasIO<RT, Error> =>
             ma.Match(Succ, Fail)
               .Flatten();
 
@@ -1455,7 +1455,7 @@ namespace LanguageExt
               .Flatten();
 
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> BiBind<RT, A, B>(this Aff<A> ma, Func<A, Eff<RT, B>> Succ, Func<Error, Eff<RT, B>> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> BiBind<RT, A, B>(this Aff<A> ma, Func<A, Eff<RT, B>> Succ, Func<Error, Eff<RT, B>> Fail) where RT : HasIO<RT, Error> =>
             ma.Match(Succ, Fail)
               .Flatten();
 
@@ -1478,7 +1478,7 @@ namespace LanguageExt
             });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Flatten<RT, A>(this Aff<Aff<RT, A>> mma) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Flatten<RT, A>(this Aff<Aff<RT, A>> mma) where RT : HasIO<RT, Error> =>
             new (async rt =>
             {
                 var ma = await mma.Run().ConfigureAwait(false);
@@ -1496,7 +1496,7 @@ namespace LanguageExt
             });
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, A> Flatten<RT, A>(this Aff<Eff<RT, A>> mma) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, A> Flatten<RT, A>(this Aff<Eff<RT, A>> mma) where RT : HasIO<RT, Error> =>
             new (async rt =>
             {
                 var ma = await mma.Run().ConfigureAwait(false);
@@ -1517,7 +1517,7 @@ namespace LanguageExt
         //
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> SelectMany<RT, A, B>(this Aff<A> ma, Func<A, Aff<RT, B>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> SelectMany<RT, A, B>(this Aff<A> ma, Func<A, Aff<RT, B>> f) where RT : HasIO<RT, Error> =>
             Bind(ma, f);
         
         [Pure, MethodImpl(Opt.Default)]
@@ -1525,7 +1525,7 @@ namespace LanguageExt
             Bind(ma, f);
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, B> SelectMany<RT, A, B>(this Aff<A> ma, Func<A, Eff<RT, B>> f) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, B> SelectMany<RT, A, B>(this Aff<A> ma, Func<A, Eff<RT, B>> f) where RT : HasIO<RT, Error> =>
             Bind(ma, f);
         
         [Pure, MethodImpl(Opt.Default)]
@@ -1533,7 +1533,7 @@ namespace LanguageExt
             Bind(ma, f);
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<A> ma, Func<A, Aff<RT, B>> bind, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<A> ma, Func<A, Aff<RT, B>> bind, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
             Bind(ma, x => Map(bind(x), y => project(x, y)));
         
         [Pure, MethodImpl(Opt.Default)]
@@ -1541,7 +1541,7 @@ namespace LanguageExt
             Bind(ma, x => Map(bind(x), y => project(x, y)));
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<A> ma, Func<A, Eff<RT, B>> bind, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<A> ma, Func<A, Eff<RT, B>> bind, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
             Bind(ma, x => bind(x).Map(y => project(x, y)));
         
         [Pure, MethodImpl(Opt.Default)]
@@ -1549,7 +1549,7 @@ namespace LanguageExt
             Bind(ma, x => bind(x).Map(y => project(x, y)));
         
         [Pure, MethodImpl(Opt.Default)]
-        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<A> ma, Func<A, Effect<RT, B>> bind, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, C> SelectMany<RT, A, B, C>(this Aff<A> ma, Func<A, Effect<RT, B>> bind, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
             ma.Bind(x => bind(x).RunEffect().Map(y => project(x, y)));
         
         //

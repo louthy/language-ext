@@ -15,12 +15,8 @@ namespace LanguageExt.ClassInstances
             var types = new Dictionary<string, Type>();
             foreach (var type in ClassInstancesAssembly.Default.AllClassInstances ?? new List<Type>())
             {
-                var gens = type.GetGenericArguments();
                 var name = type.Name;
-                if (!types.ContainsKey(name))
-                {
-                    types.Add(name, type);
-                }
+                types.TryAdd(name, type);
             }
 
             Types = types;
@@ -36,12 +32,13 @@ namespace LanguageExt.ClassInstances
             var typeA = typeof(A);
             if (typeA.BaseType?.FullName == "System.Array")
             {
-                return ("System.Array", "Array", new[] {typeA.GetElementType()});
+                var et = typeA.GetElementType();
+                return ("System.Array", "Array", et is null ? [] : [et]);
             }
             else
             {
                 var name = typeA.Name.Split('`')[0];
-                var fullName = typeA.FullName.Split('`')[0];
+                var fullName = typeA.FullName?.Split('`')[0] ?? "HAS NO FULL NAME";
                 if (fullName == "System.Collections.Generic.IEnumerable")
                 {
                     return ("System.Collections.Generic.Enumerable", "Enumerable", typeA.GetGenericArguments());
@@ -53,7 +50,7 @@ namespace LanguageExt.ClassInstances
             }
         }
 
-        public static Func<Arg, Ret> MakeFunc1<Arg, Ret>(string typeName, string methodName, Type[] gens,
+        public static Func<Arg, Ret>? MakeFunc1<Arg, Ret>(string typeName, string methodName, Type[] gens,
             params (string prefix, string suffix)[] padding)
         {
             var inst = GetInstance(typeName, gens.Length, padding);
@@ -70,7 +67,7 @@ namespace LanguageExt.ClassInstances
             return lambda.Compile();
         }
 
-        public static Func<Arg1, Arg2, Ret> MakeFunc2<Arg1, Arg2, Ret>(string typeName, string methodName, Type[] gens,
+        public static Func<Arg1, Arg2, Ret>? MakeFunc2<Arg1, Arg2, Ret>(string typeName, string methodName, Type[] gens,
             params (string prefix, string suffix)[] padding)
         {
             var inst = GetInstance(typeName, gens.Length, padding);
@@ -90,7 +87,7 @@ namespace LanguageExt.ClassInstances
             return lambda.Compile();
         }
 
-        public static Func<Arg1, Arg2, Arg3, Ret> MakeFunc3<Arg1, Arg2, Arg3,Ret>(string typeName, string methodName, Type[] gens,
+        public static Func<Arg1, Arg2, Arg3, Ret>? MakeFunc3<Arg1, Arg2, Arg3,Ret>(string typeName, string methodName, Type[] gens,
             params (string prefix, string suffix)[] padding)
         {
             var inst = GetInstance(typeName, gens.Length, padding);
@@ -116,7 +113,7 @@ namespace LanguageExt.ClassInstances
         }
         
         
-        public static Func<Arg1, Arg2, Arg3, Arg4, Ret> MakeFunc4<Arg1, Arg2, Arg3, Arg4, Ret>(string typeName, string methodName, Type[] gens,
+        public static Func<Arg1, Arg2, Arg3, Arg4, Ret>? MakeFunc4<Arg1, Arg2, Arg3, Arg4, Ret>(string typeName, string methodName, Type[] gens,
             params (string prefix, string suffix)[] padding)
         {
             var inst = GetInstance(typeName, gens.Length, padding);
@@ -142,7 +139,7 @@ namespace LanguageExt.ClassInstances
             return lambda.Compile();
         }
 
-        static Type GetInstance(string name, int arity, params (string prefix, string suffix)[] padding)
+        static Type? GetInstance(string name, int arity, params (string prefix, string suffix)[] padding)
         {
             foreach (var pad in padding)
             {

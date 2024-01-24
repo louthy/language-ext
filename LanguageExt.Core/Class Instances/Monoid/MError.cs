@@ -1,19 +1,17 @@
 ﻿using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
-using System;
 using LanguageExt.Common;
 
-namespace LanguageExt.ClassInstances
-{
-    /// <summary>
-    /// Error monoid
-    /// </summary>
-    public readonly struct MError : Monoid<Error>
-    {
-        [Pure]
-        public Error Append(Error x, Error y) => x + y;
+namespace LanguageExt.ClassInstances;
 
-        [Pure]
-        public Error Empty() => Errors.None;
-    }
+/// <summary>
+/// Error monoid
+/// </summary>
+public readonly struct MError : Monoid<Error>
+{
+    [Pure]
+    public static Error Append(Error x, Error y) => x + y;
+
+    [Pure]
+    public static Error Empty() => Errors.None;
 }

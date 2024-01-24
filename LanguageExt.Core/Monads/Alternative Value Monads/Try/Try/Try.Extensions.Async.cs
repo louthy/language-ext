@@ -453,7 +453,7 @@ public static class TryExtensionsAsync
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>1 if lhs > rhs, 0 if lhs == rhs, -1 if lhs < rhs</returns>
     [Pure]
-    public static Task<int> CompareAsync<ORD, A>(this Try<A> lhs, Try<A> rhs) where ORD : struct, Ord<A> =>
+    public static Task<int> CompareAsync<ORD, A>(this Try<A> lhs, Try<A> rhs) where ORD : Ord<A> =>
         lhs.ToAsync().Compare<ORD, A>(rhs.ToAsync());
 
     /// <summary>
@@ -464,7 +464,7 @@ public static class TryExtensionsAsync
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs ++ rhs</returns>
     [Pure]
-    public static TryAsync<A> AppendAsync<SEMI, A>(this Try<A> lhs, Try<A> rhs) where SEMI : struct, Semigroup<A> =>
+    public static TryAsync<A> AppendAsync<SEMI, A>(this Try<A> lhs, Try<A> rhs) where SEMI : Semigroup<A> =>
         lhs.ToAsync().Append<SEMI, A>(rhs.ToAsync());
 
     /// <summary>
@@ -475,7 +475,7 @@ public static class TryExtensionsAsync
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> AddAsync<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
+    public static TryAsync<A> AddAsync<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Add<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -486,7 +486,7 @@ public static class TryExtensionsAsync
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> SubtractAsync<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
+    public static TryAsync<A> SubtractAsync<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Subtract<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -497,7 +497,7 @@ public static class TryExtensionsAsync
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> ProductAsync<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
+    public static TryAsync<A> ProductAsync<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Product<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -508,7 +508,7 @@ public static class TryExtensionsAsync
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> DivideAsync<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
+    public static TryAsync<A> DivideAsync<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Divide<NUM, A>(rhs.ToAsync());
 
     /// <summary>

@@ -8,9 +8,9 @@ namespace LanguageExt.Effects.Traits
     /// Type-class giving a struct the trait of supporting task cancellation IO
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
-    [Typeclass("*")]
+    [Trait("*")]
     public interface HasCancel<out RT>
-        where RT : struct, HasCancel<RT>
+        where RT : HasCancel<RT>
     {
         /// <summary>
         /// Creates a new runtime from this with a new CancellationTokenSource and token

@@ -5,7 +5,7 @@ using LanguageExt.Sys.Traits;
 namespace LanguageExt.Sys.IO
 {
     public static class Directory<RT>
-        where RT : struct, HasDirectory<RT>
+        where RT : HasDirectory<RT>
     {
         /// <summary>
         /// Create a directory

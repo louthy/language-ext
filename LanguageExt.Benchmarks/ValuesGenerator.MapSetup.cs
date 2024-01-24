@@ -52,7 +52,7 @@ namespace LanguageExt.Benchmarks
         }
 
         public static HashMap<TEq, T, T> LangExtHashMapSetup<T, TEq>(Dictionary<T, T> values)
-            where TEq : struct, Eq<T>
+            where TEq : Eq<T>
         {
             var hashMap = HashMap<TEq, T, T>();
             foreach (var kvp in values)
@@ -64,7 +64,7 @@ namespace LanguageExt.Benchmarks
         }
 
         public static Map<TOrd, T, T> LangExtMapSetup<T, TOrd>(Dictionary<T, T> values)
-            where TOrd : struct, Ord<T>
+            where TOrd : Ord<T>
         {
             var hashMap = Map<TOrd, T, T>();
             foreach (var kvp in values)

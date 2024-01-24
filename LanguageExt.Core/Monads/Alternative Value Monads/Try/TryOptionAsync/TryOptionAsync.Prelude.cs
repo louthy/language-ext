@@ -117,7 +117,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs ++ rhs</returns>
         [Pure]
-        public static TryOptionAsync<A> append<SEMI, A>(TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where SEMI : struct, Semigroup<A> =>
+        public static TryOptionAsync<A> append<SEMI, A>(TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where SEMI : Semigroup<A> =>
             lhs.Append<SEMI, A>(rhs);
     
         /// <summary>
@@ -128,7 +128,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
         [Pure]
-        public static TryOptionAsync<A> add<NUM, A>(TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where NUM : struct, Num<A> =>
+        public static TryOptionAsync<A> add<NUM, A>(TryOptionAsync<A> lhs, TryOptionAsync<A> rhs) where NUM : Num<A> =>
             lhs.Add<NUM, A>(rhs);
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public static TryOptionAsync<T> subtract<NUM, T>(TryOptionAsync<T> lhs, TryOptionAsync<T> rhs) where NUM : struct, Num<T> =>
+        public static TryOptionAsync<T> subtract<NUM, T>(TryOptionAsync<T> lhs, TryOptionAsync<T> rhs) where NUM : Num<T> =>
             lhs.Subtract<NUM, T>(rhs);
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         [Pure]
-        public static TryOptionAsync<T> product<NUM, T>(TryOptionAsync<T> lhs, TryOptionAsync<T> rhs) where NUM : struct, Num<T> =>
+        public static TryOptionAsync<T> product<NUM, T>(TryOptionAsync<T> lhs, TryOptionAsync<T> rhs) where NUM : Num<T> =>
             lhs.Product<NUM, T>(rhs);
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static TryOptionAsync<T> divide<NUM, T>(TryOptionAsync<T> lhs, TryOptionAsync<T> rhs) where NUM : struct, Num<T> =>
+        public static TryOptionAsync<T> divide<NUM, T>(TryOptionAsync<T> lhs, TryOptionAsync<T> rhs) where NUM : Num<T> =>
             lhs.Divide<NUM, T>(rhs);
 
         /// <summary>

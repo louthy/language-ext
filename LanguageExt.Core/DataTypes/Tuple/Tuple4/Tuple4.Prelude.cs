@@ -22,10 +22,10 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Tuple<A, B, C, D> append<SemiA, SemiB, SemiC, SemiD, A, B, C, D>(Tuple<A, B, C, D> a, Tuple<A, B, C, D> b)
-            where SemiA : struct, Semigroup<A>
-            where SemiB : struct, Semigroup<B>
-            where SemiC : struct, Semigroup<C>
-            where SemiD : struct, Semigroup<D>
+            where SemiA : Semigroup<A>
+            where SemiB : Semigroup<B>
+            where SemiC : Semigroup<C>
+            where SemiD : Semigroup<D>
             =>
             Tuple(default(SemiA).Append(a.Item1, b.Item1),
                   default(SemiB).Append(a.Item2, b.Item2),
@@ -37,7 +37,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static A append<SemiA, A>(Tuple<A, A, A, A> a)
-            where SemiA : struct, Semigroup<A> =>
+            where SemiA : Semigroup<A> =>
             default(SemiA).Append(a.Item1,
                 default(SemiA).Append(a.Item2,
                     default(SemiA).Append(a.Item3, a.Item4)));
@@ -47,10 +47,10 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Tuple<A, B, C, D> concat<MonoidA, MonoidB, MonoidC, MonoidD, A, B, C, D>(Tuple<A, B, C, D> a, Tuple<A, B, C, D> b)
-            where MonoidA : struct, Monoid<A>
-            where MonoidB : struct, Monoid<B>
-            where MonoidC : struct, Monoid<C>
-            where MonoidD : struct, Monoid<D> =>
+            where MonoidA : Monoid<A>
+            where MonoidB : Monoid<B>
+            where MonoidC : Monoid<C>
+            where MonoidD : Monoid<D> =>
             Tuple(mconcat<MonoidA, A>(a.Item1, b.Item1),
                   mconcat<MonoidB, B>(a.Item2, b.Item2),
                   mconcat<MonoidC, C>(a.Item3, b.Item3),
@@ -61,7 +61,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static A concat<MonoidA, A>(Tuple<A, A, A, A> a)
-            where MonoidA : struct, Monoid<A> =>
+            where MonoidA : Monoid<A> =>
             mconcat<MonoidA, A>(a.Item1, a.Item2, a.Item3, a.Item4);
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static A sum<NUM, A>(Tuple<A, A, A, A> self)
-            where NUM : struct, Num<A> =>
+            where NUM : Num<A> =>
             TypeClass.sum<NUM, FoldTuple<A>, Tuple<A, A, A, A>, A>(self);
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static A product<NUM, A>(Tuple<A, A, A, A> self)
-            where NUM : struct, Num<A> =>
+            where NUM : Num<A> =>
             TypeClass.product<NUM, FoldTuple<A>, Tuple<A, A, A, A>, A>(self);
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static bool contains<EQ, A>(Tuple<A, A, A, A> self, A value)
-            where EQ : struct, Eq<A> =>
+            where EQ : Eq<A> =>
             default(EQ).Equals(self.Item1, value) ||
             default(EQ).Equals(self.Item2, value) ||
             default(EQ).Equals(self.Item3, value) ||

@@ -205,7 +205,7 @@ namespace LanguageExt.Tests
             Assert.ThrowsAny<Exception>(act(comp.Run(false, Map((1, "a"))).IfFailThrow));
         }
 
-        // TODO: Restore when type-classes are complete
+        // TODO: Restore when traites are complete
         //[Fact]
         //public void ReaderListSumFoldTest()
         //{

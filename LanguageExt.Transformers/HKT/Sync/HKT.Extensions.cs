@@ -78,7 +78,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Arr&lt;Arr&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Arr<Arr<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MArr<Arr<A>>, Arr<Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Arr<Arr<A>> PlusT<NUM,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Arr<A>> PlusT<NUM,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Arr<Arr<A>> SubtractT<NUM,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Arr<A>> SubtractT<NUM,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Arr<Arr<A>> ProductT<NUM,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Arr<A>> ProductT<NUM,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -261,7 +261,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Arr<Arr<A>> DivideT<NUM,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Arr<A>> DivideT<NUM,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -273,7 +273,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Arr<Arr<A>> AppendT<SEMI,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Arr<Arr<A>> AppendT<SEMI,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -285,7 +285,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -297,7 +297,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Arr<Arr<A>> x, Arr<Arr<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -392,7 +392,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `HashSet&lt;Arr&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this HashSet<Arr<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MHashSet<Arr<A>>, HashSet<Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -539,7 +539,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static HashSet<Arr<A>> PlusT<NUM,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Arr<A>> PlusT<NUM,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -551,7 +551,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static HashSet<Arr<A>> SubtractT<NUM,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Arr<A>> SubtractT<NUM,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -563,7 +563,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static HashSet<Arr<A>> ProductT<NUM,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Arr<A>> ProductT<NUM,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -575,7 +575,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static HashSet<Arr<A>> DivideT<NUM,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Arr<A>> DivideT<NUM,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -587,7 +587,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static HashSet<Arr<A>> AppendT<SEMI,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static HashSet<Arr<A>> AppendT<SEMI,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -599,7 +599,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -611,7 +611,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this HashSet<Arr<A>> x, HashSet<Arr<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -706,7 +706,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Lst&lt;Arr&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Lst<Arr<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MLst<Arr<A>>, Lst<Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -853,7 +853,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Lst<Arr<A>> PlusT<NUM,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Arr<A>> PlusT<NUM,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -865,7 +865,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Lst<Arr<A>> SubtractT<NUM,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Arr<A>> SubtractT<NUM,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -877,7 +877,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Lst<Arr<A>> ProductT<NUM,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Arr<A>> ProductT<NUM,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -889,7 +889,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Lst<Arr<A>> DivideT<NUM,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Arr<A>> DivideT<NUM,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -901,7 +901,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Lst<Arr<A>> AppendT<SEMI,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Lst<Arr<A>> AppendT<SEMI,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -913,7 +913,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -925,7 +925,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Lst<Arr<A>> x, Lst<Arr<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -1020,7 +1020,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Fin&lt;Arr&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Fin<Arr<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MFin<Arr<A>>, Fin<Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -1167,7 +1167,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Fin<Arr<A>> PlusT<NUM,  A>(this Fin<Arr<A>> x, Fin<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Arr<A>> PlusT<NUM,  A>(this Fin<Arr<A>> x, Fin<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -1179,7 +1179,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Fin<Arr<A>> SubtractT<NUM,  A>(this Fin<Arr<A>> x, Fin<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Arr<A>> SubtractT<NUM,  A>(this Fin<Arr<A>> x, Fin<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -1191,7 +1191,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Fin<Arr<A>> ProductT<NUM,  A>(this Fin<Arr<A>> x, Fin<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Arr<A>> ProductT<NUM,  A>(this Fin<Arr<A>> x, Fin<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -1203,7 +1203,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Fin<Arr<A>> DivideT<NUM,  A>(this Fin<Arr<A>> x, Fin<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Arr<A>> DivideT<NUM,  A>(this Fin<Arr<A>> x, Fin<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -1215,7 +1215,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Fin<Arr<A>> AppendT<SEMI,  A>(this Fin<Arr<A>> x, Fin<Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Fin<Arr<A>> AppendT<SEMI,  A>(this Fin<Arr<A>> x, Fin<Arr<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -1227,7 +1227,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Fin<Arr<A>> x, Fin<Arr<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Fin<Arr<A>> x, Fin<Arr<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -1239,7 +1239,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Fin<Arr<A>> x, Fin<Arr<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Fin<Arr<A>> x, Fin<Arr<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -1334,7 +1334,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Option&lt;Arr&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Option<Arr<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOption<Arr<A>>, Option<Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -1481,7 +1481,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Option<Arr<A>> PlusT<NUM,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Arr<A>> PlusT<NUM,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -1493,7 +1493,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Option<Arr<A>> SubtractT<NUM,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Arr<A>> SubtractT<NUM,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -1505,7 +1505,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Option<Arr<A>> ProductT<NUM,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Arr<A>> ProductT<NUM,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -1517,7 +1517,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Option<Arr<A>> DivideT<NUM,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Arr<A>> DivideT<NUM,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -1529,7 +1529,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Option<Arr<A>> AppendT<SEMI,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Option<Arr<A>> AppendT<SEMI,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -1541,7 +1541,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -1553,7 +1553,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Option<Arr<A>> x, Option<Arr<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -1648,7 +1648,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;Arr&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this OptionUnsafe<Arr<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOptionUnsafe<Arr<A>>, OptionUnsafe<Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -1795,7 +1795,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionUnsafe<Arr<A>> PlusT<NUM,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Arr<A>> PlusT<NUM,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -1807,7 +1807,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionUnsafe<Arr<A>> SubtractT<NUM,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Arr<A>> SubtractT<NUM,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -1819,7 +1819,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionUnsafe<Arr<A>> ProductT<NUM,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Arr<A>> ProductT<NUM,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -1831,7 +1831,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionUnsafe<Arr<A>> DivideT<NUM,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Arr<A>> DivideT<NUM,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -1843,7 +1843,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionUnsafe<Arr<A>> AppendT<SEMI,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionUnsafe<Arr<A>> AppendT<SEMI,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -1855,7 +1855,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -1867,7 +1867,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Arr<A>> x, OptionUnsafe<Arr<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -1962,7 +1962,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Either&lt;L, Arr&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Either<L, Arr<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEither<L, Arr<A>>, Either<L, Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -2109,7 +2109,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Either<L, Arr<A>> PlusT<NUM, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Arr<A>> PlusT<NUM, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -2121,7 +2121,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Either<L, Arr<A>> SubtractT<NUM, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Arr<A>> SubtractT<NUM, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -2133,7 +2133,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Either<L, Arr<A>> ProductT<NUM, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Arr<A>> ProductT<NUM, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -2145,7 +2145,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Either<L, Arr<A>> DivideT<NUM, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Arr<A>> DivideT<NUM, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -2157,7 +2157,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Either<L, Arr<A>> AppendT<SEMI, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Either<L, Arr<A>> AppendT<SEMI, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -2169,7 +2169,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -2181,7 +2181,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Either<L, Arr<A>> x, Either<L, Arr<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -2276,7 +2276,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, Arr&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this EitherUnsafe<L, Arr<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEitherUnsafe<L, Arr<A>>, EitherUnsafe<L, Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -2423,7 +2423,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherUnsafe<L, Arr<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Arr<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -2435,7 +2435,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherUnsafe<L, Arr<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Arr<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -2447,7 +2447,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Arr<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Arr<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -2459,7 +2459,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Arr<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Arr<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -2471,7 +2471,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Arr<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherUnsafe<L, Arr<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -2483,7 +2483,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -2495,7 +2495,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Arr<A>> x, EitherUnsafe<L, Arr<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -2590,7 +2590,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Try&lt;Arr&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Try<Arr<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTry<Arr<A>>, Try<Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -2737,7 +2737,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Try<Arr<A>> PlusT<NUM,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Arr<A>> PlusT<NUM,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -2749,7 +2749,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Try<Arr<A>> SubtractT<NUM,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Arr<A>> SubtractT<NUM,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -2761,7 +2761,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Try<Arr<A>> ProductT<NUM,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Arr<A>> ProductT<NUM,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -2773,7 +2773,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Try<Arr<A>> DivideT<NUM,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Arr<A>> DivideT<NUM,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -2785,7 +2785,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Try<Arr<A>> AppendT<SEMI,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Try<Arr<A>> AppendT<SEMI,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -2797,7 +2797,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -2809,7 +2809,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Try<Arr<A>> x, Try<Arr<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -2904,7 +2904,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOption&lt;Arr&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this TryOption<Arr<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTryOption<Arr<A>>, TryOption<Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -3051,7 +3051,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOption<Arr<A>> PlusT<NUM,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Arr<A>> PlusT<NUM,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -3063,7 +3063,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOption<Arr<A>> SubtractT<NUM,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Arr<A>> SubtractT<NUM,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -3075,7 +3075,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOption<Arr<A>> ProductT<NUM,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Arr<A>> ProductT<NUM,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -3087,7 +3087,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOption<Arr<A>> DivideT<NUM,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Arr<A>> DivideT<NUM,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -3099,7 +3099,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOption<Arr<A>> AppendT<SEMI,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOption<Arr<A>> AppendT<SEMI,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -3111,7 +3111,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -3123,7 +3123,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this TryOption<Arr<A>> x, TryOption<Arr<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -3218,7 +3218,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;Arr&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this IEnumerable<Arr<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MEnumerable<Arr<A>>, IEnumerable<Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -3365,7 +3365,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static IEnumerable<Arr<A>> PlusT<NUM,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Arr<A>> PlusT<NUM,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -3377,7 +3377,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static IEnumerable<Arr<A>> SubtractT<NUM,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Arr<A>> SubtractT<NUM,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -3389,7 +3389,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static IEnumerable<Arr<A>> ProductT<NUM,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Arr<A>> ProductT<NUM,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -3401,7 +3401,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static IEnumerable<Arr<A>> DivideT<NUM,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Arr<A>> DivideT<NUM,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -3413,7 +3413,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static IEnumerable<Arr<A>> AppendT<SEMI,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static IEnumerable<Arr<A>> AppendT<SEMI,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -3425,7 +3425,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -3437,7 +3437,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this IEnumerable<Arr<A>> x, IEnumerable<Arr<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -3532,7 +3532,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Seq&lt;Arr&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Seq<Arr<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSeq<Arr<A>>, Seq<Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -3679,7 +3679,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Seq<Arr<A>> PlusT<NUM,  A>(this Seq<Arr<A>> x, Seq<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Arr<A>> PlusT<NUM,  A>(this Seq<Arr<A>> x, Seq<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -3691,7 +3691,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Seq<Arr<A>> SubtractT<NUM,  A>(this Seq<Arr<A>> x, Seq<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Arr<A>> SubtractT<NUM,  A>(this Seq<Arr<A>> x, Seq<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -3703,7 +3703,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Seq<Arr<A>> ProductT<NUM,  A>(this Seq<Arr<A>> x, Seq<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Arr<A>> ProductT<NUM,  A>(this Seq<Arr<A>> x, Seq<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -3715,7 +3715,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Seq<Arr<A>> DivideT<NUM,  A>(this Seq<Arr<A>> x, Seq<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Arr<A>> DivideT<NUM,  A>(this Seq<Arr<A>> x, Seq<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -3727,7 +3727,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Seq<Arr<A>> AppendT<SEMI,  A>(this Seq<Arr<A>> x, Seq<Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Seq<Arr<A>> AppendT<SEMI,  A>(this Seq<Arr<A>> x, Seq<Arr<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -3739,7 +3739,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Seq<Arr<A>> x, Seq<Arr<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Seq<Arr<A>> x, Seq<Arr<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -3751,7 +3751,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Seq<Arr<A>> x, Seq<Arr<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Seq<Arr<A>> x, Seq<Arr<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -3846,7 +3846,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Set&lt;Arr&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Set<Arr<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSet<Arr<A>>, Set<Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -3993,7 +3993,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Set<Arr<A>> PlusT<NUM,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Arr<A>> PlusT<NUM,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -4005,7 +4005,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Set<Arr<A>> SubtractT<NUM,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Arr<A>> SubtractT<NUM,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -4017,7 +4017,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Set<Arr<A>> ProductT<NUM,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Arr<A>> ProductT<NUM,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -4029,7 +4029,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Set<Arr<A>> DivideT<NUM,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Arr<A>> DivideT<NUM,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -4041,7 +4041,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Set<Arr<A>> AppendT<SEMI,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Set<Arr<A>> AppendT<SEMI,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -4053,7 +4053,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -4065,7 +4065,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Set<Arr<A>> x, Set<Arr<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -4160,7 +4160,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, Arr&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Validation<FAIL, Arr<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MValidation<FAIL, Arr<A>>, Validation<FAIL, Arr<A>>, MArr<A>, Arr<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -4307,7 +4307,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Arr&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Validation<FAIL, Arr<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Arr<A>> x, Validation<FAIL, Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Arr<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Arr<A>> x, Validation<FAIL, Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -4319,7 +4319,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Arr&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Validation<FAIL, Arr<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Arr<A>> x, Validation<FAIL, Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Arr<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Arr<A>> x, Validation<FAIL, Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -4331,7 +4331,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Arr&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Validation<FAIL, Arr<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Arr<A>> x, Validation<FAIL, Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Arr<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Arr<A>> x, Validation<FAIL, Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -4343,7 +4343,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Arr&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Validation<FAIL, Arr<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Arr<A>> x, Validation<FAIL, Arr<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Arr<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Arr<A>> x, Validation<FAIL, Arr<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -4355,7 +4355,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Arr&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Validation<FAIL, Arr<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Arr<A>> x, Validation<FAIL, Arr<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Validation<FAIL, Arr<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Arr<A>> x, Validation<FAIL, Arr<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -4367,7 +4367,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Arr<A>> x, Validation<FAIL, Arr<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Arr<A>> x, Validation<FAIL, Arr<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -4379,7 +4379,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Arr&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Arr<A>> x, Validation<FAIL, Arr<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Arr<A>> x, Validation<FAIL, Arr<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -4482,7 +4482,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Arr&lt;HashSet&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Arr<HashSet<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MArr<HashSet<A>>, Arr<HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -4629,7 +4629,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Arr<HashSet<A>> PlusT<NUM,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<HashSet<A>> PlusT<NUM,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -4641,7 +4641,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Arr<HashSet<A>> SubtractT<NUM,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<HashSet<A>> SubtractT<NUM,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -4653,7 +4653,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Arr<HashSet<A>> ProductT<NUM,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<HashSet<A>> ProductT<NUM,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -4665,7 +4665,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Arr<HashSet<A>> DivideT<NUM,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<HashSet<A>> DivideT<NUM,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -4677,7 +4677,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Arr<HashSet<A>> AppendT<SEMI,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Arr<HashSet<A>> AppendT<SEMI,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -4689,7 +4689,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -4701,7 +4701,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Arr<HashSet<A>> x, Arr<HashSet<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -4796,7 +4796,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `HashSet&lt;HashSet&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this HashSet<HashSet<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MHashSet<HashSet<A>>, HashSet<HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -4943,7 +4943,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static HashSet<HashSet<A>> PlusT<NUM,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<HashSet<A>> PlusT<NUM,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -4955,7 +4955,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static HashSet<HashSet<A>> SubtractT<NUM,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<HashSet<A>> SubtractT<NUM,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -4967,7 +4967,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static HashSet<HashSet<A>> ProductT<NUM,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<HashSet<A>> ProductT<NUM,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -4979,7 +4979,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static HashSet<HashSet<A>> DivideT<NUM,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<HashSet<A>> DivideT<NUM,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -4991,7 +4991,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static HashSet<HashSet<A>> AppendT<SEMI,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static HashSet<HashSet<A>> AppendT<SEMI,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -5003,7 +5003,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -5015,7 +5015,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this HashSet<HashSet<A>> x, HashSet<HashSet<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -5110,7 +5110,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Lst&lt;HashSet&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Lst<HashSet<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MLst<HashSet<A>>, Lst<HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -5257,7 +5257,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Lst<HashSet<A>> PlusT<NUM,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<HashSet<A>> PlusT<NUM,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -5269,7 +5269,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Lst<HashSet<A>> SubtractT<NUM,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<HashSet<A>> SubtractT<NUM,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -5281,7 +5281,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Lst<HashSet<A>> ProductT<NUM,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<HashSet<A>> ProductT<NUM,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -5293,7 +5293,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Lst<HashSet<A>> DivideT<NUM,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<HashSet<A>> DivideT<NUM,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -5305,7 +5305,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Lst<HashSet<A>> AppendT<SEMI,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Lst<HashSet<A>> AppendT<SEMI,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -5317,7 +5317,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -5329,7 +5329,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Lst<HashSet<A>> x, Lst<HashSet<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -5424,7 +5424,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Fin&lt;HashSet&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Fin<HashSet<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MFin<HashSet<A>>, Fin<HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -5571,7 +5571,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Fin<HashSet<A>> PlusT<NUM,  A>(this Fin<HashSet<A>> x, Fin<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<HashSet<A>> PlusT<NUM,  A>(this Fin<HashSet<A>> x, Fin<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -5583,7 +5583,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Fin<HashSet<A>> SubtractT<NUM,  A>(this Fin<HashSet<A>> x, Fin<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<HashSet<A>> SubtractT<NUM,  A>(this Fin<HashSet<A>> x, Fin<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -5595,7 +5595,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Fin<HashSet<A>> ProductT<NUM,  A>(this Fin<HashSet<A>> x, Fin<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<HashSet<A>> ProductT<NUM,  A>(this Fin<HashSet<A>> x, Fin<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -5607,7 +5607,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Fin<HashSet<A>> DivideT<NUM,  A>(this Fin<HashSet<A>> x, Fin<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<HashSet<A>> DivideT<NUM,  A>(this Fin<HashSet<A>> x, Fin<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -5619,7 +5619,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Fin<HashSet<A>> AppendT<SEMI,  A>(this Fin<HashSet<A>> x, Fin<HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Fin<HashSet<A>> AppendT<SEMI,  A>(this Fin<HashSet<A>> x, Fin<HashSet<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -5631,7 +5631,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Fin<HashSet<A>> x, Fin<HashSet<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Fin<HashSet<A>> x, Fin<HashSet<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -5643,7 +5643,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Fin<HashSet<A>> x, Fin<HashSet<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Fin<HashSet<A>> x, Fin<HashSet<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -5738,7 +5738,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Option&lt;HashSet&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Option<HashSet<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOption<HashSet<A>>, Option<HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -5885,7 +5885,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Option<HashSet<A>> PlusT<NUM,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Option<HashSet<A>> PlusT<NUM,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -5897,7 +5897,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Option<HashSet<A>> SubtractT<NUM,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Option<HashSet<A>> SubtractT<NUM,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -5909,7 +5909,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Option<HashSet<A>> ProductT<NUM,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Option<HashSet<A>> ProductT<NUM,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -5921,7 +5921,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Option<HashSet<A>> DivideT<NUM,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Option<HashSet<A>> DivideT<NUM,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -5933,7 +5933,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Option<HashSet<A>> AppendT<SEMI,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Option<HashSet<A>> AppendT<SEMI,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -5945,7 +5945,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -5957,7 +5957,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Option<HashSet<A>> x, Option<HashSet<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -6052,7 +6052,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;HashSet&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this OptionUnsafe<HashSet<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOptionUnsafe<HashSet<A>>, OptionUnsafe<HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -6199,7 +6199,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionUnsafe<HashSet<A>> PlusT<NUM,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<HashSet<A>> PlusT<NUM,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -6211,7 +6211,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionUnsafe<HashSet<A>> SubtractT<NUM,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<HashSet<A>> SubtractT<NUM,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -6223,7 +6223,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionUnsafe<HashSet<A>> ProductT<NUM,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<HashSet<A>> ProductT<NUM,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -6235,7 +6235,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionUnsafe<HashSet<A>> DivideT<NUM,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<HashSet<A>> DivideT<NUM,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -6247,7 +6247,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionUnsafe<HashSet<A>> AppendT<SEMI,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionUnsafe<HashSet<A>> AppendT<SEMI,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -6259,7 +6259,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -6271,7 +6271,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<HashSet<A>> x, OptionUnsafe<HashSet<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -6366,7 +6366,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Either&lt;L, HashSet&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Either<L, HashSet<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEither<L, HashSet<A>>, Either<L, HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -6513,7 +6513,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Either<L, HashSet<A>> PlusT<NUM, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, HashSet<A>> PlusT<NUM, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -6525,7 +6525,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Either<L, HashSet<A>> SubtractT<NUM, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, HashSet<A>> SubtractT<NUM, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -6537,7 +6537,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Either<L, HashSet<A>> ProductT<NUM, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, HashSet<A>> ProductT<NUM, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -6549,7 +6549,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Either<L, HashSet<A>> DivideT<NUM, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, HashSet<A>> DivideT<NUM, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -6561,7 +6561,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Either<L, HashSet<A>> AppendT<SEMI, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Either<L, HashSet<A>> AppendT<SEMI, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -6573,7 +6573,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -6585,7 +6585,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Either<L, HashSet<A>> x, Either<L, HashSet<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -6680,7 +6680,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, HashSet&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this EitherUnsafe<L, HashSet<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEitherUnsafe<L, HashSet<A>>, EitherUnsafe<L, HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -6827,7 +6827,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherUnsafe<L, HashSet<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, HashSet<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -6839,7 +6839,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherUnsafe<L, HashSet<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, HashSet<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -6851,7 +6851,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherUnsafe<L, HashSet<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, HashSet<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -6863,7 +6863,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherUnsafe<L, HashSet<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, HashSet<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -6875,7 +6875,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherUnsafe<L, HashSet<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherUnsafe<L, HashSet<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -6887,7 +6887,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -6899,7 +6899,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, HashSet<A>> x, EitherUnsafe<L, HashSet<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -6994,7 +6994,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Try&lt;HashSet&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Try<HashSet<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTry<HashSet<A>>, Try<HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -7141,7 +7141,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Try<HashSet<A>> PlusT<NUM,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Try<HashSet<A>> PlusT<NUM,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -7153,7 +7153,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Try<HashSet<A>> SubtractT<NUM,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Try<HashSet<A>> SubtractT<NUM,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -7165,7 +7165,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Try<HashSet<A>> ProductT<NUM,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Try<HashSet<A>> ProductT<NUM,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -7177,7 +7177,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Try<HashSet<A>> DivideT<NUM,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Try<HashSet<A>> DivideT<NUM,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -7189,7 +7189,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Try<HashSet<A>> AppendT<SEMI,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Try<HashSet<A>> AppendT<SEMI,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -7201,7 +7201,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -7213,7 +7213,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Try<HashSet<A>> x, Try<HashSet<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -7308,7 +7308,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOption&lt;HashSet&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this TryOption<HashSet<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTryOption<HashSet<A>>, TryOption<HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -7455,7 +7455,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOption<HashSet<A>> PlusT<NUM,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<HashSet<A>> PlusT<NUM,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -7467,7 +7467,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOption<HashSet<A>> SubtractT<NUM,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<HashSet<A>> SubtractT<NUM,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -7479,7 +7479,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOption<HashSet<A>> ProductT<NUM,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<HashSet<A>> ProductT<NUM,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -7491,7 +7491,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOption<HashSet<A>> DivideT<NUM,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<HashSet<A>> DivideT<NUM,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -7503,7 +7503,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOption<HashSet<A>> AppendT<SEMI,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOption<HashSet<A>> AppendT<SEMI,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -7515,7 +7515,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -7527,7 +7527,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this TryOption<HashSet<A>> x, TryOption<HashSet<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -7622,7 +7622,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;HashSet&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this IEnumerable<HashSet<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MEnumerable<HashSet<A>>, IEnumerable<HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -7769,7 +7769,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static IEnumerable<HashSet<A>> PlusT<NUM,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<HashSet<A>> PlusT<NUM,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -7781,7 +7781,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static IEnumerable<HashSet<A>> SubtractT<NUM,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<HashSet<A>> SubtractT<NUM,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -7793,7 +7793,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static IEnumerable<HashSet<A>> ProductT<NUM,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<HashSet<A>> ProductT<NUM,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -7805,7 +7805,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static IEnumerable<HashSet<A>> DivideT<NUM,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<HashSet<A>> DivideT<NUM,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -7817,7 +7817,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static IEnumerable<HashSet<A>> AppendT<SEMI,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static IEnumerable<HashSet<A>> AppendT<SEMI,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -7829,7 +7829,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -7841,7 +7841,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this IEnumerable<HashSet<A>> x, IEnumerable<HashSet<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -7936,7 +7936,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Seq&lt;HashSet&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Seq<HashSet<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSeq<HashSet<A>>, Seq<HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -8083,7 +8083,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Seq<HashSet<A>> PlusT<NUM,  A>(this Seq<HashSet<A>> x, Seq<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<HashSet<A>> PlusT<NUM,  A>(this Seq<HashSet<A>> x, Seq<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -8095,7 +8095,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Seq<HashSet<A>> SubtractT<NUM,  A>(this Seq<HashSet<A>> x, Seq<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<HashSet<A>> SubtractT<NUM,  A>(this Seq<HashSet<A>> x, Seq<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -8107,7 +8107,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Seq<HashSet<A>> ProductT<NUM,  A>(this Seq<HashSet<A>> x, Seq<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<HashSet<A>> ProductT<NUM,  A>(this Seq<HashSet<A>> x, Seq<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -8119,7 +8119,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Seq<HashSet<A>> DivideT<NUM,  A>(this Seq<HashSet<A>> x, Seq<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<HashSet<A>> DivideT<NUM,  A>(this Seq<HashSet<A>> x, Seq<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -8131,7 +8131,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Seq<HashSet<A>> AppendT<SEMI,  A>(this Seq<HashSet<A>> x, Seq<HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Seq<HashSet<A>> AppendT<SEMI,  A>(this Seq<HashSet<A>> x, Seq<HashSet<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -8143,7 +8143,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Seq<HashSet<A>> x, Seq<HashSet<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Seq<HashSet<A>> x, Seq<HashSet<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -8155,7 +8155,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Seq<HashSet<A>> x, Seq<HashSet<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Seq<HashSet<A>> x, Seq<HashSet<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -8250,7 +8250,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Set&lt;HashSet&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Set<HashSet<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSet<HashSet<A>>, Set<HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -8397,7 +8397,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Set<HashSet<A>> PlusT<NUM,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Set<HashSet<A>> PlusT<NUM,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -8409,7 +8409,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Set<HashSet<A>> SubtractT<NUM,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Set<HashSet<A>> SubtractT<NUM,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -8421,7 +8421,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Set<HashSet<A>> ProductT<NUM,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Set<HashSet<A>> ProductT<NUM,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -8433,7 +8433,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Set<HashSet<A>> DivideT<NUM,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Set<HashSet<A>> DivideT<NUM,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -8445,7 +8445,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Set<HashSet<A>> AppendT<SEMI,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Set<HashSet<A>> AppendT<SEMI,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -8457,7 +8457,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -8469,7 +8469,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Set<HashSet<A>> x, Set<HashSet<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -8564,7 +8564,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, HashSet&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Validation<FAIL, HashSet<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MValidation<FAIL, HashSet<A>>, Validation<FAIL, HashSet<A>>, MHashSet<A>, HashSet<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -8711,7 +8711,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, HashSet&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Validation<FAIL, HashSet<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, HashSet<A>> x, Validation<FAIL, HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, HashSet<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, HashSet<A>> x, Validation<FAIL, HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -8723,7 +8723,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, HashSet&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Validation<FAIL, HashSet<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, HashSet<A>> x, Validation<FAIL, HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, HashSet<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, HashSet<A>> x, Validation<FAIL, HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -8735,7 +8735,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, HashSet&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Validation<FAIL, HashSet<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, HashSet<A>> x, Validation<FAIL, HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, HashSet<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, HashSet<A>> x, Validation<FAIL, HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -8747,7 +8747,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, HashSet&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Validation<FAIL, HashSet<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, HashSet<A>> x, Validation<FAIL, HashSet<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, HashSet<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, HashSet<A>> x, Validation<FAIL, HashSet<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -8759,7 +8759,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, HashSet&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Validation<FAIL, HashSet<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, HashSet<A>> x, Validation<FAIL, HashSet<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Validation<FAIL, HashSet<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, HashSet<A>> x, Validation<FAIL, HashSet<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -8771,7 +8771,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, HashSet<A>> x, Validation<FAIL, HashSet<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, HashSet<A>> x, Validation<FAIL, HashSet<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -8783,7 +8783,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, HashSet&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, HashSet<A>> x, Validation<FAIL, HashSet<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, HashSet<A>> x, Validation<FAIL, HashSet<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -8886,7 +8886,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Arr&lt;Lst&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Arr<Lst<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MArr<Lst<A>>, Arr<Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -9033,7 +9033,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Arr<Lst<A>> PlusT<NUM,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Lst<A>> PlusT<NUM,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -9045,7 +9045,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Arr<Lst<A>> SubtractT<NUM,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Lst<A>> SubtractT<NUM,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -9057,7 +9057,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Arr<Lst<A>> ProductT<NUM,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Lst<A>> ProductT<NUM,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -9069,7 +9069,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Arr<Lst<A>> DivideT<NUM,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Lst<A>> DivideT<NUM,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -9081,7 +9081,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Arr<Lst<A>> AppendT<SEMI,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Arr<Lst<A>> AppendT<SEMI,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -9093,7 +9093,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -9105,7 +9105,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Arr<Lst<A>> x, Arr<Lst<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -9200,7 +9200,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `HashSet&lt;Lst&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this HashSet<Lst<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MHashSet<Lst<A>>, HashSet<Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -9347,7 +9347,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static HashSet<Lst<A>> PlusT<NUM,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Lst<A>> PlusT<NUM,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -9359,7 +9359,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static HashSet<Lst<A>> SubtractT<NUM,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Lst<A>> SubtractT<NUM,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -9371,7 +9371,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static HashSet<Lst<A>> ProductT<NUM,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Lst<A>> ProductT<NUM,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -9383,7 +9383,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static HashSet<Lst<A>> DivideT<NUM,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Lst<A>> DivideT<NUM,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -9395,7 +9395,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static HashSet<Lst<A>> AppendT<SEMI,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static HashSet<Lst<A>> AppendT<SEMI,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -9407,7 +9407,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -9419,7 +9419,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this HashSet<Lst<A>> x, HashSet<Lst<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -9514,7 +9514,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Lst&lt;Lst&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Lst<Lst<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MLst<Lst<A>>, Lst<Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -9661,7 +9661,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Lst<Lst<A>> PlusT<NUM,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Lst<A>> PlusT<NUM,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -9673,7 +9673,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Lst<Lst<A>> SubtractT<NUM,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Lst<A>> SubtractT<NUM,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -9685,7 +9685,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Lst<Lst<A>> ProductT<NUM,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Lst<A>> ProductT<NUM,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -9697,7 +9697,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Lst<Lst<A>> DivideT<NUM,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Lst<A>> DivideT<NUM,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -9709,7 +9709,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Lst<Lst<A>> AppendT<SEMI,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Lst<Lst<A>> AppendT<SEMI,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -9721,7 +9721,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -9733,7 +9733,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Lst<Lst<A>> x, Lst<Lst<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -9828,7 +9828,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Fin&lt;Lst&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Fin<Lst<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MFin<Lst<A>>, Fin<Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -9975,7 +9975,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Fin<Lst<A>> PlusT<NUM,  A>(this Fin<Lst<A>> x, Fin<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Lst<A>> PlusT<NUM,  A>(this Fin<Lst<A>> x, Fin<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -9987,7 +9987,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Fin<Lst<A>> SubtractT<NUM,  A>(this Fin<Lst<A>> x, Fin<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Lst<A>> SubtractT<NUM,  A>(this Fin<Lst<A>> x, Fin<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -9999,7 +9999,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Fin<Lst<A>> ProductT<NUM,  A>(this Fin<Lst<A>> x, Fin<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Lst<A>> ProductT<NUM,  A>(this Fin<Lst<A>> x, Fin<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -10011,7 +10011,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Fin<Lst<A>> DivideT<NUM,  A>(this Fin<Lst<A>> x, Fin<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Lst<A>> DivideT<NUM,  A>(this Fin<Lst<A>> x, Fin<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -10023,7 +10023,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Fin<Lst<A>> AppendT<SEMI,  A>(this Fin<Lst<A>> x, Fin<Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Fin<Lst<A>> AppendT<SEMI,  A>(this Fin<Lst<A>> x, Fin<Lst<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -10035,7 +10035,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Fin<Lst<A>> x, Fin<Lst<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Fin<Lst<A>> x, Fin<Lst<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -10047,7 +10047,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Fin<Lst<A>> x, Fin<Lst<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Fin<Lst<A>> x, Fin<Lst<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -10142,7 +10142,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Option&lt;Lst&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Option<Lst<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOption<Lst<A>>, Option<Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -10289,7 +10289,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Option<Lst<A>> PlusT<NUM,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Lst<A>> PlusT<NUM,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -10301,7 +10301,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Option<Lst<A>> SubtractT<NUM,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Lst<A>> SubtractT<NUM,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -10313,7 +10313,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Option<Lst<A>> ProductT<NUM,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Lst<A>> ProductT<NUM,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -10325,7 +10325,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Option<Lst<A>> DivideT<NUM,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Lst<A>> DivideT<NUM,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -10337,7 +10337,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Option<Lst<A>> AppendT<SEMI,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Option<Lst<A>> AppendT<SEMI,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -10349,7 +10349,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -10361,7 +10361,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Option<Lst<A>> x, Option<Lst<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -10456,7 +10456,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;Lst&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this OptionUnsafe<Lst<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOptionUnsafe<Lst<A>>, OptionUnsafe<Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -10603,7 +10603,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionUnsafe<Lst<A>> PlusT<NUM,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Lst<A>> PlusT<NUM,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -10615,7 +10615,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionUnsafe<Lst<A>> SubtractT<NUM,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Lst<A>> SubtractT<NUM,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -10627,7 +10627,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionUnsafe<Lst<A>> ProductT<NUM,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Lst<A>> ProductT<NUM,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -10639,7 +10639,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionUnsafe<Lst<A>> DivideT<NUM,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Lst<A>> DivideT<NUM,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -10651,7 +10651,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionUnsafe<Lst<A>> AppendT<SEMI,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionUnsafe<Lst<A>> AppendT<SEMI,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -10663,7 +10663,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -10675,7 +10675,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Lst<A>> x, OptionUnsafe<Lst<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -10770,7 +10770,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Either&lt;L, Lst&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Either<L, Lst<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEither<L, Lst<A>>, Either<L, Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -10917,7 +10917,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Either<L, Lst<A>> PlusT<NUM, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Lst<A>> PlusT<NUM, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -10929,7 +10929,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Either<L, Lst<A>> SubtractT<NUM, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Lst<A>> SubtractT<NUM, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -10941,7 +10941,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Either<L, Lst<A>> ProductT<NUM, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Lst<A>> ProductT<NUM, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -10953,7 +10953,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Either<L, Lst<A>> DivideT<NUM, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Lst<A>> DivideT<NUM, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -10965,7 +10965,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Either<L, Lst<A>> AppendT<SEMI, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Either<L, Lst<A>> AppendT<SEMI, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -10977,7 +10977,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -10989,7 +10989,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Either<L, Lst<A>> x, Either<L, Lst<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -11084,7 +11084,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, Lst&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this EitherUnsafe<L, Lst<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEitherUnsafe<L, Lst<A>>, EitherUnsafe<L, Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -11231,7 +11231,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherUnsafe<L, Lst<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Lst<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -11243,7 +11243,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherUnsafe<L, Lst<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Lst<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -11255,7 +11255,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Lst<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Lst<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -11267,7 +11267,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Lst<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Lst<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -11279,7 +11279,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Lst<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherUnsafe<L, Lst<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -11291,7 +11291,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -11303,7 +11303,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Lst<A>> x, EitherUnsafe<L, Lst<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -11398,7 +11398,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Try&lt;Lst&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Try<Lst<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTry<Lst<A>>, Try<Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -11545,7 +11545,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Try<Lst<A>> PlusT<NUM,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Lst<A>> PlusT<NUM,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -11557,7 +11557,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Try<Lst<A>> SubtractT<NUM,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Lst<A>> SubtractT<NUM,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -11569,7 +11569,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Try<Lst<A>> ProductT<NUM,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Lst<A>> ProductT<NUM,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -11581,7 +11581,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Try<Lst<A>> DivideT<NUM,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Lst<A>> DivideT<NUM,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -11593,7 +11593,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Try<Lst<A>> AppendT<SEMI,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Try<Lst<A>> AppendT<SEMI,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -11605,7 +11605,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -11617,7 +11617,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Try<Lst<A>> x, Try<Lst<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -11712,7 +11712,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOption&lt;Lst&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this TryOption<Lst<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTryOption<Lst<A>>, TryOption<Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -11859,7 +11859,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOption<Lst<A>> PlusT<NUM,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Lst<A>> PlusT<NUM,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -11871,7 +11871,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOption<Lst<A>> SubtractT<NUM,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Lst<A>> SubtractT<NUM,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -11883,7 +11883,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOption<Lst<A>> ProductT<NUM,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Lst<A>> ProductT<NUM,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -11895,7 +11895,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOption<Lst<A>> DivideT<NUM,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Lst<A>> DivideT<NUM,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -11907,7 +11907,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOption<Lst<A>> AppendT<SEMI,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOption<Lst<A>> AppendT<SEMI,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -11919,7 +11919,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -11931,7 +11931,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this TryOption<Lst<A>> x, TryOption<Lst<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -12026,7 +12026,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;Lst&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this IEnumerable<Lst<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MEnumerable<Lst<A>>, IEnumerable<Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -12173,7 +12173,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static IEnumerable<Lst<A>> PlusT<NUM,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Lst<A>> PlusT<NUM,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -12185,7 +12185,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static IEnumerable<Lst<A>> SubtractT<NUM,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Lst<A>> SubtractT<NUM,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -12197,7 +12197,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static IEnumerable<Lst<A>> ProductT<NUM,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Lst<A>> ProductT<NUM,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -12209,7 +12209,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static IEnumerable<Lst<A>> DivideT<NUM,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Lst<A>> DivideT<NUM,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -12221,7 +12221,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static IEnumerable<Lst<A>> AppendT<SEMI,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static IEnumerable<Lst<A>> AppendT<SEMI,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -12233,7 +12233,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -12245,7 +12245,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this IEnumerable<Lst<A>> x, IEnumerable<Lst<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -12340,7 +12340,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Seq&lt;Lst&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Seq<Lst<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSeq<Lst<A>>, Seq<Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -12487,7 +12487,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Seq<Lst<A>> PlusT<NUM,  A>(this Seq<Lst<A>> x, Seq<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Lst<A>> PlusT<NUM,  A>(this Seq<Lst<A>> x, Seq<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -12499,7 +12499,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Seq<Lst<A>> SubtractT<NUM,  A>(this Seq<Lst<A>> x, Seq<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Lst<A>> SubtractT<NUM,  A>(this Seq<Lst<A>> x, Seq<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -12511,7 +12511,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Seq<Lst<A>> ProductT<NUM,  A>(this Seq<Lst<A>> x, Seq<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Lst<A>> ProductT<NUM,  A>(this Seq<Lst<A>> x, Seq<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -12523,7 +12523,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Seq<Lst<A>> DivideT<NUM,  A>(this Seq<Lst<A>> x, Seq<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Lst<A>> DivideT<NUM,  A>(this Seq<Lst<A>> x, Seq<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -12535,7 +12535,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Seq<Lst<A>> AppendT<SEMI,  A>(this Seq<Lst<A>> x, Seq<Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Seq<Lst<A>> AppendT<SEMI,  A>(this Seq<Lst<A>> x, Seq<Lst<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -12547,7 +12547,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Seq<Lst<A>> x, Seq<Lst<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Seq<Lst<A>> x, Seq<Lst<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -12559,7 +12559,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Seq<Lst<A>> x, Seq<Lst<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Seq<Lst<A>> x, Seq<Lst<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -12654,7 +12654,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Set&lt;Lst&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Set<Lst<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSet<Lst<A>>, Set<Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -12801,7 +12801,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Set<Lst<A>> PlusT<NUM,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Lst<A>> PlusT<NUM,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -12813,7 +12813,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Set<Lst<A>> SubtractT<NUM,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Lst<A>> SubtractT<NUM,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -12825,7 +12825,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Set<Lst<A>> ProductT<NUM,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Lst<A>> ProductT<NUM,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -12837,7 +12837,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Set<Lst<A>> DivideT<NUM,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Lst<A>> DivideT<NUM,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -12849,7 +12849,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Set<Lst<A>> AppendT<SEMI,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Set<Lst<A>> AppendT<SEMI,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -12861,7 +12861,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -12873,7 +12873,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Set<Lst<A>> x, Set<Lst<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -12968,7 +12968,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, Lst&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Validation<FAIL, Lst<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MValidation<FAIL, Lst<A>>, Validation<FAIL, Lst<A>>, MLst<A>, Lst<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -13115,7 +13115,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Lst&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Validation<FAIL, Lst<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Lst<A>> x, Validation<FAIL, Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Lst<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Lst<A>> x, Validation<FAIL, Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -13127,7 +13127,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Lst&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Validation<FAIL, Lst<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Lst<A>> x, Validation<FAIL, Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Lst<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Lst<A>> x, Validation<FAIL, Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -13139,7 +13139,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Lst&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Validation<FAIL, Lst<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Lst<A>> x, Validation<FAIL, Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Lst<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Lst<A>> x, Validation<FAIL, Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -13151,7 +13151,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Lst&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Validation<FAIL, Lst<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Lst<A>> x, Validation<FAIL, Lst<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Lst<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Lst<A>> x, Validation<FAIL, Lst<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -13163,7 +13163,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Lst&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Validation<FAIL, Lst<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Lst<A>> x, Validation<FAIL, Lst<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Validation<FAIL, Lst<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Lst<A>> x, Validation<FAIL, Lst<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -13175,7 +13175,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Lst<A>> x, Validation<FAIL, Lst<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Lst<A>> x, Validation<FAIL, Lst<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -13187,7 +13187,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Lst&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Lst<A>> x, Validation<FAIL, Lst<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Lst<A>> x, Validation<FAIL, Lst<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -13290,7 +13290,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Arr&lt;Fin&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Arr<Fin<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MArr<Fin<A>>, Arr<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -13437,7 +13437,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Arr<Fin<A>> PlusT<NUM,  A>(this Arr<Fin<A>> x, Arr<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Fin<A>> PlusT<NUM,  A>(this Arr<Fin<A>> x, Arr<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -13449,7 +13449,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Arr<Fin<A>> SubtractT<NUM,  A>(this Arr<Fin<A>> x, Arr<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Fin<A>> SubtractT<NUM,  A>(this Arr<Fin<A>> x, Arr<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -13461,7 +13461,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Arr<Fin<A>> ProductT<NUM,  A>(this Arr<Fin<A>> x, Arr<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Fin<A>> ProductT<NUM,  A>(this Arr<Fin<A>> x, Arr<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -13473,7 +13473,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Arr<Fin<A>> DivideT<NUM,  A>(this Arr<Fin<A>> x, Arr<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Fin<A>> DivideT<NUM,  A>(this Arr<Fin<A>> x, Arr<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -13485,7 +13485,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Arr<Fin<A>> AppendT<SEMI,  A>(this Arr<Fin<A>> x, Arr<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Arr<Fin<A>> AppendT<SEMI,  A>(this Arr<Fin<A>> x, Arr<Fin<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -13497,7 +13497,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Arr<Fin<A>> x, Arr<Fin<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Arr<Fin<A>> x, Arr<Fin<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -13509,7 +13509,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Arr<Fin<A>> x, Arr<Fin<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Arr<Fin<A>> x, Arr<Fin<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -13604,7 +13604,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `HashSet&lt;Fin&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this HashSet<Fin<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MHashSet<Fin<A>>, HashSet<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -13751,7 +13751,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static HashSet<Fin<A>> PlusT<NUM,  A>(this HashSet<Fin<A>> x, HashSet<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Fin<A>> PlusT<NUM,  A>(this HashSet<Fin<A>> x, HashSet<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -13763,7 +13763,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static HashSet<Fin<A>> SubtractT<NUM,  A>(this HashSet<Fin<A>> x, HashSet<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Fin<A>> SubtractT<NUM,  A>(this HashSet<Fin<A>> x, HashSet<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -13775,7 +13775,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static HashSet<Fin<A>> ProductT<NUM,  A>(this HashSet<Fin<A>> x, HashSet<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Fin<A>> ProductT<NUM,  A>(this HashSet<Fin<A>> x, HashSet<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -13787,7 +13787,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static HashSet<Fin<A>> DivideT<NUM,  A>(this HashSet<Fin<A>> x, HashSet<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Fin<A>> DivideT<NUM,  A>(this HashSet<Fin<A>> x, HashSet<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -13799,7 +13799,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static HashSet<Fin<A>> AppendT<SEMI,  A>(this HashSet<Fin<A>> x, HashSet<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static HashSet<Fin<A>> AppendT<SEMI,  A>(this HashSet<Fin<A>> x, HashSet<Fin<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -13811,7 +13811,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this HashSet<Fin<A>> x, HashSet<Fin<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this HashSet<Fin<A>> x, HashSet<Fin<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -13823,7 +13823,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this HashSet<Fin<A>> x, HashSet<Fin<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this HashSet<Fin<A>> x, HashSet<Fin<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -13918,7 +13918,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Lst&lt;Fin&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Lst<Fin<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MLst<Fin<A>>, Lst<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -14065,7 +14065,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Lst<Fin<A>> PlusT<NUM,  A>(this Lst<Fin<A>> x, Lst<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Fin<A>> PlusT<NUM,  A>(this Lst<Fin<A>> x, Lst<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -14077,7 +14077,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Lst<Fin<A>> SubtractT<NUM,  A>(this Lst<Fin<A>> x, Lst<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Fin<A>> SubtractT<NUM,  A>(this Lst<Fin<A>> x, Lst<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -14089,7 +14089,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Lst<Fin<A>> ProductT<NUM,  A>(this Lst<Fin<A>> x, Lst<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Fin<A>> ProductT<NUM,  A>(this Lst<Fin<A>> x, Lst<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -14101,7 +14101,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Lst<Fin<A>> DivideT<NUM,  A>(this Lst<Fin<A>> x, Lst<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Fin<A>> DivideT<NUM,  A>(this Lst<Fin<A>> x, Lst<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -14113,7 +14113,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Lst<Fin<A>> AppendT<SEMI,  A>(this Lst<Fin<A>> x, Lst<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Lst<Fin<A>> AppendT<SEMI,  A>(this Lst<Fin<A>> x, Lst<Fin<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -14125,7 +14125,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Lst<Fin<A>> x, Lst<Fin<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Lst<Fin<A>> x, Lst<Fin<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -14137,7 +14137,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Lst<Fin<A>> x, Lst<Fin<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Lst<Fin<A>> x, Lst<Fin<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -14232,7 +14232,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Fin&lt;Fin&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Fin<Fin<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MFin<Fin<A>>, Fin<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -14379,7 +14379,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Fin<Fin<A>> PlusT<NUM,  A>(this Fin<Fin<A>> x, Fin<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Fin<A>> PlusT<NUM,  A>(this Fin<Fin<A>> x, Fin<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -14391,7 +14391,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Fin<Fin<A>> SubtractT<NUM,  A>(this Fin<Fin<A>> x, Fin<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Fin<A>> SubtractT<NUM,  A>(this Fin<Fin<A>> x, Fin<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -14403,7 +14403,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Fin<Fin<A>> ProductT<NUM,  A>(this Fin<Fin<A>> x, Fin<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Fin<A>> ProductT<NUM,  A>(this Fin<Fin<A>> x, Fin<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -14415,7 +14415,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Fin<Fin<A>> DivideT<NUM,  A>(this Fin<Fin<A>> x, Fin<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Fin<A>> DivideT<NUM,  A>(this Fin<Fin<A>> x, Fin<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -14427,7 +14427,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Fin<Fin<A>> AppendT<SEMI,  A>(this Fin<Fin<A>> x, Fin<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Fin<Fin<A>> AppendT<SEMI,  A>(this Fin<Fin<A>> x, Fin<Fin<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -14439,7 +14439,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Fin<Fin<A>> x, Fin<Fin<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Fin<Fin<A>> x, Fin<Fin<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -14451,7 +14451,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Fin<Fin<A>> x, Fin<Fin<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Fin<Fin<A>> x, Fin<Fin<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -14546,7 +14546,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Option&lt;Fin&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Option<Fin<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOption<Fin<A>>, Option<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -14693,7 +14693,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Option<Fin<A>> PlusT<NUM,  A>(this Option<Fin<A>> x, Option<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Fin<A>> PlusT<NUM,  A>(this Option<Fin<A>> x, Option<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -14705,7 +14705,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Option<Fin<A>> SubtractT<NUM,  A>(this Option<Fin<A>> x, Option<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Fin<A>> SubtractT<NUM,  A>(this Option<Fin<A>> x, Option<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -14717,7 +14717,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Option<Fin<A>> ProductT<NUM,  A>(this Option<Fin<A>> x, Option<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Fin<A>> ProductT<NUM,  A>(this Option<Fin<A>> x, Option<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -14729,7 +14729,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Option<Fin<A>> DivideT<NUM,  A>(this Option<Fin<A>> x, Option<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Fin<A>> DivideT<NUM,  A>(this Option<Fin<A>> x, Option<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -14741,7 +14741,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Option<Fin<A>> AppendT<SEMI,  A>(this Option<Fin<A>> x, Option<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Option<Fin<A>> AppendT<SEMI,  A>(this Option<Fin<A>> x, Option<Fin<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -14753,7 +14753,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Option<Fin<A>> x, Option<Fin<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Option<Fin<A>> x, Option<Fin<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -14765,7 +14765,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Option<Fin<A>> x, Option<Fin<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Option<Fin<A>> x, Option<Fin<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -14860,7 +14860,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;Fin&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this OptionUnsafe<Fin<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOptionUnsafe<Fin<A>>, OptionUnsafe<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -15007,7 +15007,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionUnsafe<Fin<A>> PlusT<NUM,  A>(this OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Fin<A>> PlusT<NUM,  A>(this OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -15019,7 +15019,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionUnsafe<Fin<A>> SubtractT<NUM,  A>(this OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Fin<A>> SubtractT<NUM,  A>(this OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -15031,7 +15031,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionUnsafe<Fin<A>> ProductT<NUM,  A>(this OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Fin<A>> ProductT<NUM,  A>(this OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -15043,7 +15043,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionUnsafe<Fin<A>> DivideT<NUM,  A>(this OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Fin<A>> DivideT<NUM,  A>(this OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -15055,7 +15055,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionUnsafe<Fin<A>> AppendT<SEMI,  A>(this OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionUnsafe<Fin<A>> AppendT<SEMI,  A>(this OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -15067,7 +15067,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -15079,7 +15079,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Fin<A>> x, OptionUnsafe<Fin<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -15174,7 +15174,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Either&lt;L, Fin&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Either<L, Fin<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEither<L, Fin<A>>, Either<L, Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -15321,7 +15321,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Either<L, Fin<A>> PlusT<NUM, L, A>(this Either<L, Fin<A>> x, Either<L, Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Fin<A>> PlusT<NUM, L, A>(this Either<L, Fin<A>> x, Either<L, Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -15333,7 +15333,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Either<L, Fin<A>> SubtractT<NUM, L, A>(this Either<L, Fin<A>> x, Either<L, Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Fin<A>> SubtractT<NUM, L, A>(this Either<L, Fin<A>> x, Either<L, Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -15345,7 +15345,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Either<L, Fin<A>> ProductT<NUM, L, A>(this Either<L, Fin<A>> x, Either<L, Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Fin<A>> ProductT<NUM, L, A>(this Either<L, Fin<A>> x, Either<L, Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -15357,7 +15357,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Either<L, Fin<A>> DivideT<NUM, L, A>(this Either<L, Fin<A>> x, Either<L, Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Fin<A>> DivideT<NUM, L, A>(this Either<L, Fin<A>> x, Either<L, Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -15369,7 +15369,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Either<L, Fin<A>> AppendT<SEMI, L, A>(this Either<L, Fin<A>> x, Either<L, Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Either<L, Fin<A>> AppendT<SEMI, L, A>(this Either<L, Fin<A>> x, Either<L, Fin<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -15381,7 +15381,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Either<L, Fin<A>> x, Either<L, Fin<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Either<L, Fin<A>> x, Either<L, Fin<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -15393,7 +15393,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Either<L, Fin<A>> x, Either<L, Fin<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Either<L, Fin<A>> x, Either<L, Fin<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -15488,7 +15488,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this EitherUnsafe<L, Fin<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEitherUnsafe<L, Fin<A>>, EitherUnsafe<L, Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -15635,7 +15635,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherUnsafe<L, Fin<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Fin<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -15647,7 +15647,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherUnsafe<L, Fin<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Fin<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -15659,7 +15659,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Fin<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Fin<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -15671,7 +15671,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Fin<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Fin<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -15683,7 +15683,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Fin<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherUnsafe<L, Fin<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -15695,7 +15695,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -15707,7 +15707,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Fin<A>> x, EitherUnsafe<L, Fin<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -15802,7 +15802,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Try&lt;Fin&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Try<Fin<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTry<Fin<A>>, Try<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -15949,7 +15949,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Try<Fin<A>> PlusT<NUM,  A>(this Try<Fin<A>> x, Try<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Fin<A>> PlusT<NUM,  A>(this Try<Fin<A>> x, Try<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -15961,7 +15961,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Try<Fin<A>> SubtractT<NUM,  A>(this Try<Fin<A>> x, Try<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Fin<A>> SubtractT<NUM,  A>(this Try<Fin<A>> x, Try<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -15973,7 +15973,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Try<Fin<A>> ProductT<NUM,  A>(this Try<Fin<A>> x, Try<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Fin<A>> ProductT<NUM,  A>(this Try<Fin<A>> x, Try<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -15985,7 +15985,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Try<Fin<A>> DivideT<NUM,  A>(this Try<Fin<A>> x, Try<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Fin<A>> DivideT<NUM,  A>(this Try<Fin<A>> x, Try<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -15997,7 +15997,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Try<Fin<A>> AppendT<SEMI,  A>(this Try<Fin<A>> x, Try<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Try<Fin<A>> AppendT<SEMI,  A>(this Try<Fin<A>> x, Try<Fin<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -16009,7 +16009,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Try<Fin<A>> x, Try<Fin<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Try<Fin<A>> x, Try<Fin<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -16021,7 +16021,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Try<Fin<A>> x, Try<Fin<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Try<Fin<A>> x, Try<Fin<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -16116,7 +16116,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOption&lt;Fin&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this TryOption<Fin<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTryOption<Fin<A>>, TryOption<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -16263,7 +16263,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOption<Fin<A>> PlusT<NUM,  A>(this TryOption<Fin<A>> x, TryOption<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Fin<A>> PlusT<NUM,  A>(this TryOption<Fin<A>> x, TryOption<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -16275,7 +16275,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOption<Fin<A>> SubtractT<NUM,  A>(this TryOption<Fin<A>> x, TryOption<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Fin<A>> SubtractT<NUM,  A>(this TryOption<Fin<A>> x, TryOption<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -16287,7 +16287,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOption<Fin<A>> ProductT<NUM,  A>(this TryOption<Fin<A>> x, TryOption<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Fin<A>> ProductT<NUM,  A>(this TryOption<Fin<A>> x, TryOption<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -16299,7 +16299,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOption<Fin<A>> DivideT<NUM,  A>(this TryOption<Fin<A>> x, TryOption<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Fin<A>> DivideT<NUM,  A>(this TryOption<Fin<A>> x, TryOption<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -16311,7 +16311,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOption<Fin<A>> AppendT<SEMI,  A>(this TryOption<Fin<A>> x, TryOption<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOption<Fin<A>> AppendT<SEMI,  A>(this TryOption<Fin<A>> x, TryOption<Fin<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -16323,7 +16323,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this TryOption<Fin<A>> x, TryOption<Fin<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this TryOption<Fin<A>> x, TryOption<Fin<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -16335,7 +16335,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this TryOption<Fin<A>> x, TryOption<Fin<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this TryOption<Fin<A>> x, TryOption<Fin<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -16430,7 +16430,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;Fin&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this IEnumerable<Fin<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MEnumerable<Fin<A>>, IEnumerable<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -16577,7 +16577,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static IEnumerable<Fin<A>> PlusT<NUM,  A>(this IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Fin<A>> PlusT<NUM,  A>(this IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -16589,7 +16589,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static IEnumerable<Fin<A>> SubtractT<NUM,  A>(this IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Fin<A>> SubtractT<NUM,  A>(this IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -16601,7 +16601,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static IEnumerable<Fin<A>> ProductT<NUM,  A>(this IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Fin<A>> ProductT<NUM,  A>(this IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -16613,7 +16613,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static IEnumerable<Fin<A>> DivideT<NUM,  A>(this IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Fin<A>> DivideT<NUM,  A>(this IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -16625,7 +16625,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static IEnumerable<Fin<A>> AppendT<SEMI,  A>(this IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static IEnumerable<Fin<A>> AppendT<SEMI,  A>(this IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -16637,7 +16637,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -16649,7 +16649,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this IEnumerable<Fin<A>> x, IEnumerable<Fin<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -16744,7 +16744,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Seq&lt;Fin&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Seq<Fin<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSeq<Fin<A>>, Seq<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -16891,7 +16891,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Seq<Fin<A>> PlusT<NUM,  A>(this Seq<Fin<A>> x, Seq<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Fin<A>> PlusT<NUM,  A>(this Seq<Fin<A>> x, Seq<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -16903,7 +16903,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Seq<Fin<A>> SubtractT<NUM,  A>(this Seq<Fin<A>> x, Seq<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Fin<A>> SubtractT<NUM,  A>(this Seq<Fin<A>> x, Seq<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -16915,7 +16915,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Seq<Fin<A>> ProductT<NUM,  A>(this Seq<Fin<A>> x, Seq<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Fin<A>> ProductT<NUM,  A>(this Seq<Fin<A>> x, Seq<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -16927,7 +16927,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Seq<Fin<A>> DivideT<NUM,  A>(this Seq<Fin<A>> x, Seq<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Fin<A>> DivideT<NUM,  A>(this Seq<Fin<A>> x, Seq<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -16939,7 +16939,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Seq<Fin<A>> AppendT<SEMI,  A>(this Seq<Fin<A>> x, Seq<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Seq<Fin<A>> AppendT<SEMI,  A>(this Seq<Fin<A>> x, Seq<Fin<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -16951,7 +16951,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Seq<Fin<A>> x, Seq<Fin<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Seq<Fin<A>> x, Seq<Fin<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -16963,7 +16963,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Seq<Fin<A>> x, Seq<Fin<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Seq<Fin<A>> x, Seq<Fin<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -17058,7 +17058,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Set&lt;Fin&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Set<Fin<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSet<Fin<A>>, Set<Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -17205,7 +17205,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Set<Fin<A>> PlusT<NUM,  A>(this Set<Fin<A>> x, Set<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Fin<A>> PlusT<NUM,  A>(this Set<Fin<A>> x, Set<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -17217,7 +17217,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Set<Fin<A>> SubtractT<NUM,  A>(this Set<Fin<A>> x, Set<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Fin<A>> SubtractT<NUM,  A>(this Set<Fin<A>> x, Set<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -17229,7 +17229,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Set<Fin<A>> ProductT<NUM,  A>(this Set<Fin<A>> x, Set<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Fin<A>> ProductT<NUM,  A>(this Set<Fin<A>> x, Set<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -17241,7 +17241,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Set<Fin<A>> DivideT<NUM,  A>(this Set<Fin<A>> x, Set<Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Fin<A>> DivideT<NUM,  A>(this Set<Fin<A>> x, Set<Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -17253,7 +17253,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Set<Fin<A>> AppendT<SEMI,  A>(this Set<Fin<A>> x, Set<Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Set<Fin<A>> AppendT<SEMI,  A>(this Set<Fin<A>> x, Set<Fin<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -17265,7 +17265,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Set<Fin<A>> x, Set<Fin<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Set<Fin<A>> x, Set<Fin<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -17277,7 +17277,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Set<Fin<A>> x, Set<Fin<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Set<Fin<A>> x, Set<Fin<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -17372,7 +17372,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, Fin&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Validation<FAIL, Fin<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MValidation<FAIL, Fin<A>>, Validation<FAIL, Fin<A>>, MFin<A>, Fin<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -17519,7 +17519,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Validation<FAIL, Fin<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Fin<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -17531,7 +17531,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Validation<FAIL, Fin<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Fin<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -17543,7 +17543,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Validation<FAIL, Fin<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Fin<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -17555,7 +17555,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Validation<FAIL, Fin<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Fin<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -17567,7 +17567,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Validation<FAIL, Fin<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Validation<FAIL, Fin<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -17579,7 +17579,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -17591,7 +17591,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Fin&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Fin<A>> x, Validation<FAIL, Fin<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -17694,7 +17694,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Arr&lt;Option&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Arr<Option<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MArr<Option<A>>, Arr<Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -17841,7 +17841,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Arr<Option<A>> PlusT<NUM,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Option<A>> PlusT<NUM,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -17853,7 +17853,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Arr<Option<A>> SubtractT<NUM,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Option<A>> SubtractT<NUM,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -17865,7 +17865,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Arr<Option<A>> ProductT<NUM,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Option<A>> ProductT<NUM,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -17877,7 +17877,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Arr<Option<A>> DivideT<NUM,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Option<A>> DivideT<NUM,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -17889,7 +17889,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Arr<Option<A>> AppendT<SEMI,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Arr<Option<A>> AppendT<SEMI,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -17901,7 +17901,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -17913,7 +17913,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Arr<Option<A>> x, Arr<Option<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -18008,7 +18008,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `HashSet&lt;Option&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this HashSet<Option<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MHashSet<Option<A>>, HashSet<Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -18155,7 +18155,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static HashSet<Option<A>> PlusT<NUM,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Option<A>> PlusT<NUM,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -18167,7 +18167,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static HashSet<Option<A>> SubtractT<NUM,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Option<A>> SubtractT<NUM,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -18179,7 +18179,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static HashSet<Option<A>> ProductT<NUM,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Option<A>> ProductT<NUM,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -18191,7 +18191,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static HashSet<Option<A>> DivideT<NUM,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Option<A>> DivideT<NUM,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -18203,7 +18203,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static HashSet<Option<A>> AppendT<SEMI,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static HashSet<Option<A>> AppendT<SEMI,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -18215,7 +18215,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -18227,7 +18227,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this HashSet<Option<A>> x, HashSet<Option<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -18322,7 +18322,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Lst&lt;Option&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Lst<Option<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MLst<Option<A>>, Lst<Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -18469,7 +18469,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Lst<Option<A>> PlusT<NUM,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Option<A>> PlusT<NUM,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -18481,7 +18481,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Lst<Option<A>> SubtractT<NUM,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Option<A>> SubtractT<NUM,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -18493,7 +18493,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Lst<Option<A>> ProductT<NUM,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Option<A>> ProductT<NUM,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -18505,7 +18505,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Lst<Option<A>> DivideT<NUM,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Option<A>> DivideT<NUM,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -18517,7 +18517,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Lst<Option<A>> AppendT<SEMI,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Lst<Option<A>> AppendT<SEMI,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -18529,7 +18529,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -18541,7 +18541,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Lst<Option<A>> x, Lst<Option<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -18636,7 +18636,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Fin&lt;Option&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Fin<Option<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MFin<Option<A>>, Fin<Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -18783,7 +18783,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Fin<Option<A>> PlusT<NUM,  A>(this Fin<Option<A>> x, Fin<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Option<A>> PlusT<NUM,  A>(this Fin<Option<A>> x, Fin<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -18795,7 +18795,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Fin<Option<A>> SubtractT<NUM,  A>(this Fin<Option<A>> x, Fin<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Option<A>> SubtractT<NUM,  A>(this Fin<Option<A>> x, Fin<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -18807,7 +18807,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Fin<Option<A>> ProductT<NUM,  A>(this Fin<Option<A>> x, Fin<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Option<A>> ProductT<NUM,  A>(this Fin<Option<A>> x, Fin<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -18819,7 +18819,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Fin<Option<A>> DivideT<NUM,  A>(this Fin<Option<A>> x, Fin<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Option<A>> DivideT<NUM,  A>(this Fin<Option<A>> x, Fin<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -18831,7 +18831,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Fin<Option<A>> AppendT<SEMI,  A>(this Fin<Option<A>> x, Fin<Option<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Fin<Option<A>> AppendT<SEMI,  A>(this Fin<Option<A>> x, Fin<Option<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -18843,7 +18843,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Fin<Option<A>> x, Fin<Option<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Fin<Option<A>> x, Fin<Option<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -18855,7 +18855,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Fin<Option<A>> x, Fin<Option<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Fin<Option<A>> x, Fin<Option<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -18950,7 +18950,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Option&lt;Option&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Option<Option<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOption<Option<A>>, Option<Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -19097,7 +19097,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Option<Option<A>> PlusT<NUM,  A>(this Option<Option<A>> x, Option<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Option<A>> PlusT<NUM,  A>(this Option<Option<A>> x, Option<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -19109,7 +19109,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Option<Option<A>> SubtractT<NUM,  A>(this Option<Option<A>> x, Option<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Option<A>> SubtractT<NUM,  A>(this Option<Option<A>> x, Option<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -19121,7 +19121,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Option<Option<A>> ProductT<NUM,  A>(this Option<Option<A>> x, Option<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Option<A>> ProductT<NUM,  A>(this Option<Option<A>> x, Option<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -19133,7 +19133,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Option<Option<A>> DivideT<NUM,  A>(this Option<Option<A>> x, Option<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Option<A>> DivideT<NUM,  A>(this Option<Option<A>> x, Option<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -19145,7 +19145,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Option<Option<A>> AppendT<SEMI,  A>(this Option<Option<A>> x, Option<Option<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Option<Option<A>> AppendT<SEMI,  A>(this Option<Option<A>> x, Option<Option<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -19157,7 +19157,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Option<Option<A>> x, Option<Option<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Option<Option<A>> x, Option<Option<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -19169,7 +19169,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Option<Option<A>> x, Option<Option<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Option<Option<A>> x, Option<Option<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -19264,7 +19264,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;Option&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this OptionUnsafe<Option<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOptionUnsafe<Option<A>>, OptionUnsafe<Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -19411,7 +19411,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionUnsafe<Option<A>> PlusT<NUM,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Option<A>> PlusT<NUM,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -19423,7 +19423,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionUnsafe<Option<A>> SubtractT<NUM,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Option<A>> SubtractT<NUM,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -19435,7 +19435,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionUnsafe<Option<A>> ProductT<NUM,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Option<A>> ProductT<NUM,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -19447,7 +19447,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionUnsafe<Option<A>> DivideT<NUM,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Option<A>> DivideT<NUM,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -19459,7 +19459,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionUnsafe<Option<A>> AppendT<SEMI,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionUnsafe<Option<A>> AppendT<SEMI,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -19471,7 +19471,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -19483,7 +19483,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Option<A>> x, OptionUnsafe<Option<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -19578,7 +19578,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Either&lt;L, Option&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Either<L, Option<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEither<L, Option<A>>, Either<L, Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -19725,7 +19725,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Either<L, Option<A>> PlusT<NUM, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Option<A>> PlusT<NUM, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -19737,7 +19737,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Either<L, Option<A>> SubtractT<NUM, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Option<A>> SubtractT<NUM, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -19749,7 +19749,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Either<L, Option<A>> ProductT<NUM, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Option<A>> ProductT<NUM, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -19761,7 +19761,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Either<L, Option<A>> DivideT<NUM, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Option<A>> DivideT<NUM, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -19773,7 +19773,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Either<L, Option<A>> AppendT<SEMI, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Either<L, Option<A>> AppendT<SEMI, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -19785,7 +19785,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -19797,7 +19797,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Either<L, Option<A>> x, Either<L, Option<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -19892,7 +19892,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, Option&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this EitherUnsafe<L, Option<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEitherUnsafe<L, Option<A>>, EitherUnsafe<L, Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -20039,7 +20039,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherUnsafe<L, Option<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Option<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -20051,7 +20051,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherUnsafe<L, Option<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Option<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -20063,7 +20063,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Option<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Option<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -20075,7 +20075,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Option<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Option<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -20087,7 +20087,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Option<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherUnsafe<L, Option<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -20099,7 +20099,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -20111,7 +20111,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Option<A>> x, EitherUnsafe<L, Option<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -20206,7 +20206,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Try&lt;Option&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Try<Option<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTry<Option<A>>, Try<Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -20353,7 +20353,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Try<Option<A>> PlusT<NUM,  A>(this Try<Option<A>> x, Try<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Option<A>> PlusT<NUM,  A>(this Try<Option<A>> x, Try<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -20365,7 +20365,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Try<Option<A>> SubtractT<NUM,  A>(this Try<Option<A>> x, Try<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Option<A>> SubtractT<NUM,  A>(this Try<Option<A>> x, Try<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -20377,7 +20377,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Try<Option<A>> ProductT<NUM,  A>(this Try<Option<A>> x, Try<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Option<A>> ProductT<NUM,  A>(this Try<Option<A>> x, Try<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -20389,7 +20389,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Try<Option<A>> DivideT<NUM,  A>(this Try<Option<A>> x, Try<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Option<A>> DivideT<NUM,  A>(this Try<Option<A>> x, Try<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -20401,7 +20401,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Try<Option<A>> AppendT<SEMI,  A>(this Try<Option<A>> x, Try<Option<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Try<Option<A>> AppendT<SEMI,  A>(this Try<Option<A>> x, Try<Option<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -20413,7 +20413,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Try<Option<A>> x, Try<Option<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Try<Option<A>> x, Try<Option<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -20425,7 +20425,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Try<Option<A>> x, Try<Option<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Try<Option<A>> x, Try<Option<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -20520,7 +20520,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOption&lt;Option&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this TryOption<Option<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTryOption<Option<A>>, TryOption<Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -20667,7 +20667,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOption<Option<A>> PlusT<NUM,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Option<A>> PlusT<NUM,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -20679,7 +20679,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOption<Option<A>> SubtractT<NUM,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Option<A>> SubtractT<NUM,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -20691,7 +20691,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOption<Option<A>> ProductT<NUM,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Option<A>> ProductT<NUM,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -20703,7 +20703,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOption<Option<A>> DivideT<NUM,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Option<A>> DivideT<NUM,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -20715,7 +20715,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOption<Option<A>> AppendT<SEMI,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOption<Option<A>> AppendT<SEMI,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -20727,7 +20727,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -20739,7 +20739,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this TryOption<Option<A>> x, TryOption<Option<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -20834,7 +20834,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;Option&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this IEnumerable<Option<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MEnumerable<Option<A>>, IEnumerable<Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -20981,7 +20981,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static IEnumerable<Option<A>> PlusT<NUM,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Option<A>> PlusT<NUM,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -20993,7 +20993,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static IEnumerable<Option<A>> SubtractT<NUM,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Option<A>> SubtractT<NUM,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -21005,7 +21005,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static IEnumerable<Option<A>> ProductT<NUM,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Option<A>> ProductT<NUM,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -21017,7 +21017,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static IEnumerable<Option<A>> DivideT<NUM,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Option<A>> DivideT<NUM,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -21029,7 +21029,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static IEnumerable<Option<A>> AppendT<SEMI,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static IEnumerable<Option<A>> AppendT<SEMI,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -21041,7 +21041,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -21053,7 +21053,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this IEnumerable<Option<A>> x, IEnumerable<Option<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -21148,7 +21148,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Seq&lt;Option&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Seq<Option<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSeq<Option<A>>, Seq<Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -21295,7 +21295,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Seq<Option<A>> PlusT<NUM,  A>(this Seq<Option<A>> x, Seq<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Option<A>> PlusT<NUM,  A>(this Seq<Option<A>> x, Seq<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -21307,7 +21307,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Seq<Option<A>> SubtractT<NUM,  A>(this Seq<Option<A>> x, Seq<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Option<A>> SubtractT<NUM,  A>(this Seq<Option<A>> x, Seq<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -21319,7 +21319,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Seq<Option<A>> ProductT<NUM,  A>(this Seq<Option<A>> x, Seq<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Option<A>> ProductT<NUM,  A>(this Seq<Option<A>> x, Seq<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -21331,7 +21331,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Seq<Option<A>> DivideT<NUM,  A>(this Seq<Option<A>> x, Seq<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Option<A>> DivideT<NUM,  A>(this Seq<Option<A>> x, Seq<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -21343,7 +21343,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Seq<Option<A>> AppendT<SEMI,  A>(this Seq<Option<A>> x, Seq<Option<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Seq<Option<A>> AppendT<SEMI,  A>(this Seq<Option<A>> x, Seq<Option<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -21355,7 +21355,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Seq<Option<A>> x, Seq<Option<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Seq<Option<A>> x, Seq<Option<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -21367,7 +21367,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Seq<Option<A>> x, Seq<Option<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Seq<Option<A>> x, Seq<Option<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -21462,7 +21462,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Set&lt;Option&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Set<Option<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSet<Option<A>>, Set<Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -21609,7 +21609,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Set<Option<A>> PlusT<NUM,  A>(this Set<Option<A>> x, Set<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Option<A>> PlusT<NUM,  A>(this Set<Option<A>> x, Set<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -21621,7 +21621,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Set<Option<A>> SubtractT<NUM,  A>(this Set<Option<A>> x, Set<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Option<A>> SubtractT<NUM,  A>(this Set<Option<A>> x, Set<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -21633,7 +21633,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Set<Option<A>> ProductT<NUM,  A>(this Set<Option<A>> x, Set<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Option<A>> ProductT<NUM,  A>(this Set<Option<A>> x, Set<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -21645,7 +21645,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Set<Option<A>> DivideT<NUM,  A>(this Set<Option<A>> x, Set<Option<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Option<A>> DivideT<NUM,  A>(this Set<Option<A>> x, Set<Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -21657,7 +21657,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Set<Option<A>> AppendT<SEMI,  A>(this Set<Option<A>> x, Set<Option<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Set<Option<A>> AppendT<SEMI,  A>(this Set<Option<A>> x, Set<Option<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -21669,7 +21669,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Set<Option<A>> x, Set<Option<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Set<Option<A>> x, Set<Option<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -21681,7 +21681,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Set<Option<A>> x, Set<Option<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Set<Option<A>> x, Set<Option<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -21776,7 +21776,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, Option&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Validation<FAIL, Option<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MValidation<FAIL, Option<A>>, Validation<FAIL, Option<A>>, MOption<A>, Option<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -21923,7 +21923,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Option&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Validation<FAIL, Option<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Option<A>> x, Validation<FAIL, Option<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Option<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Option<A>> x, Validation<FAIL, Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -21935,7 +21935,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Option&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Validation<FAIL, Option<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Option<A>> x, Validation<FAIL, Option<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Option<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Option<A>> x, Validation<FAIL, Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -21947,7 +21947,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Option&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Validation<FAIL, Option<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Option<A>> x, Validation<FAIL, Option<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Option<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Option<A>> x, Validation<FAIL, Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -21959,7 +21959,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Option&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Validation<FAIL, Option<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Option<A>> x, Validation<FAIL, Option<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Option<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Option<A>> x, Validation<FAIL, Option<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -21971,7 +21971,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Option&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Validation<FAIL, Option<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Option<A>> x, Validation<FAIL, Option<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Validation<FAIL, Option<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Option<A>> x, Validation<FAIL, Option<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -21983,7 +21983,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Option<A>> x, Validation<FAIL, Option<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Option<A>> x, Validation<FAIL, Option<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -21995,7 +21995,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Option&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Option<A>> x, Validation<FAIL, Option<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Option<A>> x, Validation<FAIL, Option<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -22098,7 +22098,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Arr&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Arr<OptionUnsafe<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MArr<OptionUnsafe<A>>, Arr<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -22245,7 +22245,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Arr<OptionUnsafe<A>> PlusT<NUM,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<OptionUnsafe<A>> PlusT<NUM,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -22257,7 +22257,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Arr<OptionUnsafe<A>> SubtractT<NUM,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<OptionUnsafe<A>> SubtractT<NUM,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -22269,7 +22269,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Arr<OptionUnsafe<A>> ProductT<NUM,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<OptionUnsafe<A>> ProductT<NUM,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -22281,7 +22281,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Arr<OptionUnsafe<A>> DivideT<NUM,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<OptionUnsafe<A>> DivideT<NUM,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -22293,7 +22293,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Arr<OptionUnsafe<A>> AppendT<SEMI,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Arr<OptionUnsafe<A>> AppendT<SEMI,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -22305,7 +22305,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -22317,7 +22317,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Arr<OptionUnsafe<A>> x, Arr<OptionUnsafe<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -22412,7 +22412,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `HashSet&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this HashSet<OptionUnsafe<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MHashSet<OptionUnsafe<A>>, HashSet<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -22559,7 +22559,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static HashSet<OptionUnsafe<A>> PlusT<NUM,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<OptionUnsafe<A>> PlusT<NUM,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -22571,7 +22571,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static HashSet<OptionUnsafe<A>> SubtractT<NUM,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<OptionUnsafe<A>> SubtractT<NUM,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -22583,7 +22583,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static HashSet<OptionUnsafe<A>> ProductT<NUM,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<OptionUnsafe<A>> ProductT<NUM,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -22595,7 +22595,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static HashSet<OptionUnsafe<A>> DivideT<NUM,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<OptionUnsafe<A>> DivideT<NUM,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -22607,7 +22607,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static HashSet<OptionUnsafe<A>> AppendT<SEMI,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static HashSet<OptionUnsafe<A>> AppendT<SEMI,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -22619,7 +22619,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -22631,7 +22631,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this HashSet<OptionUnsafe<A>> x, HashSet<OptionUnsafe<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -22726,7 +22726,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Lst&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Lst<OptionUnsafe<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MLst<OptionUnsafe<A>>, Lst<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -22873,7 +22873,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Lst<OptionUnsafe<A>> PlusT<NUM,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<OptionUnsafe<A>> PlusT<NUM,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -22885,7 +22885,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Lst<OptionUnsafe<A>> SubtractT<NUM,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<OptionUnsafe<A>> SubtractT<NUM,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -22897,7 +22897,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Lst<OptionUnsafe<A>> ProductT<NUM,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<OptionUnsafe<A>> ProductT<NUM,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -22909,7 +22909,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Lst<OptionUnsafe<A>> DivideT<NUM,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<OptionUnsafe<A>> DivideT<NUM,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -22921,7 +22921,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Lst<OptionUnsafe<A>> AppendT<SEMI,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Lst<OptionUnsafe<A>> AppendT<SEMI,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -22933,7 +22933,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -22945,7 +22945,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Lst<OptionUnsafe<A>> x, Lst<OptionUnsafe<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -23040,7 +23040,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Fin&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Fin<OptionUnsafe<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MFin<OptionUnsafe<A>>, Fin<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -23187,7 +23187,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Fin<OptionUnsafe<A>> PlusT<NUM,  A>(this Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<OptionUnsafe<A>> PlusT<NUM,  A>(this Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -23199,7 +23199,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Fin<OptionUnsafe<A>> SubtractT<NUM,  A>(this Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<OptionUnsafe<A>> SubtractT<NUM,  A>(this Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -23211,7 +23211,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Fin<OptionUnsafe<A>> ProductT<NUM,  A>(this Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<OptionUnsafe<A>> ProductT<NUM,  A>(this Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -23223,7 +23223,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Fin<OptionUnsafe<A>> DivideT<NUM,  A>(this Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<OptionUnsafe<A>> DivideT<NUM,  A>(this Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -23235,7 +23235,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Fin<OptionUnsafe<A>> AppendT<SEMI,  A>(this Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Fin<OptionUnsafe<A>> AppendT<SEMI,  A>(this Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -23247,7 +23247,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -23259,7 +23259,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Fin<OptionUnsafe<A>> x, Fin<OptionUnsafe<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -23354,7 +23354,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Option&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Option<OptionUnsafe<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOption<OptionUnsafe<A>>, Option<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -23501,7 +23501,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Option<OptionUnsafe<A>> PlusT<NUM,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Option<OptionUnsafe<A>> PlusT<NUM,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -23513,7 +23513,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Option<OptionUnsafe<A>> SubtractT<NUM,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Option<OptionUnsafe<A>> SubtractT<NUM,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -23525,7 +23525,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Option<OptionUnsafe<A>> ProductT<NUM,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Option<OptionUnsafe<A>> ProductT<NUM,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -23537,7 +23537,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Option<OptionUnsafe<A>> DivideT<NUM,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Option<OptionUnsafe<A>> DivideT<NUM,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -23549,7 +23549,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Option<OptionUnsafe<A>> AppendT<SEMI,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Option<OptionUnsafe<A>> AppendT<SEMI,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -23561,7 +23561,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -23573,7 +23573,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Option<OptionUnsafe<A>> x, Option<OptionUnsafe<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -23668,7 +23668,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this OptionUnsafe<OptionUnsafe<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOptionUnsafe<OptionUnsafe<A>>, OptionUnsafe<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -23815,7 +23815,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionUnsafe<OptionUnsafe<A>> PlusT<NUM,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<OptionUnsafe<A>> PlusT<NUM,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -23827,7 +23827,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionUnsafe<OptionUnsafe<A>> SubtractT<NUM,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<OptionUnsafe<A>> SubtractT<NUM,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -23839,7 +23839,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionUnsafe<OptionUnsafe<A>> ProductT<NUM,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<OptionUnsafe<A>> ProductT<NUM,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -23851,7 +23851,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionUnsafe<OptionUnsafe<A>> DivideT<NUM,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<OptionUnsafe<A>> DivideT<NUM,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -23863,7 +23863,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionUnsafe<OptionUnsafe<A>> AppendT<SEMI,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionUnsafe<OptionUnsafe<A>> AppendT<SEMI,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -23875,7 +23875,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -23887,7 +23887,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<OptionUnsafe<A>> x, OptionUnsafe<OptionUnsafe<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -23982,7 +23982,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Either&lt;L, OptionUnsafe&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Either<L, OptionUnsafe<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEither<L, OptionUnsafe<A>>, Either<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -24129,7 +24129,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Either<L, OptionUnsafe<A>> PlusT<NUM, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, OptionUnsafe<A>> PlusT<NUM, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -24141,7 +24141,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Either<L, OptionUnsafe<A>> SubtractT<NUM, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, OptionUnsafe<A>> SubtractT<NUM, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -24153,7 +24153,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Either<L, OptionUnsafe<A>> ProductT<NUM, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, OptionUnsafe<A>> ProductT<NUM, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -24165,7 +24165,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Either<L, OptionUnsafe<A>> DivideT<NUM, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, OptionUnsafe<A>> DivideT<NUM, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -24177,7 +24177,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Either<L, OptionUnsafe<A>> AppendT<SEMI, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Either<L, OptionUnsafe<A>> AppendT<SEMI, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -24189,7 +24189,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -24201,7 +24201,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Either<L, OptionUnsafe<A>> x, Either<L, OptionUnsafe<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -24296,7 +24296,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, OptionUnsafe&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEitherUnsafe<L, OptionUnsafe<A>>, EitherUnsafe<L, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -24443,7 +24443,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherUnsafe<L, OptionUnsafe<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, OptionUnsafe<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -24455,7 +24455,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherUnsafe<L, OptionUnsafe<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, OptionUnsafe<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -24467,7 +24467,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherUnsafe<L, OptionUnsafe<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, OptionUnsafe<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -24479,7 +24479,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherUnsafe<L, OptionUnsafe<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, OptionUnsafe<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -24491,7 +24491,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherUnsafe<L, OptionUnsafe<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherUnsafe<L, OptionUnsafe<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -24503,7 +24503,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -24515,7 +24515,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, OptionUnsafe<A>> x, EitherUnsafe<L, OptionUnsafe<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -24610,7 +24610,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Try&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Try<OptionUnsafe<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTry<OptionUnsafe<A>>, Try<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -24757,7 +24757,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Try<OptionUnsafe<A>> PlusT<NUM,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Try<OptionUnsafe<A>> PlusT<NUM,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -24769,7 +24769,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Try<OptionUnsafe<A>> SubtractT<NUM,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Try<OptionUnsafe<A>> SubtractT<NUM,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -24781,7 +24781,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Try<OptionUnsafe<A>> ProductT<NUM,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Try<OptionUnsafe<A>> ProductT<NUM,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -24793,7 +24793,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Try<OptionUnsafe<A>> DivideT<NUM,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Try<OptionUnsafe<A>> DivideT<NUM,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -24805,7 +24805,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Try<OptionUnsafe<A>> AppendT<SEMI,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Try<OptionUnsafe<A>> AppendT<SEMI,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -24817,7 +24817,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -24829,7 +24829,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Try<OptionUnsafe<A>> x, Try<OptionUnsafe<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -24924,7 +24924,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOption&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this TryOption<OptionUnsafe<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTryOption<OptionUnsafe<A>>, TryOption<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -25071,7 +25071,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOption<OptionUnsafe<A>> PlusT<NUM,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<OptionUnsafe<A>> PlusT<NUM,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -25083,7 +25083,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOption<OptionUnsafe<A>> SubtractT<NUM,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<OptionUnsafe<A>> SubtractT<NUM,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -25095,7 +25095,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOption<OptionUnsafe<A>> ProductT<NUM,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<OptionUnsafe<A>> ProductT<NUM,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -25107,7 +25107,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOption<OptionUnsafe<A>> DivideT<NUM,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<OptionUnsafe<A>> DivideT<NUM,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -25119,7 +25119,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOption<OptionUnsafe<A>> AppendT<SEMI,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOption<OptionUnsafe<A>> AppendT<SEMI,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -25131,7 +25131,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -25143,7 +25143,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this TryOption<OptionUnsafe<A>> x, TryOption<OptionUnsafe<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -25238,7 +25238,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this IEnumerable<OptionUnsafe<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MEnumerable<OptionUnsafe<A>>, IEnumerable<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -25385,7 +25385,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static IEnumerable<OptionUnsafe<A>> PlusT<NUM,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<OptionUnsafe<A>> PlusT<NUM,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -25397,7 +25397,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static IEnumerable<OptionUnsafe<A>> SubtractT<NUM,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<OptionUnsafe<A>> SubtractT<NUM,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -25409,7 +25409,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static IEnumerable<OptionUnsafe<A>> ProductT<NUM,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<OptionUnsafe<A>> ProductT<NUM,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -25421,7 +25421,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static IEnumerable<OptionUnsafe<A>> DivideT<NUM,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<OptionUnsafe<A>> DivideT<NUM,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -25433,7 +25433,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static IEnumerable<OptionUnsafe<A>> AppendT<SEMI,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static IEnumerable<OptionUnsafe<A>> AppendT<SEMI,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -25445,7 +25445,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -25457,7 +25457,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this IEnumerable<OptionUnsafe<A>> x, IEnumerable<OptionUnsafe<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -25552,7 +25552,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Seq&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Seq<OptionUnsafe<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSeq<OptionUnsafe<A>>, Seq<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -25699,7 +25699,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Seq<OptionUnsafe<A>> PlusT<NUM,  A>(this Seq<OptionUnsafe<A>> x, Seq<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<OptionUnsafe<A>> PlusT<NUM,  A>(this Seq<OptionUnsafe<A>> x, Seq<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -25711,7 +25711,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Seq<OptionUnsafe<A>> SubtractT<NUM,  A>(this Seq<OptionUnsafe<A>> x, Seq<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<OptionUnsafe<A>> SubtractT<NUM,  A>(this Seq<OptionUnsafe<A>> x, Seq<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -25723,7 +25723,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Seq<OptionUnsafe<A>> ProductT<NUM,  A>(this Seq<OptionUnsafe<A>> x, Seq<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<OptionUnsafe<A>> ProductT<NUM,  A>(this Seq<OptionUnsafe<A>> x, Seq<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -25735,7 +25735,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Seq<OptionUnsafe<A>> DivideT<NUM,  A>(this Seq<OptionUnsafe<A>> x, Seq<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<OptionUnsafe<A>> DivideT<NUM,  A>(this Seq<OptionUnsafe<A>> x, Seq<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -25747,7 +25747,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Seq<OptionUnsafe<A>> AppendT<SEMI,  A>(this Seq<OptionUnsafe<A>> x, Seq<OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Seq<OptionUnsafe<A>> AppendT<SEMI,  A>(this Seq<OptionUnsafe<A>> x, Seq<OptionUnsafe<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -25759,7 +25759,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Seq<OptionUnsafe<A>> x, Seq<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Seq<OptionUnsafe<A>> x, Seq<OptionUnsafe<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -25771,7 +25771,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Seq<OptionUnsafe<A>> x, Seq<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Seq<OptionUnsafe<A>> x, Seq<OptionUnsafe<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -25866,7 +25866,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Set&lt;OptionUnsafe&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Set<OptionUnsafe<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSet<OptionUnsafe<A>>, Set<OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -26013,7 +26013,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Set<OptionUnsafe<A>> PlusT<NUM,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Set<OptionUnsafe<A>> PlusT<NUM,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -26025,7 +26025,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Set<OptionUnsafe<A>> SubtractT<NUM,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Set<OptionUnsafe<A>> SubtractT<NUM,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -26037,7 +26037,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Set<OptionUnsafe<A>> ProductT<NUM,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Set<OptionUnsafe<A>> ProductT<NUM,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -26049,7 +26049,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Set<OptionUnsafe<A>> DivideT<NUM,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Set<OptionUnsafe<A>> DivideT<NUM,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -26061,7 +26061,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Set<OptionUnsafe<A>> AppendT<SEMI,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Set<OptionUnsafe<A>> AppendT<SEMI,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -26073,7 +26073,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -26085,7 +26085,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Set<OptionUnsafe<A>> x, Set<OptionUnsafe<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -26180,7 +26180,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, OptionUnsafe&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MValidation<FAIL, OptionUnsafe<A>>, Validation<FAIL, OptionUnsafe<A>>, MOptionUnsafe<A>, OptionUnsafe<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -26327,7 +26327,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Validation<FAIL, OptionUnsafe<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> x, Validation<FAIL, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, OptionUnsafe<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> x, Validation<FAIL, OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -26339,7 +26339,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Validation<FAIL, OptionUnsafe<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> x, Validation<FAIL, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, OptionUnsafe<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> x, Validation<FAIL, OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -26351,7 +26351,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Validation<FAIL, OptionUnsafe<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> x, Validation<FAIL, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, OptionUnsafe<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> x, Validation<FAIL, OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -26363,7 +26363,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Validation<FAIL, OptionUnsafe<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> x, Validation<FAIL, OptionUnsafe<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, OptionUnsafe<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> x, Validation<FAIL, OptionUnsafe<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -26375,7 +26375,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Validation<FAIL, OptionUnsafe<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> x, Validation<FAIL, OptionUnsafe<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Validation<FAIL, OptionUnsafe<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> x, Validation<FAIL, OptionUnsafe<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -26387,7 +26387,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> x, Validation<FAIL, OptionUnsafe<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> x, Validation<FAIL, OptionUnsafe<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -26399,7 +26399,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, OptionUnsafe&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> x, Validation<FAIL, OptionUnsafe<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, OptionUnsafe<A>> x, Validation<FAIL, OptionUnsafe<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -26502,7 +26502,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Arr&lt;Either&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Arr<Either<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MArr<Either<L, A>>, Arr<Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -26649,7 +26649,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Arr<Either<L, A>> PlusT<NUM, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Either<L, A>> PlusT<NUM, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -26661,7 +26661,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Arr<Either<L, A>> SubtractT<NUM, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Either<L, A>> SubtractT<NUM, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -26673,7 +26673,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Arr<Either<L, A>> ProductT<NUM, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Either<L, A>> ProductT<NUM, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -26685,7 +26685,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Arr<Either<L, A>> DivideT<NUM, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Either<L, A>> DivideT<NUM, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -26697,7 +26697,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Arr<Either<L, A>> AppendT<SEMI, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Arr<Either<L, A>> AppendT<SEMI, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -26709,7 +26709,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -26721,7 +26721,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Arr<Either<L, A>> x, Arr<Either<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -26816,7 +26816,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `HashSet&lt;Either&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this HashSet<Either<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MHashSet<Either<L, A>>, HashSet<Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -26963,7 +26963,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static HashSet<Either<L, A>> PlusT<NUM, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Either<L, A>> PlusT<NUM, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -26975,7 +26975,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static HashSet<Either<L, A>> SubtractT<NUM, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Either<L, A>> SubtractT<NUM, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -26987,7 +26987,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static HashSet<Either<L, A>> ProductT<NUM, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Either<L, A>> ProductT<NUM, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -26999,7 +26999,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static HashSet<Either<L, A>> DivideT<NUM, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Either<L, A>> DivideT<NUM, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -27011,7 +27011,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static HashSet<Either<L, A>> AppendT<SEMI, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static HashSet<Either<L, A>> AppendT<SEMI, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -27023,7 +27023,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -27035,7 +27035,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this HashSet<Either<L, A>> x, HashSet<Either<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -27130,7 +27130,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Lst&lt;Either&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Lst<Either<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MLst<Either<L, A>>, Lst<Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -27277,7 +27277,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Lst<Either<L, A>> PlusT<NUM, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Either<L, A>> PlusT<NUM, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -27289,7 +27289,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Lst<Either<L, A>> SubtractT<NUM, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Either<L, A>> SubtractT<NUM, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -27301,7 +27301,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Lst<Either<L, A>> ProductT<NUM, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Either<L, A>> ProductT<NUM, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -27313,7 +27313,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Lst<Either<L, A>> DivideT<NUM, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Either<L, A>> DivideT<NUM, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -27325,7 +27325,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Lst<Either<L, A>> AppendT<SEMI, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Lst<Either<L, A>> AppendT<SEMI, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -27337,7 +27337,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -27349,7 +27349,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Lst<Either<L, A>> x, Lst<Either<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -27444,7 +27444,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Fin&lt;Either&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Fin<Either<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MFin<Either<L, A>>, Fin<Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -27591,7 +27591,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Fin<Either<L, A>> PlusT<NUM, L, A>(this Fin<Either<L, A>> x, Fin<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Either<L, A>> PlusT<NUM, L, A>(this Fin<Either<L, A>> x, Fin<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -27603,7 +27603,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Fin<Either<L, A>> SubtractT<NUM, L, A>(this Fin<Either<L, A>> x, Fin<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Either<L, A>> SubtractT<NUM, L, A>(this Fin<Either<L, A>> x, Fin<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -27615,7 +27615,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Fin<Either<L, A>> ProductT<NUM, L, A>(this Fin<Either<L, A>> x, Fin<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Either<L, A>> ProductT<NUM, L, A>(this Fin<Either<L, A>> x, Fin<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -27627,7 +27627,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Fin<Either<L, A>> DivideT<NUM, L, A>(this Fin<Either<L, A>> x, Fin<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Either<L, A>> DivideT<NUM, L, A>(this Fin<Either<L, A>> x, Fin<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -27639,7 +27639,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Fin<Either<L, A>> AppendT<SEMI, L, A>(this Fin<Either<L, A>> x, Fin<Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Fin<Either<L, A>> AppendT<SEMI, L, A>(this Fin<Either<L, A>> x, Fin<Either<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -27651,7 +27651,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Fin<Either<L, A>> x, Fin<Either<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Fin<Either<L, A>> x, Fin<Either<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -27663,7 +27663,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Fin<Either<L, A>> x, Fin<Either<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Fin<Either<L, A>> x, Fin<Either<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -27758,7 +27758,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Option&lt;Either&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Option<Either<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOption<Either<L, A>>, Option<Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -27905,7 +27905,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Option<Either<L, A>> PlusT<NUM, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Option<Either<L, A>> PlusT<NUM, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -27917,7 +27917,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Option<Either<L, A>> SubtractT<NUM, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Option<Either<L, A>> SubtractT<NUM, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -27929,7 +27929,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Option<Either<L, A>> ProductT<NUM, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Option<Either<L, A>> ProductT<NUM, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -27941,7 +27941,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Option<Either<L, A>> DivideT<NUM, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Option<Either<L, A>> DivideT<NUM, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -27953,7 +27953,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Option<Either<L, A>> AppendT<SEMI, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Option<Either<L, A>> AppendT<SEMI, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -27965,7 +27965,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -27977,7 +27977,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Option<Either<L, A>> x, Option<Either<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -28072,7 +28072,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;Either&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this OptionUnsafe<Either<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOptionUnsafe<Either<L, A>>, OptionUnsafe<Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -28219,7 +28219,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionUnsafe<Either<L, A>> PlusT<NUM, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Either<L, A>> PlusT<NUM, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -28231,7 +28231,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionUnsafe<Either<L, A>> SubtractT<NUM, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Either<L, A>> SubtractT<NUM, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -28243,7 +28243,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionUnsafe<Either<L, A>> ProductT<NUM, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Either<L, A>> ProductT<NUM, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -28255,7 +28255,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionUnsafe<Either<L, A>> DivideT<NUM, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Either<L, A>> DivideT<NUM, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -28267,7 +28267,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionUnsafe<Either<L, A>> AppendT<SEMI, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionUnsafe<Either<L, A>> AppendT<SEMI, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -28279,7 +28279,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -28291,7 +28291,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this OptionUnsafe<Either<L, A>> x, OptionUnsafe<Either<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -28386,7 +28386,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Either&lt;L, Either&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Either<L, Either<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEither<L, Either<L, A>>, Either<L, Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -28533,7 +28533,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Either<L, Either<L, A>> PlusT<NUM, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Either<L, A>> PlusT<NUM, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -28545,7 +28545,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Either<L, Either<L, A>> SubtractT<NUM, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Either<L, A>> SubtractT<NUM, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -28557,7 +28557,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Either<L, Either<L, A>> ProductT<NUM, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Either<L, A>> ProductT<NUM, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -28569,7 +28569,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Either<L, Either<L, A>> DivideT<NUM, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Either<L, A>> DivideT<NUM, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -28581,7 +28581,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Either<L, Either<L, A>> AppendT<SEMI, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Either<L, Either<L, A>> AppendT<SEMI, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -28593,7 +28593,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -28605,7 +28605,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Either<L, Either<L, A>> x, Either<L, Either<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -28700,7 +28700,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, Either&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this EitherUnsafe<L, Either<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEitherUnsafe<L, Either<L, A>>, EitherUnsafe<L, Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -28847,7 +28847,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherUnsafe<L, Either<L, A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Either<L, A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -28859,7 +28859,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherUnsafe<L, Either<L, A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Either<L, A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -28871,7 +28871,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Either<L, A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Either<L, A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -28883,7 +28883,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Either<L, A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Either<L, A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -28895,7 +28895,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Either<L, A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherUnsafe<L, Either<L, A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -28907,7 +28907,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -28919,7 +28919,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Either<L, A>> x, EitherUnsafe<L, Either<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -29014,7 +29014,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Try&lt;Either&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Try<Either<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTry<Either<L, A>>, Try<Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -29161,7 +29161,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Try<Either<L, A>> PlusT<NUM, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Try<Either<L, A>> PlusT<NUM, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -29173,7 +29173,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Try<Either<L, A>> SubtractT<NUM, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Try<Either<L, A>> SubtractT<NUM, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -29185,7 +29185,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Try<Either<L, A>> ProductT<NUM, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Try<Either<L, A>> ProductT<NUM, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -29197,7 +29197,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Try<Either<L, A>> DivideT<NUM, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Try<Either<L, A>> DivideT<NUM, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -29209,7 +29209,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Try<Either<L, A>> AppendT<SEMI, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Try<Either<L, A>> AppendT<SEMI, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -29221,7 +29221,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -29233,7 +29233,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Try<Either<L, A>> x, Try<Either<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -29328,7 +29328,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOption&lt;Either&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this TryOption<Either<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTryOption<Either<L, A>>, TryOption<Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -29475,7 +29475,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOption<Either<L, A>> PlusT<NUM, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Either<L, A>> PlusT<NUM, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -29487,7 +29487,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOption<Either<L, A>> SubtractT<NUM, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Either<L, A>> SubtractT<NUM, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -29499,7 +29499,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOption<Either<L, A>> ProductT<NUM, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Either<L, A>> ProductT<NUM, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -29511,7 +29511,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOption<Either<L, A>> DivideT<NUM, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Either<L, A>> DivideT<NUM, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -29523,7 +29523,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOption<Either<L, A>> AppendT<SEMI, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOption<Either<L, A>> AppendT<SEMI, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -29535,7 +29535,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -29547,7 +29547,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this TryOption<Either<L, A>> x, TryOption<Either<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -29642,7 +29642,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;Either&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this IEnumerable<Either<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MEnumerable<Either<L, A>>, IEnumerable<Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -29789,7 +29789,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static IEnumerable<Either<L, A>> PlusT<NUM, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Either<L, A>> PlusT<NUM, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -29801,7 +29801,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static IEnumerable<Either<L, A>> SubtractT<NUM, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Either<L, A>> SubtractT<NUM, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -29813,7 +29813,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static IEnumerable<Either<L, A>> ProductT<NUM, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Either<L, A>> ProductT<NUM, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -29825,7 +29825,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static IEnumerable<Either<L, A>> DivideT<NUM, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Either<L, A>> DivideT<NUM, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -29837,7 +29837,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static IEnumerable<Either<L, A>> AppendT<SEMI, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static IEnumerable<Either<L, A>> AppendT<SEMI, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -29849,7 +29849,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -29861,7 +29861,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this IEnumerable<Either<L, A>> x, IEnumerable<Either<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -29956,7 +29956,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Seq&lt;Either&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Seq<Either<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSeq<Either<L, A>>, Seq<Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -30103,7 +30103,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Seq<Either<L, A>> PlusT<NUM, L, A>(this Seq<Either<L, A>> x, Seq<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Either<L, A>> PlusT<NUM, L, A>(this Seq<Either<L, A>> x, Seq<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -30115,7 +30115,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Seq<Either<L, A>> SubtractT<NUM, L, A>(this Seq<Either<L, A>> x, Seq<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Either<L, A>> SubtractT<NUM, L, A>(this Seq<Either<L, A>> x, Seq<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -30127,7 +30127,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Seq<Either<L, A>> ProductT<NUM, L, A>(this Seq<Either<L, A>> x, Seq<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Either<L, A>> ProductT<NUM, L, A>(this Seq<Either<L, A>> x, Seq<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -30139,7 +30139,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Seq<Either<L, A>> DivideT<NUM, L, A>(this Seq<Either<L, A>> x, Seq<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Either<L, A>> DivideT<NUM, L, A>(this Seq<Either<L, A>> x, Seq<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -30151,7 +30151,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Seq<Either<L, A>> AppendT<SEMI, L, A>(this Seq<Either<L, A>> x, Seq<Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Seq<Either<L, A>> AppendT<SEMI, L, A>(this Seq<Either<L, A>> x, Seq<Either<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -30163,7 +30163,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Seq<Either<L, A>> x, Seq<Either<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Seq<Either<L, A>> x, Seq<Either<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -30175,7 +30175,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Seq<Either<L, A>> x, Seq<Either<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Seq<Either<L, A>> x, Seq<Either<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -30270,7 +30270,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Set&lt;Either&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Set<Either<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSet<Either<L, A>>, Set<Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -30417,7 +30417,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Set<Either<L, A>> PlusT<NUM, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Set<Either<L, A>> PlusT<NUM, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -30429,7 +30429,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Set<Either<L, A>> SubtractT<NUM, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Set<Either<L, A>> SubtractT<NUM, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -30441,7 +30441,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Set<Either<L, A>> ProductT<NUM, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Set<Either<L, A>> ProductT<NUM, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -30453,7 +30453,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Set<Either<L, A>> DivideT<NUM, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Set<Either<L, A>> DivideT<NUM, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -30465,7 +30465,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Set<Either<L, A>> AppendT<SEMI, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Set<Either<L, A>> AppendT<SEMI, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -30477,7 +30477,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -30489,7 +30489,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Set<Either<L, A>> x, Set<Either<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -30584,7 +30584,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, Either&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, L, A>(this Validation<FAIL, Either<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MValidation<FAIL, Either<L, A>>, Validation<FAIL, Either<L, A>>, MEither<L, A>, Either<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -30731,7 +30731,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Either&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Validation<FAIL, Either<L, A>> PlusT<NUM, FAIL, L, A>(this Validation<FAIL, Either<L, A>> x, Validation<FAIL, Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Either<L, A>> PlusT<NUM, FAIL, L, A>(this Validation<FAIL, Either<L, A>> x, Validation<FAIL, Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -30743,7 +30743,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Either&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Validation<FAIL, Either<L, A>> SubtractT<NUM, FAIL, L, A>(this Validation<FAIL, Either<L, A>> x, Validation<FAIL, Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Either<L, A>> SubtractT<NUM, FAIL, L, A>(this Validation<FAIL, Either<L, A>> x, Validation<FAIL, Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -30755,7 +30755,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Either&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Validation<FAIL, Either<L, A>> ProductT<NUM, FAIL, L, A>(this Validation<FAIL, Either<L, A>> x, Validation<FAIL, Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Either<L, A>> ProductT<NUM, FAIL, L, A>(this Validation<FAIL, Either<L, A>> x, Validation<FAIL, Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -30767,7 +30767,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Either&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Validation<FAIL, Either<L, A>> DivideT<NUM, FAIL, L, A>(this Validation<FAIL, Either<L, A>> x, Validation<FAIL, Either<L, A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Either<L, A>> DivideT<NUM, FAIL, L, A>(this Validation<FAIL, Either<L, A>> x, Validation<FAIL, Either<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -30779,7 +30779,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Either&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Validation<FAIL, Either<L, A>> AppendT<SEMI, FAIL, L, A>(this Validation<FAIL, Either<L, A>> x, Validation<FAIL, Either<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Validation<FAIL, Either<L, A>> AppendT<SEMI, FAIL, L, A>(this Validation<FAIL, Either<L, A>> x, Validation<FAIL, Either<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -30791,7 +30791,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, L, A>(this Validation<FAIL, Either<L, A>> x, Validation<FAIL, Either<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, L, A>(this Validation<FAIL, Either<L, A>> x, Validation<FAIL, Either<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -30803,7 +30803,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Either&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, L, A>(this Validation<FAIL, Either<L, A>> x, Validation<FAIL, Either<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, L, A>(this Validation<FAIL, Either<L, A>> x, Validation<FAIL, Either<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -30906,7 +30906,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Arr&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Arr<EitherUnsafe<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MArr<EitherUnsafe<L, A>>, Arr<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -31053,7 +31053,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Arr<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Arr<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -31065,7 +31065,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Arr<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Arr<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -31077,7 +31077,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Arr<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Arr<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -31089,7 +31089,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Arr<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Arr<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -31101,7 +31101,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Arr<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Arr<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -31113,7 +31113,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -31125,7 +31125,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Arr<EitherUnsafe<L, A>> x, Arr<EitherUnsafe<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -31220,7 +31220,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `HashSet&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this HashSet<EitherUnsafe<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MHashSet<EitherUnsafe<L, A>>, HashSet<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -31367,7 +31367,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static HashSet<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -31379,7 +31379,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static HashSet<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -31391,7 +31391,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static HashSet<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -31403,7 +31403,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static HashSet<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -31415,7 +31415,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static HashSet<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static HashSet<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -31427,7 +31427,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -31439,7 +31439,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this HashSet<EitherUnsafe<L, A>> x, HashSet<EitherUnsafe<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -31534,7 +31534,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Lst&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Lst<EitherUnsafe<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MLst<EitherUnsafe<L, A>>, Lst<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -31681,7 +31681,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Lst<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Lst<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -31693,7 +31693,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Lst<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Lst<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -31705,7 +31705,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Lst<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Lst<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -31717,7 +31717,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Lst<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Lst<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -31729,7 +31729,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Lst<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Lst<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -31741,7 +31741,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -31753,7 +31753,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Lst<EitherUnsafe<L, A>> x, Lst<EitherUnsafe<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -31848,7 +31848,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Fin<EitherUnsafe<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MFin<EitherUnsafe<L, A>>, Fin<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -31995,7 +31995,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Fin<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Fin<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -32007,7 +32007,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Fin<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Fin<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -32019,7 +32019,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Fin<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Fin<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -32031,7 +32031,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Fin<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Fin<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -32043,7 +32043,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Fin<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Fin<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -32055,7 +32055,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -32067,7 +32067,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Fin<EitherUnsafe<L, A>> x, Fin<EitherUnsafe<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -32162,7 +32162,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Option&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Option<EitherUnsafe<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOption<EitherUnsafe<L, A>>, Option<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -32309,7 +32309,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Option<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Option<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -32321,7 +32321,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Option<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Option<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -32333,7 +32333,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Option<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Option<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -32345,7 +32345,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Option<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Option<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -32357,7 +32357,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Option<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Option<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -32369,7 +32369,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -32381,7 +32381,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Option<EitherUnsafe<L, A>> x, Option<EitherUnsafe<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -32476,7 +32476,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOptionUnsafe<EitherUnsafe<L, A>>, OptionUnsafe<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -32623,7 +32623,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionUnsafe<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -32635,7 +32635,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionUnsafe<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -32647,7 +32647,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionUnsafe<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -32659,7 +32659,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionUnsafe<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -32671,7 +32671,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionUnsafe<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionUnsafe<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -32683,7 +32683,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -32695,7 +32695,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this OptionUnsafe<EitherUnsafe<L, A>> x, OptionUnsafe<EitherUnsafe<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -32790,7 +32790,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Either&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Either<L, EitherUnsafe<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEither<L, EitherUnsafe<L, A>>, Either<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -32937,7 +32937,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Either<L, EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -32949,7 +32949,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Either<L, EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -32961,7 +32961,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Either<L, EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -32973,7 +32973,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Either<L, EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -32985,7 +32985,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Either<L, EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Either<L, EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -32997,7 +32997,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -33009,7 +33009,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Either<L, EitherUnsafe<L, A>> x, Either<L, EitherUnsafe<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -33104,7 +33104,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, EitherUnsafe&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEitherUnsafe<L, EitherUnsafe<L, A>>, EitherUnsafe<L, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -33251,7 +33251,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherUnsafe<L, EitherUnsafe<L, A>> PlusT<NUM, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, EitherUnsafe<L, A>> PlusT<NUM, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -33263,7 +33263,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherUnsafe<L, EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -33275,7 +33275,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherUnsafe<L, EitherUnsafe<L, A>> ProductT<NUM, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, EitherUnsafe<L, A>> ProductT<NUM, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -33287,7 +33287,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherUnsafe<L, EitherUnsafe<L, A>> DivideT<NUM, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, EitherUnsafe<L, A>> DivideT<NUM, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -33299,7 +33299,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherUnsafe<L, EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherUnsafe<L, EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -33311,7 +33311,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -33323,7 +33323,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, EitherUnsafe<L, A>> x, EitherUnsafe<L, EitherUnsafe<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -33418,7 +33418,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Try&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Try<EitherUnsafe<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTry<EitherUnsafe<L, A>>, Try<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -33565,7 +33565,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Try<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Try<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -33577,7 +33577,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Try<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Try<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -33589,7 +33589,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Try<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Try<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -33601,7 +33601,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Try<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Try<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -33613,7 +33613,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Try<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Try<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -33625,7 +33625,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -33637,7 +33637,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Try<EitherUnsafe<L, A>> x, Try<EitherUnsafe<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -33732,7 +33732,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOption&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this TryOption<EitherUnsafe<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTryOption<EitherUnsafe<L, A>>, TryOption<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -33879,7 +33879,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOption<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -33891,7 +33891,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOption<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -33903,7 +33903,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOption<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -33915,7 +33915,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOption<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -33927,7 +33927,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOption<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOption<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -33939,7 +33939,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -33951,7 +33951,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this TryOption<EitherUnsafe<L, A>> x, TryOption<EitherUnsafe<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -34046,7 +34046,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this IEnumerable<EitherUnsafe<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MEnumerable<EitherUnsafe<L, A>>, IEnumerable<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -34193,7 +34193,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static IEnumerable<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -34205,7 +34205,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static IEnumerable<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -34217,7 +34217,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static IEnumerable<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -34229,7 +34229,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static IEnumerable<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -34241,7 +34241,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static IEnumerable<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static IEnumerable<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -34253,7 +34253,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -34265,7 +34265,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this IEnumerable<EitherUnsafe<L, A>> x, IEnumerable<EitherUnsafe<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -34360,7 +34360,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Seq&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Seq<EitherUnsafe<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSeq<EitherUnsafe<L, A>>, Seq<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -34507,7 +34507,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Seq<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Seq<EitherUnsafe<L, A>> x, Seq<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Seq<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Seq<EitherUnsafe<L, A>> x, Seq<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -34519,7 +34519,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Seq<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Seq<EitherUnsafe<L, A>> x, Seq<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Seq<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Seq<EitherUnsafe<L, A>> x, Seq<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -34531,7 +34531,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Seq<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Seq<EitherUnsafe<L, A>> x, Seq<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Seq<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Seq<EitherUnsafe<L, A>> x, Seq<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -34543,7 +34543,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Seq<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Seq<EitherUnsafe<L, A>> x, Seq<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Seq<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Seq<EitherUnsafe<L, A>> x, Seq<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -34555,7 +34555,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Seq<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Seq<EitherUnsafe<L, A>> x, Seq<EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Seq<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Seq<EitherUnsafe<L, A>> x, Seq<EitherUnsafe<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -34567,7 +34567,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Seq<EitherUnsafe<L, A>> x, Seq<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Seq<EitherUnsafe<L, A>> x, Seq<EitherUnsafe<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -34579,7 +34579,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Seq<EitherUnsafe<L, A>> x, Seq<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Seq<EitherUnsafe<L, A>> x, Seq<EitherUnsafe<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -34674,7 +34674,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Set&lt;EitherUnsafe&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Set<EitherUnsafe<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSet<EitherUnsafe<L, A>>, Set<EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -34821,7 +34821,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Set<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Set<EitherUnsafe<L, A>> PlusT<NUM, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -34833,7 +34833,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Set<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Set<EitherUnsafe<L, A>> SubtractT<NUM, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -34845,7 +34845,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Set<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Set<EitherUnsafe<L, A>> ProductT<NUM, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -34857,7 +34857,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Set<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Set<EitherUnsafe<L, A>> DivideT<NUM, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -34869,7 +34869,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Set<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Set<EitherUnsafe<L, A>> AppendT<SEMI, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -34881,7 +34881,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -34893,7 +34893,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Set<EitherUnsafe<L, A>> x, Set<EitherUnsafe<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -34988,7 +34988,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, EitherUnsafe&lt;L, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MValidation<FAIL, EitherUnsafe<L, A>>, Validation<FAIL, EitherUnsafe<L, A>>, MEitherUnsafe<L, A>, EitherUnsafe<L, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -35135,7 +35135,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Validation<FAIL, EitherUnsafe<L, A>> PlusT<NUM, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> x, Validation<FAIL, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, EitherUnsafe<L, A>> PlusT<NUM, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> x, Validation<FAIL, EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -35147,7 +35147,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Validation<FAIL, EitherUnsafe<L, A>> SubtractT<NUM, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> x, Validation<FAIL, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, EitherUnsafe<L, A>> SubtractT<NUM, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> x, Validation<FAIL, EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -35159,7 +35159,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Validation<FAIL, EitherUnsafe<L, A>> ProductT<NUM, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> x, Validation<FAIL, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, EitherUnsafe<L, A>> ProductT<NUM, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> x, Validation<FAIL, EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -35171,7 +35171,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Validation<FAIL, EitherUnsafe<L, A>> DivideT<NUM, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> x, Validation<FAIL, EitherUnsafe<L, A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, EitherUnsafe<L, A>> DivideT<NUM, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> x, Validation<FAIL, EitherUnsafe<L, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -35183,7 +35183,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Validation<FAIL, EitherUnsafe<L, A>> AppendT<SEMI, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> x, Validation<FAIL, EitherUnsafe<L, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Validation<FAIL, EitherUnsafe<L, A>> AppendT<SEMI, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> x, Validation<FAIL, EitherUnsafe<L, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -35195,7 +35195,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> x, Validation<FAIL, EitherUnsafe<L, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> x, Validation<FAIL, EitherUnsafe<L, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -35207,7 +35207,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, EitherUnsafe&lt;L, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> x, Validation<FAIL, EitherUnsafe<L, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, L, A>(this Validation<FAIL, EitherUnsafe<L, A>> x, Validation<FAIL, EitherUnsafe<L, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -35310,7 +35310,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Arr&lt;Try&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Arr<Try<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MArr<Try<A>>, Arr<Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -35457,7 +35457,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Arr<Try<A>> PlusT<NUM,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Try<A>> PlusT<NUM,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -35469,7 +35469,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Arr<Try<A>> SubtractT<NUM,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Try<A>> SubtractT<NUM,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -35481,7 +35481,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Arr<Try<A>> ProductT<NUM,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Try<A>> ProductT<NUM,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -35493,7 +35493,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Arr<Try<A>> DivideT<NUM,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Try<A>> DivideT<NUM,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -35505,7 +35505,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Arr<Try<A>> AppendT<SEMI,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Arr<Try<A>> AppendT<SEMI,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -35517,7 +35517,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -35529,7 +35529,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Arr<Try<A>> x, Arr<Try<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -35624,7 +35624,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `HashSet&lt;Try&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this HashSet<Try<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MHashSet<Try<A>>, HashSet<Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -35771,7 +35771,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static HashSet<Try<A>> PlusT<NUM,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Try<A>> PlusT<NUM,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -35783,7 +35783,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static HashSet<Try<A>> SubtractT<NUM,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Try<A>> SubtractT<NUM,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -35795,7 +35795,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static HashSet<Try<A>> ProductT<NUM,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Try<A>> ProductT<NUM,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -35807,7 +35807,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static HashSet<Try<A>> DivideT<NUM,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Try<A>> DivideT<NUM,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -35819,7 +35819,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static HashSet<Try<A>> AppendT<SEMI,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static HashSet<Try<A>> AppendT<SEMI,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -35831,7 +35831,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -35843,7 +35843,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this HashSet<Try<A>> x, HashSet<Try<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -35938,7 +35938,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Lst&lt;Try&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Lst<Try<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MLst<Try<A>>, Lst<Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -36085,7 +36085,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Lst<Try<A>> PlusT<NUM,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Try<A>> PlusT<NUM,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -36097,7 +36097,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Lst<Try<A>> SubtractT<NUM,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Try<A>> SubtractT<NUM,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -36109,7 +36109,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Lst<Try<A>> ProductT<NUM,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Try<A>> ProductT<NUM,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -36121,7 +36121,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Lst<Try<A>> DivideT<NUM,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Try<A>> DivideT<NUM,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -36133,7 +36133,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Lst<Try<A>> AppendT<SEMI,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Lst<Try<A>> AppendT<SEMI,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -36145,7 +36145,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -36157,7 +36157,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Lst<Try<A>> x, Lst<Try<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -36252,7 +36252,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Fin&lt;Try&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Fin<Try<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MFin<Try<A>>, Fin<Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -36399,7 +36399,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Fin<Try<A>> PlusT<NUM,  A>(this Fin<Try<A>> x, Fin<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Try<A>> PlusT<NUM,  A>(this Fin<Try<A>> x, Fin<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -36411,7 +36411,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Fin<Try<A>> SubtractT<NUM,  A>(this Fin<Try<A>> x, Fin<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Try<A>> SubtractT<NUM,  A>(this Fin<Try<A>> x, Fin<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -36423,7 +36423,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Fin<Try<A>> ProductT<NUM,  A>(this Fin<Try<A>> x, Fin<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Try<A>> ProductT<NUM,  A>(this Fin<Try<A>> x, Fin<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -36435,7 +36435,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Fin<Try<A>> DivideT<NUM,  A>(this Fin<Try<A>> x, Fin<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Try<A>> DivideT<NUM,  A>(this Fin<Try<A>> x, Fin<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -36447,7 +36447,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Fin<Try<A>> AppendT<SEMI,  A>(this Fin<Try<A>> x, Fin<Try<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Fin<Try<A>> AppendT<SEMI,  A>(this Fin<Try<A>> x, Fin<Try<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -36459,7 +36459,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Fin<Try<A>> x, Fin<Try<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Fin<Try<A>> x, Fin<Try<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -36471,7 +36471,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Fin<Try<A>> x, Fin<Try<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Fin<Try<A>> x, Fin<Try<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -36566,7 +36566,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Option&lt;Try&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Option<Try<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOption<Try<A>>, Option<Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -36713,7 +36713,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Option<Try<A>> PlusT<NUM,  A>(this Option<Try<A>> x, Option<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Try<A>> PlusT<NUM,  A>(this Option<Try<A>> x, Option<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -36725,7 +36725,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Option<Try<A>> SubtractT<NUM,  A>(this Option<Try<A>> x, Option<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Try<A>> SubtractT<NUM,  A>(this Option<Try<A>> x, Option<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -36737,7 +36737,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Option<Try<A>> ProductT<NUM,  A>(this Option<Try<A>> x, Option<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Try<A>> ProductT<NUM,  A>(this Option<Try<A>> x, Option<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -36749,7 +36749,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Option<Try<A>> DivideT<NUM,  A>(this Option<Try<A>> x, Option<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Try<A>> DivideT<NUM,  A>(this Option<Try<A>> x, Option<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -36761,7 +36761,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Option<Try<A>> AppendT<SEMI,  A>(this Option<Try<A>> x, Option<Try<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Option<Try<A>> AppendT<SEMI,  A>(this Option<Try<A>> x, Option<Try<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -36773,7 +36773,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Option<Try<A>> x, Option<Try<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Option<Try<A>> x, Option<Try<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -36785,7 +36785,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Option<Try<A>> x, Option<Try<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Option<Try<A>> x, Option<Try<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -36880,7 +36880,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;Try&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this OptionUnsafe<Try<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOptionUnsafe<Try<A>>, OptionUnsafe<Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -37027,7 +37027,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionUnsafe<Try<A>> PlusT<NUM,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Try<A>> PlusT<NUM,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -37039,7 +37039,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionUnsafe<Try<A>> SubtractT<NUM,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Try<A>> SubtractT<NUM,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -37051,7 +37051,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionUnsafe<Try<A>> ProductT<NUM,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Try<A>> ProductT<NUM,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -37063,7 +37063,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionUnsafe<Try<A>> DivideT<NUM,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Try<A>> DivideT<NUM,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -37075,7 +37075,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionUnsafe<Try<A>> AppendT<SEMI,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionUnsafe<Try<A>> AppendT<SEMI,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -37087,7 +37087,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -37099,7 +37099,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Try<A>> x, OptionUnsafe<Try<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -37194,7 +37194,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Either&lt;L, Try&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Either<L, Try<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEither<L, Try<A>>, Either<L, Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -37341,7 +37341,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Either<L, Try<A>> PlusT<NUM, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Try<A>> PlusT<NUM, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -37353,7 +37353,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Either<L, Try<A>> SubtractT<NUM, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Try<A>> SubtractT<NUM, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -37365,7 +37365,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Either<L, Try<A>> ProductT<NUM, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Try<A>> ProductT<NUM, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -37377,7 +37377,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Either<L, Try<A>> DivideT<NUM, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Try<A>> DivideT<NUM, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -37389,7 +37389,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Either<L, Try<A>> AppendT<SEMI, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Either<L, Try<A>> AppendT<SEMI, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -37401,7 +37401,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -37413,7 +37413,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Either<L, Try<A>> x, Either<L, Try<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -37508,7 +37508,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, Try&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this EitherUnsafe<L, Try<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEitherUnsafe<L, Try<A>>, EitherUnsafe<L, Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -37655,7 +37655,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherUnsafe<L, Try<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Try<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -37667,7 +37667,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherUnsafe<L, Try<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Try<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -37679,7 +37679,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Try<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Try<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -37691,7 +37691,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Try<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Try<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -37703,7 +37703,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Try<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherUnsafe<L, Try<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -37715,7 +37715,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -37727,7 +37727,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Try<A>> x, EitherUnsafe<L, Try<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -37822,7 +37822,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Try&lt;Try&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Try<Try<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTry<Try<A>>, Try<Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -37969,7 +37969,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Try<Try<A>> PlusT<NUM,  A>(this Try<Try<A>> x, Try<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Try<A>> PlusT<NUM,  A>(this Try<Try<A>> x, Try<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -37981,7 +37981,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Try<Try<A>> SubtractT<NUM,  A>(this Try<Try<A>> x, Try<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Try<A>> SubtractT<NUM,  A>(this Try<Try<A>> x, Try<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -37993,7 +37993,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Try<Try<A>> ProductT<NUM,  A>(this Try<Try<A>> x, Try<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Try<A>> ProductT<NUM,  A>(this Try<Try<A>> x, Try<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -38005,7 +38005,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Try<Try<A>> DivideT<NUM,  A>(this Try<Try<A>> x, Try<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Try<A>> DivideT<NUM,  A>(this Try<Try<A>> x, Try<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -38017,7 +38017,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Try<Try<A>> AppendT<SEMI,  A>(this Try<Try<A>> x, Try<Try<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Try<Try<A>> AppendT<SEMI,  A>(this Try<Try<A>> x, Try<Try<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -38029,7 +38029,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Try<Try<A>> x, Try<Try<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Try<Try<A>> x, Try<Try<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -38041,7 +38041,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Try<Try<A>> x, Try<Try<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Try<Try<A>> x, Try<Try<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -38136,7 +38136,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOption&lt;Try&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this TryOption<Try<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTryOption<Try<A>>, TryOption<Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -38283,7 +38283,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOption<Try<A>> PlusT<NUM,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Try<A>> PlusT<NUM,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -38295,7 +38295,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOption<Try<A>> SubtractT<NUM,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Try<A>> SubtractT<NUM,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -38307,7 +38307,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOption<Try<A>> ProductT<NUM,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Try<A>> ProductT<NUM,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -38319,7 +38319,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOption<Try<A>> DivideT<NUM,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Try<A>> DivideT<NUM,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -38331,7 +38331,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOption<Try<A>> AppendT<SEMI,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOption<Try<A>> AppendT<SEMI,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -38343,7 +38343,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -38355,7 +38355,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this TryOption<Try<A>> x, TryOption<Try<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -38450,7 +38450,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;Try&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this IEnumerable<Try<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MEnumerable<Try<A>>, IEnumerable<Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -38597,7 +38597,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static IEnumerable<Try<A>> PlusT<NUM,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Try<A>> PlusT<NUM,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -38609,7 +38609,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static IEnumerable<Try<A>> SubtractT<NUM,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Try<A>> SubtractT<NUM,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -38621,7 +38621,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static IEnumerable<Try<A>> ProductT<NUM,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Try<A>> ProductT<NUM,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -38633,7 +38633,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static IEnumerable<Try<A>> DivideT<NUM,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Try<A>> DivideT<NUM,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -38645,7 +38645,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static IEnumerable<Try<A>> AppendT<SEMI,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static IEnumerable<Try<A>> AppendT<SEMI,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -38657,7 +38657,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -38669,7 +38669,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this IEnumerable<Try<A>> x, IEnumerable<Try<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -38764,7 +38764,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Seq&lt;Try&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Seq<Try<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSeq<Try<A>>, Seq<Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -38911,7 +38911,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Seq<Try<A>> PlusT<NUM,  A>(this Seq<Try<A>> x, Seq<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Try<A>> PlusT<NUM,  A>(this Seq<Try<A>> x, Seq<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -38923,7 +38923,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Seq<Try<A>> SubtractT<NUM,  A>(this Seq<Try<A>> x, Seq<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Try<A>> SubtractT<NUM,  A>(this Seq<Try<A>> x, Seq<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -38935,7 +38935,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Seq<Try<A>> ProductT<NUM,  A>(this Seq<Try<A>> x, Seq<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Try<A>> ProductT<NUM,  A>(this Seq<Try<A>> x, Seq<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -38947,7 +38947,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Seq<Try<A>> DivideT<NUM,  A>(this Seq<Try<A>> x, Seq<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Try<A>> DivideT<NUM,  A>(this Seq<Try<A>> x, Seq<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -38959,7 +38959,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Seq<Try<A>> AppendT<SEMI,  A>(this Seq<Try<A>> x, Seq<Try<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Seq<Try<A>> AppendT<SEMI,  A>(this Seq<Try<A>> x, Seq<Try<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -38971,7 +38971,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Seq<Try<A>> x, Seq<Try<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Seq<Try<A>> x, Seq<Try<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -38983,7 +38983,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Seq<Try<A>> x, Seq<Try<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Seq<Try<A>> x, Seq<Try<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -39078,7 +39078,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Set&lt;Try&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Set<Try<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSet<Try<A>>, Set<Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -39225,7 +39225,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Set<Try<A>> PlusT<NUM,  A>(this Set<Try<A>> x, Set<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Try<A>> PlusT<NUM,  A>(this Set<Try<A>> x, Set<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -39237,7 +39237,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Set<Try<A>> SubtractT<NUM,  A>(this Set<Try<A>> x, Set<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Try<A>> SubtractT<NUM,  A>(this Set<Try<A>> x, Set<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -39249,7 +39249,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Set<Try<A>> ProductT<NUM,  A>(this Set<Try<A>> x, Set<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Try<A>> ProductT<NUM,  A>(this Set<Try<A>> x, Set<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -39261,7 +39261,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Set<Try<A>> DivideT<NUM,  A>(this Set<Try<A>> x, Set<Try<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Try<A>> DivideT<NUM,  A>(this Set<Try<A>> x, Set<Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -39273,7 +39273,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Set<Try<A>> AppendT<SEMI,  A>(this Set<Try<A>> x, Set<Try<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Set<Try<A>> AppendT<SEMI,  A>(this Set<Try<A>> x, Set<Try<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -39285,7 +39285,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Set<Try<A>> x, Set<Try<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Set<Try<A>> x, Set<Try<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -39297,7 +39297,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Set<Try<A>> x, Set<Try<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Set<Try<A>> x, Set<Try<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -39392,7 +39392,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, Try&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Validation<FAIL, Try<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MValidation<FAIL, Try<A>>, Validation<FAIL, Try<A>>, MTry<A>, Try<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -39539,7 +39539,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Try&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Validation<FAIL, Try<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Try<A>> x, Validation<FAIL, Try<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Try<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Try<A>> x, Validation<FAIL, Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -39551,7 +39551,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Try&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Validation<FAIL, Try<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Try<A>> x, Validation<FAIL, Try<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Try<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Try<A>> x, Validation<FAIL, Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -39563,7 +39563,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Try&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Validation<FAIL, Try<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Try<A>> x, Validation<FAIL, Try<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Try<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Try<A>> x, Validation<FAIL, Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -39575,7 +39575,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Try&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Validation<FAIL, Try<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Try<A>> x, Validation<FAIL, Try<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Try<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Try<A>> x, Validation<FAIL, Try<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -39587,7 +39587,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Try&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Validation<FAIL, Try<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Try<A>> x, Validation<FAIL, Try<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Validation<FAIL, Try<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Try<A>> x, Validation<FAIL, Try<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -39599,7 +39599,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Try<A>> x, Validation<FAIL, Try<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Try<A>> x, Validation<FAIL, Try<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -39611,7 +39611,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Try&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Try<A>> x, Validation<FAIL, Try<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Try<A>> x, Validation<FAIL, Try<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -39714,7 +39714,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Arr&lt;TryOption&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Arr<TryOption<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MArr<TryOption<A>>, Arr<TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -39861,7 +39861,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Arr<TryOption<A>> PlusT<NUM,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<TryOption<A>> PlusT<NUM,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -39873,7 +39873,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Arr<TryOption<A>> SubtractT<NUM,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<TryOption<A>> SubtractT<NUM,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -39885,7 +39885,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Arr<TryOption<A>> ProductT<NUM,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<TryOption<A>> ProductT<NUM,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -39897,7 +39897,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Arr<TryOption<A>> DivideT<NUM,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<TryOption<A>> DivideT<NUM,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -39909,7 +39909,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Arr<TryOption<A>> AppendT<SEMI,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Arr<TryOption<A>> AppendT<SEMI,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -39921,7 +39921,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -39933,7 +39933,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Arr<TryOption<A>> x, Arr<TryOption<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -40028,7 +40028,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `HashSet&lt;TryOption&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this HashSet<TryOption<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MHashSet<TryOption<A>>, HashSet<TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -40175,7 +40175,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static HashSet<TryOption<A>> PlusT<NUM,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<TryOption<A>> PlusT<NUM,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -40187,7 +40187,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static HashSet<TryOption<A>> SubtractT<NUM,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<TryOption<A>> SubtractT<NUM,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -40199,7 +40199,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static HashSet<TryOption<A>> ProductT<NUM,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<TryOption<A>> ProductT<NUM,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -40211,7 +40211,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static HashSet<TryOption<A>> DivideT<NUM,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<TryOption<A>> DivideT<NUM,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -40223,7 +40223,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static HashSet<TryOption<A>> AppendT<SEMI,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static HashSet<TryOption<A>> AppendT<SEMI,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -40235,7 +40235,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -40247,7 +40247,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this HashSet<TryOption<A>> x, HashSet<TryOption<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -40342,7 +40342,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Lst&lt;TryOption&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Lst<TryOption<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MLst<TryOption<A>>, Lst<TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -40489,7 +40489,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Lst<TryOption<A>> PlusT<NUM,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<TryOption<A>> PlusT<NUM,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -40501,7 +40501,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Lst<TryOption<A>> SubtractT<NUM,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<TryOption<A>> SubtractT<NUM,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -40513,7 +40513,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Lst<TryOption<A>> ProductT<NUM,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<TryOption<A>> ProductT<NUM,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -40525,7 +40525,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Lst<TryOption<A>> DivideT<NUM,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<TryOption<A>> DivideT<NUM,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -40537,7 +40537,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Lst<TryOption<A>> AppendT<SEMI,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Lst<TryOption<A>> AppendT<SEMI,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -40549,7 +40549,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -40561,7 +40561,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Lst<TryOption<A>> x, Lst<TryOption<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -40656,7 +40656,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Fin&lt;TryOption&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Fin<TryOption<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MFin<TryOption<A>>, Fin<TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -40803,7 +40803,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Fin<TryOption<A>> PlusT<NUM,  A>(this Fin<TryOption<A>> x, Fin<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<TryOption<A>> PlusT<NUM,  A>(this Fin<TryOption<A>> x, Fin<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -40815,7 +40815,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Fin<TryOption<A>> SubtractT<NUM,  A>(this Fin<TryOption<A>> x, Fin<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<TryOption<A>> SubtractT<NUM,  A>(this Fin<TryOption<A>> x, Fin<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -40827,7 +40827,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Fin<TryOption<A>> ProductT<NUM,  A>(this Fin<TryOption<A>> x, Fin<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<TryOption<A>> ProductT<NUM,  A>(this Fin<TryOption<A>> x, Fin<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -40839,7 +40839,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Fin<TryOption<A>> DivideT<NUM,  A>(this Fin<TryOption<A>> x, Fin<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<TryOption<A>> DivideT<NUM,  A>(this Fin<TryOption<A>> x, Fin<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -40851,7 +40851,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Fin<TryOption<A>> AppendT<SEMI,  A>(this Fin<TryOption<A>> x, Fin<TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Fin<TryOption<A>> AppendT<SEMI,  A>(this Fin<TryOption<A>> x, Fin<TryOption<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -40863,7 +40863,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Fin<TryOption<A>> x, Fin<TryOption<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Fin<TryOption<A>> x, Fin<TryOption<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -40875,7 +40875,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Fin<TryOption<A>> x, Fin<TryOption<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Fin<TryOption<A>> x, Fin<TryOption<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -40970,7 +40970,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Option&lt;TryOption&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Option<TryOption<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOption<TryOption<A>>, Option<TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -41117,7 +41117,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Option<TryOption<A>> PlusT<NUM,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Option<TryOption<A>> PlusT<NUM,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -41129,7 +41129,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Option<TryOption<A>> SubtractT<NUM,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Option<TryOption<A>> SubtractT<NUM,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -41141,7 +41141,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Option<TryOption<A>> ProductT<NUM,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Option<TryOption<A>> ProductT<NUM,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -41153,7 +41153,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Option<TryOption<A>> DivideT<NUM,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Option<TryOption<A>> DivideT<NUM,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -41165,7 +41165,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Option<TryOption<A>> AppendT<SEMI,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Option<TryOption<A>> AppendT<SEMI,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -41177,7 +41177,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -41189,7 +41189,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Option<TryOption<A>> x, Option<TryOption<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -41284,7 +41284,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;TryOption&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this OptionUnsafe<TryOption<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOptionUnsafe<TryOption<A>>, OptionUnsafe<TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -41431,7 +41431,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionUnsafe<TryOption<A>> PlusT<NUM,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<TryOption<A>> PlusT<NUM,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -41443,7 +41443,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionUnsafe<TryOption<A>> SubtractT<NUM,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<TryOption<A>> SubtractT<NUM,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -41455,7 +41455,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionUnsafe<TryOption<A>> ProductT<NUM,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<TryOption<A>> ProductT<NUM,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -41467,7 +41467,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionUnsafe<TryOption<A>> DivideT<NUM,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<TryOption<A>> DivideT<NUM,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -41479,7 +41479,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionUnsafe<TryOption<A>> AppendT<SEMI,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionUnsafe<TryOption<A>> AppendT<SEMI,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -41491,7 +41491,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -41503,7 +41503,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<TryOption<A>> x, OptionUnsafe<TryOption<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -41598,7 +41598,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Either&lt;L, TryOption&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Either<L, TryOption<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEither<L, TryOption<A>>, Either<L, TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -41745,7 +41745,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Either<L, TryOption<A>> PlusT<NUM, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, TryOption<A>> PlusT<NUM, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -41757,7 +41757,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Either<L, TryOption<A>> SubtractT<NUM, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, TryOption<A>> SubtractT<NUM, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -41769,7 +41769,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Either<L, TryOption<A>> ProductT<NUM, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, TryOption<A>> ProductT<NUM, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -41781,7 +41781,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Either<L, TryOption<A>> DivideT<NUM, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, TryOption<A>> DivideT<NUM, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -41793,7 +41793,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Either<L, TryOption<A>> AppendT<SEMI, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Either<L, TryOption<A>> AppendT<SEMI, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -41805,7 +41805,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -41817,7 +41817,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Either<L, TryOption<A>> x, Either<L, TryOption<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -41912,7 +41912,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, TryOption&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this EitherUnsafe<L, TryOption<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEitherUnsafe<L, TryOption<A>>, EitherUnsafe<L, TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -42059,7 +42059,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherUnsafe<L, TryOption<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, TryOption<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -42071,7 +42071,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherUnsafe<L, TryOption<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, TryOption<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -42083,7 +42083,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherUnsafe<L, TryOption<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, TryOption<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -42095,7 +42095,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherUnsafe<L, TryOption<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, TryOption<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -42107,7 +42107,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherUnsafe<L, TryOption<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherUnsafe<L, TryOption<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -42119,7 +42119,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -42131,7 +42131,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, TryOption<A>> x, EitherUnsafe<L, TryOption<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -42226,7 +42226,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Try&lt;TryOption&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Try<TryOption<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTry<TryOption<A>>, Try<TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -42373,7 +42373,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Try<TryOption<A>> PlusT<NUM,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Try<TryOption<A>> PlusT<NUM,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -42385,7 +42385,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Try<TryOption<A>> SubtractT<NUM,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Try<TryOption<A>> SubtractT<NUM,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -42397,7 +42397,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Try<TryOption<A>> ProductT<NUM,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Try<TryOption<A>> ProductT<NUM,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -42409,7 +42409,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Try<TryOption<A>> DivideT<NUM,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Try<TryOption<A>> DivideT<NUM,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -42421,7 +42421,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Try<TryOption<A>> AppendT<SEMI,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Try<TryOption<A>> AppendT<SEMI,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -42433,7 +42433,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -42445,7 +42445,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Try<TryOption<A>> x, Try<TryOption<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -42540,7 +42540,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOption&lt;TryOption&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this TryOption<TryOption<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTryOption<TryOption<A>>, TryOption<TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -42687,7 +42687,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOption<TryOption<A>> PlusT<NUM,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<TryOption<A>> PlusT<NUM,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -42699,7 +42699,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOption<TryOption<A>> SubtractT<NUM,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<TryOption<A>> SubtractT<NUM,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -42711,7 +42711,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOption<TryOption<A>> ProductT<NUM,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<TryOption<A>> ProductT<NUM,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -42723,7 +42723,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOption<TryOption<A>> DivideT<NUM,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<TryOption<A>> DivideT<NUM,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -42735,7 +42735,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOption<TryOption<A>> AppendT<SEMI,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOption<TryOption<A>> AppendT<SEMI,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -42747,7 +42747,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -42759,7 +42759,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this TryOption<TryOption<A>> x, TryOption<TryOption<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -42854,7 +42854,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;TryOption&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this IEnumerable<TryOption<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MEnumerable<TryOption<A>>, IEnumerable<TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -43001,7 +43001,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static IEnumerable<TryOption<A>> PlusT<NUM,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<TryOption<A>> PlusT<NUM,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -43013,7 +43013,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static IEnumerable<TryOption<A>> SubtractT<NUM,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<TryOption<A>> SubtractT<NUM,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -43025,7 +43025,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static IEnumerable<TryOption<A>> ProductT<NUM,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<TryOption<A>> ProductT<NUM,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -43037,7 +43037,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static IEnumerable<TryOption<A>> DivideT<NUM,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<TryOption<A>> DivideT<NUM,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -43049,7 +43049,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static IEnumerable<TryOption<A>> AppendT<SEMI,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static IEnumerable<TryOption<A>> AppendT<SEMI,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -43061,7 +43061,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -43073,7 +43073,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this IEnumerable<TryOption<A>> x, IEnumerable<TryOption<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -43168,7 +43168,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Seq&lt;TryOption&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Seq<TryOption<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSeq<TryOption<A>>, Seq<TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -43315,7 +43315,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Seq<TryOption<A>> PlusT<NUM,  A>(this Seq<TryOption<A>> x, Seq<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<TryOption<A>> PlusT<NUM,  A>(this Seq<TryOption<A>> x, Seq<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -43327,7 +43327,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Seq<TryOption<A>> SubtractT<NUM,  A>(this Seq<TryOption<A>> x, Seq<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<TryOption<A>> SubtractT<NUM,  A>(this Seq<TryOption<A>> x, Seq<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -43339,7 +43339,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Seq<TryOption<A>> ProductT<NUM,  A>(this Seq<TryOption<A>> x, Seq<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<TryOption<A>> ProductT<NUM,  A>(this Seq<TryOption<A>> x, Seq<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -43351,7 +43351,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Seq<TryOption<A>> DivideT<NUM,  A>(this Seq<TryOption<A>> x, Seq<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<TryOption<A>> DivideT<NUM,  A>(this Seq<TryOption<A>> x, Seq<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -43363,7 +43363,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Seq<TryOption<A>> AppendT<SEMI,  A>(this Seq<TryOption<A>> x, Seq<TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Seq<TryOption<A>> AppendT<SEMI,  A>(this Seq<TryOption<A>> x, Seq<TryOption<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -43375,7 +43375,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Seq<TryOption<A>> x, Seq<TryOption<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Seq<TryOption<A>> x, Seq<TryOption<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -43387,7 +43387,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Seq<TryOption<A>> x, Seq<TryOption<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Seq<TryOption<A>> x, Seq<TryOption<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -43482,7 +43482,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Set&lt;TryOption&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Set<TryOption<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSet<TryOption<A>>, Set<TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -43629,7 +43629,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Set<TryOption<A>> PlusT<NUM,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Set<TryOption<A>> PlusT<NUM,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -43641,7 +43641,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Set<TryOption<A>> SubtractT<NUM,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Set<TryOption<A>> SubtractT<NUM,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -43653,7 +43653,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Set<TryOption<A>> ProductT<NUM,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Set<TryOption<A>> ProductT<NUM,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -43665,7 +43665,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Set<TryOption<A>> DivideT<NUM,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Set<TryOption<A>> DivideT<NUM,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -43677,7 +43677,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Set<TryOption<A>> AppendT<SEMI,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Set<TryOption<A>> AppendT<SEMI,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -43689,7 +43689,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -43701,7 +43701,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Set<TryOption<A>> x, Set<TryOption<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -43796,7 +43796,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, TryOption&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Validation<FAIL, TryOption<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MValidation<FAIL, TryOption<A>>, Validation<FAIL, TryOption<A>>, MTryOption<A>, TryOption<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -43943,7 +43943,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, TryOption&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Validation<FAIL, TryOption<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, TryOption<A>> x, Validation<FAIL, TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, TryOption<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, TryOption<A>> x, Validation<FAIL, TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -43955,7 +43955,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, TryOption&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Validation<FAIL, TryOption<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, TryOption<A>> x, Validation<FAIL, TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, TryOption<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, TryOption<A>> x, Validation<FAIL, TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -43967,7 +43967,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, TryOption&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Validation<FAIL, TryOption<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, TryOption<A>> x, Validation<FAIL, TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, TryOption<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, TryOption<A>> x, Validation<FAIL, TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -43979,7 +43979,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, TryOption&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Validation<FAIL, TryOption<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, TryOption<A>> x, Validation<FAIL, TryOption<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, TryOption<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, TryOption<A>> x, Validation<FAIL, TryOption<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -43991,7 +43991,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, TryOption&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Validation<FAIL, TryOption<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, TryOption<A>> x, Validation<FAIL, TryOption<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Validation<FAIL, TryOption<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, TryOption<A>> x, Validation<FAIL, TryOption<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -44003,7 +44003,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, TryOption<A>> x, Validation<FAIL, TryOption<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, TryOption<A>> x, Validation<FAIL, TryOption<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -44015,7 +44015,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, TryOption&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, TryOption<A>> x, Validation<FAIL, TryOption<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, TryOption<A>> x, Validation<FAIL, TryOption<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -44068,7 +44068,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Arr&lt;IEnumerable&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Arr<IEnumerable<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MArr<IEnumerable<A>>, Arr<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -44215,7 +44215,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Arr<IEnumerable<A>> PlusT<NUM,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<IEnumerable<A>> PlusT<NUM,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -44227,7 +44227,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Arr<IEnumerable<A>> SubtractT<NUM,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<IEnumerable<A>> SubtractT<NUM,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -44239,7 +44239,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Arr<IEnumerable<A>> ProductT<NUM,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<IEnumerable<A>> ProductT<NUM,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -44251,7 +44251,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Arr<IEnumerable<A>> DivideT<NUM,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<IEnumerable<A>> DivideT<NUM,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -44263,7 +44263,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Arr<IEnumerable<A>> AppendT<SEMI,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Arr<IEnumerable<A>> AppendT<SEMI,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -44275,7 +44275,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -44287,7 +44287,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Arr<IEnumerable<A>> x, Arr<IEnumerable<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -44332,7 +44332,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `HashSet&lt;IEnumerable&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this HashSet<IEnumerable<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MHashSet<IEnumerable<A>>, HashSet<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -44479,7 +44479,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static HashSet<IEnumerable<A>> PlusT<NUM,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<IEnumerable<A>> PlusT<NUM,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -44491,7 +44491,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static HashSet<IEnumerable<A>> SubtractT<NUM,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<IEnumerable<A>> SubtractT<NUM,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -44503,7 +44503,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static HashSet<IEnumerable<A>> ProductT<NUM,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<IEnumerable<A>> ProductT<NUM,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -44515,7 +44515,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static HashSet<IEnumerable<A>> DivideT<NUM,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<IEnumerable<A>> DivideT<NUM,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -44527,7 +44527,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static HashSet<IEnumerable<A>> AppendT<SEMI,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static HashSet<IEnumerable<A>> AppendT<SEMI,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -44539,7 +44539,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -44551,7 +44551,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this HashSet<IEnumerable<A>> x, HashSet<IEnumerable<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -44596,7 +44596,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Lst&lt;IEnumerable&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Lst<IEnumerable<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MLst<IEnumerable<A>>, Lst<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -44743,7 +44743,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Lst<IEnumerable<A>> PlusT<NUM,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<IEnumerable<A>> PlusT<NUM,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -44755,7 +44755,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Lst<IEnumerable<A>> SubtractT<NUM,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<IEnumerable<A>> SubtractT<NUM,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -44767,7 +44767,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Lst<IEnumerable<A>> ProductT<NUM,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<IEnumerable<A>> ProductT<NUM,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -44779,7 +44779,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Lst<IEnumerable<A>> DivideT<NUM,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<IEnumerable<A>> DivideT<NUM,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -44791,7 +44791,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Lst<IEnumerable<A>> AppendT<SEMI,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Lst<IEnumerable<A>> AppendT<SEMI,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -44803,7 +44803,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -44815,7 +44815,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Lst<IEnumerable<A>> x, Lst<IEnumerable<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -44860,7 +44860,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Fin&lt;IEnumerable&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Fin<IEnumerable<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MFin<IEnumerable<A>>, Fin<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -45007,7 +45007,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Fin<IEnumerable<A>> PlusT<NUM,  A>(this Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<IEnumerable<A>> PlusT<NUM,  A>(this Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -45019,7 +45019,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Fin<IEnumerable<A>> SubtractT<NUM,  A>(this Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<IEnumerable<A>> SubtractT<NUM,  A>(this Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -45031,7 +45031,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Fin<IEnumerable<A>> ProductT<NUM,  A>(this Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<IEnumerable<A>> ProductT<NUM,  A>(this Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -45043,7 +45043,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Fin<IEnumerable<A>> DivideT<NUM,  A>(this Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<IEnumerable<A>> DivideT<NUM,  A>(this Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -45055,7 +45055,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Fin<IEnumerable<A>> AppendT<SEMI,  A>(this Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Fin<IEnumerable<A>> AppendT<SEMI,  A>(this Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -45067,7 +45067,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -45079,7 +45079,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Fin<IEnumerable<A>> x, Fin<IEnumerable<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -45124,7 +45124,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Option&lt;IEnumerable&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Option<IEnumerable<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOption<IEnumerable<A>>, Option<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -45271,7 +45271,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Option<IEnumerable<A>> PlusT<NUM,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Option<IEnumerable<A>> PlusT<NUM,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -45283,7 +45283,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Option<IEnumerable<A>> SubtractT<NUM,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Option<IEnumerable<A>> SubtractT<NUM,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -45295,7 +45295,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Option<IEnumerable<A>> ProductT<NUM,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Option<IEnumerable<A>> ProductT<NUM,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -45307,7 +45307,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Option<IEnumerable<A>> DivideT<NUM,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Option<IEnumerable<A>> DivideT<NUM,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -45319,7 +45319,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Option<IEnumerable<A>> AppendT<SEMI,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Option<IEnumerable<A>> AppendT<SEMI,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -45331,7 +45331,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -45343,7 +45343,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Option<IEnumerable<A>> x, Option<IEnumerable<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -45388,7 +45388,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;IEnumerable&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this OptionUnsafe<IEnumerable<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOptionUnsafe<IEnumerable<A>>, OptionUnsafe<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -45535,7 +45535,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionUnsafe<IEnumerable<A>> PlusT<NUM,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<IEnumerable<A>> PlusT<NUM,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -45547,7 +45547,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionUnsafe<IEnumerable<A>> SubtractT<NUM,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<IEnumerable<A>> SubtractT<NUM,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -45559,7 +45559,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionUnsafe<IEnumerable<A>> ProductT<NUM,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<IEnumerable<A>> ProductT<NUM,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -45571,7 +45571,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionUnsafe<IEnumerable<A>> DivideT<NUM,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<IEnumerable<A>> DivideT<NUM,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -45583,7 +45583,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionUnsafe<IEnumerable<A>> AppendT<SEMI,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionUnsafe<IEnumerable<A>> AppendT<SEMI,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -45595,7 +45595,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -45607,7 +45607,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<IEnumerable<A>> x, OptionUnsafe<IEnumerable<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -45652,7 +45652,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Either&lt;L, IEnumerable&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Either<L, IEnumerable<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEither<L, IEnumerable<A>>, Either<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -45799,7 +45799,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Either<L, IEnumerable<A>> PlusT<NUM, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, IEnumerable<A>> PlusT<NUM, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -45811,7 +45811,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Either<L, IEnumerable<A>> SubtractT<NUM, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, IEnumerable<A>> SubtractT<NUM, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -45823,7 +45823,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Either<L, IEnumerable<A>> ProductT<NUM, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, IEnumerable<A>> ProductT<NUM, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -45835,7 +45835,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Either<L, IEnumerable<A>> DivideT<NUM, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, IEnumerable<A>> DivideT<NUM, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -45847,7 +45847,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Either<L, IEnumerable<A>> AppendT<SEMI, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Either<L, IEnumerable<A>> AppendT<SEMI, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -45859,7 +45859,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -45871,7 +45871,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Either<L, IEnumerable<A>> x, Either<L, IEnumerable<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -45916,7 +45916,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, IEnumerable&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this EitherUnsafe<L, IEnumerable<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEitherUnsafe<L, IEnumerable<A>>, EitherUnsafe<L, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -46063,7 +46063,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherUnsafe<L, IEnumerable<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, IEnumerable<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -46075,7 +46075,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherUnsafe<L, IEnumerable<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, IEnumerable<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -46087,7 +46087,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherUnsafe<L, IEnumerable<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, IEnumerable<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -46099,7 +46099,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherUnsafe<L, IEnumerable<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, IEnumerable<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -46111,7 +46111,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherUnsafe<L, IEnumerable<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherUnsafe<L, IEnumerable<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -46123,7 +46123,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -46135,7 +46135,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, IEnumerable<A>> x, EitherUnsafe<L, IEnumerable<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -46180,7 +46180,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Try&lt;IEnumerable&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Try<IEnumerable<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTry<IEnumerable<A>>, Try<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -46327,7 +46327,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Try<IEnumerable<A>> PlusT<NUM,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Try<IEnumerable<A>> PlusT<NUM,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -46339,7 +46339,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Try<IEnumerable<A>> SubtractT<NUM,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Try<IEnumerable<A>> SubtractT<NUM,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -46351,7 +46351,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Try<IEnumerable<A>> ProductT<NUM,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Try<IEnumerable<A>> ProductT<NUM,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -46363,7 +46363,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Try<IEnumerable<A>> DivideT<NUM,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Try<IEnumerable<A>> DivideT<NUM,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -46375,7 +46375,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Try<IEnumerable<A>> AppendT<SEMI,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Try<IEnumerable<A>> AppendT<SEMI,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -46387,7 +46387,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -46399,7 +46399,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Try<IEnumerable<A>> x, Try<IEnumerable<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -46444,7 +46444,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOption&lt;IEnumerable&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this TryOption<IEnumerable<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTryOption<IEnumerable<A>>, TryOption<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -46591,7 +46591,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOption<IEnumerable<A>> PlusT<NUM,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<IEnumerable<A>> PlusT<NUM,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -46603,7 +46603,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOption<IEnumerable<A>> SubtractT<NUM,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<IEnumerable<A>> SubtractT<NUM,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -46615,7 +46615,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOption<IEnumerable<A>> ProductT<NUM,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<IEnumerable<A>> ProductT<NUM,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -46627,7 +46627,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOption<IEnumerable<A>> DivideT<NUM,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<IEnumerable<A>> DivideT<NUM,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -46639,7 +46639,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOption<IEnumerable<A>> AppendT<SEMI,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOption<IEnumerable<A>> AppendT<SEMI,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -46651,7 +46651,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -46663,7 +46663,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this TryOption<IEnumerable<A>> x, TryOption<IEnumerable<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -46708,7 +46708,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;IEnumerable&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this IEnumerable<IEnumerable<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MEnumerable<IEnumerable<A>>, IEnumerable<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -46855,7 +46855,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static IEnumerable<IEnumerable<A>> PlusT<NUM,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<IEnumerable<A>> PlusT<NUM,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -46867,7 +46867,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static IEnumerable<IEnumerable<A>> SubtractT<NUM,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<IEnumerable<A>> SubtractT<NUM,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -46879,7 +46879,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static IEnumerable<IEnumerable<A>> ProductT<NUM,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<IEnumerable<A>> ProductT<NUM,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -46891,7 +46891,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static IEnumerable<IEnumerable<A>> DivideT<NUM,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<IEnumerable<A>> DivideT<NUM,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -46903,7 +46903,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static IEnumerable<IEnumerable<A>> AppendT<SEMI,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static IEnumerable<IEnumerable<A>> AppendT<SEMI,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -46915,7 +46915,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -46927,7 +46927,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this IEnumerable<IEnumerable<A>> x, IEnumerable<IEnumerable<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -46972,7 +46972,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Seq&lt;IEnumerable&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Seq<IEnumerable<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSeq<IEnumerable<A>>, Seq<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -47119,7 +47119,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Seq<IEnumerable<A>> PlusT<NUM,  A>(this Seq<IEnumerable<A>> x, Seq<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<IEnumerable<A>> PlusT<NUM,  A>(this Seq<IEnumerable<A>> x, Seq<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -47131,7 +47131,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Seq<IEnumerable<A>> SubtractT<NUM,  A>(this Seq<IEnumerable<A>> x, Seq<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<IEnumerable<A>> SubtractT<NUM,  A>(this Seq<IEnumerable<A>> x, Seq<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -47143,7 +47143,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Seq<IEnumerable<A>> ProductT<NUM,  A>(this Seq<IEnumerable<A>> x, Seq<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<IEnumerable<A>> ProductT<NUM,  A>(this Seq<IEnumerable<A>> x, Seq<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -47155,7 +47155,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Seq<IEnumerable<A>> DivideT<NUM,  A>(this Seq<IEnumerable<A>> x, Seq<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<IEnumerable<A>> DivideT<NUM,  A>(this Seq<IEnumerable<A>> x, Seq<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -47167,7 +47167,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Seq<IEnumerable<A>> AppendT<SEMI,  A>(this Seq<IEnumerable<A>> x, Seq<IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Seq<IEnumerable<A>> AppendT<SEMI,  A>(this Seq<IEnumerable<A>> x, Seq<IEnumerable<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -47179,7 +47179,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Seq<IEnumerable<A>> x, Seq<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Seq<IEnumerable<A>> x, Seq<IEnumerable<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -47191,7 +47191,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Seq<IEnumerable<A>> x, Seq<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Seq<IEnumerable<A>> x, Seq<IEnumerable<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -47236,7 +47236,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Set&lt;IEnumerable&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Set<IEnumerable<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSet<IEnumerable<A>>, Set<IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -47383,7 +47383,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Set<IEnumerable<A>> PlusT<NUM,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Set<IEnumerable<A>> PlusT<NUM,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -47395,7 +47395,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Set<IEnumerable<A>> SubtractT<NUM,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Set<IEnumerable<A>> SubtractT<NUM,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -47407,7 +47407,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Set<IEnumerable<A>> ProductT<NUM,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Set<IEnumerable<A>> ProductT<NUM,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -47419,7 +47419,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Set<IEnumerable<A>> DivideT<NUM,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Set<IEnumerable<A>> DivideT<NUM,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -47431,7 +47431,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Set<IEnumerable<A>> AppendT<SEMI,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Set<IEnumerable<A>> AppendT<SEMI,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -47443,7 +47443,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -47455,7 +47455,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Set<IEnumerable<A>> x, Set<IEnumerable<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -47500,7 +47500,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, IEnumerable&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Validation<FAIL, IEnumerable<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MValidation<FAIL, IEnumerable<A>>, Validation<FAIL, IEnumerable<A>>, MEnumerable<A>, IEnumerable<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -47647,7 +47647,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, IEnumerable&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Validation<FAIL, IEnumerable<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, IEnumerable<A>> x, Validation<FAIL, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, IEnumerable<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, IEnumerable<A>> x, Validation<FAIL, IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -47659,7 +47659,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, IEnumerable&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Validation<FAIL, IEnumerable<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, IEnumerable<A>> x, Validation<FAIL, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, IEnumerable<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, IEnumerable<A>> x, Validation<FAIL, IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -47671,7 +47671,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Validation<FAIL, IEnumerable<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, IEnumerable<A>> x, Validation<FAIL, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, IEnumerable<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, IEnumerable<A>> x, Validation<FAIL, IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -47683,7 +47683,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Validation<FAIL, IEnumerable<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, IEnumerable<A>> x, Validation<FAIL, IEnumerable<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, IEnumerable<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, IEnumerable<A>> x, Validation<FAIL, IEnumerable<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -47695,7 +47695,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Validation<FAIL, IEnumerable<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, IEnumerable<A>> x, Validation<FAIL, IEnumerable<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Validation<FAIL, IEnumerable<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, IEnumerable<A>> x, Validation<FAIL, IEnumerable<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -47707,7 +47707,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, IEnumerable<A>> x, Validation<FAIL, IEnumerable<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, IEnumerable<A>> x, Validation<FAIL, IEnumerable<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -47719,7 +47719,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, IEnumerable&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, IEnumerable<A>> x, Validation<FAIL, IEnumerable<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, IEnumerable<A>> x, Validation<FAIL, IEnumerable<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -47822,7 +47822,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Arr&lt;Seq&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Arr<Seq<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MArr<Seq<A>>, Arr<Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -47969,7 +47969,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Arr<Seq<A>> PlusT<NUM,  A>(this Arr<Seq<A>> x, Arr<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Seq<A>> PlusT<NUM,  A>(this Arr<Seq<A>> x, Arr<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -47981,7 +47981,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Arr<Seq<A>> SubtractT<NUM,  A>(this Arr<Seq<A>> x, Arr<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Seq<A>> SubtractT<NUM,  A>(this Arr<Seq<A>> x, Arr<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -47993,7 +47993,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Arr<Seq<A>> ProductT<NUM,  A>(this Arr<Seq<A>> x, Arr<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Seq<A>> ProductT<NUM,  A>(this Arr<Seq<A>> x, Arr<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -48005,7 +48005,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Arr<Seq<A>> DivideT<NUM,  A>(this Arr<Seq<A>> x, Arr<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Seq<A>> DivideT<NUM,  A>(this Arr<Seq<A>> x, Arr<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -48017,7 +48017,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Arr<Seq<A>> AppendT<SEMI,  A>(this Arr<Seq<A>> x, Arr<Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Arr<Seq<A>> AppendT<SEMI,  A>(this Arr<Seq<A>> x, Arr<Seq<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -48029,7 +48029,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Arr<Seq<A>> x, Arr<Seq<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Arr<Seq<A>> x, Arr<Seq<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -48041,7 +48041,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Arr<Seq<A>> x, Arr<Seq<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Arr<Seq<A>> x, Arr<Seq<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -48136,7 +48136,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `HashSet&lt;Seq&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this HashSet<Seq<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MHashSet<Seq<A>>, HashSet<Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -48283,7 +48283,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static HashSet<Seq<A>> PlusT<NUM,  A>(this HashSet<Seq<A>> x, HashSet<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Seq<A>> PlusT<NUM,  A>(this HashSet<Seq<A>> x, HashSet<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -48295,7 +48295,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static HashSet<Seq<A>> SubtractT<NUM,  A>(this HashSet<Seq<A>> x, HashSet<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Seq<A>> SubtractT<NUM,  A>(this HashSet<Seq<A>> x, HashSet<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -48307,7 +48307,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static HashSet<Seq<A>> ProductT<NUM,  A>(this HashSet<Seq<A>> x, HashSet<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Seq<A>> ProductT<NUM,  A>(this HashSet<Seq<A>> x, HashSet<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -48319,7 +48319,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static HashSet<Seq<A>> DivideT<NUM,  A>(this HashSet<Seq<A>> x, HashSet<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Seq<A>> DivideT<NUM,  A>(this HashSet<Seq<A>> x, HashSet<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -48331,7 +48331,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static HashSet<Seq<A>> AppendT<SEMI,  A>(this HashSet<Seq<A>> x, HashSet<Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static HashSet<Seq<A>> AppendT<SEMI,  A>(this HashSet<Seq<A>> x, HashSet<Seq<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -48343,7 +48343,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this HashSet<Seq<A>> x, HashSet<Seq<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this HashSet<Seq<A>> x, HashSet<Seq<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -48355,7 +48355,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this HashSet<Seq<A>> x, HashSet<Seq<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this HashSet<Seq<A>> x, HashSet<Seq<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -48450,7 +48450,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Lst&lt;Seq&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Lst<Seq<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MLst<Seq<A>>, Lst<Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -48597,7 +48597,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Lst<Seq<A>> PlusT<NUM,  A>(this Lst<Seq<A>> x, Lst<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Seq<A>> PlusT<NUM,  A>(this Lst<Seq<A>> x, Lst<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -48609,7 +48609,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Lst<Seq<A>> SubtractT<NUM,  A>(this Lst<Seq<A>> x, Lst<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Seq<A>> SubtractT<NUM,  A>(this Lst<Seq<A>> x, Lst<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -48621,7 +48621,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Lst<Seq<A>> ProductT<NUM,  A>(this Lst<Seq<A>> x, Lst<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Seq<A>> ProductT<NUM,  A>(this Lst<Seq<A>> x, Lst<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -48633,7 +48633,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Lst<Seq<A>> DivideT<NUM,  A>(this Lst<Seq<A>> x, Lst<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Seq<A>> DivideT<NUM,  A>(this Lst<Seq<A>> x, Lst<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -48645,7 +48645,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Lst<Seq<A>> AppendT<SEMI,  A>(this Lst<Seq<A>> x, Lst<Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Lst<Seq<A>> AppendT<SEMI,  A>(this Lst<Seq<A>> x, Lst<Seq<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -48657,7 +48657,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Lst<Seq<A>> x, Lst<Seq<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Lst<Seq<A>> x, Lst<Seq<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -48669,7 +48669,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Lst<Seq<A>> x, Lst<Seq<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Lst<Seq<A>> x, Lst<Seq<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -48764,7 +48764,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Fin&lt;Seq&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Fin<Seq<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MFin<Seq<A>>, Fin<Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -48911,7 +48911,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Fin<Seq<A>> PlusT<NUM,  A>(this Fin<Seq<A>> x, Fin<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Seq<A>> PlusT<NUM,  A>(this Fin<Seq<A>> x, Fin<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -48923,7 +48923,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Fin<Seq<A>> SubtractT<NUM,  A>(this Fin<Seq<A>> x, Fin<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Seq<A>> SubtractT<NUM,  A>(this Fin<Seq<A>> x, Fin<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -48935,7 +48935,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Fin<Seq<A>> ProductT<NUM,  A>(this Fin<Seq<A>> x, Fin<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Seq<A>> ProductT<NUM,  A>(this Fin<Seq<A>> x, Fin<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -48947,7 +48947,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Fin<Seq<A>> DivideT<NUM,  A>(this Fin<Seq<A>> x, Fin<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Seq<A>> DivideT<NUM,  A>(this Fin<Seq<A>> x, Fin<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -48959,7 +48959,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Fin<Seq<A>> AppendT<SEMI,  A>(this Fin<Seq<A>> x, Fin<Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Fin<Seq<A>> AppendT<SEMI,  A>(this Fin<Seq<A>> x, Fin<Seq<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -48971,7 +48971,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Fin<Seq<A>> x, Fin<Seq<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Fin<Seq<A>> x, Fin<Seq<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -48983,7 +48983,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Fin<Seq<A>> x, Fin<Seq<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Fin<Seq<A>> x, Fin<Seq<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -49078,7 +49078,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Option&lt;Seq&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Option<Seq<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOption<Seq<A>>, Option<Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -49225,7 +49225,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Option<Seq<A>> PlusT<NUM,  A>(this Option<Seq<A>> x, Option<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Seq<A>> PlusT<NUM,  A>(this Option<Seq<A>> x, Option<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -49237,7 +49237,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Option<Seq<A>> SubtractT<NUM,  A>(this Option<Seq<A>> x, Option<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Seq<A>> SubtractT<NUM,  A>(this Option<Seq<A>> x, Option<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -49249,7 +49249,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Option<Seq<A>> ProductT<NUM,  A>(this Option<Seq<A>> x, Option<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Seq<A>> ProductT<NUM,  A>(this Option<Seq<A>> x, Option<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -49261,7 +49261,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Option<Seq<A>> DivideT<NUM,  A>(this Option<Seq<A>> x, Option<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Seq<A>> DivideT<NUM,  A>(this Option<Seq<A>> x, Option<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -49273,7 +49273,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Option<Seq<A>> AppendT<SEMI,  A>(this Option<Seq<A>> x, Option<Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Option<Seq<A>> AppendT<SEMI,  A>(this Option<Seq<A>> x, Option<Seq<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -49285,7 +49285,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Option<Seq<A>> x, Option<Seq<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Option<Seq<A>> x, Option<Seq<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -49297,7 +49297,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Option<Seq<A>> x, Option<Seq<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Option<Seq<A>> x, Option<Seq<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -49392,7 +49392,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;Seq&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this OptionUnsafe<Seq<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOptionUnsafe<Seq<A>>, OptionUnsafe<Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -49539,7 +49539,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionUnsafe<Seq<A>> PlusT<NUM,  A>(this OptionUnsafe<Seq<A>> x, OptionUnsafe<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Seq<A>> PlusT<NUM,  A>(this OptionUnsafe<Seq<A>> x, OptionUnsafe<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -49551,7 +49551,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionUnsafe<Seq<A>> SubtractT<NUM,  A>(this OptionUnsafe<Seq<A>> x, OptionUnsafe<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Seq<A>> SubtractT<NUM,  A>(this OptionUnsafe<Seq<A>> x, OptionUnsafe<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -49563,7 +49563,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionUnsafe<Seq<A>> ProductT<NUM,  A>(this OptionUnsafe<Seq<A>> x, OptionUnsafe<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Seq<A>> ProductT<NUM,  A>(this OptionUnsafe<Seq<A>> x, OptionUnsafe<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -49575,7 +49575,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionUnsafe<Seq<A>> DivideT<NUM,  A>(this OptionUnsafe<Seq<A>> x, OptionUnsafe<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Seq<A>> DivideT<NUM,  A>(this OptionUnsafe<Seq<A>> x, OptionUnsafe<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -49587,7 +49587,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionUnsafe<Seq<A>> AppendT<SEMI,  A>(this OptionUnsafe<Seq<A>> x, OptionUnsafe<Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionUnsafe<Seq<A>> AppendT<SEMI,  A>(this OptionUnsafe<Seq<A>> x, OptionUnsafe<Seq<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -49599,7 +49599,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this OptionUnsafe<Seq<A>> x, OptionUnsafe<Seq<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this OptionUnsafe<Seq<A>> x, OptionUnsafe<Seq<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -49611,7 +49611,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Seq<A>> x, OptionUnsafe<Seq<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Seq<A>> x, OptionUnsafe<Seq<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -49706,7 +49706,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Either&lt;L, Seq&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Either<L, Seq<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEither<L, Seq<A>>, Either<L, Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -49853,7 +49853,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Either<L, Seq<A>> PlusT<NUM, L, A>(this Either<L, Seq<A>> x, Either<L, Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Seq<A>> PlusT<NUM, L, A>(this Either<L, Seq<A>> x, Either<L, Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -49865,7 +49865,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Either<L, Seq<A>> SubtractT<NUM, L, A>(this Either<L, Seq<A>> x, Either<L, Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Seq<A>> SubtractT<NUM, L, A>(this Either<L, Seq<A>> x, Either<L, Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -49877,7 +49877,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Either<L, Seq<A>> ProductT<NUM, L, A>(this Either<L, Seq<A>> x, Either<L, Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Seq<A>> ProductT<NUM, L, A>(this Either<L, Seq<A>> x, Either<L, Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -49889,7 +49889,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Either<L, Seq<A>> DivideT<NUM, L, A>(this Either<L, Seq<A>> x, Either<L, Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Seq<A>> DivideT<NUM, L, A>(this Either<L, Seq<A>> x, Either<L, Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -49901,7 +49901,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Either<L, Seq<A>> AppendT<SEMI, L, A>(this Either<L, Seq<A>> x, Either<L, Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Either<L, Seq<A>> AppendT<SEMI, L, A>(this Either<L, Seq<A>> x, Either<L, Seq<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -49913,7 +49913,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Either<L, Seq<A>> x, Either<L, Seq<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Either<L, Seq<A>> x, Either<L, Seq<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -49925,7 +49925,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Either<L, Seq<A>> x, Either<L, Seq<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Either<L, Seq<A>> x, Either<L, Seq<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -50020,7 +50020,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, Seq&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this EitherUnsafe<L, Seq<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEitherUnsafe<L, Seq<A>>, EitherUnsafe<L, Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -50167,7 +50167,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherUnsafe<L, Seq<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Seq<A>> x, EitherUnsafe<L, Seq<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Seq<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Seq<A>> x, EitherUnsafe<L, Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -50179,7 +50179,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherUnsafe<L, Seq<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Seq<A>> x, EitherUnsafe<L, Seq<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Seq<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Seq<A>> x, EitherUnsafe<L, Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -50191,7 +50191,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Seq<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Seq<A>> x, EitherUnsafe<L, Seq<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Seq<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Seq<A>> x, EitherUnsafe<L, Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -50203,7 +50203,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Seq<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Seq<A>> x, EitherUnsafe<L, Seq<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Seq<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Seq<A>> x, EitherUnsafe<L, Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -50215,7 +50215,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Seq<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Seq<A>> x, EitherUnsafe<L, Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherUnsafe<L, Seq<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Seq<A>> x, EitherUnsafe<L, Seq<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -50227,7 +50227,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Seq<A>> x, EitherUnsafe<L, Seq<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Seq<A>> x, EitherUnsafe<L, Seq<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -50239,7 +50239,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Seq<A>> x, EitherUnsafe<L, Seq<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Seq<A>> x, EitherUnsafe<L, Seq<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -50334,7 +50334,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Try&lt;Seq&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Try<Seq<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTry<Seq<A>>, Try<Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -50481,7 +50481,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Try<Seq<A>> PlusT<NUM,  A>(this Try<Seq<A>> x, Try<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Seq<A>> PlusT<NUM,  A>(this Try<Seq<A>> x, Try<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -50493,7 +50493,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Try<Seq<A>> SubtractT<NUM,  A>(this Try<Seq<A>> x, Try<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Seq<A>> SubtractT<NUM,  A>(this Try<Seq<A>> x, Try<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -50505,7 +50505,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Try<Seq<A>> ProductT<NUM,  A>(this Try<Seq<A>> x, Try<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Seq<A>> ProductT<NUM,  A>(this Try<Seq<A>> x, Try<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -50517,7 +50517,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Try<Seq<A>> DivideT<NUM,  A>(this Try<Seq<A>> x, Try<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Seq<A>> DivideT<NUM,  A>(this Try<Seq<A>> x, Try<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -50529,7 +50529,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Try<Seq<A>> AppendT<SEMI,  A>(this Try<Seq<A>> x, Try<Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Try<Seq<A>> AppendT<SEMI,  A>(this Try<Seq<A>> x, Try<Seq<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -50541,7 +50541,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Try<Seq<A>> x, Try<Seq<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Try<Seq<A>> x, Try<Seq<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -50553,7 +50553,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Try<Seq<A>> x, Try<Seq<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Try<Seq<A>> x, Try<Seq<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -50648,7 +50648,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOption&lt;Seq&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this TryOption<Seq<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTryOption<Seq<A>>, TryOption<Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -50795,7 +50795,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOption<Seq<A>> PlusT<NUM,  A>(this TryOption<Seq<A>> x, TryOption<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Seq<A>> PlusT<NUM,  A>(this TryOption<Seq<A>> x, TryOption<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -50807,7 +50807,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOption<Seq<A>> SubtractT<NUM,  A>(this TryOption<Seq<A>> x, TryOption<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Seq<A>> SubtractT<NUM,  A>(this TryOption<Seq<A>> x, TryOption<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -50819,7 +50819,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOption<Seq<A>> ProductT<NUM,  A>(this TryOption<Seq<A>> x, TryOption<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Seq<A>> ProductT<NUM,  A>(this TryOption<Seq<A>> x, TryOption<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -50831,7 +50831,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOption<Seq<A>> DivideT<NUM,  A>(this TryOption<Seq<A>> x, TryOption<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Seq<A>> DivideT<NUM,  A>(this TryOption<Seq<A>> x, TryOption<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -50843,7 +50843,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOption<Seq<A>> AppendT<SEMI,  A>(this TryOption<Seq<A>> x, TryOption<Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOption<Seq<A>> AppendT<SEMI,  A>(this TryOption<Seq<A>> x, TryOption<Seq<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -50855,7 +50855,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this TryOption<Seq<A>> x, TryOption<Seq<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this TryOption<Seq<A>> x, TryOption<Seq<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -50867,7 +50867,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this TryOption<Seq<A>> x, TryOption<Seq<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this TryOption<Seq<A>> x, TryOption<Seq<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -50962,7 +50962,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;Seq&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this IEnumerable<Seq<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MEnumerable<Seq<A>>, IEnumerable<Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -51109,7 +51109,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static IEnumerable<Seq<A>> PlusT<NUM,  A>(this IEnumerable<Seq<A>> x, IEnumerable<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Seq<A>> PlusT<NUM,  A>(this IEnumerable<Seq<A>> x, IEnumerable<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -51121,7 +51121,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static IEnumerable<Seq<A>> SubtractT<NUM,  A>(this IEnumerable<Seq<A>> x, IEnumerable<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Seq<A>> SubtractT<NUM,  A>(this IEnumerable<Seq<A>> x, IEnumerable<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -51133,7 +51133,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static IEnumerable<Seq<A>> ProductT<NUM,  A>(this IEnumerable<Seq<A>> x, IEnumerable<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Seq<A>> ProductT<NUM,  A>(this IEnumerable<Seq<A>> x, IEnumerable<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -51145,7 +51145,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static IEnumerable<Seq<A>> DivideT<NUM,  A>(this IEnumerable<Seq<A>> x, IEnumerable<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Seq<A>> DivideT<NUM,  A>(this IEnumerable<Seq<A>> x, IEnumerable<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -51157,7 +51157,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static IEnumerable<Seq<A>> AppendT<SEMI,  A>(this IEnumerable<Seq<A>> x, IEnumerable<Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static IEnumerable<Seq<A>> AppendT<SEMI,  A>(this IEnumerable<Seq<A>> x, IEnumerable<Seq<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -51169,7 +51169,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this IEnumerable<Seq<A>> x, IEnumerable<Seq<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this IEnumerable<Seq<A>> x, IEnumerable<Seq<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -51181,7 +51181,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this IEnumerable<Seq<A>> x, IEnumerable<Seq<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this IEnumerable<Seq<A>> x, IEnumerable<Seq<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -51276,7 +51276,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Seq&lt;Seq&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Seq<Seq<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSeq<Seq<A>>, Seq<Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -51423,7 +51423,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Seq<Seq<A>> PlusT<NUM,  A>(this Seq<Seq<A>> x, Seq<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Seq<A>> PlusT<NUM,  A>(this Seq<Seq<A>> x, Seq<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -51435,7 +51435,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Seq<Seq<A>> SubtractT<NUM,  A>(this Seq<Seq<A>> x, Seq<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Seq<A>> SubtractT<NUM,  A>(this Seq<Seq<A>> x, Seq<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -51447,7 +51447,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Seq<Seq<A>> ProductT<NUM,  A>(this Seq<Seq<A>> x, Seq<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Seq<A>> ProductT<NUM,  A>(this Seq<Seq<A>> x, Seq<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -51459,7 +51459,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Seq<Seq<A>> DivideT<NUM,  A>(this Seq<Seq<A>> x, Seq<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Seq<A>> DivideT<NUM,  A>(this Seq<Seq<A>> x, Seq<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -51471,7 +51471,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Seq<Seq<A>> AppendT<SEMI,  A>(this Seq<Seq<A>> x, Seq<Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Seq<Seq<A>> AppendT<SEMI,  A>(this Seq<Seq<A>> x, Seq<Seq<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -51483,7 +51483,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Seq<Seq<A>> x, Seq<Seq<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Seq<Seq<A>> x, Seq<Seq<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -51495,7 +51495,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Seq<Seq<A>> x, Seq<Seq<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Seq<Seq<A>> x, Seq<Seq<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -51590,7 +51590,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Set&lt;Seq&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Set<Seq<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSet<Seq<A>>, Set<Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -51737,7 +51737,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Set<Seq<A>> PlusT<NUM,  A>(this Set<Seq<A>> x, Set<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Seq<A>> PlusT<NUM,  A>(this Set<Seq<A>> x, Set<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -51749,7 +51749,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Set<Seq<A>> SubtractT<NUM,  A>(this Set<Seq<A>> x, Set<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Seq<A>> SubtractT<NUM,  A>(this Set<Seq<A>> x, Set<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -51761,7 +51761,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Set<Seq<A>> ProductT<NUM,  A>(this Set<Seq<A>> x, Set<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Seq<A>> ProductT<NUM,  A>(this Set<Seq<A>> x, Set<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -51773,7 +51773,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Set<Seq<A>> DivideT<NUM,  A>(this Set<Seq<A>> x, Set<Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Seq<A>> DivideT<NUM,  A>(this Set<Seq<A>> x, Set<Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -51785,7 +51785,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Set<Seq<A>> AppendT<SEMI,  A>(this Set<Seq<A>> x, Set<Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Set<Seq<A>> AppendT<SEMI,  A>(this Set<Seq<A>> x, Set<Seq<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -51797,7 +51797,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Set<Seq<A>> x, Set<Seq<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Set<Seq<A>> x, Set<Seq<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -51809,7 +51809,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Set<Seq<A>> x, Set<Seq<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Set<Seq<A>> x, Set<Seq<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -51904,7 +51904,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, Seq&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Validation<FAIL, Seq<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MValidation<FAIL, Seq<A>>, Validation<FAIL, Seq<A>>, MSeq<A>, Seq<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -52051,7 +52051,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Seq&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Validation<FAIL, Seq<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Seq<A>> x, Validation<FAIL, Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Seq<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Seq<A>> x, Validation<FAIL, Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -52063,7 +52063,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Seq&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Validation<FAIL, Seq<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Seq<A>> x, Validation<FAIL, Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Seq<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Seq<A>> x, Validation<FAIL, Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -52075,7 +52075,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Seq&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Validation<FAIL, Seq<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Seq<A>> x, Validation<FAIL, Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Seq<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Seq<A>> x, Validation<FAIL, Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -52087,7 +52087,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Seq&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Validation<FAIL, Seq<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Seq<A>> x, Validation<FAIL, Seq<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Seq<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Seq<A>> x, Validation<FAIL, Seq<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -52099,7 +52099,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Seq&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Validation<FAIL, Seq<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Seq<A>> x, Validation<FAIL, Seq<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Validation<FAIL, Seq<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Seq<A>> x, Validation<FAIL, Seq<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -52111,7 +52111,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Seq<A>> x, Validation<FAIL, Seq<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Seq<A>> x, Validation<FAIL, Seq<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -52123,7 +52123,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Seq&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Seq<A>> x, Validation<FAIL, Seq<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Seq<A>> x, Validation<FAIL, Seq<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -52226,7 +52226,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Arr&lt;Set&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Arr<Set<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MArr<Set<A>>, Arr<Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -52373,7 +52373,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Arr<Set<A>> PlusT<NUM,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Set<A>> PlusT<NUM,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -52385,7 +52385,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Arr<Set<A>> SubtractT<NUM,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Set<A>> SubtractT<NUM,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -52397,7 +52397,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Arr<Set<A>> ProductT<NUM,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Set<A>> ProductT<NUM,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -52409,7 +52409,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Arr<Set<A>> DivideT<NUM,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Set<A>> DivideT<NUM,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -52421,7 +52421,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Arr<Set<A>> AppendT<SEMI,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Arr<Set<A>> AppendT<SEMI,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -52433,7 +52433,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -52445,7 +52445,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Arr<Set<A>> x, Arr<Set<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -52540,7 +52540,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `HashSet&lt;Set&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this HashSet<Set<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MHashSet<Set<A>>, HashSet<Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -52687,7 +52687,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static HashSet<Set<A>> PlusT<NUM,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Set<A>> PlusT<NUM,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -52699,7 +52699,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static HashSet<Set<A>> SubtractT<NUM,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Set<A>> SubtractT<NUM,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -52711,7 +52711,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static HashSet<Set<A>> ProductT<NUM,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Set<A>> ProductT<NUM,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -52723,7 +52723,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static HashSet<Set<A>> DivideT<NUM,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Set<A>> DivideT<NUM,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -52735,7 +52735,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static HashSet<Set<A>> AppendT<SEMI,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static HashSet<Set<A>> AppendT<SEMI,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -52747,7 +52747,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -52759,7 +52759,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this HashSet<Set<A>> x, HashSet<Set<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -52854,7 +52854,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Lst&lt;Set&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Lst<Set<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MLst<Set<A>>, Lst<Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -53001,7 +53001,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Lst<Set<A>> PlusT<NUM,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Set<A>> PlusT<NUM,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -53013,7 +53013,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Lst<Set<A>> SubtractT<NUM,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Set<A>> SubtractT<NUM,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -53025,7 +53025,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Lst<Set<A>> ProductT<NUM,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Set<A>> ProductT<NUM,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -53037,7 +53037,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Lst<Set<A>> DivideT<NUM,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Set<A>> DivideT<NUM,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -53049,7 +53049,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Lst<Set<A>> AppendT<SEMI,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Lst<Set<A>> AppendT<SEMI,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -53061,7 +53061,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -53073,7 +53073,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Lst<Set<A>> x, Lst<Set<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -53168,7 +53168,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Fin&lt;Set&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Fin<Set<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MFin<Set<A>>, Fin<Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -53315,7 +53315,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Fin<Set<A>> PlusT<NUM,  A>(this Fin<Set<A>> x, Fin<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Set<A>> PlusT<NUM,  A>(this Fin<Set<A>> x, Fin<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -53327,7 +53327,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Fin<Set<A>> SubtractT<NUM,  A>(this Fin<Set<A>> x, Fin<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Set<A>> SubtractT<NUM,  A>(this Fin<Set<A>> x, Fin<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -53339,7 +53339,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Fin<Set<A>> ProductT<NUM,  A>(this Fin<Set<A>> x, Fin<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Set<A>> ProductT<NUM,  A>(this Fin<Set<A>> x, Fin<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -53351,7 +53351,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Fin<Set<A>> DivideT<NUM,  A>(this Fin<Set<A>> x, Fin<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Set<A>> DivideT<NUM,  A>(this Fin<Set<A>> x, Fin<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -53363,7 +53363,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Fin<Set<A>> AppendT<SEMI,  A>(this Fin<Set<A>> x, Fin<Set<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Fin<Set<A>> AppendT<SEMI,  A>(this Fin<Set<A>> x, Fin<Set<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -53375,7 +53375,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Fin<Set<A>> x, Fin<Set<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Fin<Set<A>> x, Fin<Set<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -53387,7 +53387,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Fin<Set<A>> x, Fin<Set<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Fin<Set<A>> x, Fin<Set<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -53482,7 +53482,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Option&lt;Set&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Option<Set<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOption<Set<A>>, Option<Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -53629,7 +53629,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Option<Set<A>> PlusT<NUM,  A>(this Option<Set<A>> x, Option<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Set<A>> PlusT<NUM,  A>(this Option<Set<A>> x, Option<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -53641,7 +53641,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Option<Set<A>> SubtractT<NUM,  A>(this Option<Set<A>> x, Option<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Set<A>> SubtractT<NUM,  A>(this Option<Set<A>> x, Option<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -53653,7 +53653,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Option<Set<A>> ProductT<NUM,  A>(this Option<Set<A>> x, Option<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Set<A>> ProductT<NUM,  A>(this Option<Set<A>> x, Option<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -53665,7 +53665,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Option<Set<A>> DivideT<NUM,  A>(this Option<Set<A>> x, Option<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Option<Set<A>> DivideT<NUM,  A>(this Option<Set<A>> x, Option<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -53677,7 +53677,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Option<Set<A>> AppendT<SEMI,  A>(this Option<Set<A>> x, Option<Set<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Option<Set<A>> AppendT<SEMI,  A>(this Option<Set<A>> x, Option<Set<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -53689,7 +53689,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Option<Set<A>> x, Option<Set<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Option<Set<A>> x, Option<Set<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -53701,7 +53701,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Option<Set<A>> x, Option<Set<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Option<Set<A>> x, Option<Set<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -53796,7 +53796,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;Set&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this OptionUnsafe<Set<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOptionUnsafe<Set<A>>, OptionUnsafe<Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -53943,7 +53943,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionUnsafe<Set<A>> PlusT<NUM,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Set<A>> PlusT<NUM,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -53955,7 +53955,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionUnsafe<Set<A>> SubtractT<NUM,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Set<A>> SubtractT<NUM,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -53967,7 +53967,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionUnsafe<Set<A>> ProductT<NUM,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Set<A>> ProductT<NUM,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -53979,7 +53979,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionUnsafe<Set<A>> DivideT<NUM,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Set<A>> DivideT<NUM,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -53991,7 +53991,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionUnsafe<Set<A>> AppendT<SEMI,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionUnsafe<Set<A>> AppendT<SEMI,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -54003,7 +54003,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -54015,7 +54015,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this OptionUnsafe<Set<A>> x, OptionUnsafe<Set<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -54110,7 +54110,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Either&lt;L, Set&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this Either<L, Set<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEither<L, Set<A>>, Either<L, Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -54257,7 +54257,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Either<L, Set<A>> PlusT<NUM, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Set<A>> PlusT<NUM, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -54269,7 +54269,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Either<L, Set<A>> SubtractT<NUM, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Set<A>> SubtractT<NUM, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -54281,7 +54281,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Either<L, Set<A>> ProductT<NUM, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Set<A>> ProductT<NUM, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -54293,7 +54293,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Either<L, Set<A>> DivideT<NUM, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Set<A>> DivideT<NUM, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -54305,7 +54305,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Either<L, Set<A>> AppendT<SEMI, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Either<L, Set<A>> AppendT<SEMI, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -54317,7 +54317,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -54329,7 +54329,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this Either<L, Set<A>> x, Either<L, Set<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -54424,7 +54424,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, Set&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, A>(this EitherUnsafe<L, Set<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEitherUnsafe<L, Set<A>>, EitherUnsafe<L, Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -54571,7 +54571,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherUnsafe<L, Set<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Set<A>> PlusT<NUM, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -54583,7 +54583,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherUnsafe<L, Set<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Set<A>> SubtractT<NUM, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -54595,7 +54595,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Set<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Set<A>> ProductT<NUM, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -54607,7 +54607,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Set<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Set<A>> DivideT<NUM, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -54619,7 +54619,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Set<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherUnsafe<L, Set<A>> AppendT<SEMI, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -54631,7 +54631,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -54643,7 +54643,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, A>(this EitherUnsafe<L, Set<A>> x, EitherUnsafe<L, Set<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -54738,7 +54738,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Try&lt;Set&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Try<Set<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTry<Set<A>>, Try<Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -54885,7 +54885,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Try<Set<A>> PlusT<NUM,  A>(this Try<Set<A>> x, Try<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Set<A>> PlusT<NUM,  A>(this Try<Set<A>> x, Try<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -54897,7 +54897,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Try<Set<A>> SubtractT<NUM,  A>(this Try<Set<A>> x, Try<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Set<A>> SubtractT<NUM,  A>(this Try<Set<A>> x, Try<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -54909,7 +54909,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Try<Set<A>> ProductT<NUM,  A>(this Try<Set<A>> x, Try<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Set<A>> ProductT<NUM,  A>(this Try<Set<A>> x, Try<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -54921,7 +54921,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Try<Set<A>> DivideT<NUM,  A>(this Try<Set<A>> x, Try<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Try<Set<A>> DivideT<NUM,  A>(this Try<Set<A>> x, Try<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -54933,7 +54933,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Try<Set<A>> AppendT<SEMI,  A>(this Try<Set<A>> x, Try<Set<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Try<Set<A>> AppendT<SEMI,  A>(this Try<Set<A>> x, Try<Set<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -54945,7 +54945,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Try<Set<A>> x, Try<Set<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Try<Set<A>> x, Try<Set<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -54957,7 +54957,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Try<Set<A>> x, Try<Set<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Try<Set<A>> x, Try<Set<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -55052,7 +55052,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOption&lt;Set&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this TryOption<Set<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTryOption<Set<A>>, TryOption<Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -55199,7 +55199,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOption<Set<A>> PlusT<NUM,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Set<A>> PlusT<NUM,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -55211,7 +55211,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOption<Set<A>> SubtractT<NUM,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Set<A>> SubtractT<NUM,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -55223,7 +55223,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOption<Set<A>> ProductT<NUM,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Set<A>> ProductT<NUM,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -55235,7 +55235,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOption<Set<A>> DivideT<NUM,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Set<A>> DivideT<NUM,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -55247,7 +55247,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOption<Set<A>> AppendT<SEMI,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOption<Set<A>> AppendT<SEMI,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -55259,7 +55259,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -55271,7 +55271,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this TryOption<Set<A>> x, TryOption<Set<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -55366,7 +55366,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;Set&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this IEnumerable<Set<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MEnumerable<Set<A>>, IEnumerable<Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -55513,7 +55513,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static IEnumerable<Set<A>> PlusT<NUM,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Set<A>> PlusT<NUM,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -55525,7 +55525,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static IEnumerable<Set<A>> SubtractT<NUM,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Set<A>> SubtractT<NUM,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -55537,7 +55537,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static IEnumerable<Set<A>> ProductT<NUM,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Set<A>> ProductT<NUM,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -55549,7 +55549,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static IEnumerable<Set<A>> DivideT<NUM,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Set<A>> DivideT<NUM,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -55561,7 +55561,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static IEnumerable<Set<A>> AppendT<SEMI,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static IEnumerable<Set<A>> AppendT<SEMI,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -55573,7 +55573,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -55585,7 +55585,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this IEnumerable<Set<A>> x, IEnumerable<Set<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -55680,7 +55680,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Seq&lt;Set&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Seq<Set<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSeq<Set<A>>, Seq<Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -55827,7 +55827,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Seq<Set<A>> PlusT<NUM,  A>(this Seq<Set<A>> x, Seq<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Set<A>> PlusT<NUM,  A>(this Seq<Set<A>> x, Seq<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -55839,7 +55839,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Seq<Set<A>> SubtractT<NUM,  A>(this Seq<Set<A>> x, Seq<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Set<A>> SubtractT<NUM,  A>(this Seq<Set<A>> x, Seq<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -55851,7 +55851,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Seq<Set<A>> ProductT<NUM,  A>(this Seq<Set<A>> x, Seq<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Set<A>> ProductT<NUM,  A>(this Seq<Set<A>> x, Seq<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -55863,7 +55863,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Seq<Set<A>> DivideT<NUM,  A>(this Seq<Set<A>> x, Seq<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Set<A>> DivideT<NUM,  A>(this Seq<Set<A>> x, Seq<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -55875,7 +55875,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Seq<Set<A>> AppendT<SEMI,  A>(this Seq<Set<A>> x, Seq<Set<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Seq<Set<A>> AppendT<SEMI,  A>(this Seq<Set<A>> x, Seq<Set<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -55887,7 +55887,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Seq<Set<A>> x, Seq<Set<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Seq<Set<A>> x, Seq<Set<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -55899,7 +55899,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Seq<Set<A>> x, Seq<Set<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Seq<Set<A>> x, Seq<Set<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -55994,7 +55994,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Set&lt;Set&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA,  A>(this Set<Set<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSet<Set<A>>, Set<Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -56141,7 +56141,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Set<Set<A>> PlusT<NUM,  A>(this Set<Set<A>> x, Set<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Set<A>> PlusT<NUM,  A>(this Set<Set<A>> x, Set<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -56153,7 +56153,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Set<Set<A>> SubtractT<NUM,  A>(this Set<Set<A>> x, Set<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Set<A>> SubtractT<NUM,  A>(this Set<Set<A>> x, Set<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -56165,7 +56165,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Set<Set<A>> ProductT<NUM,  A>(this Set<Set<A>> x, Set<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Set<A>> ProductT<NUM,  A>(this Set<Set<A>> x, Set<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -56177,7 +56177,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Set<Set<A>> DivideT<NUM,  A>(this Set<Set<A>> x, Set<Set<A>> y) where NUM : struct, Num<A> =>
+        public static Set<Set<A>> DivideT<NUM,  A>(this Set<Set<A>> x, Set<Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -56189,7 +56189,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Set<Set<A>> AppendT<SEMI,  A>(this Set<Set<A>> x, Set<Set<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Set<Set<A>> AppendT<SEMI,  A>(this Set<Set<A>> x, Set<Set<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -56201,7 +56201,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD,  A>(this Set<Set<A>> x, Set<Set<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD,  A>(this Set<Set<A>> x, Set<Set<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -56213,7 +56213,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ,  A>(this Set<Set<A>> x, Set<Set<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ,  A>(this Set<Set<A>> x, Set<Set<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -56308,7 +56308,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, Set&lt;A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Validation<FAIL, Set<A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MValidation<FAIL, Set<A>>, Validation<FAIL, Set<A>>, MSet<A>, Set<A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -56455,7 +56455,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Set&lt;A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Validation<FAIL, Set<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Set<A>> x, Validation<FAIL, Set<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Set<A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Set<A>> x, Validation<FAIL, Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -56467,7 +56467,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Set&lt;A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Validation<FAIL, Set<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Set<A>> x, Validation<FAIL, Set<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Set<A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Set<A>> x, Validation<FAIL, Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -56479,7 +56479,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Set&lt;A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Validation<FAIL, Set<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Set<A>> x, Validation<FAIL, Set<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Set<A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Set<A>> x, Validation<FAIL, Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -56491,7 +56491,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Set&lt;A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Validation<FAIL, Set<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Set<A>> x, Validation<FAIL, Set<A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Set<A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Set<A>> x, Validation<FAIL, Set<A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -56503,7 +56503,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Set&lt;A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Validation<FAIL, Set<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Set<A>> x, Validation<FAIL, Set<A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Validation<FAIL, Set<A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Set<A>> x, Validation<FAIL, Set<A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -56515,7 +56515,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Set<A>> x, Validation<FAIL, Set<A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Set<A>> x, Validation<FAIL, Set<A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -56527,7 +56527,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Set&lt;A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Set<A>> x, Validation<FAIL, Set<A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Set<A>> x, Validation<FAIL, Set<A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -56630,7 +56630,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Arr&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Arr<Validation<FAIL, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MArr<Validation<FAIL, A>>, Arr<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -56777,7 +56777,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Arr<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Arr<Validation<FAIL, A>> x, Arr<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Arr<Validation<FAIL, A>> x, Arr<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -56789,7 +56789,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Arr<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Arr<Validation<FAIL, A>> x, Arr<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Arr<Validation<FAIL, A>> x, Arr<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -56801,7 +56801,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Arr<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Arr<Validation<FAIL, A>> x, Arr<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Arr<Validation<FAIL, A>> x, Arr<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -56813,7 +56813,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Arr<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Arr<Validation<FAIL, A>> x, Arr<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Arr<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Arr<Validation<FAIL, A>> x, Arr<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -56825,7 +56825,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Arr<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Arr<Validation<FAIL, A>> x, Arr<Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Arr<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Arr<Validation<FAIL, A>> x, Arr<Validation<FAIL, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -56837,7 +56837,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Arr<Validation<FAIL, A>> x, Arr<Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Arr<Validation<FAIL, A>> x, Arr<Validation<FAIL, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -56849,7 +56849,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Arr&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Arr<Validation<FAIL, A>> x, Arr<Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Arr<Validation<FAIL, A>> x, Arr<Validation<FAIL, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -56944,7 +56944,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `HashSet&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this HashSet<Validation<FAIL, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MHashSet<Validation<FAIL, A>>, HashSet<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -57091,7 +57091,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static HashSet<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this HashSet<Validation<FAIL, A>> x, HashSet<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this HashSet<Validation<FAIL, A>> x, HashSet<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -57103,7 +57103,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static HashSet<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this HashSet<Validation<FAIL, A>> x, HashSet<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this HashSet<Validation<FAIL, A>> x, HashSet<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -57115,7 +57115,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static HashSet<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this HashSet<Validation<FAIL, A>> x, HashSet<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this HashSet<Validation<FAIL, A>> x, HashSet<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -57127,7 +57127,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static HashSet<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this HashSet<Validation<FAIL, A>> x, HashSet<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static HashSet<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this HashSet<Validation<FAIL, A>> x, HashSet<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -57139,7 +57139,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static HashSet<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this HashSet<Validation<FAIL, A>> x, HashSet<Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static HashSet<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this HashSet<Validation<FAIL, A>> x, HashSet<Validation<FAIL, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -57151,7 +57151,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this HashSet<Validation<FAIL, A>> x, HashSet<Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this HashSet<Validation<FAIL, A>> x, HashSet<Validation<FAIL, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -57163,7 +57163,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`HashSet&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this HashSet<Validation<FAIL, A>> x, HashSet<Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this HashSet<Validation<FAIL, A>> x, HashSet<Validation<FAIL, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -57258,7 +57258,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Lst&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Lst<Validation<FAIL, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MLst<Validation<FAIL, A>>, Lst<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -57405,7 +57405,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Lst<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Lst<Validation<FAIL, A>> x, Lst<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Lst<Validation<FAIL, A>> x, Lst<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -57417,7 +57417,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Lst<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Lst<Validation<FAIL, A>> x, Lst<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Lst<Validation<FAIL, A>> x, Lst<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -57429,7 +57429,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Lst<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Lst<Validation<FAIL, A>> x, Lst<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Lst<Validation<FAIL, A>> x, Lst<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -57441,7 +57441,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Lst<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Lst<Validation<FAIL, A>> x, Lst<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Lst<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Lst<Validation<FAIL, A>> x, Lst<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -57453,7 +57453,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Lst<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Lst<Validation<FAIL, A>> x, Lst<Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Lst<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Lst<Validation<FAIL, A>> x, Lst<Validation<FAIL, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -57465,7 +57465,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Lst<Validation<FAIL, A>> x, Lst<Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Lst<Validation<FAIL, A>> x, Lst<Validation<FAIL, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -57477,7 +57477,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Lst&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Lst<Validation<FAIL, A>> x, Lst<Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Lst<Validation<FAIL, A>> x, Lst<Validation<FAIL, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -57572,7 +57572,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Fin&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Fin<Validation<FAIL, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MFin<Validation<FAIL, A>>, Fin<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -57719,7 +57719,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Fin<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -57731,7 +57731,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Fin<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -57743,7 +57743,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Fin<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -57755,7 +57755,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Fin<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Fin<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -57767,7 +57767,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Fin<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Fin<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -57779,7 +57779,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -57791,7 +57791,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Fin&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Fin<Validation<FAIL, A>> x, Fin<Validation<FAIL, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -57886,7 +57886,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Option&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Option<Validation<FAIL, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOption<Validation<FAIL, A>>, Option<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -58033,7 +58033,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Option<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Option<Validation<FAIL, A>> x, Option<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Option<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Option<Validation<FAIL, A>> x, Option<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -58045,7 +58045,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Option<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Option<Validation<FAIL, A>> x, Option<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Option<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Option<Validation<FAIL, A>> x, Option<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -58057,7 +58057,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Option<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Option<Validation<FAIL, A>> x, Option<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Option<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Option<Validation<FAIL, A>> x, Option<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -58069,7 +58069,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Option<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Option<Validation<FAIL, A>> x, Option<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Option<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Option<Validation<FAIL, A>> x, Option<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -58081,7 +58081,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Option<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Option<Validation<FAIL, A>> x, Option<Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Option<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Option<Validation<FAIL, A>> x, Option<Validation<FAIL, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -58093,7 +58093,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Option<Validation<FAIL, A>> x, Option<Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Option<Validation<FAIL, A>> x, Option<Validation<FAIL, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -58105,7 +58105,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Option&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Option<Validation<FAIL, A>> x, Option<Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Option<Validation<FAIL, A>> x, Option<Validation<FAIL, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -58200,7 +58200,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `OptionUnsafe&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MOptionUnsafe<Validation<FAIL, A>>, OptionUnsafe<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -58347,7 +58347,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static OptionUnsafe<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> x, OptionUnsafe<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> x, OptionUnsafe<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -58359,7 +58359,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static OptionUnsafe<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> x, OptionUnsafe<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> x, OptionUnsafe<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -58371,7 +58371,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static OptionUnsafe<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> x, OptionUnsafe<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> x, OptionUnsafe<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -58383,7 +58383,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static OptionUnsafe<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> x, OptionUnsafe<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static OptionUnsafe<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> x, OptionUnsafe<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -58395,7 +58395,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static OptionUnsafe<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> x, OptionUnsafe<Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static OptionUnsafe<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> x, OptionUnsafe<Validation<FAIL, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -58407,7 +58407,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> x, OptionUnsafe<Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> x, OptionUnsafe<Validation<FAIL, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -58419,7 +58419,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`OptionUnsafe&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> x, OptionUnsafe<Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this OptionUnsafe<Validation<FAIL, A>> x, OptionUnsafe<Validation<FAIL, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -58514,7 +58514,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Either&lt;L, Validation&lt;FAIL, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, FAIL, A>(this Either<L, Validation<FAIL, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEither<L, Validation<FAIL, A>>, Either<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -58661,7 +58661,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Either<L, Validation<FAIL, A>> PlusT<NUM, L, FAIL, A>(this Either<L, Validation<FAIL, A>> x, Either<L, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Validation<FAIL, A>> PlusT<NUM, L, FAIL, A>(this Either<L, Validation<FAIL, A>> x, Either<L, Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -58673,7 +58673,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Either<L, Validation<FAIL, A>> SubtractT<NUM, L, FAIL, A>(this Either<L, Validation<FAIL, A>> x, Either<L, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Validation<FAIL, A>> SubtractT<NUM, L, FAIL, A>(this Either<L, Validation<FAIL, A>> x, Either<L, Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -58685,7 +58685,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Either<L, Validation<FAIL, A>> ProductT<NUM, L, FAIL, A>(this Either<L, Validation<FAIL, A>> x, Either<L, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Validation<FAIL, A>> ProductT<NUM, L, FAIL, A>(this Either<L, Validation<FAIL, A>> x, Either<L, Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -58697,7 +58697,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Either<L, Validation<FAIL, A>> DivideT<NUM, L, FAIL, A>(this Either<L, Validation<FAIL, A>> x, Either<L, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Either<L, Validation<FAIL, A>> DivideT<NUM, L, FAIL, A>(this Either<L, Validation<FAIL, A>> x, Either<L, Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -58709,7 +58709,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Either<L, Validation<FAIL, A>> AppendT<SEMI, L, FAIL, A>(this Either<L, Validation<FAIL, A>> x, Either<L, Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Either<L, Validation<FAIL, A>> AppendT<SEMI, L, FAIL, A>(this Either<L, Validation<FAIL, A>> x, Either<L, Validation<FAIL, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -58721,7 +58721,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, FAIL, A>(this Either<L, Validation<FAIL, A>> x, Either<L, Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, FAIL, A>(this Either<L, Validation<FAIL, A>> x, Either<L, Validation<FAIL, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -58733,7 +58733,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Either&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, FAIL, A>(this Either<L, Validation<FAIL, A>> x, Either<L, Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, FAIL, A>(this Either<L, Validation<FAIL, A>> x, Either<L, Validation<FAIL, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -58828,7 +58828,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `EitherUnsafe&lt;L, Validation&lt;FAIL, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MEitherUnsafe<L, Validation<FAIL, A>>, EitherUnsafe<L, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -58975,7 +58975,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static EitherUnsafe<L, Validation<FAIL, A>> PlusT<NUM, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> x, EitherUnsafe<L, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Validation<FAIL, A>> PlusT<NUM, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> x, EitherUnsafe<L, Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -58987,7 +58987,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static EitherUnsafe<L, Validation<FAIL, A>> SubtractT<NUM, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> x, EitherUnsafe<L, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Validation<FAIL, A>> SubtractT<NUM, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> x, EitherUnsafe<L, Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -58999,7 +58999,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Validation<FAIL, A>> ProductT<NUM, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> x, EitherUnsafe<L, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Validation<FAIL, A>> ProductT<NUM, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> x, EitherUnsafe<L, Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -59011,7 +59011,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Validation<FAIL, A>> DivideT<NUM, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> x, EitherUnsafe<L, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static EitherUnsafe<L, Validation<FAIL, A>> DivideT<NUM, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> x, EitherUnsafe<L, Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -59023,7 +59023,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static EitherUnsafe<L, Validation<FAIL, A>> AppendT<SEMI, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> x, EitherUnsafe<L, Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static EitherUnsafe<L, Validation<FAIL, A>> AppendT<SEMI, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> x, EitherUnsafe<L, Validation<FAIL, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -59035,7 +59035,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> x, EitherUnsafe<L, Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> x, EitherUnsafe<L, Validation<FAIL, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -59047,7 +59047,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`EitherUnsafe&lt;L, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> x, EitherUnsafe<L, Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, L, FAIL, A>(this EitherUnsafe<L, Validation<FAIL, A>> x, EitherUnsafe<L, Validation<FAIL, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -59142,7 +59142,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Try&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Try<Validation<FAIL, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTry<Validation<FAIL, A>>, Try<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -59289,7 +59289,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Try<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Try<Validation<FAIL, A>> x, Try<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Try<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Try<Validation<FAIL, A>> x, Try<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -59301,7 +59301,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Try<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Try<Validation<FAIL, A>> x, Try<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Try<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Try<Validation<FAIL, A>> x, Try<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -59313,7 +59313,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Try<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Try<Validation<FAIL, A>> x, Try<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Try<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Try<Validation<FAIL, A>> x, Try<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -59325,7 +59325,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Try<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Try<Validation<FAIL, A>> x, Try<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Try<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Try<Validation<FAIL, A>> x, Try<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -59337,7 +59337,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Try<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Try<Validation<FAIL, A>> x, Try<Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Try<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Try<Validation<FAIL, A>> x, Try<Validation<FAIL, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -59349,7 +59349,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Try<Validation<FAIL, A>> x, Try<Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Try<Validation<FAIL, A>> x, Try<Validation<FAIL, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -59361,7 +59361,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Try&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Try<Validation<FAIL, A>> x, Try<Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Try<Validation<FAIL, A>> x, Try<Validation<FAIL, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -59456,7 +59456,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `TryOption&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this TryOption<Validation<FAIL, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MTryOption<Validation<FAIL, A>>, TryOption<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -59603,7 +59603,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static TryOption<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this TryOption<Validation<FAIL, A>> x, TryOption<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this TryOption<Validation<FAIL, A>> x, TryOption<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -59615,7 +59615,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static TryOption<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this TryOption<Validation<FAIL, A>> x, TryOption<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this TryOption<Validation<FAIL, A>> x, TryOption<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -59627,7 +59627,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static TryOption<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this TryOption<Validation<FAIL, A>> x, TryOption<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this TryOption<Validation<FAIL, A>> x, TryOption<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -59639,7 +59639,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static TryOption<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this TryOption<Validation<FAIL, A>> x, TryOption<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static TryOption<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this TryOption<Validation<FAIL, A>> x, TryOption<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -59651,7 +59651,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static TryOption<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this TryOption<Validation<FAIL, A>> x, TryOption<Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static TryOption<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this TryOption<Validation<FAIL, A>> x, TryOption<Validation<FAIL, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -59663,7 +59663,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this TryOption<Validation<FAIL, A>> x, TryOption<Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this TryOption<Validation<FAIL, A>> x, TryOption<Validation<FAIL, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -59675,7 +59675,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`TryOption&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this TryOption<Validation<FAIL, A>> x, TryOption<Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this TryOption<Validation<FAIL, A>> x, TryOption<Validation<FAIL, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -59770,7 +59770,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `IEnumerable&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this IEnumerable<Validation<FAIL, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MEnumerable<Validation<FAIL, A>>, IEnumerable<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -59917,7 +59917,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static IEnumerable<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this IEnumerable<Validation<FAIL, A>> x, IEnumerable<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this IEnumerable<Validation<FAIL, A>> x, IEnumerable<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -59929,7 +59929,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static IEnumerable<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this IEnumerable<Validation<FAIL, A>> x, IEnumerable<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this IEnumerable<Validation<FAIL, A>> x, IEnumerable<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -59941,7 +59941,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static IEnumerable<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this IEnumerable<Validation<FAIL, A>> x, IEnumerable<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this IEnumerable<Validation<FAIL, A>> x, IEnumerable<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -59953,7 +59953,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static IEnumerable<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this IEnumerable<Validation<FAIL, A>> x, IEnumerable<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static IEnumerable<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this IEnumerable<Validation<FAIL, A>> x, IEnumerable<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -59965,7 +59965,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static IEnumerable<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this IEnumerable<Validation<FAIL, A>> x, IEnumerable<Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static IEnumerable<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this IEnumerable<Validation<FAIL, A>> x, IEnumerable<Validation<FAIL, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -59977,7 +59977,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this IEnumerable<Validation<FAIL, A>> x, IEnumerable<Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this IEnumerable<Validation<FAIL, A>> x, IEnumerable<Validation<FAIL, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -59989,7 +59989,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`IEnumerable&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this IEnumerable<Validation<FAIL, A>> x, IEnumerable<Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this IEnumerable<Validation<FAIL, A>> x, IEnumerable<Validation<FAIL, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -60084,7 +60084,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Seq&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Seq<Validation<FAIL, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSeq<Validation<FAIL, A>>, Seq<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -60231,7 +60231,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Seq<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Seq<Validation<FAIL, A>> x, Seq<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Seq<Validation<FAIL, A>> x, Seq<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -60243,7 +60243,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Seq<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Seq<Validation<FAIL, A>> x, Seq<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Seq<Validation<FAIL, A>> x, Seq<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -60255,7 +60255,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Seq<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Seq<Validation<FAIL, A>> x, Seq<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Seq<Validation<FAIL, A>> x, Seq<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -60267,7 +60267,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Seq<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Seq<Validation<FAIL, A>> x, Seq<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Seq<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Seq<Validation<FAIL, A>> x, Seq<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -60279,7 +60279,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Seq<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Seq<Validation<FAIL, A>> x, Seq<Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Seq<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Seq<Validation<FAIL, A>> x, Seq<Validation<FAIL, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -60291,7 +60291,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Seq<Validation<FAIL, A>> x, Seq<Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Seq<Validation<FAIL, A>> x, Seq<Validation<FAIL, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -60303,7 +60303,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Seq&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Seq<Validation<FAIL, A>> x, Seq<Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Seq<Validation<FAIL, A>> x, Seq<Validation<FAIL, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -60398,7 +60398,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Set&lt;Validation&lt;FAIL, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Set<Validation<FAIL, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 SeqTrans<MSet<Validation<FAIL, A>>, Set<Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -60545,7 +60545,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Set<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Set<Validation<FAIL, A>> x, Set<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Set<Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Set<Validation<FAIL, A>> x, Set<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -60557,7 +60557,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Set<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Set<Validation<FAIL, A>> x, Set<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Set<Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Set<Validation<FAIL, A>> x, Set<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -60569,7 +60569,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Set<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Set<Validation<FAIL, A>> x, Set<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Set<Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Set<Validation<FAIL, A>> x, Set<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -60581,7 +60581,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Set<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Set<Validation<FAIL, A>> x, Set<Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Set<Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Set<Validation<FAIL, A>> x, Set<Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -60593,7 +60593,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Set<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Set<Validation<FAIL, A>> x, Set<Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Set<Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Set<Validation<FAIL, A>> x, Set<Validation<FAIL, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -60605,7 +60605,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Set<Validation<FAIL, A>> x, Set<Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Set<Validation<FAIL, A>> x, Set<Validation<FAIL, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -60617,7 +60617,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Set&lt;Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Set<Validation<FAIL, A>> x, Set<Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Set<Validation<FAIL, A>> x, Set<Validation<FAIL, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>
@@ -60712,7 +60712,7 @@ namespace LanguageExt
         /// <returns>Total of all `Num<A>`s in `Validation&lt;FAIL, Validation&lt;FAIL, A&gt;&gt;`</returns>
         [Pure]
         public static A SumT<NumA, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> ma)
-            where NumA : struct, Num<A> =>
+            where NumA : Num<A> =>
                 Trans<MValidation<FAIL, Validation<FAIL, A>>, Validation<FAIL, Validation<FAIL, A>>, MValidation<FAIL, A>, Validation<FAIL, A>, NumA, A>.Inst.Sum(ma);
 
         /// <summary>
@@ -60859,7 +60859,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x + y</returns>
         [Pure]
-        public static Validation<FAIL, Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> x, Validation<FAIL, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Validation<FAIL, A>> PlusT<NUM, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> x, Validation<FAIL, Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Plus, x, y);
 
         /// <summary>
@@ -60871,7 +60871,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing x - y</returns>
         [Pure]
-        public static Validation<FAIL, Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> x, Validation<FAIL, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Validation<FAIL, A>> SubtractT<NUM, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> x, Validation<FAIL, Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Subtract, x, y);
 
         /// <summary>
@@ -60883,7 +60883,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x * y`</returns>
         [Pure]
-        public static Validation<FAIL, Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> x, Validation<FAIL, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Validation<FAIL, A>> ProductT<NUM, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> x, Validation<FAIL, Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Product, x, y);
 
         /// <summary>
@@ -60895,7 +60895,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x / y`</returns>
         [Pure]
-        public static Validation<FAIL, Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> x, Validation<FAIL, Validation<FAIL, A>> y) where NUM : struct, Num<A> =>
+        public static Validation<FAIL, Validation<FAIL, A>> DivideT<NUM, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> x, Validation<FAIL, Validation<FAIL, A>> y) where NUM : Num<A> =>
             ApplyT(default(NUM).Divide, x, y);
 
         /// <summary>
@@ -60907,7 +60907,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x ++ y`</returns>
         [Pure]
-        public static Validation<FAIL, Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> x, Validation<FAIL, Validation<FAIL, A>> y) where SEMI : struct, Semigroup<A> =>
+        public static Validation<FAIL, Validation<FAIL, A>> AppendT<SEMI, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> x, Validation<FAIL, Validation<FAIL, A>> y) where SEMI : Semigroup<A> =>
             ApplyT(default(SEMI).Append, x, y);
 
         /// <summary>
@@ -60919,7 +60919,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>If `x` is less than `y`: `-1`.  If `x` is greater than `y`: `+1`.  If `x` is equal to `y`: `0`</returns>
         [Pure]
-        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> x, Validation<FAIL, Validation<FAIL, A>> y) where ORD : struct, Ord<A> =>
+        public static int CompareT<ORD, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> x, Validation<FAIL, Validation<FAIL, A>> y) where ORD : Ord<A> =>
             ApplyT(default(ORD).Compare, x, y).FoldT(0,(_, v) => v);
 
         /// <summary>
@@ -60931,7 +60931,7 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>`Validation&lt;FAIL, Validation&lt;FAIL, A&gt;&gt;` which is the result of performing `x == y`</returns>
         [Pure]
-        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> x, Validation<FAIL, Validation<FAIL, A>> y) where EQ : struct, Eq<A> =>
+        public static bool EqualsT<EQ, FAIL, A>(this Validation<FAIL, Validation<FAIL, A>> x, Validation<FAIL, Validation<FAIL, A>> y) where EQ : Eq<A> =>
             ApplyT(default(EQ).Equals, x, y).FoldT(true,(s, v) => s && v);
 
         /// <summary>

@@ -22,9 +22,9 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static ValueTuple<A, B, C> append<SemiA, SemiB, SemiC, A, B, C>(ValueTuple<A, B, C> a, ValueTuple<A, B, C> b)
-            where SemiA : struct, Semigroup<A>
-            where SemiB : struct, Semigroup<B>
-            where SemiC : struct, Semigroup<C> =>
+            where SemiA : Semigroup<A>
+            where SemiB : Semigroup<B>
+            where SemiC : Semigroup<C> =>
             (default(SemiA).Append(a.Item1, b.Item1),
              default(SemiB).Append(a.Item2, b.Item2),
              default(SemiC).Append(a.Item3, b.Item3));
@@ -34,7 +34,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static A append<SemiA, A>(ValueTuple<A, A, A> a)
-            where SemiA : struct, Semigroup<A> =>
+            where SemiA : Semigroup<A> =>
             default(SemiA).Append(a.Item1,
                 default(SemiA).Append(a.Item2, a.Item3));
 
@@ -43,9 +43,9 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static ValueTuple<A, B, C> concat<MonoidA, MonoidB, MonoidC, A, B, C>(ValueTuple<A, B, C> a, ValueTuple<A, B, C> b)
-            where MonoidA : struct, Monoid<A>
-            where MonoidB : struct, Monoid<B>
-            where MonoidC : struct, Monoid<C> =>
+            where MonoidA : Monoid<A>
+            where MonoidB : Monoid<B>
+            where MonoidC : Monoid<C> =>
             (mconcat<MonoidA, A>(a.Item1, b.Item1),
              mconcat<MonoidB, B>(a.Item2, b.Item2),
              mconcat<MonoidC, C>(a.Item3, b.Item3));
@@ -55,7 +55,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static A concat<MonoidA, A>(ValueTuple<A, A, A> a)
-            where MonoidA : struct, Monoid<A> =>
+            where MonoidA : Monoid<A> =>
             mconcat<MonoidA, A>(a.Item1, a.Item2, a.Item3);
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static A sum<NUM, A>(ValueTuple<A, A, A> self)
-            where NUM : struct, Num<A> =>
+            where NUM : Num<A> =>
             default(NUM).Plus(self.Item1, default(NUM).Plus(self.Item2, self.Item3));
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static A product<NUM, A>(ValueTuple<A, A, A> self)
-            where NUM : struct, Num<A> =>
+            where NUM : Num<A> =>
             default(NUM).Product(self.Item1, default(NUM).Product(self.Item2, self.Item3));
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static bool contains<EQ, A>(ValueTuple<A, A, A> self, A value)
-            where EQ : struct, Eq<A> =>
+            where EQ : Eq<A> =>
             default(EQ).Equals(self.Item1, value) ||
             default(EQ).Equals(self.Item2, value) ||
             default(EQ).Equals(self.Item3, value);

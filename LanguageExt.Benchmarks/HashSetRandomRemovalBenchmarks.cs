@@ -9,7 +9,7 @@ namespace LanguageExt.Benchmarks
     [GenericTypeArguments(typeof(int), typeof(OrdInt))]
     [GenericTypeArguments(typeof(string), typeof(OrdString))]
     public class HashSetRandomRemovalBenchmarks<T, TOrd>
-        where TOrd : struct, Ord<T>
+        where TOrd : Ord<T>
     {
         [Params(100, 1000, 10000, 100000)]
         public int N;

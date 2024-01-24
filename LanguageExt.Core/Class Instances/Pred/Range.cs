@@ -1,17 +1,14 @@
 ﻿using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 
-namespace LanguageExt.ClassInstances.Pred
-{
-    public struct Range<ORD, A, MIN, MAX> : Pred<A>
-        where ORD : struct, Ord<A>
-        where MIN : struct, Const<A>
-        where MAX : struct, Const<A>
-    {
-        public static readonly Range<ORD, A, MIN, MAX> Is = default(Range<ORD, A, MIN, MAX>);
+namespace LanguageExt.ClassInstances.Pred;
 
-        [Pure]
-        public bool True(A value) =>
-            GreaterOrEq<ORD, A, MIN>.Is.True(value) && LessOrEq<ORD, A, MAX>.Is.True(value);
-    }
+public struct Range<ORD, A, MIN, MAX> : Pred<A>
+    where ORD : Ord<A>
+    where MIN : Const<A>
+    where MAX : Const<A>
+{
+    [Pure]
+    public static bool True(A value) =>
+        GreaterOrEq<ORD, A, MIN>.True(value) && LessOrEq<ORD, A, MAX>.True(value);
 }

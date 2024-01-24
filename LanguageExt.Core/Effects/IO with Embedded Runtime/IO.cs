@@ -19,7 +19,7 @@ namespace LanguageExt;
 /// <typeparam name="E">Error value type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
-    where RT : struct, HasIO<RT, E>
+    where RT : HasIO<RT, E>
 {
     /// <summary>
     /// Cached mapping of errors to a valid output for this type 

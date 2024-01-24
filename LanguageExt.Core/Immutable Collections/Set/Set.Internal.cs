@@ -22,7 +22,7 @@ namespace LanguageExt
     internal class SetInternal<OrdA, A> :
         IEnumerable<A>,
         IEquatable<SetInternal<OrdA, A>>
-        where OrdA : struct, Ord<A>
+        where OrdA : Ord<A>
     {
         public static readonly SetInternal<OrdA, A> Empty = new SetInternal<OrdA, A>();
         readonly SetItem<A> set;
@@ -441,7 +441,7 @@ namespace LanguageExt
         /// <param name="f">Mapping function</param>
         /// <returns>Mapped Set</returns>
         [Pure]
-        public SetInternal<OrdB, B> Map<OrdB, B>(Func<A, B> f) where OrdB : struct, Ord<B> =>
+        public SetInternal<OrdB, B> Map<OrdB, B>(Func<A, B> f) where OrdB : Ord<B> =>
             new SetInternal<OrdB, B>(SetModule.Map(set, f));
 
         /// <summary>
@@ -775,7 +775,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public int CompareTo<OrdAlt>(SetInternal<OrdA, A> other) where OrdAlt : struct, Ord<A>
+        public int CompareTo<OrdAlt>(SetInternal<OrdA, A> other) where OrdAlt : Ord<A>
         {
             var cmp = Count.CompareTo(other.Count);
             if (cmp != 0) return cmp;
@@ -839,7 +839,7 @@ namespace LanguageExt
         }
 
         public static SetItem<K> Add<OrdK, K>(SetItem<K> node, K key, AddOpt option)
-            where OrdK : struct, Ord<K>
+            where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -981,7 +981,7 @@ namespace LanguageExt
                     : Exists(node.Left, pred) || Exists(node.Right, pred);
 
         [Pure]
-        public static SetItem<K> Add<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
+        public static SetItem<K> Add<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1003,7 +1003,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static SetItem<K> TryAdd<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
+        public static SetItem<K> TryAdd<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1025,7 +1025,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static SetItem<K> AddOrUpdate<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
+        public static SetItem<K> AddOrUpdate<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1053,7 +1053,7 @@ namespace LanguageExt
                 : Balance(Make(node.Key, node.Left, AddTreeToRight(node.Right, toAdd)));
 
         [Pure]
-        public static SetItem<K> Remove<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
+        public static SetItem<K> Remove<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1075,7 +1075,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static bool Contains<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
+        public static bool Contains<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1097,7 +1097,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static K Find<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
+        public static K Find<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1123,7 +1123,7 @@ namespace LanguageExt
         /// that maintains a stack of nodes to retrace.
         /// </summary>
         [Pure]
-        public static IEnumerable<K> FindRange<OrdK, K>(SetItem<K> node, K a, K b) where OrdK : struct, Ord<K>
+        public static IEnumerable<K> FindRange<OrdK, K>(SetItem<K> node, K a, K b) where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1158,7 +1158,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static Option<K> TryFind<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
+        public static Option<K> TryFind<OrdK, K>(SetItem<K> node, K key) where OrdK : Ord<K>
         {
             if (node.IsEmpty)
             {
@@ -1271,7 +1271,7 @@ namespace LanguageExt
                 ? node.Key
                 : Min(node.Left);
 
-        internal static Option<A> TryFindPredecessor<OrdA, A>(SetItem<A> root, A key) where OrdA : struct, Ord<A>
+        internal static Option<A> TryFindPredecessor<OrdA, A>(SetItem<A> root, A key) where OrdA : Ord<A>
         {
             Option<A> predecessor = None;
             var current = root;
@@ -1308,7 +1308,7 @@ namespace LanguageExt
             return predecessor;
         }
 
-        internal static Option<A> TryFindOrPredecessor<OrdA, A>(SetItem<A> root, A key) where OrdA : struct, Ord<A>
+        internal static Option<A> TryFindOrPredecessor<OrdA, A>(SetItem<A> root, A key) where OrdA : Ord<A>
         {
             Option<A> predecessor = None;
             var current = root;
@@ -1345,7 +1345,7 @@ namespace LanguageExt
             return predecessor;
         }
 
-        internal static Option<A> TryFindSuccessor<OrdA, A>(SetItem<A> root, A key) where OrdA : struct, Ord<A>
+        internal static Option<A> TryFindSuccessor<OrdA, A>(SetItem<A> root, A key) where OrdA : Ord<A>
         {
             Option<A> successor = None;
             var current = root;
@@ -1382,7 +1382,7 @@ namespace LanguageExt
             return successor;
         }
 
-        internal static Option<A> TryFindOrSuccessor<OrdA, A>(SetItem<A> root, A key) where OrdA : struct, Ord<A>
+        internal static Option<A> TryFindOrSuccessor<OrdA, A>(SetItem<A> root, A key) where OrdA : Ord<A>
         {
             Option<A> successor = None;
             var current = root;

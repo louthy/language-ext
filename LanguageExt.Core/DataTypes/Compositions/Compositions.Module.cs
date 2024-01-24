@@ -12,7 +12,7 @@ namespace LanguageExt
         /// <summary>
         /// Returns true if the given tree is appropriately right-biased.
         /// </summary>
-        public static bool wellFormed<MonoidEqA, A>(Compositions<A> ca) where MonoidEqA : struct, Monoid<A>, Eq<A>
+        public static bool wellFormed<MonoidEqA, A>(Compositions<A> ca) where MonoidEqA : Monoid<A>, Eq<A>
         {
             bool wellFormedNode(int n, Compositions<A>.Node node)
             {
@@ -75,7 +75,7 @@ namespace LanguageExt
         /// in order to maintain the right-associative bias.  If you wish to run `composed`
         /// on the result of `take`, use `takeComposed` for better performance.
         /// </summary>
-        public static Compositions<A> take<MonoidA, A>(int amount, Compositions<A> compositions) where MonoidA : struct, Monoid<A>
+        public static Compositions<A> take<MonoidA, A>(int amount, Compositions<A> compositions) where MonoidA : Monoid<A>
         {
             Seq<Compositions<A>.Node> go(int n, Seq<Compositions<A>.Node> nodes)
             {
@@ -105,7 +105,7 @@ namespace LanguageExt
         /// Returns the composition of the first `k` elements of the compositions list, doing only `O(log k)` compositions.
         /// Faster than simply using `take` and then `composed` separately.
         /// </summary>
-        public static A takeComposed<MonoidA, A>(int amount, Compositions<A> compositions) where MonoidA : struct, Monoid<A>
+        public static A takeComposed<MonoidA, A>(int amount, Compositions<A> compositions) where MonoidA : Monoid<A>
         {
             A go(int n, Seq<Compositions<A>.Node> nodes)
             {
@@ -134,14 +134,14 @@ namespace LanguageExt
         /// A convenience alias for 'take' and 'drop'
         /// </summary>
         public static (Compositions<A> taken, Compositions<A> skipped) splitAt<MonoidA, A>(int i, Compositions<A> c)
-            where MonoidA : struct, Monoid<A> =>
+            where MonoidA : Monoid<A> =>
                 (take<MonoidA, A>(i, c), skip(i, c));
 
         /// <summary>
         /// Compose every element in the compositions list. Performs only `O(log n)` compositions.
         /// </summary>
         public static A composed<MonoidA, A>(Compositions<A> compositions)
-            where MonoidA : struct, Monoid<A> =>
+            where MonoidA : Monoid<A> =>
                 default(FoldCompositions<A>).Fold(compositions, default(MonoidA).Empty(), default(MonoidA).Append)(unit);
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace LanguageExt
         /// Add a new element to the front of a compositions list. Performs `O(log n)` element compositions.
         /// </summary>
         public static Compositions<A> cons<MonoidA, A>(A x, Compositions<A> xs)
-            where MonoidA : struct, Monoid<A> =>
+            where MonoidA : Monoid<A> =>
                 default(MCompositions<MonoidA, A>).Append(singleton(x), xs);
 
         /// <summary>
@@ -168,7 +168,7 @@ namespace LanguageExt
         /// is provided in the 'Data.Foldable.Foldable' instance.This will perform O(n log n) element compositions.
         /// </summary>
         public static Compositions<A> fromList<MonoidA, A>(IEnumerable<A> ma)
-            where MonoidA : struct, Monoid<A> =>
+            where MonoidA : Monoid<A> =>
                 ma.Fold(default(MCompositions<MonoidA, A>).Empty(), (s, x) => default(MCompositions<MonoidA, A>).Append(s, singleton(x)));
     }
 }

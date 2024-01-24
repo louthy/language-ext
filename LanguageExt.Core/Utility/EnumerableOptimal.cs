@@ -26,15 +26,15 @@ namespace LanguageExt
                 : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
 
         internal static IEnumerable<B> BindFast<PredList, A, B>(this IEnumerable<A> ma, Func<A, Lst<PredList, B>> f)
-            where PredList : struct, Pred<ListInfo> =>
+            where PredList : Pred<ListInfo> =>
             ma == null
                 ? System.Linq.Enumerable.Empty<B>()
                 : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
 
         internal static IEnumerable<B> BindFast<PredList, PredItemA, PredItemB, A, B>(this IEnumerable<A> ma, Func<A, Lst<PredList, PredItemB, B>> f)
-            where PredList : struct, Pred<ListInfo>
-            where PredItemA : struct, Pred<A>
-            where PredItemB : struct, Pred<B> =>
+            where PredList : Pred<ListInfo>
+            where PredItemA : Pred<A>
+            where PredItemB : Pred<B> =>
             ma == null
                 ? System.Linq.Enumerable.Empty<B>()
                 : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());

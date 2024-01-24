@@ -16,7 +16,7 @@ namespace EffectsExamples
     /// </remarks>
     /// <typeparam name="RT"></typeparam>
     public class RetryExample<RT>
-        where RT : struct, 
+        where RT : 
         HasCancel<RT>, 
         HasConsole<RT>
     {

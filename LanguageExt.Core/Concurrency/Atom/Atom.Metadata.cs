@@ -150,7 +150,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public Eff<RT, A> SwapEff<RT>(Func<M, A, Eff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
+        public Eff<RT, A> SwapEff<RT>(Func<M, A, Eff<RT, A>> f) where RT : HasIO<RT, Error> =>
             lift((RT env) =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -293,7 +293,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public Aff<RT, A> SwapAff<RT>(Func<M, A, Aff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
+        public Aff<RT, A> SwapAff<RT>(Func<M, A, Aff<RT, A>> f) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(async env =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -408,7 +408,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public Eff<RT, A> SwapEff<RT, X>(X x, Func<M, X, A, Eff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
+        public Eff<RT, A> SwapEff<RT, X>(X x, Func<M, X, A, Eff<RT, A>> f) where RT : HasIO<RT, Error> =>
             lift((RT env) =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -555,7 +555,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public Aff<RT, A> SwapAff<RT, X>(X x, Func<M, X, A, Aff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
+        public Aff<RT, A> SwapAff<RT, X>(X x, Func<M, X, A, Aff<RT, A>> f) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(async env =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -673,7 +673,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Eff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public Eff<RT, A> SwapEff<RT, X, Y>(X x, Y y, Func<M, X, Y, A, Eff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
+        public Eff<RT, A> SwapEff<RT, X, Y>(X x, Y y, Func<M, X, Y, A, Eff<RT, A>> f) where RT : HasIO<RT, Error> =>
             lift((RT env) =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));
@@ -825,7 +825,7 @@ namespace LanguageExt
         /// <param name="f">Function to update the atom</param>
         /// <returns>Aff in a Succ state, with the result of the invocation of `f`, if the swap succeeded and its
         /// validation passed. Failure state otherwise</returns>
-        public Aff<RT, A> SwapAff<RT, X, Y>(X x, Y y, Func<M, X, Y, A, Aff<RT, A>> f) where RT : struct, HasIO<RT, Error> =>
+        public Aff<RT, A> SwapAff<RT, X, Y>(X x, Y y, Func<M, X, Y, A, Aff<RT, A>> f) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, A>(async env =>
             {
                 f = f ?? throw new ArgumentNullException(nameof(f));

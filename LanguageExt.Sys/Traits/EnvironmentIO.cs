@@ -49,9 +49,9 @@ namespace LanguageExt.Sys.Traits
     /// Type-class giving a struct the trait of supporting Environment IO
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
-    [Typeclass("*")]
+    [Trait("*")]
     public interface HasEnvironment<RT> : HasIO<RT, Error>
-        where RT : struct, HasEnvironment<RT>
+        where RT : HasEnvironment<RT>
     {
         /// <summary>
         /// Access the environment synchronous effect environment

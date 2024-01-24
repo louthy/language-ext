@@ -19,7 +19,7 @@ namespace LanguageExt
         /// <param name="value">Value</param>
         /// <returns>Writer monad</returns>
         [Pure]
-        public static Writer<MonoidW, W, A> Writer<MonoidW, W, A>(A value) where MonoidW : struct, Monoid<W> => () => 
+        public static Writer<MonoidW, W, A> Writer<MonoidW, W, A>(A value) where MonoidW : Monoid<W> => () => 
             (value, default(MonoidW).Empty(), false);
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace LanguageExt
         /// <param name="value">Value</param>
         /// <returns>Writer monad</returns>
         [Pure]
-        public static Writer<MonoidW, W, A> Writer<MonoidW, W, A>(A value, W output) where MonoidW : struct, Monoid<W> => () =>
+        public static Writer<MonoidW, W, A> Writer<MonoidW, W, A>(A value, W output) where MonoidW : Monoid<W> => () =>
             (value, output, false);
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Writer<MonoidW, W, int> count<MonoidW, W>(Writer<MonoidW, W, int> self)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 self.Count();
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Writer<MonoidW, W, bool> forall<MonoidW, W, A>(Writer<MonoidW, W, A> self, Func<A, bool> pred)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 self.ForAll(pred);
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Writer<MonoidW, W, bool> exists<MonoidW, W, A>(Writer<MonoidW, W, A> self, Func<A, bool> pred)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 self.Exists(pred);
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Writer<MonoidW, W, FState> fold<FState, MonoidW, W, A>(Writer<MonoidW, W, A> self, FState initialState, Func<FState, A, FState> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 self.Fold(initialState, f);
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Writer<MonoidW, W, W> fold<MonoidW, W, A>(Writer<MonoidW, W, A> self, Func<W, A, W> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 self.Fold(f);
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Writer<MonoidW, W, A> pass<MonoidW, W, A>(Writer<MonoidW, W, (A, Func<W, W>)> self)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 self.Pass();
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Writer<MonoidW, W, (A, B)> listen<MonoidW, W, A, B>(Writer<MonoidW, W, A> self, Func<W, B> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 self.Listen(f);
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace LanguageExt
         /// to its output, leaving the return value unchanged.
         /// </summary>
         public static Writer<MonoidW, W, A> censor<MonoidW, W, A>(Writer<MonoidW, W, A> self, Func<W, W> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 self.Censor(f);
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace LanguageExt
         /// <returns>Updated writer monad</returns>
         [Pure]
         public static Writer<MonoidW, W, Unit> tell<MonoidW, W>(W what)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 default(MWriter<MonoidW, W, Unit>).Tell(what);
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Writer<MonoidW, W, B> bind<MonoidW, W, A, B>(Writer<MonoidW, W, A> self, Func<A, Writer<MonoidW, W, B>> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 self.Bind(f);
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Writer<MonoidW, W, B> map<MonoidW, W, A, B>(Writer<MonoidW, W, A> self, Func<A, B> f)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 self.Map(f);
 
         /// <summary>
@@ -168,14 +168,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Writer<MonoidW, W, A> filter<MonoidW, W, A>(Writer<MonoidW, W, A> self, Func<A, bool> pred)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 self.Filter(pred);
 
         /// <summary>
         /// Iter
         /// </summary>
         public static Writer<MonoidW, W, Unit> iter<MonoidW, W, A>(Writer<MonoidW, W, A> self, Action<A> action)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 self.Iter(action);
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Writer<MonoidW, W, A> trywrite<MonoidW, W, A>(Writer<MonoidW, W, A> m) 
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 () =>
                 {
                     try
@@ -198,7 +198,7 @@ namespace LanguageExt
 
         [Pure]
         public static Try<Writer<MonoidW, W, A>> tryfun<MonoidW, W, A>(Writer<MonoidW, W, A> ma) 
-            where MonoidW : struct, Monoid<W> => () =>
+            where MonoidW : Monoid<W> => () =>
                 from x in ma
                 select x;
     }

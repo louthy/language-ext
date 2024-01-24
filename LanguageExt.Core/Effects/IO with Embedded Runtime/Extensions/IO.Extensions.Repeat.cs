@@ -14,7 +14,7 @@ public static partial class IOExtensions
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static IO<RT, E, A> Repeat<RT, E, A>(this IO<RT, E, A> ma)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.repeat(Schedule.Forever, ma.Morphism));
 
     /// <summary>
@@ -26,7 +26,7 @@ public static partial class IOExtensions
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static IO<RT, E, A> Repeat<RT, E, A>(this IO<RT, E, A> ma, Schedule schedule)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.repeat(schedule, ma.Morphism));
 
     /// <summary>
@@ -37,7 +37,7 @@ public static partial class IOExtensions
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static IO<RT, E, A> RepeatWhile<RT, E, A>(this IO<RT, E, A> ma, Func<A, bool> predicate) 
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.repeatWhile(Schedule.Forever, ma.Morphism, predicate));
 
     /// <summary>
@@ -52,7 +52,7 @@ public static partial class IOExtensions
         this IO<RT, E, A> ma,
         Schedule schedule,
         Func<A, bool> predicate)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.repeatWhile(schedule, ma.Morphism, predicate));
 
     /// <summary>
@@ -65,7 +65,7 @@ public static partial class IOExtensions
     public static IO<RT, E, A> RepeatUntil<RT, E, A>(
         this IO<RT, E, A> ma,
         Func<A, bool> predicate)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.repeatUntil(Schedule.Forever, ma.Morphism, predicate));
 
     /// <summary>
@@ -80,6 +80,6 @@ public static partial class IOExtensions
         this IO<RT, E, A> ma,
         Schedule schedule,
         Func<A, bool> predicate)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.repeatUntil(schedule, ma.Morphism, predicate));
 }

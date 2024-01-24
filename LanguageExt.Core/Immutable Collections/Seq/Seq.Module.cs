@@ -124,7 +124,7 @@ namespace LanguageExt
         /// <returns>Validated head item</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Validation<MonoidFail, Fail, A> headOrInvalid<MonoidFail, Fail, A>(Seq<A> list, Fail fail) where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+        public static Validation<MonoidFail, Fail, A> headOrInvalid<MonoidFail, Fail, A>(Seq<A> list, Fail fail) where MonoidFail : Monoid<Fail>, Eq<Fail> =>
             list.HeadOrInvalid<MonoidFail, Fail, A>(fail);
 
         /// <summary>
@@ -245,7 +245,7 @@ namespace LanguageExt
         /// <returns>Sum total</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static A sum<MonoidA, A>(Seq<A> list) where MonoidA : struct, Monoid<A> =>
+        public static A sum<MonoidA, A>(Seq<A> list) where MonoidA : Monoid<A> =>
             mconcat<MonoidA, A>(list);
 
         /// <summary>
@@ -789,7 +789,7 @@ namespace LanguageExt
         /// <returns>A new sequence with all duplicate values removed</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Seq<T> distinct<EQ, T>(Seq<T> list) where EQ : struct, Eq<T> =>
+        public static Seq<T> distinct<EQ, T>(Seq<T> list) where EQ : Eq<T> =>
             toSeq(list.Distinct(new EqCompare<T>(static (x, y) => default(EQ).Equals(x, y), static x => default(EQ).GetHashCode(x))));
 
         /// <summary>

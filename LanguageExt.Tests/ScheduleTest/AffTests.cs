@@ -301,7 +301,7 @@ public static class AffTests
         memStream.Write(content, 0, content.Length);
         memStream.Seek(0, SeekOrigin.Begin);
 
-        Aff<RT, Unit> CreateEffect<RT>() where RT : struct, HasConsole<RT> =>
+        Aff<RT, Unit> CreateEffect<RT>() where RT : HasConsole<RT> =>
             repeat(
                 from ln in (
                     from data in Aff(() => memStream.ReadByte().AsValueTask())

@@ -32,7 +32,7 @@ namespace LanguageExt
     public class VersionHashMap<ConflictV, K, V> :
         IEnumerable<(K Key, V Value)>,
         IEquatable<VersionHashMap<ConflictV, K, V>>
-        where ConflictV : struct, Conflict<V>
+        where ConflictV : Conflict<V>
     {
         readonly VersionHashMap<ConflictV, TString, EqDefault<K>, string, K, V> Items;
 

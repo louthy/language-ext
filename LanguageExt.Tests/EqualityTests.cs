@@ -187,8 +187,8 @@ namespace LanguageExt.Tests
         }
 
         public static bool IsEqual<EqA, MonadA, MA, A>(MA mx, MA my)
-            where EqA : struct, Eq<A>
-            where MonadA : struct, Monad<MA, A> =>
+            where EqA : Eq<A>
+            where MonadA : Monad<MA, A> =>
             default(MonadA).Fold(mx, false, (s1, x) =>
                 default(MonadA).Fold(my, false, (s2, y) =>
                     default(EqA).Equals(x, y))(unit))(unit);

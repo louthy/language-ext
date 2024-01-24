@@ -11,7 +11,7 @@ namespace LanguageExt
         /// Catch an error if the predicate matches
         /// </summary>
         internal static AffCatch<RT, A> matchError<RT, A>(Func<Error, bool> predicate, Func<Error, Aff<RT, A>> Fail) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             new (predicate, Fail);
         
         /// <summary>
@@ -26,7 +26,7 @@ namespace LanguageExt
         /// Catch an error if the error matches the argument provided 
         /// </summary>
         public static AffCatch<RT, A> @catch<RT, A>(Error error, Func<Error, Aff<RT, A>> Fail) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             matchError(e => e.Is(error), Fail);
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace LanguageExt
         /// Catch an error if the error matches the argument provided 
         /// </summary>
         public static AffCatch<RT, A> @catch<RT, A>(Error error, Aff<RT, A> Fail) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             matchError(e => e.Is(error), _ => Fail);
         
         /// <summary>
@@ -53,7 +53,7 @@ namespace LanguageExt
         /// Catch an error if the error `Code` matches the `errorCode` argument provided 
         /// </summary>
         public static AffCatch<RT, A> @catch<RT, A>(int errorCode, Func<Error, Aff<RT, A>> Fail) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             matchError(e => e.Code == errorCode, Fail);
         
         /// <summary>
@@ -66,7 +66,7 @@ namespace LanguageExt
         /// Catch an error if the error message matches the `errorText` argument provided 
         /// </summary>
         public static AffCatch<RT, A> @catch<RT, A>(string errorText, Aff<RT, A> Fail) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             matchError(e => e.Message == errorText, _ => Fail);
         
         /// <summary>
@@ -79,7 +79,7 @@ namespace LanguageExt
         /// Catch an error if the error `Code` matches the `errorCode` argument provided 
         /// </summary>
         public static AffCatch<RT, A> @catch<RT, A>(int errorCode, Aff<RT, A> Fail) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             matchError(e => e.Code == errorCode, _ => Fail);
         
         /// <summary>
@@ -93,7 +93,7 @@ namespace LanguageExt
         /// Catch an error if the error message matches the `errorText` argument provided 
         /// </summary>
         public static AffCatch<RT, A> @catch<RT, A>(string errorText, Func<Error, Aff<RT, A>> Fail) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             matchError(e => e.Message == errorText, Fail);
         
         /// <summary>
@@ -119,20 +119,20 @@ namespace LanguageExt
         /// Catch an error if it's of a specific exception type
         /// </summary>
         public static AffCatch<RT, A> @catch<RT, A>(Func<Exception, bool> predicate, Func<Exception, Aff<RT, A>> Fail) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             matchError(e => e.Exception.Map(predicate).IfNone(false), e => Fail(e));
 
         /// <summary>
         /// Catch an error if it's of a specific exception type
         /// </summary>
         public static AffCatch<RT, A> @catch<RT, A>(Func<Exception, bool> predicate, Aff<RT, A> Fail) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             matchError(e => e.Exception.Map(predicate).IfNone(false), _ => Fail);
 
         /// <summary>
         /// Catch all errors
         /// </summary>
-        public static AffCatch<RT, A> @catch<RT, A>(Aff<RT, A> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static AffCatch<RT, A> @catch<RT, A>(Aff<RT, A> Fail) where RT : HasIO<RT, Error> =>
             matchError(static _ => true, _ => Fail);
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace LanguageExt
         /// <summary>
         /// Catch all errors
         /// </summary>
-        public static AffCatch<RT, A> @catch<RT, A>(Func<Error, Aff<RT, A>> Fail) where RT : struct, HasIO<RT, Error> =>
+        public static AffCatch<RT, A> @catch<RT, A>(Func<Error, Aff<RT, A>> Fail) where RT : HasIO<RT, Error> =>
             matchError(static _ => true, Fail);
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace LanguageExt
         /// Catch errors
         /// </summary>
         public static AffCatch<RT, A> @catchOf<RT, E, A>(Func<E, Aff<RT, A>> Fail) 
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
             where E : Error =>
             matchError(static e => e is E, e => Fail((E)e));
 
@@ -177,7 +177,7 @@ namespace LanguageExt
         /// Catch expected errors
         /// </summary>
         public static AffCatch<RT, A> @expected<RT, A>(Func<Expected, Aff<RT, A>> Fail) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             @catchOf(Fail);
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace LanguageExt
         /// Catch expected errors
         /// </summary>
         public static AffCatch<RT, A> @expectedOf<RT, E, A>(Func<E, Aff<RT, A>> Fail) 
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
             where E : Expected =>
             @catchOf(Fail);
 
@@ -204,7 +204,7 @@ namespace LanguageExt
         /// Catch exceptional errors
         /// </summary>
         public static AffCatch<RT, A> @exceptional<RT, A>(Func<Exceptional, Aff<RT, A>> Fail) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             @catchOf(Fail);
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace LanguageExt
         /// Catch exceptional errors
         /// </summary>
         public static AffCatch<RT, A> @exceptionalOf<RT, E, A>(Func<E, Aff<RT, A>> Fail)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
             where E : Exceptional  =>
             @catchOf(Fail);
     }

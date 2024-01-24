@@ -8,9 +8,9 @@ namespace LanguageExt.Effects.Traits
     /// Type-class giving a struct the trait of supporting thread synchronisation context
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
-    [Typeclass("*")]
+    [Trait("*")]
     public interface HasSyncContext<out RT>
-        where RT : struct, HasSyncContext<RT>
+        where RT : HasSyncContext<RT>
     {
         /// <summary>
         /// Creates a new runtime from this with a new SyncContext and token

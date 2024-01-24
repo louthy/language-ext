@@ -1,42 +1,29 @@
 ﻿using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
-using static LanguageExt.Prelude;
 
-namespace LanguageExt.ClassInstances
+namespace LanguageExt.ClassInstances;
+
+/// <summary>
+/// Boolean equality
+/// </summary>
+public struct EqBool : Eq<bool>
 {
     /// <summary>
-    /// Boolean equality
+    /// Equality test
     /// </summary>
-    public struct EqBool : Eq<bool>
-    {
-        public static readonly EqBool Inst = default(EqBool);
+    /// <param name="x">The left hand side of the equality operation</param>
+    /// <param name="y">The right hand side of the equality operation</param>
+    /// <returns>True if x and y are equal</returns>
+    [Pure]
+    public static bool Equals(bool a, bool b)  => 
+        a == b;
 
-        /// <summary>
-        /// Equality test
-        /// </summary>
-        /// <param name="x">The left hand side of the equality operation</param>
-        /// <param name="y">The right hand side of the equality operation</param>
-        /// <returns>True if x and y are equal</returns>
-        [Pure]
-        public bool Equals(bool a, bool b)  => 
-            a == b;
-
-        /// <summary>
-        /// Get hash code of the value
-        /// </summary>
-        /// <param name="x">Value to get the hash code of</param>
-        /// <returns>The hash code of x</returns>
-        [Pure]
-        public int GetHashCode(bool x) =>
-            default(HashableBool).GetHashCode(x);
-
-        [Pure]
-        public Task<bool> EqualsAsync(bool x, bool y) =>
-            Equals(x, y).AsTask();
-
-        [Pure]
-        public Task<int> GetHashCodeAsync(bool x) => 
-            GetHashCode(x).AsTask();
-    }
+    /// <summary>
+    /// Get hash code of the value
+    /// </summary>
+    /// <param name="x">Value to get the hash code of</param>
+    /// <returns>The hash code of x</returns>
+    [Pure]
+    public static int GetHashCode(bool x) =>
+        HashableBool.GetHashCode(x);
 }

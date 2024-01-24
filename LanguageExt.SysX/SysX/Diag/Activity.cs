@@ -15,7 +15,7 @@ namespace LanguageExt.SysX.Diag
     /// </summary>
     /// <typeparam name="RT">runtime</typeparam>
     public static class Activity<RT>
-        where RT : struct, HasActivitySource<RT>, HasCancel<RT>
+        where RT : HasActivitySource<RT>, HasCancel<RT>
     {
         readonly record struct DisposableActivity : IDisposable
         {

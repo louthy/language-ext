@@ -93,7 +93,7 @@ record RepeatTransducer<A, B>(Transducer<A, B> F, Schedule Schedule, Func<B, boo
 
 record RepeatSumTransducer<RT, X, A>(Transducer<RT, Sum<X, A>> F, Schedule Schedule, Func<A, bool> Predicate) 
     : Transducer<RT, Sum<X, A>>
-    where RT : struct, HasFromError<RT, X> 
+    where RT : HasFromError<RT, X> 
 {
     public override Reducer<RT, S> Transform<S>(Reducer<Sum<X, A>, S> reduce) => 
         new Reduce1<S>(F, Schedule, Predicate, reduce);

@@ -10,9 +10,9 @@ namespace LanguageExt.Sys.Traits
     /// Type-class giving a struct the trait of supporting text encoding IO
     /// </summary>
     /// <typeparam name="RT">Runtime</typeparam>
-    [Typeclass("*")]
+    [Trait("*")]
     public interface HasEncoding<out RT> : HasIO<RT, Error>
-        where RT : struct, HasEncoding<RT>
+        where RT : HasEncoding<RT>
     {
         /// <summary>
         /// Access the text encoding

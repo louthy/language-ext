@@ -2,15 +2,12 @@
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 
-namespace LanguageExt.ClassInstances
-{
-    public struct FStck<A, B> : 
-        Functor<Stck<A>, Stck<B>, A, B>
-    {
-        public static readonly FStck<A, B> Inst = default(FStck<A, B>);
+namespace LanguageExt.ClassInstances;
 
-        [Pure]
-        public Stck<B> Map(Stck<A> ma, Func<A, B> f) =>
-            new Stck<B>(ma.Map(f));
-    }
+public struct FStck<A, B> : 
+    Functor<Stck<A>, Stck<B>, A, B>
+{
+    [Pure]
+    public static Stck<B> Map(Stck<A> ma, Func<A, B> f) =>
+        new (ma.Map(f));
 }

@@ -38,7 +38,7 @@ namespace LanguageExt
         /// <summary>
         /// Head of the sequence
         /// </summary>
-        Validation<MonoidFail, Fail, A> HeadOrInvalid<MonoidFail, Fail>(Fail fail) where MonoidFail : struct, Monoid<Fail>, Eq<Fail>;
+        Validation<MonoidFail, Fail, A> HeadOrInvalid<MonoidFail, Fail>(Fail fail) where MonoidFail : Monoid<Fail>, Eq<Fail>;
 
         /// <summary>
         /// Head of the sequence

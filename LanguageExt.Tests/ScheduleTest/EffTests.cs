@@ -276,7 +276,7 @@ public static class EffTests
         memStream.Write(content, 0, content.Length);
         memStream.Seek(0, SeekOrigin.Begin);
 
-        Eff<RT, Unit> CreateEffect<RT>() where RT : struct, HasConsole<RT> =>
+        Eff<RT, Unit> CreateEffect<RT>() where RT : HasConsole<RT> =>
             repeat(
                 from ln in (
                     from data in Eff(memStream.ReadByte)

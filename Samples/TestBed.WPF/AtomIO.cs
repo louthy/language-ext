@@ -10,7 +10,7 @@ namespace TestBed.WPF;
 /// Placeholder implementation: waiting for the real one to be implemented in LanguageExt.Core
 /// </summary>
 public class AtomIO<RT, E, A>
-    where RT : struct, HasIO<RT, E>
+    where RT : HasIO<RT, E>
 {
     public AtomIO(A value) =>
         Value = value;

@@ -42,7 +42,7 @@ namespace LanguageExt.Tests
             Assert.False(IsEqualGeneral<EqCharOrdinalIgnoreCase, char>('e', 'é'));
         }
 
-        public bool IsEqualGeneral<EQ, A>(A x, A y) where EQ : struct, Eq<A> => 
+        public bool IsEqualGeneral<EQ, A>(A x, A y) where EQ : Eq<A> => 
             equals<EQ, A>(x, y);
 
         [Fact]

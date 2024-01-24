@@ -257,7 +257,7 @@ namespace LanguageExt
         }
         
         public static Eff<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Eff<A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             return EffMaybe<Validation<MonoidFail, Fail, B>>(() => Go(ma, f));
             Fin<Validation<MonoidFail, Fail, B>> Go(Validation<MonoidFail, Fail, Eff<A>> ma, Func<A, B> f)

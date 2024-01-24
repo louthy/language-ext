@@ -22,7 +22,7 @@ namespace LanguageExt
         ///     select x;
         /// 
         /// </example>
-        public static Aff<RT, Unit> unless<RT>(bool flag, Aff<RT, Unit> alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Aff<RT, Unit> unless<RT>(bool flag, Aff<RT, Unit> alternative) where RT : HasIO<RT, Error> =>
             when(!flag, alternative);
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace LanguageExt
         ///     select x;
         /// 
         /// </example>
-        public static Eff<RT, Unit> unless<RT>(bool flag, Eff<RT, Unit> alternative) where RT : struct, HasIO<RT, Error> =>
+        public static Eff<RT, Unit> unless<RT>(bool flag, Eff<RT, Unit> alternative) where RT : HasIO<RT, Error> =>
             when(!flag, alternative);
 
         /// <summary>
@@ -313,7 +313,7 @@ namespace LanguageExt
         /// 
         /// </example>
         public static Validation<MonoidL, L, Unit> unless<MonoidL, L>(bool flag, Validation<MonoidL, L, Unit> alternative) 
-            where MonoidL : struct, Monoid<L>, Eq<L> =>
+            where MonoidL : Monoid<L>, Eq<L> =>
                 when(!flag, alternative);       
     }
 }

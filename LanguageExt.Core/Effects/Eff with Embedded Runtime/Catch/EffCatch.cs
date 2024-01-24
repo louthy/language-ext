@@ -9,7 +9,7 @@ using LanguageExt.Effects.Traits;
 namespace LanguageExt
 {
     public readonly struct EffCatch<RT, A> 
-        where RT : struct, HasIO<RT, Error> 
+        where RT : HasIO<RT, Error> 
     {
         readonly Func<Error, Eff<RT, A>> fail;
 

@@ -24,7 +24,7 @@ namespace LanguageExt.Pipes
     ///                A
     /// 
     /// </remarks>
-    public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : struct, HasIO<RT, Error>
+    public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : HasIO<RT, Error>
     {
         public readonly Proxy<RT, Void, Unit, Unit, Void, A> Value;
 
@@ -146,26 +146,6 @@ namespace LanguageExt.Pipes
         [Pure]
         public void Deconstruct(out Proxy<RT, Void, Unit, Unit, Void, A> value) =>
             value = Value;
-
-        /// <summary>
-        /// Monadic bind operation, for chaining `Effect` and `Aff` computations together.
-        /// </summary>
-        /// <param name="f">The bind function</param>
-        /// <typeparam name="B">The mapped bound value type</typeparam>
-        /// <returns>A new `Aff` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-        [Pure]
-        public Aff<RT, C> SelectMany<B, C>(Func<A, Aff<RT, B>> bind, Func<A, B, C> project) =>
-            this.RunEffect().Bind(a => bind(a).Map(b => project(a, b)));
-
-        /// <summary>
-        /// Monadic bind operation, for chaining `Effect` and `Aff` computations together.
-        /// </summary>
-        /// <param name="f">The bind function</param>
-        /// <typeparam name="B">The mapped bound value type</typeparam>
-        /// <returns>A new `Aff` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-        [Pure]
-        public Aff<RT, C> SelectMany<B, C>(Func<A, Aff<B>> bind, Func<A, B, C> project) =>
-            this.RunEffect().Bind(a => bind(a).Map(b => project(a, b)));
 
         /// <summary>
         /// Monadic bind operation, for chaining `Effect` and `Aff` computations together.

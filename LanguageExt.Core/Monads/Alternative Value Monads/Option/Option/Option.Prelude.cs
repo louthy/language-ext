@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -25,13 +24,13 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public static Option<T> subtract<NUM, T>(Option<T> lhs, Option<T> rhs) where NUM : struct, Num<T> =>
+        public static Option<T> subtract<NUM, T>(Option<T> lhs, Option<T> rhs) where NUM : Num<T> =>
             lhs.Subtract<NUM, T>(rhs);
 
         /// <summary>
         /// Find the product of the Ts
         [Pure]
-        public static Option<T> product<NUM, T>(Option<T> lhs, Option<T> rhs) where NUM : struct, Num<T> =>
+        public static Option<T> product<NUM, T>(Option<T> lhs, Option<T> rhs) where NUM : Num<T> =>
             lhs.Product<NUM, T>(rhs);
 
         /// <summary>
@@ -41,7 +40,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static Option<T> divide<NUM, T>(Option<T> lhs, Option<T> rhs) where NUM : struct, Num<T> =>
+        public static Option<T> divide<NUM, T>(Option<T> lhs, Option<T> rhs) where NUM : Num<T> =>
             lhs.Divide<NUM, T>(rhs);
 
         /// <summary>
@@ -51,7 +50,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static Option<T> add<NUM, T>(Option<T> lhs, Option<T> rhs) where NUM : struct, Num<T> =>
+        public static Option<T> add<NUM, T>(Option<T> lhs, Option<T> rhs) where NUM : Num<T> =>
             lhs.Add<NUM, T>(rhs);
 
         /// <summary>
@@ -235,7 +234,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<B> apply<A, B>(Option<Func<A, B>> fab, Option<A> fa) =>
-            ApplOption<A, B>.Inst.Apply(fab, fa);
+            ApplOption<A, B>.Apply(fab, fa);
 
         /// <summary>
         /// Apply
@@ -246,7 +245,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<B> apply<A, B>(Func<A, B> fab, Option<A> fa) =>
-            ApplOption<A, B>.Inst.Apply(fab, fa);
+            ApplOption<A, B>.Apply(fab, fa);
 
         /// <summary>
         /// Apply
@@ -259,7 +258,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<C> apply<A, B, C>(Option<Func<A, B, C>> fabc, Option<A> fa, Option<B> fb) =>
             from x in fabc
-            from y in ApplOption<A, B, C>.Inst.Apply(curry(x), fa, fb)
+            from y in ApplOption<A, B, C>.Apply(curry(x), fa, fb)
             select y;
 
         /// <summary>
@@ -272,7 +271,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<C> apply<A, B, C>(Func<A, B, C> fabc, Option<A> fa, Option<B> fb) =>
-            ApplOption<A, B, C>.Inst.Apply(curry(fabc), fa, fb);
+            ApplOption<A, B, C>.Apply(curry(fabc), fa, fb);
 
         /// <summary>
         /// Apply
@@ -284,7 +283,7 @@ namespace LanguageExt
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<Func<B, C>> apply<A, B, C>(Option<Func<A, B, C>> fabc, Option<A> fa) =>
             from x in fabc
-            from y in ApplOption<A, B, C>.Inst.Apply(curry(x), fa)
+            from y in ApplOption<A, B, C>.Apply(curry(x), fa)
             select y;
 
         /// <summary>
@@ -296,7 +295,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, Option<A> fa) =>
-            ApplOption<A, B, C>.Inst.Apply(curry(fabc), fa);
+            ApplOption<A, B, C>.Apply(curry(fabc), fa);
 
         /// <summary>
         /// Apply
@@ -307,7 +306,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<Func<B, C>> apply<A, B, C>(Option<Func<A, Func<B, C>>> fabc, Option<A> fa) =>
-            ApplOption<A, B, C>.Inst.Apply(fabc, fa);
+            ApplOption<A, B, C>.Apply(fabc, fa);
 
         /// <summary>
         /// Apply
@@ -318,7 +317,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, Option<A> fa) =>
-            ApplOption<A, B, C>.Inst.Apply(fabc, fa);
+            ApplOption<A, B, C>.Apply(fabc, fa);
 
         /// <summary>
         /// Evaluate fa, then fb, ignoring the result of fa
@@ -329,7 +328,7 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Option<B> action<A, B>(Option<A> fa, Option<B> fb) =>
-            ApplOption<A, B>.Inst.Action(fa, fb);
+            ApplOption<A, B>.Action(fa, fb);
 
         /// <summary>
         /// <para>

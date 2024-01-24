@@ -8,7 +8,7 @@ using LanguageExt.Effects.Traits;
 namespace LanguageExt
 {
     public readonly struct IOCatch<RT, E, A> 
-        where RT : struct, HasIO<RT, E> 
+        where RT : HasIO<RT, E> 
     {
         readonly Func<E, IO<RT, E, A>> fail;
 

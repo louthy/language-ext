@@ -7,7 +7,7 @@ using LanguageExt.ClassInstances;
 namespace LanguageExt
 {
     public delegate RWSResult<MonoidW, R, W, S, A> RWS<MonoidW, R, W, S, A>(R env, S state)
-        where MonoidW : struct, Monoid<W>;
+        where MonoidW : Monoid<W>;
 
     public struct RWSState<W, S>
     {
@@ -41,7 +41,7 @@ namespace LanguageExt
     }
 
     public struct RWSResult<MonoidW, R, W, S, A> : IEquatable<RWSResult<MonoidW, R, W, S, A>>, IEquatable<A>
-        where MonoidW : struct, Monoid<W>
+        where MonoidW : Monoid<W>
     {
         public static readonly RWSResult<MonoidW, R, W, S, A> Bottom = new RWSResult<MonoidW, R, W, S, A>();
 

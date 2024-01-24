@@ -143,7 +143,7 @@ public static class ListExtensions
     /// <returns>Either head item or fail</returns>
     [Pure]
     public static Validation<MonoidFail, Fail, Success> HeadOrInvalid<MonoidFail, Fail, Success>(this IEnumerable<Success> list, Fail fail)
-        where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+        where MonoidFail : Monoid<Fail>, Eq<Fail> =>
         LanguageExt.List.headOrInvalid<MonoidFail, Fail, Success>(list, fail);
 
 
@@ -198,7 +198,7 @@ public static class ListExtensions
     /// <returns>Last item</returns>
     [Pure]
     public static Validation<MonoidFail, Fail, Success> LastOrInvalid<MonoidFail, Fail, Success>(this IEnumerable<Success> list, Fail fail)
-        where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+        where MonoidFail : Monoid<Fail>, Eq<Fail> =>
         list.Select(Validation<MonoidFail, Fail, Success>.Success)
             .DefaultIfEmpty(Validation<MonoidFail, Fail, Success>.Fail(fail))
             .LastOrDefault();
@@ -496,7 +496,7 @@ public static class ListExtensions
     /// <returns>Reversed list</returns>
     [Pure]
     public static Lst<PredList, A> Rev<PredList, A>(this Lst<PredList, A> list) 
-        where PredList : struct, Pred<ListInfo> =>
+        where PredList : Pred<ListInfo> =>
         LanguageExt.List.rev(list);
 
     /// <summary>
@@ -507,8 +507,8 @@ public static class ListExtensions
     /// <returns>Reversed list</returns>
     [Pure]
     public static Lst<PredList, PredItem, A> Rev<PredList, PredItem, A>(this Lst<PredList, PredItem, A> list) 
-        where PredList : struct, Pred<ListInfo>
-        where PredItem : struct, Pred<A> =>
+        where PredList : Pred<ListInfo>
+        where PredItem : Pred<A> =>
         LanguageExt.List.rev(list);
 
     /// <summary>
@@ -809,7 +809,7 @@ public static class ListExtensions
     /// <param name="list">Enumerable to convert</param>
     /// <returns>Lst of T</returns>
     [Pure]
-    public static Lst<PredList, T> Freeze<PredList, T>(this IEnumerable<T> list) where PredList : struct, Pred<ListInfo> =>
+    public static Lst<PredList, T> Freeze<PredList, T>(this IEnumerable<T> list) where PredList : Pred<ListInfo> =>
         LanguageExt.List.freeze<PredList, T>(list);
 
     /// <summary>
@@ -820,8 +820,8 @@ public static class ListExtensions
     /// <returns>Lst of T</returns>
     [Pure]
     public static Lst<PredList, PredItem, T> Freeze<PredList, PredItem, T>(this IEnumerable<T> list) 
-        where PredItem : struct, Pred<T>
-        where PredList : struct, Pred<ListInfo> =>
+        where PredItem : Pred<T>
+        where PredList : Pred<ListInfo> =>
         LanguageExt.List.freeze<PredList, PredItem, T>(list);
 
     /// <summary>
@@ -888,7 +888,7 @@ public static class ListExtensions
     /// <param name="list">Enumerable</param>
     /// <returns>A new enumerable with all duplicate values removed</returns>
     [Pure]
-    public static IEnumerable<T> Distinct<EQ, T>(this IEnumerable<T> list) where EQ : struct, Eq<T> =>
+    public static IEnumerable<T> Distinct<EQ, T>(this IEnumerable<T> list) where EQ : Eq<T> =>
         LanguageExt.List.distinct<EQ, T>(list);
 
     /// <summary>
@@ -954,7 +954,7 @@ public static class ListExtensions
     /// </summary>
     [Pure]
     public static Lst<PredList, B> Select<PredList, A, B>(this Lst<PredList, A> self, Func<A, B> map)
-        where PredList : struct, Pred<ListInfo> =>
+        where PredList : Pred<ListInfo> =>
         new Lst<PredList, B>(self.AsEnumerable().Select(map));
 
     /// <summary>
@@ -969,7 +969,7 @@ public static class ListExtensions
     /// </summary>
     [Pure]
     public static IEnumerable<B> BindEnumerable<PredList, A, B>(this Lst<PredList, A> self, Func<A, Lst<PredList, B>> binder) 
-        where PredList : struct, Pred<ListInfo> =>
+        where PredList : Pred<ListInfo> =>
         EnumerableOptimal.BindFast<PredList, A, B>(self, binder);
 
     /// <summary>
@@ -977,9 +977,9 @@ public static class ListExtensions
     /// </summary>
     [Pure]
     public static IEnumerable<B> BindEnumerable<PredList, PredItemA, PredItemB, A, B>(this Lst<PredList, PredItemA, A> self, Func<A, Lst<PredList, PredItemB, B>> binder)
-        where PredList : struct, Pred<ListInfo>
-        where PredItemA : struct, Pred<A>
-        where PredItemB : struct, Pred<B> =>
+        where PredList : Pred<ListInfo>
+        where PredItemA : Pred<A>
+        where PredItemB : Pred<B> =>
         EnumerableOptimal.BindFast<PredList, PredItemA, PredItemB, A, B>(self, binder);
 
     /// <summary>
@@ -994,7 +994,7 @@ public static class ListExtensions
     /// </summary>
     [Pure]
     public static Lst<PredList, B> Bind<PredList, A, B>(this Lst<PredList, A> self, Func<A, Lst<PredList, B>> binder)
-        where PredList : struct, Pred<ListInfo> =>
+        where PredList : Pred<ListInfo> =>
         new Lst<PredList, B>(self.BindEnumerable(binder));
 
     /// <summary>
@@ -1002,9 +1002,9 @@ public static class ListExtensions
     /// </summary>
     [Pure]
     public static Lst<PredList, PredItemB, B> Bind<PredList, PredItemA, PredItemB, A, B>(this Lst<PredList, PredItemA, A> self, Func<A, Lst<PredList, PredItemB, B>> binder)
-        where PredList : struct, Pred<ListInfo>
-        where PredItemA : struct, Pred<A>
-        where PredItemB : struct, Pred<B> =>
+        where PredList : Pred<ListInfo>
+        where PredItemA : Pred<A>
+        where PredItemB : Pred<B> =>
         new Lst<PredList, PredItemB, B>(self.BindEnumerable(binder));
 
     /// <summary>
@@ -1024,7 +1024,7 @@ public static class ListExtensions
     /// <param name="list">List to count</param>
     /// <returns>The number of items in the list</returns>
     [Pure]
-    public static int Count<PredList, A>(this Lst<PredList, A> self) where PredList : struct, Pred<ListInfo> =>
+    public static int Count<PredList, A>(this Lst<PredList, A> self) where PredList : Pred<ListInfo> =>
         self.Count;
 
     /// <summary>
@@ -1035,8 +1035,8 @@ public static class ListExtensions
     /// <returns>The number of items in the list</returns>
     [Pure]
     public static int Count<PredList, PredItem, A>(this Lst<PredList, PredItem, A> self) 
-        where PredList : struct, Pred<ListInfo>
-        where PredItem : struct, Pred<A> =>
+        where PredList : Pred<ListInfo>
+        where PredItem : Pred<A> =>
         self.Count;
 
     /// <summary>
@@ -1051,7 +1051,7 @@ public static class ListExtensions
     /// </summary>
     [Pure]
     public static Lst<PredList, C> SelectMany<PredList, A, B, C>(this Lst<PredList, A> self, Func<A, Lst<PredList, B>> bind, Func<A, B, C> project) 
-        where PredList : struct, Pred<ListInfo> =>
+        where PredList : Pred<ListInfo> =>
         self.Bind(t => bind(t).Map(u => project(t, u)));
 
     /// <summary>

@@ -66,7 +66,7 @@ namespace LanguageExt
         /// The strongly connected components of a directed graph, topologically sorted.
         /// </summary>
         public static Seq<SCC<Node>> stronglyConnComp<OrdKey, Node, Key>(EdgeNodes<Node, Key> edges)
-            where OrdKey : struct, Ord<Key>
+            where OrdKey : Ord<Key>
         {
             return stronglyConnCompR<OrdKey, Node, Key>(edges).Map(getNode);
 
@@ -89,7 +89,7 @@ namespace LanguageExt
         /// dependency information.
         /// </summary>
         public static Seq<EdgeNodeSCC<Node, Key>> stronglyConnCompR<OrdKey, Node, Key>(EdgeNodes<Node, Key> edges)
-            where OrdKey : struct, Ord<Key>
+            where OrdKey : Ord<Key>
         {
             if (edges.IsEmpty) return Empty;
 

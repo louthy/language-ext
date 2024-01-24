@@ -20,13 +20,13 @@ public static class ValueTuple7Extensions
     /// </summary>
     [Pure]
     public static (A, B, C, D, E, F, G) Append<SemiA, SemiB, SemiC, SemiD, SemiE, SemiF, SemiG, A, B, C, D, E, F, G>(this (A, B, C, D, E, F, G) a, (A, B, C, D, E, F, G) b)
-        where SemiA : struct, Semigroup<A>
-        where SemiB : struct, Semigroup<B>
-        where SemiC : struct, Semigroup<C>
-        where SemiD : struct, Semigroup<D> 
-        where SemiE : struct, Semigroup<E>
-        where SemiF : struct, Semigroup<F> 
-        where SemiG : struct, Semigroup<G>
+        where SemiA : Semigroup<A>
+        where SemiB : Semigroup<B>
+        where SemiC : Semigroup<C>
+        where SemiD : Semigroup<D> 
+        where SemiE : Semigroup<E>
+        where SemiF : Semigroup<F> 
+        where SemiG : Semigroup<G>
         =>
         (default(SemiA).Append(a.Item1, b.Item1),
          default(SemiB).Append(a.Item2, b.Item2),
@@ -41,7 +41,7 @@ public static class ValueTuple7Extensions
     /// </summary>
     [Pure]
     public static A Append<SemiA, A>(this ValueTuple<A, A, A, A, A, A, A> a)
-        where SemiA : struct, Semigroup<A> =>
+        where SemiA : Semigroup<A> =>
         default(SemiA).Append(a.Item1, 
             default(SemiA).Append(a.Item2, 
                 default(SemiA).Append(a.Item3, 
@@ -54,13 +54,13 @@ public static class ValueTuple7Extensions
     /// </summary>
     [Pure]
     public static (A, B, C, D, E, F, G) Concat<MonoidA, MonoidB, MonoidC, MonoidD, MonoidE, MonoidF, MonoidG, A, B, C, D, E, F, G>(this (A, B, C, D, E, F, G) a, (A, B, C, D, E, F, G) b)
-        where MonoidA : struct, Monoid<A>
-        where MonoidB : struct, Monoid<B>
-        where MonoidC : struct, Monoid<C>
-        where MonoidD : struct, Monoid<D>
-        where MonoidE : struct, Monoid<E>
-        where MonoidF : struct, Monoid<F>
-        where MonoidG : struct, Monoid<G> =>
+        where MonoidA : Monoid<A>
+        where MonoidB : Monoid<B>
+        where MonoidC : Monoid<C>
+        where MonoidD : Monoid<D>
+        where MonoidE : Monoid<E>
+        where MonoidF : Monoid<F>
+        where MonoidG : Monoid<G> =>
         (mconcat<MonoidA, A>(a.Item1, b.Item1),
          mconcat<MonoidB, B>(a.Item2, b.Item2),
          mconcat<MonoidC, C>(a.Item3, b.Item3),
@@ -74,7 +74,7 @@ public static class ValueTuple7Extensions
     /// </summary>
     [Pure]
     public static A Concat<MonoidA, A>(this ValueTuple<A, A, A, A, A, A, A> a)
-        where MonoidA : struct, Monoid<A> =>
+        where MonoidA : Monoid<A> =>
         mconcat<MonoidA, A>(a.Item1, a.Item2, a.Item3, a.Item4, a.Item5, a.Item6, a.Item7);
 
     /// <summary>
@@ -103,7 +103,7 @@ public static class ValueTuple7Extensions
     /// </summary>
     [Pure]
     public static A Sum<NUM, A>(this (A, A, A, A, A, A, A) self)
-        where NUM : struct, Num<A> =>
+        where NUM : Num<A> =>
         TypeClass.sum<NUM, FoldTuple<A>, (A, A, A, A, A, A, A), A>(self);
 
     /// <summary>
@@ -111,7 +111,7 @@ public static class ValueTuple7Extensions
     /// </summary>
     [Pure]
     public static A Product<NUM, A>(this(A, A, A, A, A, A, A) self)
-        where NUM : struct, Num<A> =>
+        where NUM : Num<A> =>
         TypeClass.product<NUM, FoldTuple<A>, (A, A, A, A, A, A, A), A>(self);
 
     /// <summary>
@@ -119,7 +119,7 @@ public static class ValueTuple7Extensions
     /// </summary>
     [Pure]
     public static bool Contains<EQ, A>(this (A, A, A, A, A, A, A) self, A value)
-        where EQ : struct, Eq<A> =>
+        where EQ : Eq<A> =>
         default(EQ).Equals(self.Item1, value) ||
         default(EQ).Equals(self.Item2, value) ||
         default(EQ).Equals(self.Item3, value) ||

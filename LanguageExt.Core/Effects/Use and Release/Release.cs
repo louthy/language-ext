@@ -34,14 +34,14 @@ public readonly struct Release<A>
     //
 
     public IO<RT, E, Unit> ToIO<RT, E>()
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new (Transducer.compose(
                 Transducer.constant<RT, A>(resource), 
                 Transducer.release<A>(), 
                 Transducer.mkRight<E, Unit>()));
     
     public Eff<RT, Unit> ToEff<RT>()
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         throw new NotImplementedException("TODO");
     
     public Eff<Unit> ToEff() =>
@@ -53,11 +53,11 @@ public readonly struct Release<A>
     //
 
     public IO<RT, E, B> Bind<RT, E, B>(Func<Unit, IO<RT, E, B>> bind)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ToIO<RT, E>().Bind(bind);
 
     public Eff<RT, B> Bind<RT, B>(Func<Unit, Eff<RT, B>> bind)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         ToEff<RT>().Bind(bind);
 
     public Eff<B> Bind<B>(Func<Unit, Eff<B>> bind) =>
@@ -69,11 +69,11 @@ public readonly struct Release<A>
     //
 
     public IO<RT, E, C> SelectMany<RT, E, B, C>(Func<Unit, IO<RT, E, B>> bind, Func<Unit, B, C> project)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public Eff<RT, C> SelectMany<RT, B, C>(Func<Unit, Eff<RT, B>> bind, Func<Unit, B, C> project)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public Eff<C> SelectMany<B, C>(Func<Unit, Eff<B>> bind, Func<Unit, B, C> project) =>

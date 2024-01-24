@@ -9,10 +9,10 @@ namespace LanguageExt.Effects;
 
 public static class MinRTExtensions
 {
-    public static MinRT ToMin<RT>(this RT rt) where RT : struct, HasIO<RT, Error> =>
+    public static MinRT ToMin<RT>(this RT rt) where RT : HasIO<RT, Error> =>
         new (rt.SynchronizationContext, rt.CancellationTokenSource, rt.CancellationToken);
     
-    public static MinRT<E> ToMin<RT, E>(this RT rt) where RT : struct, HasIO<RT, E> =>
+    public static MinRT<E> ToMin<RT, E>(this RT rt) where RT : HasIO<RT, E> =>
         new (rt.FromError, rt.SynchronizationContext, rt.CancellationTokenSource, rt.CancellationToken);
 }
 
@@ -26,7 +26,7 @@ public readonly struct MinRT :
     /// Get the transducer that converts from a `HasIO` supporting runtime to a `MinRT`
     /// </summary>
     public static Transducer<RT, MinRT> convert<RT>() 
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         lift<RT, MinRT>(rt => rt.ToMin());
     
     public MinRT(
@@ -73,7 +73,7 @@ public readonly struct MinRT<E> :
     /// Get the transducer that converts from a `HasIO` supporting runtime to a `MinRT`
     /// </summary>
     public static Transducer<RT, MinRT<E>> convert<RT>() 
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         lift<RT, MinRT<E>>(rt => rt.ToMin<RT, E>());
     
     public MinRT(

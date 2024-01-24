@@ -25,7 +25,7 @@ public static class EitherExtensions
         ma.Bind(identity);
 
     /// <summary>
-    /// Add the bound values of x and y, uses an Add type-class to provide the add
+    /// Add the bound values of x and y, uses an Add trait to provide the add
     /// operation for type A.  For example x.Add<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="NUM">Num of A</typeparam>
@@ -34,13 +34,13 @@ public static class EitherExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
-    public static Either<L, R> Plus<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : struct, Num<R> =>
+    public static Either<L, R> Plus<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : Num<R> =>
         from a in x
         from b in y
         select default(NUM).Plus(a, b);
 
     /// <summary>
-    /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 
+    /// Find the subtract between the two bound values of x and y, uses a Subtract trait 
     /// to provide the subtract operation for type A.  For example x.Subtract<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="NUM">Num of A</typeparam>
@@ -49,13 +49,13 @@ public static class EitherExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with the subtract between x and y</returns>
     [Pure]
-    public static Either<L, R> Subtract<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : struct, Num<R> =>
+    public static Either<L, R> Subtract<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : Num<R> =>
         from a in x
         from b in y
         select default(NUM).Subtract(a, b);
 
     /// <summary>
-    /// Find the product between the two bound values of x and y, uses a Product type-class 
+    /// Find the product between the two bound values of x and y, uses a Product trait 
     /// to provide the product operation for type A.  For example x.Product<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="NUM">Num of A</typeparam>
@@ -64,13 +64,13 @@ public static class EitherExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with the product of x and y</returns>
     [Pure]
-    public static Either<L, R> Product<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : struct, Num<R> =>
+    public static Either<L, R> Product<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : Num<R> =>
         from a in x
         from b in y
         select default(NUM).Product(a, b);
 
     /// <summary>
-    /// Divide the two bound values of x and y, uses a Divide type-class to provide the divide
+    /// Divide the two bound values of x and y, uses a Divide trait to provide the divide
     /// operation for type A.  For example x.Divide<TDouble,double>(y)
     /// </summary>
     /// <typeparam name="NUM">Num of A</typeparam>
@@ -79,7 +79,7 @@ public static class EitherExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option x / y</returns>
     [Pure]
-    public static Either<L, R> Divide<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : struct, Num<R> =>
+    public static Either<L, R> Divide<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : Num<R> =>
         from a in x
         from b in y
         select default(NUM).Divide(a, b);
@@ -264,7 +264,7 @@ public static class EitherExtensions
     /// <returns>0 if Left, or value of Right</returns>
     [Pure]
     public static R Sum<NUM, L, R>(this Either<L, R> self) 
-        where NUM : struct, Num<R> =>
+        where NUM : Num<R> =>
         sum<NUM, MEither<L, R>, Either<L, R>, R>(self);
 
     /// <summary>

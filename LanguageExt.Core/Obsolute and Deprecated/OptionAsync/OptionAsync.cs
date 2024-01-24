@@ -21,7 +21,7 @@ namespace LanguageExt
     ///     Some(a)
     ///     None
     ///     
-    /// Typeclass instances available for this type:
+    /// Trait instances available for this type:
     /// 
     ///     Applicative   : ApplOptionAsync
     ///     BiFoldable    : MOptionAsync
@@ -178,7 +178,7 @@ namespace LanguageExt
         /// Equality operator
         /// </summary>
         [Pure]
-        public async Task<bool> Equals<EqA>(OptionAsync<A> rhs) where EqA : struct, EqAsync<A>
+        public async Task<bool> Equals<EqA>(OptionAsync<A> rhs) where EqA : EqAsync<A>
         {
             var a = await Data.ConfigureAwait(false);
             var b = await rhs.Data.ConfigureAwait(false);
@@ -223,7 +223,7 @@ namespace LanguageExt
         /// Ordering
         /// </summary>
         [Pure]
-        public async Task<int> CompareTo<OrdA>(OptionAsync<A> rhs) where OrdA : struct, Ord<A>
+        public async Task<int> CompareTo<OrdA>(OptionAsync<A> rhs) where OrdA : Ord<A>
         {
             var a = await Data.ConfigureAwait(false);
             var b = await rhs.Data.ConfigureAwait(false);

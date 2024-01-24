@@ -1,24 +1,16 @@
 using System;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 
-namespace LanguageExt.ClassInstances
+namespace LanguageExt.ClassInstances;
+
+public struct EqException : Eq<Exception>
 {
-    public struct EqException : Eq<Exception>
-    {
-        public int GetHashCode(Exception x) =>
-            default(HashableException).GetHashCode(x);
+    [Pure]
+    public static int GetHashCode(Exception x) =>
+        HashableException.GetHashCode(x);
 
-        public bool Equals(Exception x, Exception y) =>
-            (x?.Message ?? "") == (y?.Message ?? "");
-  
-        [Pure]
-        public Task<bool> EqualsAsync(Exception x, Exception y) =>
-            Equals(x, y).AsTask();
-
-        [Pure]
-        public Task<int> GetHashCodeAsync(Exception x) => 
-            GetHashCode(x).AsTask();      
-    }
+    [Pure]
+    public static bool Equals(Exception x, Exception y) =>
+        x.GetType() == y.GetType();
 }

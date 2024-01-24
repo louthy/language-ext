@@ -21,7 +21,7 @@ namespace LanguageExt
     ///     Some(a)
     ///     None
     ///     
-    /// Typeclass instances available for this type:
+    /// Trait instances available for this type:
     /// 
     ///     BiFoldable  : MOptionUnsafe
     ///     Eq          : EqOpt
@@ -54,13 +54,13 @@ namespace LanguageExt
         /// <param name="value">Value to bind, must be non-null</param>
         /// <returns>OptionUnsafe of A</returns>
         [Pure]
-        public static OptionUnsafe<A> Some(A value) =>
-            new OptionUnsafe<A>(value, true);
+        public static OptionUnsafe<A> Some(A? value) =>
+            new (value, true);
 
         /// <summary>
         /// Constructor
         /// </summary>
-        internal OptionUnsafe(A value, bool isSome)
+        internal OptionUnsafe(A? value, bool isSome)
         {
             Value = value;
             this.isSome = isSome;
@@ -147,7 +147,7 @@ namespace LanguageExt
         /// <returns>`True` if `this` and `other` are equal</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals<EqA>(OptionUnsafe<A> other) where EqA : struct, Eq<A>
+        public bool Equals<EqA>(OptionUnsafe<A> other) where EqA : Eq<A>
         {
             var yIsSome = other.IsSome;
             var xIsNone = !isSome;
@@ -173,7 +173,7 @@ namespace LanguageExt
         /// <param name="other">The `OptionUnsafe` type to compare `this` type with</param>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo<OrdA>(OptionUnsafe<A> other) where OrdA : struct, Ord<A>
+        public int CompareTo<OrdA>(OptionUnsafe<A> other) where OrdA : Ord<A>
         {
             var yIsSome = other.IsSome;
             var xIsNone = !isSome;
@@ -288,7 +288,7 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>
         /// This uses the EqDefault instance for comparison of the A value.  
-        /// The EqDefault type-class wraps up the .NET EqualityComparer.Default 
+        /// The EqDefault trait wraps up the .NET EqualityComparer.Default 
         /// behaviour.  For more control over equality you can call:
         /// 
         ///     !equals<EQ, A>(lhs, rhs);

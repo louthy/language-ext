@@ -18,7 +18,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RWS<MonoidW, R, W, S, Seq<A>> Sequence<MonoidW, R, W, S, A>(this Seq<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : struct, Monoid<W> =>
+        public static RWS<MonoidW, R, W, S, Seq<A>> Sequence<MonoidW, R, W, S, A>(this Seq<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta).Map(toSeq);
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RWS<MonoidW, R, W, S, Lst<A>> Sequence<MonoidW, R, W, S, A>(this Lst<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : struct, Monoid<W> =>
+        public static RWS<MonoidW, R, W, S, Lst<A>> Sequence<MonoidW, R, W, S, A>(this Lst<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta).Map(toList);
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RWS<MonoidW, R, W, S, Arr<A>> Sequence<MonoidW, R, W, S, A>(this Arr<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : struct, Monoid<W> =>
+        public static RWS<MonoidW, R, W, S, Arr<A>> Sequence<MonoidW, R, W, S, A>(this Arr<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta).Map(toArray);
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RWS<MonoidW, R, W, S, A[]> Sequence<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A>[] ta) where MonoidW : struct, Monoid<W> =>
+        public static RWS<MonoidW, R, W, S, A[]> Sequence<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A>[] ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta).Map(x => x.ToArray());
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RWS<MonoidW, R, W, S, Set<A>> Sequence<MonoidW, R, W, S, A>(this Set<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : struct, Monoid<W> =>
+        public static RWS<MonoidW, R, W, S, Set<A>> Sequence<MonoidW, R, W, S, A>(this Set<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta).Map(toSet);
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RWS<MonoidW, R, W, S, HashSet<A>> Sequence<MonoidW, R, W, S, A>(this HashSet<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : struct, Monoid<W> =>
+        public static RWS<MonoidW, R, W, S, HashSet<A>> Sequence<MonoidW, R, W, S, A>(this HashSet<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta).Map(toHashSet);
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RWS<MonoidW, R, W, S, Stck<A>> Sequence<MonoidW, R, W, S, A>(this Stck<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : struct, Monoid<W> =>
+        public static RWS<MonoidW, R, W, S, Stck<A>> Sequence<MonoidW, R, W, S, A>(this Stck<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta.Reverse()).Map(toStack);
 
         /// <summary>
@@ -95,10 +95,10 @@ namespace LanguageExt
         /// <param name="ta">The subject traversable</param>
         /// <returns>Mapped monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RWS<MonoidW, R, W, S, IEnumerable<A>> Sequence<MonoidW, R, W, S, A>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : struct, Monoid<W> =>
+        public static RWS<MonoidW, R, W, S, IEnumerable<A>> Sequence<MonoidW, R, W, S, A>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : Monoid<W> =>
             SequenceFast(ta).Map(Enumerable.AsEnumerable);
                 
-        internal static RWS<MonoidW, R, W, S, List<A>> SequenceFast<MonoidW, R, W, S, A>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : struct, Monoid<W> => (env, state) =>
+        internal static RWS<MonoidW, R, W, S, List<A>> SequenceFast<MonoidW, R, W, S, A>(this IEnumerable<RWS<MonoidW, R, W, S, A>> ta) where MonoidW : Monoid<W> => (env, state) =>
         {
             var values = new List<A>();
             var output = default(MonoidW).Empty();

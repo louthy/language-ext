@@ -81,7 +81,7 @@ namespace LanguageExt
         /// Run the op within a new transaction
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
-        internal static Aff<RT, R> DoTransaction<RT, R>(Aff<RT, R> op, Isolation isolation) where RT : struct, HasIO<RT, Error> =>
+        internal static Aff<RT, R> DoTransaction<RT, R>(Aff<RT, R> op, Isolation isolation) where RT : HasIO<RT, Error> =>
             transaction.Value == null
                 ? RunTransaction(op, isolation)
                 : op;
@@ -100,7 +100,7 @@ namespace LanguageExt
         /// If a transaction is already running, then this becomes part of the parent transaction
         /// </summary>
         internal static Eff<RT, R> DoTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             transaction.Value == null
                 ? RunTransaction(op, isolation)
                 : op;
@@ -150,7 +150,7 @@ namespace LanguageExt
         /// <summary>
         /// Runs the transaction
         /// </summary>
-        static Aff<RT, R> RunTransaction<RT, R>(Aff<RT, R> op, Isolation isolation) where RT : struct, HasIO<RT, Error> =>
+        static Aff<RT, R> RunTransaction<RT, R>(Aff<RT, R> op, Isolation isolation) where RT : HasIO<RT, Error> =>
             AffMaybe<RT, R>(async env =>
             {
                 SpinWait sw = default;
@@ -189,7 +189,7 @@ namespace LanguageExt
         /// Runs the transaction
         /// </summary>
         static Eff<RT, R> RunTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) 
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             lift((RT env) =>
             {
                 SpinWait sw = default;

@@ -567,7 +567,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(F Fail) where MonoidFail : struct, Monoid<F>, Eq<F>
+        public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(F Fail) where MonoidFail : Monoid<F>, Eq<F>
         {
             var xs = items;
             return xs.IsEmpty
@@ -580,7 +580,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(Func<F> Fail) where MonoidFail : struct, Monoid<F>, Eq<F>
+        public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(Func<F> Fail) where MonoidFail : Monoid<F>, Eq<F>
         {
             var xs = items;
             return xs.IsEmpty
@@ -609,7 +609,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Validation<MonoidFail, Fail, A> HeadOrInvalid<MonoidFail, Fail>(Fail fail) where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+        public Validation<MonoidFail, Fail, A> HeadOrInvalid<MonoidFail, Fail>(Fail fail) where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             var xs = items;
             return xs.IsEmpty
@@ -1179,7 +1179,7 @@ namespace LanguageExt
         /// Equality test
         /// </summary>
         [Pure]
-        public bool Equals<EqA>(Seq<A> rhs) where EqA : struct, Eq<A>
+        public bool Equals<EqA>(Seq<A> rhs) where EqA : Eq<A>
         {
             var lhs = items;
             
@@ -1211,7 +1211,7 @@ namespace LanguageExt
         /// Equality test
         /// </summary>
         [Pure]
-        public bool Equals<EqA>(AtomSeq<A> rhs) where EqA : struct, Eq<A>
+        public bool Equals<EqA>(AtomSeq<A> rhs) where EqA : Eq<A>
         {
             var lhs = items;
             
@@ -1446,7 +1446,7 @@ namespace LanguageExt
         /// Compare to another sequence
         /// </summary>
         [Pure]
-        public int CompareTo<OrdA>(Seq<A> rhs) where OrdA : struct, Ord<A>
+        public int CompareTo<OrdA>(Seq<A> rhs) where OrdA : Ord<A>
         {
             var lhs = items;
             
@@ -1471,7 +1471,7 @@ namespace LanguageExt
         /// Compare to another sequence
         /// </summary>
         [Pure]
-        public int CompareTo<OrdA>(AtomSeq<A> rhs) where OrdA : struct, Ord<A>
+        public int CompareTo<OrdA>(AtomSeq<A> rhs) where OrdA : Ord<A>
         {
             var lhs = items;
             

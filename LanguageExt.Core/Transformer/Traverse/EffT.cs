@@ -21,7 +21,7 @@ namespace LanguageExt
         //
 
         [Pure]
-        public static Eff<RT, Arr<B>> Traverse<RT, A, B>(this Arr<Eff<RT, A>> ma, Func<A, B> f) where RT : struct, HasIO<RT, Error> =>
+        public static Eff<RT, Arr<B>> Traverse<RT, A, B>(this Arr<Eff<RT, A>> ma, Func<A, B> f) where RT : HasIO<RT, Error> =>
             EffMaybe<RT, Arr<B>>(env =>
             {
                 var rs = new List<B>();
@@ -36,7 +36,7 @@ namespace LanguageExt
 
 
         [Pure]
-        public static Eff<RT, HashSet<B>> Traverse<RT, A, B>(this HashSet<Eff<RT, A>> ma, Func<A, B> f) where RT : struct, HasIO<RT, Error> =>
+        public static Eff<RT, HashSet<B>> Traverse<RT, A, B>(this HashSet<Eff<RT, A>> ma, Func<A, B> f) where RT : HasIO<RT, Error> =>
             EffMaybe<RT, HashSet<B>>(env =>
             {
                 var rs = new List<B>();
@@ -53,7 +53,7 @@ namespace LanguageExt
         
 
         [Pure]
-        public static Eff<RT, IEnumerable<B>> Traverse<RT, A, B>(this IEnumerable<Eff<RT, A>> ma, Func<A, B> f) where RT : struct, HasIO<RT, Error> =>
+        public static Eff<RT, IEnumerable<B>> Traverse<RT, A, B>(this IEnumerable<Eff<RT, A>> ma, Func<A, B> f) where RT : HasIO<RT, Error> =>
             EffMaybe<RT, IEnumerable<B>>(env =>
             {
                 var rs = new List<B>();
@@ -67,7 +67,7 @@ namespace LanguageExt
             });
 
         [Pure]
-        public static Eff<RT, Lst<B>> Traverse<RT, A, B>(this Lst<Eff<RT, A>> ma, Func<A, B> f) where RT : struct, HasIO<RT, Error> =>
+        public static Eff<RT, Lst<B>> Traverse<RT, A, B>(this Lst<Eff<RT, A>> ma, Func<A, B> f) where RT : HasIO<RT, Error> =>
             EffMaybe<RT, Lst<B>>(env =>
             {
                 var rs = new List<B>();
@@ -83,7 +83,7 @@ namespace LanguageExt
 
         
         [Pure]
-        public static Eff<RT, Que<B>> Traverse<RT, A, B>(this Que<Eff<RT, A>> ma, Func<A, B> f) where RT : struct, HasIO<RT, Error> =>
+        public static Eff<RT, Que<B>> Traverse<RT, A, B>(this Que<Eff<RT, A>> ma, Func<A, B> f) where RT : HasIO<RT, Error> =>
             EffMaybe<RT, Que<B>>(env =>
             {
                 var rs = new List<B>();
@@ -100,7 +100,7 @@ namespace LanguageExt
         
         
         [Pure]
-        public static Eff<RT, Seq<B>> Traverse<RT, A, B>(this Seq<Eff<RT, A>> ma, Func<A, B> f) where RT : struct, HasIO<RT, Error> =>
+        public static Eff<RT, Seq<B>> Traverse<RT, A, B>(this Seq<Eff<RT, A>> ma, Func<A, B> f) where RT : HasIO<RT, Error> =>
             EffMaybe<RT, Seq<B>>(env =>
             {
                 var rs = new List<B>();
@@ -116,7 +116,7 @@ namespace LanguageExt
          
 
         [Pure]
-        public static Eff<RT, Set<B>> Traverse<RT, A, B>(this Set<Eff<RT, A>> ma, Func<A, B> f) where RT : struct, HasIO<RT, Error> =>
+        public static Eff<RT, Set<B>> Traverse<RT, A, B>(this Set<Eff<RT, A>> ma, Func<A, B> f) where RT : HasIO<RT, Error> =>
             EffMaybe<RT, Set<B>>(env =>
             {
                 var rs = new List<B>();
@@ -132,7 +132,7 @@ namespace LanguageExt
         
 
         [Pure]
-        public static Eff<RT, Stck<B>> Traverse<RT, A, B>(this Stck<Eff<RT, A>> ma, Func<A, B> f) where RT : struct, HasIO<RT, Error> =>
+        public static Eff<RT, Stck<B>> Traverse<RT, A, B>(this Stck<Eff<RT, A>> ma, Func<A, B> f) where RT : HasIO<RT, Error> =>
             EffMaybe<RT, Stck<B>>(env =>
             {
                 var rs = new List<B>();
@@ -150,7 +150,7 @@ namespace LanguageExt
         // 
         
         public static Eff<RT, Either<L, B>> Traverse<RT, L, A, B>(this Either<L, Eff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> 
+            where RT : HasIO<RT, Error> 
         {
             return EffMaybe<RT, Either<L, B>>(env => Go(env, ma, f));
             Fin<Either<L, B>> Go(RT env, Either<L, Eff<RT, A>> ma, Func<A, B> f)
@@ -164,7 +164,7 @@ namespace LanguageExt
         }
 
         public static Eff<RT, EitherUnsafe<L, B>> Traverse<RT, L, A, B>(this EitherUnsafe<L, Eff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> 
+            where RT : HasIO<RT, Error> 
         {
             return EffMaybe<RT, EitherUnsafe<L, B>>(env => Go(env, ma, f));
             Fin<EitherUnsafe<L, B>> Go(RT env, EitherUnsafe<L, Eff<RT, A>> ma, Func<A, B> f)
@@ -178,7 +178,7 @@ namespace LanguageExt
         }
 
         public static Eff<RT, Identity<B>> Traverse<RT, A, B>(this Identity<Eff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> 
+            where RT : HasIO<RT, Error> 
         {
             return EffMaybe<RT, Identity<B>>(env => Go(env, ma, f));
             Fin<Identity<B>> Go(RT env, Identity<Eff<RT, A>> ma, Func<A, B> f)
@@ -191,7 +191,7 @@ namespace LanguageExt
         }
 
         public static Eff<RT, Fin<B>> Traverse<RT, A, B>(this Fin<Eff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> 
+            where RT : HasIO<RT, Error> 
         {
             return EffMaybe<RT, Fin<B>>(env => Go(env, ma, f));
             Fin<Fin<B>> Go(RT env, Fin<Eff<RT, A>> ma, Func<A, B> f)
@@ -204,7 +204,7 @@ namespace LanguageExt
         }
         
         public static Eff<RT, Option<B>> Traverse<RT, A, B>(this Option<Eff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> 
+            where RT : HasIO<RT, Error> 
         {
             return EffMaybe<RT, Option<B>>(env => Go(env, ma, f));
             Fin<Option<B>> Go(RT env, Option<Eff<RT, A>> ma, Func<A, B> f)
@@ -217,7 +217,7 @@ namespace LanguageExt
         }
         
         public static Eff<RT, OptionUnsafe<B>> Traverse<RT, A, B>(this OptionUnsafe<Eff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> 
+            where RT : HasIO<RT, Error> 
         {
             return EffMaybe<RT, OptionUnsafe<B>>(env => Go(env, ma, f));
             Fin<OptionUnsafe<B>> Go(RT env, OptionUnsafe<Eff<RT, A>> ma, Func<A, B> f)
@@ -230,7 +230,7 @@ namespace LanguageExt
         }
         
         public static Eff<RT, Try<B>> Traverse<RT, A, B>(this Try<Eff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> 
+            where RT : HasIO<RT, Error> 
         {
             return EffMaybe<RT, Try<B>>(env => Go(env, ma, f));
             Fin<Try<B>> Go(RT env, Try<Eff<RT, A>> ma, Func<A, B> f)
@@ -244,7 +244,7 @@ namespace LanguageExt
         }
         
         public static Eff<RT, TryOption<B>> Traverse<RT, A, B>(this TryOption<Eff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> 
+            where RT : HasIO<RT, Error> 
         {
             return EffMaybe<RT, TryOption<B>>(env => Go(env, ma, f));
             Fin<TryOption<B>> Go(RT env, TryOption<Eff<RT, A>> ma, Func<A, B> f)
@@ -260,7 +260,7 @@ namespace LanguageExt
         }
         
         public static Eff<RT, Validation<Fail, B>> Traverse<RT, Fail, A, B>(this Validation<Fail, Eff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> 
+            where RT : HasIO<RT, Error> 
         {
             return EffMaybe<RT, Validation<Fail, B>>(env => Go(env, ma, f));
             Fin<Validation<Fail, B>> Go(RT env, Validation<Fail, Eff<RT, A>> ma, Func<A, B> f)
@@ -273,8 +273,8 @@ namespace LanguageExt
         }
         
         public static Eff<RT, Validation<MonoidFail, Fail, B>> Traverse<RT, MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Eff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> 
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where RT : HasIO<RT, Error> 
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             return EffMaybe<RT, Validation<MonoidFail, Fail, B>>(env => Go(env, ma, f));
             Fin<Validation<MonoidFail, Fail, B>> Go(RT env, Validation<MonoidFail, Fail, Eff<RT, A>> ma, Func<A, B> f)
@@ -287,7 +287,7 @@ namespace LanguageExt
         }
         
         public static Eff<RT, Eff<B>> Traverse<RT, A, B>(this Eff<Eff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>         {
+            where RT : HasIO<RT, Error>         {
             return EffMaybe<RT, Eff<B>>(env => Go(env, ma, f));
             Fin<Eff<B>> Go(RT env, Eff<Eff<RT, A>> ma, Func<A, B> f)
             {

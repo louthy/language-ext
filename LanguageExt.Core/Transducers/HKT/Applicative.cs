@@ -34,28 +34,28 @@ public static class ApplicativeExtensions
     /// Lift transducer into applicative
     /// </summary>
     public static KArr<F, Unit, A> Lift<F, A>(this Applicative<F> self, Func<Unit, A> f) 
-        where F : struct, Applicative<F> =>
+        where F : Applicative<F> =>
         default(F).Lift(lift(f));
 
     /// <summary>
     /// Pure constructor
     /// </summary>
     public static KArr<F, Unit, B> Pure<F, B>(this Applicative<F> self, B value) 
-        where F : struct, Applicative<F> =>
+        where F : Applicative<F> =>
         default(F).Lift(Transducer.constant<Unit, B>(value));
     
     /// <summary>
     /// Lift transducer into applicative
     /// </summary>
     public static KArr<F, A, B> Lift<F, A, B>(this Applicative<F, A> self, Func<A, B> f)
-        where F : struct, Applicative<F, A> =>
+        where F : Applicative<F, A> =>
         default(F).Lift(lift(f));
 
     /// <summary>
     /// Pure constructor
     /// </summary>
     public static KArr<F, A, B> Pure<F, A, B>(this Applicative<F, A> self, B value)
-        where F : struct, Applicative<F, A> =>
+        where F : Applicative<F, A> =>
         default(F).Lift(Transducer.constant<A, B>(value));
 
 }

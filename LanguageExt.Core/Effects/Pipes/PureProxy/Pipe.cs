@@ -15,21 +15,21 @@ namespace LanguageExt.Pipes
     public abstract class Pipe<IN, OUT, A>
     {
         public abstract Pipe<IN, OUT, B> Select<B>(Func<A, B> f);
-        public abstract Pipe<RT, IN, OUT, A> Interpret<RT>() where RT : struct, HasIO<RT, Error>;
+        public abstract Pipe<RT, IN, OUT, A> Interpret<RT>() where RT : HasIO<RT, Error>;
         public abstract Pipe<IN, OUT, B> SelectMany<B>(Func<A, Pipe<IN, OUT, B>> f);
-        public abstract Pipe<RT, IN, OUT, B> SelectMany<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasIO<RT, Error>;
+        public abstract Pipe<RT, IN, OUT, B> SelectMany<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : HasIO<RT, Error>;
         public abstract Pipe<IN, OUT, B> SelectMany<B>(Func<A, Consumer<IN, B>> f);
         public abstract Pipe<IN, OUT, B> SelectMany<B>(Func<A, Producer<OUT, B>> f);
         
         public Pipe<IN, OUT, B> Map<B>(Func<A, B> f) => Select(f);
         public Pipe<IN, OUT, B> Bind<B>(Func<A, Pipe<IN, OUT, B>> f) => SelectMany(f);
-        public Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : struct, HasIO<RT, Error> => SelectMany(f);
+        public Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : HasIO<RT, Error> => SelectMany(f);
         public Pipe<IN, OUT, B> Bind<B>(Func<A, Consumer<IN, B>> f) => SelectMany(f);
 
         public Pipe<IN, OUT, C> SelectMany<B, C>(Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) =>
             SelectMany(a => f(a).Select(b => project(a, b)));
         
-        public Pipe<RT, IN, OUT, C> SelectMany<RT, B, C>(Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : struct, HasIO<RT, Error> =>
+        public Pipe<RT, IN, OUT, C> SelectMany<RT, B, C>(Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
             SelectMany(a => f(a).Select(b => project(a, b)));
         
         public Pipe<IN, OUT, C> SelectMany<B, C>(Func<A, Consumer<IN, B>> f, Func<A, B, C> project) =>

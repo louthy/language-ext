@@ -500,7 +500,7 @@ namespace LanguageExt
         }
         
         public static Aff<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Aff<A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             return AffMaybe<Validation<MonoidFail, Fail, B>>(() => Go(ma, f));
             async ValueTask<Fin<Validation<MonoidFail, Fail, B>>> Go(Validation<MonoidFail, Fail, Aff<A>> ma, Func<A, B> f)

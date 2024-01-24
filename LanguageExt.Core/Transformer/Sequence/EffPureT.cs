@@ -241,7 +241,7 @@ namespace LanguageExt
         /// <returns>Mapped and lifted monad</returns>
         [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Eff<Validation<MonoidFail, FAIL, B>> Sequence<MonoidFail, FAIL, A, B>(this Validation<MonoidFail, FAIL, A> ta, Func<A, Eff<B>> f)
-            where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
             ta.Map(f).Sequence();
     }
 }

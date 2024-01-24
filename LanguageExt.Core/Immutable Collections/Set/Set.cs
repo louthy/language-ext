@@ -705,7 +705,7 @@ namespace LanguageExt
             Value.CompareTo(other.Value);
 
         [Pure]
-        public int CompareTo<OrdA>(Set<A> other) where OrdA : struct, Ord<A> =>
+        public int CompareTo<OrdA>(Set<A> other) where OrdA : Ord<A> =>
             Value.CompareTo<OrdA>(other.Value);
 
         /// <summary>

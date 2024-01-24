@@ -42,7 +42,7 @@ public readonly record struct Fail<E>(E Value) : KArr<Any, Unit, E>
         Validation<E, A>.Fail(Prelude.Seq1(Value));
     
     public IO<RT, E, A> ToIO<RT, A>()
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Fail(Value);
     
     public IO<E, A> ToIO<A>() =>
@@ -74,11 +74,11 @@ public static class FailExtensions
         Fin<A>.Fail(fail.Value);
     
     public static Validation<MonadFail, FAIL, A> ToValidation<MonadFail, FAIL, A>(this Fail<FAIL> fail) 
-        where MonadFail : struct, Monoid<FAIL>, Eq<FAIL> =>
+        where MonadFail : Monoid<FAIL>, Eq<FAIL> =>
         Validation<MonadFail, FAIL, A>.Fail(fail.Value);
     
     public static Eff<RT, A> ToEff<RT, A>(this Fail<Error> fail)
-        where RT : struct, HasIO<RT, Error> =>
+        where RT : HasIO<RT, Error> =>
         Eff<RT, A>.Fail(fail.Value);
     
     public static Eff<A> ToEff<A>(this Fail<Error> fail) =>

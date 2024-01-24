@@ -10,9 +10,9 @@ namespace LanguageExt.Effects.Traits;
 /// </summary>
 /// <typeparam name="RT">Runtime</typeparam>
 /// <typeparam name="E">User specified error type</typeparam>
-[Typeclass("*")]
+[Trait("*")]
 public interface HasFromError<out RT, out E>
-    where RT : struct, HasFromError<RT, E>
+    where RT : HasFromError<RT, E>
 {
     /// <summary>
     /// Allows conversion from an `Error` type to `E`

@@ -16,9 +16,9 @@ namespace LanguageExt
     public readonly struct HashSet<EqA, A> :
         IEnumerable<A>,
         IEquatable<HashSet<EqA, A>>
-        where EqA : struct, Eq<A>
+        where EqA : Eq<A>
     {
-        public static readonly HashSet<EqA, A> Empty = new HashSet<EqA, A>(TrieSet<EqA, A>.Empty);
+        public static readonly HashSet<EqA, A> Empty = new (TrieSet<EqA, A>.Empty);
 
         readonly TrieSet<EqA, A> value;
         TrieSet<EqA, A> Value => value ?? TrieSet<EqA, A>.Empty;
@@ -133,7 +133,7 @@ namespace LanguageExt
         /// <param name="mapper">Mapping function</param>
         /// <returns>Mapped enumerable</returns>
         [Pure]
-        public HashSet<EqR, R> Map<EqR, R>(Func<A, R> mapper) where EqR : struct, Eq<R>
+        public HashSet<EqR, R> Map<EqR, R>(Func<A, R> mapper) where EqR : Eq<R>
         {
             IEnumerable<R> Yield(TrieSet<EqA, A> map, Func<A, R> f)
             {
@@ -189,7 +189,7 @@ namespace LanguageExt
         /// <param name="mapper">Mapping function</param>
         /// <returns>Mapped enumerable</returns>
         [Pure]
-        public HashSet<EqR, R> Select<EqR, R>(Func<A, R> mapper) where EqR : struct, Eq<R> =>
+        public HashSet<EqR, R> Select<EqR, R>(Func<A, R> mapper) where EqR : Eq<R> =>
             Map<EqR, R>(mapper);
 
         /// <summary>

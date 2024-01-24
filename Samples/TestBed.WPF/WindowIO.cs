@@ -20,7 +20,7 @@ namespace TestBed.WPF;
 /// derived window-types. 
 /// </summary>
 public class WindowIO<RT, E> : Window
-    where RT : struct, HasIO<RT, E>
+    where RT : HasIO<RT, E>
 {
     readonly RT Runtime;
 

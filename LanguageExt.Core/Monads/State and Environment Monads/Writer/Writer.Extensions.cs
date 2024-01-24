@@ -22,7 +22,7 @@ public static class WriterExtensions
     /// Monadic join
     /// </summary>
     [Pure]
-    public static Writer<MonoidW, W, A> Flatten<MonoidW, W, A>(this Writer<MonoidW, W, Writer<MonoidW, W, A>> ma) where MonoidW : struct, Monoid<W> =>
+    public static Writer<MonoidW, W, A> Flatten<MonoidW, W, A>(this Writer<MonoidW, W, Writer<MonoidW, W, A>> ma) where MonoidW : Monoid<W> =>
         ma.Bind(identity);
 
     /// <summary>
@@ -43,7 +43,7 @@ public static class WriterExtensions
     /// <param name="ma">Tuple to convert to writeer</param>
     /// <returns>Writer monad</returns>
     public static Writer<MonoidW, W, A> ToWriter<MonoidW, W, A>(this (A Value, W Output) ma)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             () => ma.Add(false);
 
     /// <summary>
@@ -58,7 +58,7 @@ public static class WriterExtensions
     /// Match, IfSucc, IfNone, etc to extract.
     /// </summary>
     public static (TryOption<A> Value, W Output) Run<MonoidW, W, A>(this Writer<MonoidW, W, A> self)
-        where MonoidW : struct, Monoid<W>
+        where MonoidW : Monoid<W>
     {
         try
         {
@@ -85,12 +85,12 @@ public static class WriterExtensions
 
     [Pure]
     public static Writer<MonoidW, W, Seq<A>> ToSeq<MonoidW, W, A>(this Writer<MonoidW, W, A> self)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             self.Select(x => x.Cons());
 
     [Pure]
     public static Writer<MonoidW, W, Seq<A>> AsEnumerable<MonoidW, W, A>(this Writer<MonoidW, W, A> self)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             self.ToSeq();
 
     [Pure]
@@ -99,7 +99,7 @@ public static class WriterExtensions
 
     [Pure]
     public static Writer<MonoidW, W, int> Count<MonoidW, W>(this Writer<MonoidW, W, int> self)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             () =>
             {
                 var (x, s, b) = self();
@@ -114,7 +114,7 @@ public static class WriterExtensions
 
     [Pure]
     public static Writer<MonoidW, W, bool> ForAll<MonoidW, W, A>(this Writer<MonoidW, W, A> self, Func<A, bool> pred)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             () =>
             {
                 var (x, s, b) = self();
@@ -129,7 +129,7 @@ public static class WriterExtensions
 
     [Pure]
     public static Writer<MonoidW, W, bool> Exists<MonoidW, W, A>(this Writer<MonoidW, W, A> self, Func<A, bool> pred)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             () =>
             {
                 var (x, s, b) = self();
@@ -144,7 +144,7 @@ public static class WriterExtensions
 
     [Pure]
     public static Writer<MonoidW, W, FState> Fold<FState, MonoidW, W, A>(this Writer<MonoidW, W, A> self, FState initialState, Func<FState, A, FState> f)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             () =>
             {
                 var (x, s, b) = self();
@@ -159,7 +159,7 @@ public static class WriterExtensions
 
     [Pure]
     public static Writer<MonoidW, W, W> Fold<MonoidW, W, A>(this Writer<MonoidW, W, A> self, Func<W, A, W> f)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             () =>
             {
                 var (x, s, b) = self();
@@ -173,7 +173,7 @@ public static class WriterExtensions
 
     [Pure]
     public static Writer<MonoidW, W, B> Map<MonoidW, W, A, B>(this Writer<MonoidW, W, A> self, Func<A, B> f)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             self.Select(f);
 
     /// <summary>
@@ -191,7 +191,7 @@ public static class WriterExtensions
     /// <returns>
     /// Returns the original unmodified structure
     /// </returns>
-    public static Writer<MonoidW, W, A> Do<MonoidW, W, A>(this Writer<MonoidW, W, A> ma, Action<A> f) where MonoidW : struct, Monoid<W>
+    public static Writer<MonoidW, W, A> Do<MonoidW, W, A>(this Writer<MonoidW, W, A> ma, Action<A> f) where MonoidW : Monoid<W>
     {
         ma = ma.Strict();
         ma.Iter(f);
@@ -207,7 +207,7 @@ public static class WriterExtensions
     /// <summary>
     /// Force evaluation of the Writer 
     /// </summary>
-    public static Writer<MonoidW, W, A> Strict<MonoidW, W, A>(this Writer<MonoidW, W, A> ma) where MonoidW : struct, Monoid<W>
+    public static Writer<MonoidW, W, A> Strict<MonoidW, W, A>(this Writer<MonoidW, W, A> ma) where MonoidW : Monoid<W>
     {
         var r = ma();
         return () => r;
@@ -229,7 +229,7 @@ public static class WriterExtensions
     /// </summary>
     [Pure]
     public static Writer<MonoidW, W, A> Pass<MonoidW, W, A>(this Writer<MonoidW, W, (A, Func<W, W>)> self)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
         () =>
         {
             var ((a, f), w, b) = self();
@@ -252,7 +252,7 @@ public static class WriterExtensions
     /// </summary>
     [Pure]
     public static Writer<MonoidW, W, (A, B)> Listen<MonoidW, W, A, B>(this Writer<MonoidW, W, A> self, Func<W, B> f)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             default(MWriter<MonoidW, W, A>).Listen(self, f);
 
     /// <summary>
@@ -267,7 +267,7 @@ public static class WriterExtensions
     /// to its output,  leaving the return value unchanged.
     /// </summary>
     public static Writer<MonoidW, W, A> Censor<MonoidW, W, A>(this Writer<MonoidW, W, A> self, Func<W, W> f)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             Pass(
                 default(MWriter<MonoidW, W, A>)
                     .Bind<MWriter<MonoidW, W, (A, Func<W, W>)>, Writer<MonoidW, W, (A, Func<W, W>)>, (A, Func<W, W>)>(self, a =>
@@ -281,7 +281,7 @@ public static class WriterExtensions
 
     [Pure]
     public static Writer<MonoidW, W, B> Bind<MonoidW, W, A, B>(this Writer<MonoidW, W, A> self, Func<A, Writer<MonoidW, W, B>> f)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             default(MWriter<MonoidW, W, A>)
                 .Bind<MWriter<MonoidW, W, B>, Writer<MonoidW, W, B>, B>(self, f);
 
@@ -291,7 +291,7 @@ public static class WriterExtensions
 
     [Pure]
     public static Writer<MonoidW, W, B> Select<MonoidW, W, A, B>(this Writer<MonoidW, W, A> self, Func<A, B> f)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             default(MWriter<MonoidW, W, A>).Bind<MWriter<MonoidW, W, B>, Writer<MonoidW, W, B>, B>(self, a =>
             default(MWriter<MonoidW, W, B>).Return(_ => f(a)));
 
@@ -307,7 +307,7 @@ public static class WriterExtensions
         this Writer<MonoidW, W, A> self,
         Func<A, Writer<MonoidW, W, B>> bind,
         Func<A, B, C> project)
-            where MonoidW : struct, Monoid<W> =>
+            where MonoidW : Monoid<W> =>
                 default(MWriter<MonoidW, W, A>).Bind<MWriter<MonoidW, W, C>, Writer<MonoidW, W, C>, C>(self, a =>
                 default(MWriter<MonoidW, W, B>).Bind<MWriter<MonoidW, W, C>, Writer<MonoidW, W, C>, C>(bind(a), b =>
                 default(MWriter<MonoidW, W, C>).Return(_ => project(a, b))));
@@ -318,7 +318,7 @@ public static class WriterExtensions
 
     [Pure]
     public static Writer<MonoidW, W, A> Filter<MonoidW, W, A>(this Writer<MonoidW, W, A> self, Func<A, bool> pred)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             self.Where(pred);
 
     [Pure]
@@ -327,7 +327,7 @@ public static class WriterExtensions
 
     [Pure]
     public static Writer<MonoidW, W, A> Where<MonoidW, W, A>(this Writer<MonoidW, W, A> self, Func<A, bool> pred)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             () => {
                 var (x, s, b) = self();
                 if (b) return (default(A), default(MonoidW).Empty(), true);
@@ -339,7 +339,7 @@ public static class WriterExtensions
         self.Iter<MSeq<W>, Seq<W>, A>(action);
 
     public static Writer<MonoidW, W, Unit> Iter<MonoidW, W, A>(this Writer<MonoidW, W, A> self, Action<A> action)
-        where MonoidW : struct, Monoid<W> =>
+        where MonoidW : Monoid<W> =>
             () => {
                 var (x, s, b) = self();
                 if (!b) action(x);

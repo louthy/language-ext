@@ -8,7 +8,7 @@ using LanguageExt.UnsafeValueAccess;
 
 namespace LanguageExt.Sys.IO
 {
-    public static class Stream<RT> where RT : struct, HasCancel<RT>
+    public static class Stream<RT> where RT : HasCancel<RT>
     {
         /// <summary>
         /// Get a pipe of chunks from a Stream

@@ -18,7 +18,7 @@ namespace LanguageExt;
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public readonly struct Eff<RT, A> : KArr<Any, RT, Sum<Error, A>>
-    where RT : struct, HasIO<RT, Error>
+    where RT : HasIO<RT, Error>
 {
     /// <summary>
     /// Underlying transducer that captures all of the IO behaviour 

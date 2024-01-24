@@ -32,9 +32,9 @@ namespace LanguageExt
     public class VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V> :
         IEnumerable<(K Key, V Value)>,
         IEquatable<VersionHashMap<ConflictV, OrdActor, EqK, Actor, K, V>>
-        where OrdActor  : struct, Ord<Actor>
-        where EqK       : struct, Eq<K>
-        where ConflictV : struct, Conflict<V>
+        where OrdActor  : Ord<Actor>
+        where EqK       : Eq<K>
+        where ConflictV : Conflict<V>
     {
         internal volatile TrieMap<EqK, K, VersionVector<ConflictV, OrdActor, TLong, Actor, long, V>> Items;
 

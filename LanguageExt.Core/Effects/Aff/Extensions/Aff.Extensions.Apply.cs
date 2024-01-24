@@ -204,7 +204,7 @@ public static partial class AffExtensions
     
     // ------------ Aff<RT, A> -----------------------------------------------------------------------------------------
     
-    public static Aff<RT, B> Apply<RT, A, B>(this Aff<RT, Func<A, B>> mf, Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, B> Apply<RT, A, B>(this Aff<RT, Func<A, B>> mf, Aff<RT, A> ma) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, B>(async rt =>
         {
             var (f, a) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt)).ConfigureAwait(false);
@@ -222,7 +222,7 @@ public static partial class AffExtensions
             }
         });
         
-    public static Aff<RT, C> Apply<RT, A, B, C>(this Aff<RT, Func<A, B, C>> mf, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, C> Apply<RT, A, B, C>(this Aff<RT, Func<A, B, C>> mf, Aff<RT, A> ma, Aff<RT, B> mb) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, C>(async rt =>
         {
             var (f, a, b) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
@@ -241,7 +241,7 @@ public static partial class AffExtensions
             }
         });
         
-    public static Aff<RT, Func<B, C>> Apply<RT, A, B, C>(this Aff<RT, Func<A, B, C>> mf, Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, Func<B, C>> Apply<RT, A, B, C>(this Aff<RT, Func<A, B, C>> mf, Aff<RT, A> ma) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, Func<B, C>>(async rt =>
         {
             var (f, a) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt)).ConfigureAwait(false);
@@ -259,7 +259,7 @@ public static partial class AffExtensions
             }
         });
         
-    public static Aff<RT, D> Apply<RT, A, B, C, D>(this Aff<RT, Func<A, B, C, D>> mf, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, D> Apply<RT, A, B, C, D>(this Aff<RT, Func<A, B, C, D>> mf, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, D>(async rt =>
         {
             var (f, a, b, c) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt), mc.Run(rt)).ConfigureAwait(false);
@@ -279,7 +279,7 @@ public static partial class AffExtensions
             }
         });
         
-    public static Aff<RT, Func<C, D>> Apply<RT, A, B, C, D>(this Aff<RT, Func<A, B, C, D>> mf, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, Func<C, D>> Apply<RT, A, B, C, D>(this Aff<RT, Func<A, B, C, D>> mf, Aff<RT, A> ma, Aff<RT, B> mb) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, Func<C, D>>(async rt =>
         {
             var (f, a, b) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
@@ -298,7 +298,7 @@ public static partial class AffExtensions
             }
         });
         
-    public static Aff<RT, Func<B, C, D>> Apply<RT, A, B, C, D>(this Aff<RT, Func<A, B, C, D>> mf, Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, Func<B, C, D>> Apply<RT, A, B, C, D>(this Aff<RT, Func<A, B, C, D>> mf, Aff<RT, A> ma) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, Func<B, C, D>>(async rt =>
         {
             var (f, a) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt)).ConfigureAwait(false);
@@ -316,7 +316,7 @@ public static partial class AffExtensions
             }
         });
             
-    public static Aff<RT, E> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, B, C, D, E>> mf, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc, Aff<RT, D> md) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, E> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, B, C, D, E>> mf, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc, Aff<RT, D> md) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, E>(async rt =>
         {
             var (f, a, b, c, d) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt), mc.Run(rt), md.Run(rt)).ConfigureAwait(false);
@@ -337,7 +337,7 @@ public static partial class AffExtensions
             }
         });
              
-    public static Aff<RT, Func<D, E>> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, B, C, D, E>> mf, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, Func<D, E>> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, B, C, D, E>> mf, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, Func<D, E>>(async rt =>
         {
             var (f, a, b, c) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt), mc.Run(rt)).ConfigureAwait(false);
@@ -357,7 +357,7 @@ public static partial class AffExtensions
             }
         });
              
-    public static Aff<RT, Func<C, D, E>> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, B, C, D, E>> mf, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, Func<C, D, E>> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, B, C, D, E>> mf, Aff<RT, A> ma, Aff<RT, B> mb) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, Func<C, D, E>>(async rt =>
         {
             var (f, a, b) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
@@ -376,7 +376,7 @@ public static partial class AffExtensions
             }
         });
              
-    public static Aff<RT, Func<B, C, D, E>> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, B, C, D, E>> mf, Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, Func<B, C, D, E>> Apply<RT, A, B, C, D, E>(this Aff<RT, Func<A, B, C, D, E>> mf, Aff<RT, A> ma) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, Func<B, C, D, E>>(async rt =>
         {
             var (f, a) = await WaitAsync.WaitAll(mf.Run(rt), ma.Run(rt)).ConfigureAwait(false);
@@ -396,7 +396,7 @@ public static partial class AffExtensions
     
     // ------------ Non Aff functions ----------------------------------------------------------------------------------
     
-    public static Aff<RT, B> Apply<RT, A, B>(this Func<A, B> f, Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, B> Apply<RT, A, B>(this Func<A, B> f, Aff<RT, A> ma) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, B>(async rt =>
         {
             var a = await ma.Run(rt).ConfigureAwait(false);
@@ -411,7 +411,7 @@ public static partial class AffExtensions
             }
         });
         
-    public static Aff<RT, C> Apply<RT, A, B, C>(this Func<A, B, C> f, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, C> Apply<RT, A, B, C>(this Func<A, B, C> f, Aff<RT, A> ma, Aff<RT, B> mb) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, C>(async rt =>
         {
             var (a, b) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
@@ -429,7 +429,7 @@ public static partial class AffExtensions
             }
         });
         
-    public static Aff<RT, Func<B, C>> Apply<RT, A, B, C>(this Func<A, B, C> f, Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, Func<B, C>> Apply<RT, A, B, C>(this Func<A, B, C> f, Aff<RT, A> ma) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, Func<B, C>>(async rt =>
         {
             var a = await ma.Run(rt).ConfigureAwait(false);
@@ -444,7 +444,7 @@ public static partial class AffExtensions
             }
         });
         
-    public static Aff<RT, D> Apply<RT, A, B, C, D>(this Func<A, B, C, D> f, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, D> Apply<RT, A, B, C, D>(this Func<A, B, C, D> f, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, D>(async rt =>
         {
             var (a, b, c) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt), mc.Run(rt)).ConfigureAwait(false);
@@ -463,7 +463,7 @@ public static partial class AffExtensions
             }
         });
         
-    public static Aff<RT, Func<C, D>> Apply<RT, A, B, C, D>(this Func<A, B, C, D> f, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, Func<C, D>> Apply<RT, A, B, C, D>(this Func<A, B, C, D> f, Aff<RT, A> ma, Aff<RT, B> mb) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, Func<C, D>>(async rt =>
         {
             var (a, b) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
@@ -481,7 +481,7 @@ public static partial class AffExtensions
             }
         });
         
-    public static Aff<RT, Func<B, C, D>> Apply<RT, A, B, C, D>(this Func<A, B, C, D> f, Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, Func<B, C, D>> Apply<RT, A, B, C, D>(this Func<A, B, C, D> f, Aff<RT, A> ma) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, Func<B, C, D>>(async rt =>
         {
             var a = await ma.Run(rt).ConfigureAwait(false);
@@ -496,7 +496,7 @@ public static partial class AffExtensions
             }
         });
             
-    public static Aff<RT, E> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc, Aff<RT, D> md) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, E> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc, Aff<RT, D> md) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, E>(async rt =>
         {
             var (a, b, c, d) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt), mc.Run(rt), md.Run(rt)).ConfigureAwait(false);
@@ -516,7 +516,7 @@ public static partial class AffExtensions
             }
         });
              
-    public static Aff<RT, Func<D, E>> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, Func<D, E>> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Aff<RT, A> ma, Aff<RT, B> mb, Aff<RT, C> mc) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, Func<D, E>>(async rt =>
         {
             var (a, b, c) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt), mc.Run(rt)).ConfigureAwait(false);
@@ -535,7 +535,7 @@ public static partial class AffExtensions
             }
         });
              
-    public static Aff<RT, Func<C, D, E>> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Aff<RT, A> ma, Aff<RT, B> mb) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, Func<C, D, E>> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Aff<RT, A> ma, Aff<RT, B> mb) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, Func<C, D, E>>(async rt =>
         {
             var (a, b) = await WaitAsync.WaitAll(ma.Run(rt), mb.Run(rt)).ConfigureAwait(false);
@@ -553,7 +553,7 @@ public static partial class AffExtensions
             }
         });
              
-    public static Aff<RT, Func<B, C, D, E>> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Aff<RT, A> ma) where RT : struct, HasIO<RT, Error> =>
+    public static Aff<RT, Func<B, C, D, E>> Apply<RT, A, B, C, D, E>(this Func<A, B, C, D, E> f, Aff<RT, A> ma) where RT : HasIO<RT, Error> =>
         AffMaybe<RT, Func<B, C, D, E>>(async rt =>
         {
             var a = await ma.Run(rt).ConfigureAwait(false);

@@ -16,7 +16,7 @@ namespace LanguageExt
         /// <param name="value">Value</param>
         /// <returns>Validation applicative</returns>
         public static Validation<MonoidError, ERROR, A> Success<MonoidError, ERROR, A>(A value)
-            where MonoidError : struct, Monoid<ERROR>, Eq<ERROR> =>
+            where MonoidError : Monoid<ERROR>, Eq<ERROR> =>
             Validation<MonoidError, ERROR, A>.Success(value);
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace LanguageExt
         /// <param name="value">Error value</param>
         /// <returns>Validation applicative</returns>
         public static Validation<MonoidError, ERROR, A> Fail<MonoidError, ERROR, A>(ERROR value)
-            where MonoidError : struct, Monoid<ERROR>, Eq<ERROR> =>
+            where MonoidError : Monoid<ERROR>, Eq<ERROR> =>
             Validation<MonoidError, ERROR, A>.Fail(value);
     }
 }

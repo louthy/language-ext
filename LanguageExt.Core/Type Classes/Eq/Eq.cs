@@ -1,45 +1,48 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.Attributes;
 
-namespace LanguageExt.TypeClasses
+namespace LanguageExt.TypeClasses;
+
+/// <summary>
+/// Equality trait
+/// </summary>
+/// <typeparam name="A">
+/// The type for which equality is defined
+/// </typeparam>
+[Trait("Eq*")]
+public interface Eq<A> : Hashable<A>, Trait
 {
     /// <summary>
-    /// Equality type-class
+    /// Equality test
     /// </summary>
-    /// <typeparam name="A">
-    /// The type for which equality is defined
-    /// </typeparam>
-    [Typeclass("Eq*")]
-    public interface Eq<A> : Hashable<A>, EqAsync<A>, Typeclass
+    /// <param name="x">The left hand side of the equality operation</param>
+    /// <param name="y">The right hand side of the equality operation</param>
+    /// <returns>True if x and y are equal</returns>
+    [Pure]
+    public static abstract bool Equals(A x, A y);
+}
+
+public static class Eq
+{
+    class EqEqualityComparer<EqA, A> : IEqualityComparer<A>
+        where EqA : Eq<A>
     {
-        /// <summary>
-        /// Equality test
-        /// </summary>
-        /// <param name="x">The left hand side of the equality operation</param>
-        /// <param name="y">The right hand side of the equality operation</param>
-        /// <returns>True if x and y are equal</returns>
-        [Pure]
-        bool Equals(A x, A y);
+        public bool Equals(A? x, A? y) =>
+            (x, y) switch
+            {
+                (null, null) => true,
+                (null, _)    => false,
+                (_, null)    => false,
+                var (nx, ny) => EqA.Equals(nx, ny)
+            };
+
+        public int GetHashCode(A obj) =>
+            EqA.GetHashCode(obj);
     }
 
-    public static class EqExt
-    {
-        class EqEqualityComparer<A> : IEqualityComparer<A>
-        {
-            readonly Eq<A> eq;
-
-            public EqEqualityComparer(Eq<A> eq) =>
-                this.eq = eq;
-
-            public bool Equals(A x, A y) =>
-                eq.Equals(x, y);
-
-            public int GetHashCode(A obj) =>
-                eq.GetHashCode(obj);
-        }
-
-        public static IEqualityComparer<A> ToEqualityComparer<A>(this Eq<A> self) =>
-            new EqEqualityComparer<A>(self);
-    }
+    public static IEqualityComparer<A> ToEqualityComparer<EqA, A>(this EqA self)
+        where EqA : Eq<A> =>
+        new EqEqualityComparer<EqA, A>();
 }

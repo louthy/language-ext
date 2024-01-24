@@ -78,7 +78,7 @@ namespace LanguageExt
         /// Natural transformation to `Validation`
         /// </summary>
         public Validation<MonoidE, E, Unit> ToValidation<MonoidE>() 
-            where MonoidE : struct, Monoid<E>, Eq<E> =>
+            where MonoidE : Monoid<E>, Eq<E> =>
             Flag
                 ? Success<MonoidE, E, Unit>(unit)
                 : Fail<MonoidE, E, Unit>(OnFalse());
@@ -87,7 +87,7 @@ namespace LanguageExt
         /// Natural transformation to `IO`
         /// </summary>
         public IO<RT, E, Unit> ToIO<RT>() 
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             Flag
                 ? Pure(unit)
                 : Fail(OnFalse());
@@ -134,7 +134,7 @@ namespace LanguageExt
         /// Monadic binding support for `Validation`
         /// </summary>
         public Validation<MonoidE, E, B> Bind<MonoidE, B>(Func<Unit, Validation<MonoidE, E, B>> f)
-            where MonoidE : struct, Monoid<E>, Eq<E> =>
+            where MonoidE : Monoid<E>, Eq<E> =>
             Flag
                 ? f(default)
                 : Fail<MonoidE, E, B>(OnFalse());
@@ -145,7 +145,7 @@ namespace LanguageExt
         public IO<RT, E, B> Bind<RT, B>(
             Func<Unit, IO<RT, E, B>> bind,
             Func<Unit, B, B> project)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             Flag
                 ? bind(default).Map(b => project(default, b))
                 : Fail(OnFalse());
@@ -187,7 +187,7 @@ namespace LanguageExt
         public Validation<MonoidE, E, C> SelectMany<MonoidE, B, C>(
             Func<Unit, Validation<MonoidE, E, B>> bind, 
             Func<Unit, B, C> project)
-            where MonoidE : struct, Monoid<E>, Eq<E> =>
+            where MonoidE : Monoid<E>, Eq<E> =>
             Flag
                 ? bind(default).Map(b => project(default, b))
                 : Fail<MonoidE, E, C>(OnFalse());
@@ -199,7 +199,7 @@ namespace LanguageExt
         public IO<RT, E, C> SelectMany<RT, B, C>(
             Func<Unit, IO<RT, E, B>> bind,
             Func<Unit, B, C> project)
-            where RT : struct, HasIO<RT, E> =>
+            where RT : HasIO<RT, E> =>
             Flag
                 ? bind(default).Map(b => project(default, b))
                 : Fail(OnFalse());
@@ -209,7 +209,7 @@ namespace LanguageExt
     static class Test
     {
         public static IO<RT, Error, Unit> Testing<RT>(bool f1, bool f2, bool f3)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             from _1 in guard(f1, Error.New("failed on 1"))
             from _2 in guard(f2, Error.New("failed on 2"))
             from _3 in guard(f3, Error.New("failed on 2"))

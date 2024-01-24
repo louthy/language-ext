@@ -28,7 +28,7 @@ namespace LanguageExt.Pipes
         /// Monad return / pure
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Server<RT, REQ, RES, R> Pure<RT, REQ, RES, R>(R value) where RT : struct, HasCancel<RT> =>
+        public static Server<RT, REQ, RES, R> Pure<RT, REQ, RES, R>(R value) where RT : HasCancel<RT> =>
             new Pure<RT, Void, Unit, REQ, RES, R>(value).ToServer();
  
         /// <summary>
@@ -38,51 +38,51 @@ namespace LanguageExt.Pipes
         /// `respond` is the identity of the respond category.
         /// </remarks>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Server<RT, REQ, RES, REQ> respond<RT, REQ, RES>(RES value) where RT : struct, HasCancel<RT> =>
+        public static Server<RT, REQ, RES, REQ> respond<RT, REQ, RES>(RES value) where RT : HasCancel<RT> =>
             new Respond<RT, Void, Unit, REQ, RES, REQ>(value, r => new Pure<RT, Void, Unit, REQ, RES, REQ>(r)).ToServer();
         
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Aff<R> ma) where RT : struct, HasCancel<RT> =>
+        public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Aff<R> ma) where RT : HasCancel<RT> =>
             new M<RT, Void, Unit, REQ, RES, R>(ma.Map(Proxy.Pure<RT, Void, Unit, REQ, RES, R>).WithRuntime<RT>()).ToServer();
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Eff<R> ma) where RT : struct, HasCancel<RT> =>
+        public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Eff<R> ma) where RT : HasCancel<RT> =>
             new M<RT, Void, Unit, REQ, RES, R>(ma.Map(Proxy.Pure<RT, Void, Unit, REQ, RES, R>).ToAffWithRuntime<RT>()).ToServer();
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Aff<RT, R> ma) where RT : struct, HasCancel<RT> =>
+        public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Aff<RT, R> ma) where RT : HasCancel<RT> =>
             new M<RT, Void, Unit, REQ, RES, R>(ma.Map(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
 
         /// <summary>
         /// Lift am IO monad into the `Proxy` monad transformer
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
-        public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Eff<RT, R> ma) where RT : struct, HasCancel<RT> =>
+        public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Eff<RT, R> ma) where RT : HasCancel<RT> =>
             new M<RT, Void, Unit, REQ, RES, R>(ma.Map(Proxy.Pure<RT, Void, Unit, REQ, RES, R>).ToAff()).ToServer();    
 
         /*
         [Pure, MethodImpl(Proxy.mops)]
         public static Server<RT, REQ, RES, X> enumerate<RT, REQ, RES, X>(IEnumerable<X> xs)
-            where RT : struct, HasCancel<RT> =>
+            where RT : HasCancel<RT> =>
             new Enumerate<RT, Void, Unit, REQ, RES, X, X>(xs, Pure<RT, REQ, RES, X>).ToServer();
 
         [Pure, MethodImpl(Proxy.mops)]
         public static Server<RT, REQ, RES, X> enumerate<RT, REQ, RES, X>(IAsyncEnumerable<X> xs)
-            where RT : struct, HasCancel<RT> =>
+            where RT : HasCancel<RT> =>
             new Enumerate<RT, Void, Unit, REQ, RES, X, X>(xs, Pure<RT, REQ, RES, X>).ToServer();
 
         [Pure, MethodImpl(Proxy.mops)]
         public static Server<RT, REQ, RES, X> observe<RT, REQ, RES, X>(IObservable<X> xs)
-            where RT : struct, HasCancel<RT> =>
+            where RT : HasCancel<RT> =>
             new Enumerate<RT, Void, Unit, REQ, RES, X, X>(xs, Pure<RT, REQ, RES, X>).ToServer();
             */
         
@@ -91,7 +91,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Server<RT, REQ, RES, R> use<RT, REQ, RES, R>(Aff<R> ma) 
-            where RT : struct, HasCancel<RT>
+            where RT : HasCancel<RT>
             where R : IDisposable =>
             Proxy.use<RT, Void, Unit, REQ, RES, R>(ma).ToServer();
 
@@ -100,7 +100,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Server<RT, REQ, RES, R> use<RT, REQ, RES, R>(Eff<R> ma) 
-            where RT : struct, HasCancel<RT>
+            where RT : HasCancel<RT>
             where R : IDisposable =>
             Proxy.use<RT, Void, Unit, REQ, RES, R>(ma).ToServer();
 
@@ -109,7 +109,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Server<RT, REQ, RES, R> use<RT, REQ, RES, R>(Aff<RT, R> ma) 
-            where RT : struct, HasCancel<RT> 
+            where RT : HasCancel<RT> 
             where R : IDisposable =>
             Proxy.use<RT, Void, Unit, REQ, RES, R>(ma).ToServer();
 
@@ -118,7 +118,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Server<RT, REQ, RES, R> use<RT, REQ, RES, R>(Eff<RT, R> ma) 
-            where RT : struct, HasCancel<RT> 
+            where RT : HasCancel<RT> 
             where R : IDisposable =>
             Proxy.use<RT, Void, Unit, REQ, RES, R>(ma).ToServer();
         
@@ -128,7 +128,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Server<RT, REQ, RES, R> use<RT, REQ, RES, R>(Aff<R> ma, Func<R, Unit> dispose) 
-            where RT : struct, HasCancel<RT> =>
+            where RT : HasCancel<RT> =>
             Proxy.use<RT, Void, Unit, REQ, RES, R>(ma, dispose).ToServer();
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Server<RT, REQ, RES, R> use<RT, REQ, RES, R>(Eff<R> ma, Func<R, Unit> dispose) 
-            where RT : struct, HasCancel<RT> =>
+            where RT : HasCancel<RT> =>
             Proxy.use<RT, Void, Unit, REQ, RES, R>(ma, dispose).ToServer();
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Server<RT, REQ, RES, R> use<RT, REQ, RES, R>(Aff<RT, R> ma, Func<R, Unit> dispose) 
-            where RT : struct, HasCancel<RT> =>
+            where RT : HasCancel<RT> =>
             Proxy.use<RT, Void, Unit, REQ, RES, R>(ma, dispose).ToServer();
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Server<RT, REQ, RES, R> use<RT, REQ, RES, R>(Eff<RT, R> ma, Func<R, Unit> dispose) 
-            where RT : struct, HasCancel<RT> =>
+            where RT : HasCancel<RT> =>
             Proxy.use<RT, Void, Unit, REQ, RES, R>(ma, dispose).ToServer();       
         
         /// <summary>
@@ -160,7 +160,7 @@ namespace LanguageExt.Pipes
         /// </summary>
         [Pure, MethodImpl(Proxy.mops)]
         public static Server<RT, REQ, RES, Unit> release<RT, REQ, RES, R>(R dispose) 
-            where RT : struct, HasCancel<RT> =>
+            where RT : HasCancel<RT> =>
             Proxy.release<RT, Void,Unit, REQ, RES, R>(dispose).ToServer();
     }
 }

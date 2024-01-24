@@ -1,22 +1,22 @@
-﻿using System.Diagnostics.Contracts;
+﻿#nullable enable
+using System.Diagnostics.Contracts;
 using LanguageExt.Attributes;
 
-namespace LanguageExt.TypeClasses
+namespace LanguageExt.TypeClasses;
+
+/// <summary>
+/// Liftable trait
+/// <para>
+/// Can lift a value A into a 
+/// </para>
+/// </summary>
+/// <typeparam name="A">The type to be lifted</typeparam>
+[Trait("Lift*")]
+public interface Liftable<out LA, in A> : Trait
 {
     /// <summary>
-    /// Liftable type-class
-    /// <para>
-    /// Can lift a value A into a 
-    /// </para>
-    /// </summary>
-    /// <typeparam name="A">The type to be lifted</typeparam>
-    [Typeclass("Lift*")]
-    public interface Liftable<LA, A> : Typeclass
-    {
-        /// <summary>
-        /// Lift value A into a Liftable<A>
-        /// <summary>
-        [Pure]
-        LA Lift(A x);
-    }
+    /// Lift value A into a Liftable<A>
+    /// <summary>
+    [Pure]
+    public static abstract LA Lift(A x);
 }

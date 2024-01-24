@@ -23,7 +23,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int hash<HashA, A>(IEnumerable<A> xs) where HashA : struct, Hashable<A> =>
+        public static int hash<HashA, A>(IEnumerable<A> xs) where HashA : Hashable<A> =>
             FNV32.Hash<HashA, A>(xs);
 
         //
@@ -52,7 +52,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int hash<EqK, K, V>(HashMap<EqK, K, V> xs) where EqK : struct, Eq<K> =>
+        public static int hash<EqK, K, V>(HashMap<EqK, K, V> xs) where EqK : Eq<K> =>
             xs.GetHashCode();
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int hash<EqA, A>(HashSet<EqA, A> xs) where EqA : struct, Eq<A> =>
+        public static int hash<EqA, A>(HashSet<EqA, A> xs) where EqA : Eq<A> =>
             xs.GetHashCode();
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int hash<Pred, A>(Lst<Pred, A> xs) where Pred : struct, Pred<ListInfo> =>
+        public static int hash<Pred, A>(Lst<Pred, A> xs) where Pred : Pred<ListInfo> =>
             xs.GetHashCode();
 
         /// <summary>
@@ -93,8 +93,8 @@ namespace LanguageExt
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int hash<PredList, PredItem, A>(Lst<PredList, PredItem, A> xs) 
-            where PredList : struct, Pred<ListInfo>
-            where PredItem : struct, Pred<A> =>
+            where PredList : Pred<ListInfo>
+            where PredItem : Pred<A> =>
                 xs.GetHashCode();
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int hash<OrdK, K, V>(Map<OrdK, K, V> xs) where OrdK : struct, Ord<K> =>
+        public static int hash<OrdK, K, V>(Map<OrdK, K, V> xs) where OrdK : Ord<K> =>
             xs.GetHashCode();
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int hash<OrdA, A>(Set<OrdA, A> xs) where OrdA : struct, Ord<A> =>
+        public static int hash<OrdA, A>(Set<OrdA, A> xs) where OrdA : Ord<A> =>
             xs.GetHashCode();
 
         /// <summary>

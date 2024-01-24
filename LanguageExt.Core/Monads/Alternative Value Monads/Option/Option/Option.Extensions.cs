@@ -65,7 +65,7 @@ public static class OptionExtensions
     }
 
     /// <summary>
-    /// Add the bound values of x and y, uses an Add type-class to provide the add
+    /// Add the bound values of x and y, uses an Add trait to provide the add
     /// operation for type A.  For example x.Add<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="ADD">Add of A</typeparam>
@@ -75,13 +75,13 @@ public static class OptionExtensions
     /// <returns>An option with y added to x</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<A> Add<ARITH, A>(this Option<A> x, Option<A> y) where ARITH : struct, Arithmetic<A> =>
+    public static Option<A> Add<ARITH, A>(this Option<A> x, Option<A> y) where ARITH : Arithmetic<A> =>
         from a in x
         from b in y
         select plus<ARITH, A>(a, b);
 
     /// <summary>
-    /// Find the subtract between the two bound values of x and y, uses a Subtract type-class
+    /// Find the subtract between the two bound values of x and y, uses a Subtract trait
     /// to provide the subtract operation for type A.  For example x.Subtract<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="DIFF">Subtract of A</typeparam>
@@ -91,13 +91,13 @@ public static class OptionExtensions
     /// <returns>An option with the subtract between x and y</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<A> Subtract<ARITH, A>(this Option<A> x, Option<A> y) where ARITH : struct, Arithmetic<A> =>
+    public static Option<A> Subtract<ARITH, A>(this Option<A> x, Option<A> y) where ARITH : Arithmetic<A> =>
         from a in x
         from b in y
         select subtract<ARITH, A>(a, b);
 
     /// <summary>
-    /// Find the product between the two bound values of x and y, uses a Product type-class
+    /// Find the product between the two bound values of x and y, uses a Product trait
     /// to provide the product operation for type A.  For example x.Product<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="PROD">Product of A</typeparam>
@@ -107,13 +107,13 @@ public static class OptionExtensions
     /// <returns>An option with the product of x and y</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<A> Product<ARITH, A>(this Option<A> x, Option<A> y) where ARITH : struct, Arithmetic<A> =>
+    public static Option<A> Product<ARITH, A>(this Option<A> x, Option<A> y) where ARITH : Arithmetic<A> =>
         from a in x
         from b in y
         select product<ARITH, A>(a, b);
 
     /// <summary>
-    /// Divide the two bound values of x and y, uses a Divide type-class to provide the divide
+    /// Divide the two bound values of x and y, uses a Divide trait to provide the divide
     /// operation for type A.  For example x.Divide<TDouble,double>(y)
     /// </summary>
     /// <typeparam name="DIV">Divide of A</typeparam>
@@ -123,7 +123,7 @@ public static class OptionExtensions
     /// <returns>An option x / y</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<A> Divide<NUM, A>(this Option<A> x, Option<A> y) where NUM : struct, Num<A> =>
+    public static Option<A> Divide<NUM, A>(this Option<A> x, Option<A> y) where NUM : Num<A> =>
         from a in x
         from b in y
         select divide<NUM, A>(a, b);
@@ -307,11 +307,11 @@ public static class OptionExtensions
     /// Sum the bound value
     /// </summary>
     /// <remarks>This is a legacy method for backwards compatibility</remarks>
-    /// <param name="self">Option of A that is from the type-class NUM</param>
+    /// <param name="self">Option of A that is from the trait NUM</param>
     /// <returns>The bound value or 0 if None</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static A Sum<NUM, A>(this Option<A> self)
-        where NUM : struct, Num<A> =>
+        where NUM : Num<A> =>
         sum<NUM, MOption<A>, Option<A>, A>(self);
 
     [Pure]

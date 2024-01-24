@@ -54,9 +54,9 @@ namespace LanguageExt.Parsec
         /// <summary>
         /// ch(c) parses a single character c
         /// </summary>
-        /// <typeparam name="EQ">Eq<char> type-class</typeparam>
+        /// <typeparam name="EQ">Eq<char> trait</typeparam>
         /// <returns>The parsed character</returns>
-        public static Parser<char> ch<EQ>(char c) where EQ : struct, Eq<char> =>
+        public static Parser<char> ch<EQ>(char c) where EQ : Eq<char> =>
             satisfy(x => default(EQ).Equals(x, c)).label($"'{c}'");
 
         /// <summary>
@@ -255,9 +255,9 @@ namespace LanguageExt.Parsec
 
         /// <summary>
         /// Parse a string case insensitive (char by char)
-        /// <typeparam name="EQ">Eq<char> type-class</typeparam>
+        /// <typeparam name="EQ">Eq<char> trait</typeparam>
         /// </summary>
-        public static Parser<string> str<EQ>(string s) where EQ: struct, Eq<char>  =>
+        public static Parser<string> str<EQ>(string s) where EQ: Eq<char>  =>
             asString(chain(toSeq(s.Map(ch<EQ>)))).label($"'{s}'");
     }
 }

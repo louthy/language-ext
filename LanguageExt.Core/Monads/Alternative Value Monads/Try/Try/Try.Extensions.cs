@@ -804,7 +804,7 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>1 if lhs > rhs, 0 if lhs == rhs, -1 if lhs < rhs</returns>
     [Pure]
-    public static int Compare<ORD, A>(this Try<A> lhs, Try<A> rhs) where ORD : struct, Ord<A>
+    public static int Compare<ORD, A>(this Try<A> lhs, Try<A> rhs) where ORD : Ord<A>
     {
         var x = lhs.Try();
         var y = rhs.Try();
@@ -822,7 +822,7 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs ++ rhs</returns>
     [Pure]
-    public static Try<A> Append<SEMI, A>(this Try<A> lhs, Try<A> rhs) where SEMI : struct, Semigroup<A> =>
+    public static Try<A> Append<SEMI, A>(this Try<A> lhs, Try<A> rhs) where SEMI : Semigroup<A> =>
         from x in lhs
         from y in rhs
         select append<SEMI, A>(x, y);
@@ -835,7 +835,7 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Try<A> Add<ARITH, A>(this Try<A> lhs, Try<A> rhs) where ARITH : struct, Arithmetic<A> =>
+    public static Try<A> Add<ARITH, A>(this Try<A> lhs, Try<A> rhs) where ARITH : Arithmetic<A> =>
         from x in lhs
         from y in rhs
         select plus<ARITH, A>(x, y);
@@ -848,7 +848,7 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Try<A> Subtract<ARITH, A>(this Try<A> lhs, Try<A> rhs) where ARITH : struct, Arithmetic<A> =>
+    public static Try<A> Subtract<ARITH, A>(this Try<A> lhs, Try<A> rhs) where ARITH : Arithmetic<A> =>
         from x in lhs
         from y in rhs
         select subtract<ARITH, A>(x, y);
@@ -861,7 +861,7 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Try<A> Product<ARITH, A>(this Try<A> lhs, Try<A> rhs) where ARITH : struct, Arithmetic<A> =>
+    public static Try<A> Product<ARITH, A>(this Try<A> lhs, Try<A> rhs) where ARITH : Arithmetic<A> =>
         from x in lhs
         from y in rhs
         select product<ARITH, A>(x, y);
@@ -874,7 +874,7 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Try<A> Divide<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
+    public static Try<A> Divide<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : Num<A> =>
         from x in lhs
         from y in rhs
         select divide<NUM, A>(x, y);

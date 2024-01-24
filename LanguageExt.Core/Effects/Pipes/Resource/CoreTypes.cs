@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.Contracts;
@@ -24,7 +25,7 @@ namespace LanguageExt.Pipes
     /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
     ///
     /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-    public abstract class Use<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasIO<RT, Error>
+    public abstract class Use<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> where RT : HasIO<RT, Error>
     {
         internal abstract Proxy<RT, UOut, UIn, DIn, DOut, A> Run(ConcurrentDictionary<object, IDisposable> disps);
     }
@@ -47,7 +48,7 @@ namespace LanguageExt.Pipes
     ///
     /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
     public class Use<RT, UOut, UIn, DIn, DOut, X, A> : Use<RT, UOut, UIn, DIn, DOut, A> 
-        where RT : struct, HasIO<RT, Error>
+        where RT : HasIO<RT, Error>
     {
         public readonly Func<Aff<RT, X>> Acquire;
         public readonly Func<X, Unit> Release; 
@@ -152,7 +153,7 @@ namespace LanguageExt.Pipes
     ///
     /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
     public abstract class Release<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> 
-        where RT : struct, HasIO<RT, Error>
+        where RT : HasIO<RT, Error>
     {
         internal abstract Proxy<RT, UOut, UIn, DIn, DOut, A> Run(ConcurrentDictionary<object, IDisposable> disps);
     }
@@ -174,7 +175,7 @@ namespace LanguageExt.Pipes
     /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
     ///
     /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-    public class Release<RT, UOut, UIn, DIn, DOut, X, A> : Release<RT, UOut, UIn, DIn, DOut, A> where RT : struct, HasIO<RT, Error>
+    public class Release<RT, UOut, UIn, DIn, DOut, X, A> : Release<RT, UOut, UIn, DIn, DOut, A> where RT : HasIO<RT, Error>
     {
         public readonly X Value;
         public readonly Func<Unit, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next;
@@ -252,3 +253,4 @@ namespace LanguageExt.Pipes
                     }).Map(Next));
     }    
 }
+*/

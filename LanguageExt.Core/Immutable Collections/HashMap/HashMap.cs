@@ -526,7 +526,7 @@ namespace LanguageExt
         /// <returns>True if an item with the value supplied is in the map</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains<EqV>(V value) where EqV : struct, Eq<V> =>
+        public bool Contains<EqV>(V value) where EqV : Eq<V> =>
             Value.Contains<EqV>(value);
 
         /// <summary>
@@ -536,7 +536,7 @@ namespace LanguageExt
         /// <returns>True if an item with the key supplied is in the map</returns>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains<EqV>(K key, V value) where EqV : struct, Eq<V> =>
+        public bool Contains<EqV>(K key, V value) where EqV : Eq<V> =>
             Value.Contains<EqV>(key, value);
 
         /// <summary>
@@ -1058,7 +1058,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals<EqV>(HashMap<K, V> other) where EqV : struct, Eq<V> =>
+        public bool Equals<EqV>(HashMap<K, V> other) where EqV : Eq<V> =>
             Value.Equals<EqV>(other.Value);
 
         /// <summary>

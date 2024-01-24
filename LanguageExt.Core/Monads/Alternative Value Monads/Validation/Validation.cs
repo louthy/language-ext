@@ -30,7 +30,7 @@ namespace LanguageExt
         IEquatable<Validation<MonoidFail, FAIL, SUCCESS>>,
         IEquatable<SUCCESS>,
         ISerializable
-        where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL>
+        where MonoidFail : Monoid<FAIL>, Eq<FAIL>
     {
         readonly FAIL fail;
         readonly SUCCESS success;
@@ -836,7 +836,7 @@ namespace LanguageExt
         /// <param name="Fail">Fail map function</param>
         /// <returns>Mapped Validation</returns>
         [Pure]
-        public Validation<MonoidRet, Ret, SUCCESS> MapFail<MonoidRet, Ret>(Func<FAIL, Ret> Fail) where MonoidRet : struct, Monoid<Ret>, Eq<Ret> =>
+        public Validation<MonoidRet, Ret, SUCCESS> MapFail<MonoidRet, Ret>(Func<FAIL, Ret> Fail) where MonoidRet : Monoid<Ret>, Eq<Ret> =>
             FValidationBi<MonoidFail, FAIL, SUCCESS, MonoidRet, Ret, SUCCESS>.Inst.BiMap(this, Fail, identity);
 
         /// <summary>
@@ -849,7 +849,7 @@ namespace LanguageExt
         /// <param name="Fail">Fail map function</param>
         /// <returns>Mapped Validation</returns>
         [Pure]
-        public Validation<MonoidFail2, FAIL2, SUCCESS2> BiMap<MonoidFail2, FAIL2, SUCCESS2>(Func<SUCCESS, SUCCESS2> Success, Func<FAIL, FAIL2> Fail) where MonoidFail2 : struct, Monoid<FAIL2>, Eq<FAIL2> =>
+        public Validation<MonoidFail2, FAIL2, SUCCESS2> BiMap<MonoidFail2, FAIL2, SUCCESS2>(Func<SUCCESS, SUCCESS2> Success, Func<FAIL, FAIL2> Fail) where MonoidFail2 : Monoid<FAIL2>, Eq<FAIL2> =>
             FValidationBi<MonoidFail, FAIL, SUCCESS, MonoidFail2, FAIL2, SUCCESS2>.Inst.BiMap(this, Fail, Success);
 
         /// <summary>
@@ -894,7 +894,7 @@ namespace LanguageExt
     /// Context for the fluent Either matching
     /// </summary>
     public struct ValidationContext<MonoidFail, FAIL, SUCCESS, Ret>
-        where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL>
+        where MonoidFail : Monoid<FAIL>, Eq<FAIL>
     {
         readonly Validation<MonoidFail, FAIL, SUCCESS> validation;
         readonly Func<SUCCESS, Ret> success;
@@ -919,7 +919,7 @@ namespace LanguageExt
     /// Context for the fluent Validation matching
     /// </summary>
     public struct ValidationUnitContext<MonoidFail, FAIL, SUCCESS>
-        where MonoidFail : struct, Monoid<FAIL>, Eq<FAIL>
+        where MonoidFail : Monoid<FAIL>, Eq<FAIL>
     {
         readonly Validation<MonoidFail, FAIL, SUCCESS> validation;
         readonly Action<SUCCESS> success;

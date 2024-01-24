@@ -1088,7 +1088,7 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOption<A> Add<ARITH, A>(this TryOption<A> lhs, TryOption<A> rhs) where ARITH : struct, Arithmetic<A> =>
+    public static TryOption<A> Add<ARITH, A>(this TryOption<A> lhs, TryOption<A> rhs) where ARITH : Arithmetic<A> =>
         from x in lhs
         from y in rhs
         select plus<ARITH, A>(x, y);
@@ -1101,7 +1101,7 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOption<A> Subtract<ARITH, A>(this TryOption<A> lhs, TryOption<A> rhs) where ARITH : struct, Arithmetic<A> =>
+    public static TryOption<A> Subtract<ARITH, A>(this TryOption<A> lhs, TryOption<A> rhs) where ARITH : Arithmetic<A> =>
         from x in lhs
         from y in rhs
         select subtract<ARITH, A>(x, y);
@@ -1114,7 +1114,7 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOption<A> Product<ARITH, A>(this TryOption<A> lhs, TryOption<A> rhs) where ARITH : struct, Arithmetic<A> =>
+    public static TryOption<A> Product<ARITH, A>(this TryOption<A> lhs, TryOption<A> rhs) where ARITH : Arithmetic<A> =>
         from x in lhs
         from y in rhs
         select product<ARITH, A>(x, y);
@@ -1127,7 +1127,7 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOption<A> Divide<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : struct, Num<A> =>
+    public static TryOption<A> Divide<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : Num<A> =>
         from x in lhs
         from y in rhs
         select divide<NUM, A>(x, y);

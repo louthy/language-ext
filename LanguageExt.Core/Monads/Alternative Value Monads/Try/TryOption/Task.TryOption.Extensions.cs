@@ -727,7 +727,7 @@ public static class TaskTryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOptionAsync<A> Add<NUM, A>(this Task<TryOption<A>> lhs, Task<TryOption<A>> rhs) where NUM : struct, Num<A> =>
+    public static TryOptionAsync<A> Add<NUM, A>(this Task<TryOption<A>> lhs, Task<TryOption<A>> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Add<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -738,7 +738,7 @@ public static class TaskTryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOptionAsync<A> Subtract<NUM, A>(this Task<TryOption<A>> lhs, Task<TryOption<A>> rhs) where NUM : struct, Num<A> =>
+    public static TryOptionAsync<A> Subtract<NUM, A>(this Task<TryOption<A>> lhs, Task<TryOption<A>> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Subtract<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -749,7 +749,7 @@ public static class TaskTryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOptionAsync<A> Product<NUM, A>(this Task<TryOption<A>> lhs, Task<TryOption<A>> rhs) where NUM : struct, Num<A> =>
+    public static TryOptionAsync<A> Product<NUM, A>(this Task<TryOption<A>> lhs, Task<TryOption<A>> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Product<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -760,7 +760,7 @@ public static class TaskTryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOptionAsync<A> Divide<NUM, A>(this Task<TryOption<A>> lhs, Task<TryOption<A>> rhs) where NUM : struct, Num<A> =>
+    public static TryOptionAsync<A> Divide<NUM, A>(this Task<TryOption<A>> lhs, Task<TryOption<A>> rhs) where NUM : Num<A> =>
         lhs.ToAsync().Divide<NUM, A>(rhs.ToAsync());
 
     /// <summary>

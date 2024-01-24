@@ -6,6 +6,7 @@
     <NoWarn>1701;1702;1705;IDE1006;CS1591;CS1573;CS1712;CS1570;CS1711;CS1572;CS1587</NoWarn>
     <DefineConstants>CONTRACTS_FULL</DefineConstants>
     <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup>
     <PackageVersion>4.4.7</PackageVersion>

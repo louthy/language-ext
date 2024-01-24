@@ -23,8 +23,8 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     [Obsolete(Change.UseEffMonadInstead)]
     public struct EqEitherAsync<EqL, EqR, L, R> : EqAsync<EitherAsync<L, R>> 
-        where EqL : struct, EqAsync<L>
-        where EqR : struct, EqAsync<R>
+        where EqL : EqAsync<L>
+        where EqR : EqAsync<R>
     {
         public async Task<bool> EqualsAsync(EitherAsync<L, R> x, EitherAsync<L, R> y)
         {

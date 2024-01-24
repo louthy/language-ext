@@ -26,7 +26,7 @@ namespace LanguageExt
             return new IOCatch<MinRT, Error, A>(e => f(e).Morphism);
         }
 
-        public IOCatch<RT, Error, A> As<RT>() where RT : struct, HasIO<RT, Error>
+        public IOCatch<RT, Error, A> As<RT>() where RT : HasIO<RT, Error>
         {
             var f = fail;
             return new IOCatch<RT, Error, A>(e => Transducer.compose(MinRT.convert<RT>(), f(e).Morphism));

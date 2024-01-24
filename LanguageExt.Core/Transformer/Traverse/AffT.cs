@@ -22,12 +22,12 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<RT, Arr<B>> TraverseParallel<RT, A, B>(this Arr<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Arr<B>> TraverseParallel<RT, A, B>(this Arr<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, Arr<B>>(async env =>
             {
                 var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
@@ -40,7 +40,7 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<RT, Arr<B>> TraverseSerial<RT, A, B>(this Arr<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, Arr<B>>(async env =>
             {
                 var rs = new List<B>();
@@ -57,12 +57,12 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<RT, HashSet<B>> TraverseParallel<RT, A, B>(this HashSet<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, HashSet<B>> TraverseParallel<RT, A, B>(this HashSet<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, HashSet<B>>(async env =>
             {
                 var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
@@ -75,7 +75,7 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<RT, HashSet<B>> TraverseSerial<RT, A, B>(this HashSet<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, HashSet<B>>(async env =>
             {
                 var rs = new List<B>();
@@ -93,12 +93,12 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<RT, IEnumerable<B>> TraverseParallel<RT, A, B>(this IEnumerable<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, IEnumerable<B>> TraverseParallel<RT, A, B>(this IEnumerable<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, IEnumerable<B>>(async env =>
             {
                 var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
@@ -111,7 +111,7 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<RT, IEnumerable<B>> TraverseSerial<RT, A, B>(this IEnumerable<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, IEnumerable<B>>(async env =>
             {
                 var rs = new List<B>();
@@ -127,12 +127,12 @@ namespace LanguageExt
         
         [Pure]
         public static Aff<RT, Lst<B>> TraverseParallel<RT, A, B>(this Lst<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Lst<B>> TraverseParallel<RT, A, B>(this Lst<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, Lst<B>>(async env =>
             {
                 var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
@@ -145,7 +145,7 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<RT, Lst<B>> TraverseSerial<RT, A, B>(this Lst<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, Lst<B>>(async env =>
             {
                 var rs = new List<B>();
@@ -162,12 +162,12 @@ namespace LanguageExt
  
         [Pure]
         public static Aff<RT, Que<B>> TraverseParallel<RT, A, B>(this Que<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Que<B>> TraverseParallel<RT, A, B>(this Que<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, Que<B>>(async env =>
             {
                 var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
@@ -180,7 +180,7 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<RT, Que<B>> TraverseSerial<RT, A, B>(this Que<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, Que<B>>(async env =>
             {
                 var rs = new List<B>();
@@ -197,12 +197,12 @@ namespace LanguageExt
         
         [Pure]
         public static Aff<RT, Seq<B>> TraverseParallel<RT, A, B>(this Seq<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Seq<B>> TraverseParallel<RT, A, B>(this Seq<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, Seq<B>>(async env =>
             {
                 var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
@@ -215,7 +215,7 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<RT, Seq<B>> TraverseSerial<RT, A, B>(this Seq<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, Seq<B>>(async env =>
             {
                 var rs = new List<B>();
@@ -231,12 +231,12 @@ namespace LanguageExt
  
         [Pure]
         public static Aff<RT, Set<B>> TraverseParallel<RT, A, B>(this Set<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Set<B>> TraverseParallel<RT, A, B>(this Set<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, Set<B>>(async env =>
             {
                 var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
@@ -249,7 +249,7 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<RT, Set<B>> TraverseSerial<RT, A, B>(this Set<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, Set<B>>(async env =>
             {
                 var rs = new List<B>();
@@ -267,12 +267,12 @@ namespace LanguageExt
  
         [Pure]
         public static Aff<RT, Stck<B>> TraverseParallel<RT, A, B>(this Stck<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             TraverseParallel<RT, A, B>(ma, f, SysInfo.DefaultAsyncSequenceParallelism);
  
         [Pure]
         public static Aff<RT, Stck<B>> TraverseParallel<RT, A, B>(this Stck<Aff<RT, A>> ma, Func<A, B> f, int windowSize)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, Stck<B>>(async env =>
             {
                 var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
@@ -285,7 +285,7 @@ namespace LanguageExt
 
         [Pure]
         public static Aff<RT, Stck<B>> TraverseSerial<RT, A, B>(this Stck<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error> =>
+            where RT : HasIO<RT, Error> =>
             AffMaybe<RT, Stck<B>>(async env =>
             {
                 var rs = new List<B>();
@@ -305,7 +305,7 @@ namespace LanguageExt
 
         [Obsolete(Change.UseEffMonadInstead)]
         public static Aff<RT, EitherAsync<L, B>> Traverse<RT, L, A, B>(this EitherAsync<L, Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, EitherAsync<L, B>>(env => Go(env, ma, f));
             async ValueTask<Fin<EitherAsync<L, B>>> Go(RT env, EitherAsync<L, Aff<RT, A>> ma, Func<A, B> f)
@@ -321,7 +321,7 @@ namespace LanguageExt
 
         [Obsolete(Change.UseEffMonadInstead)]
         public static Aff<RT, OptionAsync<B>> Traverse<RT, A, B>(this OptionAsync<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, OptionAsync<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<OptionAsync<B>>> Go(RT env, OptionAsync<Aff<RT, A>> ma, Func<A, B> f)
@@ -335,7 +335,7 @@ namespace LanguageExt
         }
         
         public static Aff<RT, TryAsync<B>> Traverse<RT, A, B>(this TryAsync<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, TryAsync<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<TryAsync<B>>> Go(RT env, TryAsync<Aff<RT, A>> ma, Func<A, B> f)
@@ -349,7 +349,7 @@ namespace LanguageExt
         }
         
         public static Aff<RT, TryOptionAsync<B>> Traverse<RT, A, B>(this TryOptionAsync<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, TryOptionAsync<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<TryOptionAsync<B>>> Go(RT env, TryOptionAsync<Aff<RT, A>> ma, Func<A, B> f)
@@ -364,7 +364,7 @@ namespace LanguageExt
         }
 
         public static Aff<RT, Task<B>> Traverse<RT, A, B>(this Task<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, Task<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<Task<B>>> Go(RT env, Task<Aff<RT, A>> ma, Func<A, B> f)
@@ -377,7 +377,7 @@ namespace LanguageExt
         }
 
         public static Aff<RT, ValueTask<B>> Traverse<RT, A, B>(this ValueTask<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, ValueTask<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<ValueTask<B>>> Go(RT env, ValueTask<Aff<RT, A>> ma, Func<A, B> f)
@@ -390,7 +390,7 @@ namespace LanguageExt
         }
         
         public static Aff<RT, Aff<B>> Traverse<RT, A, B>(this Aff<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, Aff<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<Aff<B>>> Go(RT env, Aff<Aff<RT, A>> ma, Func<A, B> f)
@@ -408,7 +408,7 @@ namespace LanguageExt
         // 
         
         public static Aff<RT, Either<L, B>> Traverse<RT, L, A, B>(this Either<L, Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, Either<L, B>>(env => Go(env, ma, f));
             async ValueTask<Fin<Either<L, B>>> Go(RT env, Either<L, Aff<RT, A>> ma, Func<A, B> f)
@@ -422,7 +422,7 @@ namespace LanguageExt
         }
 
         public static Aff<RT, EitherUnsafe<L, B>> Traverse<RT, L, A, B>(this EitherUnsafe<L, Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, EitherUnsafe<L, B>>(env => Go(env, ma, f));
             async ValueTask<Fin<EitherUnsafe<L, B>>> Go(RT env, EitherUnsafe<L, Aff<RT, A>> ma, Func<A, B> f)
@@ -436,7 +436,7 @@ namespace LanguageExt
         }
 
         public static Aff<RT, Identity<B>> Traverse<RT, A, B>(this Identity<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, Identity<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<Identity<B>>> Go(RT env, Identity<Aff<RT, A>> ma, Func<A, B> f)
@@ -449,7 +449,7 @@ namespace LanguageExt
         }
 
         public static Aff<RT, Fin<B>> Traverse<RT, A, B>(this Fin<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, Fin<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<Fin<B>>> Go(RT env, Fin<Aff<RT, A>> ma, Func<A, B> f)
@@ -462,7 +462,7 @@ namespace LanguageExt
         }
 
         public static Aff<RT, Option<B>> Traverse<RT, A, B>(this Option<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, Option<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<Option<B>>> Go(RT env, Option<Aff<RT, A>> ma, Func<A, B> f)
@@ -475,7 +475,7 @@ namespace LanguageExt
         }
         
         public static Aff<RT, OptionUnsafe<B>> Traverse<RT, A, B>(this OptionUnsafe<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, OptionUnsafe<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<OptionUnsafe<B>>> Go(RT env, OptionUnsafe<Aff<RT, A>> ma, Func<A, B> f)
@@ -488,7 +488,7 @@ namespace LanguageExt
         }
         
         public static Aff<RT, Try<B>> Traverse<RT, A, B>(this Try<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, Try<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<Try<B>>> Go(RT env, Try<Aff<RT, A>> ma, Func<A, B> f)
@@ -502,7 +502,7 @@ namespace LanguageExt
         }
         
         public static Aff<RT, TryOption<B>> Traverse<RT, A, B>(this TryOption<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, TryOption<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<TryOption<B>>> Go(RT env, TryOption<Aff<RT, A>> ma, Func<A, B> f)
@@ -518,7 +518,7 @@ namespace LanguageExt
         }
         
         public static Aff<RT, Validation<Fail, B>> Traverse<RT, Fail, A, B>(this Validation<Fail, Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, Validation<Fail, B>>(env => Go(env, ma, f));
             async ValueTask<Fin<Validation<Fail, B>>> Go(RT env, Validation<Fail, Aff<RT, A>> ma, Func<A, B> f)
@@ -531,8 +531,8 @@ namespace LanguageExt
         }
         
         public static Aff<RT, Validation<MonoidFail, Fail, B>> Traverse<RT, MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where RT : HasIO<RT, Error>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             return AffMaybe<RT, Validation<MonoidFail, Fail, B>>(env => Go(env, ma, f));
             async ValueTask<Fin<Validation<MonoidFail, Fail, B>>> Go(RT env, Validation<MonoidFail, Fail, Aff<RT, A>> ma, Func<A, B> f)
@@ -545,7 +545,7 @@ namespace LanguageExt
         }
         
         public static Aff<RT, Eff<RT, B>> Traverse<RT, A, B>(this Eff<RT, Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, Eff<RT, B>>(env => Go(env, ma, f));
             async ValueTask<Fin<Eff<RT, B>>> Go(RT env, Eff<RT, Aff<RT, A>> ma, Func<A, B> f)
@@ -559,7 +559,7 @@ namespace LanguageExt
         }
         
         public static Aff<RT, Eff<B>> Traverse<RT, A, B>(this Eff<Aff<RT, A>> ma, Func<A, B> f)
-            where RT : struct, HasIO<RT, Error>
+            where RT : HasIO<RT, Error>
         {
             return AffMaybe<RT, Eff<B>>(env => Go(env, ma, f));
             async ValueTask<Fin<Eff<B>>> Go(RT env, Eff<Aff<RT, A>> ma, Func<A, B> f)

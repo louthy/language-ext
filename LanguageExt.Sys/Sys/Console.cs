@@ -10,7 +10,7 @@ namespace LanguageExt.Sys
     /// Time IO 
     /// </summary>
     public static class Console<RT>
-        where RT : struct, HasConsole<RT>
+        where RT : HasConsole<RT>
     {
         /// <summary>
         /// Read a key from the console

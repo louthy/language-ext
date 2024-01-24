@@ -260,7 +260,7 @@ public abstract record Error
     /// If it fails, Errors.Bottom is returned
     /// </summary>
     [Pure]
-    public static Error FromObject(object value) =>
+    public static Error FromObject(object? value) =>
         value switch
         {
             Error err          => err,
@@ -272,7 +272,8 @@ public abstract record Error
         };
     
     [Pure]
-    internal static Option<FAIL> Convert<FAIL>(object err) => err switch
+    internal static Option<FAIL> Convert<FAIL>(object? err) => 
+        err switch
     {
         // Messy, but we're doing our best to recover an error rather than return Bottom
             

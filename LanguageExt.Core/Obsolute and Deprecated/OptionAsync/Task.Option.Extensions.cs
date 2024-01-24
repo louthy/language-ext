@@ -985,7 +985,7 @@ public static class TaskOptionAsyncExtensions
         filterAsync<MOptionAsync<A>, OptionAsync<A>, A>(self.ToAsync(), pred);
 
     /// <summary>
-    /// Add the bound values of x and y, uses an Add type-class to provide the add
+    /// Add the bound values of x and y, uses an Add trait to provide the add
     /// operation for type A.  For example x.Add<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="NUM">Add of A</typeparam>
@@ -994,11 +994,11 @@ public static class TaskOptionAsyncExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
-    public static OptionAsync<A> AddAsync<NUM, A>(this Task<Option<A>> x, Task<Option<A>> y) where NUM : struct, Num<A> =>
+    public static OptionAsync<A> AddAsync<NUM, A>(this Task<Option<A>> x, Task<Option<A>> y) where NUM : Num<A> =>
         x.ToAsync().Add<NUM, A>(y.ToAsync());
 
     /// <summary>
-    /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 
+    /// Find the subtract between the two bound values of x and y, uses a Subtract trait 
     /// to provide the subtract operation for type A.  For example x.Subtract<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="NUM">Subtract of A</typeparam>
@@ -1007,11 +1007,11 @@ public static class TaskOptionAsyncExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with the subtract between x and y</returns>
     [Pure]
-    public static OptionAsync<A> SubtractAsync<NUM, A>(this Task<Option<A>> x, Task<Option<A>> y) where NUM : struct, Num<A> =>
+    public static OptionAsync<A> SubtractAsync<NUM, A>(this Task<Option<A>> x, Task<Option<A>> y) where NUM : Num<A> =>
         x.ToAsync().Subtract<NUM, A>(y.ToAsync());
 
     /// <summary>
-    /// Find the product between the two bound values of x and y, uses a Product type-class 
+    /// Find the product between the two bound values of x and y, uses a Product trait 
     /// to provide the product operation for type A.  For example x.Product<TInteger,int>(y)
     /// </summary>
     /// <typeparam name="NUM">Product of A</typeparam>
@@ -1020,11 +1020,11 @@ public static class TaskOptionAsyncExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with the product of x and y</returns>
     [Pure]
-    public static OptionAsync<A> ProductAsync<NUM, A>(this Task<Option<A>> x, Task<Option<A>> y) where NUM : struct, Num<A> =>
+    public static OptionAsync<A> ProductAsync<NUM, A>(this Task<Option<A>> x, Task<Option<A>> y) where NUM : Num<A> =>
         x.ToAsync().Product<NUM, A>(y.ToAsync());
 
     /// <summary>
-    /// Divide the two bound values of x and y, uses a Divide type-class to provide the divide
+    /// Divide the two bound values of x and y, uses a Divide trait to provide the divide
     /// operation for type A.  For example x.Divide<TDouble,double>(y)
     /// </summary>
     /// <typeparam name="NUM">Divide of A</typeparam>
@@ -1033,7 +1033,7 @@ public static class TaskOptionAsyncExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option x / y</returns>
     [Pure]
-    public static OptionAsync<A> DivideAsync<NUM, A>(this Task<Option<A>> x, Task<Option<A>> y) where NUM : struct, Num<A> =>
+    public static OptionAsync<A> DivideAsync<NUM, A>(this Task<Option<A>> x, Task<Option<A>> y) where NUM : Num<A> =>
         x.ToAsync().Divide<NUM, A>(y.ToAsync());
 
     /// <summary>

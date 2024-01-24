@@ -272,7 +272,7 @@ namespace LanguageExt.Thunks
         /// Functor async map
         /// </summary>
         [Pure, MethodImpl(Thunk.mops)]
-        public static ThunkAsync<Env, B> MapAsync<Env, A, B>(this Thunk<Env, A> ma, Func<A, ValueTask<B>> f) where Env : struct, HasCancel<Env> =>
+        public static ThunkAsync<Env, B> MapAsync<Env, A, B>(this Thunk<Env, A> ma, Func<A, ValueTask<B>> f) where Env : HasCancel<Env> =>
             ThunkAsync<Env, B>.Lazy(async env =>
                                     {
                                         var ra = ma.Value(env);
@@ -290,7 +290,7 @@ namespace LanguageExt.Thunks
         /// Functor async map
         /// </summary>
         [Pure, MethodImpl(Thunk.mops)]
-        public static ThunkAsync<Env, B> MapAsync<Env, A, B>(this Thunk<A> ma, Func<A, ValueTask<B>> f) where Env : struct, HasCancel<Env> =>
+        public static ThunkAsync<Env, B> MapAsync<Env, A, B>(this Thunk<A> ma, Func<A, ValueTask<B>> f) where Env : HasCancel<Env> =>
             ThunkAsync<Env, B>.Lazy(async env =>
                                     {
                                         var ra = ma.Value();

@@ -262,7 +262,7 @@ namespace LanguageExt
         }
         
         public static async Task<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(this Validation<MonoidFail, Fail, Task<A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail>
+            where MonoidFail : Monoid<Fail>, Eq<Fail>
         {
             if (ma.IsFail) return Validation<MonoidFail, Fail, B>.Fail(ma.FailValue);
             return Validation<MonoidFail, Fail, B>.Success(f(await ma.SuccessValue.ConfigureAwait(false)));

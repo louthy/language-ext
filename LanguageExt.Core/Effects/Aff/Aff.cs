@@ -14,7 +14,7 @@ namespace LanguageExt
     /// Asynchronous effect monad
     /// </summary>
     public readonly struct Aff<RT, A> 
-        where RT : struct, HasIO<RT, Error>
+        where RT : HasIO<RT, Error>
     {
         internal Func<RT, ValueTask<Fin<A>>> Thunk => thunk ?? (_ => FinFail<A>(Errors.Bottom).AsValueTask());
         readonly Func<RT, ValueTask<Fin<A>>> thunk;

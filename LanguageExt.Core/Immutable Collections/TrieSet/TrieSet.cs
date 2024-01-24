@@ -22,7 +22,7 @@ namespace LanguageExt
         IEnumerable<K>,
         IEquatable<TrieSet<EqK, K>>,
         IReadOnlyCollection<K>
-        where EqK : struct, Eq<K>
+        where EqK : Eq<K>
     {
         internal enum UpdateType
         {
@@ -289,7 +289,7 @@ namespace LanguageExt
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TrieSet<EqU, U> Map<EqU, U>(Func<K, U> f) 
-            where EqU : struct, Eq<U> =>
+            where EqU : Eq<U> =>
                 new TrieSet<EqU, U>(AsEnumerable().Select(f), true);
 
         /// <summary>

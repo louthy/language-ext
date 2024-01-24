@@ -332,10 +332,10 @@ namespace LanguageExt.Tests
             Assert.True(z.CompareTo(x) >= 0);
         }
 
-        public bool GenericEquals<EqA, A>(A x, A y) where EqA : struct, Eq<A> =>
+        public bool GenericEquals<EqA, A>(A x, A y) where EqA : Eq<A> =>
             default(EqA).Equals(x, y);
 
-        public int GenericCompare<OrdA, A>(A x, A y) where OrdA : struct, Ord<A> =>
+        public int GenericCompare<OrdA, A>(A x, A y) where OrdA : Ord<A> =>
             default(OrdA).Compare(x, y);
 
         [Fact]

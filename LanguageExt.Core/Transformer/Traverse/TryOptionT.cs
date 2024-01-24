@@ -298,7 +298,7 @@ namespace LanguageExt
 
         public static TryOption<Validation<MonoidFail, Fail, B>> Traverse<MonoidFail, Fail, A, B>(
             this Validation<MonoidFail, Fail, TryOption<A>> ma, Func<A, B> f)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail> => () =>
+            where MonoidFail : Monoid<Fail>, Eq<Fail> => () =>
         {
             if (ma.IsFail) return new OptionalResult<Validation<MonoidFail, Fail, B>>(Fail<MonoidFail, Fail, B>(ma.FailValue));
             var mr = ma.SuccessValue();  

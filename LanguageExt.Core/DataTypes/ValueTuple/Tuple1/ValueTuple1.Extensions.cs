@@ -20,7 +20,7 @@ public static class ValueTuple1Extensions
     /// </summary>
     [Pure]
     public static ValueTuple<A> Append<SemiA, SemiB, A, B>(this ValueTuple<A> a, ValueTuple<A> b)
-        where SemiA : struct, Semigroup<A> =>
+        where SemiA : Semigroup<A> =>
         VTuple(default(SemiA).Append(a.Item1, b.Item1));
 
     /// <summary>
@@ -28,8 +28,8 @@ public static class ValueTuple1Extensions
     /// </summary>
     [Pure]
     public static ValueTuple<A> Concat<MonoidA, MonoidB, A, B>(this ValueTuple<A> a, ValueTuple<A> b)
-        where MonoidA : struct, Monoid<A>
-        where MonoidB : struct, Monoid<B> =>
+        where MonoidA : Monoid<A>
+        where MonoidB : Monoid<B> =>
         VTuple(mconcat<MonoidA, A>(a.Item1, b.Item1));
 
     /// <summary>
@@ -51,7 +51,7 @@ public static class ValueTuple1Extensions
     /// </summary>
     [Pure]
     public static A Sum<NUM, A>(this ValueTuple<A> self)
-        where NUM : struct, Num<A> =>
+        where NUM : Num<A> =>
         self.Item1;
 
     /// <summary>
@@ -59,7 +59,7 @@ public static class ValueTuple1Extensions
     /// </summary>
     [Pure]
     public static A Product<NUM, A>(this ValueTuple<A> self)
-        where NUM : struct, Num<A> =>
+        where NUM : Num<A> =>
         self.Item1;
 
     /// <summary>
@@ -67,7 +67,7 @@ public static class ValueTuple1Extensions
     /// </summary>
     [Pure]
     public static bool Contains<EQ, A>(this ValueTuple<A> self, A value)
-        where EQ : struct, Eq<A> =>
+        where EQ : Eq<A> =>
         default(EQ).Equals(self.Item1, value);
 
     /// <summary>

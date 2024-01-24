@@ -8,7 +8,7 @@ namespace LanguageExt.Effects.Traits;
 /// Minimal collection of traits for Eff operations
 /// </summary>
 /// <typeparam name="RT">Runtime</typeparam>
-[Typeclass("*")]
+[Trait("*")]
 public interface HasEff<out RT> : HasIO<RT, Error>
-    where RT : struct, HasIO<RT, Error>
+    where RT : HasIO<RT, Error>
 { }

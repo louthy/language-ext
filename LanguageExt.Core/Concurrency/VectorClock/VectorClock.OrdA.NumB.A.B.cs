@@ -62,8 +62,8 @@ namespace LanguageExt
     /// </para>
     /// </summary>
     public record VectorClock<OrdA, NumB, A, B>(Seq<(A, B)> Entries)
-        where OrdA : struct, Ord<A>
-        where NumB : struct, Num<B>
+        where OrdA : Ord<A>
+        where NumB : Num<B>
     {
         /// <summary>
         /// Empty vector clock

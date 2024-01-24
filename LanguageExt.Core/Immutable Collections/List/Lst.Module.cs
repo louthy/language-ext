@@ -184,7 +184,7 @@ namespace LanguageExt
         /// <returns>Either head item or fail</returns>
         [Pure]
         public static Validation<MonoidFail, Fail, Success> headOrInvalid<MonoidFail, Fail, Success>(IEnumerable<Success> list, Fail fail)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+            where MonoidFail : Monoid<Fail>, Eq<Fail> =>
             list.Select(Validation<MonoidFail, Fail, Success>.Success)
                 .DefaultIfEmpty(Validation<MonoidFail, Fail, Success>.Fail(fail))
                 .FirstOrDefault();
@@ -249,7 +249,7 @@ namespace LanguageExt
         /// <returns>Last item</returns>
         [Pure]
         public static Validation<MonoidFail, Fail, Success> lastOrInvalid<MonoidFail, Fail, Success>(IEnumerable<Success> list, Fail fail)
-            where MonoidFail : struct, Monoid<Fail>, Eq<Fail> =>
+            where MonoidFail : Monoid<Fail>, Eq<Fail> =>
             list.Select(Validation<MonoidFail, Fail, Success>.Success)
                 .DefaultIfEmpty(Validation<MonoidFail, Fail, Success>.Fail(fail))
                 .LastOrDefault();
@@ -434,7 +434,7 @@ namespace LanguageExt
         /// <returns>Reversed list</returns>
         [Pure]
         public static Lst<PredList, T> rev<PredList, T>(Lst<PredList, T> list) 
-            where PredList : struct, Pred<ListInfo> =>
+            where PredList : Pred<ListInfo> =>
             list.Reverse();
 
         /// <summary>
@@ -445,8 +445,8 @@ namespace LanguageExt
         /// <returns>Reversed list</returns>
         [Pure]
         public static Lst<PredList, PredItem, T> rev<PredList, PredItem, T>(Lst<PredList, PredItem, T> list) 
-            where PredList : struct, Pred<ListInfo>
-            where PredItem : struct, Pred<T> =>
+            where PredList : Pred<ListInfo>
+            where PredItem : Pred<T> =>
             list.Reverse();
 
         /// <summary>
@@ -882,7 +882,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable to convert</param>
         /// <returns>Lst of T</returns>
         [Pure]
-        public static Lst<PredList, T> freeze<PredList, T>(IEnumerable<T> list) where PredList : struct, Pred<ListInfo> =>
+        public static Lst<PredList, T> freeze<PredList, T>(IEnumerable<T> list) where PredList : Pred<ListInfo> =>
             toList<PredList, T>(list);
 
         /// <summary>
@@ -893,8 +893,8 @@ namespace LanguageExt
         /// <returns>Lst of T</returns>
         [Pure]
         public static Lst<PredList, PredItem, T> freeze<PredList, PredItem, T>(IEnumerable<T> list)
-            where PredItem : struct, Pred<T>
-            where PredList : struct, Pred<ListInfo> =>
+            where PredItem : Pred<T>
+            where PredList : Pred<ListInfo> =>
                 toList<PredList, PredItem, T>(list);
 
         /// <summary>
@@ -1006,7 +1006,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable</param>
         /// <returns>A new enumerable with all duplicate values removed</returns>
         [Pure]
-        public static IEnumerable<T> distinct<EQ, T>(IEnumerable<T> list) where EQ : struct, Eq<T> =>
+        public static IEnumerable<T> distinct<EQ, T>(IEnumerable<T> list) where EQ : Eq<T> =>
             list.Distinct(new EqCompare<T>(static (x, y) => default(EQ).Equals(x, y), static x => default(EQ).GetHashCode(x)));
 
         /// <summary>

@@ -36,8 +36,8 @@ namespace LanguageExt
         IEquatable<SELF>,
         IComparable<SELF>,
         IComparable
-        where FLOATING : struct, Floating<A>
-        where PRED : struct, Pred<A>
+        where FLOATING : Floating<A>
+        where PRED : Pred<A>
         where SELF : FloatType<SELF, FLOATING, A, PRED>
     {
         public readonly A Value;

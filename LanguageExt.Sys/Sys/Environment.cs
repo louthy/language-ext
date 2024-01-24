@@ -14,7 +14,7 @@ namespace LanguageExt.Sys
     /// Environment IO
     /// </summary>
     public static class Environment<RT>
-        where RT : struct, HasEnvironment<RT>
+        where RT : HasEnvironment<RT>
     {
         /// <summary>
         /// Gets the command line for this process.

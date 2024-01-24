@@ -14,7 +14,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
     public static IO<RT, E, A> retry<RT, E, A>(IO<RT, E, A> ma)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.retry(Schedule.Forever, ma.Morphism));
 
     /// <summary>
@@ -26,7 +26,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
     public static IO<RT, E, A> retry<RT, E, A>(Schedule schedule, IO<RT, E, A> ma)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.retry(schedule, ma.Morphism));
 
     /// <summary>
@@ -38,7 +38,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of ma</returns>
     public static IO<RT, E, A> retryWhile<RT, E, A>(
         IO<RT, E, A> ma,
-        Func<E, bool> predicate) where RT : struct, HasIO<RT, E> =>
+        Func<E, bool> predicate) where RT : HasIO<RT, E> =>
         new(Transducer.retryWhile(Schedule.Forever, ma.Morphism, predicate));
 
     /// <summary>
@@ -53,7 +53,7 @@ public static partial class Prelude
         Schedule schedule,
         IO<RT, E, A> ma,
         Func<E, bool> predicate)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.retryWhile(schedule, ma.Morphism, predicate));
 
     /// <summary>
@@ -66,7 +66,7 @@ public static partial class Prelude
     public static IO<RT, E, A> retryUntil<RT, E, A>(
         IO<RT, E, A> ma,
         Func<E, bool> predicate)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.retryUntil(Schedule.Forever, ma.Morphism, predicate));
 
     /// <summary>
@@ -81,6 +81,6 @@ public static partial class Prelude
         Schedule schedule,
         IO<RT, E, A> ma,
         Func<E, bool> predicate)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.retryUntil(schedule, ma.Morphism, predicate));
 }

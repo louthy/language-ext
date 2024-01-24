@@ -18,7 +18,7 @@ public static partial class Prelude
     /// Make the runtime into the bound value
     /// </summary>
     public static IO<RT, E, RT> runtime<RT, E>()
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, RT>.Lift(rt => rt);
    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ public static partial class Prelude
     /// <returns>Flattened IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> flatten<RT, E, A>(IO<RT, E, IO<RT, E, A>> mma)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(mma.Morphism.Map(ma => ma.Map(r => r.Morphism)).Flatten());
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ public static partial class Prelude
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, (A First, B Second)> zip<RT, E, A, B>(
          (IO<RT, E, A> First, IO<RT, E, B> Second) tuple)
-         where RT : struct, HasIO<RT, E> =>
+         where RT : HasIO<RT, E> =>
          new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism));
 
     /// <summary>
@@ -83,7 +83,7 @@ public static partial class Prelude
         (IO<RT, E, A> First, 
               IO<RT, E, B> Second, 
               IO<RT, E, C> Third) tuple)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.zip(tuple.First.Morphism, tuple.Second.Morphism, tuple.Third.Morphism));
 
     /// <summary>
@@ -102,7 +102,7 @@ public static partial class Prelude
     public static IO<RT, E, (A First, B Second)> zip<RT, E, A, B>(
         IO<RT, E, A> First,
         IO<RT, E, B> Second)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         (First, Second).Zip();
 
     /// <summary>
@@ -123,7 +123,7 @@ public static partial class Prelude
         IO<RT, E, A> First, 
         IO<RT, E, B> Second, 
         IO<RT, E, C> Third)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         (First, Second, Third).Zip();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +136,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> liftIO<RT, E, A>(Func<RT, Either<E, A>> f)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Lift(f);
 
     /// <summary>
@@ -144,7 +144,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> liftIO<RT, E, A>(Transducer<RT, Either<E, A>> f)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Lift(f);
 
     /// <summary>
@@ -152,7 +152,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> liftIO<RT, E, A>(Func<RT, Sum<E, A>> f)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Lift(f);
 
     /// <summary>
@@ -160,7 +160,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> liftIO<RT, E, A>(Transducer<RT, Sum<E, A>> f)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.Lift(f);
 
     /// <summary>
@@ -168,7 +168,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> liftIO<RT, E, A>(Func<RT, Task<Sum<E, A>>> f)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.LiftIO(f);
 
     /// <summary>
@@ -176,7 +176,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> liftIO<RT, E, A>(Func<RT, Task<Either<E, A>>> f)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         IO<RT, E, A>.LiftIO(f);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -189,7 +189,7 @@ public static partial class Prelude
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> memo<RT, E, A>(IO<RT, E, A> ma)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.Memo();
     
     /// <summary>
@@ -222,7 +222,7 @@ public static partial class Prelude
     /// <returns>IO operation that's marked ready for tail recursion</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> tail<RT, E, A>(IO<RT, E, A> ma)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(tail(ma.Morphism));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -239,7 +239,7 @@ public static partial class Prelude
     /// </returns>
     [MethodImpl(Opt.Default)]
     public static IO<RT, E, ForkIO<RT, E, A>> fork<RT, E, A>(IO<RT, E, A> ma, Option<TimeSpan> timeout = default) 
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.Fork(timeout);    
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -254,7 +254,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, B> map<RT, E, A, B>(IO<RT, E, A> ma, Func<A, B> f)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.Map(f);
 
     /// <summary>
@@ -264,7 +264,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, B> map<RT, E, A, B>(IO<RT, E, A> ma, Transducer<A, B> f)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.Map(f);
 
     /// <summary>
@@ -274,7 +274,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> mapFail<RT, E, A>(IO<RT, E, A> ma, Func<E, E> f)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.MapFail(f);
 
     /// <summary>
@@ -284,7 +284,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> mapFail<RT, E, A>(IO<RT, E, A> ma, Transducer<E, E> f)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.MapFail(f);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -301,7 +301,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, B> bimap<RT, E, A, B>(IO<RT, E, A> ma, Func<A, B> Succ, Func<E, E> Fail)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.BiMap(Succ, Fail);
 
     /// <summary>
@@ -313,7 +313,7 @@ public static partial class Prelude
     /// <returns>Mapped IO monad</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, B> bimap<RT, E, A, B>(IO<RT, E, A> ma, Transducer<A, B> Succ, Transducer<E, E> Fail)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.BiMap(Succ, Fail);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -329,7 +329,7 @@ public static partial class Prelude
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, B> match<RT, E, A, B>(IO<RT, E, A> ma, Func<A, B> Succ, Func<E, B> Fail)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.Match(Succ, Fail);
 
     /// <summary>
@@ -340,7 +340,7 @@ public static partial class Prelude
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, B> match<RT, E, A, B>(IO<RT, E, A> ma, Transducer<A, B> Succ, Transducer<E, B> Fail)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.Match(Succ, Fail);
 
     /// <summary>
@@ -350,7 +350,7 @@ public static partial class Prelude
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> ifFail<RT, E, A>(IO<RT, E, A> ma, Func<E, A> Fail)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.IfFail(Fail);
 
     /// <summary>
@@ -360,7 +360,7 @@ public static partial class Prelude
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> ifFail<RT, E, A>(IO<RT, E, A> ma, Transducer<E, A> Fail)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.IfFail(Fail);
 
     /// <summary>
@@ -370,7 +370,7 @@ public static partial class Prelude
     /// <returns>IO in a success state</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> ifFail<RT, E, A>(IO<RT, E, A> ma, A Fail)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.IfFail(Fail);
 
     /// <summary>
@@ -380,7 +380,7 @@ public static partial class Prelude
     /// <returns>IO that encapsulates that IfFail</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> ifFailIO<RT, E, A>(IO<RT, E, A> ma, Func<E, IO<RT, E, A>> Fail)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.IfFailIO(Fail);
 
     /// <summary>
@@ -390,7 +390,7 @@ public static partial class Prelude
     /// <returns>IO that encapsulates that IfFail</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> ifFailIO<RT, E, A>(IO<RT, E, A> ma, IO<RT, E, A> Fail)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.IfFailIO(Fail);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -405,7 +405,7 @@ public static partial class Prelude
     /// <returns>Filtered IO</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> filter<RT, E, A>(IO<RT, E, A> ma, Func<A, bool> predicate)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.Filter(predicate);
 
     /// <summary>
@@ -415,7 +415,7 @@ public static partial class Prelude
     /// <returns>Filtered IO</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> filter<RT, E, A>(IO<RT, E, A> ma, Transducer<A, bool> predicate)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         ma.Filter(predicate);
 
     
@@ -437,6 +437,6 @@ public static partial class Prelude
     /// <param name="f">Transducer</param>
     /// <returns></returns>
     public static IO<RT, E, A> post<RT, E, A>(IO<RT, E, A> ma)
-        where RT : struct, HasIO<RT, E> =>
+        where RT : HasIO<RT, E> =>
         new(Transducer.post(ma.Morphism));
 }

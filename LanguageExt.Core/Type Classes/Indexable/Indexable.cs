@@ -1,14 +1,11 @@
-﻿using System;
-using System.Diagnostics.Contracts;
+﻿#nullable enable
 using LanguageExt.Attributes;
-using static LanguageExt.Prelude;
 
-namespace LanguageExt.TypeClasses
+namespace LanguageExt.TypeClasses;
+
+[Trait("Ix*")]
+public interface Indexable<in A, in KEY, VALUE>
 {
-    [Typeclass("Ix*")]
-    public interface Indexable<A, KEY, VALUE>
-    {
-        Option<VALUE> TryGet(A ma, KEY key);
-        VALUE Get(A ma, KEY key);
-    }
+    public static abstract Option<VALUE> TryGet(A ma, KEY key);
+    public static abstract VALUE Get(A ma, KEY key);
 }

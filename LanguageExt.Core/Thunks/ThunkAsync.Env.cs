@@ -13,7 +13,7 @@ namespace LanguageExt.Thunks
     /// Lazily evaluates an asynchronous function and then memoizes the value
     /// Runs at most once
     /// </summary>
-    public class ThunkAsync<Env, A> where Env : struct, HasCancel<Env>
+    public class ThunkAsync<Env, A> where Env : HasCancel<Env>
     {
         internal readonly Func<Env, ValueTask<Fin<A>>> fun;
         internal volatile int state;
