@@ -1,7 +1,7 @@
 ﻿using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using System.Text.RegularExpressions;
-using static LanguageExt.Prelude;
+using static LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExt.ClassInstances.Pred;
 

@@ -33,7 +33,7 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="A">Bound value</typeparam>
 public readonly struct OptionUnsafe<A> :
-    IEnumerable<A>,
+    IEnumerable<A?>,
     IOptionalUnsafe,
     IEquatable<OptionUnsafe<A>>,
     IComparable<OptionUnsafe<A>>,
@@ -108,14 +108,14 @@ public readonly struct OptionUnsafe<A> :
     ///
     /// </remarks>
     [Pure]
-    public A? Case =>
+    public object? Case =>
         IsSome
             ? Value
             : default;
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerator<A> GetEnumerator() =>
+    public IEnumerator<A?> GetEnumerator() =>
         AsEnumerable().GetEnumerator();
 
     [Pure]
@@ -610,7 +610,7 @@ public readonly struct OptionUnsafe<A> :
     /// </summary>
     /// <param name="f">The Some(x) match operation</param>
     [Pure]
-    public SomeUnsafeUnitContext<MOptionUnsafe<A>, OptionUnsafe<A>, A> Some(Action<A> f) =>
+    public SomeUnsafeUnitContext<MOptionUnsafe<A>, OptionUnsafe<A>, A> Some(Action<A?> f) =>
         new(this, f);
 
     /// <summary>
@@ -623,7 +623,7 @@ public readonly struct OptionUnsafe<A> :
     /// <param name="f">The Some(x) match operation</param>
     /// <returns>The result of the match operation</returns>
     [Pure]
-    public SomeUnsafeContext<MOptionUnsafe<A>, OptionUnsafe<A>, A, B> Some<B>(Func<A, B> f) =>
+    public SomeUnsafeContext<MOptionUnsafe<A>, OptionUnsafe<A>, A, B> Some<B>(Func<A?, B?> f) =>
         new(this, f);
 
     /// <summary>

@@ -112,7 +112,7 @@ public readonly struct Option<A> :
     ///
     /// </remarks>
     [Pure]
-    public A? Case =>
+    public object? Case =>
         IsSome
             ? Value
             : default;

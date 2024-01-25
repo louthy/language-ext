@@ -324,11 +324,10 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
         static Option<long> diffOne(A _, Option<long> ox, Option<long> oy) =>
             (ox.Case, oy.Case) switch
             {
-                (null, null)     => None,
-                (long x, null)   => Some(x),
-                (null, long y)   => throw new InvalidOperationException("diff broken"),
-                (long x, long y) => x == y ? None : Some(x),
-                _                => None
+                (null, null)   => None,
+                (long x, null) => Some(x),
+                (null, long y) => throw new InvalidOperationException("diff broken"),
+                var (x, y)     => x == y ? None : Some(x),
             };
     }
 

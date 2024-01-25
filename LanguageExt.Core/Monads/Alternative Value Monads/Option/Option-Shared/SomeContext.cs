@@ -46,9 +46,9 @@ public class SomeContext<OPT, OA, A, B> where OPT : Optional<OA, A>
 public class SomeUnsafeContext<OPT, OA, A, B> where OPT : OptionalUnsafe<OA, A>
 {
     readonly OA option;
-    readonly Func<A, B> someHandler;
+    readonly Func<A?, B?> someHandler;
 
-    internal SomeUnsafeContext(OA option, Func<A, B> someHandler)
+    internal SomeUnsafeContext(OA option, Func<A?, B?> someHandler)
     {
         this.option      = option;
         this.someHandler = someHandler;
@@ -58,13 +58,13 @@ public class SomeUnsafeContext<OPT, OA, A, B> where OPT : OptionalUnsafe<OA, A>
     /// The None branch of the matching operation
     /// </summary>
     /// <param name="noneHandler">None branch operation</param>
-    public B None(Func<B> noneHandler) =>
+    public B? None(Func<B?> noneHandler) =>
         OPT.MatchUnsafe(option, someHandler, noneHandler);
 
     /// <summary>
     /// The None branch of the matching operation
     /// </summary>
     /// <param name="noneHandler">None branch operation</param>
-    public B None(B noneValue) =>
+    public B? None(B? noneValue) =>
         OPT.MatchUnsafe(option, someHandler, noneValue);
 }
