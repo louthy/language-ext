@@ -1,5 +1,4 @@
-﻿#nullable enable
-using LanguageExt.TypeClasses;
+﻿using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System;
 using System.Diagnostics.Contracts;
@@ -13,11 +12,11 @@ public struct ApplValidation<FAIL, SUCCESS, SUCCESS2> :
 {
     [Pure]
     public static Validation<FAIL, SUCCESS2> BiMap(Validation<FAIL, SUCCESS> ma, Func<Seq<FAIL>, SUCCESS2> fa, Func<SUCCESS, SUCCESS2> fb) =>
-        FValidation<FAIL, SUCCESS, SUCCESS2>.Inst.BiMap(ma, fa, fb);
+        FValidation<FAIL, SUCCESS, SUCCESS2>.BiMap(ma, fa, fb);
 
     [Pure]
     public static Validation<FAIL, SUCCESS2> Map(Validation<FAIL, SUCCESS> ma, Func<SUCCESS, SUCCESS2> f) =>
-        FValidation<FAIL, SUCCESS, SUCCESS2>.Inst.Map(ma, f);
+        FValidation<FAIL, SUCCESS, SUCCESS2>.Map(ma, f);
 
     [Pure]
     public static Validation<FAIL, SUCCESS2> Apply(Validation<FAIL, Func<SUCCESS, SUCCESS2>> fab, Validation<FAIL, SUCCESS> fa) =>
@@ -25,7 +24,7 @@ public struct ApplValidation<FAIL, SUCCESS, SUCCESS2> :
 
     [Pure]
     public static Validation<FAIL, SUCCESS2> Action(Validation<FAIL, SUCCESS> fa, Validation<FAIL, SUCCESS2> fb) =>
-        (fa, fb).Apply((a, b) => b);
+        (fa, fb).Apply((_, b) => b);
 
     [Pure]
     public static Validation<FAIL, SUCCESS> Pure(SUCCESS x) =>
@@ -48,7 +47,7 @@ public struct ApplValidationBi<FAIL, SUCCESS, FAIL2, SUCCESS2> :
 
     [Pure]
     public static Validation<FAIL, SUCCESS2> Action(Validation<FAIL, SUCCESS> fa, Validation<FAIL, SUCCESS2> fb) =>
-        (fa, fb).Apply((a, b) => b);
+        (fa, fb).Apply((_, b) => b);
 
     [Pure]
     public static Validation<FAIL, SUCCESS> Pure(SUCCESS x) =>

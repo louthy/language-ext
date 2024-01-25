@@ -18,9 +18,7 @@ namespace LanguageExt
     /// <typeparam name="A">Value type</typeparam>
     [Serializable]
     public class Lst<PRED, A> :
-        IEnumerable<A>, 
         IReadOnlyList<A>,
-        IReadOnlyCollection<A>,
         IEquatable<Lst<PRED, A>>,
         IComparable<Lst<PRED, A>>,
         IComparable

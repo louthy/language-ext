@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Collections.Generic;
@@ -25,7 +24,7 @@ public struct ApplSet<A, B> :
 
     [Pure]
     public static Set<B> Map(Set<A> ma, Func<A, B> f) =>
-        FSet<A, B>.Inst.Map(ma, f);
+        FSet<A, B>.Map(ma, f);
 
     [Pure]
     public static Set<A> Pure(A x) =>
@@ -129,7 +128,7 @@ public struct ApplSet<OrdFAB, OrdA, OrdB, A, B> :
 
     [Pure]
     public static Set<OrdB, B> Map(Set<OrdA, A> ma, Func<A, B> f) =>
-        FSet<OrdA, OrdB, A, B>.Inst.Map(ma, f);
+        FSet<OrdA, OrdB, A, B>.Map(ma, f);
 
     [Pure]
     public static Set<OrdA, A> Pure(A x) =>

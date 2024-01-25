@@ -1,12 +1,10 @@
-﻿#nullable enable
-using System.Collections.Generic;
-using LanguageExt.Attributes;
+﻿using LanguageExt.Attributes;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt.TypeClasses;
 
 [Trait("Ord*")]
-public interface Ord<A> : Eq<A>, OrdAsync<A>, Trait 
+public interface Ord<A> : Eq<A> 
 {
     /// <summary>
     /// Compare two values

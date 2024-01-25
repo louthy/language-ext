@@ -114,35 +114,35 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static IEnumerable<A> Sort<OrdA, A>(this IEnumerable<A> xs) where OrdA : Ord<A> =>
-            xs.OrderBy(identity, default(OrdA).ToComparer());
+            xs.OrderBy(identity, OrdComparer<OrdA, A>.Default);
 
         /// <summary>
         /// Provide a sorted Seq
         /// </summary>
         [Pure]
         public static Seq<A> Sort<OrdA, A>(this Seq<A> xs) where OrdA : Ord<A> =>
-            xs.OrderBy(identity, default(OrdA).ToComparer()).ToSeq();
+            xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).ToSeq();
 
         /// <summary>
         /// Provide a sorted Lst
         /// </summary>
         [Pure]
         public static Lst<A> Sort<OrdA, A>(this Lst<A> xs) where OrdA : Ord<A> =>
-            xs.OrderBy(identity, default(OrdA).ToComparer()).Freeze();
+            xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).Freeze();
 
         /// <summary>
         /// Provide a sorted Arr
         /// </summary>
         [Pure]
         public static Arr<A> Sort<OrdA, A>(this Arr<A> xs) where OrdA : Ord<A> =>
-            xs.OrderBy(identity, default(OrdA).ToComparer()).ToArr();
+            xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).ToArr();
 
         /// <summary>
         /// Provide a sorted array
         /// </summary>
         [Pure]
         public static A[] Sort<OrdA, A>(this A[] xs) where OrdA : Ord<A> =>
-            xs.OrderBy(identity, default(OrdA).ToComparer()).ToArray();
+            xs.OrderBy(identity, OrdComparer<OrdA, A>.Default).ToArray();
 
         /// <summary>
         /// Lazy sequence of natural numbers up to Int32.MaxValue
@@ -665,21 +665,21 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Lst<PredList, T> List<PredList, T>() where PredList : Pred<ListInfo> =>
-            new Lst<PredList, T>(Enumerable.Empty<T>());
+            new (Enumerable.Empty<T>());
 
         /// <summary>
         /// Create an immutable list
         /// </summary>
         [Pure]
         public static Lst<PredList, T> List<PredList, T>(T x, params T[] xs) where PredList : Pred<ListInfo> =>
-            new Lst<PredList, T>(x.Cons(xs));
+            new (x.Cons(xs));
 
         /// <summary>
         /// Create an immutable list
         /// </summary>
         [Pure]
         public static Lst<PredList, T> toList<PredList, T>(Arr<T> items) where PredList : Pred<ListInfo> =>
-            new Lst<PredList, T>(items.Value);
+            new (items.Value);
 
         /// <summary>
         /// Create an immutable list
@@ -699,7 +699,7 @@ namespace LanguageExt
         public static Lst<PredList, PredItem, T> List<PredList, PredItem, T>() 
             where PredItem : Pred<T>
             where PredList : Pred<ListInfo>  =>
-            new Lst<PredList, PredItem, T>(Enumerable.Empty<T>());
+            new (Enumerable.Empty<T>());
 
         /// <summary>
         /// Create an immutable list
@@ -708,7 +708,7 @@ namespace LanguageExt
         public static Lst<PredList, PredItem, T> List<PredList, PredItem, T>(T x, params T[] xs) 
             where PredItem : Pred<T>
             where PredList : Pred<ListInfo>  =>
-            new Lst<PredList, PredItem, T>(x.Cons(xs));
+            new (x.Cons(xs));
 
         /// <summary>
         /// Create an immutable list
@@ -717,7 +717,7 @@ namespace LanguageExt
         public static Lst<PredList, PredItem, T> toList<PredList, PredItem, T>(Arr<T> items) 
             where PredItem : Pred<T>
             where PredList : Pred<ListInfo>  =>
-            new Lst<PredList, PredItem, T>(items.Value);
+            new (items.Value);
 
         /// <summary>
         /// Create an immutable list
@@ -798,14 +798,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Stck<T> Stack<T>() =>
-            new Stck<T>();
+            new ();
 
         /// <summary>
         /// Create an immutable stack
         /// </summary>
         [Pure]
         public static Stck<T> Stack<T>(params T[] items) =>
-            new Stck<T>(items);
+            new (items);
 
         /// <summary>
         /// Create an immutable stack

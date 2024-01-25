@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using LanguageExt.Common;
@@ -13,11 +12,11 @@ public struct ApplFin<A, B> :
 {
     [Pure]
     public static Fin<B> BiMap(Fin<A> ma, Func<A, B> fa, Func<Error, B> fb) =>
-        FFin<A, B>.Inst.BiMap(ma, fa, fb);
+        FFin<A, B>.BiMap(ma, fa, fb);
 
     [Pure]
     public static Fin<B> Map(Fin<A> ma, Func<A, B> f) =>
-        FFin<A, B>.Inst.Map(ma, f);
+        FFin<A, B>.Map(ma, f);
 
     [Pure]
     public static Fin<B> Apply(Fin<Func<A, B>> fab, Fin<A> fa) =>
@@ -27,7 +26,7 @@ public struct ApplFin<A, B> :
 
     [Pure]
     public static Fin<A> Pure(A x) =>
-        MFin<A>.Inst.Return(x);
+        MFin<A>.Return(x);
 
     [Pure]
     public static Fin<B> Action(Fin<A> fa, Fin<B> fb) =>
@@ -54,7 +53,7 @@ public struct ApplFin<A, B, C> :
 
     [Pure]
     public static Fin<A> Pure(A x) =>
-        MFin<A>.Inst.Return(x);
+        MFin<A>.Return(x);
 }
 
 public struct ApplFin<A> : 
@@ -79,7 +78,7 @@ public struct ApplFin<A> :
 
     [Pure]
     public static Fin<A> Pure(A x) =>
-        MFin<A>.Inst.Return(x);
+        MFin<A>.Return(x);
 
     [Pure]
     public static Fin<A> Action(Fin<A> fa, Fin<A> fb) =>

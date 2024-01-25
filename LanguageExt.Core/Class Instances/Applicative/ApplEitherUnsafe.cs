@@ -1,22 +1,21 @@
-﻿#nullable enable
-using LanguageExt.TypeClasses;
+﻿using LanguageExt.TypeClasses;
 using System;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances;
 
 public struct ApplEitherUnsafe<L, R, R2> :
-    Functor<EitherUnsafe<L, R>, EitherUnsafe<L, R2>, R, R2>,
-    BiFunctor<EitherUnsafe<L, R>, EitherUnsafe<L, R2>, L, R, R2>,
-    Applicative<EitherUnsafe<L, Func<R?, R2?>>, EitherUnsafe<L, R>, EitherUnsafe<L, R2>, R, R2>
+    Functor<EitherUnsafe<L, R>, EitherUnsafe<L, R2>, R?, R2?>,
+    BiFunctor<EitherUnsafe<L, R>, EitherUnsafe<L, R2>, L?, R?, R2?>,
+    Applicative<EitherUnsafe<L, Func<R?, R2?>>, EitherUnsafe<L, R>, EitherUnsafe<L, R2>, R?, R2?>
 {
     [Pure]
-    public static EitherUnsafe<L, R2> BiMap(EitherUnsafe<L, R> ma, Func<L, R2> fa, Func<R, R2> fb) =>
-        FEitherUnsafe<L, R, R2>.Inst.BiMap(ma, fa, fb);
+    public static EitherUnsafe<L, R2> BiMap(EitherUnsafe<L, R> ma, Func<L?, R2?> fa, Func<R?, R2?> fb) =>
+        FEitherUnsafe<L, R, R2>.BiMap(ma, fa, fb);
 
     [Pure]
-    public static EitherUnsafe<L, R2> Map(EitherUnsafe<L, R> ma, Func<R, R2> f) =>
-        FEitherUnsafe<L, R, R2>.Inst.Map(ma, f);
+    public static EitherUnsafe<L, R2> Map(EitherUnsafe<L, R> ma, Func<R?, R2?> f) =>
+        FEitherUnsafe<L, R, R2>.Map(ma, f);
 
     [Pure]
     public static EitherUnsafe<L, R2> Apply(EitherUnsafe<L, Func<R?, R2?>> fab, EitherUnsafe<L, R> fa) =>
@@ -31,21 +30,21 @@ public struct ApplEitherUnsafe<L, R, R2> :
         select b;
 
     [Pure]
-    public static EitherUnsafe<L, R> Pure(R x) =>
+    public static EitherUnsafe<L, R> Pure(R? x) =>
         x;
 
 }
 
 public struct ApplEitherUnsafeBi<L, R, L2, R2> :
-    BiFunctor<EitherUnsafe<L, R>, EitherUnsafe<L2, R2>, L, R, L2, R2>,
-    Applicative<EitherUnsafe<L, Func<R, R2>>, EitherUnsafe<L, R>, EitherUnsafe<L, R2>, R, R2>
+    BiFunctor<EitherUnsafe<L, R>, EitherUnsafe<L2, R2>, L?, R?, L2?, R2?>,
+    Applicative<EitherUnsafe<L, Func<R, R2>>, EitherUnsafe<L, R>, EitherUnsafe<L, R2>, R?, R2?>
 {
     [Pure]
-    public static EitherUnsafe<L2, R2> BiMap(EitherUnsafe<L, R> ma, Func<L, L2> fa, Func<R, R2> fb) =>
-        default(MEitherUnsafe<L, R>).MatchUnsafe(ma,
-                                                 Left: a => EitherUnsafe<L2, R2>.Left(fa(a)),
-                                                 Right: b => EitherUnsafe<L2, R2>.Right(fb(b)),
-                                                 Bottom: () => EitherUnsafe<L2, R2>.Bottom);
+    public static EitherUnsafe<L2, R2> BiMap(EitherUnsafe<L, R> ma, Func<L?, L2?> fa, Func<R?, R2?> fb) =>
+        MEitherUnsafe<L, R>.MatchUnsafe(ma,
+                                        Left: a => EitherUnsafe<L2, R2>.Left(fa(a)),
+                                        Right: b => EitherUnsafe<L2, R2>.Right(fb(b)),
+                                        Bottom: () => EitherUnsafe<L2, R2>.Bottom);
 
     [Pure]
     public static EitherUnsafe<L, R2> Apply(EitherUnsafe<L, Func<R, R2>> fab, EitherUnsafe<L, R> fa) =>
@@ -60,7 +59,7 @@ public struct ApplEitherUnsafeBi<L, R, L2, R2> :
         select b;
 
     [Pure]
-    public static EitherUnsafe<L, R> Pure(R x) =>
+    public static EitherUnsafe<L, R> Pure(R? x) =>
         x;
 }
 

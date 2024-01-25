@@ -1,5 +1,4 @@
-﻿#nullable enable
-using LanguageExt.ClassInstances;
+﻿using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -108,7 +107,7 @@ public static partial class TypeClass
         where NUM : Num<A> =>
         from a in x
         from b in y
-        select default(NUM).Append(a, b);
+        select NUM.Append(a, b);
 
     /// <summary>
     /// An associative binary operation
@@ -138,7 +137,7 @@ public static partial class TypeClass
         where NUM     : Num<A> =>
         from a in x
         from b in y
-        select default(NUM).Append(a, b);
+        select NUM.Append(a, b);
 
     /// <summary>
     /// An associative binary operation

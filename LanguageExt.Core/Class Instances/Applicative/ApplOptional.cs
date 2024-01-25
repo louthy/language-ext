@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
@@ -14,11 +13,11 @@ public struct ApplOptional<OptionalA, OptionalB, OA, OB, A, B> :
 {
     [Pure]
     public static OB BiMap(OA ma, Func<A, B> fa, Func<Unit, B> fb) =>
-        FOptional<OptionalA, OptionalB, OA, OB, A, B>.Inst.BiMap(ma, fa, fb);
+        FOptional<OptionalA, OptionalB, OA, OB, A, B>.BiMap(ma, fa, fb);
 
     [Pure]
     public static OB Map(OA ma, Func<A, B> f) =>
-        FOptional<OptionalA, OptionalB, OA, OB, A, B>.Inst.Map(ma, f);
+        FOptional<OptionalA, OptionalB, OA, OB, A, B>.Map(ma, f);
 }
 
 public struct ApplOptional<OptionFAB, OptionFA, OptionFB, FAB, FA, FB, A, B> :

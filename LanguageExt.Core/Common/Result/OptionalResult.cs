@@ -42,7 +42,7 @@ public readonly struct OptionalResult<A> : IEquatable<OptionalResult<A>>, ICompa
 
     internal readonly OptionalResultState State;
     internal readonly Option<A> Value;
-    readonly Exception exception;
+    readonly Exception? exception;
 
     internal Exception Exception => exception ?? BottomException.Default;
 
@@ -69,10 +69,10 @@ public readonly struct OptionalResult<A> : IEquatable<OptionalResult<A>>, ICompa
     }
 
     public static OptionalResult<A> Some(A value) =>
-        new OptionalResult<A>(Option<A>.Some(value));
+        new (Option<A>.Some(value));
 
     public static OptionalResult<A> Optional(A value) =>
-        new OptionalResult<A>(Prelude.Optional(value));
+        new (Prelude.Optional(value));
 
     /// <summary>
     /// Implicit conversion operator from A to Result<A>
@@ -80,7 +80,7 @@ public readonly struct OptionalResult<A> : IEquatable<OptionalResult<A>>, ICompa
     /// <param name="value">Value</param>
     [Pure]
     public static implicit operator OptionalResult<A>(A value) =>
-        new OptionalResult<A>(value);
+        new (value);
 
     /// <summary>
     /// Implicit conversion operator from Option<A> to Result<A>
@@ -88,7 +88,7 @@ public readonly struct OptionalResult<A> : IEquatable<OptionalResult<A>>, ICompa
     /// <param name="value">Value</param>
     [Pure]
     public static implicit operator OptionalResult<A>(Option<A> value) =>
-        new OptionalResult<A>(value);
+        new (value);
 
     /// <summary>
     /// Implicit conversion operator from Option<A> to Result<A>
@@ -96,14 +96,14 @@ public readonly struct OptionalResult<A> : IEquatable<OptionalResult<A>>, ICompa
     /// <param name="value">Value</param>
     [Pure]
     public static implicit operator OptionalResult<A>(OptionNone value) =>
-        new OptionalResult<A>(value);
+        new (value);
 
     /// <summary>
     /// True if the result is in a bottom state
     /// </summary>
     [Pure]
     public bool IsBottom =>
-        State == OptionalResultState.Faulted && (exception == null || exception is BottomException);
+        State == OptionalResultState.Faulted && exception is null or BottomException;
 
     /// <summary>
     /// True if the result is faulted
@@ -148,13 +148,13 @@ public readonly struct OptionalResult<A> : IEquatable<OptionalResult<A>>, ICompa
     /// </summary>
     [Pure]
     public bool Equals(OptionalResult<A> other) =>
-        default(EqOptionalResult<A>).Equals(this, other);
+        EqOptionalResult<A>.Equals(this, other);
 
     /// <summary>
     /// Equality check
     /// </summary>
     [Pure]
-    public override bool Equals(object obj) =>
+    public override bool Equals(object? obj) =>
         obj is OptionalResult<A> rhs && Equals(rhs);
 
     /// <summary>
@@ -162,21 +162,21 @@ public readonly struct OptionalResult<A> : IEquatable<OptionalResult<A>>, ICompa
     /// </summary>
     [Pure]
     public override int GetHashCode() =>
-        default(EqOptionalResult<A>).GetHashCode(this);
+        EqOptionalResult<A>.GetHashCode(this);
 
     [Pure]
     public static bool operator==(OptionalResult<A> a, OptionalResult<A> b) =>
-        default(EqOptionalResult<A>).Equals(a, b);
+        EqOptionalResult<A>.Equals(a, b);
 
     [Pure]
     public static bool operator !=(OptionalResult<A> a, OptionalResult<A> b) =>
-        !(a ==b);
+        !(a == b);
 
     [Pure]
     public A IfFailOrNone(A defaultValue) =>
         IsFaulted || Value.IsNone
             ? defaultValue
-            : Value.Value;
+            : Value.Value!;
 
     [Pure]
     public Option<A> IfFail(Func<Exception, A> f) =>
@@ -198,7 +198,7 @@ public readonly struct OptionalResult<A> : IEquatable<OptionalResult<A>>, ICompa
 
     public Unit IfSucc(Action<A> f)
     {
-        if (!IsFaulted && Value.IsSome) f(Value.Value);
+        if (!IsFaulted && Value.IsSome) f(Value.Value!);
         return unit;
     }
 
@@ -208,12 +208,12 @@ public readonly struct OptionalResult<A> : IEquatable<OptionalResult<A>>, ICompa
             ? Fail(Exception)
             : Value.Match(Some, None);
 
-    internal Result<A> ToResult() =>
+    internal Result<A?> ToResult() =>
         IsFaulted
-            ? new Result<A>(Exception)
+            ? new Result<A?>(Exception)
             : Value.IsSome
-                ? new Result<A>(Value.Value)
-                : new Result<A>(default(A));
+                ? new Result<A?>(Value.Value)
+                : new Result<A?>(default(A?));
 
     [Pure]
     public OptionalResult<B> Map<B>(Func<A, B> f) =>
@@ -221,7 +221,7 @@ public readonly struct OptionalResult<A> : IEquatable<OptionalResult<A>>, ICompa
             ? new OptionalResult<B>(Exception)
             : Value.IsNone
                 ? new OptionalResult<B>(Option<B>.None)
-                : new OptionalResult<B>(f(Value.Value));
+                : new OptionalResult<B>(f(Value.Value!));
 
     [Pure]
     public async Task<OptionalResult<B>> MapAsync<B>(Func<A, Task<B>> f) =>
@@ -229,11 +229,11 @@ public readonly struct OptionalResult<A> : IEquatable<OptionalResult<A>>, ICompa
             ? new OptionalResult<B>(Exception)
             : Value.IsNone
                 ? new OptionalResult<B>(Option<B>.None)
-                : new OptionalResult<B>(await f(Value.Value));
+                : new OptionalResult<B>(await f(Value.Value!));
 
     [Pure]
     public int CompareTo(OptionalResult<A> other) =>
-        default(OrdOptionalResult<A>).Compare(this, other);
+        OrdOptionalResult<A>.Compare(this, other);
 
     [Pure]
     public static bool operator <(OptionalResult<A> a, OptionalResult<A> b) =>

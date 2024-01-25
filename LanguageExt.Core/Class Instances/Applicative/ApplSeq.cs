@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 
@@ -23,7 +22,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public static Seq<B> Map(Seq<A> ma, Func<A, B> f) =>
-            FSeq<A, B>.Inst.Map(ma, f);
+            FSeq<A, B>.Map(ma, f);
 
         [Pure]
         public static Seq<A> Pure(A x) =>

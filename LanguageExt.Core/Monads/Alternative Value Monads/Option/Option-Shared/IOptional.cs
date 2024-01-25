@@ -19,12 +19,30 @@ namespace LanguageExt
             get;
         }
 
-        R MatchUntyped<R>(Func<object, R> Some, Func<R> None);
+        R MatchUntyped<R>(Func<object?, R> Some, Func<R> None);
         R MatchUntypedUnsafe<R>(Func<object, R?> Some, Func<R?> None);
 
         Type GetUnderlyingType();
     }
 
+    public interface IOptionalUnsafe
+    {
+        bool IsSome
+        {
+            get;
+        }
+
+        bool IsNone
+        {
+            get;
+        }
+
+        R? MatchUntyped<R>(Func<object?, R?> Some, Func<R?> None);
+
+        Type GetUnderlyingType();
+    }
+    
+    
     public interface IOptionalAsync
     {
         Task<bool> IsSome

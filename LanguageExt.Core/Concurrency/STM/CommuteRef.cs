@@ -23,8 +23,8 @@ namespace LanguageExt
         public static implicit operator A(CommuteRef<A> r) => r.Value;
         public override string ToString() => Value?.ToString() ?? "[null]";
         public override int GetHashCode() => Value?.GetHashCode() ?? 0;
-        public override bool Equals(object obj) => obj is A val && Equals(val);
-        public bool Equals(A other) => default(EqDefault<A>).Equals(other, Value);
+        public override bool Equals(object? obj) => obj is A val && Equals(val);
+        public bool Equals(A other) => EqDefault<A>.Equals(other, Value);
         public A Swap(Func<A, A> f) => Ref.Swap(f);
         public A Swap<X>(X x, Func<X, A, A> f) => Ref.Swap(x, f);
         public A Swap<X, Y>(X x, Y y, Func<X, Y, A, A> f) => Ref.Swap(x, y, f);

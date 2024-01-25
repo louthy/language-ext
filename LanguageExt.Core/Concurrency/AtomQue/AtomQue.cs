@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
@@ -342,10 +340,10 @@ public class AtomQue<A> :
     public bool Equals(AtomQue<A>? other) =>
         other is not null &&
         GetHashCode() == other.GetHashCode() &&
-        default(EqEnumerable<A>).Equals(items, other.items);
+        EqEnumerable<A>.Equals(items, other.items);
 
     [Pure]
     public bool Equals(Que<A> other) =>
         GetHashCode() == other.GetHashCode() &&
-        default(EqEnumerable<A>).Equals(items, other.Value);
+        EqEnumerable<A>.Equals(items, other.Value);
 }

@@ -1,5 +1,4 @@
-﻿#nullable enable
-using LanguageExt.ClassInstances;
+﻿using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;

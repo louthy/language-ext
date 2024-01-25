@@ -61,7 +61,7 @@ public static partial class Optional
     /// <param name="None">Operation to perform if the option is in a None state</param>
     /// <returns>The result of the match operation</returns>
     [Pure]
-    public static R? matchUntyped<OPT, OA, A, R>(OA ma, Func<object?, R?> Some, Func<R?> None)
+    public static R matchUntyped<OPT, OA, A, R>(OA ma, Func<object?, R> Some, Func<R> None)
         where OPT : Optional<OA, A> =>
         OPT.Match(ma,
                   Some: x => Some(x),

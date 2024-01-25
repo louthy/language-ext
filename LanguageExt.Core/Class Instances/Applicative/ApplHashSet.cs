@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Collections.Generic;
@@ -25,7 +24,7 @@ public struct ApplHashSet<A, B> :
 
     [Pure]
     public static HashSet<B> Map(HashSet<A> ma, Func<A, B> f) =>
-        FHashSet<A, B>.Inst.Map(ma, f);
+        FHashSet<A, B>.Map(ma, f);
 
     [Pure]
     public static HashSet<A> Pure(A x) =>

@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 
@@ -24,7 +23,7 @@ public struct ApplLst<A, B> :
 
     [Pure]
     public static Lst<B> Map(Lst<A> ma, Func<A, B> f) =>
-        FLst<A, B>.Inst.Map(ma, f);
+        FLst<A, B>.Map(ma, f);
 
     [Pure]
     public static Lst<A> Pure(A x) =>

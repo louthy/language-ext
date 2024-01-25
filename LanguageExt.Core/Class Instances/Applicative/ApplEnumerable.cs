@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
@@ -25,7 +24,7 @@ public struct ApplEnumerable<A, B> :
 
     [Pure]
     public static IEnumerable<B> Map(IEnumerable<A> ma, Func<A, B> f) =>
-        FEnumerable<A, B>.Inst.Map(ma, f);
+        FEnumerable<A, B>.Map(ma, f);
 
     [Pure]
     public static IEnumerable<A> Pure(A x) =>

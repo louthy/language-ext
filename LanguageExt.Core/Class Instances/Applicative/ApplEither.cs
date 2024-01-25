@@ -1,5 +1,4 @@
-﻿#nullable enable
-using LanguageExt.TypeClasses;
+﻿using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System;
 using System.Diagnostics.Contracts;
@@ -13,11 +12,11 @@ public struct ApplEither<L, R, R2> :
 {
     [Pure]
     public static Either<L, R2> BiMap(Either<L, R> ma, Func<L, R2> fa, Func<R, R2> fb) =>
-        FEither<L, R, R2>.Inst.BiMap(ma, fa, fb);
+        FEither<L, R, R2>.BiMap(ma, fa, fb);
 
     [Pure]
     public static Either<L, R2> Map(Either<L, R> ma, Func<R, R2> f) =>
-        FEither<L, R, R2>.Inst.Map(ma, f);
+        FEither<L, R, R2>.Map(ma, f);
 
     [Pure]
     public static Either<L, R2> Apply(Either<L, Func<R, R2>> fab, Either<L, R> fa) =>

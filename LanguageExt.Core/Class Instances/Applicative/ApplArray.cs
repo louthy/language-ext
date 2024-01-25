@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Linq;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
@@ -24,7 +23,7 @@ public struct ApplArray<A, B> :
 
     [Pure]
     public static B[] Map(A[] ma, Func<A, B> f) =>
-        FArray<A, B>.Inst.Map(ma, f);
+        FArray<A, B>.Map(ma, f);
 
     [Pure]
     public static A[] Pure(A x) =>

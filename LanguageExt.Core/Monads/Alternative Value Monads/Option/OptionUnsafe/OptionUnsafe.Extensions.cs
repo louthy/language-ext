@@ -27,7 +27,7 @@ public static class OptionUnsafeExtensions
     /// All the `Some` elements are extracted in order.
     /// </summary>
     [Pure]
-    public static IEnumerable<A> Somes<A>(this IEnumerable<OptionUnsafe<A>> self)
+    public static IEnumerable<A?> Somes<A>(this IEnumerable<OptionUnsafe<A>> self)
     {
         foreach (var item in self)
         {
@@ -43,9 +43,9 @@ public static class OptionUnsafeExtensions
     /// All the `Some` elements are extracted in order.
     /// </summary>
     [Pure]
-    public static Seq<A> Somes<A>(this Seq<OptionUnsafe<A>> self)
+    public static Seq<A?> Somes<A>(this Seq<OptionUnsafe<A>> self)
     {
-        IEnumerable<A> ToSequence(Seq<OptionUnsafe<A>> items)
+        IEnumerable<A?> ToSequence(Seq<OptionUnsafe<A>> items)
         {
             foreach (var item in items)
             {
@@ -125,8 +125,10 @@ public static class OptionUnsafeExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
-    public static OptionUnsafe<B> Apply<A, B>(this OptionUnsafe<Func<A, B>> fab, OptionUnsafe<A> fa) =>
-        ApplOptionUnsafe<A, B>.Inst.Apply(fab, fa);
+    public static OptionUnsafe<B> Apply<A, B>(this OptionUnsafe<Func<A?, B?>> fab, OptionUnsafe<A> fa) =>
+        from f in fab
+        from a in fa
+        select f(a);
 
     /// <summary>
     /// Apply
@@ -135,8 +137,8 @@ public static class OptionUnsafeExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
-    public static OptionUnsafe<B> Apply<A, B>(this Func<A, B> fab, OptionUnsafe<A> fa) =>
-        ApplOptionUnsafe<A, B>.Inst.Apply(fab, fa);
+    public static OptionUnsafe<B> Apply<A, B>(this Func<A?, B?> fab, OptionUnsafe<A> fa) =>
+        fa.Map(fab);
 
     /// <summary>
     /// Apply
@@ -146,10 +148,11 @@ public static class OptionUnsafeExtensions
     /// <param name="fb">Applicative b to apply</param>
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
-    public static OptionUnsafe<C> Apply<A, B, C>(this OptionUnsafe<Func<A, B, C>> fabc, OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
-        from x in fabc
-        from y in ApplOptionUnsafe<A, B, C>.Inst.Apply(curry(x), fa, fb)
-        select y;
+    public static OptionUnsafe<C> Apply<A, B, C>(this OptionUnsafe<Func<A?, B?, C?>> fabc, OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
+        from f in fabc
+        from a in fa
+        from b in fb
+        select f(a, b);
 
     /// <summary>
     /// Apply
@@ -159,8 +162,10 @@ public static class OptionUnsafeExtensions
     /// <param name="fb">Applicative b to apply</param>
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
-    public static OptionUnsafe<C> Apply<A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
-        ApplOptionUnsafe<A, B, C>.Inst.Apply(curry(fabc), fa, fb);
+    public static OptionUnsafe<C> Apply<A, B, C>(this Func<A?, B?, C?> fabc, OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
+        from a in fa
+        from b in fb
+        select fabc(a, b);
 
     /// <summary>
     /// Apply
@@ -169,10 +174,10 @@ public static class OptionUnsafeExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static OptionUnsafe<Func<B, C>> Apply<A, B, C>(this OptionUnsafe<Func<A, B, C>> fabc, OptionUnsafe<A> fa) =>
-        from x in fabc
-        from y in ApplOptionUnsafe<A, B, C>.Inst.Apply(curry(x), fa)
-        select y;
+    public static OptionUnsafe<Func<B?, C?>> Apply<A, B, C>(this OptionUnsafe<Func<A?, B?, C?>> fabc, OptionUnsafe<A> fa) =>
+        from f in fabc
+        from a in fa
+        select curry(f)(a);
 
     /// <summary>
     /// Apply
@@ -181,8 +186,8 @@ public static class OptionUnsafeExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static OptionUnsafe<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, OptionUnsafe<A> fa) =>
-        ApplOptionUnsafe<A, B, C>.Inst.Apply(curry(fabc), fa);
+    public static OptionUnsafe<Func<B?, C?>> Apply<A, B, C>(this Func<A?, B?, C?> fabc, OptionUnsafe<A> fa) =>
+        fa.Map(curry(fabc));
 
     /// <summary>
     /// Apply
@@ -191,8 +196,10 @@ public static class OptionUnsafeExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static OptionUnsafe<Func<B, C>> Apply<A, B, C>(this OptionUnsafe<Func<A, Func<B, C>>> fabc, OptionUnsafe<A> fa) =>
-        ApplOptionUnsafe<A, B, C>.Inst.Apply(fabc, fa);
+    public static OptionUnsafe<Func<B?, C?>> Apply<A, B, C>(this OptionUnsafe<Func<A?, Func<B?, C?>>> fabc, OptionUnsafe<A> fa) =>
+        from f in fabc
+        from a in fa
+        select f(a);
 
     /// <summary>
     /// Apply
@@ -201,8 +208,8 @@ public static class OptionUnsafeExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static OptionUnsafe<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, OptionUnsafe<A> fa) =>
-        ApplOptionUnsafe<A, B, C>.Inst.Apply(fabc, fa);
+    public static OptionUnsafe<Func<B?, C?>> Apply<A, B, C>(this Func<A?, Func<B?, C?>> fabc, OptionUnsafe<A> fa) =>
+        fa.Map(fabc);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -212,8 +219,7 @@ public static class OptionUnsafeExtensions
     /// <returns>Applicative of type Option<B></returns>
     [Pure]
     public static OptionUnsafe<B> Action<A, B>(this OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
-        ApplOptionUnsafe<A, B>.Inst.Action(fa, fb);
-
+        fa.Bind(_ => fb);
 
     /// <summary>
     /// Convert the OptionUnsafe type to a Nullable of A
@@ -224,7 +230,7 @@ public static class OptionUnsafeExtensions
     [Pure]
     public static A? ToNullable<A>(this OptionUnsafe<A> ma) where A : struct =>
         ma.IsNone
-            ? (A?)null
+            ? default
             : ma.Value;
 
     /// <summary>
@@ -237,10 +243,9 @@ public static class OptionUnsafeExtensions
     /// <param name="None">Operation to perform when an OptionUnsafe is in the None state</param>
     /// <returns>An enumerable of results of the match operations</returns>
     [Pure]
-    public static IEnumerable<R> Match<T, R>(this IEnumerable<OptionUnsafe<T>> list,
-        Func<T, IEnumerable<R>> Some,
-        Func<IEnumerable<R>> None
-        ) =>
+    public static IEnumerable<R?> Match<T, R>(this IEnumerable<OptionUnsafe<T>> list,
+        Func<T?, IEnumerable<R?>> Some,
+        Func<IEnumerable<R?>> None) =>
         matchUnsafe(list, Some, None);
 
     /// <summary>
@@ -253,9 +258,9 @@ public static class OptionUnsafeExtensions
     /// <param name="None">Default if the list is empty</param>
     /// <returns>An enumerable of results of the match operations</returns>
     [Pure]
-    public static IEnumerable<R> Match<T, R>(this IEnumerable<OptionUnsafe<T>> list,
-        Func<T, IEnumerable<R>> Some,
-        IEnumerable<R> None) =>
+    public static IEnumerable<R?> Match<T, R>(this IEnumerable<OptionUnsafe<T>> list,
+        Func<T?, IEnumerable<R?>> Some,
+        IEnumerable<R?> None) =>
         matchUnsafe(list, Some, () => None);
 
     /// <summary>
@@ -265,7 +270,7 @@ public static class OptionUnsafeExtensions
     /// <param name="Some">Some handler.  Must not return null.</param>
     /// <param name="None">None handler.  Must not return null.</param>
     /// <returns>A promise to return a non-null R</returns>
-    public static async Task<B> MatchAsync<A, B>(this OptionUnsafe<A> ma, Func<A, Task<B>> Some, Func<B> None) =>
+    public static async Task<B?> MatchAsync<A, B>(this OptionUnsafe<A> ma, Func<A?, Task<B?>> Some, Func<B?> None) =>
         ma.IsSome
             ? await Some(ma.Value).ConfigureAwait(false)
             : None();
@@ -277,7 +282,7 @@ public static class OptionUnsafeExtensions
     /// <param name="Some">Some handler.  Must not return null.</param>
     /// <param name="None">None handler.  Must not return null.</param>
     /// <returns>A promise to return a non-null R</returns>
-    public static async Task<B> MatchAsync<A, B>(this OptionUnsafe<A> ma, Func<A, Task<B>> Some, Func<Task<B>> None) =>
+    public static async Task<B?> MatchAsync<A, B>(this OptionUnsafe<A> ma, Func<A?, Task<B?>> Some, Func<Task<B?>> None) =>
         ma.IsSome
             ? await Some(ma.Value).ConfigureAwait(false)
             : await None().ConfigureAwait(false);
@@ -292,22 +297,12 @@ public static class OptionUnsafeExtensions
         a.IfNoneUnsafe(0);
 
     /// <summary>
-    /// Sum the bound value
-    /// </summary>
-    /// <remarks>This is a legacy method for backwards compatibility</remarks>
-    /// <param name="self">Option of A that is from the trait NUM</param>
-    /// <returns>The bound value or 0 if None</returns>
-    public static A Sum<NUM, A>(this OptionUnsafe<A> self)
-        where NUM : Num<A> =>
-        sum<NUM, MOptionUnsafe<A>, OptionUnsafe<A>, A>(self);
-
-    /// <summary>
     /// Projection from one value to another
     /// </summary>
     /// <typeparam name="B">Resulting functor value type</typeparam>
     /// <param name="map">Projection function</param>
     /// <returns>Mapped functor</returns>
-    public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A, Task<B>> map)
+    public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A?, Task<B?>> map)
     {
         var val = await self.ConfigureAwait(false);
         return val.IsSome
@@ -321,7 +316,7 @@ public static class OptionUnsafeExtensions
     /// <typeparam name="B">Resulting functor value type</typeparam>
     /// <param name="map">Projection function</param>
     /// <returns>Mapped functor</returns>
-    public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A, B> map)
+    public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A?, B?> map)
     {
         var val = await self.ConfigureAwait(false);
         return val.IsSome
@@ -335,9 +330,9 @@ public static class OptionUnsafeExtensions
     /// <typeparam name="B">Resulting functor value type</typeparam>
     /// <param name="map">Projection function</param>
     /// <returns>Mapped functor</returns>
-    public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A, B> map) =>
+    public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A?, B?> map) =>
         self.IsSome
-            ? OptionUnsafe<B>.Some(map(await self.Value.ConfigureAwait(false)))
+            ? OptionUnsafe<B>.Some(map(self.Value is null ? default : await self.Value.ConfigureAwait(false)))
             : None;
 
     /// <summary>
@@ -346,16 +341,19 @@ public static class OptionUnsafeExtensions
     /// <typeparam name="B">Resulting functor value type</typeparam>
     /// <param name="map">Projection function</param>
     /// <returns>Mapped functor</returns>
-    public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A, Task<B>> map) =>
+    public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A?, Task<B?>> map) =>
         self.IsSome
-            ? OptionUnsafe<B>.Some(await map(await self.Value.ConfigureAwait(false)).ConfigureAwait(false))
+            ? OptionUnsafe<B>.Some(await map(
+                                       self.Value is null 
+                                           ? default 
+                                           : await self.Value.ConfigureAwait(false)).ConfigureAwait(false))
             : None;
 
 
     /// <summary>
     /// Monad bind operation
     /// </summary>
-    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this OptionUnsafe<A> self, Func<A, Task<OptionUnsafe<B>>> bind) =>
+    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this OptionUnsafe<A> self, Func<A?, Task<OptionUnsafe<B>>> bind) =>
         self.IsSome
             ? await bind(self.Value).ConfigureAwait(false)
             : None;
@@ -363,7 +361,7 @@ public static class OptionUnsafeExtensions
     /// <summary>
     /// Monad bind operation
     /// </summary>
-    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A, Task<OptionUnsafe<B>>> bind)
+    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A?, Task<OptionUnsafe<B>>> bind)
     {
         var val = await self.ConfigureAwait(false);
         return val.IsSome
@@ -374,7 +372,7 @@ public static class OptionUnsafeExtensions
     /// <summary>
     /// Monad bind operation
     /// </summary>
-    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A, OptionUnsafe<B>> bind)
+    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A?, OptionUnsafe<B>> bind)
     {
         var val = await self.ConfigureAwait(false);
         return val.IsSome
@@ -385,24 +383,24 @@ public static class OptionUnsafeExtensions
     /// <summary>
     /// Monad bind operation
     /// </summary>
-    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A, OptionUnsafe<B>> bind) =>
+    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A?, OptionUnsafe<B>> bind) =>
         self.IsSome
-            ? bind(await self.Value.ConfigureAwait(false))
+            ? bind(self.Value is null ? default : await self.Value.ConfigureAwait(false))
             : OptionUnsafe<B>.None;
 
     /// <summary>
     /// Monad bind operation
     /// </summary>
-    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A, Task<OptionUnsafe<B>>> bind) =>
+    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A?, Task<OptionUnsafe<B>>> bind) =>
         self.IsSome
-            ? await bind(await self.Value.ConfigureAwait(false)).ConfigureAwait(false)
+            ? await bind(self.Value is null ? default : await self.Value.ConfigureAwait(false)).ConfigureAwait(false)
             : OptionUnsafe<B>.None;
 
     /// <summary>
     /// Invoke an action for the bound value (if in a Some state)
     /// </summary>
     /// <param name="Some">Action to invoke</param>
-    public static async Task<Unit> IterAsync<A>(this Task<OptionUnsafe<A>> self, Action<A> Some)
+    public static async Task<Unit> IterAsync<A>(this Task<OptionUnsafe<A>> self, Action<A?> Some)
     {
         var val = await self.ConfigureAwait(false);
         if (val.IsSome) Some(val.Value);
@@ -413,9 +411,9 @@ public static class OptionUnsafeExtensions
     /// Invoke an action for the bound value (if in a Some state)
     /// </summary>
     /// <param name="Some">Action to invoke</param>
-    public static async Task<Unit> IterAsync<A>(this OptionUnsafe<Task<A>> self, Action<A> Some)
+    public static async Task<Unit> IterAsync<A>(this OptionUnsafe<Task<A>> self, Action<A?> Some)
     {
-        if (self.IsSome) Some(await self.Value.ConfigureAwait(false));
+        if (self.IsSome) Some(self.Value is null ? default : await self.Value.ConfigureAwait(false));
         return unit;
     }
 
@@ -453,7 +451,7 @@ public static class OptionUnsafeExtensions
     /// <param name="state">Initial state</param>
     /// <param name="folder">Folder function, applied if OptionUnsafe is in a Some state</param>
     /// <returns>The aggregate state</returns>
-    public static async Task<S> FoldAsync<A, S>(this Task<OptionUnsafe<A>> self, S state, Func<S, A, S> folder) =>
+    public static async Task<S> FoldAsync<A, S>(this Task<OptionUnsafe<A>> self, S state, Func<S, A?, S> folder) =>
         (await self.ConfigureAwait(false)).Fold(state, folder);
 
     /// <summary>
@@ -475,9 +473,9 @@ public static class OptionUnsafeExtensions
     /// <param name="state">Initial state</param>
     /// <param name="folder">Folder function, applied if OptionUnsafe is in a Some state</param>
     /// <returns>The aggregate state</returns>
-    public static async Task<S> FoldAsync<A, S>(this OptionUnsafe<Task<A>> self, S state, Func<S, A, S> folder) =>
+    public static async Task<S> FoldAsync<A, S>(this OptionUnsafe<Task<A>> self, S state, Func<S, A?, S> folder) =>
         self.IsSome
-            ? folder(state, await self.Value.ConfigureAwait(false))
+            ? folder(state, self.Value is null ? default : await self.Value.ConfigureAwait(false))
             : state;
 
     /// <summary>
@@ -491,7 +489,7 @@ public static class OptionUnsafeExtensions
     /// the predicate applies for-all values).  If the OptionUnsafe is in a Some state
     /// the value is the result of running applying the bound value to the
     /// predicate supplied.</returns>
-    public static async Task<bool> ForAllAsync<A>(this Task<OptionUnsafe<A>> self, Func<A, bool> pred) =>
+    public static async Task<bool> ForAllAsync<A>(this Task<OptionUnsafe<A>> self, Func<A?, bool> pred) =>
         (await self.ConfigureAwait(false)).ForAll(pred);
 
     /// <summary>
@@ -505,10 +503,8 @@ public static class OptionUnsafeExtensions
     /// the predicate applies for-all values).  If the OptionUnsafe is in a Some state
     /// the value is the result of running applying the bound value to the
     /// predicate supplied.</returns>
-    public static async Task<bool> ForAllAsync<A>(this OptionUnsafe<Task<A>> self, Func<A, bool> pred) =>
-        self.IsSome
-            ? pred(await self.Value.ConfigureAwait(false))
-            : true;
+    public static async Task<bool> ForAllAsync<A>(this OptionUnsafe<Task<A>> self, Func<A?, bool> pred) =>
+        !self.IsSome || pred(self.Value is null ? default : await self.Value.ConfigureAwait(false));
 
     /// <summary>
     /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
@@ -521,7 +517,7 @@ public static class OptionUnsafeExtensions
     /// invoking None returns True. If the OptionUnsafe is in a Some state the value
     /// is the result of running applying the bound value to the Some predicate
     /// supplied.</returns>
-    public static async Task<bool> ExistsAsync<A>(this Task<OptionUnsafe<A>> self, Func<A, bool> pred) =>
+    public static async Task<bool> ExistsAsync<A>(this Task<OptionUnsafe<A>> self, Func<A?, bool> pred) =>
         (await self.ConfigureAwait(false)).Exists(pred);
 
     /// <summary>
@@ -535,8 +531,6 @@ public static class OptionUnsafeExtensions
     /// invoking None returns True. If the OptionUnsafe is in a Some state the value
     /// is the result of running applying the bound value to the Some predicate
     /// supplied.</returns>
-    public static async Task<bool> ExistsAsync<A>(this OptionUnsafe<Task<A>> self, Func<A, bool> pred) =>
-        self.IsSome
-            ? pred(await self.Value.ConfigureAwait(false))
-            : false;
+    public static async Task<bool> ExistsAsync<A>(this OptionUnsafe<Task<A>> self, Func<A?, bool> pred) =>
+        self.IsSome && pred(self.Value is null ? default : await self.Value.ConfigureAwait(false));
 }

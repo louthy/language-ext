@@ -7,17 +7,17 @@ using System.Diagnostics.Contracts;
 namespace LanguageExt.ClassInstances;
 
 public struct ApplOptionalUnsafe<OptionalA, OptionalB, OA, OB, A, B> :
-    Functor<OA, OB, A, B>,
-    BiFunctor<OA, OB, A, Unit, B>
+    Functor<OA, OB, A?, B?>,
+    BiFunctor<OA, OB, A?, Unit, B?>
     where OptionalA : OptionalUnsafe<OA, A>
     where OptionalB : OptionalUnsafe<OB, B>
 {
     [Pure]
-    public static OB BiMap(OA ma, Func<A, B> fa, Func<Unit, B> fb) =>
+    public static OB BiMap(OA ma, Func<A?, B?> fa, Func<Unit, B?> fb) =>
         FOptionalUnsafe<OptionalA, OptionalB, OA, OB, A, B>.BiMap(ma, fa, fb);
 
     [Pure]
-    public static OB Map(OA ma, Func<A, B> f) =>
+    public static OB Map(OA ma, Func<A?, B?> f) =>
         FOptionalUnsafe<OptionalA, OptionalB, OA, OB, A, B>.Map(ma, f);
 }
 

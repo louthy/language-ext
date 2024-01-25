@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -137,7 +136,7 @@ public static class OptionExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<B> Apply<A, B>(this Option<Func<A, B>> fab, Option<A> fa) =>
-        ApplOption<A, B>.Inst.Apply(fab, fa);
+        ApplOption<A, B>.Apply(fab, fa);
 
     /// <summary>
     /// Apply
@@ -148,7 +147,7 @@ public static class OptionExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<B> Apply<A, B>(this Func<A, B> fab, Option<A> fa) =>
-        ApplOption<A, B>.Inst.Apply(fab, fa);
+        ApplOption<A, B>.Apply(fab, fa);
 
     /// <summary>
     /// Apply
@@ -160,9 +159,7 @@ public static class OptionExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<C> Apply<A, B, C>(this Option<Func<A, B, C>> fabc, Option<A> fa, Option<B> fb) =>
-        from x in fabc
-        from y in ApplOption<A, B, C>.Inst.Apply(curry(x), fa, fb)
-        select y;
+        ApplOption<B, C>.Apply(ApplOption<A, Func<B, C>>.Apply(fabc.Map(curry), fa), fb);
 
     /// <summary>
     /// Apply
@@ -174,7 +171,7 @@ public static class OptionExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<C> Apply<A, B, C>(this Func<A, B, C> fabc, Option<A> fa, Option<B> fb) =>
-        ApplOption<A, B, C>.Inst.Apply(curry(fabc), fa, fb);
+        ApplOption<B, C>.Apply(ApplOption<A, Func<B, C>>.Apply(Some(curry(fabc)), fa), fb);
 
     /// <summary>
     /// Apply
@@ -185,9 +182,7 @@ public static class OptionExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, B, C>> fabc, Option<A> fa) =>
-        from x in fabc
-        from y in ApplOption<A, B, C>.Inst.Apply(curry(x), fa)
-        select y;
+        ApplOption<A, Func<B, C>>.Apply(fabc.Map(curry), fa);
 
     /// <summary>
     /// Apply
@@ -198,7 +193,7 @@ public static class OptionExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, Option<A> fa) =>
-        ApplOption<A, B, C>.Inst.Apply(curry(fabc), fa);
+        ApplOption<A, Func<B, C>>.Apply(Some(curry(fabc)), fa);
 
     /// <summary>
     /// Apply
@@ -209,7 +204,7 @@ public static class OptionExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, Func<B, C>>> fabc, Option<A> fa) =>
-        ApplOption<A, B, C>.Inst.Apply(fabc, fa);
+        ApplOption<A, Func<B, C>>.Apply(fabc, fa);
 
     /// <summary>
     /// Apply
@@ -220,7 +215,7 @@ public static class OptionExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, Option<A> fa) =>
-        ApplOption<A, B, C>.Inst.Apply(fabc, fa);
+        ApplOption<A, Func<B, C>>.Apply(Some(fabc), fa);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -231,7 +226,7 @@ public static class OptionExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<B> Action<A, B>(this Option<A> fa, Option<B> fb) =>
-        ApplOption<A, B>.Inst.Action(fa, fb);
+        ApplOption<A, B>.Action(fa, fb);
 
     /// <summary>
     /// Convert the Option type to a Nullable of A

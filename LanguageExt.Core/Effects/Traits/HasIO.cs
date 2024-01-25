@@ -1,5 +1,4 @@
-﻿#nullable  enable
-using LanguageExt.Attributes;
+﻿using LanguageExt.Attributes;
 using LanguageExt.Common;
 
 namespace LanguageExt.Effects.Traits;
@@ -11,7 +10,7 @@ namespace LanguageExt.Effects.Traits;
 /// <typeparam name="E">User specified error type</typeparam>
 [Trait("*")]
 public interface HasIO<out RT> : HasCancel<RT>, HasSyncContext<RT>
-    where RT : struct,
+    where RT : 
     HasCancel<RT>,
     HasSyncContext<RT>;
 
@@ -22,7 +21,7 @@ public interface HasIO<out RT> : HasCancel<RT>, HasSyncContext<RT>
 /// <typeparam name="E">User specified error type</typeparam>
 [Trait("*")]
 public interface HasIO<out RT, out E> : HasIO<RT>, HasFromError<RT, E>
-    where RT : struct,
+    where RT : 
     HasCancel<RT>,
     HasSyncContext<RT>,
     HasFromError<RT, E>;
