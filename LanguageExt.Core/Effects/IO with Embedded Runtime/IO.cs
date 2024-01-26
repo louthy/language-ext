@@ -63,7 +63,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// Constructor
     /// </summary>
     [MethodImpl(Opt.Default)]
-    IO(Transducer<RT, A> thunk) 
+    internal IO(Transducer<RT, A> thunk) 
         : this(Transducer.compose(thunk, Transducer.mkRight<E, A>()))
     { }
 

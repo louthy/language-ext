@@ -1014,7 +1014,7 @@ public static partial class Transducer
         S initialState, 
         Reducer<B, S> reducer,
         CancellationToken token,
-        SynchronizationContext? syncContext)
+        SynchronizationContext? syncContext = null)
     {
         var st = new TState(syncContext ?? SynchronizationContext.Current, token);
 
@@ -1082,7 +1082,7 @@ public static partial class Transducer
         Reducer<B, S> reducer,
         Action? @finally,
         CancellationToken token,
-        SynchronizationContext syncContext) =>
+        SynchronizationContext? syncContext = null) =>
         TaskAsync<A>.RunAsync<S>((t, v) => Invoke(transducer, v, initialState, reducer, t, syncContext), value, @finally, token);
     
     /// <summary>
@@ -1101,7 +1101,7 @@ public static partial class Transducer
         A value, 
         Action? @finally,
         CancellationToken token,
-        SynchronizationContext syncContext) =>
+        SynchronizationContext? syncContext) =>
         TaskAsync<A>.RunAsync<B>((t, v) => Invoke1(transducer, v, t, syncContext), value, @finally, token);
 
     internal static IEnumerable<Transducer<A, Sum<E, B>>> FlattenChoices<A, E, B>(this IEnumerable<Transducer<A, Sum<E, B>>> items)

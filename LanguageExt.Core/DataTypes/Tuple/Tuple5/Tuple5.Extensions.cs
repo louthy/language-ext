@@ -25,11 +25,11 @@ public static class Tuple5Extensions
         where SemiC : Semigroup<C>
         where SemiD : Semigroup<D> 
         where SemiE : Semigroup<E> =>
-        Tuple(default(SemiA).Append(a.Item1, b.Item1),
-              default(SemiB).Append(a.Item2, b.Item2),
-              default(SemiC).Append(a.Item3, b.Item3),
-              default(SemiD).Append(a.Item4, b.Item4),
-              default(SemiE).Append(a.Item5, b.Item5));
+        Tuple(SemiA.Append(a.Item1, b.Item1),
+              SemiB.Append(a.Item2, b.Item2),
+              SemiC.Append(a.Item3, b.Item3),
+              SemiD.Append(a.Item4, b.Item4),
+              SemiE.Append(a.Item5, b.Item5));
 
     /// <summary>
     /// Semigroup append
@@ -37,10 +37,10 @@ public static class Tuple5Extensions
     [Pure]
     public static A Append<SemiA, A>(this Tuple<A, A, A, A, A> a)
         where SemiA : Semigroup<A> =>
-        default(SemiA).Append(a.Item1,
-            default(SemiA).Append(a.Item2,
-                default(SemiA).Append(a.Item3,
-                    default(SemiA).Append(a.Item4, a.Item5))));
+        SemiA.Append(a.Item1,
+            SemiA.Append(a.Item2,
+                SemiA.Append(a.Item3,
+                    SemiA.Append(a.Item4, a.Item5))));
 
     /// <summary>
     /// Monoid concat
@@ -109,11 +109,11 @@ public static class Tuple5Extensions
     [Pure]
     public static bool Contains<EQ, A>(this Tuple<A, A, A, A, A> self, A value)
         where EQ : Eq<A> =>
-        default(EQ).Equals(self.Item1, value) ||
-        default(EQ).Equals(self.Item2, value) ||
-        default(EQ).Equals(self.Item3, value) ||
-        default(EQ).Equals(self.Item4, value) ||
-        default(EQ).Equals(self.Item5, value);
+        EQ.Equals(self.Item1, value) ||
+        EQ.Equals(self.Item2, value) ||
+        EQ.Equals(self.Item3, value) ||
+        EQ.Equals(self.Item4, value) ||
+        EQ.Equals(self.Item5, value);
 
     /// <summary>
     /// Map

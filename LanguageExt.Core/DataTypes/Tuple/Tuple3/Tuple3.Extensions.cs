@@ -23,9 +23,9 @@ public static class Tuple3Extensions
         where SemiA : Semigroup<A>
         where SemiB : Semigroup<B>
         where SemiC : Semigroup<C> =>
-        Tuple(default(SemiA).Append(a.Item1, b.Item1),
-              default(SemiB).Append(a.Item2, b.Item2),
-              default(SemiC).Append(a.Item3, b.Item3));
+        Tuple(SemiA.Append(a.Item1, b.Item1),
+              SemiB.Append(a.Item2, b.Item2),
+              SemiC.Append(a.Item3, b.Item3));
 
     /// <summary>
     /// Semigroup append
@@ -33,8 +33,7 @@ public static class Tuple3Extensions
     [Pure]
     public static A Append<SemiA, A>(this Tuple<A, A, A> a)
         where SemiA : Semigroup<A> =>
-        default(SemiA).Append(a.Item1,
-            default(SemiA).Append(a.Item2, a.Item3));
+        SemiA.Append(a.Item1, SemiA.Append(a.Item2, a.Item3));
 
     /// <summary>
     /// Monoid concat
@@ -83,7 +82,7 @@ public static class Tuple3Extensions
     [Pure]
     public static A Sum<NUM, A>(this Tuple<A, A, A> self)
         where NUM : Num<A> =>
-        default(NUM).Plus(self.Item1, default(NUM).Plus(self.Item2, self.Item3));
+        NUM.Plus(self.Item1, NUM.Plus(self.Item2, self.Item3));
 
     /// <summary>
     /// Product of the items
@@ -91,7 +90,7 @@ public static class Tuple3Extensions
     [Pure]
     public static A Product<NUM, A>(this Tuple<A, A, A> self)
         where NUM : Num<A> =>
-        default(NUM).Product(self.Item1, default(NUM).Product(self.Item2, self.Item3));
+        NUM.Product(self.Item1, NUM.Product(self.Item2, self.Item3));
 
     /// <summary>
     /// One of the items matches the value passed
@@ -99,9 +98,9 @@ public static class Tuple3Extensions
     [Pure]
     public static bool Contains<EQ, A>(this Tuple<A, A, A> self, A value)
         where EQ : Eq<A> =>
-        default(EQ).Equals(self.Item1, value) ||
-        default(EQ).Equals(self.Item2, value) ||
-        default(EQ).Equals(self.Item3, value);
+        EQ.Equals(self.Item1, value) ||
+        EQ.Equals(self.Item2, value) ||
+        EQ.Equals(self.Item3, value);
 
     /// <summary>
     /// Map

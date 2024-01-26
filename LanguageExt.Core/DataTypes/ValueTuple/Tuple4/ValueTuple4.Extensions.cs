@@ -25,10 +25,10 @@ public static class ValueTuple4Extensions
         where SemiC : Semigroup<C>
         where SemiD : Semigroup<D> 
         =>
-        (default(SemiA).Append(a.Item1, b.Item1),
-         default(SemiB).Append(a.Item2, b.Item2),
-         default(SemiC).Append(a.Item3, b.Item3),
-         default(SemiD).Append(a.Item4, b.Item4));
+        (SemiA.Append(a.Item1, b.Item1),
+         SemiB.Append(a.Item2, b.Item2),
+         SemiC.Append(a.Item3, b.Item3),
+         SemiD.Append(a.Item4, b.Item4));
 
     /// <summary>
     /// Semigroup append
@@ -36,9 +36,9 @@ public static class ValueTuple4Extensions
     [Pure]
     public static A Append<SemiA, A>(this ValueTuple<A, A, A, A> a)
         where SemiA : Semigroup<A> =>
-        default(SemiA).Append(a.Item1,
-            default(SemiA).Append(a.Item2,
-                default(SemiA).Append(a.Item3, a.Item4)));
+        SemiA.Append(a.Item1,
+            SemiA.Append(a.Item2,
+                SemiA.Append(a.Item3, a.Item4)));
 
     /// <summary>
     /// Monoid concat
@@ -89,7 +89,7 @@ public static class ValueTuple4Extensions
     [Pure]
     public static A Sum<NUM, A>(this (A, A, A, A) self)
         where NUM : Num<A> =>
-        TypeClass.sum<NUM, FoldTuple<A>, (A, A, A, A), A>(self);
+        sum<NUM, FoldTuple<A>, (A, A, A, A), A>(self);
 
     /// <summary>
     /// Product of the items
@@ -97,7 +97,7 @@ public static class ValueTuple4Extensions
     [Pure]
     public static A Product<NUM, A>(this(A, A, A, A) self)
         where NUM : Num<A> =>
-        TypeClass.product<NUM, FoldTuple<A>, (A, A, A, A), A>(self);
+        product<NUM, FoldTuple<A>, (A, A, A, A), A>(self);
 
     /// <summary>
     /// One of the items matches the value passed
@@ -105,10 +105,10 @@ public static class ValueTuple4Extensions
     [Pure]
     public static bool Contains<EQ, A>(this (A, A, A, A) self, A value)
         where EQ : Eq<A> =>
-        default(EQ).Equals(self.Item1, value) ||
-        default(EQ).Equals(self.Item2, value) ||
-        default(EQ).Equals(self.Item3, value) ||
-        default(EQ).Equals(self.Item4, value);
+        EQ.Equals(self.Item1, value) ||
+        EQ.Equals(self.Item2, value) ||
+        EQ.Equals(self.Item3, value) ||
+        EQ.Equals(self.Item4, value);
 
     /// <summary>
     /// Map

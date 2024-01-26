@@ -1,7 +1,4 @@
-/*
-#nullable enable
 using System;
-using LanguageExt.Effects.Traits;
 
 namespace LanguageExt;
 
@@ -14,8 +11,7 @@ public static partial class IOExtensions
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static IO<RT, E, A> Repeat<RT, E, A>(this IO<RT, E, A> ma)
-        where RT : HasIO<RT, E> =>
+    public static IO<E, A> Repeat<E, A>(this IO<E, A> ma) =>
         new(Transducer.repeat(Schedule.Forever, ma.Morphism));
 
     /// <summary>
@@ -26,8 +22,7 @@ public static partial class IOExtensions
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static IO<RT, E, A> Repeat<RT, E, A>(this IO<RT, E, A> ma, Schedule schedule)
-        where RT : HasIO<RT, E> =>
+    public static IO<E, A> Repeat<E, A>(this IO<E, A> ma, Schedule schedule) =>
         new(Transducer.repeat(schedule, ma.Morphism));
 
     /// <summary>
@@ -37,8 +32,7 @@ public static partial class IOExtensions
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static IO<RT, E, A> RepeatWhile<RT, E, A>(this IO<RT, E, A> ma, Func<A, bool> predicate) 
-        where RT : HasIO<RT, E> =>
+    public static IO<E, A> RepeatWhile<E, A>(this IO<E, A> ma, Func<A, bool> predicate) => 
         new(Transducer.repeatWhile(Schedule.Forever, ma.Morphism, predicate));
 
     /// <summary>
@@ -49,11 +43,10 @@ public static partial class IOExtensions
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static IO<RT, E, A> RepeatWhile<RT, E, A>(
-        this IO<RT, E, A> ma,
+    public static IO<E, A> RepeatWhile<E, A>(
+        this IO<E, A> ma,
         Schedule schedule,
-        Func<A, bool> predicate)
-        where RT : HasIO<RT, E> =>
+        Func<A, bool> predicate) =>
         new(Transducer.repeatWhile(schedule, ma.Morphism, predicate));
 
     /// <summary>
@@ -63,10 +56,9 @@ public static partial class IOExtensions
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static IO<RT, E, A> RepeatUntil<RT, E, A>(
-        this IO<RT, E, A> ma,
-        Func<A, bool> predicate)
-        where RT : HasIO<RT, E> =>
+    public static IO<E, A> RepeatUntil<E, A>(
+        this IO<E, A> ma,
+        Func<A, bool> predicate) =>
         new(Transducer.repeatUntil(Schedule.Forever, ma.Morphism, predicate));
 
     /// <summary>
@@ -77,11 +69,9 @@ public static partial class IOExtensions
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
-    public static IO<RT, E, A> RepeatUntil<RT, E, A>(
-        this IO<RT, E, A> ma,
+    public static IO<E, A> RepeatUntil<E, A>(
+        this IO<E, A> ma,
         Schedule schedule,
-        Func<A, bool> predicate)
-        where RT : HasIO<RT, E> =>
+        Func<A, bool> predicate) =>
         new(Transducer.repeatUntil(schedule, ma.Morphism, predicate));
 }
-*/

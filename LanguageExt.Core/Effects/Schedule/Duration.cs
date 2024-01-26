@@ -3,7 +3,6 @@
 using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExt;
 

@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
@@ -19,12 +18,6 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value type</typeparam>
 public readonly struct Eff<A> : KArr<Any, MinRT, Sum<Error, A>>
 {
-    /// <summary>
-    /// Cached mapping of errors to a valid output for this type 
-    /// </summary>
-    static readonly Func<Error, Either<Error, A>> errorMap = 
-        e =>  default(MinRT).FromError(e); 
-    
     /// <summary>
     /// Underlying transducer that captures all of the IO behaviour 
     /// </summary>

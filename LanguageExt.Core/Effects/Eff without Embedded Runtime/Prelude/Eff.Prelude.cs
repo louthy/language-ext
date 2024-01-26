@@ -1,10 +1,9 @@
-#nullable enable
 using System;
 using LanguageExt.Common;
 using System.Threading.Tasks;
-using LanguageExt.Effects.Traits;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using LanguageExt.Effects;
 
 namespace LanguageExt;
@@ -47,7 +46,31 @@ public static partial class Prelude
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<MinRT> runtimeEff() =>
         LanguageExt.Eff<MinRT>.Lift(rt => rt);
-   
+
+    /// <summary>
+    /// Create a new cancellation context and run the provided Aff in that context
+    /// </summary>
+    /// <param name="ma">Operation to run in the next context</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>An asynchronous effect that captures the operation running in context</returns>
+    public static Eff<A> localCancelEff<A>(Eff<A> ma) =>
+        lift((MinRT rt) =>
+             {
+                 var rt1 = rt.LocalCancel;
+                 using (rt1.CancellationTokenSource)
+                 {
+                     return ma.Run(rt1);
+                 }
+             });
+    
+
+    /// <summary>
+    /// Cancellation token
+    /// </summary>
+    /// <returns>CancellationToken</returns>
+    public static Eff<CancellationToken> cancelTokenEff() =>
+        lift(static (MinRT env) => env.CancellationToken);
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Monadic join

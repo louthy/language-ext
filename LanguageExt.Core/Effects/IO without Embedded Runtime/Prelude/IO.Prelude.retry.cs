@@ -1,7 +1,4 @@
-/*
-#nullable enable
 using System;
-using LanguageExt.Effects.Traits;
 
 namespace LanguageExt;
 
@@ -14,8 +11,7 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static IO<RT, E, A> retry<RT, E, A>(IO<RT, E, A> ma)
-        where RT : HasIO<RT, E> =>
+    public static IO<E, A> retry<E, A>(IO<E, A> ma) =>
         new(Transducer.retry(Schedule.Forever, ma.Morphism));
 
     /// <summary>
@@ -26,8 +22,7 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static IO<RT, E, A> retry<RT, E, A>(Schedule schedule, IO<RT, E, A> ma)
-        where RT : HasIO<RT, E> =>
+    public static IO<E, A> retry<E, A>(Schedule schedule, IO<E, A> ma) =>
         new(Transducer.retry(schedule, ma.Morphism));
 
     /// <summary>
@@ -37,9 +32,9 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static IO<RT, E, A> retryWhile<RT, E, A>(
-        IO<RT, E, A> ma,
-        Func<E, bool> predicate) where RT : HasIO<RT, E> =>
+    public static IO<E, A> retryWhile<E, A>(
+        IO<E, A> ma,
+        Func<E, bool> predicate) =>
         new(Transducer.retryWhile(Schedule.Forever, ma.Morphism, predicate));
 
     /// <summary>
@@ -50,11 +45,10 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static IO<RT, E, A> retryWhile<RT, E, A>(
+    public static IO<E, A> retryWhile<E, A>(
         Schedule schedule,
-        IO<RT, E, A> ma,
-        Func<E, bool> predicate)
-        where RT : HasIO<RT, E> =>
+        IO<E, A> ma,
+        Func<E, bool> predicate) =>
         new(Transducer.retryWhile(schedule, ma.Morphism, predicate));
 
     /// <summary>
@@ -64,10 +58,9 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static IO<RT, E, A> retryUntil<RT, E, A>(
-        IO<RT, E, A> ma,
-        Func<E, bool> predicate)
-        where RT : HasIO<RT, E> =>
+    public static IO<E, A> retryUntil<E, A>(
+        IO<E, A> ma,
+        Func<E, bool> predicate) =>
         new(Transducer.retryUntil(Schedule.Forever, ma.Morphism, predicate));
 
     /// <summary>
@@ -78,11 +71,9 @@ public static partial class Prelude
     /// <typeparam name="RT">Runtime</typeparam>
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of ma</returns>
-    public static IO<RT, E, A> retryUntil<RT, E, A>(
+    public static IO<E, A> retryUntil<E, A>(
         Schedule schedule,
-        IO<RT, E, A> ma,
-        Func<E, bool> predicate)
-        where RT : HasIO<RT, E> =>
+        IO<E, A> ma,
+        Func<E, bool> predicate) =>
         new(Transducer.retryUntil(schedule, ma.Morphism, predicate));
 }
-*/

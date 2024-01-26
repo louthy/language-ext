@@ -1,35 +1,31 @@
 ﻿using System;
-using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
-using static LanguageExt.Prelude;
 
-namespace LanguageExt
+namespace LanguageExt;
+
+/// <summary>
+/// No change to the collection
+/// </summary>
+/// <typeparam name="A">Value type</typeparam>
+public sealed class NoChange<A> : 
+    Change<A>, 
+    IEquatable<NoChange<A>>
 {
     /// <summary>
-    /// No change to the collection
+    /// Singleton value of `NoChange`
     /// </summary>
-    /// <typeparam name="A">Value type</typeparam>
-    public sealed class NoChange<A> : 
-        Change<A>, 
-        IEquatable<NoChange<A>>
-    {
-        /// <summary>
-        /// Singleton value of `NoChange`
-        /// </summary>
-        public static readonly Change<A> Default = new NoChange<A>();
+    public static readonly Change<A> Default = new NoChange<A>();
 
-        private NoChange()
-        { }
+    private NoChange()
+    { }
 
-        public override bool Equals(Change<A> obj) =>
-            obj is NoChange<A>;
+    public override bool Equals(Change<A>? obj) =>
+        obj is NoChange<A>;
 
-        public bool Equals(NoChange<A> rhs) =>
-            rhs != null;
+    public bool Equals(NoChange<A>? rhs) =>
+        rhs is not null;
 
-        public override int GetHashCode() => 
-            FNV32.OffsetBasis;
+    public override int GetHashCode() => 
+        FNV32.OffsetBasis;
 
-        public override string ToString() => $"No Change";
-    }
+    public override string ToString() => $"No Change";
 }

@@ -1,13 +1,23 @@
-#nullable enable
 using System;
 using LanguageExt.Common;
 using LanguageExt.Effects;
-using LanguageExt.Effects.Traits;
 
 namespace LanguageExt;
 
 public static partial class EffExtensions
 {
+    /// <summary>
+    /// Lift transducer into an effect monad
+    /// </summary>
+    public static Eff<A> ToEff<A>(this Transducer<Unit, Sum<Error, A>> t) =>
+        new(t);
+
+    /// <summary>
+    /// Lift transducer into an effect monad
+    /// </summary>
+    public static Eff<A> ToEff<A>(this Transducer<Unit, A> t) =>
+        new(t);
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Monadic join

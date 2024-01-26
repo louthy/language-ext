@@ -21,7 +21,7 @@ public static class Tuple1Extensions
     [Pure]
     public static Tuple<A> Append<SemiA, A>(this Tuple<A> a, Tuple<A> b)
         where SemiA : Semigroup<A> =>
-        Tuple(default(SemiA).Append(a.Item1, b.Item1));
+        Tuple(SemiA.Append(a.Item1, b.Item1));
 
     /// <summary>
     /// Monoid concat
@@ -67,7 +67,7 @@ public static class Tuple1Extensions
     [Pure]
     public static bool Contains<EQ, A>(this Tuple<A> self, A value)
         where EQ : Eq<A> =>
-        default(EQ).Equals(self.Item1, value);
+        EQ.Equals(self.Item1, value);
 
     /// <summary>
     /// Map to R

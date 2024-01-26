@@ -28,13 +28,13 @@ public static class ValueTuple7Extensions
         where SemiF : Semigroup<F> 
         where SemiG : Semigroup<G>
         =>
-        (default(SemiA).Append(a.Item1, b.Item1),
-         default(SemiB).Append(a.Item2, b.Item2),
-         default(SemiC).Append(a.Item3, b.Item3),
-         default(SemiD).Append(a.Item4, b.Item4),
-         default(SemiE).Append(a.Item5, b.Item5),
-         default(SemiF).Append(a.Item6, b.Item6),
-         default(SemiG).Append(a.Item7, b.Item7));
+        (SemiA.Append(a.Item1, b.Item1),
+         SemiB.Append(a.Item2, b.Item2),
+         SemiC.Append(a.Item3, b.Item3),
+         SemiD.Append(a.Item4, b.Item4),
+         SemiE.Append(a.Item5, b.Item5),
+         SemiF.Append(a.Item6, b.Item6),
+         SemiG.Append(a.Item7, b.Item7));
 
     /// <summary>
     /// Semigroup append
@@ -42,12 +42,12 @@ public static class ValueTuple7Extensions
     [Pure]
     public static A Append<SemiA, A>(this ValueTuple<A, A, A, A, A, A, A> a)
         where SemiA : Semigroup<A> =>
-        default(SemiA).Append(a.Item1, 
-            default(SemiA).Append(a.Item2, 
-                default(SemiA).Append(a.Item3, 
-                    default(SemiA).Append(a.Item4, 
-                        default(SemiA).Append(a.Item5, 
-                            default(SemiA).Append(a.Item6, a.Item7))))));
+        SemiA.Append(a.Item1, 
+            SemiA.Append(a.Item2, 
+                SemiA.Append(a.Item3, 
+                    SemiA.Append(a.Item4, 
+                        SemiA.Append(a.Item5, 
+                            SemiA.Append(a.Item6, a.Item7))))));
 
     /// <summary>
     /// Monoid concat
@@ -120,13 +120,13 @@ public static class ValueTuple7Extensions
     [Pure]
     public static bool Contains<EQ, A>(this (A, A, A, A, A, A, A) self, A value)
         where EQ : Eq<A> =>
-        default(EQ).Equals(self.Item1, value) ||
-        default(EQ).Equals(self.Item2, value) ||
-        default(EQ).Equals(self.Item3, value) ||
-        default(EQ).Equals(self.Item4, value) ||
-        default(EQ).Equals(self.Item5, value) ||
-        default(EQ).Equals(self.Item6, value) ||
-        default(EQ).Equals(self.Item7, value);
+        EQ.Equals(self.Item1, value) ||
+        EQ.Equals(self.Item2, value) ||
+        EQ.Equals(self.Item3, value) ||
+        EQ.Equals(self.Item4, value) ||
+        EQ.Equals(self.Item5, value) ||
+        EQ.Equals(self.Item6, value) ||
+        EQ.Equals(self.Item7, value);
 
     /// <summary>
     /// Map

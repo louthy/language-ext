@@ -5,24 +5,25 @@ using System.Threading;
 
 namespace LanguageExt;
 
-public class TState : IDisposable
+public class TState(
+    ConcurrentDictionary<object, IDisposable>? disps,
+    SynchronizationContext? syncContext,
+    CancellationToken token)
+    : IDisposable
 {
-    public readonly CancellationToken Token;
-    public readonly SynchronizationContext SynchronizationContext;
-    ConcurrentDictionary<object, IDisposable>? Disps;
+    public readonly CancellationToken Token = token;
+    public readonly SynchronizationContext? SynchronizationContext = syncContext;
 
-    public TState(SynchronizationContext syncContext, CancellationToken token) =>
-        (Disps, Token, SynchronizationContext) = (null, token, syncContext);
-
-    public TState(ConcurrentDictionary<object, IDisposable>? disps, SynchronizationContext syncContext, CancellationToken token) =>
-        (Disps, Token, SynchronizationContext) = (disps, token, syncContext);
+    public TState(SynchronizationContext? syncContext, CancellationToken token) : this(null, syncContext, token)
+    {
+    }
 
     public Unit Using<A>(A value, Func<A, Unit> dispose)
     {
         object? key = value;
         if (key is null) throw new InvalidCastException("can't cast the use value to object without it being null");
-        var disps = Disps ?? new ConcurrentDictionary<object, IDisposable>();
-        disps.TryAdd(key, new Cleaner<A>(value, dispose));
+        var disps1 = disps ?? new ConcurrentDictionary<object, IDisposable>();
+        disps1.TryAdd(key, new Cleaner<A>(value, dispose));
         return default;
     }
 
@@ -33,7 +34,7 @@ public class TState : IDisposable
     {
         object? key = value;
         if (key is null) throw new InvalidCastException("can't cast the use value to object without it being null");
-        if (Disps is not null && Disps.TryRemove(key, out var disp))
+        if (disps is not null && disps.TryRemove(key, out var disp))
         {
             disp.Dispose();
         }
@@ -42,10 +43,10 @@ public class TState : IDisposable
     
     public void Dispose()
     {
-        var disps = Interlocked.Exchange(ref Disps, null);
-        if(disps is not null)
+        var disps1 = Interlocked.Exchange(ref disps, null);
+        if(disps1 is not null)
         {
-            foreach (var d in disps)
+            foreach (var d in disps1)
             {
                 d.Value.Dispose();
             }

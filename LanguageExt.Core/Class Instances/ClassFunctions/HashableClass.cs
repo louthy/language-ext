@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using LanguageExt.Common;
-using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.ClassInstances
@@ -39,7 +37,7 @@ namespace LanguageExt.ClassInstances
             catch (Exception e)
             {
                 Error = Some(Common.Error.New(e));
-                GetHashCode = (A x) => throw e;
+                GetHashCode = _ => throw e;
             }
         }
         

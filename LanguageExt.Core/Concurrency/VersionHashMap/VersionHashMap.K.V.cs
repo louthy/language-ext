@@ -1,11 +1,5 @@
-#nullable enable
 using System;
-using System.Linq;
-using System.Threading;
 using System.Collections;
-using System.ComponentModel;
-using LanguageExt.TypeClasses;
-using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -27,6 +21,9 @@ namespace LanguageExt
     /// Run `RemoveDeletedItemsOlderThan` to clean up items that have been deleted and are now just hanging around.  Use
     /// a big enough delay that it won't conflict with other commits (this could be seconds, minutes, or longer:
     /// depending on the expected latency of writes to the hash-map).
+    /// </para>
+    /// <para>
+    /// This is a mutable collection with atomic, thread-safe, updates.
     /// </para>
     /// </summary>
     public class VersionHashMap<K, V> :
@@ -580,4 +577,3 @@ namespace LanguageExt
             Items.Fold(state, folder);
     }
 }
-#nullable disable

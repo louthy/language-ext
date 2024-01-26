@@ -1164,6 +1164,17 @@ public readonly struct IO<E, A> : KArr<Any, MinRT<E>, Sum<E, A>>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<E, A> operator |(IO<E, A> ma, IOCatch<MinRT<E>, E, A> mb) =>
         new(ma.effect | mb);
+    
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="mb">Alternative IO operation</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static IO<E, A> operator |(IO<E, A> ma, IOCatch<E, A> mb) =>
+        new(ma.effect | mb.As);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the

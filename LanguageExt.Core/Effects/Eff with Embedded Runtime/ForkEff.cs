@@ -1,5 +1,3 @@
-#nullable enable
-
 namespace LanguageExt;
 
 /// <summary>

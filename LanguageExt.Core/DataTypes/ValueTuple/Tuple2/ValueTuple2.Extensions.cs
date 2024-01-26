@@ -23,8 +23,8 @@ public static class ValueTuple2Extensions
     public static (A, B) Append<SemiA, SemiB, A, B>(this(A, B) a, (A, B) b)
         where SemiA : Semigroup<A>
         where SemiB : Semigroup<B> =>
-        (default(SemiA).Append(a.Item1, b.Item1),
-         default(SemiB).Append(a.Item2, b.Item2));
+        (SemiA.Append(a.Item1, b.Item1),
+         SemiB.Append(a.Item2, b.Item2));
 
     /// <summary>
     /// Semigroup append
@@ -32,7 +32,7 @@ public static class ValueTuple2Extensions
     [Pure]
     public static A Append<SemiA, A>(this ValueTuple<A, A> a)
         where SemiA : Semigroup<A> =>
-        default(SemiA).Append(a.Item1, a.Item2);
+        SemiA.Append(a.Item1, a.Item2);
 
     /// <summary>
     /// Monoid concat

@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
@@ -9,6 +8,28 @@ public static class Sum
 {
     public static readonly Sum<Unit, Unit> RightUnit = new SumRight<Unit, Unit>(default);
     public static readonly Sum<Unit, Unit> LeftUnit = new SumLeft<Unit, Unit>(default);
+
+    /// <summary>
+    /// Convert a `Sum` to a `Fin`
+    /// </summary>
+    public static Fin<A> ToFin<A>(this Sum<Error, A> sum) =>
+        sum switch
+        {
+            SumRight<Error, A> r => r.Value,
+            SumLeft<Error, A> r  => r.Value,
+            _                    => Fin<A>.Fail(Errors.Bottom)
+        };
+
+    /// <summary>
+    /// Convert a `Sum` to a `Fin`
+    /// </summary>
+    public static Either<L, R> ToEither<L, R>(this Sum<L, R> sum) =>
+        sum switch
+        {
+            SumRight<L, R> r => r.Value,
+            SumLeft<L, R> r  => r.Value,
+            _                => Either<L, R>.Bottom
+        };
 }
 
 /// <summary>

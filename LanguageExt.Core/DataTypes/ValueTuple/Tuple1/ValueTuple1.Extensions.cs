@@ -19,48 +19,17 @@ public static class ValueTuple1Extensions
     /// Semigroup append
     /// </summary>
     [Pure]
-    public static ValueTuple<A> Append<SemiA, SemiB, A, B>(this ValueTuple<A> a, ValueTuple<A> b)
+    public static ValueTuple<A> Append<SemiA, A>(this ValueTuple<A> a, ValueTuple<A> b)
         where SemiA : Semigroup<A> =>
-        VTuple(default(SemiA).Append(a.Item1, b.Item1));
+        VTuple(SemiA.Append(a.Item1, b.Item1));
 
     /// <summary>
     /// Monoid concat
     /// </summary>
     [Pure]
-    public static ValueTuple<A> Concat<MonoidA, MonoidB, A, B>(this ValueTuple<A> a, ValueTuple<A> b)
-        where MonoidA : Monoid<A>
-        where MonoidB : Monoid<B> =>
+    public static ValueTuple<A> Concat<MonoidA, A>(this ValueTuple<A> a, ValueTuple<A> b)
+        where MonoidA : Monoid<A> =>
         VTuple(mconcat<MonoidA, A>(a.Item1, b.Item1));
-
-    /// <summary>
-    /// Take the first item
-    /// </summary>
-    [Pure]
-    public static A Head<A>(this ValueTuple<A> self) =>
-        self.Item1;
-
-    /// <summary>
-    /// Take the last item
-    /// </summary>
-    [Pure]
-    public static A Last<A>(this ValueTuple<A> self) =>
-        self.Item1;
-
-    /// <summary>
-    /// Sum of the items
-    /// </summary>
-    [Pure]
-    public static A Sum<NUM, A>(this ValueTuple<A> self)
-        where NUM : Num<A> =>
-        self.Item1;
-
-    /// <summary>
-    /// Product of the items
-    /// </summary>
-    [Pure]
-    public static A Product<NUM, A>(this ValueTuple<A> self)
-        where NUM : Num<A> =>
-        self.Item1;
 
     /// <summary>
     /// One of the items matches the value passed
@@ -68,7 +37,7 @@ public static class ValueTuple1Extensions
     [Pure]
     public static bool Contains<EQ, A>(this ValueTuple<A> self, A value)
         where EQ : Eq<A> =>
-        default(EQ).Equals(self.Item1, value);
+        EQ.Equals(self.Item1, value);
 
     /// <summary>
     /// Map to R

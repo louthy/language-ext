@@ -324,25 +324,26 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
         static Option<long> diffOne(A _, Option<long> ox, Option<long> oy) =>
             (ox.Case, oy.Case) switch
             {
-                (null, null)   => None,
-                (long x, null) => Some(x),
-                (null, long y) => throw new InvalidOperationException("diff broken"),
-                var (x, y)     => x == y ? None : Some(x),
+                (null, null)     => None,
+                (long x, null)   => Some(x),
+                (null, long)     => throw new InvalidOperationException("diff broken"),
+                (long x, long y) => x == y ? None : Some(x),
+                _                => throw new InvalidOperationException("diff broken")
             };
     }
 
     bool? valid;
     public bool Valid 
-    { 
+    {
         get
         {
             if (valid.HasValue) return valid.Value;
-            var keys     = Entries.Map(e => e.Item1);
-            var sorted   = keys.Sort<OrdDefault<A>, A>()                                                == keys;
-            var distinct = Entries.Distinct<EqTuple2<OrdDefault<A>, TLong, A, long>, (A, long)>().Count == Entries.Count;
+            var keys   = Entries.Map(e => e.Item1);
+            var sorted = keys.Sort<OrdDefault<A>, A>() == keys;
+            var distinct = Entries.Distinct<EqTuple2<OrdDefault<A>, TLong, A, long>, (A, long)>().Count ==
+                           Entries.Count;
             valid = sorted && distinct;
             return valid.Value;
         }
     }
 }
-#nullable disable

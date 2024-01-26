@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
@@ -8,6 +7,20 @@ namespace LanguageExt;
 
 public static partial class IOExtensions
 {
+    /// <summary>
+    /// Lift transducer into an effect monad
+    /// </summary>
+    public static IO<RT, E, A> ToIO<RT, E, A>(this Transducer<RT, Sum<E, A>> t)
+        where RT : HasIO<RT, E> =>
+        new (t);
+
+    /// <summary>
+    /// Lift transducer in an effect monad
+    /// </summary>
+    public static IO<RT, E, A> ToIO<RT, E, A>(this Transducer<RT, A> t)
+        where RT : HasIO<RT, E> =>
+        new(t);
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Monadic join
