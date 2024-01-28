@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using LanguageExt.Common;
 using System.Diagnostics.Contracts;
@@ -19,12 +18,6 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value type</typeparam>
 public readonly struct IO<E, A> : KArr<Any, MinRT<E>, Sum<E, A>>
 {
-    /// <summary>
-    /// Cached mapping of errors to a valid output for this type 
-    /// </summary>
-    static readonly Func<Error, Either<E, A>> errorMap =
-        e => default(MinRT<E>).FromError(e); 
-    
     /// <summary>
     /// Underlying transducer that captures all of the IO behaviour 
     /// </summary>

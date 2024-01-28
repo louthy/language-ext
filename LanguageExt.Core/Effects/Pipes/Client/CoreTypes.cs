@@ -202,26 +202,6 @@ public class Client<RT, REQ, RES, A> : Proxy<RT, REQ, RES, Unit, Void, A> where 
         y.PairEachRequestWithRespond(x).ToEffect();
         
     /// <summary>
-    /// Monadic bind operation, for chaining `Client` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Client<RT, REQ, RES, B> SelectMany<B>(Func<A, Release<B>> bind) =>
-        Value.Bind(a => bind(a).InterpretClient<RT, REQ, RES>()).ToClient();
-
-    /// <summary>
-    /// Monadic bind operation, for chaining `Client` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Client<RT, REQ, RES, C> SelectMany<B, C>(Func<A, Release<B>> bind, Func<A, B, C> project) =>
-        SelectMany(a => bind(a).Select(b => project(a, b)));
-
-    /// <summary>
     /// Chain one client after another
     /// </summary>
     [Pure]

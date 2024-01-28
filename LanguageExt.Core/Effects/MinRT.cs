@@ -12,7 +12,7 @@ public static class MinRTExtensions
         new (rt.SynchronizationContext, rt.CancellationTokenSource, rt.CancellationToken);
     
     public static MinRT<E> ToMin<RT, E>(this RT rt) where RT : HasIO<RT, E> =>
-        new (rt.FromError, rt.SynchronizationContext, rt.CancellationTokenSource, rt.CancellationToken);
+        new (rt.SynchronizationContext, rt.CancellationTokenSource, rt.CancellationToken);
 }
 
 /// <summary>
@@ -55,7 +55,7 @@ public readonly struct MinRT :
     public CancellationToken CancellationToken { get; }
     public CancellationTokenSource CancellationTokenSource { get; }
     
-    public Error FromError(Error error) => 
+    public static Error FromError(Error error) => 
         error;
 
     public MinRT WithSyncContext(SynchronizationContext? syncContext) =>
@@ -68,6 +68,13 @@ public readonly struct MinRT :
 public readonly struct MinRT<E> : 
     HasIO<MinRT<E>, E>
 {
+    public static Func<Error, E> DefaultErrorMap =
+        e =>
+        {
+            e.Throw();
+            throw new NotImplementedException();
+        };
+    
     /// <summary>
     /// Get the transducer that converts from a `HasIO` supporting runtime to a `MinRT`
     /// </summary>
@@ -76,42 +83,34 @@ public readonly struct MinRT<E> :
         lift<RT, MinRT<E>>(rt => rt.ToMin<RT, E>());
     
     public MinRT(
-        Func<Error, E> errorMap,
         SynchronizationContext? syncContext,
         CancellationTokenSource cancellationTokenSource,
         CancellationToken cancellationToken) =>
-        (ErrorMap, SynchronizationContext, CancellationTokenSource, CancellationToken) = 
-        (errorMap, syncContext, cancellationTokenSource, cancellationToken);
+        (SynchronizationContext, CancellationTokenSource, CancellationToken) = 
+        (syncContext, cancellationTokenSource, cancellationToken);
 
     public MinRT(
-        Func<Error, E> errorMap,
         SynchronizationContext? syncContext,
         CancellationTokenSource cancellationTokenSource) =>
-        (ErrorMap, SynchronizationContext, CancellationTokenSource, CancellationToken) = 
-        (errorMap, syncContext, cancellationTokenSource, cancellationTokenSource.Token);
+        (SynchronizationContext, CancellationTokenSource, CancellationToken) = 
+        (syncContext, cancellationTokenSource, cancellationTokenSource.Token);
 
     public MinRT(Func<Error, E> errorMap)
     {
-        ErrorMap                = errorMap;
         CancellationTokenSource = new CancellationTokenSource();
         CancellationToken       = CancellationTokenSource.Token;
         SynchronizationContext  = SynchronizationContext.Current;
     }
 
     public MinRT<E> LocalCancel =>
-        new (ErrorMap, SynchronizationContext, CancellationTokenSource);
+        new (SynchronizationContext, CancellationTokenSource);
 
-    public readonly Func<Error, E> ErrorMap;
     public SynchronizationContext? SynchronizationContext { get; }
     public CancellationToken CancellationToken { get; }
     public CancellationTokenSource CancellationTokenSource { get; }
     
-    public E FromError(Error error) =>
-        ErrorMap switch
-        {
-            null => throw new ValueIsNullException($"{nameof(MinRT)}.{nameof(ErrorMap)} isn't set.  This implies that the {nameof(MinRT)} runtime isn't initialised."),
-            var f => f(error)
-        };
+    public static E FromError(Error error) =>
+        DefaultErrorMap(error);
 
     public MinRT<E> WithSyncContext(SynchronizationContext? syncContext) =>
         new (ErrorMap, syncContext, CancellationTokenSource);

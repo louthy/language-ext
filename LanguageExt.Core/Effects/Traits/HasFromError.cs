@@ -18,5 +18,5 @@ public interface HasFromError<out RT, out E>
     /// </summary>
     /// <param name="error">Error value to convert</param>
     /// <returns>A value of type `E`, usually an error representation</returns>
-    E FromError(Error error);
+    public static abstract E FromError(Error error);
 }

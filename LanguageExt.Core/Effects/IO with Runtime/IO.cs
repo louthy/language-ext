@@ -128,7 +128,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     [Pure, MethodImpl(Opt.Default)]
     public Either<E, A> Run(RT env) =>
         Morphism.Invoke1(env, env.CancellationToken, env.SynchronizationContext)
-                .ToEither(env.FromError);
+                .ToEither(RT.FromError);
 
     /// <summary>
     /// Invoke the effect (which could produce multiple values).  Run a reducer for
@@ -166,7 +166,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
                     })
             .Match(
                 Succ: v => v,
-                Fail: env.FromError);
+                Fail: RT.FromError);
 
     /// <summary>
     /// Invoke the effect asynchronously
@@ -174,7 +174,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     [Pure, MethodImpl(Opt.Default)]
     public Task<Either<E, A>> RunAsync(RT env) =>
         Morphism.Invoke1Async(env, null, env.CancellationToken, env.SynchronizationContext)
-                .Map(r => r.ToEither(env.FromError));
+                .Map(r => r.ToEither(RT.FromError));
 
     /// <summary>
     /// Invoke the effect (which could produce multiple values).  Run a reducer for
@@ -213,7 +213,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
                     })
             .Map(r => r.Match(
                 Succ: v => v,
-                Fail: env.FromError));
+                Fail: RT.FromError));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -247,7 +247,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
                 {
                     // The token-source might have already been disposed, so let's ignore that error
                 }
-                return Left<E, A>(lenv.FromError(Errors.TimedOut));
+                return Left<E, A>(RT.FromError(Errors.TimedOut));
             }
             else
             {
@@ -1206,7 +1206,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> operator |(IO<RT, E, A> ma, Transducer<RT, Sum<Error, A>> mb) =>
-        ma.Try() | new IO<RT, E, A>(Transducer.mapLeft(mb, lift<Error, E>(e => default(RT).FromError(e))));
+        ma.Try() | new IO<RT, E, A>(Transducer.mapLeft(mb, lift<Error, E>(e => RT.FromError(e))));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1220,7 +1220,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
         ma.Try() | new IO<RT, E, A>(
             Transducer.compose(
                 Transducer.constant<RT, Unit>(default), 
-                Transducer.mapLeft(mb, lift<Error, E>(e => default(RT).FromError(e)))));
+                Transducer.mapLeft(mb, lift<Error, E>(e => RT.FromError(e)))));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1305,7 +1305,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static IO<RT, E, A> operator |(Transducer<RT, Sum<Error, A>> ma, IO<RT, E, A> mb) =>
-        new IO<RT, E, A>(Transducer.mapLeft(ma, lift<Error, E>(e => default(RT).FromError(e)))).Try() | mb;
+        new IO<RT, E, A>(Transducer.mapLeft(ma, lift<Error, E>(e => RT.FromError(e)))).Try() | mb;
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1319,5 +1319,5 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
         new IO<RT, E, A>(
             Transducer.compose(
                 Transducer.constant<RT, Unit>(default),
-                Transducer.mapLeft(ma, lift<Error, E>(e => default(RT).FromError(e))))).Try() | mb;
+                Transducer.mapLeft(ma, lift<Error, E>(e => RT.FromError(e))))).Try() | mb;
 }
