@@ -10,428 +10,183 @@ using LanguageExt.Effects.Traits;
 using System.Collections.Generic;
 using LanguageExt.Common;
 
-namespace LanguageExt.Pipes
+namespace LanguageExt.Pipes;
+
+public static class PureProxy
 {
-    public static class PureProxy
-    {
-        public static Pure<A> Pure<A>(A value) =>
-            new Pure<A>(value);
+    public static Pure<A> Pure<A>(A value) =>
+        new (value);
 
-        public static Release<A> ReleasePure<A>(A value) =>
-            new Release<A>.Pure(value);
+    public static Pipe<IN, OUT, A> PipePure<IN, OUT, A>(A value) =>
+        new Pipe<IN, OUT, A>.Pure(value);
 
-        public static Pipe<IN, OUT, A> PipePure<IN, OUT, A>(A value) =>
-            new Pipe<IN, OUT, A>.Pure(value);
+    public static Producer<OUT, A> ProducerPure<OUT, A>(A value) =>
+        new Producer<OUT, A>.Pure(value);
 
-        public static Producer<OUT, A> ProducerPure<OUT, A>(A value) =>
-            new Producer<OUT, A>.Pure(value);
+    public static Consumer<IN, A> ConsumerPure<IN, A>(A value) =>
+        new Consumer<IN, A>.Pure(value);
 
-        public static Consumer<IN, A> ConsumerPure<IN, A>(A value) =>
-            new Consumer<IN, A>.Pure(value);
+    public static Consumer<IN, IN> ConsumerAwait<IN>() =>
+        new Consumer<IN, IN>.Await(ConsumerPure<IN, IN>);
 
-        public static ConsumerLift<RT, IN, A> ConsumerLiftPure<RT, IN, A>(A value) where RT : HasIO<RT, Error> =>
-            new ConsumerLift<RT, IN, A>.Pure(value);
+    public static Pipe<IN, OUT, IN> PipeAwait<IN, OUT>() =>
+        new Pipe<IN, OUT, IN>.Await(PipePure<IN, OUT, IN>);
 
-        public static Enumerate<OUT, A> EnumeratePure<OUT, A>(A value) =>
-            new Enumerate<OUT, A>.Pure(value);
+    public static Producer<OUT, Unit> ProducerYield<OUT>(OUT value) =>
+        new Producer<OUT, Unit>.Yield(value, ProducerPure<OUT, Unit>);
 
-        public static Consumer<IN, IN> ConsumerAwait<IN>() =>
-            new Consumer<IN, IN>.Await(ConsumerPure<IN, IN>);
+    public static Pipe<IN, OUT, Unit> PipeYield<IN, OUT>(OUT value) =>
+        new Pipe<IN, OUT, Unit>.Yield(value, PipePure<IN, OUT, Unit>);
 
-        public static Pipe<IN, OUT, IN> PipeAwait<IN, OUT>() =>
-            new Pipe<IN, OUT, IN>.Await(PipePure<IN, OUT, IN>);
-
-        public static Producer<OUT, Unit> ProducerYield<OUT>(OUT value) =>
-            new Producer<OUT, Unit>.Yield(value, ProducerPure<OUT, Unit>);
-
-        public static Producer<OUT, Unit> ProducerEnumerate<OUT>(IEnumerable<OUT> xs) =>
-            new Producer<OUT, Unit>.Enumerate(xs, ProducerPure<OUT, Unit>);
-
-        public static Producer<OUT, Unit> ProducerEnumerate<OUT>(IAsyncEnumerable<OUT> xs) =>
-            new Producer<OUT, Unit>.Enumerate(xs, ProducerPure<OUT, Unit>);
-
-        public static Producer<OUT, Unit> ProducerObserve<OUT>(IObservable<OUT> xs) =>
-            new Producer<OUT, Unit>.Enumerate(xs, ProducerPure<OUT, Unit>);
-
-        public static Pipe<IN, OUT, Unit> PipeYield<IN, OUT>(OUT value) =>
-            new Pipe<IN, OUT, Unit>.Yield(value, PipePure<IN, OUT, Unit>);
-        
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this ConsumerLift<RT, IN, A> ma, Func<A, Transducer<RT, Sum<Error, B>>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(f(a), b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<IN, A> ma, Func<A, Transducer<RT, Sum<Error, B>>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(f(a), b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<OUT, A> ma, Func<A, Transducer<RT, Sum<Error, B>>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma.Interpret<RT>()
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<IN, OUT, A> ma, Func<A, Transducer<RT, Sum<Error, B>>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma.Interpret<RT>()
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<RT, IN, A> ma, Func<A, Transducer<RT, Sum<Error, B>>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Consumer.lift<RT, IN, B>(f(a))
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<RT, OUT, A> ma, Func<A, Transducer<RT, Sum<Error, B>>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<RT, IN, OUT, A> ma, Func<A, Transducer<RT, Sum<Error, B>>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-        
-        
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this ConsumerLift<RT, IN, A> ma, Func<A, Transducer<RT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(f(a).Map(Sum<Error, B>.Right), b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<IN, A> ma, Func<A, Transducer<RT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(f(a).Map(Sum<Error, B>.Right), b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<OUT, A> ma, Func<A, Transducer<RT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma.Interpret<RT>()
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<IN, OUT, A> ma, Func<A, Transducer<RT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma.Interpret<RT>()
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<RT, IN, A> ma, Func<A, Transducer<RT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Consumer.lift<RT, IN, B>(f(a))
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<RT, OUT, A> ma, Func<A, Transducer<RT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<RT, IN, OUT, A> ma, Func<A, Transducer<RT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this ConsumerLift<RT, IN, A> ma, Func<A, Transducer<Unit, B>> f,
-            Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(
-                        Transducer.compose(Transducer.constant<RT, Unit>(default), f(a).Map(Sum<Error, B>.Right)),
-                        b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<IN, A> ma, Func<A, Transducer<Unit, B>> f,
-            Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(
-                        Transducer.compose(Transducer.constant<RT, Unit>(default), f(a).Map(Sum<Error, B>.Right)),
-                        b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<OUT, A> ma, Func<A, Transducer<Unit, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma.Interpret<RT>()
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<IN, OUT, A> ma, Func<A, Transducer<Unit, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma.Interpret<RT>()
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<RT, IN, A> ma, Func<A, Transducer<Unit, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Consumer.lift<RT, IN, B>(f(a))
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<RT, OUT, A> ma, Func<A, Transducer<Unit, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<RT, IN, OUT, A> ma, Func<A, Transducer<Unit, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-        
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this ConsumerLift<RT, IN, A> ma, Func<A, Transducer<Unit, Sum<Error, B>>> f,
-            Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(
-                        Transducer.compose(Transducer.constant<RT, Unit>(default), f(a)),
-                        b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<IN, A> ma, Func<A, Transducer<Unit, Sum<Error, B>>> f,
-            Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(
-                        Transducer.compose(Transducer.constant<RT, Unit>(default), f(a)),
-                        b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<OUT, A> ma, Func<A, Transducer<Unit, Sum<Error, B>>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma.Interpret<RT>()
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<IN, OUT, A> ma, Func<A, Transducer<Unit, Sum<Error, B>>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma.Interpret<RT>()
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<RT, IN, A> ma, Func<A, Transducer<Unit, Sum<Error, B>>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Consumer.lift<RT, IN, B>(f(a))
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<RT, OUT, A> ma, Func<A, Transducer<Unit, Sum<Error, B>>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<RT, IN, OUT, A> ma, Func<A, Transducer<Unit, Sum<Error, B>>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-                
-        
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this ConsumerLift<RT, IN, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(f(a).Morphism, b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<IN, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(f(a).Morphism, b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<OUT, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma.Interpret<RT>()
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<IN, OUT, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma.Interpret<RT>()
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<RT, IN, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Consumer.lift<RT, IN, B>(f(a))
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<RT, OUT, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<RT, IN, OUT, A> ma, Func<A, Eff<RT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-        
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this ConsumerLift<RT, IN, A> ma, Func<A, Eff<B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            ma.Bind(a => new ConsumerLift<RT, IN, C>.Lift<B>(f(a).WithRuntime<RT>().Morphism, b => ConsumerLiftPure<RT, IN, C>(project(a, b))));
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Consumer<RT, IN, A> ma, Func<A, Eff<B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Consumer.lift<RT, IN, B>(f(a))
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Producer<RT, OUT, A> ma, Func<A, Eff<B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Producer.lift<RT, OUT, B>(f(a))
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Pipe<RT, IN, OUT, A> ma, Func<A, Eff<B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in ma
-            from b in Pipe.lift<RT, IN, OUT, B>(f(a))
-            select project(a, b);
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<RT, Sum<Error, A>> ma, Func<A, ConsumerLift<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(ma, a => f(a).Map(b => project(a, b)));
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<RT, Sum<Error, A>> ma, Func<A, Consumer<IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(ma, a => f(a).ToConsumerLift<RT>().Map(b => project(a, b)));
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<RT, Sum<Error, A>> ma, Func<A, Producer<OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<RT, Sum<Error, A>> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<RT, Sum<Error, A>> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Consumer.lift<RT, IN, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<RT, Sum<Error, A>> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<RT, Sum<Error, A>> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<RT, A> ma, Func<A, ConsumerLift<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(ma.Map(Sum<Error, A>.Right), a => f(a).Map(b => project(a, b)));
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<RT, A> ma, Func<A, Consumer<IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(ma.Map(Sum<Error, A>.Right), a => f(a).ToConsumerLift<RT>().Map(b => project(a, b)));
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<RT, A> ma, Func<A, Producer<OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<RT, A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<RT, A> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Consumer.lift<RT, IN, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<RT, A> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<RT, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<Unit, A> ma, Func<A, ConsumerLift<RT, IN, B>> f,
-            Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(Transducer.compose(Transducer.constant<RT, Unit>(default), ma.Map(Sum<Error, A>.Right)),
-                                                a => f(a).Map(b => project(a, b)));
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<Unit, A> ma, Func<A, Consumer<IN, B>> f,
-            Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(Transducer.compose(Transducer.constant<RT, Unit>(default), ma.Map(Sum<Error, A>.Right)),
-                                                a => f(a).ToConsumerLift<RT>().Map(b => project(a, b)));
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<Unit, A> ma, Func<A, Producer<OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<Unit, A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<Unit, A> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Consumer.lift<RT, IN, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<Unit, A> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<Unit, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<Unit, Sum<Error, A>> ma, Func<A, ConsumerLift<RT, IN, B>> f,
-            Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(Transducer.compose(Transducer.constant<RT, Unit>(default), ma),
-                                                a => f(a).Map(b => project(a, b)));
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<Unit, Sum<Error, A>> ma, Func<A, Consumer<IN, B>> f,
-            Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(Transducer.compose(Transducer.constant<RT, Unit>(default), ma),
-                                                a => f(a).ToConsumerLift<RT>().Map(b => project(a, b)));
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<Unit, Sum<Error, A>> ma, Func<A, Producer<OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<Unit, Sum<Error, A>> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<Unit, Sum<Error, A>> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Consumer.lift<RT, IN, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<Unit, Sum<Error, A>> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<Unit, Sum<Error, A>> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-        
-        
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Eff<RT, A> ma, Func<A, ConsumerLift<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(ma.Morphism, a => f(a).Map(b => project(a, b)));
-
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Eff<RT, A> ma, Func<A, Consumer<IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(ma.Morphism, a => f(a).ToConsumerLift<RT>().Map(b => project(a, b)));
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Eff<RT, A> ma, Func<A, Producer<OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Eff<RT, A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Eff<RT, A> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Consumer.lift<RT, IN, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Eff<RT, A> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Eff<RT, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        
-        public static ConsumerLift<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Eff<A> ma, Func<A, ConsumerLift<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            new ConsumerLift<RT, IN, C>.Lift<A>(ma, a => f(a).Map(b => project(a, b)));
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Eff<A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a).Interpret<RT>()
-            select project(a, b);
-
-        public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Eff<A> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Consumer.lift<RT, IN, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Eff<A> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Producer.lift<RT, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
-
-        public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Eff<A> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
-            from a in Pipe.lift<RT, IN, OUT, A>(ma)
-            from b in f(a)
-            select project(a, b);
     
-    }
+    public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<RT, Sum<Error, A>> ma, Func<A, Producer<OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Producer.lift<RT, OUT, A>(ma)
+        from b in f(a).Interpret<RT>()
+        select project(a, b);
+
+    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<RT, Sum<Error, A>> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Pipe.lift<RT, IN, OUT, A>(ma)
+        from b in f(a).Interpret<RT>()
+        select project(a, b);
+
+    public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<RT, Sum<Error, A>> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Consumer.lift<RT, IN, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+    public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<RT, Sum<Error, A>> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Producer.lift<RT, OUT, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<RT, Sum<Error, A>> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Pipe.lift<RT, IN, OUT, A>(ma)
+        from b in f(a)
+        select project(a, b);
+    
+    
+    public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<RT, A> ma, Func<A, Producer<OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Producer.lift<RT, OUT, A>(ma)
+        from b in f(a).Interpret<RT>()
+        select project(a, b);
+
+    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<RT, A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Pipe.lift<RT, IN, OUT, A>(ma)
+        from b in f(a).Interpret<RT>()
+        select project(a, b);
+
+    public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<RT, A> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Consumer.lift<RT, IN, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+    public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<RT, A> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Producer.lift<RT, OUT, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<RT, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Pipe.lift<RT, IN, OUT, A>(ma)
+        from b in f(a)
+        select project(a, b);
+    
+
+    public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<Unit, A> ma, Func<A, Producer<OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Producer.lift<RT, OUT, A>(ma)
+        from b in f(a).Interpret<RT>()
+        select project(a, b);
+
+    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<Unit, A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Pipe.lift<RT, IN, OUT, A>(ma)
+        from b in f(a).Interpret<RT>()
+        select project(a, b);
+
+    public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<Unit, A> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Consumer.lift<RT, IN, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+    public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<Unit, A> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Producer.lift<RT, OUT, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<Unit, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Pipe.lift<RT, IN, OUT, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+
+    public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<Unit, Sum<Error, A>> ma, Func<A, Producer<OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Producer.lift<RT, OUT, A>(ma)
+        from b in f(a).Interpret<RT>()
+        select project(a, b);
+
+    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<Unit, Sum<Error, A>> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Pipe.lift<RT, IN, OUT, A>(ma)
+        from b in f(a).Interpret<RT>()
+        select project(a, b);
+
+    public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Transducer<Unit, Sum<Error, A>> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Consumer.lift<RT, IN, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+    public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Transducer<Unit, Sum<Error, A>> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Producer.lift<RT, OUT, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Transducer<Unit, Sum<Error, A>> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Pipe.lift<RT, IN, OUT, A>(ma)
+        from b in f(a)
+        select project(a, b);
+        
+
+    public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Eff<RT, A> ma, Func<A, Producer<OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Producer.lift<RT, OUT, A>(ma)
+        from b in f(a).Interpret<RT>()
+        select project(a, b);
+
+    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Eff<RT, A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Pipe.lift<RT, IN, OUT, A>(ma)
+        from b in f(a).Interpret<RT>()
+        select project(a, b);
+
+    public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Eff<RT, A> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Consumer.lift<RT, IN, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+    public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Eff<RT, A> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Producer.lift<RT, OUT, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Eff<RT, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Pipe.lift<RT, IN, OUT, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+        
+    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Eff<A> ma, Func<A, Pipe<IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Pipe.lift<RT, IN, OUT, A>(ma)
+        from b in f(a).Interpret<RT>()
+        select project(a, b);
+
+    public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Eff<A> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Consumer.lift<RT, IN, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+    public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Eff<A> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Producer.lift<RT, OUT, A>(ma)
+        from b in f(a)
+        select project(a, b);
+
+    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Eff<A> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+        from a in Pipe.lift<RT, IN, OUT, A>(ma)
+        from b in f(a)
+        select project(a, b);
+    
 }

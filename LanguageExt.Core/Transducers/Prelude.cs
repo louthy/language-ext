@@ -150,8 +150,8 @@ public static partial class Prelude
     /// </summary>
     /// <param name="function0">Function</param>
     /// <returns>Transducer that wraps the lifted function</returns>
-    public static Transducer<Unit, Unit> liftIO(Func<Task> action0) =>
-        liftIO(async _ =>
+    public static Transducer<Unit, Unit> liftAsync(Func<Task> action0) =>
+        liftAsync(async _ =>
         {
             await action0().ConfigureAwait(false);
             return unit;
@@ -162,8 +162,8 @@ public static partial class Prelude
     /// </summary>
     /// <param name="function0">Function</param>
     /// <returns>Transducer that wraps the lifted function</returns>
-    public static Transducer<A, Unit> liftIO<A>(Func<A, Task> action1) =>
-        liftIO<A, Unit>(async (_, v) =>
+    public static Transducer<A, Unit> liftAsync<A>(Func<A, Task> action1) =>
+        liftAsync<A, Unit>(async (_, v) =>
         {
             await action1(v).ConfigureAwait(false);
             return unit;
@@ -174,7 +174,7 @@ public static partial class Prelude
     /// </summary>
     /// <param name="function0">Function</param>
     /// <returns>Transducer that wraps the lifted function</returns>
-    public static Transducer<Unit, A> liftIO<A>(Func<Task<A>> function0) =>
+    public static Transducer<Unit, A> liftAsync<A>(Func<Task<A>> function0) =>
         new LiftIOTransducer4<A>(_ => function0());
     
     /// <summary>
@@ -182,7 +182,7 @@ public static partial class Prelude
     /// </summary>
     /// <param name="tfunction0">Function</param>
     /// <returns>Transducer that wraps the lifted function</returns>
-    public static Transducer<Unit, A> liftIO<A>(Func<Task<TResult<A>>> tfunction0) =>
+    public static Transducer<Unit, A> liftAsync<A>(Func<Task<TResult<A>>> tfunction0) =>
         new LiftIOTransducer2<A>(_ => tfunction0());
     
     /// <summary>
@@ -190,7 +190,7 @@ public static partial class Prelude
     /// </summary>
     /// <param name="function1">Function</param>
     /// <returns>Transducer that wraps the lifted function</returns>
-    public static Transducer<A, B> liftIO<A, B>(Func<A, Task<B>> function1) =>
+    public static Transducer<A, B> liftAsync<A, B>(Func<A, Task<B>> function1) =>
         new LiftIOTransducer3<A, B>((_, x) => function1(x));
     
     /// <summary>
@@ -198,7 +198,7 @@ public static partial class Prelude
     /// </summary>
     /// <param name="tfunction1">Function</param>
     /// <returns>Transducer that wraps the lifted function</returns>
-    public static Transducer<A, B> liftIO<A, B>(Func<A, Task<TResult<B>>> tfunction1) =>
+    public static Transducer<A, B> liftAsync<A, B>(Func<A, Task<TResult<B>>> tfunction1) =>
         new LiftIOTransducer1<A, B>((_, x) => tfunction1(x));    
     
     /// <summary>
@@ -206,8 +206,8 @@ public static partial class Prelude
     /// </summary>
     /// <param name="function0">Function</param>
     /// <returns>Transducer that wraps the lifted function</returns>
-    public static Transducer<Unit, Unit> liftIO(Func<CancellationToken, Task> action0) =>
-        liftIO(async t =>
+    public static Transducer<Unit, Unit> liftAsync(Func<CancellationToken, Task> action0) =>
+        liftAsync(async t =>
         {
             await action0(t).ConfigureAwait(false);
             return unit;
@@ -218,8 +218,8 @@ public static partial class Prelude
     /// </summary>
     /// <param name="function0">Function</param>
     /// <returns>Transducer that wraps the lifted function</returns>
-    public static Transducer<A, Unit> liftIO<A>(Func<CancellationToken, A, Task> action1) =>
-        liftIO<A, Unit>(async (t, v) =>
+    public static Transducer<A, Unit> liftAsync<A>(Func<CancellationToken, A, Task> action1) =>
+        liftAsync<A, Unit>(async (t, v) =>
         {
             await action1(t, v).ConfigureAwait(false);
             return unit;
@@ -230,7 +230,7 @@ public static partial class Prelude
     /// </summary>
     /// <param name="function0">Function</param>
     /// <returns>Transducer that wraps the lifted function</returns>
-    public static Transducer<Unit, A> liftIO<A>(Func<CancellationToken, Task<A>> function0) =>
+    public static Transducer<Unit, A> liftAsync<A>(Func<CancellationToken, Task<A>> function0) =>
         new LiftIOTransducer4<A>(function0);
     
     /// <summary>
@@ -238,7 +238,7 @@ public static partial class Prelude
     /// </summary>
     /// <param name="tfunction0">Function</param>
     /// <returns>Transducer that wraps the lifted function</returns>
-    public static Transducer<Unit, A> liftIO<A>(Func<CancellationToken, Task<TResult<A>>> tfunction0) =>
+    public static Transducer<Unit, A> liftAsync<A>(Func<CancellationToken, Task<TResult<A>>> tfunction0) =>
         new LiftIOTransducer2<A>(tfunction0);
     
     /// <summary>
@@ -246,7 +246,7 @@ public static partial class Prelude
     /// </summary>
     /// <param name="function1">Function</param>
     /// <returns>Transducer that wraps the lifted function</returns>
-    public static Transducer<A, B> liftIO<A, B>(Func<CancellationToken, A, Task<B>> function1) =>
+    public static Transducer<A, B> liftAsync<A, B>(Func<CancellationToken, A, Task<B>> function1) =>
         new LiftIOTransducer3<A, B>(function1);
     
     /// <summary>
@@ -254,6 +254,6 @@ public static partial class Prelude
     /// </summary>
     /// <param name="tfunction1">Function</param>
     /// <returns>Transducer that wraps the lifted function</returns>
-    public static Transducer<A, B> liftIO<A, B>(Func<CancellationToken, A, Task<TResult<B>>> tfunction1) =>
+    public static Transducer<A, B> liftAsync<A, B>(Func<CancellationToken, A, Task<TResult<B>>> tfunction1) =>
         new LiftIOTransducer1<A, B>(tfunction1);
 }

@@ -1,5 +1,4 @@
-﻿#nullable  enable
-using LanguageExt.Attributes;
+﻿using LanguageExt.Attributes;
 using LanguageExt.Common;
 
 namespace LanguageExt.Effects.Traits;

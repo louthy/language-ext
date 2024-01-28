@@ -86,7 +86,7 @@ class Program
         });
     
     static IO<MinRT, Error, Unit> waitOneSecond =>
-        liftIO(async _ => {
+        liftAsync(async _ => {
             await Task.Delay(1000);
             return unit;
         });

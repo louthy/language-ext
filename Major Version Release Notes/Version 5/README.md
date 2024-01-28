@@ -1,5 +1,33 @@
 # Version 5.0.0 Major Release Notes
 
+## Motivations
+
+### Empower the users of this library to create their own functional types
+
+If you spend any time with Haskell or other languages with higher-kinds, you'll notice a heavy use of 'monad transformers'.  Monad Transformers allow you to _'stack'_ existing monadic types - and in the process compose their behaviours.  A naive way to think of this is a bit like multiple-inheritance in OO (it's much better than that though!)
+
+But because Monad Transformers need higher-kinds they can't be implemented in C#.  However, when you get down to basics, monads are just a particular 'flavour' of function compostion.  Monadic types just inject a few rules in-between the compositions to make them behave to their 'flavour' (like optional values, iterations, logging, reading/writing state, etc.)
+
+> _It is then possible to consider that if one had access to the `Bind` function of `Option` and the `Bind` function of `State` then you could compose them into a new `Bind` function that had the behaviour of both_.  
+
+But how do we standardise the `Bind` function for any monadic type and make it available for composition.  This is where Transducers come in.  They are literally designed to be compositional pipeline components.  You could think of them as the LEGO bricks of functional programming (after functions of course! but transducers allow us to embelish our functions with addtional functionality, like resource tracking, streaming, etc.)  
+
+Therefore I have introduced Transducers as a new core capability in language-ext.  And all of the monadic types are now either implemented with Transducers or have the option to convert to a Transducer.
+
+
+### Reduce the type explosion due to `async`
+
+If I continued the way I was before then every monadic type would have an `*Async` variant.  This was getting out of hand.  For something like an IO/effect monad where you could also have an optional error-type and optional runtime-type that meant 8 types.  Each with 1000s of lines of code to define them.  Then when you think there's 20 or so 30 or so monadic types, it becomes a big maintenence problem.  There's also issues around consistency between each type (making sure everything has a `MapAsync`, `BindAsync`, etc.).
+
+So, as of now, this library is against 'declarative async' - i.e. it's adopting a 'green threads mentality'.  That is we will not be giving you `*Async` variants of anything.  All computation types (`IO`, `Eff`, `Reader`, `Proxy`, etc.) will support the _lifting_ of both synchronous and asynchronous functions.
+
+Many of the `*Async` functions like `MapAsync`, `BindAsync` are also gone.  There is now `Map`, `Bind`, etc. that accept `Transducer` types (as well as the regular `Func` version).  `Transducer` supports `liftAsync` to lift an asynchronous function into a `Transducer` - it can therefore do async operations without lots of extra boilerplate support for async.
+
+
+* Empower the users of this library to create their own monadic types with core features like Transducers
+* 
+
+
 ## New Features
 
 - IO monad

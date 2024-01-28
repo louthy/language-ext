@@ -1,6 +1,9 @@
-﻿#nullable enable
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt.Common;
 
 namespace LanguageExt;
 
@@ -149,4 +152,19 @@ record StreamAsyncEnumerableTransducer<A> : Transducer<IAsyncEnumerable<A>, A>
                         
     public override string ToString() =>  
         "many(async-enumerable)";
+}
+
+record ToAsyncEnumerableTransducer<A> : Transducer<IObservable<A>, IAsyncEnumerable<A>>
+{
+    public static readonly Transducer<IObservable<A>, IAsyncEnumerable<A>> Default = 
+        new ToAsyncEnumerableTransducer<A>();
+    
+    public override Reducer<IObservable<A>, S> Transform<S>(Reducer<IAsyncEnumerable<A>, S> reduce) =>
+        new Reduce<S>(reduce);
+
+    record Reduce<S>(Reducer<IAsyncEnumerable<A>, S> Reducer) : Reducer<IObservable<A>, S>
+    {
+        public override TResult<S> Run(TState state, S stateValue, IObservable<A> value) =>
+            Reducer.Run(state, stateValue, value.ToAsyncEnumerable(state.Token));
+    }
 }

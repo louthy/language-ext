@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#nullable disable
+using System;
 using System.Diagnostics.Contracts;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -57,7 +57,7 @@ namespace LanguageExt
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal static bool IsDefault(A value) =>
-                default(EqDefault<A>).Equals(value, default);
+                EqDefault<A>.Equals(value, default);
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal static bool IsNull(A value) =>

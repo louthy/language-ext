@@ -132,6 +132,15 @@ public static partial class Transducer
         StreamEnumerableTransducer<A>.Default;
 
     /// <summary>
+    /// Stream the items in the enumerable through the transducer
+    /// </summary>
+    /// <param name="items">Items to stream</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>Transducer that represents the stream</returns>
+    public static Transducer<IObservable<A>, A> observable<A>() =>
+        compose(ToAsyncEnumerableTransducer<A>.Default, asyncEnumerable<A>());
+
+    /// <summary>
     /// Stream the items in the `Seq` through the transducer
     /// </summary>
     /// <param name="items">Items to stream</param>

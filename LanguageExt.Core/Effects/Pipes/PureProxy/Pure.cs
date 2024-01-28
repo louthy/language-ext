@@ -1,4 +1,5 @@
 
+/*
 namespace LanguageExt.Pipes
 {
     public class Pure<A>
@@ -8,3 +9,4 @@ namespace LanguageExt.Pipes
             Value = value;
     }
 }
+*/

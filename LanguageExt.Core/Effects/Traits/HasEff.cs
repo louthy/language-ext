@@ -1,5 +1,4 @@
-﻿#nullable  enable
-using LanguageExt.Attributes;
+﻿using LanguageExt.Attributes;
 using LanguageExt.Common;
 
 namespace LanguageExt.Effects.Traits;
@@ -10,5 +9,4 @@ namespace LanguageExt.Effects.Traits;
 /// <typeparam name="RT">Runtime</typeparam>
 [Trait("*")]
 public interface HasEff<out RT> : HasIO<RT, Error>
-    where RT : HasIO<RT, Error>
-{ }
+    where RT : HasIO<RT, Error>;

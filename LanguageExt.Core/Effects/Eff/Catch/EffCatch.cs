@@ -1,96 +1,69 @@
-﻿/*
-using System;
-using static LanguageExt.Prelude;
+﻿using System;
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using LanguageExt.Common;
-using LanguageExt.Thunks;
+using LanguageExt.Effects;
+using static LanguageExt.Prelude;
+using LanguageExt.Effects.Traits;
 
-namespace LanguageExt
+namespace LanguageExt;
+
+public readonly struct EffCatch<A> 
 {
-    public readonly struct EffCatch<A>
+    readonly Func<Error, Eff<A>> fail;
+
+    public EffCatch(Func<Error, Eff<A>> fail) =>
+        this.fail = fail;
+
+    public EffCatch(Func<Error, bool> predicate, Func<Error, Eff<A>> fail) :
+        this(e => predicate(e) ? fail(e) : Eff<A>.Fail(e))
+    { }
+
+    public IOCatch<MinRT, Error, A> As()
     {
-        internal readonly Func<Error, Eff<A>> fail;
-
-        public EffCatch(Func<Error, Eff<A>> fail) =>
-            this.fail = fail;
-
-        public EffCatch(Func<Error, bool> predicate, Func<Error, Eff<A>> fail) :
-            this(e => predicate(e) ? fail(e) : FailEff<A>(e))
-        { }
-
-        public Fin<A> Run(Error error) =>
-            fail(error).Run();
-
-        public static EffCatch<A> operator |(EffCatch<A> ma, EffCatch<A> mb) =>
-            new (e => ma.fail(e) | mb.fail(e));
-
-        public static EffCatch<A> operator |(CatchValue<A> ma, EffCatch<A> mb) =>
-            new (e => ma.Match(e) ? SuccessEff(ma.Value(e)) : mb.fail(e));
-
-        public static EffCatch<A> operator |(CatchError ma, EffCatch<A> mb) =>
-            new (e => ma.Match(e) ? FailEff<A>(ma.Value(e)) : mb.fail(e));
-
-        public static EffCatch<A> operator |(EffCatch<A> ma, CatchValue<A> mb) =>
-            new (e => ma.fail(e).MatchEff(Succ: SuccessEff,
-                                                     Fail: e => mb.Match(e) 
-                                                                    ? SuccessEff(mb.Value(e)) 
-                                                                    : FailEff<A>(e)));
-
-        public static EffCatch<A> operator |(EffCatch<A> ma, CatchError mb) =>
-            new (e => ma.fail(e).MatchEff(Succ: SuccessEff,
-                                          Fail: e => mb.Match(e) 
-                                                         ? FailEff<A>(mb.Value(e)) 
-                                                         : FailEff<A>(e)));
+        var f = fail;
+        return new IOCatch<MinRT, Error, A>(e => f(e).Morphism);
     }
 
-    public readonly struct EffCatch<RT, A> where RT : struct 
+    public IOCatch<RT, Error, A> As<RT>() where RT : HasIO<RT, Error>
     {
-        internal readonly Func<Error, Eff<RT, A>> fail;
+        var f = fail;
+        return new IOCatch<RT, Error, A>(e => Transducer.compose(MinRT.convert<RT>(), f(e).Morphism));
+    }
 
-        public EffCatch(Func<Error, Eff<RT, A>> fail) =>
-            this.fail = fail;
-
-        public EffCatch(Func<Error, bool> predicate, Func<Error, Eff<RT, A>> fail) :
-            this(e => predicate(e) ? fail(e) : FailEff<A>(e))
-        { }
-
-        public Fin<A> Run(RT env, Error error) =>
-            fail(error).Run(env);
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<A> Run(Error error) =>
+        fail(error);
         
-        public static EffCatch<RT, A> operator |(CatchValue<A> ma, EffCatch<RT, A> mb) =>
-            new (e => ma.Match(e) ? SuccessEff(ma.Value(e)) : mb.fail(e));
+    [Pure, MethodImpl(Opt.Default)]
+    public static EffCatch<A> operator |(CatchValue<Error, A> ma, EffCatch<A> mb) =>
+        new (e => ma.Match(e) ? Pure(ma.Value(e)) : mb.Run(e));
 
-        public static EffCatch<RT, A> operator |(CatchError ma, EffCatch<RT, A> mb) =>
-            new (e => ma.Match(e) ? FailEff<A>(ma.Value(e)) : mb.fail(e));
+    [Pure, MethodImpl(Opt.Default)]
+    public static EffCatch<A> operator |(CatchError<Error> ma, EffCatch<A> mb) =>
+        new (e => ma.Match(e) ? Fail(ma.Value(e)) : mb.Run(e));
 
-        public static EffCatch<RT, A> operator |(EffCatch<RT, A> ma, CatchValue<A> mb) =>
-            new (e => ma.fail(e).MatchEff(Succ: SuccessEff<RT, A>,
-                                          Fail: e => mb.Match(e) 
-                                                         ? SuccessEff<RT, A>(mb.Value(e))
-                                                         : FailEff<RT, A>(e)));
+    [Pure, MethodImpl(Opt.Default)]
+    public static EffCatch<A> operator |(EffCatch<A> ma, CatchValue<Error, A> mb) =>
+        new (e => 
+                 ma.Run(e)
+                   .Match<Eff<A>>(
+                        Succ: Pure,
+                        Fail: e1 => mb.Match(e1) 
+                                        ? Pure(mb.Value(e1)) 
+                                        : Fail(e1)).Flatten());
 
-        public static EffCatch<RT, A> operator |(EffCatch<RT, A> ma, CatchError mb) =>
-            new (e => ma.fail(e).MatchEff(Succ: SuccessEff<RT, A>,
-                                          Fail: e => mb.Match(e) 
-                                                         ? FailEff<RT, A>(mb.Value(e))
-                                                         : FailEff<RT, A>(e)));
+    [Pure, MethodImpl(Opt.Default)]
+    public static EffCatch<A> operator |(EffCatch<A> ma, CatchError<Error> mb) =>
+        new (e => 
+                 ma.Run(e)
+                   .Match<Eff<A>>(
+                        Succ: Pure,
+                        Fail: e1 => mb.Match(e1) 
+                                        ? Fail(mb.Value(e1)) 
+                                        : Fail(e1)).Flatten());
 
-        public static EffCatch<RT, A> operator |(EffCatch<RT, A> ma, EffCatch<RT, A> mb) =>
-            new (e => ma.fail(e) | mb.fail(e));
-
-        public static EffCatch<RT, A> operator |(EffCatch<A> ma, EffCatch<RT, A> mb) =>
-            new (e => ma.fail(e) | mb.fail(e));
-
-        public static EffCatch<RT, A> operator |(EffCatch<RT, A> ma, EffCatch<A> mb) =>
-            new (e => ma.fail(e) | mb.fail(e));
-
-        public static Eff<RT, A> operator |(Eff<A> ma, EffCatch<RT, A> mb) =>
-            new(env =>
-            {
-                var ra = ma.Run();
-                return ra.IsSucc
-                    ? ra
-                    : mb.Run(env, ra.Error);
-            });
-    }
+    [Pure, MethodImpl(Opt.Default)]
+    public static EffCatch<A> operator |(EffCatch<A> ma, EffCatch<A> mb) =>
+        new (e => ma.Run(e) | mb.Run(e));
 }
-*/
