@@ -88,6 +88,15 @@ namespace LanguageExt
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static HashMap<EqK, K, V> createRange<EqK, K, V>(ReadOnlySpan<(K, V)> keyValues)
+            where EqK : Eq<K> =>
+            new (new TrieMap<EqK, K, V>(keyValues));
+
+        /// <summary>
+        /// Creates a new Map seeded with the keyValues provided
+        /// </summary>
+        [Pure]
         public static HashMap<EqK, K, V> createRange<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> keyValues)
             where EqK : Eq<K> =>
             createRange<EqK, K, V>(keyValues.Map(static kv => (kv.Key, kv.Value)));

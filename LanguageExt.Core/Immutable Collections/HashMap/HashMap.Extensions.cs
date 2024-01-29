@@ -1,11 +1,11 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+
+namespace LanguageExt;
 
 public static class HashMapExtensions
 {
@@ -15,7 +15,7 @@ public static class HashMapExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K, V> ToHashMap<K, V>(this IEnumerable<(K, V)> items) =>
-        LanguageExt.HashMap.createRange(items);
+        HashMap.createRange(items);
 
     /// <summary>
     /// Create an immutable hash-map
@@ -23,7 +23,7 @@ public static class HashMapExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K, V> ToHashMap<K, V>(this IEnumerable<Tuple<K, V>> items) =>
-        LanguageExt.HashMap.createRange(items);
+        HashMap.createRange(items);
 
     /// <summary>
     /// Create an immutable hash-map
@@ -31,7 +31,7 @@ public static class HashMapExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<K, V> ToHashMap<K, V>(this IEnumerable<KeyValuePair<K, V>> items) =>
-        LanguageExt.HashMap.createRange(items);
+        HashMap.createRange(items);
 
     /// <summary>
     /// Create an immutable hash-map
@@ -135,7 +135,7 @@ public static class HashMapExtensions
         self.AddOrUpdate(
             outerKey,
             b => b.AddOrUpdate(innerKey, Some, None),
-            () => Prelude.HashMap(Tuple(innerKey, None()))
+            () => HashMap(Tuple(innerKey, None()))
         );
 
     [Pure]
@@ -144,7 +144,7 @@ public static class HashMapExtensions
         self.AddOrUpdate(
             outerKey,
             b => b.AddOrUpdate(innerKey, _ => value, value),
-            () => Prelude.HashMap(Tuple(innerKey, value))
+            () => HashMap(Tuple(innerKey, value))
         );
 
     [Pure]
@@ -154,7 +154,7 @@ public static class HashMapExtensions
             aKey,
             bKey,
             c => c.AddOrUpdate(cKey, _ => value, value),
-            () => Prelude.HashMap(Tuple(cKey, value))
+            () => HashMap(Tuple(cKey, value))
         );
 
     [Pure]
@@ -164,7 +164,7 @@ public static class HashMapExtensions
             aKey,
             bKey,
             c => c.AddOrUpdate(cKey, Some, None),
-            () => Prelude.HashMap(Tuple(cKey, None()))
+            () => HashMap(Tuple(cKey, None()))
         );
 
     [Pure]
@@ -175,7 +175,7 @@ public static class HashMapExtensions
             bKey,
             cKey,
             d => d.AddOrUpdate(dKey, _ => value, value),
-            () => Prelude.HashMap(Tuple(dKey, value))
+            () => HashMap(Tuple(dKey, value))
         );
 
     [Pure]
@@ -186,7 +186,7 @@ public static class HashMapExtensions
             bKey,
             cKey,
             d => d.AddOrUpdate(dKey, Some, None),
-            () => Prelude.HashMap(Tuple(dKey, None()))
+            () => HashMap(Tuple(dKey, None()))
         );
 
     [Pure]
@@ -252,61 +252,61 @@ public static class HashMapExtensions
     [Pure]
     public static HashMap<A, HashMap<B, V>> MapRemoveT<A, B, T, V>(this HashMap<A, HashMap<B, T>> self, Func<HashMap<B, T>, HashMap<B, V>> map)
     {
-        return self.Map((ka, va) => map(va))
-                   .Filter((ka, va) => va.Count > 0);
+        return self.Map((_, va) => map(va))
+                   .Filter((_, va) => va.Count > 0);
     }
 
     [Pure]
     public static HashMap<A, HashMap<B, HashMap<C, V>>> MapRemoveT<A, B, C, T, V>(this HashMap<A, HashMap<B, HashMap<C, T>>> self, Func<HashMap<C, T>, HashMap<C, V>> map)
     {
-        return self.Map((ka, va) => va.Map((kb, vb) => map(vb))
-                                      .Filter((kb, vb) => vb.Count > 0))
-                   .Filter((ka, va) => va.Count > 0);
+        return self.Map((_, va) => va.Map((_, vb) => map(vb))
+                                     .Filter((_, vb) => vb.Count > 0))
+                   .Filter((_, va) => va.Count > 0);
     }
 
     [Pure]
     public static HashMap<A, HashMap<B, HashMap<C, HashMap<D, V>>>> MapRemoveT<A, B, C, D, T, V>(this HashMap<A, HashMap<B, HashMap<C, HashMap<D, T>>>> self, Func<HashMap<D, T>, HashMap<D, V>> map)
     {
-        return self.Map((ka, va) => va.Map((kb, vb) => vb.Map((kc, vc) => map(vc))
-                                                         .Filter((kc, vc) => vc.Count > 0))
-                                      .Filter((kb, vb) => vb.Count > 0))
-                   .Filter((ka, va) => va.Count > 0);
+        return self.Map((_, va) => va.Map((_, vb) => vb.Map((_, vc) => map(vc))
+                                                       .Filter((_, vc) => vc.Count > 0))
+                                     .Filter((_, vb) => vb.Count > 0))
+                   .Filter((_, va) => va.Count > 0);
     }
 
     [Pure]
     public static HashMap<A, HashMap<B, V>> MapT<A, B, T, V>(this HashMap<A, HashMap<B, T>> self, Func<T, V> map)
     {
-        return self.Map((ka, va) => va.Map(map));
+        return self.Map((_, va) => va.Map(map));
     }
 
     [Pure]
     public static HashMap<A, HashMap<B, HashMap<C, V>>> MapT<A, B, C, T, V>(this HashMap<A, HashMap<B, HashMap<C, T>>> self, Func<T, V> map)
     {
-        return self.Map((ka, va) => va.MapT(map));
+        return self.Map((_, va) => va.MapT(map));
     }
 
     [Pure]
     public static HashMap<A, HashMap<B, HashMap<C, HashMap<D, V>>>> MapT<A, B, C, D, T, V>(this HashMap<A, HashMap<B, HashMap<C, HashMap<D, T>>>> self, Func<T, V> map)
     {
-        return self.Map((ka, va) => va.MapT(map));
+        return self.Map((_, va) => va.MapT(map));
     }
 
     [Pure]
     public static HashMap<A, HashMap<B, T>> FilterT<A, B, T>(this HashMap<A, HashMap<B, T>> self, Func<T, bool> pred)
     {
-        return self.Map((ka, va) => va.Filter(pred));
+        return self.Map((_, va) => va.Filter(pred));
     }
 
     [Pure]
     public static HashMap<A, HashMap<B, HashMap<C, T>>> FilterT<A, B, C, T>(this HashMap<A, HashMap<B, HashMap<C, T>>> self, Func<T, bool> pred)
     {
-        return self.Map((ka, va) => va.FilterT(pred));
+        return self.Map((_, va) => va.FilterT(pred));
     }
 
     [Pure]
     public static HashMap<A, HashMap<B, HashMap<C, HashMap<D, T>>>> FilterT<A, B, C, D, T>(this HashMap<A, HashMap<B, HashMap<C, HashMap<D, T>>>> self, Func<T, bool> pred)
     {
-        return self.Map((ka, va) => va.FilterT(pred));
+        return self.Map((_, va) => va.FilterT(pred));
     }
 
     [Pure]
@@ -330,37 +330,37 @@ public static class HashMapExtensions
     [Pure]
     public static bool Exists<A, B, T>(this HashMap<A, HashMap<B, T>> self, Func<T, bool> pred)
     {
-        return self.Exists((k, v) => v.Exists(pred));
+        return self.Exists((_, v) => v.Exists(pred));
     }
 
     [Pure]
     public static bool Exists<A, B, C, T>(this HashMap<A, HashMap<B, HashMap<C, T>>> self, Func<T, bool> pred)
     {
-        return self.Exists((k, v) => v.Exists(pred));
+        return self.Exists((_, v) => v.Exists(pred));
     }
 
     [Pure]
     public static bool Exists<A, B, C, D, T>(this HashMap<A, HashMap<B, HashMap<C, HashMap<D, T>>>> self, Func<T, bool> pred)
     {
-        return self.Exists((k, v) => v.Exists(pred));
+        return self.Exists((_, v) => v.Exists(pred));
     }
 
     [Pure]
     public static bool ForAll<A, B, T>(this HashMap<A, HashMap<B, T>> self, Func<T, bool> pred)
     {
-        return self.ForAll((k, v) => v.ForAll(pred));
+        return self.ForAll((_, v) => v.ForAll(pred));
     }
 
     [Pure]
     public static bool ForAll<A, B, C, T>(this HashMap<A, HashMap<B, HashMap<C, T>>> self, Func<T, bool> pred)
     {
-        return self.ForAll((k, v) => v.ForAll(pred));
+        return self.ForAll((_, v) => v.ForAll(pred));
     }
 
     [Pure]
     public static bool ForAll<A, B, C, D, T>(this HashMap<A, HashMap<B, HashMap<C, HashMap<D, T>>>> self, Func<T, bool> pred)
     {
-        return self.ForAll((k, v) => v.ForAll(pred));
+        return self.ForAll((_, v) => v.ForAll(pred));
     }
 
     [Pure]
