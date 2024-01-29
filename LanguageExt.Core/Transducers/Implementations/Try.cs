@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
@@ -109,7 +108,7 @@ record TryTransducer<RT, X, A>(
                         }
                         catch (Exception e)
                         {
-                            tr = TResult.Continue(Prelude.Some(Sum<X, A>.Left(default(RT).FromError(e))));
+                            tr = TResult.Continue(Prelude.Some(Sum<X, A>.Left(RT.FromError(e))));
                         }
                         break;
                     
@@ -127,7 +126,7 @@ record TryTransducer<RT, X, A>(
                         return TResult.Complete(stateValue);
                     
                     case TFail<Option<Sum<X, A>>> r:
-                        tr = TResult.Continue(Prelude.Some(Sum<X, A>.Left(default(RT).FromError(r.Error))));
+                        tr = TResult.Continue(Prelude.Some(Sum<X, A>.Left(RT.FromError(r.Error))));
                         break;
                     
                     case TCancelled<Option<Sum<X, A>>>:

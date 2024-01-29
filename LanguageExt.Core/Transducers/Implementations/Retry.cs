@@ -1,4 +1,3 @@
-#nullable enable
 using System;
 using System.Threading;
 using LanguageExt.Common;
@@ -165,14 +164,14 @@ record RetrySumTransducer<RT, X, A>(Transducer<RT, Sum<X, A>> F, Schedule Schedu
                         }
                         break;
 
-                    case TComplete<Option<Sum<X, A>>> r:
+                    case TComplete<Option<Sum<X, A>>>:
                         return TResult.Complete(stateValue);
 
                     case TCancelled<Option<Sum<X, A>>>:
                         return TResult.Cancel<S>();
 
                     case TFail<Option<Sum<X, A>>> r:
-                        tr = TResult.Continue(Prelude.Some(Sum<X, A>.Left(default(RT).FromError(r.Error))));
+                        tr = TResult.Continue(Prelude.Some(Sum<X, A>.Left(RT.FromError(r.Error))));
                         break;
 
                     default:

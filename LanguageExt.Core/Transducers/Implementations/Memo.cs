@@ -1,7 +1,4 @@
-﻿#nullable enable
-
-using System;
-using System.Threading.Tasks;
+﻿using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
@@ -57,17 +54,11 @@ record Memo1Transducer<EqA, A, B>(Transducer<A, B> Transducer) : Transducer<A, B
 
     struct EqKey : Eq<Key>
     {
-        public Task<int> GetHashCodeAsync(Key x) =>
-            GetHashCode(x).AsTask();
-
-        public int GetHashCode(Key x) =>
-            FNV32.Next(x.StateType.GetHashCode(), default(EqA).GetHashCode(x.Value));
+        public static int GetHashCode(Key x) =>
+            FNV32.Next(x.StateType.GetHashCode(), EqA.GetHashCode(x.Value));
         
-        public Task<bool> EqualsAsync(Key x, Key y) =>
-            Equals(x, y).AsTask();
-
-        public bool Equals(Key x, Key y) =>
-            x.StateType == y.StateType && default(EqA).Equals(x.Value, y.Value);
+        public static bool Equals(Key x, Key y) =>
+            x.StateType == y.StateType && EqA.Equals(x.Value, y.Value);
     }
             
     public override string ToString() =>  
