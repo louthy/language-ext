@@ -23,7 +23,10 @@ public abstract class Pipe<IN, OUT, A>
     
     public Pipe<IN, OUT, B> Bind<B>(Func<A, Pure<B>> f) =>
         Map(x => f(x).Value);
- 
+  
+    public Pipe<IN, OUT, B> Bind<B>(Func<A, Fail<Error>> f) =>
+        Bind(x => new Pipe<IN, OUT, B>.Fail(f(x).Value));
+
     public Pipe<IN, OUT, B> Bind<B>(Func<A, Transducer<Unit, B>> f) =>
         Bind(a => f(a).Map(Sum<Error, B>.Right));
  
@@ -46,7 +49,10 @@ public abstract class Pipe<IN, OUT, A>
         
     public Pipe<IN, OUT, C> SelectMany<B, C>(Func<A, Pure<B>> f, Func<A, B, C> project) =>
         Map(a => project(a, f(a).Value));
-        
+                
+    public Pipe<IN, OUT, C> SelectMany<B, C>(Func<A, Fail<Error>> f, Func<A, B, C> project) =>
+        Bind<C>(f);
+
     public Pipe<IN, OUT, C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> f, Func<A, B, C> project) =>
         Bind(a => f(a).Select(b => project(a, b)));
         
@@ -97,6 +103,27 @@ public abstract class Pipe<IN, OUT, A>
 
         public override Pipe<IN, OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) =>
             f(Value).ToPipe<IN>();
+    }
+
+    public class Fail(Error Error) : Pipe<IN, OUT, A>
+    {
+        public override Pipe<IN, OUT, B> Select<B>(Func<A, B> _) =>
+            new Pipe<IN, OUT, B>.Fail(Error);
+
+        public override Pipe<RT, IN, OUT, A> Interpret<RT>() => 
+            Pipe.lift<RT, IN, OUT, A>(Transducer.constant<RT, Sum<Error, A>>(Sum<Error, A>.Left(Error)));
+        
+        public override Pipe<IN, OUT, B> Bind<B>(Func<A, Pipe<IN, OUT, B>> f) => 
+            new Pipe<IN, OUT, B>.Fail(Error);
+
+        public override Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) => 
+            Pipe.lift<RT, IN, OUT, B>(Transducer.constant<RT, Sum<Error, B>>(Sum<Error, B>.Left(Error)));
+
+        public override Pipe<IN, OUT, B> Bind<B>(Func<A, Consumer<IN, B>> _) =>
+            new Pipe<IN, OUT, B>.Fail(Error);
+
+        public override Pipe<IN, OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) => 
+            new Pipe<IN, OUT, B>.Fail(Error);
     }
 
     public class Lift<X>(Transducer<Unit, Sum<Error, X>> Morphism, Func<X, Pipe<IN, OUT, A>> Next) : Pipe<IN, OUT, A>

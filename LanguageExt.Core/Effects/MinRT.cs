@@ -95,7 +95,7 @@ public readonly struct MinRT<E> :
         (SynchronizationContext, CancellationTokenSource, CancellationToken) = 
         (syncContext, cancellationTokenSource, cancellationTokenSource.Token);
 
-    public MinRT(Func<Error, E> errorMap)
+    public MinRT()
     {
         CancellationTokenSource = new CancellationTokenSource();
         CancellationToken       = CancellationTokenSource.Token;
@@ -113,5 +113,5 @@ public readonly struct MinRT<E> :
         DefaultErrorMap(error);
 
     public MinRT<E> WithSyncContext(SynchronizationContext? syncContext) =>
-        new (ErrorMap, syncContext, CancellationTokenSource);
+        new (syncContext, CancellationTokenSource);
 }

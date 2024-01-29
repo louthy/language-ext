@@ -35,7 +35,7 @@ public static class Effect
         Transducer<RT, Sum<Error, R>> Go(Proxy<RT, Void, Unit, Unit, Void, R> p) =>
             p.ToProxy() switch
             {
-                M<RT, Void, Unit, Unit, Void, R> (var mmx)        => mmx.Map(mx => mx.Map(Go)).Flatten(),
+                M<RT, Void, Unit, Unit, Void, R> (var mx)         => mx.MapRight(Go).Flatten(),
                 Pure<RT, Void, Unit, Unit, Void, R> (var r)       => Transducer.constant<RT, Sum<Error, R>>(Sum<Error, R>.Right(r)),                                                                                
                 Request<RT, Void, Unit, Unit, Void, R> (var v, _) => closed<Transducer<RT, Sum<Error, R>>>(v),
                 Respond<RT, Void, Unit, Unit, Void, R> (var v, _) => closed<Transducer<RT, Sum<Error, R>>>(v),

@@ -39,7 +39,7 @@ namespace LanguageExt.Pipes;
 /// * `RT` - The runtime of the transformed effect monad
 /// * `A` - The return value    
 /// </summary>
-/// <typeparam name="RT">Aff system runtime</typeparam>
+/// <typeparam name="RT">Runtime</typeparam>
 /// <typeparam name="UOut">Upstream out type</typeparam>
 /// <typeparam name="UIn">Upstream in type</typeparam>
 /// <typeparam name="DIn">Downstream in type</typeparam>
@@ -138,16 +138,6 @@ public abstract class Proxy<RT, UOut, UIn, DIn, DOut, A>  where RT : HasIO<RT>
     public abstract Proxy<RT, UOut, UIn, DIn, DOut, A> Observe();
 
     /// <summary>
-    /// Monadic bind operation, enables usage in LINQ expressions
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The new bound value type</typeparam>
-    /// <returns>The result of the bind composition</returns>
-    [Pure]
-    public Proxy<RT, UOut, UIn, DIn, DOut, B> SelectMany<B>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, B>> f) =>
-        Bind(f);
-
-    /// <summary>
     /// Monadic bind operation, followed by a mapping projection, enables usage in LINQ expressions
     /// </summary>
     /// <param name="f">The bind function</param>
@@ -175,7 +165,7 @@ public abstract class Proxy<RT, UOut, UIn, DIn, DOut, A>  where RT : HasIO<RT>
 /// One of the algebraic cases of the `Proxy` type.  This type represents a pure value.  It can be thought of as the
 /// terminating value of the computation, as there's not continuation attached to this case. 
 /// </summary>
-/// <typeparam name="RT">Aff system runtime</typeparam>
+/// <typeparam name="RT">Runtime</typeparam>
 /// <typeparam name="UOut">Upstream out type</typeparam>
 /// <typeparam name="UIn">Upstream in type</typeparam>
 /// <typeparam name="DIn">Downstream in type</typeparam>
@@ -184,14 +174,9 @@ public abstract class Proxy<RT, UOut, UIn, DIn, DOut, A>  where RT : HasIO<RT>
 /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
 ///
 /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-public class Pure<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A> 
+public class Pure<RT, UOut, UIn, DIn, DOut, A>(A Value) : Proxy<RT, UOut, UIn, DIn, DOut, A>
     where RT : HasIO<RT, Error>
 {
-    public readonly A Value;
-
-    public Pure(A value) =>
-        Value = value;
-
     /// <summary>
     /// When working with sub-types, like `Producer`, calling this will effectively cast the sub-type to the base.
     /// </summary>
@@ -308,10 +293,10 @@ public class Pure<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut,
 }
 
 /// <summary>
-/// One of the algebraic cases of the `Proxy` type.  This type lifts an `Aff<RT, A>` monadic computation into the
-/// `Proxy` monad.  This is how the `Proxy` system can cause real-world effects.
+/// One of the algebraic cases of the `Proxy` type.  This type lifts a `Transducer` computation into the
+/// `Proxy` monad-transformer.  This is how the `Proxy` system can cause real-world effects.
 /// </summary>
-/// <typeparam name="RT">Aff system runtime</typeparam>
+/// <typeparam name="RT">Runtime</typeparam>
 /// <typeparam name="UOut">Upstream out type</typeparam>
 /// <typeparam name="UIn">Upstream in type</typeparam>
 /// <typeparam name="DIn">Downstream in type</typeparam>
@@ -320,21 +305,31 @@ public class Pure<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut,
 /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
 ///
 /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-public class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>  
+public class M<RT, UOut, UIn, DIn, DOut, A>(Transducer<RT, Sum<Error, Proxy<RT, UOut, UIn, DIn, DOut, A>>> value)
+    : Proxy<RT, UOut, UIn, DIn, DOut, A>
     where RT : HasIO<RT, Error>
 {
-    //public readonly Aff<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>> Value;
-    public readonly Transducer<RT, Sum<Error, Proxy<RT, UOut, UIn, DIn, DOut, A>>> Value;
-        
-    public M(Transducer<RT, Sum<Error, Proxy<RT, UOut, UIn, DIn, DOut, A>>> value) =>
-        Value = value;
-        
+    public readonly Transducer<RT, Sum<Error, Proxy<RT, UOut, UIn, DIn, DOut, A>>> Value = value;
+
+    public M(Transducer<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>> value) 
+        : this(compose(value, mkRight<Error, Proxy<RT, UOut, UIn, DIn, DOut, A>>()))
+    { }
+
+    public M(Transducer<Unit, Sum<Error, Proxy<RT, UOut, UIn, DIn, DOut, A>>> value)
+        : this(compose(constant<RT, Unit>(default), value))
+    { }
+
+    public M(Transducer<Unit, Proxy<RT, UOut, UIn, DIn, DOut, A>> value)
+        : this(compose(constant<RT, Unit>(default), value, mkRight<Error, Proxy<RT, UOut, UIn, DIn, DOut, A>>()))
+    { }
+
     /// <summary>
     /// When working with sub-types, like `Producer`, calling this will effectively cast the sub-type to the base.
     /// </summary>
     /// <returns>A general `Proxy` type from a more specialised type</returns>
     [Pure]
-    public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
+    public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => 
+        this;
 
     /// <summary>
     /// Monadic bind operation, for chaining `Proxy` computations together
@@ -344,7 +339,7 @@ public class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
     public override Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
-        new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Map(x => x.Bind(f))));
+        new M<RT, UOut, UIn, DIn, DOut, S>(Value.MapRight(p => p.Bind(f)));
 
     /// <summary>
     /// Lifts a pure function into the `Proxy` domain, causing it to map the bound value within
@@ -354,7 +349,7 @@ public class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
     [Pure]
     public override Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<A, S> f) =>
-        new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Map(x => x.Map(f))));
+        new M<RT, UOut, UIn, DIn, DOut, S>(Value.MapRight(p => p.Map(f)));
 
     /// <summary>
     /// `For(body)` loops over the `Proxy p` replacing each `yield` with `body`
@@ -375,7 +370,7 @@ public class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>
     /// <param name="r">`Proxy` to run after this one</param>
     [Pure]
     public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
-        new M<RT, UOut, UIn, DIn, DOut, S>(Value.Map(mx => mx.Map(x => x.Action(r))));
+        new M<RT, UOut, UIn, DIn, DOut, S>(Value.MapRight(p => p.Action(r)));
 
     /// <summary>
     /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
@@ -387,7 +382,7 @@ public class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>
     [Pure]
     public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(
         Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
-        new M<RT, UOutA, AUInA, DIn, DOut, A>(Value.Map(mp1 => mp1.Map(p1 => p1.PairEachRequestWithRespond(fb1))));
+        new M<RT, UOutA, AUInA, DIn, DOut, A>(Value.MapRight(p1 => p1.PairEachRequestWithRespond(fb1)));
 
     /// <summary>
     /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
@@ -396,7 +391,7 @@ public class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>
     [Pure]
     public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(
         Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
-        new M<RT, UOutA, AUInA, DIn, DOut, A>(Value.Map(mx => mx.Map(x => x.ReplaceRequest(lhs))));
+        new M<RT, UOutA, AUInA, DIn, DOut, A>(Value.MapRight(p => p.ReplaceRequest(lhs)));
 
     /// <summary>
     /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
@@ -405,7 +400,7 @@ public class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>
     [Pure]
     public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(
         Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
-        new M<RT, UOut, UIn, DInC, DOutC, A>(Value.Map(mp1 => mp1.Map(p1 => p1.PairEachRespondWithRequest(rhs))));
+        new M<RT, UOut, UIn, DInC, DOutC, A>(Value.MapRight(p1 => p1.PairEachRespondWithRequest(rhs)));
 
     /// <summary>
     /// Used by the various composition functions and when composing proxies with the `|` operator.  You usually
@@ -414,7 +409,7 @@ public class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>
     [Pure]
     public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(
         Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
-        new M<RT, UOut, UIn, DInC, DOutC, A>(Value.Map(mx => mx.Map(x => x.ReplaceRespond(rhs))));
+        new M<RT, UOut, UIn, DInC, DOutC, A>(Value.MapRight(p => p.ReplaceRespond(rhs)));
 
     /// <summary>
     /// Reverse the arrows of the `Proxy` to find its dual.  
@@ -422,7 +417,7 @@ public class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>
     /// <returns>The dual of `this1</returns>
     [Pure]
     public override Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect() =>
-        new M<RT, DOut, DIn, UIn, UOut, A>(Value.Map(mx => mx.Map(x => x.Reflect())));
+        new M<RT, DOut, DIn, UIn, UOut, A>(Value.MapRight(p => p.Reflect()));
 
     /// <summary>
     /// 
@@ -435,8 +430,7 @@ public class M<RT, UOut, UIn, DIn, DOut, A> : Proxy<RT, UOut, UIn, DIn, DOut, A>
     /// </summary>
     [Pure]
     public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
-        new M<RT, UOut, UIn, DIn, DOut, A>(
-            Value.Map(mx => mx.Map(x => ((M<RT, UOut, UIn, DIn, DOut, A>)x.Observe()).Value)).Flatten());
+        new M<RT, UOut, UIn, DIn, DOut, A>(Value.MapRight(p => p.Observe()));
         
     [Pure]
     public void Deconstruct(out Transducer<RT, Sum<Error, Proxy<RT, UOut, UIn, DIn, DOut, A>>> value) =>

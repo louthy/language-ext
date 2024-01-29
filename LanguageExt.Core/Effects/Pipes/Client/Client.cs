@@ -47,12 +47,12 @@ public class Client
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
     public static Client<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Eff<R> ma) where RT : HasIO<RT, Error> =>
-        new M<RT, REQ, RES, Unit, Void, R>(ma.WithRuntime<RT>().Morphism.Map(mx => mx.Map(Proxy.Pure<RT, REQ, RES, Unit, Void, R>))).ToClient();
+        new M<RT, REQ, RES, Unit, Void, R>(ma.WithRuntime<RT>().Morphism.MapRight(Proxy.Pure<RT, REQ, RES, Unit, Void, R>)).ToClient();
 
     /// <summary>
     /// Lift am IO monad into the `Proxy` monad transformer
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
     public static Client<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Eff<RT, R> ma) where RT : HasIO<RT, Error> =>
-        new M<RT, REQ, RES, Unit, Void, R>(ma.Morphism.Map(mx => mx.Map(Proxy.Pure<RT, REQ, RES, Unit, Void, R>))).ToClient();
+        new M<RT, REQ, RES, Unit, Void, R>(ma.Morphism.MapRight(Proxy.Pure<RT, REQ, RES, Unit, Void, R>)).ToClient();
 }

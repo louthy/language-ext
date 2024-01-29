@@ -23,7 +23,10 @@ public abstract class Producer<OUT, A>
 
     public Producer<OUT, B> Bind<B>(Func<A, Pure<B>> f) =>
         Map(x => f(x).Value);
- 
+  
+    public Producer<OUT, B> Bind<B>(Func<A, Fail<Error>> f) =>
+        Bind(x => new Producer<OUT, B>.Fail(f(x).Value));
+
     public Producer<OUT, B> Bind<B>(Func<A, Transducer<Unit, B>> f) =>
         Bind(a => f(a).Map(Sum<Error, B>.Right));
  
@@ -50,6 +53,9 @@ public abstract class Producer<OUT, A>
     public Producer<OUT, C> SelectMany<B, C>(Func<A, Pure<B>> f, Func<A, B, C> project) =>
         Map(a => project(a, f(a).Value));
         
+    public Producer<OUT, C> SelectMany<B, C>(Func<A, Fail<Error>> f, Func<A, B, C> project) =>
+        Bind<C>(f);
+    
     public Producer<OUT, C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> f, Func<A, B, C> project) =>
         Bind(a => f(a).Select(b => project(a, b)));
         
@@ -88,6 +94,24 @@ public abstract class Producer<OUT, A>
 
         public override Pipe<IN, OUT, A> ToPipe<IN>() =>
             new Pipe<IN, OUT, A>.Pure(Value);
+    }
+
+    public class Fail(Error Error) : Producer<OUT, A>
+    {
+        public override Producer<OUT, B> Select<B>(Func<A, B> _) =>
+            new Producer<OUT, B>.Fail(Error);
+
+        public override Producer<OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) => 
+            new Producer<OUT, B>.Fail(Error);
+
+        public override Producer<RT, OUT, B> Bind<RT, B>(Func<A, Producer<RT, OUT, B>> f) => 
+            Producer.lift<RT, OUT, B>(Transducer.constant<RT, Sum<Error, B>>(Sum<Error, B>.Left(Error)));
+
+        public override Producer<RT, OUT, A> Interpret<RT>() => 
+            Producer.lift<RT, OUT, A>(Transducer.constant<RT, Sum<Error, A>>(Sum<Error, A>.Left(Error)));
+
+        public override Pipe<IN, OUT, A> ToPipe<IN>() => 
+            new Pipe<IN, OUT, A>.Fail(Error);
     }
 
     public class Lift<X>(Transducer<Unit, Sum<Error, X>> Morphism, Func<X, Producer<OUT, A>> Next) : Producer<OUT, A>

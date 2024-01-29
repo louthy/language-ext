@@ -367,7 +367,7 @@ public class Producer<RT, OUT, A> : Proxy<RT, Void, Unit, Unit, OUT, A> where RT
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
     public Producer<RT, OUT, C> SelectMany<B, C>(Func<A, Transducer<RT, Sum<Error, B>>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).Map(my => my.Map(y => project(x, y))));
+        Bind(x => bind(x).MapRight(y => project(x, y)));
 
     /// <summary>
     /// Monadic bind operation, for chaining `Proxy` computations together.
@@ -377,7 +377,7 @@ public class Producer<RT, OUT, A> : Proxy<RT, Void, Unit, Unit, OUT, A> where RT
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
     public Producer<RT, OUT, C> SelectMany<B, C>(Func<A, Transducer<Unit, Sum<Error, B>>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).Map(my => my.Map(y => project(x, y))));
+        Bind(x => bind(x).MapRight(y => project(x, y)));
 
     /// <summary>
     /// Monadic bind operation, for chaining `Proxy` computations together.

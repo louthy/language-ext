@@ -226,7 +226,7 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// <returns>A new `Eff` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
     public Eff<RT, C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
-        this.RunEffect().ToEff().Bind(a => bind(a).Map(b => project(a, b)));
+        this.RunEffect().MapRight(a => bind(a).WithRuntime<RT>().Morphism.MapRight(b => project(a, b))).Flatten();
 
     /// <summary>
     /// Monadic bind operation, for chaining `Effect` computations together.
@@ -246,7 +246,7 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// <returns>A new `Transducer` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
     public Transducer<RT, Sum<Error, C>> SelectMany<B, C>(Func<A, Transducer<RT, Sum<Error, B>>> bind, Func<A, B, C> project) =>
-        this.RunEffect() .Map(ma => ma.Map(a => bind(a).Map(mb => mb.Map(b => project(a, b))))).Flatten();
+        this.RunEffect().MapRight(a => bind(a).MapRight(b => project(a, b))).Flatten();
 
     /// <summary>
     /// Monadic bind operation, for chaining `Effect` computations together.
@@ -266,7 +266,7 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// <returns>A new `Eff` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
     public Transducer<RT, Sum<Error, C>> SelectMany<B, C>(Func<A, Transducer<Unit, Sum<Error, B>>> bind, Func<A, B, C> project) =>
-        this.RunEffect() .Map(ma => ma.Map(a => bind(a).Map(mb => mb.Map(b => project(a, b))))).Flatten();
+        this.RunEffect().MapRight(a => bind(a).MapRight(b => project(a, b))).Flatten();
 
     /// <summary>
     /// Chain one effect after another

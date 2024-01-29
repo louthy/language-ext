@@ -1,6 +1,3 @@
-#nullable enable
-using System;
-
 namespace LanguageExt;
 
 record BiMapSum<X, Y, A, B>(Transducer<X, Y> Left, Transducer<A, B> Right) : Transducer<Sum<X, A>, Sum<Y, B>>

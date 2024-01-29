@@ -1,13 +1,8 @@
-﻿#nullable enable
-
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
-
-using Durations = IEnumerable<Duration>;
 
 public abstract partial record Schedule
 {

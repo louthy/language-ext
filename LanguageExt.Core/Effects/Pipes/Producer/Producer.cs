@@ -274,8 +274,7 @@ public static class Producer
     public static Producer<RT, OUT, Unit> merge<RT, OUT>(Seq<Producer<RT, OUT, Unit>> ms) where RT : HasIO<RT, Error>
     {
         var prod = from e in lift<RT, Fin<OUT>, RT>(runtime<RT>())
-                   from x in many(go(e))   //yieldAll<RT, Fin<OUT>>(go(e))
-                   from _ in yield<RT, Fin<OUT>>(x)
+                   from _ in yieldAll<RT, Fin<OUT>>(go(e))
                    select unit;
             
         var pipe = from fo in Pipe.awaiting<RT, Fin<OUT>, OUT>()

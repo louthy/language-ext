@@ -55,7 +55,7 @@ public static class Pipe
     /// <summary>
     /// Only forwards values that satisfy the predicate.
     /// </summary>
-    public static Pipe<RT, A, A, Unit> filter<RT, A>(Func<A, bool> f)  where RT : HasIO<RT, Error> =>
+    public static Pipe<RT, A, A, Unit> filter<RT, A>(Func<A, bool> f) where RT : HasIO<RT, Error> =>
         cat<RT, A, Unit>().For(a => f(a)
                                         ? yield<RT, A, A>(a)
                                         : Pure<RT, A, A, Unit>(default))
@@ -356,5 +356,4 @@ public static class Pipe
     [Pure, MethodImpl(mops)]
     public static Pipe<RT, A, B, R> lift<RT, A, B, R>(Aff<RT, R> ma) where RT : HasIO<RT, Error> =>
         lift<RT, Unit, A, Unit, B, R>(ma.ToTransducer()).ToPipe(); 
-
 }
