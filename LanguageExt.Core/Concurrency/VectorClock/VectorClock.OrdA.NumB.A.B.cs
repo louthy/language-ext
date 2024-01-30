@@ -172,8 +172,8 @@ public record VectorClock<OrdA, NumB, A, B>(Seq<(A, B)> Entries)
                 : entries.Head switch
                   {
                       (var x1, _) xy when lessThan<OrdA, A>(x1, index) => xy.Cons(go(entries.Tail)),
-                      (var x1, _) xy when equals<OrdA, A>(x1, index)   => (index, value).Cons(entries.Tail),
-                      var xy                                           => (index, value).Cons(xy.Cons(entries.Tail)),
+                      var (x1, _) when equals<OrdA, A>(x1, index)      => (index, value).Cons(entries.Tail),
+                      var xy                                           => (index, value).Cons(xy.Cons(entries.Tail))
                   };
     }
 
@@ -218,9 +218,9 @@ public record VectorClock<OrdA, NumB, A, B>(Seq<(A, B)> Entries)
                 (_,  true) => es1.Map(xy => mk(xy.Item1, f(xy.Item1, Some(xy.Item2), None))),
                 _ => compare<OrdA, A>(es1.Head.Item1, es2.Head.Item1) switch
                      {
-                         var c when c < 0  => mk(es1.Head.Item1, f(es1.Head.Item1, Some(es1.Head.Item2), None)).Cons(go(es1.Tail, es2)),
-                         var c when c == 0 => mk(es1.Head.Item1, f(es1.Head.Item1, Some(es1.Head.Item2), Some(es2.Head.Item2))).Cons(go(es1.Tail, es2.Tail)),
-                         _                 => mk(es2.Head.Item1, f(es2.Head.Item1, None, Some(es2.Head.Item2))).Cons(go(es1, es2.Tail)),
+                         < 0 => mk(es1.Head.Item1, f(es1.Head.Item1, Some(es1.Head.Item2), None)).Cons(go(es1.Tail, es2)),
+                         0   => mk(es1.Head.Item1, f(es1.Head.Item1, Some(es1.Head.Item2), Some(es2.Head.Item2))).Cons(go(es1.Tail, es2.Tail)),
+                         _   => mk(es2.Head.Item1, f(es2.Head.Item1, None, Some(es2.Head.Item2))).Cons(go(es1, es2.Tail))
                      }
             };
 
@@ -262,29 +262,29 @@ public record VectorClock<OrdA, NumB, A, B>(Seq<(A, B)> Entries)
         static Relation go(Seq<(A, B)> es1, Seq<(A, B)> es2) =>
             (es1.IsEmpty, es2.IsEmpty) switch
             {
-                (false, false) => TypeClass.equals<OrdA, A>(es1.Head.Item1, es2.Head.Item1)
-                                      ? TypeClass.equals<NumB, B>(es1.Head.Item2, es2.Head.Item2)
+                (false, false) => equals<OrdA, A>(es1.Head.Item1, es2.Head.Item1)
+                                      ? equals<NumB, B>(es1.Head.Item2, es2.Head.Item2)
                                             ? go(es1.Tail, es2.Tail)
-                                            : TypeClass.lessThan<NumB, B>(es1.Head.Item2, es2.Head.Item2)
+                                            : lessThan<NumB, B>(es1.Head.Item2, es2.Head.Item2)
                                                 ? checkCauses(es1.Tail, es2.Tail) ? LanguageExt.Relation.Causes : LanguageExt.Relation.Concurrent
                                                 : checkCauses(es2.Tail, es1.Tail)
                                                     ? LanguageExt.Relation.CausedBy
                                                     : LanguageExt.Relation.Concurrent
-                                      : TypeClass.lessThan<OrdA, A>(es1.Head.Item1, es2.Head.Item1)
+                                      : lessThan<OrdA, A>(es1.Head.Item1, es2.Head.Item1)
                                           ? checkCauses(es2, es1.Tail) ? LanguageExt.Relation.CausedBy : LanguageExt.Relation.Concurrent
-                                          : TypeClass.greaterThan<OrdA, A>(es1.Head.Item1, es2.Head.Item1)
+                                          : greaterThan<OrdA, A>(es1.Head.Item1, es2.Head.Item1)
                                               ? checkCauses(es1, es2.Tail) ? LanguageExt.Relation.Causes : LanguageExt.Relation.Concurrent
                                               : LanguageExt.Relation.Concurrent,
                 (true, _) => LanguageExt.Relation.Causes,
-                (_, true) => LanguageExt.Relation.CausedBy,
+                (_, true) => LanguageExt.Relation.CausedBy
             };
 
         static bool checkCauses(Seq<(A, B)> es1, Seq<(A, B)> es2) =>
             (es1.IsEmpty, es2.IsEmpty) switch
             {
-                (false, false) => TypeClass.equals<OrdA, A>(es1.Head.Item1, es2.Head.Item1)
-                                      ? TypeClass.lessOrEq<NumB, B>(es1.Head.Item2, es2.Head.Item2) && checkCauses(es1.Tail, es2.Tail)
-                                      : !TypeClass.lessThan<OrdA, A>(es1.Head.Item1, es2.Head.Item1) && checkCauses(es1, es2.Tail),
+                (false, false) => equals<OrdA, A>(es1.Head.Item1, es2.Head.Item1)
+                                      ? lessOrEq<NumB, B>(es1.Head.Item2, es2.Head.Item2) && checkCauses(es1.Tail, es2.Tail)
+                                      : !lessThan<OrdA, A>(es1.Head.Item1, es2.Head.Item1) && checkCauses(es1, es2.Tail),
                 (true, _) => true,
                 _         => false
             };
@@ -326,7 +326,7 @@ public record VectorClock<OrdA, NumB, A, B>(Seq<(A, B)> Entries)
             {
                 (null, null) => None,
                 (B x, null)  => Some(x),
-                (null, B y)  => throw new InvalidOperationException("diff broken"),
+                (null, B)    => throw new InvalidOperationException("diff broken"),
                 (B x, B y)   => equals<NumB, B>(x, y) ? None : Some(x),
                 _            => None
             };

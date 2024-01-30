@@ -758,6 +758,7 @@ public static class ListExtensions
     public static IEnumerable<S> ScanBack<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
         List.scanBack(list, state, folder);
 
+    /*
     /// <summary>
     /// Joins two enumerables together either into a single enumerable of tuples
     /// </summary>
@@ -766,8 +767,9 @@ public static class ListExtensions
     /// <param name="zipper">Join function</param>
     /// <returns>Joined enumerable</returns>
     [Pure]
-    public static IEnumerable<(T, U)> Zip<T, U>(this IEnumerable<T> list, IEnumerable<U> other) =>
+    public static IEnumerable<(T Left , U Right)> Zip<T, U>(this IEnumerable<T> list, IEnumerable<U> other) =>
         list.Zip(other, (t, u) => (t, u));
+        */
 
     /// <summary>
     /// Returns Some(x) for the first item in the list that matches the predicate 
@@ -884,6 +886,7 @@ public static class ListExtensions
     public static bool ForAll<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
         List.forall(list, pred);
 
+    /*
     /// <summary>
     /// Return a new enumerable with all duplicate values removed
     /// </summary>
@@ -893,6 +896,7 @@ public static class ListExtensions
     [Pure]
     public static IEnumerable<T> Distinct<EQ, T>(this IEnumerable<T> list) where EQ : Eq<T> =>
         List.distinct<EQ, T>(list);
+        */
 
     /// <summary>
     /// Returns true if any item in the enumerable matches the predicate provided

@@ -16,21 +16,25 @@ namespace LanguageExt
     public static partial class Map
     {
         /// <summary>
-        /// Clears all items from the map
-        /// </summary>
-        /// <param name="map">Map to clear</param>
-        /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
-        /// <returns>Empty map</returns>
-        [Pure]
-        public static Map<K, V> clear<K, V>(Map<K, V> map) =>
-            Map<K, V>.Empty;
-
-        /// <summary>
-        /// Creates a new empty Map
+        /// Creates a new empty `Map`
         /// </summary>
         [Pure]
         public static Map<K, V> empty<K, V>() =>
             Map<K, V>.Empty;
+
+        /// <summary>
+        /// Creates a new singleton `Map`
+        /// </summary>
+        [Pure]
+        public static Map<K, V> singleton<K, V>((K, V) value) =>
+            [value];
+
+        /// <summary>
+        /// Creates a new singleton `Map`
+        /// </summary>
+        [Pure]
+        public static Map<K, V> singleton<K, V>(K key, V value) =>
+            [(key, value)];
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided
@@ -72,7 +76,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Map<K, V> createRange<K, V>(IEnumerable<(K, V)> keyValues) =>
-            empty<K, V>().AddRange(keyValues);
+            new (keyValues);
+
+        /// <summary>
+        /// Creates a new Map seeded with the keyValues provided
+        /// </summary>
+        [Pure]
+        public static Map<K, V> createRange<K, V>(ReadOnlySpan<(K, V)> keyValues) =>
+            new (keyValues);
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided

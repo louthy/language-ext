@@ -10,4 +10,7 @@ internal class Change
 
     public const string UseTransducersInstead =
         "This functionality is now available and has many more features in Transducers.  See the wiki on Transducers to see how to get use transducers";
+
+    public const string UseCollectionIntialiser = 
+        "Use collection intialiser instead.  So, instead of: (x, y, z), you should now call [x, y, z]";
 }
