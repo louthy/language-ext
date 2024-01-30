@@ -1,4 +1,6 @@
-﻿using LanguageExt;
+﻿#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
+
+using LanguageExt;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using System;
@@ -21,24 +23,8 @@ public static class SeqExtensions
     /// Get the number of items in the sequence
     /// </summary>
     [Pure]
-    [Obsolete("Please use Seq<A> directly.  ISeq<A> is less performant than Seq<A> and will go away eventually")]
-    public static int Count<A>(this ISeq<A> seq) =>
-        seq.Count;
-
-    /// <summary>
-    /// Get the number of items in the sequence
-    /// </summary>
-    [Pure]
     public static int Count<A>(this Seq<A> seq) =>
         seq.Count;
-
-    /// <summary>
-    /// Get the head item in the sequence
-    /// </summary>
-    [Pure]
-    [Obsolete("Please use Seq<A> directly.  ISeq<A> is less performant than Seq<A> and will go away eventually")]
-    public static A First<A>(this ISeq<A> seq) =>
-        seq.Head;
 
     /// <summary>
     /// Get the head item in the sequence
@@ -51,19 +37,9 @@ public static class SeqExtensions
     /// Get the head item in the sequence
     /// </summary>
     [Pure]
-    [Obsolete("Please use Seq<A> directly.  ISeq<A> is less performant than Seq<A> and will go away eventually")]
-    public static A FirstOrDefault<A>(this ISeq<A> seq) =>
+    public static A? FirstOrDefault<A>(this Seq<A> seq) =>
         seq.IsEmpty
-            ? default(A)
-            : seq.Head;
-
-    /// <summary>
-    /// Get the head item in the sequence
-    /// </summary>
-    [Pure]
-    public static A FirstOrDefault<A>(this Seq<A> seq) =>
-        seq.IsEmpty
-            ? default(A)
+            ? default
             : seq.Head;
 
     /// <summary>
@@ -466,7 +442,7 @@ public static class SeqExtensions
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
     public static Seq<T> Distinct<EQ, T>(this Seq<T> list) where EQ : Eq<T> =>
-        toSeq(Enumerable.Distinct(list, new EqCompare<T>(static (x, y) => default(EQ).Equals(x, y), static x => default(EQ).GetHashCode(x))));
+        toSeq(Enumerable.Distinct(list, new EqCompare<T>(static (x, y) => EQ.Equals(x, y), static x => EQ.GetHashCode(x))));
 
     /// <summary>
     /// Return a new sequence with all duplicate values removed
@@ -475,11 +451,11 @@ public static class SeqExtensions
     /// <param name="list">sequence</param>
     /// <returns>A new sequence with all duplicate values removed</returns>
     [Pure]
-    public static Seq<T> Distinct<T, K>(this Seq<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
+    public static Seq<T> Distinct<T, K>(this Seq<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default) =>
         toSeq(Enumerable.Distinct(list, 
             new EqCompare<T>(
-                (a, b) => compare.IfNone(default(EqDefault<K>).Equals)(keySelector(a), keySelector(b)), 
-                a => compare.Match(Some: _  => 0, None: () => default(EqDefault<K>).GetHashCode(keySelector(a))))));
+                (a, b) => compare.IfNone(EqDefault<K>.Equals)(keySelector(a), keySelector(b)), 
+                a => compare.Match(Some: _  => 0, None: () => EqDefault<K>.GetHashCode(keySelector(a))))));
 
     /// <summary>
     /// Apply a sequence of values to a sequence of functions
@@ -489,7 +465,7 @@ public static class SeqExtensions
     /// <returns>Returns the result of applying the sequence argument values to the sequence functions</returns>
     [Pure]
     public static Seq<B> Apply<A, B>(this Seq<Func<A, B>> fabc, Seq<A> fa) =>
-        ApplSeq<A, B>.Inst.Apply(fabc, fa);
+        ApplSeq<A, B>.Apply(fabc, fa);
 
     /// <summary>
     /// Apply a sequence of values to a sequence of functions
@@ -499,7 +475,7 @@ public static class SeqExtensions
     /// <returns>Returns the result of applying the sequence argument values to the sequence functions</returns>
     [Pure]
     public static Seq<B> Apply<A, B>(this Func<A, B> fabc, Seq<A> fa) =>
-        ApplSeq<A, B>.Inst.Apply(fabc.Cons(), fa);
+        ApplSeq<A, B>.Apply(fabc.Cons(), fa);
 
     /// <summary>
     /// Apply a sequence of values to a sequence of functions of arity 2
@@ -510,7 +486,7 @@ public static class SeqExtensions
     /// IEnumerable of functions: a sequence of functions of arity 1</returns>
     [Pure]
     public static Seq<Func<B, C>> Apply<A, B, C>(this Seq<Func<A, B, C>> fabc, Seq<A> fa) =>
-        ApplSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa);
+        ApplSeq<A, B, C>.Apply(fabc.Map(curry), fa);
 
     /// <summary>
     /// Apply a sequence of values to a sequence of functions of arity 2
@@ -521,7 +497,7 @@ public static class SeqExtensions
     /// sequence of functions: a sequence of functions of arity 1</returns>
     [Pure]
     public static Seq<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, Seq<A> fa) =>
-        ApplSeq<A, B, C>.Inst.Apply(curry(fabc).Cons(), fa);
+        ApplSeq<A, B, C>.Apply(curry(fabc).Cons(), fa);
 
     /// <summary>
     /// Apply sequence of values to a sequence of functions of arity 2
@@ -532,7 +508,7 @@ public static class SeqExtensions
     /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
     [Pure]
     public static Seq<C> Apply<A, B, C>(this Seq<Func<A, B, C>> fabc, Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa, fb);
+        ApplSeq<A, B, C>.Apply(fabc.Map(curry), fa, fb);
 
     /// <summary>
     /// Apply sequence of values to an sequence of functions of arity 2
@@ -543,7 +519,7 @@ public static class SeqExtensions
     /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
     [Pure]
     public static Seq<C> Apply<A, B, C>(this Func<A, B, C> fabc, Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B, C>.Inst.Apply(curry(fabc).Cons(), fa, fb);
+        ApplSeq<A, B, C>.Apply(curry(fabc).Cons(), fa, fb);
 
     /// <summary>
     /// Apply a sequence of values to a sequence of functions of arity 2
@@ -554,7 +530,7 @@ public static class SeqExtensions
     /// sequence of functions: a sequence of functions of arity 1</returns>
     [Pure]
     public static Seq<Func<B, C>> Apply<A, B, C>(this Seq<Func<A, Func<B, C>>> fabc, Seq<A> fa) =>
-        ApplSeq<A, B, C>.Inst.Apply(fabc, fa);
+        ApplSeq<A, B, C>.Apply(fabc, fa);
 
     /// <summary>
     /// Apply an sequence of values to an sequence of functions of arity 2
@@ -565,7 +541,7 @@ public static class SeqExtensions
     /// sequence of functions: a sequence of functions of arity 1</returns>
     [Pure]
     public static Seq<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, Seq<A> fa) =>
-        ApplSeq<A, B, C>.Inst.Apply(fabc.Cons(), fa);
+        ApplSeq<A, B, C>.Apply(fabc.Cons(), fa);
 
     /// <summary>
     /// Apply sequence of values to an sequence of functions of arity 2
@@ -576,7 +552,7 @@ public static class SeqExtensions
     /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
     [Pure]
     public static Seq<C> Apply<A, B, C>(this Seq<Func<A, Func<B, C>>> fabc, Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B, C>.Inst.Apply(fabc, fa, fb);
+        ApplSeq<A, B, C>.Apply(fabc, fa, fb);
 
     /// <summary>
     /// Apply sequence of values to a sequence of functions of arity 2
@@ -587,7 +563,7 @@ public static class SeqExtensions
     /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
     [Pure]
     public static Seq<C> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B, C>.Inst.Apply(fabc.Cons(), fa, fb);
+        ApplSeq<A, B, C>.Apply(fabc.Cons(), fa, fb);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -597,7 +573,7 @@ public static class SeqExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static Seq<B> Action<A, B>(this Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B>.Inst.Action(fa, fb);
+        ApplSeq<A, B>.Action(fa, fb);
 
     /// <summary>
     /// The tails function returns all final segments of the argument, longest first. For example:
@@ -692,154 +668,154 @@ public static class SeqExtensions
         Enumerable.Any(source.Value, predicate);
 
     /// <summary>
-    /// Returns the input typed as IEnumerable<T>.
+    /// Returns the input typed as IEnumerable<T>.
     /// </summary>
     [Pure]
     public static IEnumerable<TSource> AsEnumerable<TSource>(this Seq<TSource> source) =>
         Enumerable.AsEnumerable(source.Value);
 
     /// <summary>
-    /// Converts a generic IEnumerable<T> to a generic IQueryable<T>.
+    /// Converts a generic IEnumerable<T> to a generic IQueryable<T>.
     /// </summary>
     [Pure]
     public static IQueryable<TElement> AsQueryable<TElement>(this Seq<TElement> source) =>
         Queryable.AsQueryable(source.Value.AsQueryable());
 
     /// <summary>
-    /// Computes the average of a sequence of Decimal values.
+    /// Computes the average of a sequence of Decimal values.
     /// </summary>
     [Pure]
     public static decimal Average(this Seq<decimal> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of Decimal values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of Decimal values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static decimal Average<TSource>(this Seq<TSource> source, Func<TSource, decimal> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Decimal values.
+    /// Computes the average of a sequence of nullable Decimal values.
     /// </summary>
     [Pure]
     public static decimal? Average(this Seq<decimal?> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Decimal values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of nullable Decimal values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static decimal? Average<TSource>(this Seq<TSource> source, Func<TSource, decimal?> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of Double values.
+    /// Computes the average of a sequence of Double values.
     /// </summary>
     [Pure]
     public static double Average(this Seq<double> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of Int32 values.
+    /// Computes the average of a sequence of Int32 values.
     /// </summary>
     [Pure]
     public static double Average(this Seq<int> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of Int64 values.
+    /// Computes the average of a sequence of Int64 values.
     /// </summary>
     [Pure]
     public static double Average(this Seq<long> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of Double values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of Double values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double Average<TSource>(this Seq<TSource> source, Func<TSource, double> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of Int32 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of Int32 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double Average<TSource>(this Seq<TSource> source, Func<TSource, int> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of Int64 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of Int64 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double Average<TSource>(this Seq<TSource> source, Func<TSource, long> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Double values.
+    /// Computes the average of a sequence of nullable Double values.
     /// </summary>
     [Pure]
     public static double? Average(this Seq<double?> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Int32 values.
+    /// Computes the average of a sequence of nullable Int32 values.
     /// </summary>
     [Pure]
     public static double? Average(this Seq<int?> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Int64 values.
+    /// Computes the average of a sequence of nullable Int64 values.
     /// </summary>
     [Pure]
     public static double? Average(this Seq<long?> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Double values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of nullable Double values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double? Average<TSource>(this Seq<TSource> source, Func<TSource, double?> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Int32 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of nullable Int32 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double? Average<TSource>(this Seq<TSource> source, Func<TSource, int?> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Int64 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of nullable Int64 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double? Average<TSource>(this Seq<TSource> source, Func<TSource, long?> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of Single values.
+    /// Computes the average of a sequence of Single values.
     /// </summary>
     [Pure]
     public static float Average(this Seq<float> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of Single values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of Single values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static float Average<TSource>(this Seq<TSource> source, Func<TSource, float> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Single values.
+    /// Computes the average of a sequence of nullable Single values.
     /// </summary>
     [Pure]
     public static float? Average(this Seq<float?> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Single values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of nullable Single values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static float? Average<TSource>(this Seq<TSource> source, Func<TSource, float?> selector) =>
@@ -860,7 +836,7 @@ public static class SeqExtensions
         Enumerable.Contains(source.Value, value);
 
     /// <summary>
-    /// Determines whether a sequence contains a specified element by using a specified IEqualityComparer<T>.
+    /// Determines whether a sequence contains a specified element by using a specified IEqualityComparer<T>.
     /// </summary>
     [Pure]
     public static bool Contains<TSource>(this Seq<TSource> source, TSource value, IEqualityComparer<TSource> comparer) =>
@@ -877,7 +853,7 @@ public static class SeqExtensions
     /// Returns the elements of the specified sequence or the type parameter's default value in a singleton collection if the sequence is empty.
     /// </summary>
     [Pure]
-    public static IEnumerable<TSource> DefaultIfEmpty<TSource>(this Seq<TSource> source) =>
+    public static IEnumerable<TSource?> DefaultIfEmpty<TSource>(this Seq<TSource> source) =>
         Enumerable.DefaultIfEmpty(source.Value);
 
     /// <summary>
@@ -888,7 +864,7 @@ public static class SeqExtensions
         Enumerable.DefaultIfEmpty(source.Value, defaultValue);
 
     /// <summary>
-    /// Returns distinct elements from a sequence by using a specified IEqualityComparer<T> to compare values.
+    /// Returns distinct elements from a sequence by using a specified IEqualityComparer<T> to compare values.
     /// </summary>
     [Pure]
     public static IEnumerable<TSource> Distinct<TSource>(this Seq<TSource> source, IEqualityComparer<TSource> comparer) =>
@@ -905,7 +881,7 @@ public static class SeqExtensions
     /// Returns the element at a specified index in a sequence or a default value if the index is out of range.
     /// </summary>
     [Pure]
-    public static TSource ElementAtOrDefault<TSource>(this Seq<TSource> source, int index) =>
+    public static TSource? ElementAtOrDefault<TSource>(this Seq<TSource> source, int index) =>
         Enumerable.ElementAtOrDefault(source.Value, index);
 
     /// <summary>
@@ -916,7 +892,7 @@ public static class SeqExtensions
         Enumerable.Except(first.Value, second);
 
     /// <summary>
-    /// Produces the set difference of two sequences by using the specified IEqualityComparer<T> to compare values.
+    /// Produces the set difference of two sequences by using the specified IEqualityComparer<T> to compare values.
     /// </summary>
     [Pure]
     public static IEnumerable<TSource> Except<TSource>(this Seq<TSource> first, IEnumerable<TSource> second, IEqualityComparer<TSource> comparer) =>
@@ -933,7 +909,7 @@ public static class SeqExtensions
     /// Returns the first element of the sequence that satisfies a condition or a default value if no such element is found.
     /// </summary>
     [Pure]
-    public static TSource FirstOrDefault<TSource>(this Seq<TSource> source, Func<TSource, bool> predicate) =>
+    public static TSource? FirstOrDefault<TSource>(this Seq<TSource> source, Func<TSource?, bool> predicate) =>
         Enumerable.FirstOrDefault(source.Value, predicate);
 
     /// <summary>
@@ -1000,7 +976,7 @@ public static class SeqExtensions
         Enumerable.GroupJoin(outer.Value, inner, outerKeySelector, innerKeySelector, resultSelector);
 
     /// <summary>
-    /// Correlates the elements of two sequences based on key equality and groups the results. A specified IEqualityComparer<T> is used to compare keys.
+    /// Correlates the elements of two sequences based on key equality and groups the results. A specified IEqualityComparer<T> is used to compare keys.
     /// </summary>
     [Pure]
     public static IEnumerable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this Seq<TOuter> outer, IEnumerable<TInner> inner, Func<TOuter, TKey> outerKeySelector, Func<TInner, TKey> innerKeySelector, Func<TOuter, IEnumerable<TInner>, TResult> resultSelector, IEqualityComparer<TKey> comparer) =>
@@ -1014,7 +990,7 @@ public static class SeqExtensions
         Enumerable.Intersect(first.Value, second);
 
     /// <summary>
-    /// Produces the set intersection of two sequences by using the specified IEqualityComparer<T> to compare values.
+    /// Produces the set intersection of two sequences by using the specified IEqualityComparer<T> to compare values.
     /// </summary>
     [Pure]
     public static IEnumerable<TSource> Intersect<TSource>(this Seq<TSource> first, IEnumerable<TSource> second, IEqualityComparer<TSource> comparer) =>
@@ -1028,7 +1004,7 @@ public static class SeqExtensions
         Enumerable.Join(outer.Value, inner, outerKeySelector, innerKeySelector, resultSelector);
 
     /// <summary>
-    /// Correlates the elements of two sequences based on matching keys. A specified IEqualityComparer<T> is used to compare keys.
+    /// Correlates the elements of two sequences based on matching keys. A specified IEqualityComparer<T> is used to compare keys.
     /// </summary>
     [Pure]
     public static IEnumerable<TResult> Join<TOuter, TInner, TKey, TResult>(this Seq<TOuter> outer, IEnumerable<TInner> inner, Func<TOuter, TKey> outerKeySelector, Func<TInner, TKey> innerKeySelector, Func<TOuter, TInner, TResult> resultSelector, IEqualityComparer<TKey> comparer) =>
@@ -1052,165 +1028,165 @@ public static class SeqExtensions
     /// Returns the last element of a sequence, or a default value if the sequence contains no elements.
     /// </summary>
     [Pure]
-    public static TSource LastOrDefault<TSource>(this Seq<TSource> source) =>
+    public static TSource? LastOrDefault<TSource>(this Seq<TSource> source) =>
         Enumerable.LastOrDefault(source.Value);
 
     /// <summary>
     /// Returns the last element of a sequence that satisfies a condition or a default value if no such element is found.
     /// </summary>
     [Pure]
-    public static TSource LastOrDefault<TSource>(this Seq<TSource> source, Func<TSource, bool> predicate) =>
+    public static TSource? LastOrDefault<TSource>(this Seq<TSource> source, Func<TSource?, bool> predicate) =>
         Enumerable.LastOrDefault(source.Value, predicate);
 
     /// <summary>
-    /// Returns an Int64 that represents the total number of elements in a sequence.
+    /// Returns an Int64 that represents the total number of elements in a sequence.
     /// </summary>
     [Pure]
     public static long LongCount<TSource>(this Seq<TSource> source) =>
         Enumerable.LongCount(source.Value);
 
     /// <summary>
-    /// Returns an Int64 that represents how many elements in a sequence satisfy a condition.
+    /// Returns an Int64 that represents how many elements in a sequence satisfy a condition.
     /// </summary>
     [Pure]
     public static long LongCount<TSource>(this Seq<TSource> source, Func<TSource, bool> predicate) =>
         Enumerable.LongCount(source.Value, predicate);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of Decimal values.
+    /// Returns the maximum value in a sequence of Decimal values.
     /// </summary>
     [Pure]
     public static decimal Max(this Seq<decimal> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum Decimal value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum Decimal value.
     /// </summary>
     [Pure]
     public static decimal Max<TSource>(this Seq<TSource> source, Func<TSource, decimal> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of nullable Decimal values.
+    /// Returns the maximum value in a sequence of nullable Decimal values.
     /// </summary>
     [Pure]
     public static decimal? Max(this Seq<decimal?> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Decimal value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Decimal value.
     /// </summary>
     [Pure]
     public static decimal? Max<TSource>(this Seq<TSource> source, Func<TSource, decimal?> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of Double values.
+    /// Returns the maximum value in a sequence of Double values.
     /// </summary>
     [Pure]
     public static double Max(this Seq<double> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum Double value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum Double value.
     /// </summary>
     [Pure]
     public static double Max<TSource>(this Seq<TSource> source, Func<TSource, double> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of nullable Double values.
+    /// Returns the maximum value in a sequence of nullable Double values.
     /// </summary>
     [Pure]
     public static double? Max(this Seq<double?> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Double value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Double value.
     /// </summary>
     [Pure]
     public static double? Max<TSource>(this Seq<TSource> source, Func<TSource, double?> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of Single values.
+    /// Returns the maximum value in a sequence of Single values.
     /// </summary>
     [Pure]
     public static float Max(this Seq<float> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum Single value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum Single value.
     /// </summary>
     [Pure]
     public static float Max<TSource>(this Seq<TSource> source, Func<TSource, float> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of nullable Single values.
+    /// Returns the maximum value in a sequence of nullable Single values.
     /// </summary>
     [Pure]
     public static float? Max(this Seq<float?> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Single value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Single value.
     /// </summary>
     [Pure]
     public static float? Max<TSource>(this Seq<TSource> source, Func<TSource, float?> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of Int32 values.
+    /// Returns the maximum value in a sequence of Int32 values.
     /// </summary>
     [Pure]
     public static int Max(this Seq<int> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum Int32 value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum Int32 value.
     /// </summary>
     [Pure]
     public static int Max<TSource>(this Seq<TSource> source, Func<TSource, int> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of nullable Int32 values.
+    /// Returns the maximum value in a sequence of nullable Int32 values.
     /// </summary>
     [Pure]
     public static int? Max(this Seq<int?> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Int32 value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Int32 value.
     /// </summary>
     [Pure]
     public static int? Max<TSource>(this Seq<TSource> source, Func<TSource, int?> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of Int64 values.
+    /// Returns the maximum value in a sequence of Int64 values.
     /// </summary>
     [Pure]
     public static long Max(this Seq<long> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum Int64 value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum Int64 value.
     /// </summary>
     [Pure]
     public static long Max<TSource>(this Seq<TSource> source, Func<TSource, long> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of nullable Int64 values.
+    /// Returns the maximum value in a sequence of nullable Int64 values.
     /// </summary>
     [Pure]
     public static long? Max(this Seq<long?> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Int64 value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Int64 value.
     /// </summary>
     [Pure]
     public static long? Max<TSource>(this Seq<TSource> source, Func<TSource, long?> selector) =>
@@ -1220,151 +1196,151 @@ public static class SeqExtensions
     /// Invokes a transform function on each element of a generic sequence and returns the maximum resulting value.
     /// </summary>
     [Pure]
-    public static TResult Max<TSource, TResult>(this Seq<TSource> source, Func<TSource, TResult> selector) =>
+    public static TResult? Max<TSource, TResult>(this Seq<TSource> source, Func<TSource, TResult> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
     /// Returns the maximum value in a generic sequence.
     /// </summary>
     [Pure]
-    public static TSource Max<TSource>(this Seq<TSource> source) =>
+    public static TSource? Max<TSource>(this Seq<TSource> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of Decimal values.
+    /// Returns the minimum value in a sequence of Decimal values.
     /// </summary>
     [Pure]
     public static decimal Min(this Seq<decimal> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum Decimal value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum Decimal value.
     /// </summary>
     [Pure]
     public static decimal Min<TSource>(this Seq<TSource> source, Func<TSource, decimal> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of nullable Decimal values.
+    /// Returns the minimum value in a sequence of nullable Decimal values.
     /// </summary>
     [Pure]
     public static decimal? Min(this Seq<decimal?> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Decimal value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Decimal value.
     /// </summary>
     [Pure]
     public static decimal? Min<TSource>(this Seq<TSource> source, Func<TSource, decimal?> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of Double values.
+    /// Returns the minimum value in a sequence of Double values.
     /// </summary>
     [Pure]
     public static double Min(this Seq<double> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum Double value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum Double value.
     /// </summary>
     [Pure]
     public static double Min<TSource>(this Seq<TSource> source, Func<TSource, double> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of nullable Double values.
+    /// Returns the minimum value in a sequence of nullable Double values.
     /// </summary>
     [Pure]
     public static double? Min(this Seq<double?> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Double value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Double value.
     /// </summary>
     [Pure]
     public static double? Min<TSource>(this Seq<TSource> source, Func<TSource, double?> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of Single values.
+    /// Returns the minimum value in a sequence of Single values.
     /// </summary>
     [Pure]
     public static float Min(this Seq<float> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum Single value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum Single value.
     /// </summary>
     [Pure]
     public static float Min<TSource>(this Seq<TSource> source, Func<TSource, float> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of nullable Single values.
+    /// Returns the minimum value in a sequence of nullable Single values.
     /// </summary>
     [Pure]
     public static float? Min(this Seq<float?> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Single value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Single value.
     /// </summary>
     [Pure]
     public static float? Min<TSource>(this Seq<TSource> source, Func<TSource, float?> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of Int32 values.
+    /// Returns the minimum value in a sequence of Int32 values.
     /// </summary>
     [Pure]
     public static int Min(this Seq<int> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum Int32 value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum Int32 value.
     /// </summary>
     [Pure]
     public static int Min<TSource>(this Seq<TSource> source, Func<TSource, int> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of nullable Int32 values.
+    /// Returns the minimum value in a sequence of nullable Int32 values.
     /// </summary>
     [Pure]
     public static int? Min(this Seq<int?> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Int32 value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Int32 value.
     /// </summary>
     [Pure]
     public static int? Min<TSource>(this Seq<TSource> source, Func<TSource, int?> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of Int64 values.
+    /// Returns the minimum value in a sequence of Int64 values.
     /// </summary>
     [Pure]
     public static long Min(this Seq<long> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum Int64 value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum Int64 value.
     /// </summary>
     [Pure]
     public static long Min<TSource>(this Seq<TSource> source, Func<TSource, long> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of nullable Int64 values.
+    /// Returns the minimum value in a sequence of nullable Int64 values.
     /// </summary>
     [Pure]
     public static long? Min(this Seq<long?> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Int64 value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Int64 value.
     /// </summary>
     [Pure]
     public static long? Min<TSource>(this Seq<TSource> source, Func<TSource, long?> selector) =>
@@ -1374,14 +1350,14 @@ public static class SeqExtensions
     /// Invokes a transform function on each element of a generic sequence and returns the minimum resulting value.
     /// </summary>
     [Pure]
-    public static TResult Min<TSource, TResult>(this Seq<TSource> source, Func<TSource, TResult> selector) =>
+    public static TResult? Min<TSource, TResult>(this Seq<TSource> source, Func<TSource, TResult> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
     /// Returns the minimum value in a generic sequence.
     /// </summary>
     [Pure]
-    public static TSource Min<TSource>(this Seq<TSource> source) =>
+    public static TSource? Min<TSource>(this Seq<TSource> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
@@ -1424,10 +1400,10 @@ public static class SeqExtensions
     /// </summary>
     [Pure]
     public static bool SequenceEqual<TSource>(this Seq<TSource> first, IEnumerable<TSource> second) =>
-        default(EqEnumerable<TSource>).Equals(first.Value, second);
+        EqEnumerable<TSource>.Equals(first.Value, second);
 
     /// <summary>
-    /// Determines whether two sequences are equal by comparing their elements by using a specified IEqualityComparer<T>.
+    /// Determines whether two sequences are equal by comparing their elements by using a specified IEqualityComparer<T>.
     /// </summary>
     [Pure]
     public static bool SequenceEqual<TSource>(this Seq<TSource> first, IEnumerable<TSource> second, IEqualityComparer<TSource> comparer) =>
@@ -1451,14 +1427,14 @@ public static class SeqExtensions
     /// Returns the only element of a sequence, or a default value if the sequence is empty; this method throws an exception if there is more than one element in the sequence.
     /// </summary>
     [Pure]
-    public static TSource SingleOrDefault<TSource>(this Seq<TSource> source) =>
+    public static TSource? SingleOrDefault<TSource>(this Seq<TSource> source) =>
         Enumerable.SingleOrDefault(source.Value);
 
     /// <summary>
     /// Returns the only element of a sequence that satisfies a specified condition or a default value if no such element exists; this method throws an exception if more than one element satisfies the condition.
     /// </summary>
     [Pure]
-    public static TSource SingleOrDefault<TSource>(this Seq<TSource> source, Func<TSource, bool> predicate) =>
+    public static TSource? SingleOrDefault<TSource>(this Seq<TSource> source, Func<TSource?, bool> predicate) =>
         Enumerable.SingleOrDefault(source.Value, predicate);
 
     /// <summary>
@@ -1483,112 +1459,112 @@ public static class SeqExtensions
         Enumerable.SkipWhile(source.Value, predicate);
 
     /// <summary>
-    /// Computes the sum of the sequence of Decimal values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of Decimal values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static decimal Sum<TSource>(this Seq<TSource> source, Func<TSource, decimal> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of nullable Decimal values.
+    /// Computes the sum of a sequence of nullable Decimal values.
     /// </summary>
     [Pure]
     public static decimal? Sum(this Seq<decimal?> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of nullable Decimal values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of nullable Decimal values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static decimal? Sum<TSource>(this Seq<TSource> source, Func<TSource, decimal?> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of the sequence of Double values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of Double values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double Sum<TSource>(this Seq<TSource> source, Func<TSource, double> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of nullable Double values.
+    /// Computes the sum of a sequence of nullable Double values.
     /// </summary>
     [Pure]
     public static double? Sum(this Seq<double?> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of nullable Double values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of nullable Double values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double? Sum<TSource>(this Seq<TSource> source, Func<TSource, double?> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of the sequence of Single values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of Single values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static float Sum<TSource>(this Seq<TSource> source, Func<TSource, float> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of nullable Single values.
+    /// Computes the sum of a sequence of nullable Single values.
     /// </summary>
     [Pure]
     public static float? Sum(this Seq<float?> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of nullable Single values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of nullable Single values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static float? Sum<TSource>(this Seq<TSource> source, Func<TSource, float?> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of the sequence of Int32 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of Int32 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static int Sum<TSource>(this Seq<TSource> source, Func<TSource, int> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of nullable Int32 values.
+    /// Computes the sum of a sequence of nullable Int32 values.
     /// </summary>
     [Pure]
     public static int? Sum(this Seq<int?> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of nullable Int32 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of nullable Int32 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static int? Sum<TSource>(this Seq<TSource> source, Func<TSource, int?> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of Int64 values.
+    /// Computes the sum of a sequence of Int64 values.
     /// </summary>
     [Pure]
     public static long Sum(this Seq<long> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of Int64 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of Int64 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static long Sum<TSource>(this Seq<TSource> source, Func<TSource, long> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of nullable Int64 values.
+    /// Computes the sum of a sequence of nullable Int64 values.
     /// </summary>
     [Pure]
     public static long? Sum(this Seq<long?> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of nullable Int64 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of nullable Int64 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static long? Sum<TSource>(this Seq<TSource> source, Func<TSource, long?> selector) =>
@@ -1616,70 +1592,72 @@ public static class SeqExtensions
         Enumerable.TakeWhile(source.Value, predicate);
 
     /// <summary>
-    /// Creates an array from a IEnumerable<T>.
+    /// Creates an array from a IEnumerable<T>.
     /// </summary>
     [Pure]
     public static TSource[] ToArray<TSource>(this Seq<TSource> source) =>
         Enumerable.ToArray(source.Value);
 
     /// <summary>
-    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to specified key selector and element selector functions.
+    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to specified key selector and element selector functions.
     /// </summary>
     [Pure]
-    public static Dictionary<TKey, TElement> ToDictionary<TSource, TKey, TElement>(this Seq<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) =>
+    public static Dictionary<TKey, TElement> ToDictionary<TSource, TKey, TElement>(this Seq<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) 
+        where TKey : notnull =>
         Enumerable.ToDictionary(source.Value, keySelector, elementSelector);
 
     /// <summary>
-    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to a specified key selector function, a comparer, and an element selector function.
+    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to a specified key selector function, a comparer, and an element selector function.
     /// </summary>
     [Pure]
-    public static Dictionary<TKey, TElement> ToDictionary<TSource, TKey, TElement>(this Seq<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector, IEqualityComparer<TKey> comparer) =>
+    public static Dictionary<TKey, TElement> ToDictionary<TSource, TKey, TElement>(this Seq<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector, IEqualityComparer<TKey> comparer) 
+        where TKey : notnull =>
         Enumerable.ToDictionary(source.Value, keySelector, elementSelector, comparer);
 
     /// <summary>
-    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to a specified key selector function.
+    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to a specified key selector function.
     /// </summary>
     [Pure]
-    public static Dictionary<TKey, TSource> ToDictionary<TSource, TKey>(this Seq<TSource> source, Func<TSource, TKey> keySelector) =>
+    public static Dictionary<TKey, TSource> ToDictionary<TSource, TKey>(this Seq<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull =>
         Enumerable.ToDictionary(source.Value, keySelector);
 
     /// <summary>
-    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to a specified key selector function and key comparer.
+    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to a specified key selector function and key comparer.
     /// </summary>
     [Pure]
-    public static Dictionary<TKey, TSource> ToDictionary<TSource, TKey>(this Seq<TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer) =>
+    public static Dictionary<TKey, TSource> ToDictionary<TSource, TKey>(this Seq<TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer) where TKey : notnull =>
         Enumerable.ToDictionary(source.Value, keySelector, comparer);
 
     /// <summary>
-    /// Creates a List<T> from an IEnumerable<T>.
+    /// Creates a List<T> from an IEnumerable<T>.
     /// </summary>
     [Pure]
     public static List<TSource> ToList<TSource>(this Seq<TSource> source) =>
         Enumerable.ToList(source.Value);
 
     /// <summary>
-    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to specified key selector and element selector functions.
+    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to specified key selector and element selector functions.
     /// </summary>
     [Pure]
     public static ILookup<TKey, TElement> ToLookup<TSource, TKey, TElement>(this Seq<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) =>
         Enumerable.ToLookup(source.Value, keySelector, elementSelector);
 
     /// <summary>
-    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to a specified key selector function, a comparer and an element selector function.
+    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to a specified key selector function, a comparer and an element selector function.
     /// </summary>
     [Pure]
     public static ILookup<TKey, TElement> ToLookup<TSource, TKey, TElement>(this Seq<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector, IEqualityComparer<TKey> comparer) =>
         Enumerable.ToLookup(source.Value, keySelector, elementSelector, comparer);
 
     /// <summary>
-    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to a specified key selector function.
+    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to a specified key selector function.
     /// </summary>
     [Pure]
     public static ILookup<TKey, TSource> ToLookup<TSource, TKey>(this Seq<TSource> source, Func<TSource, TKey> keySelector) =>
         Enumerable.ToLookup(source.Value, keySelector);
 
     /// <summary>
-    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to a specified key selector function and key comparer.
+    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to a specified key selector function and key comparer.
     /// </summary>
     [Pure]
     public static ILookup<TKey, TSource> ToLookup<TSource, TKey>(this Seq<TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer) =>
@@ -1693,7 +1671,7 @@ public static class SeqExtensions
         Enumerable.Union(first.Value, second);
 
     /// <summary>
-    /// Produces the set union of two sequences by using a specified IEqualityComparer<T>.
+    /// Produces the set union of two sequences by using a specified IEqualityComparer<T>.
     /// </summary>
     [Pure]
     public static IEnumerable<TSource> Union<TSource>(this Seq<TSource> first, IEnumerable<TSource> second, IEqualityComparer<TSource> comparer) =>

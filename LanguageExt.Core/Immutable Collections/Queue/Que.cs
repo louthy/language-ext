@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -264,7 +262,7 @@ public readonly struct Que<A> :
     /// <param name="obj">Value that may be a queue</param>
     /// <returns>`true` if the queues are equal</returns>
     [Pure]
-    public override bool Equals(object obj) =>
+    public override bool Equals(object? obj) =>
         obj is Que<A> q && Equals(q);
 
     /// <summary>
@@ -275,7 +273,7 @@ public readonly struct Que<A> :
     [Pure]
     public bool Equals(Que<A> other) =>
         GetHashCode() == other.GetHashCode() &&
-        default(EqEnumerable<A>).Equals(this.Value, other.Value);
+        EqEnumerable<A>.Equals(Value, other.Value);
 
     /// <summary>
     /// Implicit conversion from an untyped empty list
