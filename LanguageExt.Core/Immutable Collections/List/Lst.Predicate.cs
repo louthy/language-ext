@@ -24,7 +24,7 @@ namespace LanguageExt
         IComparable
         where PRED : Pred<ListInfo>
     {
-        readonly LstInternal<A> value;
+        readonly LstInternal<True<A>, A> value;
 
         /// <summary>
         /// Ctor
@@ -32,24 +32,24 @@ namespace LanguageExt
         public Lst(IEnumerable<A> initial)
         {
             if (initial == null) throw new NullReferenceException(nameof(initial));
-            value = new LstInternal<A>(initial, default(True<A>));
-            if (!default(PRED).True(value)) throw new ArgumentOutOfRangeException(nameof(value));
+            value = new LstInternal<True<A>, A>(initial);
+            if (!PRED.True(value)) throw new ArgumentOutOfRangeException(nameof(value));
         }
 
         /// <summary>
         /// Ctor
         /// </summary>
-        Lst(LstInternal<A> root)
+        Lst(LstInternal<True<A>, A> root)
         {
             value = root;
-            if (root == null) throw new NullReferenceException(nameof(root));
-            if (!default(PRED).True(value)) throw new ArgumentOutOfRangeException(nameof(value));
+            if (root is null) throw new NullReferenceException(nameof(root));
+            if (!PRED.True(value)) throw new ArgumentOutOfRangeException(nameof(value));
         }
 
-        internal LstInternal<A> Value
+        internal LstInternal<True<A>, A> Value
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => value ?? LstInternal<A>.Empty;
+            get => value ?? LstInternal<True<A>, A>.Empty;
         }
 
         ListItem<A> Root
@@ -81,18 +81,18 @@ namespace LanguageExt
         /// 
         /// </remarks>
         [Pure]
-        public object Case =>
+        public object? Case =>
             IsEmpty 
                 ? null
                 : Count == 1
                     ? this[0]
                     : toSeq(this).Case;
 
-        Lst<PRED, A> Wrap(LstInternal<A> list) =>
-            new Lst<PRED, A>(list);
+        Lst<PRED, A> Wrap(LstInternal<True<A>, A> list) =>
+            new (list);
 
-        static Lst<PRED, T> Wrap<T>(LstInternal<T> list) =>
-            new Lst<PRED, T>(list);
+        static Lst<PRED, T> Wrap<T>(LstInternal<True<T>, T> list) =>
+            new (list);
 
         /// <summary>
         /// Index accessor
@@ -135,7 +135,7 @@ namespace LanguageExt
         /// <returns>True if collection contains value</returns>
         [Pure]
         public bool Contains(A value) =>
-            Value.Find(a => default(EqDefault<A>).Equals(a, value)).IsSome;
+            Value.Find(a => EqDefault<A>.Equals(a, value)).IsSome;
 
         /// <summary>
         /// Contains with provided Eq class instance
@@ -145,7 +145,7 @@ namespace LanguageExt
         /// <returns>True if collection contains value</returns>
         [Pure]
         public bool Contains<EqA>(A value) where EqA : Eq<A> =>
-            Value.Find(a => default(EqA).Equals(a, value)).IsSome;
+            Value.Find(a => EqA.Equals(a, value)).IsSome;
 
         /// <summary>
         /// Add an item to the end of the list
@@ -172,7 +172,7 @@ namespace LanguageExt
         /// Find the index of an item
         /// </summary>
         [Pure]
-        public int IndexOf(A item, int index = 0, int count = -1, IEqualityComparer<A> equalityComparer = null) =>
+        public int IndexOf(A item, int index = 0, int count = -1, IEqualityComparer<A>? equalityComparer = null) =>
             Value.IndexOf(item, index, count, equalityComparer);
 
         /// <summary>
@@ -187,13 +187,13 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public Lst<PRED, A> InsertRange(int index, IEnumerable<A> items) =>
-            Wrap(Value.InsertRange(index, items, default(True<A>)));
+            Wrap(Value.InsertRange(index, items));
 
         /// <summary>
         /// Find the last index of an item in the list
         /// </summary>
         [Pure]
-        public int LastIndexOf(A item, int index = 0, int count = -1, IEqualityComparer<A> equalityComparer = null) =>
+        public int LastIndexOf(A item, int index = 0, int count = -1, IEqualityComparer<A>? equalityComparer = null) =>
             Value.LastIndexOf(item, index, count, equalityComparer);
 
         /// <summary>
@@ -314,7 +314,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public Lst<PRED, U> Map<U>(Func<A, U> map) =>
-            Wrap(Value.Map(map));
+            new (Value.AsEnumerable().Map(map));
 
         /// <summary>
         /// Filter
@@ -329,7 +329,7 @@ namespace LanguageExt
 
         [Pure]
         public static Lst<PRED, A> operator +(A lhs, Lst<PRED, A> rhs) =>
-            new Lst<PRED, A>(lhs.Cons(rhs));
+            new (lhs.Cons(rhs));
 
         [Pure]
         public static Lst<PRED, A> operator +(Lst<PRED, A> lhs, Lst<PRED, A> rhs) =>
@@ -337,7 +337,7 @@ namespace LanguageExt
 
         [Pure]
         public Lst<PRED, A> Append(Lst<PRED, A> rhs) =>
-            new Lst<PRED, A>(Value.Append(rhs));
+            new (Value.Append(rhs));
 
         [Pure]
         public static Lst<PRED, A> operator -(Lst<PRED, A> lhs, Lst<PRED, A> rhs) =>
@@ -348,12 +348,13 @@ namespace LanguageExt
             Wrap(Value.Subtract(rhs.Value));
 
         [Pure]
-        public override bool Equals(object obj) => obj switch 
-        {
-            Lst<PRED, A>   s => Equals(s),
-            IEnumerable<A> e => Equals(new Lst<PRED, A>(e)),
-            _                => false
-        };
+        public override bool Equals(object? obj) =>
+            obj switch
+            {
+                Lst<PRED, A> s   => Equals(s),
+                IEnumerable<A> e => Equals(new Lst<PRED, A>(e)),
+                _                => false
+            };
 
         /// <summary>
         /// Get the hash code
@@ -365,16 +366,17 @@ namespace LanguageExt
             Value.GetHashCode();
 
         [Pure]
-        public int CompareTo(object obj) => obj switch 
-        {
-            Lst<PRED, A>   s => CompareTo(s),
-            IEnumerable<A> e => CompareTo(new Lst<PRED, A>(e)),
-            _                => 1
-        };
+        public int CompareTo(object? obj) =>
+            obj switch
+            {
+                Lst<PRED, A> s   => CompareTo(s),
+                IEnumerable<A> e => CompareTo(new Lst<PRED, A>(e)),
+                _                => 1
+            };
 
         [Pure]
-        public bool Equals(Lst<PRED, A> other) =>
-            Value.Equals(other.Value);
+        public bool Equals(Lst<PRED, A>? other) =>
+            other is not null && Value.Equals(other.Value);
 
         [Pure]
         public static bool operator ==(Lst<PRED, A> lhs, Lst<PRED, A> rhs) =>
@@ -405,15 +407,15 @@ namespace LanguageExt
             toArray(this);
 
         [Pure]
-        public int CompareTo(Lst<PRED, A> other) =>
-            Value.CompareTo(other.Value);
+        public int CompareTo(Lst<PRED, A>? other) =>
+            other is not null ? Value.CompareTo(other.Value) : 1;
 
         [Pure]
         public static implicit operator Lst<PRED, A>(Lst<A> list) =>
-            new Lst<PRED, A>(list.Value);
+            new (list.Value);
 
         [Pure]
         public static implicit operator Lst<A>(Lst<PRED, A> list) =>
-            new Lst<A>(list.Value);
+            new (list.Value);
     }
 }

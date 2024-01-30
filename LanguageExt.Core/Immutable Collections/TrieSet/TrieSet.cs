@@ -56,13 +56,27 @@ namespace LanguageExt
             this.count = count;
         }
 
+        public TrieSet(ReadOnlySpan<K> items, bool tryAdd = true)
+        {
+            Root = EmptyNode.Default;
+            var type = tryAdd ? UpdateType.TryAdd : UpdateType.AddOrUpdate;
+            foreach (var item in items)
+            {
+                var hash = (uint)EqK.GetHashCode(item);
+                Sec section = default;
+                var (countDelta, newRoot) = Root.Update((type, true), item, hash, section);
+                count += countDelta;
+                Root = newRoot;
+            }
+        }
+
         public TrieSet(IEnumerable<K> items, bool tryAdd = true)
         {
             Root = EmptyNode.Default;
             var type = tryAdd ? UpdateType.TryAdd : UpdateType.AddOrUpdate;
             foreach (var item in items)
             {
-                var hash = (uint)default(EqK).GetHashCode(item);
+                var hash    = (uint)EqK.GetHashCode(item);
                 Sec section = default;
                 var (countDelta, newRoot) = Root.Update((type, true), item, hash, section);
                 count += countDelta;

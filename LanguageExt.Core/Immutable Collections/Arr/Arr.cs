@@ -125,7 +125,7 @@ public struct Arr<A> :
     /// Index accessor
     /// </summary>
     [Pure]
-    public A this[int index]
+    public A this[Index index]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => Value[index];

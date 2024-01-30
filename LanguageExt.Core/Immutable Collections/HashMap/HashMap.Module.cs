@@ -32,6 +32,26 @@ namespace LanguageExt
             HashMap<K, V>.Empty;
 
         /// <summary>
+        /// Create a singleton collection
+        /// </summary>
+        /// <param name="value">Single value</param>
+        /// <returns>Collection with a single item in it</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static HashMap<K, V> singleton<K, V>((K, V) value) =>
+            [value];
+
+        /// <summary>
+        /// Create a singleton collection
+        /// </summary>
+        /// <param name="value">Single value</param>
+        /// <returns>Collection with a single item in it</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static HashMap<K, V> singleton<K, V>(K key, V value) =>
+            [(key, value)];
+        
+        /// <summary>
         /// Creates a new empty HashMap 
         /// </summary>
         [Pure]

@@ -22,8 +22,16 @@ public static class Arr
     [Pure]
     public static Arr<T> create<T>() =>
         Arr<T>.Empty;
-    
 
+    /// <summary>
+    /// Create a singleton array
+    /// </summary>
+    /// <param name="value">Single value</param>
+    /// <returns>Collection with a single item in it</returns>
+    [Pure]
+    public static Arr<A> singleton<A>(A value) =>
+        [value];
+    
     /// <summary>
     /// Create an array from a initial set of items
     /// </summary>
@@ -40,7 +48,7 @@ public static class Arr
     /// <returns>Lst T</returns>
     [Pure]
     public static Arr<T> create<T>(params T[] items) =>
-        new Arr<T>(items);
+        new (items);
 
     /// <summary>
     /// Create an array from an initial set of items
@@ -49,7 +57,7 @@ public static class Arr
     /// <returns>Lst T</returns>
     [Pure]
     public static Arr<T> createRange<T>(IEnumerable<T> items) =>
-        new Arr<T>(items);
+        new (items);
 
     /// <summary>
     /// Add an item to the array

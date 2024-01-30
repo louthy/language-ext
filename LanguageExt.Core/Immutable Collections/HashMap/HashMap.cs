@@ -16,7 +16,7 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="K">Key type</typeparam>
 /// <typeparam name="V">Value</typeparam>
-[CollectionBuilder(typeof(HashMap), nameof(HashMap.create))]
+[CollectionBuilder(typeof(HashMap), nameof(HashMap.createRange))]
 public readonly struct HashMap<K, V> :
     IEnumerable<(K Key, V Value)>,
     IEquatable<HashMap<K, V>>

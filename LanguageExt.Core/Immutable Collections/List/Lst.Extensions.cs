@@ -1,13 +1,16 @@
-﻿using System;
+﻿#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
+
+using System;
 using System.Linq;
 using System.Collections.Generic;
-using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Text;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
+
+namespace LanguageExt;
 
 public static class ListExtensions
 {
@@ -92,13 +95,13 @@ public static class ListExtensions
     /// <returns>Head item</returns>
     [Pure]
     public static T Head<T>(this IEnumerable<T> list) =>
-        LanguageExt.List.head(list);
+        List.head(list);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     [Obsolete("HeadSafe has been deprecated, please use HeadOrNone")]
     [Pure]
     public static Option<T> HeadSafe<T>(this IEnumerable<T> list) =>
-        LanguageExt.List.headOrNone(list);
+        List.headOrNone(list);
 
     /// <summary>
     /// Get the item at the head (first) of the list or None if the list is empty
@@ -107,7 +110,7 @@ public static class ListExtensions
     /// <returns>Optional head item</returns>
     [Pure]
     public static Option<T> HeadOrNone<T>(this IEnumerable<T> list) =>
-        LanguageExt.List.headOrNone(list);
+        List.headOrNone(list);
 
     /// <summary>
     /// Get the item at the head (first) of the list or Left if the list is empty
@@ -116,7 +119,7 @@ public static class ListExtensions
     /// <returns>Either head item or left</returns>
     [Pure]
     public static Either<L, R> HeadOrLeft<L, R>(this IEnumerable<R> list, L left) =>
-        LanguageExt.List.headOrLeft(list, left);
+        List.headOrLeft(list, left);
 
     /// <summary>
     /// Get the item at the head (first) of the list or fail if the list is empty
@@ -125,7 +128,7 @@ public static class ListExtensions
     /// <returns>Either head item or fail</returns>
     [Pure]
     public static Validation<Fail, Success> HeadOrInvalid<Fail, Success>(this IEnumerable<Success> list, Fail fail) =>
-        LanguageExt.List.headOrInvalid(list, fail);
+        List.headOrInvalid(list, fail);
 
     /// <summary>
     /// Get the item at the head (first) of the list or fail if the list is empty
@@ -134,7 +137,7 @@ public static class ListExtensions
     /// <returns>Either head item or fail</returns>
     [Pure]
     public static Validation<Fail, Success> HeadOrInvalid<Fail, Success>(this IEnumerable<Success> list, Seq<Fail> fail) =>
-        LanguageExt.List.headOrInvalid(list, fail);
+        List.headOrInvalid(list, fail);
 
     /// <summary>
     /// Get the item at the head (first) of the list or fail if the list is empty
@@ -144,7 +147,7 @@ public static class ListExtensions
     [Pure]
     public static Validation<MonoidFail, Fail, Success> HeadOrInvalid<MonoidFail, Fail, Success>(this IEnumerable<Success> list, Fail fail)
         where MonoidFail : Monoid<Fail>, Eq<Fail> =>
-        LanguageExt.List.headOrInvalid<MonoidFail, Fail, Success>(list, fail);
+        List.headOrInvalid<MonoidFail, Fail, Success>(list, fail);
 
 
     /// <summary>
@@ -213,7 +216,7 @@ public static class ListExtensions
     /// <returns>The initial items (all but the last)</returns>
     [Pure]
     public static Seq<A> Init<A>(this IEnumerable<A> list) =>
-        LanguageExt.List.init(list);
+        List.init(list);
 
     /// <summary>
     /// Get the tail of the list (skips the head item)
@@ -222,7 +225,7 @@ public static class ListExtensions
     /// <returns>Enumerable of T</returns>
     [Pure]
     public static IEnumerable<T> Tail<T>(this IEnumerable<T> list) =>
-        LanguageExt.List.tail(list);
+        List.tail(list);
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions
@@ -232,7 +235,7 @@ public static class ListExtensions
     /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
     [Pure]
     public static IEnumerable<B> Apply<A, B>(this IEnumerable<Func<A, B>> fabc, IEnumerable<A> fa) =>
-        ApplEnumerable<A, B>.Inst.Apply(fabc, fa);
+        ApplEnumerable<A, B>.Apply(fabc, fa);
 
     /// <summary>
     /// Inject a value in between each item in the enumerable 
@@ -280,7 +283,7 @@ public static class ListExtensions
     /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
     [Pure]
     public static IEnumerable<B> Apply<A, B>(this Func<A, B> fabc, IEnumerable<A> fa) =>
-        ApplEnumerable<A, B>.Inst.Apply(new[] { fabc }, fa);
+        ApplEnumerable<A, B>.Apply(new[] { fabc }, fa);
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -291,7 +294,7 @@ public static class ListExtensions
     /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
     [Pure]
     public static IEnumerable<Func<B, C>> Apply<A, B, C>(this IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa) =>
-        ApplEnumerable<A, B, C>.Inst.Apply(fabc.Map(curry), fa);
+        ApplEnumerable<A, B, C>.Apply(fabc.Map(curry), fa);
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -302,7 +305,7 @@ public static class ListExtensions
     /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
     [Pure]
     public static IEnumerable<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, IEnumerable<A> fa) =>
-        ApplEnumerable<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa);
+        ApplEnumerable<A, B, C>.Apply(new[] { curry(fabc) }, fa);
 
     /// <summary>
     /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -313,7 +316,7 @@ public static class ListExtensions
     /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
     [Pure]
     public static IEnumerable<C> Apply<A, B, C>(this IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplEnumerable<A, B, C>.Inst.Apply(fabc.Map(curry), fa, fb);
+        ApplEnumerable<A, B, C>.Apply(fabc.Map(curry), fa, fb);
 
     /// <summary>
     /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -324,7 +327,7 @@ public static class ListExtensions
     /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
     [Pure]
     public static IEnumerable<C> Apply<A, B, C>(this Func<A, B, C> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplEnumerable<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa, fb);
+        ApplEnumerable<A, B, C>.Apply(new[] { curry(fabc) }, fa, fb);
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -335,7 +338,7 @@ public static class ListExtensions
     /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
     [Pure]
     public static IEnumerable<Func<B, C>> Apply<A, B, C>(this IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa) =>
-        ApplEnumerable<A, B, C>.Inst.Apply(fabc, fa);
+        ApplEnumerable<A, B, C>.Apply(fabc, fa);
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -346,7 +349,7 @@ public static class ListExtensions
     /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
     [Pure]
     public static IEnumerable<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, IEnumerable<A> fa) =>
-        ApplEnumerable<A, B, C>.Inst.Apply(new[] { fabc }, fa);
+        ApplEnumerable<A, B, C>.Apply(new[] { fabc }, fa);
 
     /// <summary>
     /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -357,7 +360,7 @@ public static class ListExtensions
     /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
     [Pure]
     public static IEnumerable<C> Apply<A, B, C>(this IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplEnumerable<A, B, C>.Inst.Apply(fabc, fa, fb);
+        ApplEnumerable<A, B, C>.Apply(fabc, fa, fb);
 
     /// <summary>
     /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -368,7 +371,7 @@ public static class ListExtensions
     /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
     [Pure]
     public static IEnumerable<C> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplEnumerable<A, B, C>.Inst.Apply(new[] { fabc }, fa, fb);
+        ApplEnumerable<A, B, C>.Apply(new[] { fabc }, fa, fb);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -378,7 +381,7 @@ public static class ListExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static IEnumerable<B> Action<A, B>(this IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplEnumerable<A, B>.Inst.Action(fa, fb);
+        ApplEnumerable<A, B>.Action(fa, fb);
 
     /// <summary>
     /// Projects the values in the enumerable using a map function into a new enumerable (Select in LINQ).
@@ -390,7 +393,7 @@ public static class ListExtensions
     /// <returns>Mapped enumerable</returns>
     [Pure]
     public static IEnumerable<R> Map<T, R>(this IEnumerable<T> list, Func<T, R> map) =>
-        LanguageExt.List.map(list, map);
+        List.map(list, map);
 
     /// <summary>
     /// Projects the values in the enumerable into a new enumerable using a map function, which is also given an index value
@@ -404,7 +407,7 @@ public static class ListExtensions
     /// <returns>Mapped enumerable</returns>
     [Pure]
     public static IEnumerable<R> Map<T, R>(this IEnumerable<T> list, Func<int, T, R> map) =>
-        LanguageExt.List.map(list, map);
+        List.map(list, map);
 
     /// <summary>
     /// Partial application map
@@ -429,7 +432,7 @@ public static class ListExtensions
     /// <returns>Filtered enumerable</returns>
     [Pure]
     public static IEnumerable<T> Filter<T>(this IEnumerable<T> list, Func<T, bool> predicate) =>
-        LanguageExt.List.filter(list, predicate);
+        List.filter(list, predicate);
 
     /// <summary>
     /// Applies the given function 'selector' to each element of the list. Returns the list comprised of 
@@ -441,7 +444,7 @@ public static class ListExtensions
     /// <returns>Mapped and filtered enumerable</returns>
     [Pure]
     public static IEnumerable<R> Choose<T, R>(this IEnumerable<T> list, Func<T, Option<R>> selector) =>
-        LanguageExt.List.choose(list, selector);
+        List.choose(list, selector);
 
     /// <summary>
     /// Applies the given function 'selector' to each element of the list. Returns the list comprised of 
@@ -453,7 +456,7 @@ public static class ListExtensions
     /// <returns>Mapped and filtered enumerable</returns>
     [Pure]
     public static IEnumerable<R> Choose<T, R>(this IEnumerable<T> list, Func<int, T, Option<R>> selector) =>
-        LanguageExt.List.choose(list, selector);
+        List.choose(list, selector);
 
     /// <summary>
     /// For each element of the list, applies the given function. Concatenates all the results and 
@@ -466,7 +469,7 @@ public static class ListExtensions
     /// <returns>Mapped enumerable</returns>
     [Pure]
     public static IEnumerable<R> Collect<T, R>(this IEnumerable<T> list, Func<T, IEnumerable<R>> map) =>
-        LanguageExt.List.collect(list, map);
+        List.collect(list, map);
 
     /// <summary>
     /// Reverses the enumerable (Reverse in LINQ)
@@ -476,7 +479,7 @@ public static class ListExtensions
     /// <returns>Reversed enumerable</returns>
     [Pure]
     public static IEnumerable<T> Rev<T>(this IEnumerable<T> list) =>
-        LanguageExt.List.rev(list);
+        List.rev(list);
 
     /// <summary>
     /// Reverses the list (Reverse in LINQ)
@@ -486,7 +489,7 @@ public static class ListExtensions
     /// <returns>Reversed list</returns>
     [Pure]
     public static Lst<A> Rev<A>(this Lst<A> list) =>
-        LanguageExt.List.rev(list);
+        List.rev(list);
 
     /// <summary>
     /// Reverses the list (Reverse in LINQ)
@@ -497,7 +500,7 @@ public static class ListExtensions
     [Pure]
     public static Lst<PredList, A> Rev<PredList, A>(this Lst<PredList, A> list) 
         where PredList : Pred<ListInfo> =>
-        LanguageExt.List.rev(list);
+        List.rev(list);
 
     /// <summary>
     /// Reverses the list (Reverse in LINQ)
@@ -509,7 +512,7 @@ public static class ListExtensions
     public static Lst<PredList, PredItem, A> Rev<PredList, PredItem, A>(this Lst<PredList, PredItem, A> list) 
         where PredList : Pred<ListInfo>
         where PredItem : Pred<A> =>
-        LanguageExt.List.rev(list);
+        List.rev(list);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection, threading an accumulator 
@@ -526,7 +529,7 @@ public static class ListExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S Fold<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
-        LanguageExt.List.fold(list, state, folder);
+        List.fold(list, state, folder);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection (from last element to first), 
@@ -543,7 +546,7 @@ public static class ListExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldBack<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
-        LanguageExt.List.foldBack(list, state, folder);
+        List.foldBack(list, state, folder);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection whilst the predicate function 
@@ -561,7 +564,7 @@ public static class ListExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
-        LanguageExt.List.foldWhile(list, state, folder, preditem: preditem);
+        List.foldWhile(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection, threading an accumulator 
@@ -579,7 +582,7 @@ public static class ListExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
-        LanguageExt.List.foldWhile(list, state, folder, predstate: predstate);
+        List.foldWhile(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection (from last element to first)
@@ -598,7 +601,7 @@ public static class ListExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldBackWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
-        LanguageExt.List.foldBackWhile(list, state, folder, preditem: preditem);
+        List.foldBackWhile(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection (from last element to first), 
@@ -617,7 +620,7 @@ public static class ListExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldBackWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
-        LanguageExt.List.foldBackWhile(list, state, folder, predstate: predstate);
+        List.foldBackWhile(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection whilst the predicate function 
@@ -635,7 +638,7 @@ public static class ListExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
-        LanguageExt.List.foldUntil<S, T>(list, state, folder, preditem: preditem);
+        List.foldUntil(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection, threading an accumulator 
@@ -653,7 +656,7 @@ public static class ListExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
-        LanguageExt.List.foldUntil(list, state, folder, predstate: predstate);
+        List.foldUntil(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection (from last element to first)
@@ -672,7 +675,7 @@ public static class ListExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldBackUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
-        LanguageExt.List.foldBackUntil(list, state, folder, preditem: preditem);
+        List.foldBackUntil(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection (from last element to first), 
@@ -691,7 +694,7 @@ public static class ListExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldBackUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
-        LanguageExt.List.foldBackUntil(list, state, folder, predstate: predstate);
+        List.foldBackUntil(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function to each element of the collection (from last element to first), threading 
@@ -705,7 +708,7 @@ public static class ListExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static T Reduce<T>(this IEnumerable<T> list, Func<T, T, T> reducer) =>
-        LanguageExt.List.reduce(list, reducer);
+        List.reduce(list, reducer);
 
     /// <summary>
     /// Applies a function to each element of the collection, threading an accumulator argument 
@@ -719,7 +722,7 @@ public static class ListExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static T ReduceBack<T>(this IEnumerable<T> list, Func<T, T, T> reducer) =>
-        LanguageExt.List.reduceBack(list, reducer);
+        List.reduceBack(list, reducer);
 
     /// <summary>
     /// Applies a function to each element of the collection, threading an accumulator argument 
@@ -736,7 +739,7 @@ public static class ListExtensions
     /// <returns>Aggregate state</returns>
     [Pure]
     public static IEnumerable<S> Scan<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
-        LanguageExt.List.scan(list, state, folder);
+        List.scan(list, state, folder);
 
     /// <summary>
     /// Applies a function to each element of the collection (from last element to first), 
@@ -753,7 +756,7 @@ public static class ListExtensions
     /// <returns>Aggregate state</returns>
     [Pure]
     public static IEnumerable<S> ScanBack<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
-        LanguageExt.List.scanBack(list, state, folder);
+        List.scanBack(list, state, folder);
 
     /// <summary>
     /// Joins two enumerables together either into a single enumerable of tuples
@@ -777,7 +780,7 @@ public static class ListExtensions
     /// provided, None otherwise.</returns>
     [Pure]
     public static Option<T> Find<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
-        LanguageExt.List.find(list, pred);
+        List.find(list, pred);
 
     /// <summary>
     /// Returns [x] for the first item in the list that matches the predicate 
@@ -790,7 +793,7 @@ public static class ListExtensions
     /// provided, [] otherwise.</returns>
     [Pure]
     public static IEnumerable<T> FindSeq<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
-        LanguageExt.List.findSeq(list, pred);
+        List.findSeq(list, pred);
 
     /// <summary>
     /// Convert any enumerable into an immutable Lst T
@@ -800,7 +803,7 @@ public static class ListExtensions
     /// <returns>Lst of T</returns>
     [Pure]
     public static Lst<T> Freeze<T>(this IEnumerable<T> list) =>
-        LanguageExt.List.freeze(list);
+        List.freeze(list);
 
     /// <summary>
     /// Convert any enumerable into an immutable Lst T
@@ -810,7 +813,7 @@ public static class ListExtensions
     /// <returns>Lst of T</returns>
     [Pure]
     public static Lst<PredList, T> Freeze<PredList, T>(this IEnumerable<T> list) where PredList : Pred<ListInfo> =>
-        LanguageExt.List.freeze<PredList, T>(list);
+        List.freeze<PredList, T>(list);
 
     /// <summary>
     /// Convert any enumerable into an immutable Lst T
@@ -822,7 +825,7 @@ public static class ListExtensions
     public static Lst<PredList, PredItem, T> Freeze<PredList, PredItem, T>(this IEnumerable<T> list) 
         where PredItem : Pred<T>
         where PredList : Pred<ListInfo> =>
-        LanguageExt.List.freeze<PredList, PredItem, T>(list);
+        List.freeze<PredList, PredItem, T>(list);
 
     /// <summary>
     /// Convert the enumerable to an immutable array
@@ -839,7 +842,7 @@ public static class ListExtensions
     /// <returns>The number of items in the list</returns>
     [Pure]
     public static int Length<T>(this IEnumerable<T> list) =>
-        LanguageExt.List.length(list);
+        List.length(list);
 
     /// <summary>
     /// Invokes an action for each item in the enumerable in order
@@ -849,7 +852,7 @@ public static class ListExtensions
     /// <param name="action">Action to invoke with each item</param>
     /// <returns>Unit</returns>
     public static Unit Iter<T>(this IEnumerable<T> list, Action<T> action) =>
-        LanguageExt.List.iter(list, action);
+        List.iter(list, action);
 
     /// <summary>
     /// Invokes an action for each item in the enumerable in order
@@ -859,7 +862,7 @@ public static class ListExtensions
     /// <param name="action">Action to invoke with each item</param>
     /// <returns>Unit</returns>
     public static Unit Iter<T>(this IEnumerable<T> list, Action<int, T> action) =>
-        LanguageExt.List.iter(list, action);
+        List.iter(list, action);
 
     /// <summary>
     /// Iterate each item in the enumerable in order (consume items)
@@ -868,7 +871,7 @@ public static class ListExtensions
     /// <param name="list">Enumerable to consume</param>
     /// <returns>Unit</returns>
     public static Unit Consume<T>(this IEnumerable<T> list) =>
-        LanguageExt.List.consume(list);
+        List.consume(list);
 
     /// <summary>
     /// Returns true if all items in the enumerable match a predicate (Any in LINQ)
@@ -879,7 +882,7 @@ public static class ListExtensions
     /// <returns>True if all items in the enumerable match the predicate</returns>
     [Pure]
     public static bool ForAll<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
-        LanguageExt.List.forall(list, pred);
+        List.forall(list, pred);
 
     /// <summary>
     /// Return a new enumerable with all duplicate values removed
@@ -889,7 +892,7 @@ public static class ListExtensions
     /// <returns>A new enumerable with all duplicate values removed</returns>
     [Pure]
     public static IEnumerable<T> Distinct<EQ, T>(this IEnumerable<T> list) where EQ : Eq<T> =>
-        LanguageExt.List.distinct<EQ, T>(list);
+        List.distinct<EQ, T>(list);
 
     /// <summary>
     /// Returns true if any item in the enumerable matches the predicate provided
@@ -900,7 +903,7 @@ public static class ListExtensions
     /// <returns>True if any item in the enumerable matches the predicate provided</returns>
     [Pure]
     public static bool Exists<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
-        LanguageExt.List.exists(list, pred);
+        List.exists(list, pred);
 
     /// <summary>
     /// The tails function returns all final segments of the argument, longest first. For example,
@@ -911,7 +914,7 @@ public static class ListExtensions
     /// <returns>Enumerable of Enumerables of T</returns>
     [Pure]
     public static IEnumerable<IEnumerable<T>> Tails<T>(this IEnumerable<T> self) =>
-        LanguageExt.List.tails(self);
+        List.tails(self);
 
     /// <summary>
     /// Span, applied to a predicate 'pred' and a list, returns a tuple where first element is 
@@ -933,7 +936,7 @@ public static class ListExtensions
     /// <returns>Split list</returns>
     [Pure]
     public static (IEnumerable<T>, IEnumerable<T>) Span<T>(this IEnumerable<T> self, Func<T, bool> pred) =>
-        LanguageExt.List.span(self, pred);
+        List.span(self, pred);
 
     /// <summary>
     /// Monadic bind function for IEnumerable
@@ -947,7 +950,7 @@ public static class ListExtensions
     /// </summary>
     [Pure]
     public static Lst<B> Select<A, B>(this Lst<A> self, Func<A, B> map) =>
-        new Lst<B>(self.AsEnumerable().Select(map));
+        new (self.AsEnumerable().Select(map));
 
     /// <summary>
     /// LINQ Select implementation for Lst
@@ -955,7 +958,7 @@ public static class ListExtensions
     [Pure]
     public static Lst<PredList, B> Select<PredList, A, B>(this Lst<PredList, A> self, Func<A, B> map)
         where PredList : Pred<ListInfo> =>
-        new Lst<PredList, B>(self.AsEnumerable().Select(map));
+        new (self.AsEnumerable().Select(map));
 
     /// <summary>
     /// Monadic bind function for Lst that returns an IEnumerable
@@ -970,7 +973,7 @@ public static class ListExtensions
     [Pure]
     public static IEnumerable<B> BindEnumerable<PredList, A, B>(this Lst<PredList, A> self, Func<A, Lst<PredList, B>> binder) 
         where PredList : Pred<ListInfo> =>
-        EnumerableOptimal.BindFast<PredList, A, B>(self, binder);
+        EnumerableOptimal.BindFast(self, binder);
 
     /// <summary>
     /// Monadic bind function for Lst that returns an IEnumerable
@@ -987,7 +990,7 @@ public static class ListExtensions
     /// </summary>
     [Pure]
     public static Lst<B> Bind<A, B>(this Lst<A> self, Func<A, Lst<B>> binder) =>
-        new Lst<B>(self.BindEnumerable(binder));
+        new (self.BindEnumerable(binder));
 
     /// <summary>
     /// Monadic bind function
@@ -995,7 +998,7 @@ public static class ListExtensions
     [Pure]
     public static Lst<PredList, B> Bind<PredList, A, B>(this Lst<PredList, A> self, Func<A, Lst<PredList, B>> binder)
         where PredList : Pred<ListInfo> =>
-        new Lst<PredList, B>(self.BindEnumerable(binder));
+        new (self.BindEnumerable(binder));
 
     /// <summary>
     /// Monadic bind function
@@ -1005,7 +1008,7 @@ public static class ListExtensions
         where PredList : Pred<ListInfo>
         where PredItemA : Pred<A>
         where PredItemB : Pred<B> =>
-        new Lst<PredList, PredItemB, B>(self.BindEnumerable(binder));
+        new (self.BindEnumerable(binder));
 
     /// <summary>
     /// Returns the number of items in the Lst T
@@ -1060,17 +1063,17 @@ public static class ListExtensions
     /// <typeparam name="T">Bound value type</typeparam>
     public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> self)
     {
-        var iter = self.GetEnumerator();
-        bool remaining = false;
-        bool first = true;
-        T item = default(T);
+        using var iter = self.GetEnumerator();
+        bool remaining;
+        var first = true;
+        T? item = default;
 
         do
         {
             remaining = iter.MoveNext();
             if (remaining)
             {
-                if (!first) yield return item;
+                if (!first) yield return item!;
                 item = iter.Current;
                 first = false;
             }
@@ -1083,13 +1086,14 @@ public static class ListExtensions
     /// <typeparam name="T">Bound value type</typeparam>
     public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> self, int n)
     {
-        var iter = self.GetEnumerator();
-        bool remaining = false;
+        using var iter = self.GetEnumerator();
+        bool remaining ;
         var cache = new Queue<T>(n + 1);
 
         do
         {
-            if (remaining = iter.MoveNext())
+            remaining = iter.MoveNext();
+            if (remaining)
             {
                 cache.Enqueue(iter.Current);
                 if (cache.Count > n) yield return cache.Dequeue();
@@ -1162,154 +1166,154 @@ public static class ListExtensions
         Enumerable.Any(source.Value, predicate);
 
     /// <summary>
-    /// Returns the input typed as IEnumerable<T>.
+    /// Returns the input typed as IEnumerable<T>.
     /// </summary>
     [Pure]
     public static IEnumerable<TSource> AsEnumerable<TSource>(this Lst<TSource> source) =>
         Enumerable.AsEnumerable(source.Value);
 
     /// <summary>
-    /// Converts a generic IEnumerable<T> to a generic IQueryable<T>.
+    /// Converts a generic IEnumerable<T> to a generic IQueryable<T>.
     /// </summary>
     [Pure]
     public static IQueryable<TElement> AsQueryable<TElement>(this Lst<TElement> source) =>
         Queryable.AsQueryable(source.Value.AsQueryable());
 
     /// <summary>
-    /// Computes the average of a sequence of Decimal values.
+    /// Computes the average of a sequence of Decimal values.
     /// </summary>
     [Pure]
     public static decimal Average(this Lst<decimal> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of Decimal values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of Decimal values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static decimal Average<TSource>(this Lst<TSource> source, Func<TSource, decimal> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Decimal values.
+    /// Computes the average of a sequence of nullable Decimal values.
     /// </summary>
     [Pure]
     public static decimal? Average(this Lst<decimal?> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Decimal values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of nullable Decimal values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static decimal? Average<TSource>(this Lst<TSource> source, Func<TSource, decimal?> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of Double values.
+    /// Computes the average of a sequence of Double values.
     /// </summary>
     [Pure]
     public static double Average(this Lst<double> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of Int32 values.
+    /// Computes the average of a sequence of Int32 values.
     /// </summary>
     [Pure]
     public static double Average(this Lst<int> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of Int64 values.
+    /// Computes the average of a sequence of Int64 values.
     /// </summary>
     [Pure]
     public static double Average(this Lst<long> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of Double values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of Double values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double Average<TSource>(this Lst<TSource> source, Func<TSource, double> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of Int32 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of Int32 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double Average<TSource>(this Lst<TSource> source, Func<TSource, int> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of Int64 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of Int64 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double Average<TSource>(this Lst<TSource> source, Func<TSource, long> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Double values.
+    /// Computes the average of a sequence of nullable Double values.
     /// </summary>
     [Pure]
     public static double? Average(this Lst<double?> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Int32 values.
+    /// Computes the average of a sequence of nullable Int32 values.
     /// </summary>
     [Pure]
     public static double? Average(this Lst<int?> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Int64 values.
+    /// Computes the average of a sequence of nullable Int64 values.
     /// </summary>
     [Pure]
     public static double? Average(this Lst<long?> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Double values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of nullable Double values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double? Average<TSource>(this Lst<TSource> source, Func<TSource, double?> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Int32 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of nullable Int32 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double? Average<TSource>(this Lst<TSource> source, Func<TSource, int?> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Int64 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of nullable Int64 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double? Average<TSource>(this Lst<TSource> source, Func<TSource, long?> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of Single values.
+    /// Computes the average of a sequence of Single values.
     /// </summary>
     [Pure]
     public static float Average(this Lst<float> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of Single values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of Single values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static float Average<TSource>(this Lst<TSource> source, Func<TSource, float> selector) =>
         Enumerable.Average(source.Value, selector);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Single values.
+    /// Computes the average of a sequence of nullable Single values.
     /// </summary>
     [Pure]
     public static float? Average(this Lst<float?> source) =>
         Enumerable.Average(source.Value);
 
     /// <summary>
-    /// Computes the average of a sequence of nullable Single values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the average of a sequence of nullable Single values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static float? Average<TSource>(this Lst<TSource> source, Func<TSource, float?> selector) =>
@@ -1330,7 +1334,7 @@ public static class ListExtensions
         Enumerable.Contains(source.Value, value);
 
     /// <summary>
-    /// Determines whether a sequence contains a specified element by using a specified IEqualityComparer<T>.
+    /// Determines whether a sequence contains a specified element by using a specified IEqualityComparer<T>.
     /// </summary>
     [Pure]
     public static bool Contains<TSource>(this Lst<TSource> source, TSource value, IEqualityComparer<TSource> comparer) =>
@@ -1347,7 +1351,7 @@ public static class ListExtensions
     /// Returns the elements of the specified sequence or the type parameter's default value in a singleton collection if the sequence is empty.
     /// </summary>
     [Pure]
-    public static IEnumerable<TSource> DefaultIfEmpty<TSource>(this Lst<TSource> source) =>
+    public static IEnumerable<TSource?> DefaultIfEmpty<TSource>(this Lst<TSource> source) =>
         Enumerable.DefaultIfEmpty(source.Value);
 
     /// <summary>
@@ -1365,7 +1369,7 @@ public static class ListExtensions
         Enumerable.Distinct(source.Value);
 
     /// <summary>
-    /// Returns distinct elements from a sequence by using a specified IEqualityComparer<T> to compare values.
+    /// Returns distinct elements from a sequence by using a specified IEqualityComparer<T> to compare values.
     /// </summary>
     [Pure]
     public static IEnumerable<TSource> Distinct<TSource>(this Lst<TSource> source, IEqualityComparer<TSource> comparer) =>
@@ -1382,7 +1386,7 @@ public static class ListExtensions
     /// Returns the element at a specified index in a sequence or a default value if the index is out of range.
     /// </summary>
     [Pure]
-    public static TSource ElementAtOrDefault<TSource>(this Lst<TSource> source, int index) =>
+    public static TSource? ElementAtOrDefault<TSource>(this Lst<TSource> source, int index) =>
         Enumerable.ElementAtOrDefault(source.Value, index);
 
     /// <summary>
@@ -1393,7 +1397,7 @@ public static class ListExtensions
         Enumerable.Except(first.Value, second);
 
     /// <summary>
-    /// Produces the set difference of two sequences by using the specified IEqualityComparer<T> to compare values.
+    /// Produces the set difference of two sequences by using the specified IEqualityComparer<T> to compare values.
     /// </summary>
     [Pure]
     public static IEnumerable<TSource> Except<TSource>(this Lst<TSource> first, IEnumerable<TSource> second, IEqualityComparer<TSource> comparer) =>
@@ -1417,14 +1421,14 @@ public static class ListExtensions
     /// Returns the first element of a sequence, or a default value if the sequence contains no elements.
     /// </summary>
     [Pure]
-    public static TSource FirstOrDefault<TSource>(this Lst<TSource> source) =>
+    public static TSource? FirstOrDefault<TSource>(this Lst<TSource> source) =>
         Enumerable.FirstOrDefault(source.Value);
 
     /// <summary>
     /// Returns the first element of the sequence that satisfies a condition or a default value if no such element is found.
     /// </summary>
     [Pure]
-    public static TSource FirstOrDefault<TSource>(this Lst<TSource> source, Func<TSource, bool> predicate) =>
+    public static TSource? FirstOrDefault<TSource>(this Lst<TSource> source, Func<TSource?, bool> predicate) =>
         Enumerable.FirstOrDefault(source.Value, predicate);
 
     /// <summary>
@@ -1491,7 +1495,7 @@ public static class ListExtensions
         Enumerable.GroupJoin(outer.Value, inner, outerKeySelector, innerKeySelector, resultSelector);
 
     /// <summary>
-    /// Correlates the elements of two sequences based on key equality and groups the results. A specified IEqualityComparer<T> is used to compare keys.
+    /// Correlates the elements of two sequences based on key equality and groups the results. A specified IEqualityComparer<T> is used to compare keys.
     /// </summary>
     [Pure]
     public static IEnumerable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this Lst<TOuter> outer, IEnumerable<TInner> inner, Func<TOuter, TKey> outerKeySelector, Func<TInner, TKey> innerKeySelector, Func<TOuter, IEnumerable<TInner>, TResult> resultSelector, IEqualityComparer<TKey> comparer) =>
@@ -1505,7 +1509,7 @@ public static class ListExtensions
         Enumerable.Intersect(first.Value, second);
 
     /// <summary>
-    /// Produces the set intersection of two sequences by using the specified IEqualityComparer<T> to compare values.
+    /// Produces the set intersection of two sequences by using the specified IEqualityComparer<T> to compare values.
     /// </summary>
     [Pure]
     public static IEnumerable<TSource> Intersect<TSource>(this Lst<TSource> first, IEnumerable<TSource> second, IEqualityComparer<TSource> comparer) =>
@@ -1519,7 +1523,7 @@ public static class ListExtensions
         Enumerable.Join(outer.Value, inner, outerKeySelector, innerKeySelector, resultSelector);
 
     /// <summary>
-    /// Correlates the elements of two sequences based on matching keys. A specified IEqualityComparer<T> is used to compare keys.
+    /// Correlates the elements of two sequences based on matching keys. A specified IEqualityComparer<T> is used to compare keys.
     /// </summary>
     [Pure]
     public static IEnumerable<TResult> Join<TOuter, TInner, TKey, TResult>(this Lst<TOuter> outer, IEnumerable<TInner> inner, Func<TOuter, TKey> outerKeySelector, Func<TInner, TKey> innerKeySelector, Func<TOuter, TInner, TResult> resultSelector, IEqualityComparer<TKey> comparer) =>
@@ -1543,165 +1547,165 @@ public static class ListExtensions
     /// Returns the last element of a sequence, or a default value if the sequence contains no elements.
     /// </summary>
     [Pure]
-    public static TSource LastOrDefault<TSource>(this Lst<TSource> source) =>
+    public static TSource? LastOrDefault<TSource>(this Lst<TSource> source) =>
         Enumerable.LastOrDefault(source.Value);
 
     /// <summary>
     /// Returns the last element of a sequence that satisfies a condition or a default value if no such element is found.
     /// </summary>
     [Pure]
-    public static TSource LastOrDefault<TSource>(this Lst<TSource> source, Func<TSource, bool> predicate) =>
+    public static TSource? LastOrDefault<TSource>(this Lst<TSource> source, Func<TSource?, bool> predicate) =>
         Enumerable.LastOrDefault(source.Value, predicate);
 
     /// <summary>
-    /// Returns an Int64 that represents the total number of elements in a sequence.
+    /// Returns an Int64 that represents the total number of elements in a sequence.
     /// </summary>
     [Pure]
     public static long LongCount<TSource>(this Lst<TSource> source) =>
         Enumerable.LongCount(source.Value);
 
     /// <summary>
-    /// Returns an Int64 that represents how many elements in a sequence satisfy a condition.
+    /// Returns an Int64 that represents how many elements in a sequence satisfy a condition.
     /// </summary>
     [Pure]
     public static long LongCount<TSource>(this Lst<TSource> source, Func<TSource, bool> predicate) =>
         Enumerable.LongCount(source.Value, predicate);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of Decimal values.
+    /// Returns the maximum value in a sequence of Decimal values.
     /// </summary>
     [Pure]
     public static decimal Max(this Lst<decimal> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum Decimal value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum Decimal value.
     /// </summary>
     [Pure]
     public static decimal Max<TSource>(this Lst<TSource> source, Func<TSource, decimal> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of nullable Decimal values.
+    /// Returns the maximum value in a sequence of nullable Decimal values.
     /// </summary>
     [Pure]
     public static decimal? Max(this Lst<decimal?> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Decimal value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Decimal value.
     /// </summary>
     [Pure]
     public static decimal? Max<TSource>(this Lst<TSource> source, Func<TSource, decimal?> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of Double values.
+    /// Returns the maximum value in a sequence of Double values.
     /// </summary>
     [Pure]
     public static double Max(this Lst<double> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum Double value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum Double value.
     /// </summary>
     [Pure]
     public static double Max<TSource>(this Lst<TSource> source, Func<TSource, double> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of nullable Double values.
+    /// Returns the maximum value in a sequence of nullable Double values.
     /// </summary>
     [Pure]
     public static double? Max(this Lst<double?> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Double value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Double value.
     /// </summary>
     [Pure]
     public static double? Max<TSource>(this Lst<TSource> source, Func<TSource, double?> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of Single values.
+    /// Returns the maximum value in a sequence of Single values.
     /// </summary>
     [Pure]
     public static float Max(this Lst<float> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum Single value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum Single value.
     /// </summary>
     [Pure]
     public static float Max<TSource>(this Lst<TSource> source, Func<TSource, float> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of nullable Single values.
+    /// Returns the maximum value in a sequence of nullable Single values.
     /// </summary>
     [Pure]
     public static float? Max(this Lst<float?> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Single value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Single value.
     /// </summary>
     [Pure]
     public static float? Max<TSource>(this Lst<TSource> source, Func<TSource, float?> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of Int32 values.
+    /// Returns the maximum value in a sequence of Int32 values.
     /// </summary>
     [Pure]
     public static int Max(this Lst<int> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum Int32 value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum Int32 value.
     /// </summary>
     [Pure]
     public static int Max<TSource>(this Lst<TSource> source, Func<TSource, int> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of nullable Int32 values.
+    /// Returns the maximum value in a sequence of nullable Int32 values.
     /// </summary>
     [Pure]
     public static int? Max(this Lst<int?> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Int32 value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Int32 value.
     /// </summary>
     [Pure]
     public static int? Max<TSource>(this Lst<TSource> source, Func<TSource, int?> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of Int64 values.
+    /// Returns the maximum value in a sequence of Int64 values.
     /// </summary>
     [Pure]
     public static long Max(this Lst<long> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum Int64 value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum Int64 value.
     /// </summary>
     [Pure]
     public static long Max<TSource>(this Lst<TSource> source, Func<TSource, long> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
-    /// Returns the maximum value in a sequence of nullable Int64 values.
+    /// Returns the maximum value in a sequence of nullable Int64 values.
     /// </summary>
     [Pure]
     public static long? Max(this Lst<long?> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Int64 value.
+    /// Invokes a transform function on each element of a sequence and returns the maximum nullable Int64 value.
     /// </summary>
     [Pure]
     public static long? Max<TSource>(this Lst<TSource> source, Func<TSource, long?> selector) =>
@@ -1711,151 +1715,151 @@ public static class ListExtensions
     /// Invokes a transform function on each element of a generic sequence and returns the maximum resulting value.
     /// </summary>
     [Pure]
-    public static TResult Max<TSource, TResult>(this Lst<TSource> source, Func<TSource, TResult> selector) =>
+    public static TResult? Max<TSource, TResult>(this Lst<TSource> source, Func<TSource, TResult> selector) =>
         Enumerable.Max(source.Value, selector);
 
     /// <summary>
     /// Returns the maximum value in a generic sequence.
     /// </summary>
     [Pure]
-    public static TSource Max<TSource>(this Lst<TSource> source) =>
+    public static TSource? Max<TSource>(this Lst<TSource> source) =>
         Enumerable.Max(source.Value);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of Decimal values.
+    /// Returns the minimum value in a sequence of Decimal values.
     /// </summary>
     [Pure]
     public static decimal Min(this Lst<decimal> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum Decimal value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum Decimal value.
     /// </summary>
     [Pure]
     public static decimal Min<TSource>(this Lst<TSource> source, Func<TSource, decimal> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of nullable Decimal values.
+    /// Returns the minimum value in a sequence of nullable Decimal values.
     /// </summary>
     [Pure]
     public static decimal? Min(this Lst<decimal?> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Decimal value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Decimal value.
     /// </summary>
     [Pure]
     public static decimal? Min<TSource>(this Lst<TSource> source, Func<TSource, decimal?> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of Double values.
+    /// Returns the minimum value in a sequence of Double values.
     /// </summary>
     [Pure]
     public static double Min(this Lst<double> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum Double value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum Double value.
     /// </summary>
     [Pure]
     public static double Min<TSource>(this Lst<TSource> source, Func<TSource, double> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of nullable Double values.
+    /// Returns the minimum value in a sequence of nullable Double values.
     /// </summary>
     [Pure]
     public static double? Min(this Lst<double?> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Double value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Double value.
     /// </summary>
     [Pure]
     public static double? Min<TSource>(this Lst<TSource> source, Func<TSource, double?> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of Single values.
+    /// Returns the minimum value in a sequence of Single values.
     /// </summary>
     [Pure]
     public static float Min(this Lst<float> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum Single value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum Single value.
     /// </summary>
     [Pure]
     public static float Min<TSource>(this Lst<TSource> source, Func<TSource, float> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of nullable Single values.
+    /// Returns the minimum value in a sequence of nullable Single values.
     /// </summary>
     [Pure]
     public static float? Min(this Lst<float?> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Single value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Single value.
     /// </summary>
     [Pure]
     public static float? Min<TSource>(this Lst<TSource> source, Func<TSource, float?> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of Int32 values.
+    /// Returns the minimum value in a sequence of Int32 values.
     /// </summary>
     [Pure]
     public static int Min(this Lst<int> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum Int32 value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum Int32 value.
     /// </summary>
     [Pure]
     public static int Min<TSource>(this Lst<TSource> source, Func<TSource, int> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of nullable Int32 values.
+    /// Returns the minimum value in a sequence of nullable Int32 values.
     /// </summary>
     [Pure]
     public static int? Min(this Lst<int?> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Int32 value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Int32 value.
     /// </summary>
     [Pure]
     public static int? Min<TSource>(this Lst<TSource> source, Func<TSource, int?> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of Int64 values.
+    /// Returns the minimum value in a sequence of Int64 values.
     /// </summary>
     [Pure]
     public static long Min(this Lst<long> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum Int64 value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum Int64 value.
     /// </summary>
     [Pure]
     public static long Min<TSource>(this Lst<TSource> source, Func<TSource, long> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
-    /// Returns the minimum value in a sequence of nullable Int64 values.
+    /// Returns the minimum value in a sequence of nullable Int64 values.
     /// </summary>
     [Pure]
     public static long? Min(this Lst<long?> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
-    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Int64 value.
+    /// Invokes a transform function on each element of a sequence and returns the minimum nullable Int64 value.
     /// </summary>
     [Pure]
     public static long? Min<TSource>(this Lst<TSource> source, Func<TSource, long?> selector) =>
@@ -1865,14 +1869,14 @@ public static class ListExtensions
     /// Invokes a transform function on each element of a generic sequence and returns the minimum resulting value.
     /// </summary>
     [Pure]
-    public static TResult Min<TSource, TResult>(this Lst<TSource> source, Func<TSource, TResult> selector) =>
+    public static TResult? Min<TSource, TResult>(this Lst<TSource> source, Func<TSource, TResult> selector) =>
         Enumerable.Min(source.Value, selector);
 
     /// <summary>
     /// Returns the minimum value in a generic sequence.
     /// </summary>
     [Pure]
-    public static TSource Min<TSource>(this Lst<TSource> source) =>
+    public static TSource? Min<TSource>(this Lst<TSource> source) =>
         Enumerable.Min(source.Value);
 
     /// <summary>
@@ -1915,10 +1919,10 @@ public static class ListExtensions
     /// </summary>
     [Pure]
     public static bool SequenceEqual<TSource>(this Lst<TSource> first, IEnumerable<TSource> second) =>
-        default(EqEnumerable<TSource>).Equals(first.Value, second);
+        EqEnumerable<TSource>.Equals(first.Value, second);
 
     /// <summary>
-    /// Determines whether two sequences are equal by comparing their elements by using a specified IEqualityComparer<T>.
+    /// Determines whether two sequences are equal by comparing their elements by using a specified IEqualityComparer<T>.
     /// </summary>
     [Pure]
     public static bool SequenceEqual<TSource>(this Lst<TSource> first, IEnumerable<TSource> second, IEqualityComparer<TSource> comparer) =>
@@ -1942,14 +1946,14 @@ public static class ListExtensions
     /// Returns the only element of a sequence, or a default value if the sequence is empty; this method throws an exception if there is more than one element in the sequence.
     /// </summary>
     [Pure]
-    public static TSource SingleOrDefault<TSource>(this Lst<TSource> source) =>
+    public static TSource? SingleOrDefault<TSource>(this Lst<TSource> source) =>
         Enumerable.SingleOrDefault(source.Value);
 
     /// <summary>
     /// Returns the only element of a sequence that satisfies a specified condition or a default value if no such element exists; this method throws an exception if more than one element satisfies the condition.
     /// </summary>
     [Pure]
-    public static TSource SingleOrDefault<TSource>(this Lst<TSource> source, Func<TSource, bool> predicate) =>
+    public static TSource? SingleOrDefault<TSource>(this Lst<TSource> source, Func<TSource?, bool> predicate) =>
         Enumerable.SingleOrDefault(source.Value, predicate);
 
     /// <summary>
@@ -1974,140 +1978,140 @@ public static class ListExtensions
         Enumerable.SkipWhile(source.Value, predicate);
 
     /// <summary>
-    /// Computes the sum of a sequence of Decimal values.
+    /// Computes the sum of a sequence of Decimal values.
     /// </summary>
     [Pure]
     public static decimal Sum(this Lst<decimal> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of Decimal values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of Decimal values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static decimal Sum<TSource>(this Lst<TSource> source, Func<TSource, decimal> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of nullable Decimal values.
+    /// Computes the sum of a sequence of nullable Decimal values.
     /// </summary>
     [Pure]
     public static decimal? Sum(this Lst<decimal?> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of nullable Decimal values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of nullable Decimal values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static decimal? Sum<TSource>(this Lst<TSource> source, Func<TSource, decimal?> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of Double values.
+    /// Computes the sum of a sequence of Double values.
     /// </summary>
     [Pure]
     public static double Sum(this Lst<double> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of Double values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of Double values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double Sum<TSource>(this Lst<TSource> source, Func<TSource, double> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of nullable Double values.
+    /// Computes the sum of a sequence of nullable Double values.
     /// </summary>
     [Pure]
     public static double? Sum(this Lst<double?> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of nullable Double values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of nullable Double values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static double? Sum<TSource>(this Lst<TSource> source, Func<TSource, double?> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of Single values.
+    /// Computes the sum of a sequence of Single values.
     /// </summary>
     [Pure]
     public static float Sum(this Lst<float> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of Single values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of Single values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static float Sum<TSource>(this Lst<TSource> source, Func<TSource, float> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of nullable Single values.
+    /// Computes the sum of a sequence of nullable Single values.
     /// </summary>
     [Pure]
     public static float? Sum(this Lst<float?> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of nullable Single values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of nullable Single values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static float? Sum<TSource>(this Lst<TSource> source, Func<TSource, float?> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of Int32 values.
+    /// Computes the sum of a sequence of Int32 values.
     /// </summary>
     [Pure]
     public static int Sum(this Lst<int> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of Int32 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of Int32 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static int Sum<TSource>(this Lst<TSource> source, Func<TSource, int> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of nullable Int32 values.
+    /// Computes the sum of a sequence of nullable Int32 values.
     /// </summary>
     [Pure]
     public static int? Sum(this Lst<int?> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of nullable Int32 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of nullable Int32 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static int? Sum<TSource>(this Lst<TSource> source, Func<TSource, int?> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of Int64 values.
+    /// Computes the sum of a sequence of Int64 values.
     /// </summary>
     [Pure]
     public static long Sum(this Lst<long> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of Int64 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of Int64 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static long Sum<TSource>(this Lst<TSource> source, Func<TSource, long> selector) =>
         Enumerable.Sum(source.Value, selector);
 
     /// <summary>
-    /// Computes the sum of a sequence of nullable Int64 values.
+    /// Computes the sum of a sequence of nullable Int64 values.
     /// </summary>
     [Pure]
     public static long? Sum(this Lst<long?> source) =>
         Enumerable.Sum(source.Value);
 
     /// <summary>
-    /// Computes the sum of the sequence of nullable Int64 values that are obtained by invoking a transform function on each element of the input sequence.
+    /// Computes the sum of the sequence of nullable Int64 values that are obtained by invoking a transform function on each element of the input sequence.
     /// </summary>
     [Pure]
     public static long? Sum<TSource>(this Lst<TSource> source, Func<TSource, long?> selector) =>
@@ -2135,70 +2139,70 @@ public static class ListExtensions
         Enumerable.TakeWhile(source.Value, predicate);
 
     /// <summary>
-    /// Creates an array from a IEnumerable<T>.
+    /// Creates an array from a IEnumerable<T>.
     /// </summary>
     [Pure]
     public static TSource[] ToArray<TSource>(this Lst<TSource> source) =>
         Enumerable.ToArray(source.Value);
 
     /// <summary>
-    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to specified key selector and element selector functions.
+    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to specified key selector and element selector functions.
     /// </summary>
     [Pure]
-    public static Dictionary<TKey, TElement> ToDictionary<TSource, TKey, TElement>(this Lst<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) =>
+    public static Dictionary<TKey, TElement> ToDictionary<TSource, TKey, TElement>(this Lst<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull =>
         Enumerable.ToDictionary(source.Value, keySelector, elementSelector);
 
     /// <summary>
-    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to a specified key selector function, a comparer, and an element selector function.
+    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to a specified key selector function, a comparer, and an element selector function.
     /// </summary>
     [Pure]
-    public static Dictionary<TKey, TElement> ToDictionary<TSource, TKey, TElement>(this Lst<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector, IEqualityComparer<TKey> comparer) =>
-        Enumerable.ToDictionary(source.Value, keySelector, elementSelector, comparer);
+    public static Dictionary<TKey, TElement> ToDictionary<TSource, TKey, TElement>(this Lst<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector, IEqualityComparer<TKey> comparer) where TKey : notnull =>
+        source.Value.ToDictionary(keySelector, elementSelector, comparer);
 
     /// <summary>
-    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to a specified key selector function.
+    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to a specified key selector function.
     /// </summary>
     [Pure]
-    public static Dictionary<TKey, TSource> ToDictionary<TSource, TKey>(this Lst<TSource> source, Func<TSource, TKey> keySelector) =>
+    public static Dictionary<TKey, TSource> ToDictionary<TSource, TKey>(this Lst<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull =>
         Enumerable.ToDictionary(source.Value, keySelector);
 
     /// <summary>
-    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to a specified key selector function and key comparer.
+    /// Creates a Dictionary<TKey,TValue> from an IEnumerable<T> according to a specified key selector function and key comparer.
     /// </summary>
     [Pure]
-    public static Dictionary<TKey, TSource> ToDictionary<TSource, TKey>(this Lst<TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer) =>
+    public static Dictionary<TKey, TSource> ToDictionary<TSource, TKey>(this Lst<TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer) where TKey : notnull =>
         Enumerable.ToDictionary(source.Value, keySelector, comparer);
 
     /// <summary>
-    /// Creates a List<T> from an IEnumerable<T>.
+    /// Creates a List<T> from an IEnumerable<T>.
     /// </summary>
     [Pure]
     public static List<TSource> ToList<TSource>(this Lst<TSource> source) =>
         Enumerable.ToList(source.Value);
 
     /// <summary>
-    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to specified key selector and element selector functions.
+    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to specified key selector and element selector functions.
     /// </summary>
     [Pure]
     public static ILookup<TKey, TElement> ToLookup<TSource, TKey, TElement>(this Lst<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) =>
         Enumerable.ToLookup(source.Value, keySelector, elementSelector);
 
     /// <summary>
-    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to a specified key selector function, a comparer and an element selector function.
+    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to a specified key selector function, a comparer and an element selector function.
     /// </summary>
     [Pure]
     public static ILookup<TKey, TElement> ToLookup<TSource, TKey, TElement>(this Lst<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector, IEqualityComparer<TKey> comparer) =>
         Enumerable.ToLookup(source.Value, keySelector, elementSelector, comparer);
 
     /// <summary>
-    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to a specified key selector function.
+    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to a specified key selector function.
     /// </summary>
     [Pure]
     public static ILookup<TKey, TSource> ToLookup<TSource, TKey>(this Lst<TSource> source, Func<TSource, TKey> keySelector) =>
         Enumerable.ToLookup(source.Value, keySelector);
 
     /// <summary>
-    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to a specified key selector function and key comparer.
+    /// Creates a Lookup<TKey,TElement> from an IEnumerable<T> according to a specified key selector function and key comparer.
     /// </summary>
     [Pure]
     public static ILookup<TKey, TSource> ToLookup<TSource, TKey>(this Lst<TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer) =>
@@ -2212,7 +2216,7 @@ public static class ListExtensions
         Enumerable.Union(first.Value, second);
 
     /// <summary>
-    /// Produces the set union of two sequences by using a specified IEqualityComparer<T>.
+    /// Produces the set union of two sequences by using a specified IEqualityComparer<T>.
     /// </summary>
     [Pure]
     public static IEnumerable<TSource> Union<TSource>(this Lst<TSource> first, IEnumerable<TSource> second, IEqualityComparer<TSource> comparer) =>

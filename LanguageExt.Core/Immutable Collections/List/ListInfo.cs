@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace LanguageExt;
 
-namespace LanguageExt
+public interface ListInfo
 {
-    public interface ListInfo
-    {
-        int Count { get; }
-    }
+    int Count { get; }
 }
