@@ -1,11 +1,10 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LanguageExt;
 using static LanguageExt.Prelude;
-using System.ComponentModel;
 using System.Diagnostics.Contracts;
+
+namespace LanguageExt;
 
 public static partial class TrackingHashMapExtensions
 {
@@ -14,21 +13,21 @@ public static partial class TrackingHashMapExtensions
     /// </summary>
     [Pure]
     public static TrackingHashMap<K, V> ToTrackingHashMap<K, V>(this IEnumerable<(K, V)> items) =>
-        LanguageExt.TrackingHashMap.createRange(items);
+        TrackingHashMap.createRange(items);
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
     public static TrackingHashMap<K, V> ToTrackingHashMap<K, V>(this IEnumerable<Tuple<K, V>> items) =>
-        LanguageExt.TrackingHashMap.createRange(items);
+        TrackingHashMap.createRange(items);
 
     /// <summary>
     /// Create an immutable tracking hash-map
     /// </summary>
     [Pure]
     public static TrackingHashMap<K, V> ToTrackingHashMap<K, V>(this IEnumerable<KeyValuePair<K, V>> items) =>
-        LanguageExt.TrackingHashMap.createRange(items);
+        TrackingHashMap.createRange(items);
 
     /// <summary>
     /// Create an immutable tracking hash-map
