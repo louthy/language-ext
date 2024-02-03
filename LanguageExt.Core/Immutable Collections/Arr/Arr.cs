@@ -52,6 +52,16 @@ public struct Arr<A> :
     /// Ctor
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Arr(ReadOnlySpan<A> initial)
+    {
+        hashCode = 0;
+        value = initial.ToArray();
+    }
+
+    /// <summary>
+    /// Ctor
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Arr(A[] value)
     {
         hashCode = 0;

@@ -41,6 +41,16 @@ public class Lst<PredList, PredItem, A> :
     /// <summary>
     /// Ctor
     /// </summary>
+    public Lst(ReadOnlySpan<A> initial)
+    {
+        if (initial == null) throw new ArgumentNullException(nameof(initial));
+        value = new LstInternal<True<A>, A>(initial);
+        if (!PredList.True(this)) throw new ArgumentOutOfRangeException(nameof(value));
+    }
+
+    /// <summary>
+    /// Ctor
+    /// </summary>
     Lst(LstInternal<True<A>, A> root)
     {
         value = root;

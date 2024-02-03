@@ -39,6 +39,16 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
+        public Lst(ReadOnlySpan<A> initial)
+        {
+            if (initial == null) throw new NullReferenceException(nameof(initial));
+            value = new LstInternal<True<A>, A>(initial);
+            if (!PRED.True(value)) throw new ArgumentOutOfRangeException(nameof(value));
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
         Lst(LstInternal<True<A>, A> root)
         {
             value = root;

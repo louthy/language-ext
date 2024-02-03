@@ -9,6 +9,18 @@ namespace LanguageExt;
 public static class Queue
 {
     [Pure]
+    public static Que<T> singleton<T>(T item) =>
+        [item];
+    
+    [Pure]
+    public static Que<T> createRange<T>(IEnumerable<T> items) =>
+        new (items);
+    
+    [Pure]
+    public static Que<T> createRange<T>(ReadOnlySpan<T> items) =>
+        new (items);
+
+    [Pure]
     public static Que<T> enq<T>(Que<T> queue, T value) =>
         queue.Enqueue(value);
 

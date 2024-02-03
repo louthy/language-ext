@@ -35,6 +35,18 @@ internal class QueInternal<A> : IEnumerable<A>
         backwardRev = q.backwardRev;
     }
 
+    internal QueInternal(ReadOnlySpan<A> items)
+    {
+        var q = new QueInternal<A>();
+        foreach(var item in items)
+        {
+            q = q.Enqueue(item);
+        }
+        forward = q.forward;
+        backward = q.backward;
+        backwardRev = q.backwardRev;
+    }
+
     private QueInternal(StckInternal<A> f, StckInternal<A> b)
     {
         forward = f;

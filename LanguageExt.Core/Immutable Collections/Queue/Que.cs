@@ -14,6 +14,7 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="A">Item value type</typeparam>
 [Serializable]
+[CollectionBuilder(typeof(Queue), nameof(Queue.createRange))]
 public readonly struct Que<A> : 
     IEnumerable<A>, 
     IEquatable<Que<A>>
@@ -31,6 +32,13 @@ public readonly struct Que<A> :
     /// </summary>
     /// <param name="items">Items to construct the queue from</param>
     public Que(IEnumerable<A> items) =>
+        value = new QueInternal<A>(items);
+
+    /// <summary>
+    /// Construct from a enumerable of items
+    /// </summary>
+    /// <param name="items">Items to construct the queue from</param>
+    public Que(ReadOnlySpan<A> items) =>
         value = new QueInternal<A>(items);
 
     /// <summary>
