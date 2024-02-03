@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
@@ -30,9 +29,6 @@ public readonly struct HashSet<EqA, A> :
     }
 
     HashSet<EqA, A> Wrap(TrieSet<EqA, A> value) =>
-        new (value);
-
-    static HashSet<B> Wrap<B>(TrieSet<EqDefault<B>, B> value) =>
         new (value);
 
     /// <summary>
@@ -75,7 +71,7 @@ public readonly struct HashSet<EqA, A> :
     /// Lens map
     /// </summary>
     [Pure]
-    public static Lens<HashSet<EqA, A>, HashSet<EqA, A>> map<B>(Lens<A, A> lens) => 
+    public static Lens<HashSet<EqA, A>, HashSet<EqA, A>> map(Lens<A, A> lens) => 
         Lens<HashSet<EqA, A>, HashSet<EqA, A>>.New(
             Get: la => la.Map<EqA, A>(lens.Get),
             Set: lb => la =>

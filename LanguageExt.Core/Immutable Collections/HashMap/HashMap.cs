@@ -1163,7 +1163,7 @@ public readonly struct HashMap<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ForAll(Func<(K Key, V Value), bool> pred) =>
-        AsEnumerable().Map(kv => (Key: kv.Key, Value: kv.Value)).ForAll(pred);
+        AsEnumerable().Map(kv => (kv.Key, kv.Value)).ForAll(pred);
 
     /// <summary>
     /// Return true if *all* items in the map return true when the predicate is applied
@@ -1219,7 +1219,7 @@ public readonly struct HashMap<K, V> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Exists(Func<(K Key, V Value), bool> pred) =>
-        AsEnumerable().Map(kv => (Key: kv.Key, Value: kv.Value)).Exists(pred);
+        AsEnumerable().Map(kv => (kv.Key, kv.Value)).Exists(pred);
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied

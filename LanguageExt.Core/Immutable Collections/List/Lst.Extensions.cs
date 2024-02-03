@@ -15,6 +15,48 @@ namespace LanguageExt;
 public static class ListExtensions
 {
     /// <summary>
+    /// Accesses the head of an enumerable and yields the remainder without multiple-enumerations
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Throws if sequence is empty</exception>
+    public static (A Head, IEnumerable<A> Tail) HeadAndTail<A>(this IEnumerable<A> ma) =>
+        ma.HeadAndTailSafe()
+          .IfNone(() => throw new InvalidOperationException("Sequence is empty"));
+    
+    /// <summary>
+    /// Accesses the head of an enumerable and yields the remainder without multiple-enumerations
+    /// </summary>
+    public static Option<(A Head, IEnumerable<A> Tail)> HeadAndTailSafe<A>(this IEnumerable<A> ma)
+    {
+        var iter = ma.GetEnumerator();
+        A head;
+        if (iter.MoveNext())
+        {
+            head = iter.Current;
+        }
+        else
+        {
+            iter.Dispose();
+            return None;
+        }
+        return Some((head, tail(iter)));
+
+        static IEnumerable<A> tail(IEnumerator<A> rest)
+        {
+            try
+            {
+                while (rest.MoveNext())
+                {
+                    yield return rest.Current;
+                }
+            }
+            finally
+            {
+                rest.Dispose();
+            }
+        }
+    }
+    
+    /// <summary>
     /// Monadic join
     /// </summary>
     [Pure]

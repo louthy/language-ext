@@ -26,7 +26,7 @@ public class Lst<PredList, PredItem, A> :
     where PredList : Pred<ListInfo>
     where PredItem : Pred<A>
 {
-    readonly LstInternal<True<A>, A> value;
+    readonly LstInternal<True<A>, A>? value;
 
     /// <summary>
     /// Ctor

@@ -488,9 +488,10 @@ public static class List
     /// <returns>Concatenated list</returns>
     [Pure]
     public static IEnumerable<T> append<T>(IEnumerable<T> x, IEnumerable<IEnumerable<T>> xs) =>
-        headOrNone(xs).IsNone
-            ? x
-            : append(x, append(xs.First(), xs.Skip(1)));
+        xs.HeadAndTailSafe()
+          .Match(
+               None: () => x,
+               Some: tuple => append(x, append(tuple.Head, tuple.Tail)));
 
     /// <summary>
     /// Concatenate N enumerables
@@ -1401,18 +1402,39 @@ public static class List
     /// <param name="pred">Predicate</param>
     /// <returns>Split list</returns>
     [Pure]
-    public static (IEnumerable<T>, IEnumerable<T>) span<T>(IEnumerable<T> self, Func<T, bool> pred)
+    public static (IEnumerable<T> Initial, IEnumerable<T> Remainder) span<T>(IEnumerable<T> self, Func<T, bool> pred)
     {
-        int index = 0;
-        foreach (var item in self)
+        var iter    = self.GetEnumerator();
+        var diposed = false;
+
+        IEnumerable<T> first(IEnumerator<T> items)
         {
-            if (!pred(item))
+            while (items.MoveNext())
             {
-                break;
+                if (pred(items.Current))
+                {
+                    yield return items.Current;
+                }
+                else
+                {
+                    yield break;
+                }
             }
-            index++;
+            items.Dispose();
+            diposed = true;
         }
-        return (self.Take(index), self.Skip(index));
+
+        IEnumerable<T> second(IEnumerator<T> items)
+        {
+            if (diposed) yield break;
+            while (items.MoveNext())
+            {
+                yield return items.Current;
+            }
+            items.Dispose();
+        }
+
+        return (first(iter), second(iter));
     }
 }
 

@@ -193,7 +193,7 @@ internal class SeqConcat<A>(Seq<ISeqInternal<A>> ms) : ISeqInternal<A>
         var cap = 8;
         while(cap < total)
         {
-            cap = cap << 1;
+            cap <<= 1;
         }
 
         var data    = new A[cap];

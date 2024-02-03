@@ -6,148 +6,8 @@ using LanguageExt.TypeClasses;
 
 namespace LanguageExt;
 
-/// <summary>
-/// Functional module for working with the Stck T type
-/// </summary>
-public static class Stack
+public static class StackExtensions
 {
-    /// <summary>
-    /// Create a new stack from a single element
-    /// </summary>
-    /// <param name="item">Item to populate the singleton stack</param>
-    /// <typeparam name="A">Type of the items</typeparam>
-    /// <returns>Constructed stack collection</returns>
-    public static Stck<A> singleton<A>(A item) =>
-        [item];
-    
-    /// <summary>
-    /// Create a new stack from an existing span
-    /// </summary>
-    /// <param name="items">Items to populate the stack</param>
-    /// <typeparam name="A">Type of the items</typeparam>
-    /// <returns>Constructed stack collection</returns>
-    public static Stck<A> createRange<A>(IEnumerable<A> items) =>
-        new (items);
-    
-    /// <summary>
-    /// Create a new stack from an existing span
-    /// </summary>
-    /// <param name="items">Items to populate the stack</param>
-    /// <typeparam name="A">Type of the items</typeparam>
-    /// <returns>Constructed stack collection</returns>
-    public static Stck<A> createRange<A>(ReadOnlySpan<A> items) =>
-        new (items);
-    
-    /// <summary>
-    /// Reverses the order of the items in the stack
-    /// </summary>
-    /// <returns></returns>
-    [Pure]
-    public static Stck<T> rev<T>(Stck<T> stack) =>
-        stack.Reverse();
-
-    /// <summary>
-    /// True if the stack is empty
-    /// </summary>
-    [Pure]
-    public static bool isEmpty<T>(Stck<T> stack) =>
-        stack.IsEmpty;
-
-    /// <summary>
-    /// Clear the stack (returns Empty)
-    /// </summary>
-    /// <returns>Stck.Empty of T</returns>
-    [Pure]
-    public static Stck<T> clear<T>(Stck<T> stack) =>
-        stack.Clear();
-
-    /// <summary>
-    /// Return the item on the top of the stack without affecting the stack itself
-    /// NOTE: Will throw an InvalidOperationException if the stack is empty
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Stack is empty</exception>
-    /// <returns>Top item value</returns>
-    [Pure]
-    public static T peek<T>(Stck<T> stack) =>
-        stack.Peek();
-
-    /// <summary>
-    /// Peek and match
-    /// </summary>
-    /// <param name="Some">Handler if there is a value on the top of the stack</param>
-    /// <param name="None">Handler if the stack is empty</param>
-    /// <returns>Untouched stack</returns>
-    [Pure]
-    public static Stck<T> peek<T>(Stck<T> stack, Action<T> Some, Action None) =>
-        stack.Peek(Some, None);
-
-    /// <summary>
-    /// Peek and match
-    /// </summary>
-    /// <typeparam name="R">Return type</typeparam>
-    /// <param name="Some">Handler if there is a value on the top of the stack</param>
-    /// <param name="None">Handler if the stack is empty</param>
-    /// <returns>Return value from Some or None</returns>
-    [Pure]
-    public static R peek<T, R>(Stck<T> stack, Func<T, R> Some, Func<R> None) =>
-        stack.Peek(Some, None);
-
-    /// <summary>
-    /// Safely return the item on the top of the stack without affecting the stack itself
-    /// </summary>
-    /// <returns>Returns the top item value, or None</returns>
-    [Pure]
-    public static Option<T> trypeek<T>(Stck<T> stack) =>
-        stack.TryPeek();
-
-    /// <summary>
-    /// Pop an item off the top of the stack
-    /// NOTE: Will throw an InvalidOperationException if the stack is empty
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Stack is empty</exception>
-    /// <returns>Stack with the top item popped</returns>
-    [Pure]
-    public static Stck<T> pop<T>(Stck<T> stack) =>
-        stack.Pop();
-
-    /// <summary>
-    /// Safe pop
-    /// </summary>
-    /// <returns>Tuple of popped stack and optional top-of-stack value</returns>
-    [Pure]
-    public static (Stck<T>, Option<T>) trypop<T>(Stck<T> stack) =>
-        stack.TryPop();
-
-    /// <summary>
-    /// Pop and match
-    /// </summary>
-    /// <param name="Some">Handler if there is a value on the top of the stack</param>
-    /// <param name="None">Handler if the stack is empty</param>
-    /// <returns>Popped stack</returns>
-    [Pure]
-    public static Stck<T> pop<T>(Stck<T> stack, Action<T> Some, Action None) =>
-        stack.Pop(Some, None);
-
-    /// <summary>
-    /// Pop and match
-    /// </summary>
-    /// <typeparam name="R">Return type</typeparam>
-    /// <param name="Some">Handler if there is a value on the top of the stack</param>
-    /// <param name="None">Handler if the stack is empty</param>
-    /// <returns>Return value from Some or None</returns>
-    [Pure]
-    public static R pop<T, R>(Stck<T> stack, Func<Stck<T>, T, R> Some, Func<R> None) =>
-        stack.Pop(Some, None);
-
-    /// <summary>
-    /// Push an item onto the stack
-    /// </summary>
-    /// <param name="value">Item to push</param>
-    /// <returns>New stack with the pushed item on top</returns>
-    [Pure]
-    public static Stck<T> push<T>(Stck<T> stack, T value) =>
-        stack.Push(value);
-
     /// <summary>
     /// Projects the values in the stack using a map function into a new enumerable (Select in LINQ).
     /// </summary>
@@ -157,11 +17,11 @@ public static class Stack
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
     [Pure]
-    public static Stck<R> map<T, R>(Stck<T> stack, Func<T, R> map) =>
+    public static Stck<R> Map<T, R>(this Stck<T> stack, Func<T, R> map) =>
         toStackRev(List.map(stack, map));
 
     /// <summary>
-    /// Projects the values in the stack into a new enumerable using a map function, which is also given an index value
+    /// Projects the values in the stack into a new stack using a map function, which is also given an index value
     /// (Select in LINQ - note that the order of the arguments of the map function are the other way around, here the index
     /// is the first argument).
     /// </summary>
@@ -171,7 +31,7 @@ public static class Stack
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
     [Pure]
-    public static Stck<R> map<T, R>(Stck<T> stack, Func<int, T, R> map) =>
+    public static Stck<R> Map<T, R>(this Stck<T> stack, Func<int, T, R> map) =>
         toStackRev(List.map(stack, map));
 
     /// <summary>
@@ -182,7 +42,7 @@ public static class Stack
     /// <param name="predicate">Predicate function</param>
     /// <returns>Filtered stack</returns>
     [Pure]
-    public static Stck<T> filter<T>(Stck<T> stack, Func<T, bool> predicate) =>
+    public static Stck<T> Filter<T>(this Stck<T> stack, Func<T, bool> predicate) =>
         toStackRev(List.filter(stack, predicate));
 
     /// <summary>
@@ -194,7 +54,7 @@ public static class Stack
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered enumerable</returns>
     [Pure]
-    public static Stck<U> choose<T, U>(Stck<T> stack, Func<T, Option<U>> selector) =>
+    public static Stck<U> Choose<T, U>(this Stck<T> stack, Func<T, Option<U>> selector) =>
         toStackRev(List.choose(stack, selector));
 
     /// <summary>
@@ -207,7 +67,7 @@ public static class Stack
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered enumerable</returns>
     [Pure]
-    public static Stck<U> choose<T, U>(Stck<T> stack, Func<int, T, Option<U>> selector) =>
+    public static Stck<U> Choose<T, U>(this Stck<T> stack, Func<int, T, Option<U>> selector) =>
         toStackRev(List.choose(stack, selector));
 
     /// <summary>
@@ -220,21 +80,16 @@ public static class Stack
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
     [Pure]
-    public static Stck<R> collect<T, R>(Stck<T> stack, Func<T, IEnumerable<R>> map) =>
+    public static Stck<R> Collect<T, R>(this Stck<T> stack, Func<T, IEnumerable<R>> map) =>
         toStackRev(List.collect(stack, map));
 
     /// <summary>
-    /// Append another stack to the top of this stack
-    /// The rhs will be reversed and pushed onto 'this' stack.  That will
-    /// maintain the order of the items in the resulting stack.  So the top
-    /// of 'rhs' will be the top of the newly created stack.  'this' stack
-    /// will be under the 'rhs' stack.
+    /// Reverses the order of the items in the stack
     /// </summary>
-    /// <param name="rhs">Stack to append</param>
-    /// <returns>Appended stacks</returns>
+    /// <returns></returns>
     [Pure]
-    public static Stck<T> append<T>(Stck<T> lhs, IEnumerable<T> rhs) =>
-        toStackRev(List.append(lhs, rhs));
+    public static Stck<T> Rev<T>(this Stck<T> stack) =>
+        toStackRev(List.rev(stack));
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection, threading an accumulator 
@@ -250,7 +105,7 @@ public static class Stack
     /// <param name="folder">Fold function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S fold<S, T>(Stck<T> stack, S state, Func<S, T, S> folder) =>
+    public static S Fold<S, T>(this Stck<T> stack, S state, Func<S, T, S> folder) =>
         List.fold(stack, state, folder);
 
     /// <summary>
@@ -267,7 +122,7 @@ public static class Stack
     /// <param name="folder">Fold function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S foldBack<S, T>(Stck<T> stack, S state, Func<S, T, S> folder) =>
+    public static S FoldBack<S, T>(this Stck<T> stack, S state, Func<S, T, S> folder) =>
         List.foldBack(stack, state, folder);
 
     /// <summary>
@@ -285,7 +140,7 @@ public static class Stack
     /// <param name="preditem">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S foldWhile<S, T>(Stck<T> stack, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
+    public static S FoldWhile<S, T>(this Stck<T> stack, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
         List.foldWhile(stack, state, folder, preditem: preditem);
 
     /// <summary>
@@ -303,7 +158,7 @@ public static class Stack
     /// <param name="predstate">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S foldWhile<S, T>(Stck<T> stack, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
+    public static S FoldWhile<S, T>(this Stck<T> stack, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
         List.foldWhile(stack, state, folder, predstate: predstate);
 
     /// <summary>
@@ -322,7 +177,7 @@ public static class Stack
     /// <param name="preditem">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S foldBackWhile<S, T>(Stck<T> stack, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
+    public static S FoldBackWhile<S, T>(this Stck<T> stack, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
         List.foldBackWhile(stack, state, folder, preditem: preditem);
 
     /// <summary>
@@ -341,22 +196,8 @@ public static class Stack
     /// <param name="predstate">Predicate function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static S foldBackWhile<S, T>(Stck<T> stack, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
+    public static S FoldBackWhile<S, T>(this Stck<T> stack, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
         List.foldBackWhile(stack, state, folder, predstate: predstate);
-
-    /// <summary>
-    /// Applies a function to each element of the collection (from last element to first), threading 
-    /// an accumulator argument through the computation. This function first applies the function 
-    /// to the first two elements of the stack. Then, it passes this result into the function along 
-    /// with the third element and so on. Finally, it returns the final result.
-    /// </summary>
-    /// <typeparam name="T">Stack item type</typeparam>
-    /// <param name="stack">Stack to fold</param>
-    /// <param name="reducer">Reduce function</param>
-    /// <returns>Aggregate value</returns>
-    [Pure]
-    public static T reduce<T>(Stck<T> stack, Func<T, T, T> reducer) =>
-        List.reduce(stack, reducer);
 
     /// <summary>
     /// Applies a function to each element of the collection, threading an accumulator argument 
@@ -369,8 +210,22 @@ public static class Stack
     /// <param name="reducer">Reduce function</param>
     /// <returns>Aggregate value</returns>
     [Pure]
-    public static T reduceBack<T>(Stck<T> stack, Func<T, T, T> reducer) =>
+    public static T ReduceBack<T>(Stck<T> stack, Func<T, T, T> reducer) =>
         List.reduceBack(stack, reducer);
+
+    /// <summary>
+    /// Applies a function to each element of the collection (from last element to first), threading 
+    /// an accumulator argument through the computation. This function first applies the function 
+    /// to the first two elements of the stack. Then, it passes this result into the function along 
+    /// with the third element and so on. Finally, it returns the final result.
+    /// </summary>
+    /// <typeparam name="T">Stack item type</typeparam>
+    /// <param name="stack">Stack to fold</param>
+    /// <param name="reducer">Reduce function</param>
+    /// <returns>Aggregate value</returns>
+    [Pure]
+    public static T Reduce<T>(this Stck<T> stack, Func<T, T, T> reducer) =>
+        List.reduce(stack, reducer);
 
     /// <summary>
     /// Applies a function to each element of the collection, threading an accumulator argument 
@@ -386,7 +241,7 @@ public static class Stack
     /// <param name="folder">Folding function</param>
     /// <returns>Aggregate state</returns>
     [Pure]
-    public static Stck<S> scan<S, T>(Stck<T> stack, S state, Func<S, T, S> folder) =>
+    public static Stck<S> Scan<S, T>(this Stck<T> stack, S state, Func<S, T, S> folder) =>
         toStackRev(List.scan(stack, state, folder));
 
     /// <summary>
@@ -403,7 +258,7 @@ public static class Stack
     /// <param name="folder">Folding function</param>
     /// <returns>Aggregate state</returns>
     [Pure]
-    public static Stck<S> scanBack<S, T>(Stck<T> stack, S state, Func<S, T, S> folder) =>
+    public static Stck<S> ScanBack<S, T>(this Stck<T> stack, S state, Func<S, T, S> folder) =>
         toStackRev(List.scanBack(stack, state, folder));
 
     /// <summary>
@@ -416,20 +271,8 @@ public static class Stack
     /// <returns>Some(x) for the first item in the stack that matches the predicate 
     /// provided, None otherwise.</returns>
     [Pure]
-    public static Option<T> find<T>(Stck<T> stack, Func<T, bool> pred) =>
+    public static Option<T> Find<T>(this Stck<T> stack, Func<T, bool> pred) =>
         List.find(stack, pred);
-
-    /// <summary>
-    /// Joins a stack and and enumerable together either into a single enumerable
-    /// using the join function provided
-    /// </summary>
-    /// <param name="stack">First stack to join</param>
-    /// <param name="other">Second list to join</param>
-    /// <param name="zipper">Join function</param>
-    /// <returns>Joined enumerable</returns>
-    [Pure]
-    public static Stck<V> zip<T, U, V>(Stck<T> stack, IEnumerable<U> other, Func<T, U, V> zipper) =>
-        toStackRev(List.zip(stack, other, zipper));
 
     /// <summary>
     /// Returns the number of items in the stack
@@ -438,7 +281,7 @@ public static class Stack
     /// <param name="stack">Stack</param>
     /// <returns>The number of items in the enumerable</returns>
     [Pure]
-    public static int length<T>(Stck<T> stack) =>
+    public static int Length<T>(this Stck<T> stack) =>
         List.length(stack);
 
     /// <summary>
@@ -448,7 +291,7 @@ public static class Stack
     /// <param name="stack">Stack to iterate</param>
     /// <param name="action">Action to invoke with each item</param>
     /// <returns>Unit</returns>
-    public static Unit iter<T>(Stck<T> stack, Action<T> action) =>
+    public static Unit Iter<T>(this Stck<T> stack, Action<T> action) =>
         List.iter(stack, action);
 
     /// <summary>
@@ -459,18 +302,17 @@ public static class Stack
     /// <param name="stack">Stack to iterate</param>
     /// <param name="action">Action to invoke with each item</param>
     /// <returns>Unit</returns>
-    public static Unit iter<T>(Stck<T> stack, Action<int, T> action) =>
+    public static Unit Iter<T>(this Stck<T> stack, Action<int, T> action) =>
         List.iter(stack, action);
 
     /// <summary>
-    /// Returns true if all items in the stack match a predicate (Any in LINQ)
+    /// Return an enumerable with all duplicate values removed
     /// </summary>
     /// <typeparam name="T">Stack item type</typeparam>
-    /// <param name="stack">Stack to test</param>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the stack match the predicate</returns>
+    /// <param name="stack">Stack</param>
+    /// <returns>An enumerable with all duplicate values removed</returns>
     [Pure]
-    public static bool forall<T>(Stck<T> stack, Func<T, bool> pred) =>
+    public static bool ForAll<T>(this Stck<T> stack, Func<T, bool> pred) =>
         List.forall(stack, pred);
 
     /// <summary>
@@ -480,7 +322,7 @@ public static class Stack
     /// <param name="stack">Stack</param>
     /// <returns>An enumerable with all duplicate values removed</returns>
     [Pure]
-    public static Stck<T> distinct<T>(Stck<T> stack) =>
+    public static Stck<T> Distinct<T>(this Stck<T> stack) =>
         toStackRev(List.distinct(stack));
 
     /// <summary>
@@ -490,7 +332,7 @@ public static class Stack
     /// <param name="stack">Stack</param>
     /// <returns>An enumerable with all duplicate values removed</returns>
     [Pure]
-    public static Stck<T> distinct<EQ, T>(Stck<T> stack) where EQ : Eq<T> =>
+    public static Stck<T> Distinct<EQ,T>(this Stck<T> stack) where EQ : Eq<T> =>
         toStackRev(List.distinct<EQ,T>(stack));
 
     /// <summary>
@@ -500,7 +342,7 @@ public static class Stack
     /// <param name="stack">Stack</param>
     /// <returns>An enumerable with all duplicate values removed</returns>
     [Pure]
-    public static Stck<T> distinct<T, K>(Stck<T> stack, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
+    public static Stck<T> Distinct<T, K>(this Stck<T> stack, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
         toStackRev(List.distinct(stack, keySelector, compare));
 
     /// <summary>
@@ -511,7 +353,7 @@ public static class Stack
     /// <param name="count">Number of items to take</param>
     /// <returns>A new enumerable with the first 'count' items from the enumerable provided</returns>
     [Pure]
-    public static Stck<T> take<T>(Stck<T> stack, int count) =>
+    public static Stck<T> Take<T>(this Stck<T> stack, int count) =>
         toStackRev(List.take(stack, count));
 
     /// <summary>
@@ -523,7 +365,7 @@ public static class Stack
     /// <param name="count">Number of items to take</param>
     /// <returns>A new enumerable with the first items that match the predicate</returns>
     [Pure]
-    public static Stck<T> takeWhile<T>(Stck<T> stack, Func<T, bool> pred) =>
+    public static Stck<T> TakeWhile<T>(this Stck<T> stack, Func<T, bool> pred) =>
         toStackRev(List.takeWhile(stack, pred));
 
     /// <summary>
@@ -535,7 +377,7 @@ public static class Stack
     /// <param name="count">Number of items to take</param>
     /// <returns>A new enumerable with the first items that match the predicate</returns>
     [Pure]
-    public static Stck<T> takeWhile<T>(Stck<T> stack, Func<T, int, bool> pred) =>
+    public static Stck<T> TakeWhile<T>(this Stck<T> stack, Func<T, int, bool> pred) =>
         toStackRev(List.takeWhile(stack, pred));
 
     /// <summary>
@@ -546,6 +388,6 @@ public static class Stack
     /// <param name="pred">Predicate</param>
     /// <returns>True if any item in the stack matches the predicate provided</returns>
     [Pure]
-    public static bool exists<T>(Stck<T> stack, Func<T, bool> pred) =>
+    public static bool Exists<T>(this Stck<T> stack, Func<T, bool> pred) =>
         List.exists(stack, pred);
 }

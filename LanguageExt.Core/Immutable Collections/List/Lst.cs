@@ -27,8 +27,7 @@ public readonly struct Lst<A> :
     /// Empty list
     /// </summary>
     public static readonly Lst<A> Empty = new (System.Array.Empty<A>().AsSpan());
-
-    readonly LstInternal<True<A>, A> value;
+    readonly LstInternal<True<A>, A>? value;
 
     internal LstInternal<True<A>, A> Value
     {

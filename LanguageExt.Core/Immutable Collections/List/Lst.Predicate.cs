@@ -24,7 +24,7 @@ namespace LanguageExt
         IComparable
         where PRED : Pred<ListInfo>
     {
-        readonly LstInternal<True<A>, A> value;
+        readonly LstInternal<True<A>, A>? value;
 
         /// <summary>
         /// Ctor

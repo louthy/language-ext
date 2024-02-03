@@ -580,7 +580,7 @@ public static partial class HashMap
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashMap<EqK, K, U> map<EqK, K, T, U>(HashMap<EqK, K, T> map, Func<T, U> f) where EqK : Eq<K> =>
-        (HashMap<EqK, K, U>)map.Select(f);
+        map.Select(f);
 
     /// <summary>
     /// Atomically maps the map to a new map
