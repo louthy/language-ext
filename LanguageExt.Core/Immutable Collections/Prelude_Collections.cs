@@ -1439,17 +1439,6 @@ public static partial class Prelude
             : Empty;
 
     /// <summary>
-    /// Construct a sequence from an either
-    ///     Right(x) : [x]
-    ///     Left(y)  : []
-    /// </summary>
-    [Pure]
-    public static Seq<R?> toSeq<L, R>(EitherUnsafe<L, R> value) =>
-        value.IsRight
-            ? LSeq.FromSingleValue(value.RightValue)
-            : Empty;
-
-    /// <summary>
     /// Construct a sequence from a Try
     ///     Succ(x) : [x]
     ///     Fail(e) : []

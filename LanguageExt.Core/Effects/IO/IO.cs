@@ -181,7 +181,7 @@ public readonly struct IO<E, A> : KArr<Any, MinRT<E>, Sum<E, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Either<E, A> Run(MinRT<E> env) =>
-        new(effect.Run(env));
+        effect.Run(env);
 
     /// <summary>
     /// Invoke the effect

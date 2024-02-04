@@ -93,9 +93,6 @@ public readonly record struct Pure<A>(A Value) : KArr<Any, Unit, A>
     public Either<L, A> ToEither<L>() =>
         Either<L, A>.Right(Value);
     
-    public EitherUnsafe<L, A> ToEitherUnsafe<L>() =>
-        EitherUnsafe<L, A>.Right(Value);
-    
     public Fin<A> ToFin() =>
         Fin<A>.Succ(Value);
     

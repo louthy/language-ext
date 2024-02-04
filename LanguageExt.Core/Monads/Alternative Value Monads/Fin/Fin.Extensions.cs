@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LanguageExt;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
-using static LanguageExt.Choice;
-using System.ComponentModel;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
-using LanguageExt.ClassInstances;
 using LanguageExt.Common;
+
+namespace LanguageExt;
 
 /// <summary>
 /// Extension methods for Fin
@@ -40,10 +36,10 @@ public static class FinExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>Fin with y added to x</returns>
     [Pure]
-    public static Fin<R> Plus<NUM, R>(this Fin<R> x, Fin<R> y) where NUM : Num<R> =>
+    public static Fin<R> Plus<NUM, R>(this Fin<R> x, Fin<R> y) where NUM : Arithmetic<R> =>
         from a in x
         from b in y
-        select default(NUM).Plus(a, b);
+        select NUM.Plus(a, b);
 
     /// <summary>
     /// Find the subtract between the two bound values of x and y, uses a Subtract trait 
@@ -55,10 +51,10 @@ public static class FinExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>Fin with the subtract between x and y</returns>
     [Pure]
-    public static Fin<R> Subtract<NUM, R>(this Fin<R> x, Fin<R> y) where NUM : Num<R> =>
+    public static Fin<R> Subtract<NUM, R>(this Fin<R> x, Fin<R> y) where NUM : Arithmetic<R> =>
         from a in x
         from b in y
-        select default(NUM).Subtract(a, b);
+        select NUM.Subtract(a, b);
 
     /// <summary>
     /// Find the product between the two bound values of x and y, uses a Product trait 
@@ -70,10 +66,10 @@ public static class FinExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>Fin with the product of x and y</returns>
     [Pure]
-    public static Fin<R> Product<NUM, R>(this Fin<R> x, Fin<R> y) where NUM : Num<R> =>
+    public static Fin<R> Product<NUM, R>(this Fin<R> x, Fin<R> y) where NUM : Arithmetic<R> =>
         from a in x
         from b in y
-        select default(NUM).Product(a, b);
+        select NUM.Product(a, b);
 
     /// <summary>
     /// Divide the two bound values of x and y, uses a Divide trait to provide the divide
@@ -88,7 +84,7 @@ public static class FinExtensions
     public static Fin<R> Divide<NUM, R>(this Fin<R> x, Fin<R> y) where NUM : Num<R> =>
         from a in x
         from b in y
-        select default(NUM).Divide(a, b);
+        select NUM.Divide(a, b);
 
     /// <summary>
     /// Apply

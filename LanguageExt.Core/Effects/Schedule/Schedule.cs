@@ -319,7 +319,7 @@ public abstract partial record Schedule
                 Func<S, A, S> fold)
             {
                 var newResult = await effect.Run().ConfigureAwait(false);
-                var newState = newResult.IsSucc ? fold(state, newResult.value) : state;
+                var newState = newResult.IsSucc ? fold(state, newResult.Value) : state;
                 return (newResult, newState);
             }
 
@@ -359,7 +359,7 @@ public abstract partial record Schedule
                 Func<S, A, S> fold)
             {
                 var newResult = await effect.Run(env).ConfigureAwait(false);
-                var newState = newResult.IsSucc ? fold(state, newResult.value) : state;
+                var newState = newResult.IsSucc ? fold(state, newResult.Value) : state;
                 return (newResult, newState);
             }
 

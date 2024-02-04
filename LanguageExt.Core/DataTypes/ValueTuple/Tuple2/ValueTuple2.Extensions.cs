@@ -241,35 +241,6 @@ public static class ValueTuple2Extensions
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
     /// </summary>
     [Pure]
-    public static EitherUnsafe<L, (C, D)> Traverse<L, A, B, C, D>(this (EitherUnsafe<L, A> ma, EitherUnsafe<L, B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        let r = f((a, b))
-        select (r.Item1, r.Item2);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static EitherUnsafe<L, (C, D)> Traverse<L, A, B, C, D>(this (EitherUnsafe<L, A> ma, EitherUnsafe<L, B> mb) tuple, Func<A, B, (C c, D d)> f) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        let r = f(a, b)
-        select (r.Item1, r.Item2);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static EitherUnsafe<L, (A, B)> Sequence<L, A, B>(this (EitherUnsafe<L, A> ma, EitherUnsafe<L, B> mb) tuple) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        select (a, b);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
     [Obsolete(Change.UseEffMonadInstead)]
     public static EitherAsync<L, (C, D)> Traverse<L, A, B, C, D>(this (EitherAsync<L, A> ma, EitherAsync<L, B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
         apply((a, b) => f((a, b)), tuple.ma, tuple.mb);

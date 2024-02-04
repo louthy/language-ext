@@ -5,6 +5,9 @@ internal class Change
     public const string UseEffMonadInstead =
         "This type has been deprecated.  Please use the Eff monad instead.  https://github.com/louthy/language-ext/discussions/1269";
 
+    public const string UseIOMonadInstead =
+        "This type has been deprecated.  Please use the IO monad instead.  https://github.com/louthy/language-ext/discussions/1269";
+
     public const string UseEffMonadInsteadOfAff =
         "Aff has been deprecated.  Please use the Eff monad instead.  https://github.com/louthy/language-ext/discussions/1269";
 
@@ -16,4 +19,13 @@ internal class Change
 
     public const string UseCollectionIntialiserSeq =
         "Use collection intialiser instead.  So, instead of: Seq1(x), you should now call [x] - alternatively use Seq(x) as Seq1(x) has been deprecated.";
+
+    public const string UseToArrayInstead =
+        "Use ToArray() instead";
+
+    public const string UseToListInstead =
+        "Use ToList() instead";
+
+    public const string UseToSeqInstead =
+        "Use ToList() instead";
 }

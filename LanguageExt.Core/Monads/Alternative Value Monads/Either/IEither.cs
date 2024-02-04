@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace LanguageExt
@@ -18,12 +15,13 @@ namespace LanguageExt
             get;
         }
 
-        TResult MatchUntyped<TResult>(Func<object, TResult> Right, Func<object, TResult> Left);
+        TRes MatchUntyped<TRes>(Func<object?, TRes> Right, Func<object?, TRes> Left);
 
         Type GetUnderlyingRightType();
         Type GetUnderlyingLeftType();
     }
 
+    [Obsolete(Change.UseEffMonadInstead)]
     public interface IEitherAsync
     {
         Task<bool> IsRight
@@ -39,5 +37,4 @@ namespace LanguageExt
         Type GetUnderlyingRightType();
         Type GetUnderlyingLeftType();
     }
-
 }

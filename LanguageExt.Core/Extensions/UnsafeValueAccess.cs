@@ -15,7 +15,7 @@ public static class UnsafeValueAccessExtensions
     public static A Value<A>(this Option<A> option) where A : struct =>
         option.IsSome
             ? option.Value
-            : default(A);
+            : default;
 
     public static A? ValueUnsafe<A>(this OptionUnsafe<A> option) =>
         option.IsSome
@@ -40,20 +40,10 @@ public static class UnsafeValueAccessExtensions
             ? either.RightValue
             : default;
 
-    public static R Value<L, R>(this EitherUnsafe<L, R> either) where R : struct =>
-        either.IsRight
-            ? either.RightValue
-            : default;
-
     public static R? ValueUnsafe<L, R>(this Either<L, R> either) =>
         either.IsRight
             ? either.RightValue
             : default(R);
-
-    public static R? ValueUnsafe<L, R>(this EitherUnsafe<L, R> either) =>
-        either.IsRight
-            ? either.RightValue
-            : default;
 
     /// <summary>
     /// This creates a Seq from an Array without any copying of data, so it's super fast
