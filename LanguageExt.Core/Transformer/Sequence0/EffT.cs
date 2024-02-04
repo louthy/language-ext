@@ -1,225 +1,165 @@
-#nullable enable
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
 using static LanguageExt.Prelude; 
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 
-namespace LanguageExt
+namespace LanguageExt;
+
+public partial class EffT
 {
-    public partial class AffT
-    {
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, Arr<A>> Sequence<RT, A>(this Arr<Eff<RT, A>> ma) where RT : HasIO<RT, Error> =>
-            ma.Traverse(identity);
+    /// <summary>
+    /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
+    /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ta">The subject traversable</param>
+    /// <returns>Mapped monad</returns>
+    [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<Arr<A>> Sequence<A>(this Arr<Eff<A>> ma) =>
+        Traverse(ma, identity);
+ 
+    /// <summary>
+    /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
+    /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ta">The subject traversable</param>
+    /// <returns>Mapped monad</returns>
+    [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<Either<L, A>> Sequence<L, A>(this Either<L, Eff<A>> mma) =>
+        mma.Traverse(identity);
+        
+    /// <summary>
+    /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
+    /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ta">The subject traversable</param>
+    /// <returns>Mapped monad</returns>
+    [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<Identity<A>> Sequence<A>(this Identity<Eff<A>> mma) =>
+        mma.Traverse(identity);
 
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, Either<L, A>> Sequence<RT, L, A>(this Either<L, Eff<RT, A>> mma) where RT : HasIO<RT, Error> =>
-            mma.Traverse(identity);
+    /// <summary>
+    /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
+    /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ta">The subject traversable</param>
+    /// <returns>Mapped monad</returns>
+    [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<IEnumerable<A>> Sequence<A>(this IEnumerable<Eff<A>> mma) =>
+        mma.Traverse(identity);
+       
+    /// <summary>
+    /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
+    /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ta">The subject traversable</param>
+    /// <returns>Mapped monad</returns>
+    [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<Lst<A>> Sequence<A>(this Lst<Eff<A>> mma) =>
+        mma.Traverse(identity);
+ 
+    /// <summary>
+    /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
+    /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ta">The subject traversable</param>
+    /// <returns>Mapped monad</returns>
+    [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<Fin<A>> Sequence<A>(this Fin<Eff<A>> mma) =>
+        mma.Traverse(identity);
+        
+    /// <summary>
+    /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
+    /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ta">The subject traversable</param>
+    /// <returns>Mapped monad</returns>
+    [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<Option<A>> Sequence<A>(this Option<Eff<A>> mma) =>
+        mma.Traverse(identity);
+ 
+    /// <summary>
+    /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
+    /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ta">The subject traversable</param>
+    /// <returns>Mapped monad</returns>
+    [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<Seq<A>> Sequence<A>(this Seq<Eff<A>> ma) =>
+        Traverse(ma, identity);
 
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, EitherUnsafe<L, A>> Sequence<RT, L, A>(this EitherUnsafe<L, Eff<RT, A>> mma) where RT : HasIO<RT, Error> =>
-            mma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, Identity<A>> Sequence<RT, A>(this Identity<Eff<RT, A>> mma) where RT : HasIO<RT, Error> =>
-            mma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, IEnumerable<A>> Sequence<RT, A>(this IEnumerable<Eff<RT, A>> ma) where RT : HasIO<RT, Error> =>
-            ma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, Lst<A>> Sequence<RT, A>(this Lst<Eff<RT, A>> ma) where RT : HasIO<RT, Error> =>
-            ma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, Fin<A>> Sequence<RT, A>(this Fin<Eff<RT, A>> mma) where RT : HasIO<RT, Error> =>
-            mma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, Option<A>> Sequence<RT, A>(this Option<Eff<RT, A>> mma) where RT : HasIO<RT, Error> =>
-            mma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, OptionUnsafe<A>> Sequence<RT, A>(this OptionUnsafe<Eff<RT, A>> mma) where RT : HasIO<RT, Error> =>
-            mma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, Seq<A>> Sequence<RT, A>(this Seq<Eff<RT, A>> ma) where RT : HasIO<RT, Error> =>
-            ma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, Set<A>> Sequence<RT, A>(this Set<Eff<RT, A>> ma) where RT : HasIO<RT, Error> =>
-            ma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, HashSet<A>> Sequence<RT, A>(this HashSet<Eff<RT, A>> ma) where RT : HasIO<RT, Error> =>
-            ma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, Que<A>> Sequence<RT, A>(this Que<Eff<RT, A>> ma) where RT : HasIO<RT, Error> =>
-            ma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, Stck<A>> Sequence<RT, A>(this Stck<Eff<RT, A>> ma) where RT : HasIO<RT, Error> =>
-            ma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, Try<A>> Sequence<RT, A>(this Try<Eff<RT, A>> mma) where RT : HasIO<RT, Error> =>
-            mma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, TryOption<A>> Sequence<RT, A>(this TryOption<Eff<RT, A>> mma) where RT : HasIO<RT, Error> =>
-            mma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, Validation<FAIL, A>> Sequence<RT, FAIL, A>(this Validation<FAIL, Eff<RT, A>> mma) where RT : HasIO<RT, Error> =>
-            mma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, Validation<MonoidFail, FAIL, A>> Sequence<RT, MonoidFail, FAIL, A>(this Validation<MonoidFail, FAIL, Eff<RT, A>> mma)
-            where RT : HasIO<RT, Error>
-            where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-            mma.Traverse(identity);
-
-        /// <summary>
-        /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
-        /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
-        /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ta">The subject traversable</param>
-        /// <returns>Mapped monad</returns>
-        [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Eff<RT, Eff<A>> Sequence<RT, A>(this Eff<Eff<RT, A>> mma) where RT : HasIO<RT, Error> =>
-            mma.Traverse(identity);
-    }
+    /// <summary>
+    /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
+    /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ta">The subject traversable</param>
+    /// <returns>Mapped monad</returns>
+    [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<Set<A>> Sequence<A>(this Set<Eff<A>> ma) =>
+        ma.Traverse(identity);
+        
+    /// <summary>
+    /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
+    /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ta">The subject traversable</param>
+    /// <returns>Mapped monad</returns>
+    [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<HashSet<A>> Sequence<A>(this HashSet<Eff<A>> ma) =>
+        ma.Traverse(identity);
+        
+    /// <summary>
+    /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
+    /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ta">The subject traversable</param>
+    /// <returns>Mapped monad</returns>
+    [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<Que<A>> Sequence<A>(this Que<Eff<A>> ma) =>
+        ma.Traverse(identity);
+        
+    /// <summary>
+    /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
+    /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ta">The subject traversable</param>
+    /// <returns>Mapped monad</returns>
+    [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<Stck<A>> Sequence<A>(this Stck<Eff<A>> ma) =>
+        Traverse(ma, identity);
+        
+    /// <summary>
+    /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
+    /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ta">The subject traversable</param>
+    /// <returns>Mapped monad</returns>
+    [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<Validation<FAIL, A>> Sequence<FAIL, A>(this Validation<FAIL, Eff<A>> mma) =>
+        mma.Traverse(identity);
+        
+    /// <summary>
+    /// Traverses each value in the `ta` nested monad,  Then applies the monadic rules of the return type
+    /// (which is the input nested monad, flipped: so `M<N<A>>` becomes `N<M<A>>`).   
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ta">The subject traversable</param>
+    /// <returns>Mapped monad</returns>
+    [Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Eff<Validation<MonoidFail, FAIL, A>> Sequence<MonoidFail, FAIL, A>(this Validation<MonoidFail, FAIL, Eff<A>> mma)
+        where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
+        mma.Traverse(identity);
 }

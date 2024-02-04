@@ -137,3 +137,8 @@ This is part of preparing the library for future serialisation improvements.
 * `EitherRight<L>` - use `Pure<R>` instead
 * Async extensions for `Option<A>` - use `ToAsync()` instead
 * `ExceptionMatch`, `ExceptionMatchAsync`, `ExceptionMatchOptionalAsync` - use effect monads with `@catch`
+
+# TODO
+
+* Traverse / Sequence - generic system using Transducers
+* Make TraverseParallel for Eff
