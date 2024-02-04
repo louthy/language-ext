@@ -57,9 +57,7 @@ public readonly struct Option<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<A> Some(A value) =>
-        isnull(value)
-            ? throw new ValueIsNullException()
-            : new Option<A>(value);
+        new (value);
 
     /// <summary>
     /// Constructor
@@ -88,7 +86,7 @@ public readonly struct Option<A> :
         isSome = info.GetValue("IsSome", typeof(bool)) is true;
         if(isSome)
         {
-            Value = info.GetValue("Value", typeof(A)) is A x ? x : throw new InvalidCastException();
+            Value = info.GetValue("Value", typeof(A)) is A x ? x : throw new SerializationException();
         }
         else
         {
@@ -210,7 +208,7 @@ public readonly struct Option<A> :
     /// <param name="a">None value</param>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Option<A>(OptionNone a) =>
+    public static implicit operator Option<A>(Fail<Unit> a) =>
         default;
 
     /// <summary>
@@ -303,7 +301,7 @@ public readonly struct Option<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Option<A> lhs, Option<A> rhs) =>
-        !lhs.Equals(rhs);
+        !(lhs == rhs);
 
     /// <summary>
     /// Coalescing operator
@@ -454,7 +452,7 @@ public readonly struct Option<A> :
         if (IsNone) return default;
         var mb = bind(Value!);
         if (mb.IsNone) return default;
-        return Check.NullReturn(project(Value!, mb.Value!));
+        return project(Value!, mb.Value!);
     }
 
     /// <summary>
@@ -471,19 +469,6 @@ public readonly struct Option<A> :
         matchUntyped<MOption<A>, Option<A>, A, R>(this, Some, None)!;
 
     /// <summary>
-    /// Match operation with an untyped value for Some. This can be
-    /// useful for serialisation and dealing with the IOptional interface
-    /// </summary>
-    /// <typeparam name="R">The return type</typeparam>
-    /// <param name="Some">Operation to perform if the option is in a Some state</param>
-    /// <param name="None">Operation to perform if the option is in a None state</param>
-    /// <returns>The result of the match operation</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public R? MatchUntypedUnsafe<R>(Func<object?, R?> Some, Func<R?> None) =>
-        matchUntypedUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, A, R>(ToOptionUnsafe(), Some, None);
-
-    /// <summary>
     /// Get the Type of the bound value
     /// </summary>
     /// <returns>Type of the bound value</returns>
@@ -498,8 +483,8 @@ public readonly struct Option<A> :
     [Pure]
     public Transducer<Unit, Sum<Unit, A>> ToTransducer()
     {
-        var sum = IsSome && Value is not null
-                      ? Sum<Unit, A>.Right(Value)
+        var sum = IsSome
+                      ? Sum<Unit, A>.Right(Value!)
                       : Sum<Unit, A>.Left(default);
 
         return lift<Unit, Sum<Unit, A>>(_ => sum);
@@ -535,7 +520,7 @@ public readonly struct Option<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Seq<A> ToSeq() =>
         isSome
-            ? Seq1(Value!)
+            ? [Value!]
             : Empty;
 
     /// <summary>
@@ -643,42 +628,6 @@ public readonly struct Option<A> :
             : Left<L, A>(Left());
 
     /// <summary>
-    /// Convert the structure to an EitherUnsafe
-    /// </summary>
-    /// <param name="defaultLeftValue">Default value if the structure is in a None state</param>
-    /// <returns>An EitherUnsafe representation of the structure</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EitherUnsafe<L, A> ToEitherUnsafe<L>(L? defaultLeftValue) =>
-        isSome
-            ? RightUnsafe<L, A>(Value)
-            : LeftUnsafe<L, A>(defaultLeftValue);
-
-    /// <summary>
-    /// Convert the structure to an EitherUnsafe
-    /// </summary>
-    /// <param name="Left">Function to invoke to get a default value if the 
-    /// structure is in a None state</param>
-    /// <returns>An EitherUnsafe representation of the structure</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public EitherUnsafe<L, A> ToEitherUnsafe<L>(Func<L?> Left) =>
-        isSome
-            ? RightUnsafe<L, A>(Value)
-            : LeftUnsafe<L, A>(Left());
-
-    /// <summary>
-    /// Convert the structure to a OptionUnsafe
-    /// </summary>
-    /// <returns>An OptionUnsafe representation of the structure</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public OptionUnsafe<A> ToOptionUnsafe() =>
-        isSome
-            ? OptionUnsafe<A>.Some(Value)
-            : default;
-
-    /// <summary>
     /// Convert the structure to a TryOption
     /// </summary>
     /// <returns>A TryOption representation of the structure</returns>
@@ -723,10 +672,9 @@ public readonly struct Option<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public B Match<B>(Func<A, B> Some, Func<B> None) =>
-        Check.NullReturn(
-            isSome
-                ? Some(Value!)
-                : None());
+        isSome
+            ? Some(Value!)
+            : None();
 
     /// <summary>
     /// Match the two states of the Option and return a non-null R.
@@ -738,10 +686,9 @@ public readonly struct Option<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public B Match<B>(Func<A, B> Some, B None) =>
-        Check.NullReturn(
-            isSome
-                ? Some(Value!)
-                : None);
+        isSome
+            ? Some(Value!)
+            : None;
 
     /// <summary>
     /// Match the two states of the Option and return a B, which can be null.
@@ -830,10 +777,9 @@ public readonly struct Option<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public A IfNone(Func<A> None) =>
-        (isSome
-            ? Value
-            : Check.NullReturn(None()))!;
-
+        isSome
+            ? Value!
+            : None();
 
     /// <summary>
     /// Invokes the action if Option is in the None state, otherwise nothing happens.
@@ -856,9 +802,9 @@ public readonly struct Option<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public A IfNone(A noneValue) =>
-        (isSome
-            ? Value
-            : Check.NullReturn(noneValue))!;
+        isSome
+            ? Value!
+            : noneValue;
 
     /// <summary>
     /// Returns the result of invoking the None() operation if the optional 
@@ -1025,10 +971,9 @@ public readonly struct Option<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Option<B> BiMap<B>(Func<A, B> Some, Func<B> None) =>
-        Check.NullReturn(
-            isSome
-                ? Some(Value!)
-                : None());
+        isSome
+            ? Some(Value!)
+            : None();
 
     /// <summary>
     /// <para>
@@ -1241,8 +1186,7 @@ public readonly struct Option<A> :
         Func<B, C> innerKeyMap,
         Func<A, B, D> project) =>
         join<EqDefault<C>, MOption<A>, MOption<B>, MOption<D>, Option<A>, Option<B>, Option<D>, A, B, C, D>(
-            this, inner, outerKeyMap, innerKeyMap, project
-        );
+            this, inner, outerKeyMap, innerKeyMap, project);
 
     /// <summary>
     /// Partial application map
@@ -1285,8 +1229,8 @@ public readonly struct Option<A> :
     /// <param name="f">Bind function</param>
     [Pure]
     public Option<B> Bind<B>(Func<A, Pure<B>> f) =>
-        IsSome && Value is not null 
-            ? f(Value).ToOption()
+        IsSome  
+            ? f(Value!).ToOption()
             : Option<B>.None;
 
     /// <summary>
@@ -1296,8 +1240,8 @@ public readonly struct Option<A> :
     /// <param name="project">Project function</param>
     [Pure]
     public Option<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
-        IsSome && Value is not null
-            ? Option<C>.Some(project(Value, bind(Value).Value))
+        IsSome
+            ? Option<C>.Some(project(Value!, bind(Value!).Value))
             : Option<C>.None;
 
     [Pure]

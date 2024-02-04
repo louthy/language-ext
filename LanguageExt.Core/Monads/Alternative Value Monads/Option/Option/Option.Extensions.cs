@@ -1,5 +1,4 @@
 ﻿using System;
-using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
@@ -7,6 +6,8 @@ using System.Diagnostics.Contracts;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
+
+namespace LanguageExt;
 
 /// <summary>
 /// Extension methods for Option
@@ -33,9 +34,7 @@ public static class OptionExtensions
         {
             if (item.IsSome)
             {
-                #nullable disable
-                yield return item.Value;
-                #nullable enable
+                yield return item.Value!;
             }
         }
     }
@@ -54,9 +53,7 @@ public static class OptionExtensions
             {
                 if (item.IsSome)
                 {
-                    #nullable disable
-                    yield return item.Value;
-                    #nullable enable
+                    yield return item.Value!;
                 }
             }
         }
@@ -268,8 +265,7 @@ public static class OptionExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<R> Match<T, R>(this IEnumerable<Option<T>> list,
         Func<T, IEnumerable<R>> Some,
-        Func<IEnumerable<R>> None
-        ) =>
+        Func<IEnumerable<R>> None) =>
         match(list, Some, None);
 
     /// <summary>
@@ -308,21 +304,4 @@ public static class OptionExtensions
     public static A Sum<NUM, A>(this Option<A> self)
         where NUM : Num<A> =>
         sum<NUM, MOption<A>, Option<A>, A>(self);
-
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static U CheckNullReturn<U>(U value, string location) =>
-        isnull(value)
-            ? throw new ResultIsNullException($"'{location}' result is null.  Not allowed.")
-            : value;
-
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static U CheckNullNoneReturn<U>(U value) =>
-        CheckNullReturn(value, "None");
-
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static U CheckNullSomeReturn<U>(U value) =>
-        CheckNullReturn(value, "Some");
 }

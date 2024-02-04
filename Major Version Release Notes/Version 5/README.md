@@ -112,8 +112,27 @@ The various utilty fields used for units (`seconds`, `cm`, `kg`, etc.) have been
 	* All usages of `using LanguageExt.UnitsOfMeasure` should be converted to `using static LanguageExt.UnitsOfMeasure`
 	* Any uses of the unit-fields will also need `using static LanguageExt.UnitsOfMeasure` either globally or in each `cs` file.
 
+### `Either` doesn't support `IEnumerable<EitherData>` any more
+
+This is part of preparing the library for future serialisation improvements.
+
+* Impact: Low
+* Mitigation:
+	* If you used the feature for serialisation, build your own handler for whatever serialisation library you use.
+	* If you use it in LINQ expressions, write your own extension method to convert the `Either` to an `IEnumerable` that supports 
+
 ## Types made obsolete
 
 * `Aff<RT, A>`, `Aff<A>`, `OptionAsync`, `EitherAsync`, `TryAsync`, `TryOptionAsync` have all been made obsolete, in line with this proposal: https://github.com/louthy/language-ext/discussions/1269.  See the _Type mapping_ table in the proposal of how to migrate.
 	* `runtime<RT>()` now returns a `Transducer`, to continue to use it with `Aff` call `runtime<RT>().ToAff()`
 
+
+## Types removed outright
+
+* `Some<A>` - use nullable references instead
+* `OptionUnsafe<A>` - use `Option<A?>` instead
+* `OptionNone` - use `Fail<Unit>` instead
+* `EitherUnsafe<L, R>` - use `Either<L?, R?>` instead
+* `EitherLeft<L>` - use `Fail<L>` instead
+* `EitherRight<L>` - use `Pure<R>` instead
+* Async extensions for `Option<A>` - use `ToAsync()` instead

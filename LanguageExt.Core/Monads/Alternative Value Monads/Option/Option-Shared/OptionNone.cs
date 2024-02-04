@@ -1,6 +1,5 @@
-﻿using LanguageExt;
-using static LanguageExt.Prelude;
-using LanguageExt.ClassInstances;
+﻿/*
+using LanguageExt;
 using System;
 using System.Diagnostics.Contracts;
 using System.Collections.Generic;
@@ -18,7 +17,7 @@ namespace LanguageExt
         IEquatable<OptionNone>,
         IComparable<OptionNone>
     {
-        public readonly static OptionNone Default = new OptionNone();
+        public static readonly OptionNone Default = new OptionNone();
 
         public bool IsSome => false;
         public bool IsNone => true;
@@ -97,3 +96,4 @@ public static class OptionNoneExt
         return Option<C>.None;
     }
 }
+*/
