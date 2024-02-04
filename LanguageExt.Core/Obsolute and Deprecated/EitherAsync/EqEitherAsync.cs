@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Data.SqlTypes;
-using LanguageExt.TypeClasses;
 using System.Threading.Tasks;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt.ClassInstances
 {
@@ -9,24 +8,24 @@ namespace LanguageExt.ClassInstances
     /// Either type equality
     /// </summary>
     [Obsolete(Change.UseEffMonadInstead)]
-    public struct EqEitherAsync<L, R> : EqAsync<EitherAsync<L, R>>
+    public struct EqEitherAsync<L, R>
     {
-        public Task<bool> EqualsAsync(EitherAsync<L, R> x, EitherAsync<L, R> y) =>
-            default(EqEitherAsync<EqDefaultAsync<L>, EqDefaultAsync<R>, L, R>).EqualsAsync(x, y);
+        public static Task<bool> EqualsAsync(EitherAsync<L, R> x, EitherAsync<L, R> y) =>
+            EqEitherAsync<EqDefault<L>, EqDefault<R>, L, R>.EqualsAsync(x, y);
 
-        public Task<int> GetHashCodeAsync(EitherAsync<L, R> x) =>
-            default(HashableEitherAsync<L, R>).GetHashCodeAsync(x);
+        public static Task<int> GetHashCodeAsync(EitherAsync<L, R> x) =>
+            HashableEitherAsync<L, R>.GetHashCodeAsync(x);
     }
 
     /// <summary>
     /// Either type equality
     /// </summary>
     [Obsolete(Change.UseEffMonadInstead)]
-    public struct EqEitherAsync<EqL, EqR, L, R> : EqAsync<EitherAsync<L, R>> 
-        where EqL : EqAsync<L>
-        where EqR : EqAsync<R>
+    public struct EqEitherAsync<EqL, EqR, L, R> 
+        where EqL : Eq<L>
+        where EqR : Eq<R>
     {
-        public async Task<bool> EqualsAsync(EitherAsync<L, R> x, EitherAsync<L, R> y)
+        public static async Task<bool> EqualsAsync(EitherAsync<L, R> x, EitherAsync<L, R> y)
         {
             var dx = await x.Data.ConfigureAwait(false);
             var dy = await x.Data.ConfigureAwait(false);
@@ -34,20 +33,20 @@ namespace LanguageExt.ClassInstances
             {
                 EitherStatus.IsRight => dy.State switch
                 {
-                    EitherStatus.IsRight => await default(EqR).EqualsAsync(dx.Right, dy.Right).ConfigureAwait(false),
-                    _ => false
+                    EitherStatus.IsRight => EqR.Equals(dx.RightValue, dy.RightValue),
+                    _                    => false
                 },
                 EitherStatus.IsLeft => dy.State switch
                 {
-                    EitherStatus.IsLeft => await default(EqL).EqualsAsync(dx.Left, dy.Left).ConfigureAwait(false),
-                    _ => false
+                    EitherStatus.IsLeft => EqL.Equals(dx.LeftValue, dy.LeftValue),
+                    _                   => false
                 },
                 EitherStatus.IsBottom => dy.State == EitherStatus.IsBottom,
                 _ => false
             };
         }
 
-        public Task<int> GetHashCodeAsync(EitherAsync<L, R> x) =>
-            default(HashableEitherAsync<EqL, EqR, L, R>).GetHashCodeAsync(x);
+        public static Task<int> GetHashCodeAsync(EitherAsync<L, R> x) =>
+            HashableEitherAsync<EqL, EqR, L, R>.GetHashCodeAsync(x);
     }
 }

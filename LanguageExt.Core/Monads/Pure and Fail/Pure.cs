@@ -87,9 +87,6 @@ public readonly record struct Pure<A>(A Value) : KArr<Any, Unit, A>
             ? Option<A>.None 
             : Option<A>.Some(Value);
     
-    public OptionUnsafe<A> ToOptionUnsafe() =>
-        OptionUnsafe<A>.Some(Value);
-    
     public Either<L, A> ToEither<L>() =>
         Either<L, A>.Right(Value);
     

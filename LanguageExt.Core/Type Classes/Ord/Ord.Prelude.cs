@@ -93,42 +93,10 @@ public static partial class TypeClass
     /// </returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int compare<ORD, A>(OptionUnsafe<A> x, OptionUnsafe<A> y) where ORD : Ord<A> =>
-        OrdOptionalUnsafe<ORD, MOptionUnsafe<A>, OptionUnsafe<A>, A>.Compare(x, y);
-
-    /// <summary>
-    /// Compare one item to another to ascertain ordering
-    /// </summary>
-    /// <param name="x">The first item to compare</param>
-    /// <param name="y">The second item to compare</param>
-    /// <returns>
-    ///  0 if x is equal to y
-    /// -1 if x greater than y
-    ///  1 if x less than y
-    /// </returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int compare<ORDA, ORDB, A, B>(Either<A, B> x, Either<A, B> y)
         where ORDA : Ord<A>
         where ORDB : Ord<B> =>
         OrdChoice<ORDA, ORDB, MEither<A, B>, Either<A, B>, A, B>.Compare(x, y);
-
-    /// <summary>
-    /// Compare one item to another to ascertain ordering
-    /// </summary>
-    /// <param name="x">The first item to compare</param>
-    /// <param name="y">The second item to compare</param>
-    /// <returns>
-    ///  0 if x is equal to y
-    /// -1 if x greater than y
-    ///  1 if x less than y
-    /// </returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int compare<ORDA, ORDB, A, B>(EitherUnsafe<A, B> x, EitherUnsafe<A, B> y)
-        where ORDA : Ord<A>
-        where ORDB : Ord<B> =>
-        OrdChoiceUnsafe<ORDA, ORDB, MEitherUnsafe<A, B>, EitherUnsafe<A, B>, A, B>.Compare(x, y);
 
     /// <summary>
     /// Compare one item to another to ascertain ordering
@@ -228,53 +196,8 @@ public static partial class TypeClass
     /// </returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int compare<ORD, A>(TryOption<A> x, TryOption<A> y) where ORD : Ord<A> =>
-        OrdOptional<ORD, MTryOption<A>, TryOption<A>, A>.Compare(x, y);
-
-    /// <summary>
-    /// Compare one item to another to ascertain ordering
-    /// </summary>
-    /// <param name="x">The first item to compare</param>
-    /// <param name="y">The second item to compare</param>
-    /// <returns>
-    ///  0 if x is equal to y
-    /// -1 if x greater than y
-    ///  1 if x less than y
-    /// </returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int compare<ORD, A>(Try<A> x, Try<A> y) where ORD : Ord<A> =>
-        OrdOptional<ORD, MTry<A>, Try<A>, A>.Compare(x, y);
-
-    /// <summary>
-    /// Compare one item to another to ascertain ordering
-    /// </summary>
-    /// <param name="x">The first item to compare</param>
-    /// <param name="y">The second item to compare</param>
-    /// <returns>
-    ///  0 if x is equal to y
-    /// -1 if x greater than y
-    ///  1 if x less than y
-    /// </returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int compare<ORD, L, R>(Either<L, R> x, Either<L, R> y) where ORD : Ord<R> =>
         OrdChoice<ORD, MEither<L, R>, Either<L, R>, L, R>.Compare(x, y);
-
-    /// <summary>
-    /// Compare one item to another to ascertain ordering
-    /// </summary>
-    /// <param name="x">The first item to compare</param>
-    /// <param name="y">The second item to compare</param>
-    /// <returns>
-    ///  0 if x is equal to y
-    /// -1 if x greater than y
-    ///  1 if x less than y
-    /// </returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int compare<ORD, L, R>(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where ORD : Ord<R> =>
-        OrdChoiceUnsafe<ORD, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Compare(x, y);
 
     /// <summary>
     /// Find the minimum value between any two values

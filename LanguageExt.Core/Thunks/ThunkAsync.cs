@@ -13,10 +13,10 @@ namespace LanguageExt.Thunks
     /// </summary>
     public class ThunkAsync<A>
     {
-        internal readonly Func<ValueTask<Fin<A>>> fun;
+        internal readonly Func<ValueTask<Fin<A>>>? fun;
         internal volatile int state;
         internal Error error;
-        internal A value;
+        internal A? value;
 
         /// <summary>
         /// Construct a lazy thunk

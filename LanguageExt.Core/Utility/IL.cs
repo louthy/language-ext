@@ -484,9 +484,6 @@ public static class IL
 
         var fields = GetPublicInstanceFields<A>(
             includeBase,
-#pragma warning disable CS0618
-            typeof(OptOutOfHashCodeAttribute),
-#pragma warning restore CS0618
             typeof(NonHashAttribute), 
             typeof(NonStructuralAttribute), 
             typeof(NonRecordAttribute));
@@ -589,9 +586,6 @@ public static class IL
 
         var fields = GetPublicInstanceFields<A>(
             includeBase,
-#pragma warning disable CS0618
-            typeof(OptOutOfEqAttribute),
-#pragma warning restore CS0618
             typeof(NonEqAttribute),
             typeof(NonStructuralAttribute),
             typeof(NonRecordAttribute));
@@ -617,7 +611,7 @@ public static class IL
                      .MakeGenericType(typeof(Eq<>).MakeGenericType(f.FieldType))
                      .GetTypeInfo();
 
-            var fld = typ.DeclaredFields.Where(m => m.Name == "Default").Single();
+            var fld = typ.DeclaredFields.Single(m => m.Name == "Default");
 
             return fld.GetValue(null);
         });
@@ -697,9 +691,6 @@ public static class IL
 
         var fields = GetPublicInstanceFields<A>(
             includeBase,
-#pragma warning disable CS0618
-            typeof(OptOutOfEqAttribute),
-#pragma warning restore CS0618
             typeof(NonEqAttribute),
             typeof(NonStructuralAttribute),
             typeof(NonRecordAttribute)
@@ -797,9 +788,6 @@ public static class IL
 
         var fields = GetPublicInstanceFields<A>(
             includeBase,
-#pragma warning disable CS0618
-            typeof(OptOutOfOrdAttribute),
-#pragma warning restore CS0618
             typeof(NonOrdAttribute),
             typeof(NonStructuralAttribute),
             typeof(NonRecordAttribute)
@@ -934,9 +922,6 @@ public static class IL
     {
         var fields = GetPublicInstanceFields<A>(
             includeBase,
-#pragma warning disable CS0618
-            typeof(OptOutOfToStringAttribute),
-#pragma warning restore CS0618
             typeof(NonShowAttribute),
             typeof(NonRecordAttribute)
         ).ToArray();
@@ -1014,9 +999,6 @@ public static class IL
                                         true);
         var fields = GetPublicInstanceFields<A>(
             includeBase,
-#pragma warning disable CS0618
-            typeof(OptOutOfToStringAttribute),
-#pragma warning restore CS0618
             typeof(NonShowAttribute),
             typeof(NonRecordAttribute)
         ).ToArray();
@@ -1138,9 +1120,6 @@ public static class IL
     {
         var fields        = GetPublicInstanceFields<A>(
             includeBase,
-#pragma warning disable CS0618
-            typeof(OptOutOfSerializationAttribute),
-#pragma warning restore CS0618
             typeof(NonSerializedAttribute),
             typeof(NonRecordAttribute)
         );
@@ -1191,9 +1170,6 @@ public static class IL
             true);
         var fields = GetPublicInstanceFields<A>(
             includeBase,
-#pragma warning disable CS0618
-            typeof(OptOutOfSerializationAttribute),
-#pragma warning restore CS0618
             typeof(NonSerializedAttribute),
             typeof(NonRecordAttribute)
         );
@@ -1241,14 +1217,11 @@ public static class IL
     {
         // Expression doesn't support setting of fields that are readonly or init only.
         // So we fall back to reflection for this.  Not ideal.
-            
-        var fields = GetPublicInstanceFields<A>(includeBase,
-#pragma warning disable CS0618
-                                                typeof(OptOutOfSerializationAttribute),
-#pragma warning restore CS0618
-                                                typeof(NonSerializedAttribute),
-                                                typeof(NonRecordAttribute)
-        );
+
+        var fields = GetPublicInstanceFields<A>(
+            includeBase,
+            typeof(NonSerializedAttribute),
+            typeof(NonRecordAttribute));
             
         return (self, info) =>
         {
@@ -1272,13 +1245,10 @@ public static class IL
                                         [typeof(A), typeof(SerializationInfo)],
                                         typeof(A).Module,
                                         true);
-        var fields = GetPublicInstanceFields<A>(includeBase,
-#pragma warning disable CS0618
-                                                typeof(OptOutOfSerializationAttribute),
-#pragma warning restore CS0618
-                                                typeof(NonSerializedAttribute),
-                                                typeof(NonRecordAttribute)
-        );
+        var fields = GetPublicInstanceFields<A>(
+            includeBase,
+            typeof(NonSerializedAttribute),
+            typeof(NonRecordAttribute));
         var getTypeFromHandle = GetPublicStaticMethod<Type, RuntimeTypeHandle>("GetTypeFromHandle").IfNone(() => throw new Exception());
         var getValue = GetPublicInstanceMethod<SerializationInfo, string, Type>("GetValue", true).IfNone(() => throw new Exception());
         var argNullExcept = GetConstructor<ArgumentNullException, string>().IfNone(() => throw new Exception());
@@ -1449,7 +1419,7 @@ public static class ILCapability
     static Func<SystemException> TestSystemExceptionCtor()
     {
         var type = typeof(SystemException);
-        var ctor = type.GetConstructor(new Type[0]);
+        var ctor = type.GetConstructor(Type.EmptyTypes);
 
         var dynamic = new DynamicMethod("CreateInstance",
                                         type,

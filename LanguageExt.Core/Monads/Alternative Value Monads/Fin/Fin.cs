@@ -648,12 +648,6 @@ public readonly struct Fin<A> :
             : None;
 
     [Pure, MethodImpl(Opt.Default)]
-    public OptionUnsafe<A> ToOptionUnsafe() =>
-        IsSucc
-            ? SomeUnsafe(Value)
-            : None;
-
-    [Pure, MethodImpl(Opt.Default)]
     public Sum<Error, A> ToSum() =>
         IsSucc
             ? Sum<Error, A>.Right(Value)

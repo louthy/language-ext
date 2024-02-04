@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
@@ -68,21 +67,6 @@ public static partial class Optional
                   None: None);
 
     /// <summary>
-    /// Match operation with an untyped value for Some. This can be
-    /// useful for serialisation and dealing with the IOptional interface
-    /// </summary>
-    /// <typeparam name="R">The return type</typeparam>
-    /// <param name="Some">Operation to perform if the option is in a Some state</param>
-    /// <param name="None">Operation to perform if the option is in a None state</param>
-    /// <returns>The result of the match operation</returns>
-    [Pure]
-    public static R? matchUntypedUnsafe<OPT, OA, A, R>(OA ma, Func<object?, R?> Some, Func<R?> None)
-        where OPT : OptionalUnsafe<OA, A> =>
-        OPT.MatchUnsafe(ma,
-                        Some: x => Some(x),
-                        None: None);
-
-    /// <summary>
     /// Convert the Option to an enumerable of zero or one items
     /// </summary>
     /// <param name="ma">Option</param>
@@ -136,26 +120,6 @@ public static partial class Optional
                   None: () => Left<L, A>(Left()));
 
     /// <summary>
-    /// Convert the structure to an EitherUnsafe
-    /// </summary>
-    [Pure]
-    public static EitherUnsafe<L, A> toEitherUnsafe<OPT, OA, L, A>(OA ma, L defaultLeftValue)
-        where OPT : Optional<OA, A> =>
-        OPT.Match(ma,
-                  Some: RightUnsafe<L, A>,
-                  None: () => LeftUnsafe<L, A>(defaultLeftValue));
-
-    /// <summary>
-    /// Convert the structure to an EitherUnsafe
-    /// </summary>
-    [Pure]
-    public static EitherUnsafe<L, A> toEitherUnsafe<OPT, OA, L, A>(OA ma, Func<L> Left)
-        where OPT : Optional<OA, A> =>
-        OPT.Match(ma,
-                  Some: RightUnsafe<L, A>,
-                  None: () => LeftUnsafe<L, A>(Left()));
-
-    /// <summary>
     /// Convert the structure to a Option
     /// </summary>
     [Pure]
@@ -163,25 +127,5 @@ public static partial class Optional
         where OPT : Optional<OA, A> =>
         OPT.Match(ma,
                   Some: Some,
-                  None: () => Option<A>.None);
-
-    /// <summary>
-    /// Convert the structure to a OptionUnsafe
-    /// </summary>
-    [Pure]
-    public static OptionUnsafe<A> toOptionUnsafe<OPT, OA, A>(OA ma)
-        where OPT : Optional<OA, A> =>
-        OPT.Match(ma,
-                  Some: SomeUnsafe,
-                  None: () => OptionUnsafe<A>.None);
-
-    /// <summary>
-    /// Convert the structure to a TryOption
-    /// </summary>
-    [Pure]
-    public static TryOption<A> toTryOption<OPT, OA, A>(OA ma)
-        where OPT : Optional<OA, A> => () =>
-        OPT.Match(ma,
-                  Some: Option<A>.Some,
                   None: () => Option<A>.None);
 }

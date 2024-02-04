@@ -32,18 +32,6 @@ public static partial class TypeClass
     /// <summary>
     /// An associative binary operation
     /// </summary>
-    /// <param name="lhs">Left-hand side of the operation</param>
-    /// <param name="rhs">Right-hand side of the operation</param>
-    /// <returns>lhs + rhs</returns>
-    [Pure]
-    public static EitherUnsafe<L, R> append<SEMI, L, R>(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) where SEMI : Semigroup<R> =>
-        from x in lhs
-        from y in rhs
-        select SEMI.Append(x, y);
-
-    /// <summary>
-    /// An associative binary operation
-    /// </summary>
     /// <param name="x">The left hand side of the operation</param>
     /// <param name="y">The right hand side of the operation</param>
     /// <returns>The result of the operation</returns>
@@ -147,18 +135,6 @@ public static partial class TypeClass
     /// <returns>The result of the operation</returns>
     [Pure]
     public static Option<A> append<SEMI, A>(Option<A> x, Option<A> y) where SEMI : Semigroup<A> =>
-        from a in x
-        from b in y
-        select SEMI.Append(a, b);
-
-    /// <summary>
-    /// An associative binary operation
-    /// </summary>
-    /// <param name="x">The left hand side of the operation</param>
-    /// <param name="y">The right hand side of the operation</param>
-    /// <returns>The result of the operation</returns>
-    [Pure]
-    public static OptionUnsafe<A> append<SEMI, A>(OptionUnsafe<A> x, OptionUnsafe<A> y) where SEMI : Semigroup<A> =>
         from a in x
         from b in y
         select SEMI.Append(a, b);

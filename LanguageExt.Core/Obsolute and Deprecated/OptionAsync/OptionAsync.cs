@@ -161,8 +161,16 @@ namespace LanguageExt
         /// </summary>
         /// <param name="a">None value</param>
         [Pure]
-        public static implicit operator OptionAsync<A>(OptionNone a) =>
+        public static implicit operator OptionAsync<A>(Fail<Unit> a) =>
             None;
+
+        /// <summary>
+        /// Implicit conversion operator from None to Option<A>
+        /// </summary>
+        /// <param name="a">None value</param>
+        [Pure]
+        public static implicit operator OptionAsync<A>(Pure<A> value) =>
+            new ((true, (A?)value.Value).AsTask());
 
         /// <summary>
         /// Coalescing operator

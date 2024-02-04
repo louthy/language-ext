@@ -17,16 +17,6 @@ public static class UnsafeValueAccessExtensions
             ? option.Value
             : default;
 
-    public static A? ValueUnsafe<A>(this OptionUnsafe<A> option) =>
-        option.IsSome
-            ? option.Value
-            : default;
-
-    public static A? Value<A>(this OptionUnsafe<A> option) where A : struct =>
-        option.IsSome
-            ? option.Value
-            : default;
-
     [Obsolete(Change.UseEffMonadInstead)]
     public static Task<A?> ValueUnsafe<A>(this OptionAsync<A> option) =>
         option.Value;

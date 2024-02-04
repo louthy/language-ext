@@ -136,3 +136,4 @@ This is part of preparing the library for future serialisation improvements.
 * `EitherLeft<L>` - use `Fail<L>` instead
 * `EitherRight<L>` - use `Pure<R>` instead
 * Async extensions for `Option<A>` - use `ToAsync()` instead
+* `ExceptionMatch`, `ExceptionMatchAsync`, `ExceptionMatchOptionalAsync` - use effect monads with `@catch`

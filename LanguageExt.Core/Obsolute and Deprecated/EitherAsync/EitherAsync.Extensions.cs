@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
@@ -41,10 +40,10 @@ public static class EitherAsyncExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
-    public static EitherAsync<L, R> Plus<NUM, L, R>(this EitherAsync<L, R> x, EitherAsync<L, R> y) where NUM : Num<R> =>
+    public static EitherAsync<L, R> Plus<NUM, L, R>(this EitherAsync<L, R> x, EitherAsync<L, R> y) where NUM : Arithmetic<R> =>
         from a in x
         from b in y
-        select default(NUM).Plus(a, b);
+        select NUM.Plus(a, b);
 
     /// <summary>
     /// Find the subtract between the two bound values of x and y, uses a Subtract trait 
@@ -56,10 +55,10 @@ public static class EitherAsyncExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with the subtract between x and y</returns>
     [Pure]
-    public static EitherAsync<L, R> Subtract<NUM, L, R>(this EitherAsync<L, R> x, EitherAsync<L, R> y) where NUM : Num<R> =>
+    public static EitherAsync<L, R> Subtract<NUM, L, R>(this EitherAsync<L, R> x, EitherAsync<L, R> y) where NUM : Arithmetic<R> =>
         from a in x
         from b in y
-        select default(NUM).Subtract(a, b);
+        select NUM.Subtract(a, b);
 
     /// <summary>
     /// Find the product between the two bound values of x and y, uses a Product trait 
@@ -71,10 +70,10 @@ public static class EitherAsyncExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with the product of x and y</returns>
     [Pure]
-    public static EitherAsync<L, R> Product<NUM, L, R>(this EitherAsync<L, R> x, EitherAsync<L, R> y) where NUM : Num<R> =>
+    public static EitherAsync<L, R> Product<NUM, L, R>(this EitherAsync<L, R> x, EitherAsync<L, R> y) where NUM : Arithmetic<R> =>
         from a in x
         from b in y
-        select default(NUM).Product(a, b);
+        select NUM.Product(a, b);
 
     /// <summary>
     /// Divide the two bound values of x and y, uses a Divide trait to provide the divide
@@ -89,7 +88,7 @@ public static class EitherAsyncExtensions
     public static EitherAsync<L, R> Divide<NUM, L, R>(this EitherAsync<L, R> x, EitherAsync<L, R> y) where NUM : Num<R> =>
         from a in x
         from b in y
-        select default(NUM).Divide(a, b);
+        select NUM.Divide(a, b);
 
     /// <summary>
     /// Apply
@@ -196,8 +195,14 @@ public static class EitherAsyncExtensions
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
     [Pure]
-    public static Task<IEnumerable<L>> Lefts<L, R>(this IEnumerable<EitherAsync<L, R>> self) =>
-        leftsAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(self);
+    public static async IAsyncEnumerable<L> Lefts<L, R>(this IEnumerable<EitherAsync<L, R>> self)
+    {
+        foreach (var item in self)
+        {
+            var either = await item.ToEither().ConfigureAwait(false);
+            if (either.IsLeft) yield return either.LeftValue;
+        }
+    }
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Left' elements.
@@ -208,8 +213,16 @@ public static class EitherAsyncExtensions
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
     [Pure]
-    public static Task<Seq<L>> Lefts<L, R>(this Seq<EitherAsync<L, R>> self) =>
-        leftsAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(self);
+    public static async Task<Seq<L>> Lefts<L, R>(this Seq<EitherAsync<L, R>> self)
+    {
+        Seq<L> xs = [];
+        foreach (var item in self)
+        {
+            var either = await item.ToEither().ConfigureAwait(false);
+            if (either.IsLeft) xs = xs.Add(either.LeftValue);
+        }
+        return xs;
+    }
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Right' elements.
@@ -220,8 +233,14 @@ public static class EitherAsyncExtensions
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
     [Pure]
-    public static Task<IEnumerable<R>> Rights<L, R>(this IEnumerable<EitherAsync<L, R>> self) =>
-        rightsAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(self);
+    public static async IAsyncEnumerable<R> Rights<L, R>(this IEnumerable<EitherAsync<L, R>> self)
+    {
+        foreach (var item in self)
+        {
+            var either = await item.ToEither().ConfigureAwait(false);
+            if (either.IsRight) yield return either.RightValue;
+        }
+    }
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Right' elements.
@@ -232,8 +251,16 @@ public static class EitherAsyncExtensions
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
     [Pure]
-    public static Task<Seq<R>> Rights<L, R>(this Seq<EitherAsync<L, R>> self) =>
-        rightsAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(self);
+    public static async Task<Seq<R>> Rights<L, R>(this Seq<EitherAsync<L, R>> self)
+    {
+        Seq<R> xs = [];
+        foreach (var item in self)
+        {
+            var either = await item.ToEither().ConfigureAwait(false);
+            if (either.IsRight) xs = xs.Add(either.RightValue);
+        }
+        return xs;
+    }
 
     /// <summary>
     /// Partitions a list of 'Either' into two lists.
@@ -246,8 +273,18 @@ public static class EitherAsyncExtensions
     /// <param name="self">Either list</param>
     /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
     [Pure]
-    public static Task<(Seq<L> Lefts, Seq<R> Rights)> Partition<L, R>(this Seq<EitherAsync<L, R>> self) =>
-        partitionAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(self);
+    public static async Task<(Seq<L> Lefts, Seq<R> Rights)> Partition<L, R>(this Seq<EitherAsync<L, R>> self)
+    {
+        Seq<R> rs = [];
+        Seq<L> ls = [];
+        foreach (var item in self)
+        {
+            var either = await item.ToEither().ConfigureAwait(false);
+            if (either.IsLeft) ls = ls.Add(either.LeftValue);
+            if (either.IsRight) rs = rs.Add(either.RightValue);
+        }
+        return (ls, rs);
+    }
 
     /// <summary>
     /// Partitions a list of 'Either' into two lists.
@@ -260,8 +297,18 @@ public static class EitherAsyncExtensions
     /// <param name="self">Either list</param>
     /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
     [Pure]
-    public static Task<(IEnumerable<L> Lefts, IEnumerable<R> Rights)> Partition<L, R>(this IEnumerable<EitherAsync<L, R>> self) =>
-        partitionAsync<MEitherAsync<L, R>, EitherAsync<L, R>, L, R>(self);
+    public static async Task<(IEnumerable<L> Lefts, IEnumerable<R> Rights)> Partition<L, R>(this IEnumerable<EitherAsync<L, R>> self)
+    {
+        Seq<R> rs = [];
+        Seq<L> ls = [];
+        foreach (var item in self)
+        {
+            var either = await item.ToEither().ConfigureAwait(false);
+            if (either.IsLeft) ls = ls.Add(either.LeftValue);
+            if (either.IsRight) rs = rs.Add(either.RightValue);
+        }
+        return (ls, rs);
+    }
 
     /// <summary>
     /// Sum of the Either
@@ -271,8 +318,8 @@ public static class EitherAsyncExtensions
     /// <returns>0 if Left, or value of Right</returns>
     [Pure]
     public static Task<R> Sum<NUM, L, R>(this EitherAsync<L, R> self) 
-        where NUM : Num<R> =>
-            self.Match(x => x, _ => default(NUM).Empty(), () => default(NUM).Empty());
+        where NUM : Monoid<R> =>
+            self.Match(x => x, _ => NUM.Empty(), NUM.Empty);
 
     /// <summary>
     /// Sum of the Either
@@ -305,7 +352,7 @@ public static class EitherAsyncExtensions
     [Pure]
     public static Aff<R> ToAff<R>(EitherAsync<Error, R> ma)
     {
-        return AffMaybe<R>(Go);
+        return AffMaybe(Go);
         ValueTask<Fin<R>> Go() =>
             ma.Match(
                 Right: Fin<R>.Succ,

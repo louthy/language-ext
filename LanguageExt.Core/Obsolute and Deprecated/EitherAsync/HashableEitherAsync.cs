@@ -1,36 +1,34 @@
 ﻿using System;
-using LanguageExt.TypeClasses;
 using System.Threading.Tasks;
 
-namespace LanguageExt.ClassInstances
+namespace LanguageExt.ClassInstances;
+
+/// <summary>
+/// Either type hash
+/// </summary>
+[Obsolete(Change.UseEffMonadInstead)]
+public struct HashableEitherAsync<L, R>
 {
-    /// <summary>
-    /// Either type hash
-    /// </summary>
-    [Obsolete(Change.UseEffMonadInstead)]
-    public struct HashableEitherAsync<L, R> : HashableAsync<EitherAsync<L, R>>
-    {
-        public Task<int> GetHashCodeAsync(EitherAsync<L, R> x) =>
-            default(HashableEitherAsync<HashableDefaultAsync<L>, HashableDefaultAsync<R>, L, R>).GetHashCodeAsync(x);
-    }
+    public static Task<int> GetHashCodeAsync(EitherAsync<L, R> x) =>
+        HashableEitherAsync<HashableDefault<L>, HashableDefault<R>, L, R>.GetHashCodeAsync(x);
+}
     
-    /// <summary>
-    /// Either type hash
-    /// </summary>
-    [Obsolete(Change.UseEffMonadInstead)]
-    public struct HashableEitherAsync<HashL, HashR, L, R> : HashableAsync<EitherAsync<L, R>>
-        where HashL : HashableAsync<L>
-        where HashR : HashableAsync<R>
+/// <summary>
+/// Either type hash
+/// </summary>
+[Obsolete(Change.UseEffMonadInstead)]
+public struct HashableEitherAsync<HashL, HashR, L, R>
+    where HashL : Hashable<L>
+    where HashR : Hashable<R>
+{
+    public static async Task<int> GetHashCodeAsync(EitherAsync<L, R> x)
     {
-        public async Task<int> GetHashCodeAsync(EitherAsync<L, R> x)
-        {
-            var d = await x.Data.ConfigureAwait(false);
-            return d.State switch
-            {
-                EitherStatus.IsRight => await default(HashL).GetHashCodeAsync(d.Left).ConfigureAwait(false),
-                EitherStatus.IsLeft => await default(HashR).GetHashCodeAsync(d.Right).ConfigureAwait(false),
-                _ => 0
-            };
-        }
+        var d = await x.Data.ConfigureAwait(false);
+        return d.State switch
+               {
+                   EitherStatus.IsRight => HashL.GetHashCode(d.LeftValue),
+                   EitherStatus.IsLeft  => HashR.GetHashCode(d.RightValue),
+                   _                    => 0
+               };
     }
 }

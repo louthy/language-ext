@@ -152,6 +152,7 @@ public static class NullableExtensions
             : Left<L, T>(Left());
 
     [Pure]
+    [Obsolete(Change.UseEffMonadInstead)]
     public static TryOption<T> ToTryOption<L, T>(this T? self, L defaultLeftValue) where T : struct =>
         () => Optional(self);
 

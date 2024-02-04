@@ -1,23 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
 using System.Threading.Tasks;
 using LanguageExt;
 using LanguageExt.TypeClasses;
-using LanguageExt.DataTypes.Serialisation;
 
 [Obsolete(Change.UseEffMonadInstead)]
-public static partial class TaskEitherAsyncExtensions
+public static class TaskEitherAsyncExtensions
 {
     public static EitherAsync<L, R> ToAsync<L, R>(this Task<Either<L, R>> ma) =>
-        new EitherAsync<L, R>(
-            ma.Map(a => 
-                a.Match(r => new EitherData<L, R>(EitherStatus.IsRight, r,default(L)), 
-                        l => new EitherData<L, R>(EitherStatus.IsLeft, default(R),l),
-                        () => new EitherData<L, R>(EitherStatus.IsBottom, default(R), default(L)))));
+        new (ma.Map(a => a.Match(Either<L, R>.Right, Either<L, R>.Left, () => Either<L, R>.Bottom)));
 
     /// <summary>
     /// Add the bound values of x and y, uses an Add trait to provide the add
@@ -29,10 +22,10 @@ public static partial class TaskEitherAsyncExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
-    public static EitherAsync<L, R> Plus<NUM, L, R>(this Task<Either<L, R>> x, Task<Either<L, R>> y) where NUM : Num<R> =>
+    public static EitherAsync<L, R> Plus<NUM, L, R>(this Task<Either<L, R>> x, Task<Either<L, R>> y) where NUM : Arithmetic<R> =>
         from a in x.ToAsync()
         from b in y.ToAsync()
-        select default(NUM).Plus(a, b);
+        select NUM.Plus(a, b);
 
     /// <summary>
     /// Find the subtract between the two bound values of x and y, uses a Subtract trait 
@@ -44,10 +37,10 @@ public static partial class TaskEitherAsyncExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with the subtract between x and y</returns>
     [Pure]
-    public static EitherAsync<L, R> Subtract<NUM, L, R>(this Task<Either<L, R>> x, Task<Either<L, R>> y) where NUM : Num<R> =>
+    public static EitherAsync<L, R> Subtract<NUM, L, R>(this Task<Either<L, R>> x, Task<Either<L, R>> y) where NUM : Arithmetic<R> =>
         from a in x.ToAsync()
         from b in y.ToAsync()
-        select default(NUM).Subtract(a, b);
+        select NUM.Subtract(a, b);
 
     /// <summary>
     /// Find the product between the two bound values of x and y, uses a Product trait 
@@ -59,10 +52,10 @@ public static partial class TaskEitherAsyncExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with the product of x and y</returns>
     [Pure]
-    public static EitherAsync<L, R> Product<NUM, L, R>(this Task<Either<L, R>> x, Task<Either<L, R>> y) where NUM : Num<R> =>
+    public static EitherAsync<L, R> Product<NUM, L, R>(this Task<Either<L, R>> x, Task<Either<L, R>> y) where NUM : Arithmetic<R> =>
         from a in x.ToAsync()
         from b in y.ToAsync()
-        select default(NUM).Product(a, b);
+        select NUM.Product(a, b);
 
     /// <summary>
     /// Divide the two bound values of x and y, uses a Divide trait to provide the divide
@@ -77,7 +70,7 @@ public static partial class TaskEitherAsyncExtensions
     public static EitherAsync<L, R> Divide<NUM, L, R>(this Task<Either<L, R>> x, Task<Either<L, R>> y) where NUM : Num<R> =>
         from a in x.ToAsync()
         from b in y.ToAsync()
-        select default(NUM).Divide(a, b);
+        select NUM.Divide(a, b);
 
     /// <summary>
     /// Apply
@@ -87,7 +80,7 @@ public static partial class TaskEitherAsyncExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static EitherAsync<L, B> Apply<L, A, B>(this Task<Either<L, Func<A, B>>> fab, Task<Either<L, A>> fa) =>
-        default(ApplEitherAsync<L, A, B>).Apply(fab.ToAsync(), fa.ToAsync());
+        ApplEitherAsync<L, A, B>.Apply(fab.ToAsync(), fa.ToAsync());
 
     /// <summary>
     /// Apply
@@ -97,7 +90,7 @@ public static partial class TaskEitherAsyncExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static EitherAsync<L, B> Apply<L, A, B>(this Func<A, B> fab, Task<Either<L, A>> fa) =>
-        default(ApplEitherAsync<L, A, B>).Apply(fab, fa.ToAsync());
+        ApplEitherAsync<L, A, B>.Apply(fab, fa.ToAsync());
 
     /// <summary>
     /// Apply
@@ -109,7 +102,7 @@ public static partial class TaskEitherAsyncExtensions
     [Pure]
     public static EitherAsync<L, C> Apply<L, A, B, C>(this Task<Either<L, Func<A, B, C>>> fabc, Task<Either<L, A>> fa, Task<Either<L, B>> fb) =>
         from x in fabc.ToAsync()
-        from y in default(ApplEitherAsync<L, A, B, C>).Apply(curry(x), fa.ToAsync(), fb.ToAsync())
+        from y in ApplEitherAsync<L, A, B, C>.Apply(curry(x), fa.ToAsync(), fb.ToAsync())
         select y;
 
     /// <summary>
@@ -121,7 +114,7 @@ public static partial class TaskEitherAsyncExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static EitherAsync<L, C> Apply<L, A, B, C>(this Func<A, B, C> fabc, Task<Either<L, A>> fa, Task<Either<L, B>> fb) =>
-        default(ApplEitherAsync<L, A, B, C>).Apply(curry(fabc), fa.ToAsync(), fb.ToAsync());
+        ApplEitherAsync<L, A, B, C>.Apply(curry(fabc), fa.ToAsync(), fb.ToAsync());
 
     /// <summary>
     /// Apply
@@ -132,7 +125,7 @@ public static partial class TaskEitherAsyncExtensions
     [Pure]
     public static EitherAsync<L, Func<B, C>> Apply<L, A, B, C>(this Task<Either<L, Func<A, B, C>>> fabc, Task<Either<L, A>> fa) =>
         from x in fabc.ToAsync()
-        from y in default(ApplEitherAsync<L, A, B, C>).Apply(curry(x), fa.ToAsync())
+        from y in ApplEitherAsync<L, A, B, C>.Apply(curry(x), fa.ToAsync())
         select y;
 
     /// <summary>
@@ -143,7 +136,7 @@ public static partial class TaskEitherAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static EitherAsync<L, Func<B, C>> Apply<L, A, B, C>(this Func<A, B, C> fabc, Task<Either<L, A>> fa) =>
-        default(ApplEitherAsync<L, A, B, C>).Apply(curry(fabc), fa.ToAsync());
+        ApplEitherAsync<L, A, B, C>.Apply(curry(fabc), fa.ToAsync());
 
     /// <summary>
     /// Apply
@@ -153,7 +146,7 @@ public static partial class TaskEitherAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static EitherAsync<L, Func<B, C>> Apply<L, A, B, C>(this Task<Either<L, Func<A, Func<B, C>>>> fabc, Task<Either<L, A>> fa) =>
-        default(ApplEitherAsync<L, A, B, C>).Apply(fabc.ToAsync(), fa.ToAsync());
+        ApplEitherAsync<L, A, B, C>.Apply(fabc.ToAsync(), fa.ToAsync());
 
     /// <summary>
     /// Apply
@@ -163,7 +156,7 @@ public static partial class TaskEitherAsyncExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static EitherAsync<L, Func<B, C>> Apply<L, A, B, C>(this Func<A, Func<B, C>> fabc, Task<Either<L, A>> fa) =>
-        default(ApplEitherAsync<L, A, B, C>).Apply(fabc, fa.ToAsync());
+        ApplEitherAsync<L, A, B, C>.Apply(fabc, fa.ToAsync());
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -173,5 +166,5 @@ public static partial class TaskEitherAsyncExtensions
     /// <returns>Applicative of type Option<B></returns>
     [Pure]
     public static EitherAsync<L, B> Action<L, A, B>(this Task<Either<L, A>> fa, Task<Either<L, B>> fb) =>
-        default(ApplEitherAsync<L, A, B>).Action(fa.ToAsync(), fb.ToAsync());
+        ApplEitherAsync<L, A, B>.Action(fa.ToAsync(), fb.ToAsync());
 }
