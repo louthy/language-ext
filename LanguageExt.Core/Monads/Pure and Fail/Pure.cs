@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.HKT;
@@ -122,13 +121,7 @@ public readonly record struct Pure<A>(A Value) : KArr<Any, Unit, A>
     public Option<B> Bind<B>(Func<A, Option<B>> bind) =>
         bind(Value);
 
-    public OptionUnsafe<B> Bind<B>(Func<A, OptionUnsafe<B>> bind) =>
-        bind(Value);
-
     public Either<L, B> Bind<L, B>(Func<A, Either<L, B>> bind) =>
-        bind(Value);
-
-    public EitherUnsafe<L, B> Bind<L, B>(Func<A, EitherUnsafe<L, B>> bind) =>
         bind(Value);
 
     public Fin<B> Bind<B>(Func<A, Fin<B>> bind) =>

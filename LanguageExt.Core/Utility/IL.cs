@@ -469,6 +469,10 @@ public static class IL
     /// </remarks>
     public static Func<A, int> GetHashCode<A>(bool includeBase)
     {
+        /*
+         
+         TODO: Find a way of resolving default implementations 
+         
         if (Class<Hashable<A>>.Default != null)
         {
             return Class<Hashable<A>>.Default.GetHashCode;
@@ -481,6 +485,7 @@ public static class IL
         {
             return Class<Ord<A>>.Default.GetHashCode;
         }
+        */
 
         var fields = GetPublicInstanceFields<A>(
             includeBase,
@@ -519,7 +524,7 @@ public static class IL
                                 .GetTypeInfo()
                                 .GetAllMethods(true)
                                 .Where(m => m.Name                                              == "GetHashCode")
-                                .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == Seq1(f.FieldType))
+                                .Where(m => m.GetParameters().Map(p => p.ParameterType).ToSeq() == [f.FieldType])
                                 .Head();
 
                     return (Expression.Field(
@@ -575,6 +580,10 @@ public static class IL
     /// </remarks>
     public static Func<A, object, bool> Equals<A>(bool includeBase)
     {
+        /*
+         
+         TODO: Find a way of resolving default implementations 
+         
         if (Class<Eq<A>>.Default != null)
         {
             return (a, obj) => obj is A b && Class<Eq<A>>.Default.Equals(a, b);
@@ -583,6 +592,7 @@ public static class IL
         {
             return (a, obj) => obj is A b && Class<Ord<A>>.Default.Equals(a, b);
         }
+        */
 
         var fields = GetPublicInstanceFields<A>(
             includeBase,
@@ -684,10 +694,15 @@ public static class IL
     /// </remarks>
     public static Func<A, A, bool> EqualsTyped<A>(bool includeBase)
     {
+        /*
+         
+         TODO: Find a way of resolving default implementations 
+         
         if (Class<Eq<A>>.Default != null)
         {
             return Class<Eq<A>>.Default.Equals;
         }
+        */
 
         var fields = GetPublicInstanceFields<A>(
             includeBase,
@@ -781,10 +796,15 @@ public static class IL
     /// </remarks>
     public static Func<A, A, int> Compare<A>(bool includeBase)
     {
+        /*
+         
+         TODO: Find a way of resolving default implementations 
+         
         if (Class<Ord<A>>.Default != null)
         {
             return Class<Ord<A>>.Default.Compare;
         }
+        */
 
         var fields = GetPublicInstanceFields<A>(
             includeBase,

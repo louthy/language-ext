@@ -611,7 +611,7 @@ public readonly struct Fin<A> :
     }
 
     [Pure, MethodImpl(Opt.Default)]
-    public Lst<A> ToLst() =>
+    public Lst<A> ToList() =>
         IsSucc
             ? List(Value)
             : Empty;

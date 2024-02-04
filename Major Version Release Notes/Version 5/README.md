@@ -142,3 +142,4 @@ This is part of preparing the library for future serialisation improvements.
 
 * Traverse / Sequence - generic system using Transducers
 * Make TraverseParallel for Eff
+* Find a way of resolving default implementations for classes now that we're using static interface methods.

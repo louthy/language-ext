@@ -22,7 +22,7 @@ public static class ReaderExt
     /// Runs the Reader monad and memoizes the result in a TryOption monad.  Use
     /// Match, IfSucc, IfNone, etc to extract.
     /// </summary>
-    public static ReaderResult<A> Run<Env, A>(this Reader<Env, A> self, Env env)
+    public static Fin<A> Run<Env, A>(this Reader<Env, A> self, Env env)
     {
         try
         {
@@ -32,7 +32,7 @@ public static class ReaderExt
         }
         catch(Exception e)
         {
-            return ReaderResult<A>.New(Error.New(e));
+            return Error.New(e);
         }
     }
 
@@ -53,47 +53,12 @@ public static class ReaderExt
         self.Run(env).ToOption();
 
     [Pure]
-    public static OptionUnsafe<A> ToOptionUnsafe<Env, A>(this Reader<Env, A> self, Env env) =>
-        self.Run(env).ToOptionUnsafe();
-
-    [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static OptionAsync<A> ToOptionAsync<Env, A>(this Reader<Env, A> self, Env env) =>
-        self.Run(env).ToOptionAsync();
-
-    [Pure]
     public static Either<Error, A> ToEither<Env, A>(this Reader<Env, A> self, Env env) =>
         self.Run(env).ToEither();
 
     [Pure]
     public static Either<L, A> ToEither<Env, L, A>(this Reader<Env, A> self, Env env, Func<Error, L> Left) =>
-        self.Run(env).ToEither(Left);
-
-    [Pure]
-    public static EitherUnsafe<Error, A> ToEitherUnsafe<Env, A>(this Reader<Env, A> self, Env env) =>
-        self.Run(env).ToEitherUnsafe();
-
-    [Pure]
-    public static EitherUnsafe<L, A> ToEitherUnsafe<Env, L, A>(this Reader<Env, A> self, Env env, Func<Error, L> Left) =>
-        self.Run(env).ToEitherUnsafe(Left);
-
-    [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static EitherAsync<Error, A> ToEitherAsync<Env, A>(this Reader<Env, A> self, Env env) =>
-        self.Run(env).ToEitherAsync();
-
-    [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static EitherAsync<L, A> ToEitherAsync<Env, L, A>(this Reader<Env, A> self, Env env, Func<Error, L> Left) =>
-        self.Run(env).ToEitherAsync(Left);
-
-    [Pure]
-    public static Try<A> ToTry<Env, A>(this Reader<Env, A> self, Env env) =>
-        self.Run(env).ToTry();
-
-    [Pure]
-    public static TryAsync<A> ToTryAsync<Env, A>(this Reader<Env, A> self, Env env) =>
-        self.Run(env).ToTryAsync();
+        self.Run(env).ToEither().MapLeft(Left);
 
     [Pure]
     public static IEnumerable<A> AsEnumerable<Env, A>(this Reader<Env, A> self, Env env) =>
@@ -104,7 +69,7 @@ public static class ReaderExt
 
     [Pure]
     public static Reader<Env, int> Count<Env, T>(this Reader<Env, T> self) =>
-        self.Map(x => 1);
+        self.Map(_ => 1);
 
     [Pure]
     public static Reader<Env, int> Sum<Env>(this Reader<Env, int> self) =>
@@ -112,11 +77,11 @@ public static class ReaderExt
 
     [Pure]
     public static Reader<Env, bool> ForAll<Env, A>(this Reader<Env, A> self, Func<A, bool> pred) =>
-        self.Map(x => pred(x));
+        self.Map(pred);
 
     [Pure]
     public static Reader<Env, bool> Exists<Env, A>(this Reader<Env, A> self, Func<A, bool> pred) =>
-        self.Map(x => pred(x));
+        self.Map(pred);
 
     [Pure]
     public static Reader<Env, S> Fold<Env, S, A>(this Reader<Env, A> self, S state, Func<S, A, S> folder) =>
@@ -132,7 +97,7 @@ public static class ReaderExt
     [Pure]
     public static Reader<Env, A> Strict<Env, A>(this Reader<Env, A> ma)
     {
-        Option<ReaderResult<A>> cache = default;
+        Option<Fin<A>> cache = default;
         var sync = new object();
         return env =>
         {
@@ -156,7 +121,7 @@ public static class ReaderExt
         env =>
         {
             var r = ma(env);
-            if (!r.IsFaulted)
+            if (r.IsSucc)
             {
                 f(r.Value);
             }
@@ -165,16 +130,14 @@ public static class ReaderExt
 
     [Pure]
     public static Reader<Env, B> Bind<Env, A, B>(this Reader<Env, A> self, Func<A, Reader<Env, B>> binder) =>
-        default(MReader<Env, A>)
-            .Bind<MReader<Env, B>, Reader<Env, B>, B>(self, binder);
+        env => self(env).Map(x => binder(x)(env)).Flatten();
 
     /// <summary>
     /// Select
     /// </summary>
     [Pure]
     public static Reader<Env, B> Select<Env, A, B>(this Reader<Env, A> self, Func<A, B> map) =>
-        default(MReader<Env, A>).Bind<MReader<Env, B>, Reader<Env, B>, B>(self, a =>
-        default(MReader<Env, B>).Return(_ => map(a)));
+        env => self(env).Map(map);
 
     /// <summary>
     /// Select Many
@@ -184,18 +147,16 @@ public static class ReaderExt
         this Reader<Env, A> self,
         Func<A, Reader<Env, B>> bind,
         Func<A, B, C> project) =>
-            default(MReader<Env, A>).Bind<MReader<Env, C>, Reader<Env, C>, C>(self, a =>
-            default(MReader<Env, B>).Bind<MReader<Env, C>, Reader<Env, C>, C>(bind(a), b =>
-            default(MReader<Env, C>).Return(_ => project(a, b))));
+        self.Bind(x => bind(x).Map(y => project(x, y)));
 
     [Pure]
     public static Reader<Env, Env> Fold<Env, A>(this Reader<Env, A> self, Func<Env, A, Env> f) =>
         env =>
         {
             var resA = self(env);
-            return resA.IsFaulted
-                ? ReaderResult<Env>.New(resA.ErrorInt)
-                : ReaderResult<Env>.New(f(env, resA.Value));
+            return resA.IsFail
+                ? resA.Error
+                : f(env, resA.Value);
         };
 }
 
