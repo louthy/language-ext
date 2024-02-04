@@ -1,10 +1,8 @@
-﻿using LanguageExt;
-using LanguageExt.ClassInstances;
+﻿using LanguageExt.ClassInstances;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
@@ -14,33 +12,11 @@ namespace LanguageExt;
 public static class ValueTaskExtensions
 {
     public static bool CompletedSuccessfully<A>(this ValueTask<A> ma) =>
-        ma.IsCompleted && !ma.IsFaulted && !ma.IsCanceled;
+        ma is { IsCompleted: true, IsFaulted: false, IsCanceled: false };
         
-    /// <summary>
-    /// Use for pattern-matching the case of the target
-    /// </summary>
-    /// <remarks>
-    ///
-    ///     Task succeeds = result is A
-    ///     Task fails    = result is LanguageExt.Common.Error
-    ///
-    /// </remarks>
-    [Pure]
-    public static async ValueTask<object> Case<A>(this ValueTask<A> ma)
-    {
-        try
-        {
-            return await ma.ConfigureAwait(false)!;
-        }
-        catch (Exception ex)
-        {
-            return Error.New(ex);
-        }
-    }
-
     [Pure]
     public static ValueTask<A> AsFailedValueTask<A>(this Exception ex) =>
-        new ValueTask<A>(ex.AsFailedTask<A>());
+        new (ex.AsFailedTask<A>());
 
     /// <summary>
     /// Convert a value to a Task that completes immediately
@@ -55,15 +31,6 @@ public static class ValueTaskExtensions
     [Pure]
     public static ValueTask<A> ToValue<A>(this Task<A> self) =>
         new (self);
-
-    /// <summary>
-    /// Convert the structure to an Aff
-    /// </summary>
-    /// <returns>An Aff representation of the structure</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Aff<A> ToAff<A>(this ValueTask<A> ma) =>
-        Aff(() => ma);
 
     /// <summary>
     /// Flatten the nested Task type
@@ -405,33 +372,34 @@ public static class ValueTaskExtensions
             if (!s) break;
 
             var ix = i;
-            tasks.Add(outerTask.Bind(async oa => {
-                results[ix].Add(f(oa));
+            tasks.Add(outerTask.Bind(async oa =>
+                                     {
+                                         results[ix].Add(f(oa));
 
-                while (true)
-                {
-                    try
-                    {
-                        var next = GetNext();
-                        if (!next.Success) return unit;
-                        var a = await next.Task.ConfigureAwait(false);
-                        if (next.Task.IsFaulted)
-                        {
-                            errors[ix].Add(next.Task.AsTask().Exception!);
-                            return unit;
-                        }
-                        else
-                        {
-                            results[ix].Add(f(a));
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        errors[ix].Add(new AggregateException(e));
-                        return unit;
-                    }
-                }
-            }));
+                                         while (true)
+                                         {
+                                             try
+                                             {
+                                                 var next = GetNext();
+                                                 if (!next.Success) return unit;
+                                                 var a = await next.Task.ConfigureAwait(false);
+                                                 if (next.Task.IsFaulted)
+                                                 {
+                                                     errors[ix].Add(next.Task.AsTask().Exception!);
+                                                     return unit;
+                                                 }
+                                                 else
+                                                 {
+                                                     results[ix].Add(f(a));
+                                                 }
+                                             }
+                                             catch (Exception e)
+                                             {
+                                                 errors[ix].Add(new AggregateException(e));
+                                                 return unit;
+                                             }
+                                         }
+                                     }));
         }
 
         await Task.WhenAll(tasks.Map(t => t.AsTask())).ConfigureAwait(false);

@@ -414,42 +414,4 @@ public static class Producer
     public static Producer<RT, OUT, Unit> merge<RT, OUT>(Seq<Proxy<RT, Void, Unit, Unit, OUT, Unit>> ms) 
         where RT : HasIO<RT, Error> =>
         merge(ms.Map(m => m.ToProducer()));
-    
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Obsolete
-    //
-
-    /// <summary>
-    /// Repeat a monadic action indefinitely, yielding each result
-    /// </summary>
-    [Obsolete(Change.UseEffMonadInsteadOfAff)]
-    [Pure, MethodImpl(mops)]
-    public static Producer<RT, A, Unit> repeatM<RT, A>(Aff<A> ma) where RT : HasIO<RT, Error> =>
-        repeat(lift<RT, A, A>(ma).Bind(yield<RT, A>));
-
-    /// <summary>
-    /// Repeat a monadic action indefinitely, yielding each result
-    /// </summary>
-    [Obsolete(Change.UseEffMonadInsteadOfAff)]
-    [Pure, MethodImpl(mops)]
-    public static Producer<RT, A, Unit> repeatM<RT, A>(Aff<RT, A> ma) where RT : HasIO<RT, Error> =>
-        repeat(lift<RT, A, A>(ma).Bind(yield<RT, A>));
-    
-    /// <summary>
-    /// Lift the IO monad into the Producer monad transformer (a specialism of the Proxy monad transformer)
-    /// </summary>
-    [Obsolete(Change.UseEffMonadInsteadOfAff)]
-    [Pure, MethodImpl(mops)]
-    public static Producer<RT, OUT, R> lift<RT, OUT, R>(Aff<R> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Void, Unit, Unit, OUT, R>(ma).ToProducer();
-
-    /// <summary>
-    /// Lift the IO monad into the Producer monad transformer (a specialism of the Proxy monad transformer)
-    /// </summary>
-    [Obsolete(Change.UseEffMonadInsteadOfAff)]
-    [Pure, MethodImpl(mops)]
-    public static Producer<RT, OUT, R> lift<RT, OUT, R>(Aff<RT, R> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Void, Unit, Unit, OUT, R>(ma.ToTransducer()).ToProducer();
 }

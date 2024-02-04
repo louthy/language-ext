@@ -4,6 +4,7 @@ using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
 using System.Runtime.Serialization;
+using LanguageExt.Common;
 
 namespace LanguageExt;
 
@@ -45,16 +46,25 @@ public abstract class FloatType<SELF, FLOATING, A, PRED> :
     public static readonly Func<A, SELF> New = IL.Ctor<A, SELF>();
 
     /// <summary>
-    /// Try new
-    /// </summary>
-    public static Try<SELF> NewTry(A value) =>
-        Try(() => New(value));
-
-    /// <summary>
     /// Optional new
     /// </summary>
     public static Option<SELF> NewOption(A value) =>
         NewTry(value).ToOption();
+
+    /// <summary>
+    /// Try new
+    /// </summary>
+    public static Fin<SELF> NewTry(A value)
+    {
+        try
+        {
+            return New(value);
+        }
+        catch (Exception e)
+        {
+            return (Error)e;
+        }
+    }
 
     /// <summary>
     /// Constructor

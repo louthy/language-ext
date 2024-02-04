@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
 using static LanguageExt.Prelude;
 
@@ -288,8 +289,20 @@ public abstract record Error
     /// <summary>
     /// Throw the error as an exception
     /// </summary>
-    public Unit Throw() =>
-        ToException().Rethrow();        
+    public Unit Throw()
+    {
+        ExceptionDispatchInfo.Capture(ToException()).Throw();
+        return default;
+    }
+
+    /// <summary>
+    /// Throw the error as an exception
+    /// </summary>
+    public R Throw<R>()
+    {
+        ExceptionDispatchInfo.Capture(ToException()).Throw();
+        return default;
+    }
 }
 
 /// <summary>

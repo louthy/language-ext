@@ -16,14 +16,3 @@ public interface IOptional
 
     Type GetUnderlyingType();
 }
-
-public interface IOptionalAsync
-{
-    Task<bool> IsSome { get; }
-
-    Task<bool> IsNone { get; }
-
-    Task<R> MatchUntyped<R>(Func<object, R> Some, Func<R> None);
-
-    Type GetUnderlyingType();
-}

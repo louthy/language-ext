@@ -1,7 +1,5 @@
-﻿using System;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace LanguageExt.UnsafeValueAccess;
 
@@ -16,14 +14,6 @@ public static class UnsafeValueAccessExtensions
         option.IsSome
             ? option.Value
             : default;
-
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static Task<A?> ValueUnsafe<A>(this OptionAsync<A> option) =>
-        option.Value;
-
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static Task<A> Value<A>(this OptionAsync<A> option) where A : struct =>
-        option.Value;
 
     public static R Value<L, R>(this Either<L, R> either) where R : struct =>
         either.IsRight

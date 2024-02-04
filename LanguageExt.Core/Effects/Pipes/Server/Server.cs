@@ -91,27 +91,4 @@ public class Server
     public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Transducer<Unit, Sum<Error, R>> ma) 
         where RT : HasIO<RT, Error> =>
         new M<RT, Void, Unit, REQ, RES, R>(ma.MapRight(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Obsolete
-    //
-    
-    /// <summary>
-    /// Lift am IO monad into the `Proxy` monad transformer
-    /// </summary>
-    [Obsolete(Change.UseEffMonadInsteadOfAff)]
-    [Pure, MethodImpl(Proxy.mops)]
-    public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Aff<R> ma) 
-        where RT : HasIO<RT, Error> =>
-        new M<RT, Void, Unit, REQ, RES, R>(ma.ToTransducer().MapRight(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
-    
-    /// <summary>
-    /// Lift am IO monad into the `Proxy` monad transformer
-    /// </summary>
-    [Obsolete(Change.UseEffMonadInsteadOfAff)]
-    [Pure, MethodImpl(Proxy.mops)]
-    public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Aff<RT, R> ma) 
-        where RT : HasIO<RT, Error> =>
-        new M<RT, Void, Unit, REQ, RES, R>(ma.ToTransducer().MapRight(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
 }

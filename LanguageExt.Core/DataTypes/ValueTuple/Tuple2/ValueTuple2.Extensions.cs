@@ -241,30 +241,6 @@ public static class ValueTuple2Extensions
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
     /// </summary>
     [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static EitherAsync<L, (C, D)> Traverse<L, A, B, C, D>(this (EitherAsync<L, A> ma, EitherAsync<L, B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
-        apply((a, b) => f((a, b)), tuple.ma, tuple.mb);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static EitherAsync<L, (C, D)> Traverse<L, A, B, C, D>(this (EitherAsync<L, A> ma, EitherAsync<L, B> mb) tuple, Func<A, B, (C c, D d)> f) =>
-        apply((a, b) => f(a, b), tuple.ma, tuple.mb);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static EitherAsync<L, (A, B)> Sequence<L, A, B>(this (EitherAsync<L, A> ma, EitherAsync<L, B> mb) tuple) =>
-        apply((a, b) => (a, b), tuple.ma, tuple.mb);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
     public static HashSet<(C, D)> Traverse<A, B, C, D>(this (HashSet<A> ma, HashSet<B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
         from a in tuple.ma
         from b in tuple.mb
@@ -347,30 +323,6 @@ public static class ValueTuple2Extensions
         from a in tuple.ma
         from b in tuple.mb
         select (a, b);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static OptionAsync<(C, D)> Traverse<A, B, C, D>(this (OptionAsync<A> ma, OptionAsync<B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
-        apply((a, b) => f((a, b)), tuple.ma, tuple.mb);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static OptionAsync<(C, D)> Traverse<A, B, C, D>(this (OptionAsync<A> ma, OptionAsync<B> mb) tuple, Func<A, B, (C c, D d)> f) =>
-        apply((a, b) => f(a, b), tuple.ma, tuple.mb);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static OptionAsync<(A, B)> Sequence<A, B>(this (OptionAsync<A> ma, OptionAsync<B> mb) tuple) =>
-        apply((a, b) => (a, b), tuple.ma, tuple.mb);
 
     /// <summary>
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
@@ -478,106 +430,6 @@ public static class ValueTuple2Extensions
     /// </summary>
     [Pure]
     public static Task<(A, B)> Sequence<A, B>(this (Task<A> ma, Task<B> mb) tuple) =>
-        apply((a, b) => (a, b), tuple.ma, tuple.mb);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static Try<(C, D)> Traverse<A, B, C, D>(this (Try<A> ma, Try<B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        let r = f((a, b))
-        select (r.Item1, r.Item2);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static Try<(C, D)> Traverse<A, B, C, D>(this (Try<A> ma, Try<B> mb) tuple, Func<A, B, (C c, D d)> f) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        let r = f(a, b)
-        select (r.Item1, r.Item2);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static Try<(A, B)> Sequence<A, B>(this (Try<A> ma, Try<B> mb) tuple) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        select (a, b);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static TryAsync<(C, D)> Traverse<A, B, C, D>(this (TryAsync<A> ma, TryAsync<B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
-        apply((a, b) => f((a, b)), tuple.ma, tuple.mb);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static TryAsync<(C, D)> Traverse<A, B, C, D>(this (TryAsync<A> ma, TryAsync<B> mb) tuple, Func<A, B, (C c, D d)> f) =>
-        apply((a, b) => f(a, b), tuple.ma, tuple.mb);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static TryAsync<(A, B)> Sequence<A, B>(this (TryAsync<A> ma, TryAsync<B> mb) tuple) =>
-        apply((a, b) => (a, b), tuple.ma, tuple.mb);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static TryOption<(C, D)> Traverse<A, B, C, D>(this (TryOption<A> ma, TryOption<B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        let r = f((a, b))
-        select (r.Item1, r.Item2);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static TryOption<(C, D)> Traverse<A, B, C, D>(this (TryOption<A> ma, TryOption<B> mb) tuple, Func<A, B, (C c, D d)> f) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        let r = f(a, b)
-        select (r.Item1, r.Item2);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static TryOption<(A, B)> Sequence<A, B>(this (TryOption<A> ma, TryOption<B> mb) tuple) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        select (a, b);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static TryOptionAsync<(C, D)> Traverse<A, B, C, D>(this (TryOptionAsync<A> ma, TryOptionAsync<B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
-        apply((a, b) => f((a, b)), tuple.ma, tuple.mb);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static TryOptionAsync<(C, D)> Traverse<A, B, C, D>(this (TryOptionAsync<A> ma, TryOptionAsync<B> mb) tuple, Func<A, B, (C c, D d)> f) =>
-        apply((a, b) => f(a, b), tuple.ma, tuple.mb);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static TryOptionAsync<(A, B)> Sequence<A, B>(this (TryOptionAsync<A> ma, TryOptionAsync<B> mb) tuple) =>
         apply((a, b) => (a, b), tuple.ma, tuple.mb);
 
     /// <summary>

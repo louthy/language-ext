@@ -222,7 +222,7 @@ public static class ListExtensions
     [Pure]
     public static Validation<Fail, Success> LastOrInvalid<Fail, Success>(this IEnumerable<Success> list, Fail fail) =>
         list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq1(fail)))
+            .DefaultIfEmpty(Validation<Fail, Success>.Fail([fail]))
             .LastOrDefault();
 
     /// <summary>
@@ -1156,17 +1156,6 @@ public static class ListExtensions
     public static Option<A> ToOption<A>(this IEnumerable<A> self) =>
         self.Match(
             ()     => Option<A>.None,
-            (x, _) => Option<A>.Some(x));
-
-    /// <summary>
-    /// Convert the enumerable to an Option.  
-    /// </summary>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="self">This</param>
-    /// <returns>If enumerable is empty then return None, else Some(head)</returns>
-    public static TryOption<A> ToTryOption<A>(this IEnumerable<A> self) => () =>
-        self.Match(
-            () => Option<A>.None,
             (x, _) => Option<A>.Some(x));
 
     /// <summary>

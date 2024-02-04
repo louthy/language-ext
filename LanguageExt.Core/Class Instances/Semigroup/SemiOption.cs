@@ -130,9 +130,4 @@ public struct SemiOption<SemigroupA, A> :
     [Pure]
     public static  int Compare(Option<A> x, Option<A> y) =>
         compare<OrdDefault<A>, A>(x, y);
-
-    [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static  OptionAsync<A> ToAsync(Option<A> sa) =>
-        sa.ToAsync();
 }

@@ -1,5 +1,4 @@
-﻿using LanguageExt;
-using LanguageExt.ClassInstances;
+﻿using LanguageExt.ClassInstances;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -15,28 +14,6 @@ public static class TaskExtensions
 {
     public static bool CompletedSuccessfully<A>(this Task<A> ma) =>
         ma is { IsCompleted: true, IsFaulted: false, IsCanceled: false };
-        
-    /// <summary>
-    /// Use for pattern-matching the case of the target
-    /// </summary>
-    /// <remarks>
-    ///
-    ///     Task succeeds = result is A
-    ///     Task fails    = result is LanguageExt.Common.Error
-    ///
-    /// </remarks>
-    [Pure]
-    public static async Task<object> Case<A>(this Task<A> ma)
-    {
-        try
-        {
-            return await ma.ConfigureAwait(false)!;
-        }
-        catch (Exception ex)
-        {
-            return Error.New(ex);
-        }
-    }
 
     [Pure]
     public static Task<A> AsFailedTask<A>(this Exception ex)
@@ -307,15 +284,6 @@ public static class TaskExtensions
     }
 
     /// <summary>
-    /// Convert the structure to an Aff
-    /// </summary>
-    /// <returns>An Aff representation of the structure</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Aff<A> ToAff<A>(this Task<A> ma) =>
-        Aff(async () => await ma);
-
-    /// <summary>
     /// Tasks a lazy sequence of tasks and iterates them in a 'measured way'.  A default window size of
     /// `Sys.DefaultAsyncSequenceConcurrency` tasks is used, which by default means there are
     /// `Sys.DefaultAsyncSequenceConcurrency / 2` 'await streams'.  An await stream essentially awaits one
@@ -353,17 +321,18 @@ public static class TaskExtensions
             var (s, outerTask) = GetNext();
             if (!s) break;
 
-            tasks.Add(outerTask.Bind(async oa => {
-                f(oa);
+            tasks.Add(outerTask.Bind(async oa =>
+                                     {
+                                         f(oa);
 
-                while (true)
-                {
-                    var next = GetNext();
-                    if (!next.Success) return unit;
-                    var a = await next.Task.ConfigureAwait(false);
-                    f(a);
-                }
-            }));
+                                         while (true)
+                                         {
+                                             var next = GetNext();
+                                             if (!next.Success) return unit;
+                                             var a = await next.Task.ConfigureAwait(false);
+                                             f(a);
+                                         }
+                                     }));
         }
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -418,33 +387,34 @@ public static class TaskExtensions
             if (!s) break;
 
             var ix = i;
-            tasks.Add(outerTask.Bind(async oa => {
-                results[ix].Add(f(oa));
+            tasks.Add(outerTask.Bind(async oa =>
+                                     {
+                                         results[ix].Add(f(oa));
 
-                while (true)
-                {
-                    try
-                    {
-                        var next = GetNext();
-                        if (!next.Success) return unit;
-                        var a = await next.Task.ConfigureAwait(false);
-                        if (next.Task.IsFaulted)
-                        {
-                            errors[ix].Add(next.Task.Exception);
-                            return unit;
-                        }
-                        else
-                        {
-                            results[ix].Add(f(a));
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        errors[ix].Add(new AggregateException(e));
-                        return unit;
-                    }
-                }
-            }));
+                                         while (true)
+                                         {
+                                             try
+                                             {
+                                                 var next = GetNext();
+                                                 if (!next.Success) return unit;
+                                                 var a = await next.Task.ConfigureAwait(false);
+                                                 if (next.Task.IsFaulted)
+                                                 {
+                                                     errors[ix].Add(next.Task.Exception);
+                                                     return unit;
+                                                 }
+                                                 else
+                                                 {
+                                                     results[ix].Add(f(a));
+                                                 }
+                                             }
+                                             catch (Exception e)
+                                             {
+                                                 errors[ix].Add(new AggregateException(e));
+                                                 return unit;
+                                             }
+                                         }
+                                     }));
         }
 
         await Task.WhenAll(tasks).ConfigureAwait(false);

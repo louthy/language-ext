@@ -66,14 +66,4 @@ public static class Effect
     [Pure, MethodImpl(mops)]
     public static Effect<RT, R> lift<RT, R>(Transducer<Unit, Sum<Error, R>> ma) where RT : HasIO<RT, Error> =>
         lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
-
-    [Obsolete(Change.UseEffMonadInsteadOfAff)]
-    [Pure, MethodImpl(mops)]
-    public static Effect<RT, R> lift<RT, R>(Aff<R> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Void, Unit, Unit, Void, R>(ma.ToTransducer()).ToEffect();
-
-    [Obsolete(Change.UseEffMonadInsteadOfAff)]
-    [Pure, MethodImpl(mops)]
-    public static Effect<RT, R> lift<RT, R>(Aff<RT, R> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Void, Unit, Unit, Void, R>(ma.ToTransducer()).ToEffect();
 }

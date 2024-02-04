@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
 using System.Runtime.Serialization;
 using LanguageExt.ClassInstances;
+using LanguageExt.Common;
 
 namespace LanguageExt;
 
@@ -42,16 +43,25 @@ public abstract class NewType<NEWTYPE, A, PRED, ORD> :
     public static readonly Func<A, NEWTYPE> New = IL.Ctor<A, NEWTYPE>();
 
     /// <summary>
-    /// Try new
-    /// </summary>
-    public static Try<NEWTYPE> NewTry(A value) =>
-        Try(() => New(value));
-
-    /// <summary>
     /// Optional new
     /// </summary>
     public static Option<NEWTYPE> NewOption(A value) =>
         NewTry(value).ToOption();
+
+    /// <summary>
+    /// Try new
+    /// </summary>
+    public static Fin<NEWTYPE> NewTry(A value)
+    {
+        try
+        {
+            return New(value);
+        }
+        catch (Exception e)
+        {
+            return (Error)e;
+        }
+    }
 
     /// <summary>
     /// Constructor

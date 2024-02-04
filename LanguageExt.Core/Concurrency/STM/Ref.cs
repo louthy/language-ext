@@ -109,21 +109,6 @@ public sealed class Ref<A> : IEquatable<A>
     /// </summary>
     /// <param name="f">Swap function</param>
     /// <returns>The value returned from `f`</returns>
-    public Aff<A> SwapAff(Func<A, Aff<A>> f) =>
-        AffMaybe(async () =>
-        {
-            var fv = await f(Value).Run().ConfigureAwait(false);
-            if (fv.IsFail) return fv;
-            Value = fv.Value;
-            return fv;
-        });
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
     public Eff<A> SwapEff(Func<A, Eff<A>> f) =>
         lift(() =>
         {
@@ -133,21 +118,6 @@ public sealed class Ref<A> : IEquatable<A>
             return fv;
         });
 
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
-    public Aff<RT, A> SwapAff<RT>(Func<A, Aff<RT, A>> f) where RT : HasIO<RT, Error> =>
-        AffMaybe<RT, A>(async env =>
-        {
-            var fv = await f(Value).Run(env).ConfigureAwait(false);
-            if (fv.IsFail) return fv;
-            Value = fv.Value;
-            return fv;
-        });
-        
     /// <summary>
     /// Swap the old value for the new returned by `f`
     /// Must be run within a `sync` transaction
@@ -195,21 +165,6 @@ public sealed class Ref<A> : IEquatable<A>
     /// </summary>
     /// <param name="f">Swap function</param>
     /// <returns>The value returned from `f`</returns>
-    public Aff<A> SwapAff<X, Y>(X x, Y y, Func<X, Y, A, Aff<A>> f) =>
-        AffMaybe(async () =>
-        {
-            var fv = await f(x, y, Value).Run().ConfigureAwait(false);
-            if (fv.IsFail) return fv;
-            Value = fv.Value;
-            return fv;
-        });
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
     public Eff<A> SwapEff<X, Y>(X x, Y y, Func<X, Y, A, Eff<A>> f) =>
         lift(() =>
         {
@@ -219,21 +174,6 @@ public sealed class Ref<A> : IEquatable<A>
             return fv;
         });
 
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
-    public Aff<RT, A> SwapAff<X, Y, RT>(X x, Y y, Func<X, Y, A, Aff<RT, A>> f) where RT : HasIO<RT, Error> =>
-        AffMaybe<RT, A>(async env =>
-        {
-            var fv = await f(x, y, Value).Run(env).ConfigureAwait(false);
-            if (fv.IsFail) return fv;
-            Value = fv.Value;
-            return fv;
-        });
-        
     /// <summary>
     /// Swap the old value for the new returned by `f`
     /// Must be run within a `sync` transaction
@@ -281,21 +221,6 @@ public sealed class Ref<A> : IEquatable<A>
     /// </summary>
     /// <param name="f">Swap function</param>
     /// <returns>The value returned from `f`</returns>
-    public Aff<A> SwapAff<X>(X x, Func<X, A, Aff<A>> f) =>
-        AffMaybe(async () =>
-        {
-            var fv = await f(x, Value).Run().ConfigureAwait(false);
-            if (fv.IsFail) return fv;
-            Value = fv.Value;
-            return fv;
-        });
-
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
     public Eff<A> SwapEff<X>(X x, Func<X, A, Eff<A>> f) =>
         lift(() =>
         {
@@ -305,21 +230,6 @@ public sealed class Ref<A> : IEquatable<A>
             return fv;
         });
 
-    /// <summary>
-    /// Swap the old value for the new returned by `f`
-    /// Must be run within a `sync` transaction
-    /// </summary>
-    /// <param name="f">Swap function</param>
-    /// <returns>The value returned from `f`</returns>
-    public Aff<RT, A> SwapAff<X, RT>(X x, Func<X, A, Aff<RT, A>> f) where RT : HasIO<RT, Error> =>
-        AffMaybe<RT, A>(async env =>
-        {
-            var fv = await f(x, Value).Run(env).ConfigureAwait(false);
-            if (fv.IsFail) return fv;
-            Value = fv.Value;
-            return fv;
-        });
-        
     /// <summary>
     /// Swap the old value for the new returned by `f`
     /// Must be run within a `sync` transaction

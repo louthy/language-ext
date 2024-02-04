@@ -72,24 +72,6 @@ public static class STM
     /// Run the op within a new transaction
     /// If a transaction is already running, then this becomes part of the parent transaction
     /// </summary>
-    internal static Aff<R> DoTransaction<R>(Aff<R> op, Isolation isolation) =>
-        transaction.Value == null
-            ? RunTransaction(op, isolation)
-            : op;
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
-    internal static Aff<RT, R> DoTransaction<RT, R>(Aff<RT, R> op, Isolation isolation) where RT : HasIO<RT, Error> =>
-        transaction.Value == null
-            ? RunTransaction(op, isolation)
-            : op;
-
-    /// <summary>
-    /// Run the op within a new transaction
-    /// If a transaction is already running, then this becomes part of the parent transaction
-    /// </summary>
     internal static Eff<R> DoTransaction<R>(Eff<R> op, Isolation isolation) =>
         transaction.Value == null
             ? RunTransaction(op, isolation)
@@ -150,44 +132,6 @@ public static class STM
     /// <summary>
     /// Runs the transaction
     /// </summary>
-    static Aff<RT, R> RunTransaction<RT, R>(Aff<RT, R> op, Isolation isolation) where RT : HasIO<RT, Error> =>
-        AffMaybe<RT, R>(async env =>
-        {
-            SpinWait sw = default;
-            while (true)
-            {
-                // Create a new transaction with a snapshot of the current state
-                var t = new Transaction(state.Items);
-                transaction.Value = t;
-                try
-                {
-                    // Try to do the operations of the transaction
-                    var res = await op.Run(env).ConfigureAwait(false);
-                    return res.IsFail 
-                               ? res 
-                               : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
-                }
-                catch (ConflictException)
-                {
-                    // Conflict found, so retry
-                }
-                finally
-                {
-                    // Clear the current transaction on the way out
-                    transaction.Value = null;
-                    
-                    // Announce changes
-                    OnChange(t.changes);
-                }
-
-                // Wait one tick before trying again
-                sw.SpinOnce();
-            }
-        });
-                
-    /// <summary>
-    /// Runs the transaction
-    /// </summary>
     static Eff<RT, R> RunTransaction<RT, R>(Eff<RT, R> op, Isolation isolation) 
         where RT : HasIO<RT, Error> =>
         lift((RT env) =>
@@ -202,44 +146,6 @@ public static class STM
                 {
                     // Try to do the operations of the transaction
                     var res = op.Run(env);
-                    return res.IsFail 
-                               ? res 
-                               : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);
-                }
-                catch (ConflictException)
-                {
-                    // Conflict found, so retry
-                }
-                finally
-                {
-                    // Clear the current transaction on the way out
-                    transaction.Value = null;
-                    
-                    // Announce changes
-                    OnChange(t.changes);
-                }
-
-                // Wait one tick before trying again
-                sw.SpinOnce();
-            }
-        });
-
-    /// <summary>
-    /// Runs the transaction
-    /// </summary>
-    static Aff<R> RunTransaction<R>(Aff<R> op, Isolation isolation) =>
-        AffMaybe(async () =>
-        {
-            SpinWait sw = default;
-            while (true)
-            {
-                // Create a new transaction with a snapshot of the current state
-                var t = new Transaction(state.Items);
-                transaction.Value = t;
-                try
-                {
-                    // Try to do the operations of the transaction
-                    var res = await op.Run().ConfigureAwait(false);
                     return res.IsFail 
                                ? res 
                                : ValidateAndCommit(t, isolation, res.Value, Int64.MinValue);

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Common;
@@ -401,4 +402,25 @@ public class BottomException : ExceptionalException
         BottomError.Default;
     
     public override ErrorException Append(ErrorException error) => throw new NotImplementedException();
+}
+
+public static class ExceptionExtensions
+{
+    /// <summary>
+    /// Throw the error as an exception
+    /// </summary>
+    public static Unit Rethrow(this Exception e)
+    {
+        ExceptionDispatchInfo.Capture(e).Throw();
+        return default;
+    }
+
+    /// <summary>
+    /// Throw the error as an exception
+    /// </summary>
+    public static R Rethrow<R>(this Exception e)
+    {
+        ExceptionDispatchInfo.Capture(e).Throw();
+        return default;
+    }
 }

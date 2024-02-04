@@ -447,7 +447,7 @@ public readonly struct Either<L, R> :
     /// Project the Either into a Lst R
     /// </summary>
     /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
-    public Lst<R> ToLst() =>
+    public Lst<R> ToList() =>
         toList<MEither<L,R>,Either<L,R>,L,R>(this);
 
     /// <summary>

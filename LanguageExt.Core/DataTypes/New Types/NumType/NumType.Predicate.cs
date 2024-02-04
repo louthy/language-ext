@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
+using LanguageExt.Common;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt;
@@ -46,9 +47,17 @@ public abstract class NumType<SELF, NUM, A, PRED> :
     /// <summary>
     /// Try new
     /// </summary>
-    public static Try<SELF> NewTry(A value) =>
-        Try(() => New(value));
-
+    public static Fin<SELF> NewTry(A value)
+    {
+        try
+        {
+            return New(value);
+        }
+        catch (Exception e)
+        {
+            return (Error)e;
+        }
+    }
     /// <summary>
     /// Optional new
     /// </summary>

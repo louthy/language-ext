@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -56,9 +55,8 @@ internal static class RecordTypeIncludeBase<A>
     internal static readonly bool IncludeBase;
     
     static RecordTypeIncludeBase() =>
-        IncludeBase = typeof(A).CustomAttributes
-                               .Exists(a => a.AttributeType.Name == nameof(IgnoreBaseAttribute))
-                               .Apply(not);
+        IncludeBase = !typeof(A).CustomAttributes
+                                .Exists(a => a.AttributeType.Name == nameof(IgnoreBaseAttribute));
 }
 
 internal static class RecordTypeHash<A>
