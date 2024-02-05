@@ -1,6 +1,7 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using LanguageExt.Common;
 
 namespace LanguageExt.ClassInstances;
 
@@ -13,21 +14,21 @@ public struct MReader<Env, A> :
         MONADB.Run(env =>
         {
             var resA = ma(env);
-            if (resA.IsFaulted) return MONADB.Fail(resA.ErrorInt);
+            if (resA.IsFail) return MONADB.Fail(resA.Error);
             return f(resA.Value);
         });
 
     [Pure]
     public static Reader<Env, A> Fail(object? err = null) => _ =>
-        ReaderResult<A>.New(Common.Error.FromObject(err));
+        Error.FromObject(err);
 
     [Pure]
     public static Reader<Env, A> Reader(Func<Env, A> f) => env =>
-        ReaderResult<A>.New(f(env));
+        f(env);
 
     [Pure]
     public static Reader<Env, Env> Ask() => env =>
-        ReaderResult<Env>.New(env);
+        env;
 
     [Pure]
     public static Reader<Env, A> Local(Reader<Env, A> ma, Func<Env, Env> f) => env =>
@@ -35,7 +36,7 @@ public struct MReader<Env, A> :
 
     [Pure]
     public static Reader<Env, A> Return(Func<Env, A> f) => env =>
-        ReaderResult<A>.New(f(env));
+        f(env);
 
     [Pure]
     public static Reader<Env, A> Run(Func<Env, Reader<Env, A>> f) => env =>
@@ -45,20 +46,20 @@ public struct MReader<Env, A> :
     public static Reader<Env, A> Plus(Reader<Env, A> ma, Reader<Env, A> mb) => env =>
     {
         var resA = ma(env);
-        return resA.IsFaulted
+        return resA.IsFail
                    ? mb(env)
                    : resA;
     };
 
     [Pure]
     public static Reader<Env, A> Zero() =>
-        _ => ReaderResult<A>.Bottom;
+        _ => Errors.Bottom;
 
     [Pure]
     public static Func<Env, S> Fold<S>(Reader<Env, A> fa, S state, Func<S, A, S> f) => env =>
     {
         var resA = fa(env);
-        return resA.IsFaulted
+        return resA.IsFail
                    ? state
                    : f(state, resA.Value);
     };
@@ -69,7 +70,7 @@ public struct MReader<Env, A> :
 
     [Pure]
     public static Func<Env, int> Count(Reader<Env, A> fa) =>
-        Fold(fa, 0, (_, __) => 1);
+        Fold(fa, 0, (_, _) => 1);
 
     [Pure]
     public static Reader<Env, A> BindReturn(Unit _, Reader<Env, A> mb) => mb;
