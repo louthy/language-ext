@@ -4,6 +4,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.HKT;
 
+/*
 /// <summary>
 /// Applicative pure trait
 /// </summary>
@@ -59,3 +60,4 @@ public static class ApplicativeExtensions
         default(F).Lift(Transducer.constant<A, B>(value));
 
 }
+*/

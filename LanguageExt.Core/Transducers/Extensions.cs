@@ -1,12 +1,11 @@
-﻿#nullable enable
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.HKT;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
@@ -108,6 +107,84 @@ public static partial class Transducer
     /// <returns>Transducer with the first argument filled</returns>
     public static Transducer<B, C> Partial<A, B, C>(this Transducer<A, Transducer<B, C>> f, A value) =>
         new PartialTransducer<A, B, C>(value, f);
+    
+    /// <summary>
+    /// Partial application
+    /// </summary>
+    /// <param name="f">Transducer to partially apply</param>
+    /// <param name="value">Value to apply</param>
+    /// <returns>Transducer with the first argument filled</returns>
+    public static KArr<F, B, C> Partial<F, A, B, C>(this Transducer<A, KArr<F, B, C>> f, A value) where F : KLift<F, B> =>
+        F.Lift(new PartialTransducer<A, B, C>(value, f.Map(mbc => mbc.Morphism)));
+    
+    /// <summary>
+    /// Partial application
+    /// </summary>
+    /// <param name="f">Transducer to partially apply</param>
+    /// <param name="value">Value to apply</param>
+    /// <returns>Transducer with the first argument filled</returns>
+    public static KArr<F, A, B> Partial<F, A, B>(this KArr<F, A, KArr<F, A, B>> f, A value) where F : KLift<F, A> =>
+        F.Lift(new PartialTransducer<A, A, B>(value, f.Morphism.Map(m => m.Morphism)));
+    
+    /// <summary>
+    /// Partial application
+    /// </summary>
+    /// <param name="f">Transducer to partially apply</param>
+    /// <param name="value">Value to apply</param>
+    /// <returns>Transducer with the first argument filled</returns>
+    public static KStar<F, A> Partial<F, A>(this KStar<F, KStar<F, A>> f) where F : KLift<F> =>
+        F.Lift(new PartialTransducer<Unit, Unit, A>(default, f.Morphism.Map(m => m.Morphism)));
+    
+    /// <summary>
+    /// Partial application
+    /// </summary>
+    /// <param name="f">Transducer to partially apply</param>
+    /// <param name="value">Value to apply</param>
+    /// <returns>Transducer with the first argument filled</returns>
+    public static KArr<G, Env,A> Partial<F, G, Env, A>(this KStar<F, KArr<G, Env, A>> f) 
+        where F : KLift<F>
+        where G : KLift<G, Env> =>
+        f.Morphism.Partial(unit);
+    
+    /// <summary>
+    /// Partial application
+    /// </summary>
+    /// <param name="f">Transducer to partially apply</param>
+    /// <param name="value">Value to apply</param>
+    /// <returns>Transducer with the first argument filled</returns>
+    public static KArr<F, Env, G, A> Partial<F, Env, G, A>(this Transducer<Unit, KArr<F, Env, G, A>> f) 
+        where F : KLift<F, Env, G> 
+        where G : KLift<G> =>
+        F.Lift(f.Morphism.Map(m => m.Morphism).Partial(unit));
+    
+    /// <summary>
+    /// Partial application
+    /// </summary>
+    /// <param name="f">Transducer to partially apply</param>
+    /// <param name="value">Value to apply</param>
+    /// <returns>Transducer with the first argument filled</returns>
+    public static KArr<F, Env,A> Partial<F, Env, A>(this Transducer<Unit, KArr<F, Env, A>> f) 
+        where F : KLift<F, Env> =>
+        f.Morphism.Partial(unit);
+    
+    /// <summary>
+    /// Partial application
+    /// </summary>
+    /// <param name="f">Transducer to partially apply</param>
+    /// <param name="value">Value to apply</param>
+    /// <returns>Transducer with the first argument filled</returns>
+    public static KStar<F, A> Partial<F, A>(this Transducer<Unit, KStar<F, A>> f) 
+        where F : KLift<F> =>
+        f.Morphism.Partial(unit);
+    
+    /// <summary>
+    /// Partial application
+    /// </summary>
+    /// <param name="f">Transducer to partially apply</param>
+    /// <param name="value">Value to apply</param>
+    /// <returns>Transducer with the first argument filled</returns>
+    public static KStar<F, B> Partial<F, A, B>(this Transducer<A, KStar<F, B>> f, A value) where F : KLift<F> =>
+        F.Lift(new PartialTransducer<A, Unit, B>(value, f.Map(mbc => mbc.Morphism)));
 
     /// <summary>
     /// Partial application
@@ -997,8 +1074,8 @@ public static partial class Transducer
     public static TResult<B> Invoke1<A, B>(
         this Transducer<A, B> transducer, 
         A value, 
-        CancellationToken token,
-        SynchronizationContext? syncContext) =>
+        CancellationToken token = default,
+        SynchronizationContext? syncContext = null) =>
         transducer
             .Invoke(value, default, Invoke1Reducer<B>.Default, token, syncContext)
             .Bind(static b => b is null ? TResult.None<B>() : TResult.Complete<B>(b));
@@ -1022,7 +1099,7 @@ public static partial class Transducer
         A value, 
         S initialState, 
         Reducer<B, S> reducer,
-        CancellationToken token,
+        CancellationToken token = default,
         SynchronizationContext? syncContext = null)
     {
         var st = new TState(syncContext ?? SynchronizationContext.Current, token);
@@ -1090,7 +1167,7 @@ public static partial class Transducer
         S initialState,
         Reducer<B, S> reducer,
         Action? @finally,
-        CancellationToken token,
+        CancellationToken token = default,
         SynchronizationContext? syncContext = null) =>
         TaskAsync<A>.RunAsync<S>((t, v) => Invoke(transducer, v, initialState, reducer, t, syncContext), value, @finally, token);
     
@@ -1109,8 +1186,8 @@ public static partial class Transducer
         this Transducer<A, B> transducer, 
         A value, 
         Action? @finally,
-        CancellationToken token,
-        SynchronizationContext? syncContext) =>
+        CancellationToken token = default,
+        SynchronizationContext? syncContext = null) =>
         TaskAsync<A>.RunAsync<B>((t, v) => Invoke1(transducer, v, t, syncContext), value, @finally, token);
 
     internal static IEnumerable<Transducer<A, Sum<E, B>>> FlattenChoices<A, E, B>(this IEnumerable<Transducer<A, Sum<E, B>>> items)

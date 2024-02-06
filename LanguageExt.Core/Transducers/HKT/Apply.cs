@@ -3,6 +3,7 @@ using System;
 
 namespace LanguageExt.HKT;
 
+/*
 /// <summary>
 /// Applicative trait
 /// </summary>
@@ -26,3 +27,4 @@ public interface Apply<F, A> : Functor<F, A>
     /// </summary>
     KArr<F, A, C> Ap<B, C>(KArr<F, A, Func<B, C>> f, KArr<F, A, B> x);
 }
+*/

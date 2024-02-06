@@ -1,9 +1,9 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.HKT;
 
+/*
 /// <summary>
 /// Functor trait
 /// </summary>
@@ -45,3 +45,4 @@ public static class FunctorExtensions
         where F : Functor<F, A> =>
         default(F).Map(fab, lift(f));
 }
+*/

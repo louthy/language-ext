@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 
 namespace LanguageExt;
 
@@ -12,7 +11,7 @@ record MapTransducer<A, B, C>(Transducer<A, B> F, Func<B, C> G) :
     record Mapper<S>(Func<B, C> G, Reducer<C, S> Reducer) : Reducer<B, S>
     {
         public override TResult<S> Run(TState st, S s, B b) =>
-            Reducer.Run(st, s, G(b));
+            TResult.Recursive(st, s, G(b), Reducer);
     }
             
     public override string ToString() =>  

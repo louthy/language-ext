@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.HKT;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
@@ -168,7 +169,106 @@ public static partial class Transducer
     /// </summary>
     public static Transducer<A, A> identity<A>() =>
         IdentityTransducer<A>.Default;
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Composition
+    //
+        
+    /// <summary>
+    /// Kind and Transducer composition.  The output of one transducer is fed as the input to the next.
+    ///
+    /// Resulting im a single kind that captures the composition
+    /// </summary>
+    /// <returns>Transducer that captures the composition</returns>
+    public static KStar<F, B> compose<F, A, B>(
+        KStar<F, A> f, 
+        Transducer<A, B> g)
+        where F : KLift<F> =>
+        F.Lift(f.Morphism.Compose(g));
+        
+    /// <summary>
+    /// Kind and Transducer composition.  The output of one transducer is fed as the input to the next.
+    ///
+    /// Resulting im a single kind that captures the composition
+    /// </summary>
+    /// <returns>Transducer that captures the composition</returns>
+    public static KStar<F, C> compose<F, A, B, C>(
+        KStar<F, A> f, 
+        Transducer<A, B> g, 
+        Transducer<B, C> h)
+        where F : KLift<F> =>
+        F.Lift(f.Morphism
+                .Compose(g)
+                .Compose(h));
+        
+    /// <summary>
+    /// Kind and Transducer composition.  The output of one transducer is fed as the input to the next.
+    ///
+    /// Resulting im a single kind that captures the composition
+    /// </summary>
+    /// <returns>Transducer that captures the composition</returns>
+    public static KStar<F, D> compose<F, A, B, C, D>(
+        KStar<F, A> f, 
+        Transducer<A, B> g, 
+        Transducer<B, C> h, 
+        Transducer<C, D> i)
+        where F : KLift<F> =>
+        F.Lift(f.Morphism
+                .Compose(g)
+                .Compose(h)
+                .Compose(i));
     
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Composition
+    //
+        
+    /// <summary>
+    /// Kind and Transducer composition.  The output of one transducer is fed as the input to the next.
+    ///
+    /// Resulting im a single kind that captures the composition
+    /// </summary>
+    /// <returns>Transducer that captures the composition</returns>
+    public static KArr<F, Env, B> compose<F, Env, A, B>(
+        KArr<F, Env, A> f, 
+        Transducer<A, B> g)
+        where F : KLift<F, Env> =>
+        F.Lift(f.Morphism.Compose(g));
+        
+    /// <summary>
+    /// Kind and Transducer composition.  The output of one transducer is fed as the input to the next.
+    ///
+    /// Resulting im a single kind that captures the composition
+    /// </summary>
+    /// <returns>Transducer that captures the composition</returns>
+    public static KArr<F, Env, C> compose<F, Env, A, B, C>(
+        KArr<F, Env, A> f, 
+        Transducer<A, B> g, 
+        Transducer<B, C> h)
+        where F : KLift<F, Env> =>
+        F.Lift(f.Morphism
+                .Compose(g)
+                .Compose(h));
+        
+    /// <summary>
+    /// Kind and Transducer composition.  The output of one transducer is fed as the input to the next.
+    ///
+    /// Resulting im a single kind that captures the composition
+    /// </summary>
+    /// <returns>Transducer that captures the composition</returns>
+    public static KArr<F, Env, D> compose<F, Env, A, B, C, D>(
+        KArr<F, Env, A> f, 
+        Transducer<A, B> g, 
+        Transducer<B, C> h, 
+        Transducer<C, D> i)
+        where F : KLift<F, Env> =>
+        F.Lift(f.Morphism
+                .Compose(g)
+                .Compose(h)
+                .Compose(i));
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Composition

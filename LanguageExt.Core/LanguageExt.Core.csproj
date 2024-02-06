@@ -25,7 +25,7 @@
     <OutputType>library</OutputType>
     <AssemblyVersion>4.0.0.0</AssemblyVersion>
     <FileVersion>4.0.0.0</FileVersion>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\Images\lang-ext-small.png">
