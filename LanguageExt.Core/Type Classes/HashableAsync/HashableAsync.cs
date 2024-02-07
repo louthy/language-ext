@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using LanguageExt.Attributes;
 using LanguageExt.TypeClasses;
 
-namespace LanguageExt
+namespace LanguageExt.TypeClasses
 {
     /// <summary>
     /// HashableAsync type-class
