@@ -34,6 +34,17 @@ namespace LanguageExt.Sys.IO
             default(RT).FileEff.Map(e => e.Copy(fromPath, toPath, overwrite));
 
         /// <summary>
+        /// Move file
+        /// </summary>
+        /// <param name="fromPath">Source path</param>
+        /// <param name="toPath">Destination path</param>
+        /// <typeparam name="RT">Runtime</typeparam>
+        /// <returns>Unit</returns>
+        [Pure, MethodImpl(AffOpt.mops)]
+        public static Eff<RT, Unit> move(string fromPath, string toPath) =>
+            default(RT).FileEff.Map(e => e.Move(fromPath, toPath));
+
+        /// <summary>
         /// Append lines to the end of the file provided
         /// </summary>
         [Pure, MethodImpl(AffOpt.mops)]

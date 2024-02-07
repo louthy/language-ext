@@ -29,6 +29,10 @@ namespace LanguageExt.Sys.Test
         public Unit Copy(string fromPath, string toPath, bool overwrite = false) =>
             fs.CopyFile(fromPath, toPath, overwrite, now);
 
+        /// <inheritdoc/>
+        public Unit Move(string fromPath, string toPath) =>
+            fs.Move(fromPath, toPath, now);
+
         /// <summary>
         /// Append lines to the end of a file
         /// </summary>
