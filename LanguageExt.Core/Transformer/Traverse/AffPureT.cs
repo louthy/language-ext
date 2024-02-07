@@ -27,7 +27,7 @@ namespace LanguageExt
         public static Aff<Arr<B>> TraverseParallel<A, B>(this Arr<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<Arr<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f), default).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
                 var fails1 = fails.Take(1).ToArray();
@@ -60,7 +60,7 @@ namespace LanguageExt
         public static Aff<HashSet<B>> TraverseParallel<A, B>(this HashSet<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<HashSet<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f), default).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
                 var fails1 = fails.Take(1).ToArray();
@@ -89,7 +89,7 @@ namespace LanguageExt
         public static Aff<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<IEnumerable<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f), default).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
                 var fails1 = fails.Take(1).ToArray();
@@ -122,7 +122,7 @@ namespace LanguageExt
         public static Aff<Lst<B>> TraverseParallel<A, B>(this Lst<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<Lst<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f), default).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
                 var fails1 = fails.Take(1).ToArray();
@@ -156,7 +156,7 @@ namespace LanguageExt
         public static Aff<Que<B>> TraverseParallel<A, B>(this Que<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<Que<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f), default).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
                 var fails1 = fails.Take(1).ToArray();
@@ -191,7 +191,7 @@ namespace LanguageExt
         public static Aff<Seq<B>> TraverseParallel<A, B>(this Seq<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<Seq<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f), default).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
                 var fails1 = fails.Take(1).ToArray();
@@ -223,7 +223,7 @@ namespace LanguageExt
         public static Aff<Set<B>> TraverseParallel<A, B>(this Set<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<Set<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f), default).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
                 var fails1 = fails.Take(1).ToArray();
@@ -259,7 +259,7 @@ namespace LanguageExt
         public static Aff<Stck<B>> TraverseParallel<A, B>(this Stck<Aff<A>> ma, Func<A, B> f, int windowSize) =>
             AffMaybe<Stck<B>>(async () =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f)).ConfigureAwait(false);
+                var rs = await ma.AsEnumerable().Map(m => m.Run()).WindowMap(windowSize, fa => fa.Map(f), default).ConfigureAwait(false);
 
                 var (fails, succs) = rs.Partition();
                 var fails1 = fails.Take(1).ToArray();

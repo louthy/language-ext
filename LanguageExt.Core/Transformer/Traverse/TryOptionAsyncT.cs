@@ -81,7 +81,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<OptionalResult<IEnumerable<B>>> Go(IEnumerable<TryOptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity).ConfigureAwait(false);
+                var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity, default).ConfigureAwait(false);
                 #nullable disable
                 return rb.Exists(d => d.IsFaulted) ? rb.Filter(b => b.IsFaulted).Map(b => new OptionalResult<IEnumerable<B>>(b.Exception)).Head()
                     : rb.Exists(d => d.IsNone) ? OptionalResult<IEnumerable<B>>.None
@@ -162,7 +162,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<OptionalResult<Seq<B>>> Go(Seq<TryOptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity).ConfigureAwait(false);
+                var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity, default).ConfigureAwait(false);
                 #nullable disable
                 return rb.Exists(d => d.IsFaulted) ? rb.Filter(b => b.IsFaulted).Map(b => new OptionalResult<Seq<B>>(b.Exception)).Head()
                     : rb.Exists(d => d.IsNone) ? OptionalResult<Seq<B>>.None

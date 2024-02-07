@@ -80,7 +80,7 @@ namespace LanguageExt
             #nullable enable
             async Task<(bool, IEnumerable<B>)> Go(IEnumerable<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, identity).ConfigureAwait(false);
+                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, identity, default).ConfigureAwait(false);
                 #nullable disable
                 return rb.Exists(d => !d.IsSome)
                     ? (false, System.Array.Empty<B>())
@@ -163,7 +163,7 @@ namespace LanguageExt
             return new OptionAsync<Seq<B>>(Go(ma, f));
             async Task<(bool, Seq<B>)> Go(Seq<OptionAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, Prelude.identity).ConfigureAwait(false);
+                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, Prelude.identity, default).ConfigureAwait(false);
                 #nullable disable
                 return rb.Exists(d => !d.IsSome)
                     ? (false, default)

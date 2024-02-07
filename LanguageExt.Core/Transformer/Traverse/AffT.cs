@@ -30,7 +30,7 @@ namespace LanguageExt
             where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, Arr<B>>(async env =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f), env.CancellationToken);
 
                 var (fails, succs) = rs.Partition();
                 return fails.Any()
@@ -65,7 +65,7 @@ namespace LanguageExt
             where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, HashSet<B>>(async env =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f), env.CancellationToken);
 
                 var (fails, succs) = rs.Partition();
                 return fails.Any()
@@ -101,7 +101,7 @@ namespace LanguageExt
             where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, IEnumerable<B>>(async env =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f), env.CancellationToken);
 
                 var (fails, succs) = rs.Partition();
                 return fails.Any()
@@ -135,7 +135,7 @@ namespace LanguageExt
             where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, Lst<B>>(async env =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f), env.CancellationToken);
 
                 var (fails, succs) = rs.Partition();
                 return fails.Any()
@@ -170,7 +170,7 @@ namespace LanguageExt
             where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, Que<B>>(async env =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f), env.CancellationToken);
 
                 var (fails, succs) = rs.Partition();
                 return fails.Any()
@@ -205,7 +205,7 @@ namespace LanguageExt
             where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, Seq<B>>(async env =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f), env.CancellationToken);
 
                 var (fails, succs) = rs.Partition();
                 return fails.Any()
@@ -239,7 +239,7 @@ namespace LanguageExt
             where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, Set<B>>(async env =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f), env.CancellationToken);
 
                 var (fails, succs) = rs.Partition();
                 return fails.Any()
@@ -275,7 +275,7 @@ namespace LanguageExt
             where RT : struct, HasCancel<RT> =>
             AffMaybe<RT, Stck<B>>(async env =>
             {
-                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f));
+                var rs = await ma.AsEnumerable().Map(m => m.Run(env)).WindowMap(windowSize, fa => fa.Map(f), env.CancellationToken);
 
                 var (fails, succs) = rs.Partition();
                 return fails.Any()

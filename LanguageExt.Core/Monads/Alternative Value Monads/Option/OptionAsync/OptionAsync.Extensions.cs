@@ -30,7 +30,7 @@ public static partial class OptionAsyncExtensions
     public static async Task<IEnumerable<A>> Somes<A>(this IEnumerable<OptionAsync<A>> self)
     {
         var res = await self.Map(o => o.Data)
-                            .WindowMap(identity)
+                            .WindowMap(identity, default)
                             .ConfigureAwait(false);
         return res.Filter(x => x.IsSome).Map(x => x.Value).ToArray();
     }
@@ -44,7 +44,7 @@ public static partial class OptionAsyncExtensions
     public static async Task<Seq<A>> Somes<A>(this Seq<OptionAsync<A>> self)
     {
         var res = await self.Map(o => o.Data)
-                            .WindowMap(identity)
+                            .WindowMap(identity, default)
                             .ConfigureAwait(false);
         return res.Filter(x => x.IsSome).Map(x => x.Value).ToSeq();
     }

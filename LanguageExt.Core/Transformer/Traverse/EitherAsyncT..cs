@@ -72,7 +72,7 @@ namespace LanguageExt
             return new EitherAsync<L, IEnumerable<B>>(Go(ma, f));
             async Task<EitherData<L, IEnumerable<B>>> Go(IEnumerable<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, identity).ConfigureAwait(false);
+                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, identity, default).ConfigureAwait(false);
                 return rb.Exists(d => d.State == EitherStatus.IsLeft)
                     ? rb.Filter(d => d.State == EitherStatus.IsLeft).Map(d => EitherData.Left<L,IEnumerable<B>>(d.Left)).Head()
                     : EitherData.Right<L, IEnumerable<B>>(rb.Map(d => d.Right));
@@ -148,7 +148,7 @@ namespace LanguageExt
             return new EitherAsync<L, Seq<B>>(Go(ma, f));
             async Task<EitherData<L, Seq<B>>> Go(Seq<EitherAsync<L, A>> ma, Func<A, B> f)
             {
-                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, identity).ConfigureAwait(false);
+                var rb = await ma.Map(a => a.Map(f).Data).WindowMap(windowSize, identity, default).ConfigureAwait(false);
                 return rb.Exists(d => d.State == EitherStatus.IsLeft)
                      ? rb.Filter(d => d.State == EitherStatus.IsLeft).Map(d => EitherData.Left<L, Seq<B>>(d.Left)).Head()
                      : EitherData.Right<L, Seq<B>>(Seq.FromArray(rb.Map(d => d.Right).ToArray()));

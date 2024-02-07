@@ -44,10 +44,10 @@ namespace LanguageExt
         }
 
         public static ValueTask<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<ValueTask<A>> ma, int windowSize, Func<A, B> f) =>
-            ma.WindowMap(windowSize, f).Map(xs => (IEnumerable<B>)xs);
+            ma.WindowMap(windowSize, f, default).Map(xs => (IEnumerable<B>)xs);
 
         public static ValueTask<IEnumerable<B>> TraverseParallel<A, B>(this IEnumerable<ValueTask<A>> ma, Func<A, B> f) =>
-            ma.WindowMap(f).Map(xs => (IEnumerable<B>)xs);
+            ma.WindowMap(f, default).Map(xs => (IEnumerable<B>)xs);
                       
         [Obsolete("use TraverseSerial or TraverseParallel instead")]
         public static ValueTask<IEnumerable<A>> Sequence<A>(this IEnumerable<ValueTask<A>> ma) =>
@@ -89,10 +89,10 @@ namespace LanguageExt
         }
         
         public static ValueTask<Seq<B>> TraverseParallel<A, B>(this Seq<ValueTask<A>> ma, int windowSize, Func<A, B> f) =>
-            ma.WindowMap(windowSize, f).Map(toSeq);        
+            ma.WindowMap(windowSize, f, default).Map(toSeq);        
 
         public static ValueTask<Seq<B>> TraverseParallel<A, B>(this Seq<ValueTask<A>> ma, Func<A, B> f) =>
-            ma.WindowMap(f).Map(toSeq);
+            ma.WindowMap(f, default).Map(toSeq);
         
         [Obsolete("use TraverseSerial or TraverseParallel instead")]
         public static ValueTask<Seq<A>> Sequence<A>(this Seq<ValueTask<A>> ma) =>

@@ -73,7 +73,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<IEnumerable<B>>> Go(IEnumerable<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity).ConfigureAwait(false);
+                var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity, default).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<IEnumerable<B>>(b.Exception)).Head()
                     : new Result<IEnumerable<B>>(rb.Map(d => d.Value).ToArray());
@@ -145,7 +145,7 @@ namespace LanguageExt
             return ToTry(() => Go(ma, f));
             async Task<Result<Seq<B>>> Go(Seq<TryAsync<A>> ma, Func<A, B> f)
             {
-                var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity).ConfigureAwait(false);
+                var rb = await ma.Map(a => a.Map(f).Try()).WindowMap(windowSize, Prelude.identity, default).ConfigureAwait(false);
                 return rb.Exists(d => d.IsFaulted)
                     ? rb.Filter(b => b.IsFaulted).Map(b => new Result<Seq<B>>(b.Exception)).Head()
                     : new Result<Seq<B>>(Seq.FromArray(rb.Map(d => d.Value).ToArray()));
