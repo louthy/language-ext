@@ -40,7 +40,7 @@ namespace LanguageExt.Sys.Live
         /// </summary>
         public async ValueTask<Unit> SleepFor(TimeSpan ts, CancellationToken token)        
         {
-            await Task.Delay(ts).ConfigureAwait(false);
+            await Task.Delay(ts, token).ConfigureAwait(false);
             return default;
         }
     }
