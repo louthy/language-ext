@@ -24,17 +24,24 @@ namespace LanguageExt
                 {
                     A   nextValue = default;
                     using var wait = new AutoResetEvent(false);
+                    bool isCompleted = false;
 
                     using var disp = ma.Subscribe(
                         (A x) =>
                         {
                             nextValue = x;
                             wait.Set();
+                        },
+                        () =>
+                        {
+                            isCompleted = true;
+                            wait.Set();
                         });
 
                     while (token == default || !token.IsCancellationRequested)
                     {
                         wait.WaitOne();
+                        if (isCompleted) break;
                         var res = await next(nextValue).Run();
                         if (res.IsFail) return FinFail<Unit>((Error)res);
                     }
@@ -58,17 +65,24 @@ namespace LanguageExt
                 {
                     A nextValue = default;
                     using var wait = new AutoResetEvent(false);
+                    bool isCompleted = false;
 
                     using var disp = ma.Subscribe(
                         (A x) =>
                         {
                             nextValue = x;
                             wait.Set();
+                        },
+                        () =>
+                        {
+                            isCompleted = true;
+                            wait.Set();
                         });
 
                     while (env.CancellationToken == default || !env.CancellationToken.IsCancellationRequested)
                     {
-                        wait.WaitOne();
+                        wait.WaitOne(); 
+                        if (isCompleted) break;
                         var res = await next(nextValue).Run(env);
                         if (res.IsFail) return FinFail<Unit>((Error)res);
                     }
@@ -94,17 +108,24 @@ namespace LanguageExt
                 {
                     A nextValue = default;
                     using var wait = new AutoResetEvent(false);
+                    bool isCompleted = false;
 
                     using var disp = ma.Subscribe(
                         (A x) =>
                         {
                             nextValue = x;
                             wait.Set();
+                        },
+                        () =>
+                        {
+                            isCompleted = true;
+                            wait.Set();
                         });
 
                     while (token == default || !token.IsCancellationRequested)
                     {
                         wait.WaitOne();
+                        if (isCompleted) break;
                         var res = await next(state, nextValue).Run();
                         if (res.IsFail) return FinFail<S>((Error)res);
                         state = (S)res;
@@ -131,17 +152,24 @@ namespace LanguageExt
                 {
                     A nextValue = default;
                     using var wait = new AutoResetEvent(false);
+                    bool isCompleted = false;
 
                     using var disp = ma.Subscribe(
                         (A x) =>
                         {
                             nextValue = x;
                             wait.Set();
+                        },
+                        () =>
+                        {
+                            isCompleted = true;
+                            wait.Set();
                         });
 
                     while (env.CancellationToken == default || !env.CancellationToken.IsCancellationRequested)
                     {
-                        wait.WaitOne();
+                        wait.WaitOne(); 
+                        if (isCompleted) break;
                         var res = await next(state, nextValue).Run(env);
                         if (res.IsFail) return FinFail<S>((Error)res);
                         state = (S)res;
