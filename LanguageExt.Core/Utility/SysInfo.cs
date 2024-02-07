@@ -35,11 +35,11 @@ namespace LanguageExt
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => defaultAsyncSequenceParallelism == 0
-                ? (defaultAsyncSequenceParallelism = Math.Max(1, ProcessorCount / 2))
+                ? (defaultAsyncSequenceParallelism = Math.Min(4, Math.Max(1, ProcessorCount / 2)))
                 : defaultAsyncSequenceParallelism;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set => defaultAsyncSequenceParallelism = Math.Max(1, value);
+            set => defaultAsyncSequenceParallelism = Math.Max(4, value);
         }
     }
 }

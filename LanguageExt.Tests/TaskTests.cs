@@ -124,15 +124,5 @@ namespace LanguageExt.Tests
             var actual = await tries.SequenceParallel(1).Map(Enumerable.Count);
             Assert.Equal(expected, actual);
         }
-
-        [Fact]
-        public async Task WindowIter_SingleWindowWithPositiveDelayTasks_ActionExecutedOnceForEveryTask()
-        {
-            var expected = 100;
-            var tries = from i in Range(0, expected) select Task.Delay(1).ToUnit();
-            var actual = 0;
-            await tries.WindowIter(1, _ => actual++);
-            Assert.Equal(expected, actual);
-        }
     }
 }

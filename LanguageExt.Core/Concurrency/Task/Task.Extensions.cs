@@ -339,7 +339,6 @@ namespace LanguageExt
             var index = -1;
             var results = new List<B>();
             var errors = new List<Exception>();
-            var active = 0;
 
             for (var i = 0; i < windowSize; i++)
             {
@@ -348,22 +347,27 @@ namespace LanguageExt
                 #pragma warning restore CS4014
             }
 
-            (int Index, Option<Task<B>> Task) next()
+            Option<(int Index, Task<B>)> next()
             {
                 lock (sync)
                 {
                     index++;
                     try
                     {
-                        results.Add(default);
-                        return iter.MoveNext()
-                            ? (index, Some(iter.Current.Map(f)))
-                            : (index, None);
+                        if (iter.MoveNext())
+                        {
+                            results.Add(default);
+                            return Some((index, iter.Current.Map(f)));
+                        }
+                        else
+                        {
+                            return default;
+                        }
                     }
                     catch (Exception e)
                     {
                         errors.Add(e);
-                        return (index, None);
+                        return default;
                     }
                 }
             }
@@ -374,9 +378,9 @@ namespace LanguageExt
                 {
                     while (!token.IsCancellationRequested)
                     {
-                        var (ix, otask) = next();
+                        var otask = next();
                         if (otask.IsNone) return;
-                        var task = (Task<B>)otask;
+                        var (ix, task) = ((int, Task<B>))otask;
 
                         SpinWait sw = default;
                         while (!task.IsCompleted && !token.IsCancellationRequested)
@@ -415,10 +419,7 @@ namespace LanguageExt
                 }
                 finally
                 {
-                    if(Interlocked.Decrement(ref active) == 0)
-                    {
-                        wait.Signal();
-                    }
+                    wait.Signal();
                 }
             }
 
