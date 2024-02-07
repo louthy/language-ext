@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using static LanguageExt.Prelude;
 using static LanguageExt.Seq;
@@ -642,6 +643,27 @@ namespace LanguageExt.Tests
             Assert.Equal(originalStrictTail, lazySeqTail);
             Assert.Equal(originalStrictTail.GetHashCode(), lazyPattern.GetHashCode());
             Assert.Equal(originalStrictTail, lazyPattern);
+        }
+        
+        [Fact]
+        public async Task SequenceParallelRandomDelayTest()
+        {
+            var input = Seq(1, 2, 3, 2, 5, 1, 1, 2, 3, 2, 1, 2, 4, 2, 1, 5, 6, 1, 3, 6, 2);
+	
+            var ma = input.Select(DoDelay).SequenceParallel();
+
+            Assert.True(await ma.IsRight);
+            await ma.IfRight(right => Assert.True(right.SequenceEqual(input)));
+        }
+
+        static EitherAsync<string, int> DoDelay(int seconds)
+        {
+            return F(seconds).ToAsync();
+            static async Task<Either<string, int>> F(int seconds)
+            {
+                await Task.Delay(seconds * 100);
+                return seconds;
+            }
         }
     }
 }

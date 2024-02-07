@@ -2,24 +2,29 @@ Q:
 
 echo building the docs
 
+set root=
+
+:: %LangExtRoot% is where the source code root should be (i.e. c:\dev\language-ext)
+:: %LangExtDocs% is where the docs root should be (i.e. c:\dev\louthy.github.io)
+
 cd Q:\dev\best-form\BestForm\bin\Release\net7.0
-bestform.exe "LanguageExt.Core" "Q:\Dev\language-ext\LanguageExt.Core" "Q:\dev\louthy.github.io\language-ext" "https://github.com/louthy/language-ext/tree/main"
-bestform.exe "LanguageExt.Transformers" "Q:\Dev\language-ext\LanguageExt.Transformers" "Q:\dev\louthy.github.io\language-ext" "https://github.com/louthy/language-ext/tree/main"
-bestform.exe "LanguageExt.Parsec" "Q:\Dev\language-ext\LanguageExt.Parsec" "Q:\dev\louthy.github.io\language-ext" "https://github.com/louthy/language-ext/tree/main"
-bestform.exe "LanguageExt.FSharp" "Q:\Dev\language-ext\LanguageExt.FSharp" "Q:\dev\louthy.github.io\language-ext" "https://github.com/louthy/language-ext/tree/main"
-bestform.exe "LanguageExt.Rx" "Q:\Dev\language-ext\LanguageExt.Rx" "Q:\dev\louthy.github.io\language-ext" "https://github.com/louthy/language-ext/tree/main"
-bestform.exe "LanguageExt.Sys" "Q:\Dev\language-ext\LanguageExt.Sys" "Q:\dev\louthy.github.io\language-ext" "https://github.com/louthy/language-ext/tree/main"
-bestform.exe "LanguageExt.SysX" "Q:\Dev\language-ext\LanguageExt.SysX" "Q:\dev\louthy.github.io\language-ext" "https://github.com/louthy/language-ext/tree/main"
+bestform.exe "LanguageExt.Core" "%LangExtRoot%\LanguageExt.Core" "%LangExtDocs%\language-ext" "https://github.com/louthy/language-ext/tree/main"
+bestform.exe "LanguageExt.Transformers" "%LangExtRoot%\LanguageExt.Transformers" "%LangExtDocs%\language-ext" "https://github.com/louthy/language-ext/tree/main"
+bestform.exe "LanguageExt.Parsec" "%LangExtRoot%\LanguageExt.Parsec" "%LangExtDocs%\language-ext" "https://github.com/louthy/language-ext/tree/main"
+bestform.exe "LanguageExt.FSharp" "%LangExtRoot%\LanguageExt.FSharp" "%LangExtDocs%\language-ext" "https://github.com/louthy/language-ext/tree/main"
+bestform.exe "LanguageExt.Rx" "%LangExtRoot%\LanguageExt.Rx" "%LangExtDocs%\language-ext" "https://github.com/louthy/language-ext/tree/main"
+bestform.exe "LanguageExt.Sys" "%LangExtRoot%\LanguageExt.Sys" "%LangExtDocs%\language-ext" "https://github.com/louthy/language-ext/tree/main"
+bestform.exe "LanguageExt.SysX" "%LangExtRoot%\LanguageExt.SysX" "%LangExtDocs%\language-ext" "https://github.com/louthy/language-ext/tree/main"
 
 echo committing them to git
 
-cd Q:\dev\louthy.github.io
+cd %LangExtDocs%
 
 git add .
 git commit -m "Language-ext documentation update"
 git push
 
-cd Q:\dev\language-ext
+cd %LangExtRoot%
 
 echo building the artefacts
 
