@@ -26,13 +26,14 @@ namespace LanguageExt.Sys
     public class MemoryFS
     {
         readonly Atom<Entry> machine = Atom<Entry>(new FolderEntry("[machine]", DateTime.MinValue, DateTime.MinValue, DateTime.MinValue, default));
-        readonly static char[] invalidPath = Path.GetInvalidPathChars();
-        readonly static char[] invalidFile = Path.GetInvalidFileNameChars();
+        readonly static char[] invalidPath = new char[] { '|', '\0' };
+        readonly static char[] invalidFile = new char[] { '|', '\0', '\"', '<', '>', ':', '*', '?', '\\', '/' };
+        readonly static char directorySeparatorChar = '\\';
+        readonly static char altDirectorySeparatorChar = '/';
         public string CurrentDir = "C:\\";
 
         public MemoryFS() =>
             AddLogicalDrive("C");
-
 
         /// <summary>
         /// Get the logical in-memory drives 
@@ -47,29 +48,32 @@ namespace LanguageExt.Sys
         public Unit AddLogicalDrive(string name) =>
             CreateFolder($"{name.TrimEnd(':')}:", DateTime.MinValue);
 
+        static bool IsPathRooted(string path) =>
+            path.Length > 1 && char.IsLetter(path[0]) && path[1] == ':';
+
         Seq<string> ParsePath(string path) =>
-            System.IO.Path.IsPathRooted(path)
+            IsPathRooted(path)
                 ? ParsePath1(path)
                 :throw new IOException($"Path not rooted: {path}");
 
         static Seq<string> ParsePath1(string path) =>
             ValidatePathNames(path.Trim()
-                                  .TrimEnd(new[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
-                                  .Split(new[] {Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar})
+                                  .TrimEnd(new[] {directorySeparatorChar, altDirectorySeparatorChar})
+                                  .Split(new[] {directorySeparatorChar, altDirectorySeparatorChar})
                                   .ToSeq());
 
         static Seq<string> ValidatePathNames(Seq<string> path)
         {
             if (path.IsEmpty) 
-                throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
+                throw new IOException($"Invalid path: {string.Join(directorySeparatorChar.ToString(), path)}");
             
             if (path.Head.Exists(invalidPath.Contains)) 
-                throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
+                throw new IOException($"Invalid path: {string.Join(directorySeparatorChar.ToString(), path)}");
             
             foreach (var name in path.Tail)
             {
                 if (name.Exists(invalidFile.Contains)) 
-                    throw new IOException($"Invalid path: {string.Join(Path.DirectorySeparatorChar.ToString(), path)}");
+                    throw new IOException($"Invalid path: {string.Join(directorySeparatorChar.ToString(), path)}");
             }
             return path;
         }
@@ -93,7 +97,7 @@ namespace LanguageExt.Sys
             return entry == null || entry is FileEntry
                        ? throw new DirectoryNotFoundException($"Directory not found: {path}")
                        : entry.EnumerateFolders(Empty, regex, option, false)
-                              .Map(e => string.Join(Path.DirectorySeparatorChar.ToString(), e.Path));
+                              .Map(e => string.Join(directorySeparatorChar.ToString(), e.Path));
         }
 
         internal IEnumerable<string> EnumerateFiles(string path, string searchPattern, SearchOption option)
@@ -103,7 +107,7 @@ namespace LanguageExt.Sys
             return entry == null || entry is FileEntry
                        ? throw new DirectoryNotFoundException($"Directory not found: {path}")
                        : entry.EnumerateFiles(Empty, regex, option)
-                              .Map(e => string.Join(Path.DirectorySeparatorChar.ToString(), e.Path));
+                              .Map(e => string.Join(directorySeparatorChar.ToString(), e.Path));
         }
 
         internal IEnumerable<string> EnumerateEntries(string path, string searchPattern, SearchOption option)
@@ -113,7 +117,7 @@ namespace LanguageExt.Sys
             return entry == null || entry is FileEntry
                        ? throw new DirectoryNotFoundException($"Directory not found: {path}")
                        : entry.EnumerateEntries(Empty, regex, option, false)
-                              .Map(e => string.Join(Path.DirectorySeparatorChar.ToString(), e.Path));
+                              .Map(e => string.Join(directorySeparatorChar.ToString(), e.Path));
         }
 
         static Regex MakePathSearchRegex(string searchPattern) =>
@@ -135,6 +139,12 @@ namespace LanguageExt.Sys
 
         static string MakeAnchor(string p) =>
             $"^{p}$";
+
+        static string GetDirectoryName(string path)
+        {
+            var separatorIndex = path.LastIndexOf(directorySeparatorChar);
+            return (separatorIndex == -1) ? path : path.Substring(0, separatorIndex+1);
+        }
 
         internal Unit CreateFolder(string path, DateTime now)
         {
@@ -319,7 +329,7 @@ namespace LanguageExt.Sys
         {
             var srcp   = ParsePath(src); 
             var destp  = ParsePath(dest);
-            var parent = Path.GetDirectoryName(dest);
+            var parent = GetDirectoryName(dest);
             if (parent == null) throw new DirectoryNotFoundException($"Parent directory not found: {dest}");
             
             machine.Swap(
