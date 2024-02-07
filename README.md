@@ -248,8 +248,8 @@ Location | Feature | Description
 Location | Feature | Description
 ---------|---------|------------
 `Core` | `NewType<SELF, A, PRED>` | [Haskell `newtype` equivalent](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/New%20Types/NewType/index.html) i.e: `class Hours : NewType<Hours, double> { public Hours(double value) : base(value) { } }`. The resulting type is: equatable, comparable, foldable, a functor, monadic, and iterable
-`Core` | `NumType<SELF, NUM, A, PRED>` | [Haskell `newtype` equivalent but for numeric types](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/New%20Types/NumType/index.html) i.e: `class Hours : NumType<Hours, TDouble, double> { public Hours(double value) : base(value) { } }`. The resulting type is: equatable, comparable, foldable, a functor, a monoid, a semigroup, monadic, iterable, and can have basic artithmetic operations performed upon it.
-`Core` | `FloatType<SELF, FLOATING, A, PRED>` | [Haskell `newtype` equivalent but for real numeric types](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/New%20Types/FloatType/index.html) i.e: `class Hours : FloatType<Hours, TDouble, double> { public Hours(double value) : base(value) { } }`. The resulting type is: equatable, comparable, foldable, a functor, a monoid, a semigroup, monadic, iterable, and can have complex artithmetic operations performed upon it.
+`Core` | `NumType<SELF, NUM, A, PRED>` | [Haskell `newtype` equivalent but for numeric types](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/New%20Types/NumType/index.html) i.e: `class Hours : NumType<Hours, TDouble, double> { public Hours(double value) : base(value) { } }`. The resulting type is: equatable, comparable, foldable, a functor, a monoid, a semigroup, monadic, iterable, and can have basic arithmetic operations performed upon it.
+`Core` | `FloatType<SELF, FLOATING, A, PRED>` | [Haskell `newtype` equivalent but for real numeric types](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/New%20Types/FloatType/index.html) i.e: `class Hours : FloatType<Hours, TDouble, double> { public Hours(double value) : base(value) { } }`. The resulting type is: equatable, comparable, foldable, a functor, a monoid, a semigroup, monadic, iterable, and can have complex arithmetic operations performed upon it.
 
 ### Code generation
 
@@ -260,7 +260,7 @@ Location | Feature | Description
 `CodeGen` | Free monads | [Generate discriminated free-monads](https://github.com/louthy/language-ext/wiki/Code-generation)
 `CodeGen` | Reader | [Generate reader-monads](https://github.com/louthy/language-ext/wiki/Code-generation)
 `CodeGen` | RWS | [Generate RWS-monads](https://github.com/louthy/language-ext/wiki/Code-generation)
-`CodeGen` | With | [Add a tranformational `With` method to your records](https://github.com/louthy/language-ext/wiki/Code-generation)
+`CodeGen` | With | [Add a transformational `With` method to your records](https://github.com/louthy/language-ext/wiki/Code-generation)
 `CodeGen` | WithLens | [Add a tranformational `With` and generated Lenses method to your data types](https://github.com/louthy/language-ext/wiki/Code-generation)
 `Core` | `Lens<A, B>` | [Well behaved bidirectional transformations](#transformation-of-nested-immutable-types-with-lenses) - i.e. the ability to easily generate new immutable values from existing ones, even when heavily nested.
 `Core` | `Record<A>` | [Base type for creating record types](https://louthy.github.io/language-ext/LanguageExt.Core/DataTypes/Record/index.html)  with automatic structural equality, ordering, and hash code calculation.
