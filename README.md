@@ -355,26 +355,283 @@ it's passed around it must be checked too.
 As we all know it's only a matter of time before a null reference bug crops up because the variable wasn't 
 checked. It puts C# in the realm of the dynamic languages, where you can't trust the value you're being given.
 
+## Nullable Types
+C# has this concept of nullablity. It can be applied to value types to extend the values they can take in including null.
+There are also reference nullable types where by a reference type declares that it may contain null. This is a useful feature but
+still there are some issues. The problem is you can still pass null to a method whose argument is not nullable. The compiler
+will just issue a warning and not an error.
+
+For example the following code compiles with just a warning
+```c#
+class Person
+{
+    public Address Address { get; set; }
+}
+
+class Program
+{
+    static void GetZipCode(Person person)
+        => WriteLine(person.Address.ZipCode);
+    
+    public static void Main()
+    {
+        Person person = null;
+        GetZipCode(person);
+    }
+ }
+```
+This code happily compiles with warnings and throws a `NullReferenceException` at runtime. This is not we want. We love C#
+because it is a statically typed language and we love seeing the compiler catch most errors at compile time.
+
+Another problem with nullable types is when we return them from methods. We take on the burden to explicitly check for
+the possibility of null. There have been hacks to simplify this like null coalescing operators but this makes code
+harder to reader.
+
+## Meet the Maybe monad (Option<T>)
 Functional languages use what's known as an _option type_. In F# it's called `Option`, in Haskell it's called 
 `Maybe`. In the next section we'll see how it's used.
 
-## Option
+Option<T> is what is known as a SUM type. Functional languages use type systems known as Algebraic type systems. This
+simply means that such data types don't contain behaviour and they composed from smaller ones using `ANDing` or `ORing`.
+
+Option<T> is an OR type that can only store values from two sets. 
+- The None set which contains only one element None
+- The Some set which contains values whose cardinality is determined by the cardinality of T.
+
+```Haskell
+data Option<T> = None | Some<T>
+```
+A note about some technical terms. From the above definition,
+* `Option<T>` is known as a type constructor. This is because it constructs a new type. It is a generic type constructor
+since it takes in one type argument.
+* `None` is known as a data constructor (variant). Data constructors are functions that take in values and construct a type object.
+You can think of None as a function whose signature is `() --> Option<T>`. It creates an Option<T> in the empty state.
+* `Some<T>` is another data constructor of the Option<T> type. It is used to create an Option<T> in a filled state. You can think
+* of it as a function whose signature is `T --> Option<T>`.
+
+When pattern matching, we pattern match on the data constructors since any values of `Option<T>` can only take on these two shapes.
+
 
 `Option<T>` works in a very similar way to `Nullable<T>`, except it works with all types rather than just value 
 types. It's a `struct` and therefore can't be `null`. An instance can be created by either calling `Some(value)`, 
 which represents a positive "I have a value" response, or `None`, which is the equivalent of returning `null`.
 
-So why is it any better than returning `T` and using `null`? It seems we can have a non-value response again 
-right? Yes, that's true, however you're forced to acknowledge that fact and to write code to handle both possible 
-outcomes because you can't get to the underlying value without acknowledging the possibility of the two states 
-that the value could be in. This bulletproofs your code. You're also explicitly telling any other programmers that "this method might not return a value, so make sure you deal with that". This explicit declaration is very 
-powerful.
+### Why is it better than null?
+It seems we can have a non-value response again right? Yes, that's true, however you're forced to acknowledge that 
+fact and to write code to handle both possible outcomes because you can't get to the underlying value without 
+acknowledging the possibility of the two states that the value could be in. This bulletproofs your code. You're also 
+explicitly telling any other programmers that "this method might not return a value, so make sure you deal with that". 
+This explicit declaration is very powerful.
+
+## Operations supported by `Option<T>`
+
+You can think of `Option<T>` as forming an algebra. The sets of values that can be stored in the `Option<T>` and 
+the functions that work on values of type `Option<T>` form an algebra. Let us call it the `Option<T> algebra`. In this
+section we are going to go through some of the most important functions.
+
+### Creation operations
+* Creation of an `Option<T>` in the empty state.
+
+To create an `Option<T>` in the empty state, we use the `None` data constructor as shown below.
+```C#
+  using LanguageExt;
+  using static LanguageExt.Prelude;
+  
+  var optional = None;
+```
+
+* Creation of an `Option<T>` in the Some state.
+
+To create an `Option<T>` in the filled state, we use the `Some<T>` data constructor. We pass it a value that is not
+supposed to be null. If you pass in `null` a `ValueIsNullException` is thrown. To use nulls with the `Option<T>` type,
+you will need to use the `OptionUnSafe` type.
+```C#
+  using LanguageExt;
+  using static LanguageExt.Prelude;
+  
+  record User(string FirstName, string LastName, int Age);
+  
+  var optional = Some(new User("Kasozi", "Vincent", 26));
+```
+
+* Creation of an `Option<T>` from a `Nullable<T>`
+
+
+```C#
+  using LanguageExt;
+  using static LanguageExt.Prelude;
+  
+  record User(string FirstName, string LastName, int Age);
+  
+  var optional = Some(new User("Kasozi", "Vincent", 26));
+```
+* Creation of an `Option<T>` from an `IEnumerable<T>`
+
+An `Option<T>` can be viewed as an `IEnumerable<T>` with just one element in it. We can therefore create an `Option<T>`
+from an `IEnumerable<T>`. If the `IEnumerable<T>` is not empty, we get back an `Option<T>` in the Some state with the
+first value of the `IEnumerable<T>` wrapped inside the `Option<T>`. If the `IEnumerable<T>` was empty, we get back an
+`Option<T>` in the empty state.
+```C#
+  using LanguageExt;
+  using static LanguageExt.Prelude;
+  using static System.Linq.Enumerable;
+  
+  var optional = new Option<int>(Range(1, 10)); //Some state
+  
+  var optional = new Option<int>(Empty<int>()); // None state
+```
+### Projection Operations
+* Filtering an `Option<T>`
+* Transforming an `Option<T>`
+* Bind
+
+* BiBind
+
+Let us consider the following example. We are writing a Blog managing app and we decide to model a `BlogPost` as follows
+```C#
+  using LanguageExt;
+  using static LanguageExt.Prelude;
+  [With]
+  public sealed partial  class BlogPost 
+  {
+     public readonly string Title;
+     public readonly Option<Lst<BlogContent>> BlogContent = None;
+     public readonly Option<Lst<Comment>> Comments = None;
+     public readonly Option<Lst<Tag>> Tags = None;
+     
+     // methods
+  }
+```
+Here we are making explicit that a `BlogPost` may contain nothing. It may have no `Tags` added to it. It may not
+have any comments but it must always have a title.
+
+How can we add a comment to the `BlogPost`? We can all agree that we should do this
+- If there were no comments before? Create a singleton list containing the comment and wrap it inside an `Option<T>`.
+- If there are already comments on the blog, unwrap the `Option<T>` to get access to the wrapped `List`, add the new
+comment and wrap the new list inside an `Option<T>`.
+> **Note:** Note that both of these operations return an `Option<T>` in Some state for both states of the original `Option<T>`.
+> Unfortunately, `Bind` will only return an `Option<T>` in the Some state if the `Option<T>` was in the Some state. What we need 
+> is the `BiBind` function.
+
+Here is the implementation of the `AddComment` function. Notice that its signature is `Comment --> BlogPost`. We return a new
+`BlogPost` because we don't mutate values in place.
+
+```C#
+  using LanguageExt;
+  using static LanguageExt.Prelude;
+  
+  public BlogPost AddComment(Comment comment)
+     => this.With(Comments: Comments.BiBind(
+            comments => Some(comments.Add(comment)), // if the Option is in Some state
+            () => List(comment))); // if the Option is in Empty State.
+```
+This code works because `Comments` is an `Option<T>` and hence supports the `BiBind` function. The `BlogPost` class is
+partial and sealed and decorated with the `With` attribute so that we can easily create new objects from old ones hence the
+`this.With(...)`.
+
+> **Note:** We shall talk about lenses in future sections.
+
+### Combining Operations
+* Apply
+
+There are moments when a normal function will be wrapped inside an `Option<T>`. The question is, how can such a function be
+applied to values wrapped inside other `Option<T>` values? To show how this can arise we shall use an example. If you have
+done any serious functional programming in functional languages like `Haskell`, you will remember that all functions in such
+a language are _unary_. Multi-argument functions are curried into unary functions that return unapplied functions.
+
+> **Note:** In this document, a normal function is one that works with normal values and not values with effects.
+
+Here is how we can achieve that manually in C#. The good news is you don't have to do this. The `LanguageExt` lib does all
+this for you. See the code snippet below;
+```C#
+  int Add(int lhs, int rhs) => lhs + rhs; // takes two args and returns an int
+
+  Func<int, int> Add(int lhs)
+        => rhs => lhs + rhs; // takes one arg and returns an un applied function.
+```
+
+The second `Add` function is in curried state. In such a state, we can apply this function at one argument at a time. Geeks
+call that `partial application`. Imagine what would happen when we `map` such a function over an `Option<int>`! We shall end
+up with the un applied function inside an `Option<T>`. How do we apply it to its remaining argument?
+
+That is what the `Apply` function helps us achieve. Types that implement `Apply` are known as `Applicative functors`. Let us use
+a real world example to drive the point home. Let's assume that we are building an e-commerce application and that we are using
+domain driven design. We would want to model a `Money` value object consisting of a `Currency` and an `Amount`.
+
+Below is the snippet that shows the `Amount` record. Notice that we are storing the amount in a decimal but not all decimal
+values are valid. So we need some sort of validation. Lets use the `Smart constructor pattern` and expose a static creator
+method of type `decimal --> Option<Amount>`. This shows that validation may fail and we shall end up with `None`.
+
+```C#
+  public record Amount
+  {
+    public decimal Value { get; }
+    
+    private Amount(decimal amount) => Value = amount;
+    
+    public static Option<Amount> Create(decimal amount)
+        => Validate(amount) ? Some(new Amount(amount)) : None;
+    
+    private static bool Validate(decimal amount) => amount > 0;
+  }
+```
+
+Here is the record that defines the `Currency` type. They look exactly similar so no need to explain it.
+```C#
+  public record Currency
+  {
+    public string Value { get; }
+    
+    private Currency(string currency) => Value = currency;
+
+    public static Option<Currency> Create(string currency)
+        => Validate(currency) ? Some(new Currency(currency)) : None;
+    
+    private static bool Validate(string currency) => ...;
+  }
+```
+Having created our two types, we can go on and create the `Money` value object. Before we do, let us first agree on some
+things
+- If we have valid `Currency` and `Amount` objects, i.e. if their factory method return options in the filled state, we
+can then create a `Money` object.
+- If any of the two values is `None`, we can't create a `Money` value so we return `None`.
+
+Check out the code.
+```C#
+record Money 
+{
+    public Currency Currency { get; }
+    public Amount Amount { get; }
+
+    private Money(Currency currency, Amount amount)
+    {
+        Currency = currency;
+        Amount = amount;
+    }
+    public static Option<Money> CreateMoney(string currency, decimal amount)
+        => Some((Currency cur, Amount amt) => new Money(cur, amt))
+            .Apply(Currency.Create(currency))
+            .Apply(Amount.Create(amount));
+}
+```
+To use `Apply`, the function must be inside the `Option<T>`. We can lift the function by passing it to `Some` as shown above.
+Notice that it is a binary function and hence must be applied to two values. For `Apply` to do its magic, both values must also
+be inside `Option<T>`s. In this case, both `Currency.Create` and `Amount.Create` return `Option<T>`. 
+
+The `Apply` function provides the infrastructure for applying the wrapped function to the wrapped values and will only return
+`Some` if both options are in the Some state and `None`otherwise.
+> **Note:** For a type to be called an `Applicative functor`, it must implement `Apply` and `Return`. `Return` is just a way
+> of lifting a normal value into the applicative context. For `Option<T>`, `Some` is the implementation of `Return`.
+### Conversion Operations
+
+### Aggregation Operations
+
+## `Option<T>` Use cases
+
 
 This is how you create an `Option<int>`:
 
-```C#
-    var optional = Some(123);
-```
+
 To access the value you must check that it's valid first:
 
 ```C#
