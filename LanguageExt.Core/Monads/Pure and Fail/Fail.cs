@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.HKT;
@@ -17,7 +16,7 @@ namespace LanguageExt;
 /// </remarks>
 /// <param name="Value">Bound value</param>
 /// <typeparam name="E">Bound value type</typeparam>
-public readonly record struct Fail<E>(E Value) : KArr<Any, Unit, E>
+public readonly record struct Fail<E>(E Value) : KStar<Any, E>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -36,7 +35,7 @@ public readonly record struct Fail<E>(E Value) : KArr<Any, Unit, E>
         Either<E, A>.Left(Value);
     
     public Validation<E, A> ToValidation<A>() =>
-        Validation<E, A>.Fail(Prelude.Seq1(Value));
+        Validation<E, A>.Fail([Value]);
     
     public IO<RT, E, A> ToIO<RT, A>()
         where RT : HasIO<RT, E> =>

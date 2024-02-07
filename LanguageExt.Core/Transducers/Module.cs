@@ -231,8 +231,8 @@ public static partial class Transducer
     /// Resulting im a single kind that captures the composition
     /// </summary>
     /// <returns>Transducer that captures the composition</returns>
-    public static KArr<F, Env, B> compose<F, Env, A, B>(
-        KArr<F, Env, A> f, 
+    public static KArrow<F, Env, B> compose<F, Env, A, B>(
+        KArrow<F, Env, A> f, 
         Transducer<A, B> g)
         where F : KLift<F, Env> =>
         F.Lift(f.Morphism.Compose(g));
@@ -243,8 +243,8 @@ public static partial class Transducer
     /// Resulting im a single kind that captures the composition
     /// </summary>
     /// <returns>Transducer that captures the composition</returns>
-    public static KArr<F, Env, C> compose<F, Env, A, B, C>(
-        KArr<F, Env, A> f, 
+    public static KArrow<F, Env, C> compose<F, Env, A, B, C>(
+        KArrow<F, Env, A> f, 
         Transducer<A, B> g, 
         Transducer<B, C> h)
         where F : KLift<F, Env> =>
@@ -258,8 +258,8 @@ public static partial class Transducer
     /// Resulting im a single kind that captures the composition
     /// </summary>
     /// <returns>Transducer that captures the composition</returns>
-    public static KArr<F, Env, D> compose<F, Env, A, B, C, D>(
-        KArr<F, Env, A> f, 
+    public static KArrow<F, Env, D> compose<F, Env, A, B, C, D>(
+        KArrow<F, Env, A> f, 
         Transducer<A, B> g, 
         Transducer<B, C> h, 
         Transducer<C, D> i)

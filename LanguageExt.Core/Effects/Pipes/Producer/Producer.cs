@@ -318,7 +318,7 @@ public static class Producer
             async Task<Fin<Unit>> run(Effect<RT, Unit> m)
             {
                 var r = await m.RunEffect()
-                               .Invoke1Async(lenv, null, lenv.CancellationToken, lenv.SynchronizationContext)
+                               .Run1Async(lenv, null, lenv.CancellationToken, lenv.SynchronizationContext)
                                .Map(t => t.ToFin()) 
                                .ConfigureAwait(false);
 

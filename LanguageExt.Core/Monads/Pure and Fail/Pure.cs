@@ -17,7 +17,7 @@ namespace LanguageExt;
 /// </remarks>
 /// <param name="Value">Bound value</param>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly record struct Pure<A>(A Value) : KArr<Any, Unit, A>
+public readonly record struct Pure<A>(A Value) : KStar<Any, A>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

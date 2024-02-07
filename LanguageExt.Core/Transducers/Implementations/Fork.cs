@@ -28,7 +28,7 @@ record ForkTransducer1<A, B>(Transducer<A, B> F, Option<TimeSpan> Timeout) : Tra
 
             // Run the transducer asynchronously
             var cleanup = new CleanUp(tsrc, reg);
-            var task = F.Invoke1Async(value, () => { cleanup.Dispose(); }, token, state.SynchronizationContext);
+            var task = F.Run1Async(value, () => { cleanup.Dispose(); }, token, state.SynchronizationContext);
             
             return Reduce.Run(
                 state,
@@ -126,7 +126,7 @@ record ForkTransducer2<FState, A, B>(
 
             // Run the transducer asynchronously
             var cleanup = new CleanUp(tsrc, reg);
-            var task = F.InvokeAsync(value, Initial, ForkedReducer, () => { cleanup.Dispose(); }, token, state.SynchronizationContext);
+            var task = F.RunAsync(value, Initial, ForkedReducer, () => { cleanup.Dispose(); }, token, state.SynchronizationContext);
             
             return Reduce.Run(
                 state,

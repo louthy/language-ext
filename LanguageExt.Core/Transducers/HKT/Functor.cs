@@ -1,48 +1,36 @@
 ﻿using System;
 using static LanguageExt.Prelude;
+using static LanguageExt.Transducer;
 
 namespace LanguageExt.HKT;
 
-/*
-/// <summary>
-/// Functor trait
-/// </summary>
-/// <typeparam name="F">Functor type</typeparam>
-public interface Functor<F> where F : Functor<F>
+public interface Functor<F> : KLift<F> 
+    where F : Functor<F>
 {
-    /// <summary>
-    /// Map from `A -> B` to `A -> C` 
-    /// </summary>
-    KArr<F, Unit, B> Map<A, B>(KArr<F, Unit, A> fab, Transducer<A, B> f);
+    public static virtual KStar<F, B> Map<A, B>(KStar<F, A> ma, Transducer<A, B> f) =>
+        compose(ma, f);
+
+    public static virtual KStar<F, B> Map<A, B>(KStar<F, A> ma, Func<A, B> f) =>
+        F.Map(ma, lift(f));
 }
 
-/// <summary>
-/// Functor trait with constrained input-type
-/// </summary>
-/// <typeparam name="F">Functor type</typeparam>
-/// <typeparam name="A">Lower kind input type</typeparam>
-public interface Functor<F, A> where F : Functor<F, A>
+public interface Functor<F, Env> : KLift<F, Env> 
+    where F : Functor<F, Env>
 {
-    /// <summary>
-    /// Map from `A->B` to `A->C` 
-    /// </summary>
-    KArr<F, A, C> Map<B, C>(KArr<F, A, B> fab, Transducer<B, C> f);
+    public static virtual KArrow<F, Env, B> Map<A, B>(KArrow<F, Env, A> ma, Transducer<A, B> f) =>
+        compose(ma, f);
+
+    public static virtual KArrow<F, Env, B> Map<A, B>(KArrow<F, Env, A> ma, Func<A, B> f) =>
+        F.Map(ma, lift(f));
 }
 
-public static class FunctorExtensions
+public interface Functor<F, Env, G> : KLift<F, Env, G> 
+    where F : Functor<F, Env, G>
+    where G : Functor<G>
 {
-    /// <summary>
-    /// Map from `A -> B` to `A -> C` 
-    /// </summary>
-    public static KArr<F, Unit, B> Map<F, A, B>(this KArr<F, Unit, A> fab, Func<A, B> f) 
-        where F : Functor<F> =>
-        default(F).Map(fab, lift(f));
+    public static virtual KArrow<F, Env, G, B> Map<A, B>(KArrow<F, Env, G, A> ma, Transducer<A, B> f) =>
+        F.Lift(env => G.Map(ma.Morphism.Invoke(env), f));
     
-    /// <summary>
-    /// Map from `A->B` to `A->C` 
-    /// </summary>
-    public static KArr<F, A, C> Map<F, A, B, C>(this KArr<F, A, B> fab, Func<B, C> f)
-        where F : Functor<F, A> =>
-        default(F).Map(fab, lift(f));
+    public static virtual KArrow<F, Env, G, B> Map<A, B>(KArrow<F, Env, G, A> ma, Func<A, B> f) =>
+        F.Map(ma, lift(f));
 }
-*/

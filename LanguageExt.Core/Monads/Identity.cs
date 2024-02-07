@@ -52,7 +52,7 @@ public readonly struct Identity<A> :
         morphism switch
         {
             null => throw new BottomException(),
-            _    => morphism.Invoke1(default).ValueUnsafe
+            _    => morphism.Run1(default).ValueUnsafe
         };
         
     public static bool operator ==(Identity<A> lhs, Identity<A> rhs) =>
@@ -83,7 +83,7 @@ public readonly struct Identity<A> :
             _            => (from x in morphism
                              from y in other.morphism
                              select EqDefault<A>.Equals(x, y))
-                            .Invoke1(default)
+                            .Run1(default)
                             .ValueUnsafe
         };
 
@@ -94,7 +94,7 @@ public readonly struct Identity<A> :
     [Pure]
     public override int GetHashCode() =>
         Morphism.Map(HashableDefault<A>.GetHashCode)
-                .Invoke1(default)
+                .Run1(default)
                 .ValueUnsafe;
 
     [Pure]
@@ -111,7 +111,7 @@ public readonly struct Identity<A> :
             _            => (from x in morphism
                              from y in other.morphism
                              select OrdDefault<A>.Compare(x, y))
-                            .Invoke1(default)
+                            .Run1(default)
                             .ValueUnsafe
         };
 

@@ -23,7 +23,7 @@ record PostTransducer<A, B>(Transducer<A, B> F) : Transducer<A, B>
                     {
                         try
                         {
-                            var r = F.Invoke(
+                            var r = F.Run(
                                 x,
                                 s,
                                 new FReducer<B, S>((_, s1, v) =>

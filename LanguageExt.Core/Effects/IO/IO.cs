@@ -16,7 +16,7 @@ namespace LanguageExt;
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="E">Error value type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly struct IO<E, A> : KArr<Any, MinRT<E>, Sum<E, A>>
+public readonly struct IO<E, A> : KArrow<Any, MinRT<E>, Sum<E, A>>
 {
     /// <summary>
     /// Underlying transducer that captures all of the IO behaviour 

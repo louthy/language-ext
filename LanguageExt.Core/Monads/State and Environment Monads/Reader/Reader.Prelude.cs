@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 using LanguageExt.Common;
+using L = LanguageExt;
 
 namespace LanguageExt;
 
@@ -11,7 +12,7 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static Reader<Env, A> flatten<Env, A>(Reader<Env, Reader<Env, A>> ma) =>
-        ma.Bind(identity);
+        ma.Bind(identity).As();
 
     /// <summary>
     /// Reader monad constructor
@@ -22,7 +23,7 @@ public static partial class Prelude
     /// <returns>Reader monad</returns>
     [Pure]
     public static Reader<Env, A> Reader<Env, A>(A value) =>
-        _ => FinSucc(value);
+        L.Reader<Env, A>.Pure(value).As();
 
     /// <summary>
     /// Reader monad constructor
@@ -32,15 +33,16 @@ public static partial class Prelude
     /// <param name="value">Wrapped value</param>
     /// <returns>Reader monad</returns>
     [Pure]
+    [Obsolete("Use `asks` - it's the same function")]
     public static Reader<Env, A> Reader<Env, A>(Func<Env, A> f) =>
-        e => FinSucc(f(e));
+        L.Reader<Env, A>.Lift(f).As();
 
     /// <summary>
     /// Reader failure
     /// </summary>
     [Pure]
     public static Reader<Env, A> ReaderFail<Env, A>(Error error) =>
-        _ => FinFail<A>(error);
+        L.Reader<Env, A>.Lift(Transducer.fail<Env, A>(error)).As();
 
     /// <summary>
     /// Retrieves the reader monad environment.
@@ -49,17 +51,17 @@ public static partial class Prelude
     /// <returns>Reader monad with the environment in as the bound value</returns>
     [Pure]
     public static Reader<Env, Env> ask<Env>() =>
-        FinSucc;
+        MReaderT<Env, MIdentity>.Ask.As();
 
     /// <summary>
     /// Retrieves a function of the current environment.
     /// </summary>
     /// <typeparam name="Env">Environment</typeparam>
-    /// <typeparam name="R">Bound and mapped value type</typeparam>
+    /// <typeparam name="A">Bound and mapped value type</typeparam>
     /// <returns>Reader monad with the mapped environment in as the bound value</returns>
     [Pure]
-    public static Reader<Env, R> asks<Env, R>(Func<Env, R> f) =>
-        e => f(e);
+    public static Reader<Env, A> asks<Env, A>(Func<Env, A> f) =>
+        L.Reader<Env, A>.Lift(f).As();
 
     /// <summary>
     /// Executes a computation in a modified environment
@@ -69,40 +71,25 @@ public static partial class Prelude
     /// <returns>Modified reader</returns>
     [Pure]
     public static Reader<Env, A> local<Env, A>(Reader<Env, A> ma, Func<Env, Env> f) =>
-        e => ma.Run(f(e));
+        ma.Local(f).As();
+
+    /// <summary>
+    /// Chooses the first monad result that has a Some(x) for the value
+    /// </summary>
+    [Pure]
+    public static Reader<Env, Option<A>> choose<Env, A>(Seq<Reader<Env, Option<A>>> ms) =>
+        ms switch
+        {
+            { IsEmpty: true } => L.Reader<Env, Option<A>>.Pure(Option<A>.None).As(),
+            var (x, xs) => x.Bind(oa => oa.IsSome
+                                            ? L.Reader<Env, Option<A>>.Pure(oa)
+                                            : choose(xs)).As()
+        };
 
     /// <summary>
     /// Chooses the first monad result that has a Some(x) for the value
     /// </summary>
     [Pure]
     public static Reader<Env, Option<A>> choose<Env, A>(params Reader<Env, Option<A>>[] monads) =>
-        state =>
-        {
-            foreach (var monad in monads)
-            {
-                var resA = monad(state);
-                if (resA.IsSucc)
-                {
-                    return resA;
-                }
-            }
-            return default;
-        };
-
-    /// <summary>
-    /// Run the reader and catch exceptions
-    /// </summary>
-    [Pure]
-    public static Reader<Env, A> tryread<Env, A>(Reader<Env, A> m) =>
-        state =>
-        {
-            try
-            {
-                return m(state);
-            }
-            catch(Exception e)
-            {
-                return Error.New(e);
-            }
-        };
+        choose(monads.ToSeq());
 }

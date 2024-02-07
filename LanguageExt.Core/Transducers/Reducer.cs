@@ -21,6 +21,7 @@ public static class Reducer
 {
     public static Reducer<A, S> from<A, S>(Func<TState, S, A, TResult<S>> f) =>
         new FReducer<A, S>(f);
+    
 }
 
 public static class Reducer<A>
@@ -30,6 +31,15 @@ public static class Reducer<A>
 
     public static readonly Reducer<A, Option<A>> optionIdentity =
         Reducer.from<A, Option<A>>((_, _, v) => TResult.Continue(Prelude.Some(v)));
+    
+    public static readonly Reducer<A, A?> first =
+        Reducer.from<A, A?>((_, _, v) => TResult.Complete((A?)v));
+    
+    public static readonly Reducer<A, A?> last =
+        Reducer.from<A, A?>((_, _, v) => TResult.Continue((A?)v));
+    
+    public static readonly Reducer<A, Seq<A>> seq =
+        Reducer.from<A, Seq<A>>((_, vs, v) => TResult.Continue(vs.Add(v)));
 }
 
 record FReducer<A, S>(Func<TState, S, A, TResult<S>> F) : Reducer<A, S>

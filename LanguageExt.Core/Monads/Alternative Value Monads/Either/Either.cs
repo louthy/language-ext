@@ -15,6 +15,12 @@ using LanguageExt.HKT;
 
 namespace LanguageExt;
 
+public class Either<L> : KLift<Either<L>>
+{
+    public static KStar<Either<L>, A> Lift<A>(Transducer<Unit, A> f) =>
+        Either<L, A>.Right(f);
+}
+
 /// <summary>
 /// Holds one of two values `Left` or `Right`.  Usually, `Left` is considered _wrong_ or _in-error_, and
 /// `Right` is, well, right - as in correct.  When the `Either` is in a `Left` state, it cancels
@@ -45,18 +51,28 @@ public readonly struct Either<L, R> :
     IEquatable<Pure<R>>,
     IEquatable<R>, 
     ISerializable,
-    KArr<HKT.Any, Unit, Sum<L, R>>
+    KStar<Either<L>, Sum<L, R>>
 {
     public static readonly Either<L, R> Bottom = new ();
 
-    internal readonly R? right;
-    internal readonly L? left;
-        
+    readonly Transducer<Unit, Sum<L, R>>? morphism;
+    readonly R? right;
+    readonly L? left;
+
+    Either(Transducer<Unit, Sum<L, R>> morphism)
+    {
+        State = EitherStatus.IsLazy;
+        this.morphism = morphism;
+        right = default;
+        left = default;
+    }
+
     private Either(R right)
     {
         State = EitherStatus.IsRight;
         this.right = right;
         left = default;
+        morphism = null;
     }
 
     private Either(L left)
@@ -64,6 +80,7 @@ public readonly struct Either<L, R> :
         State = EitherStatus.IsLeft;
         right = default;
         this.left = left;
+        morphism = null;
     }
 
     Either(SerializationInfo info, StreamingContext context)
@@ -89,11 +106,22 @@ public readonly struct Either<L, R> :
         }
     }
 
+    public Either<L, R> Strict() =>
+        State == EitherStatus.IsLazy
+            ? morphism!.Run1(unit)
+                       .ToFin()
+                       .Match(Succ: mx => mx.ToEither(),
+                              Fail: e => e is L left
+                                             ? Left<L, R>(left)
+                                             : e.Throw<Either<L, R>>())
+            : this;                                          
+    
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-        info.AddValue("State", State);
-        if (IsRight) info.AddValue("Right", right);
-        if (IsLeft) info.AddValue("Left", left);
+        var e = Strict();
+        info.AddValue("State", e.State);
+        if (e.IsRight) info.AddValue("Right", e.right);
+        if (e.IsLeft) info.AddValue("Left", e.left);
     }
 
     /// <summary>
@@ -112,6 +140,7 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => right,
             EitherStatus.IsLeft  => left,
+            EitherStatus.IsLazy    => Strict().Case,
             _                    => null
         };
 
@@ -121,6 +150,7 @@ public readonly struct Either<L, R> :
     ///     IsRight
     ///     IsLeft
     ///     IsBottom
+    ///     IsLazy
     /// </summary>
     public readonly EitherStatus State;
 
@@ -138,6 +168,27 @@ public readonly struct Either<L, R> :
     public bool IsLeft =>
         State == EitherStatus.IsLeft;
 
+    /// <summary>
+    /// Is the Either in a Lazy state
+    /// </summary>
+    /// <remarks>
+    /// Lazy means its internal computation is evaluated on-demand and when a concrete
+    /// non-Either value needs to be computed (i.e. when Match is called).
+    /// 
+    /// If it is not lazy then this is a pure data type and the value is always ready
+    /// to be read without any additional computation.
+    ///
+    /// Note, the only way this type can get into a lazy state is:
+    ///
+    ///     * If we lift a transducer into an Either
+    ///     * Or, if an Either value is lifted into a monad-transformer
+    ///
+    /// If you don't do any of these things then it will be 'strict'. 
+    /// </remarks>
+    [Pure]
+    public bool IsLazy =>
+        State == EitherStatus.IsLazy;
+    
     /// <summary>
     /// Is the Either in a Bottom state?
     /// When the Either is filtered, both Right and Left are meaningless.
@@ -162,9 +213,7 @@ public readonly struct Either<L, R> :
     /// <exception cref="InvalidCastException">Value is not in a Right state</exception>
     [Pure]
     public static explicit operator R(Either<L, R> ma) =>
-        ma.IsRight
-            ? ma.right!
-            : throw new InvalidCastException("Either is not in a Right state");
+        ma.RightValue;
 
     /// <summary>
     /// Explicit conversion operator from `Either` to `L`
@@ -173,9 +222,7 @@ public readonly struct Either<L, R> :
     /// <exception cref="InvalidCastException">Value is not in a Left state</exception>
     [Pure]
     public static explicit operator L(Either<L, R> ma) =>
-        ma.IsLeft
-            ? ma.left!
-            : throw new InvalidCastException("Either is not in a Left state");
+        ma.LeftValue;
 
     /// <summary>
     /// Implicit conversion operator from R to Either R L
@@ -207,6 +254,7 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Right(right!),
             EitherStatus.IsLeft  => Left(left!),
+            EitherStatus.IsLazy  => Strict().Match(Right, Left, Bottom),
             _                    => Bottom is null ? throw new BottomException() : Bottom()
         };
 
@@ -219,21 +267,26 @@ public readonly struct Either<L, R> :
     /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
     public Unit Match(Action<R> Right, Action<L> Left, Action? Bottom = null)
     {
-        if (State == EitherStatus.IsRight)
+        switch (State)
         {
-            Right(right!);
-        }
-        else if (State == EitherStatus.IsLeft)
-        {
-            Left(left!);
-        }
-        else if (State == EitherStatus.IsBottom && Bottom != null)
-        {
-            Bottom();
-        }
-        else if (State == EitherStatus.IsBottom && Bottom == null)
-        {
-            throw new BottomException();
+            case EitherStatus.IsRight:
+                Right(right!);
+                break;
+
+            case EitherStatus.IsLeft:
+                Left(left!);
+                break;
+            
+            case EitherStatus.IsLazy:
+                Strict().Match(Right, Left, Bottom);
+                break;
+
+            case EitherStatus.IsBottom when Bottom != null:
+                Bottom();
+                break;
+
+            case EitherStatus.IsBottom:
+                throw new BottomException();
         }
         return unit;
     }
@@ -270,7 +323,13 @@ public readonly struct Either<L, R> :
     /// <returns>Returns an unwrapped Right value</returns>
     [Pure]
     public R IfLeft(Func<R> Left) =>
-        ifLeft<MEither<L, R>, Either<L, R>, L, R>(this, Left);
+        State switch
+        {
+            EitherStatus.IsRight => right!,
+            EitherStatus.IsLeft  => Left(),
+            EitherStatus.IsLazy  => Strict().IfLeft(Left),
+            _                    => throw new BottomException()
+        };
 
     /// <summary>
     /// Executes the leftMap function if the Either is in a Left state.
@@ -280,7 +339,13 @@ public readonly struct Either<L, R> :
     /// <returns>Returns an unwrapped Right value</returns>
     [Pure]
     public R IfLeft(Func<L, R> leftMap) =>
-        ifLeft<MEither<L, R>, Either<L, R>, L, R>(this, leftMap);
+        State switch
+        {
+            EitherStatus.IsRight => right!,
+            EitherStatus.IsLeft  => leftMap(left!),
+            EitherStatus.IsLazy  => Strict().IfLeft(leftMap),
+            _                    => throw new BottomException()
+        };
 
     /// <summary>
     /// Returns the rightValue if the Either is in a Left state.
@@ -290,23 +355,53 @@ public readonly struct Either<L, R> :
     /// <returns>Returns an unwrapped Right value</returns>
     [Pure]
     public R IfLeft(R rightValue) =>
-        ifLeft<MEither<L, R>, Either<L, R>, L, R>(this, rightValue);
+        State switch
+        {
+            EitherStatus.IsRight => right!,
+            EitherStatus.IsLeft  => rightValue,
+            EitherStatus.IsLazy  => Strict().IfLeft(rightValue),
+            _                    => throw new BottomException()
+        };
 
     /// <summary>
     /// Executes the Left action if the Either is in a Left state.
     /// </summary>
     /// <param name="Left">Function to generate a Right value if in the Left state</param>
     /// <returns>Returns an unwrapped Right value</returns>
-    public Unit IfLeft(Action<L> Left) =>
-        ifLeft<MEither<L, R>, Either<L, R>, L, R>(this, Left);
+    public Unit IfLeft(Action<L> Left)
+    {
+        switch(State)
+        {
+            case EitherStatus.IsLeft:
+                Left(left!);
+                break;
+                
+            case EitherStatus.IsLazy:
+                Strict().IfLeft(Left);
+                break;
+        }
+        return default;
+    }
 
     /// <summary>
     /// Invokes the Right action if the Either is in a Right state, otherwise does nothing
     /// </summary>
     /// <param name="Right">Action to invoke</param>
     /// <returns>Unit</returns>
-    public Unit IfRight(Action<R> Right) =>
-        ifRight<MEither<L, R>, Either<L, R>, L, R>(this, Right);
+    public Unit IfRight(Action<R> Right)
+    {
+        switch(State)
+        {
+            case EitherStatus.IsRight:
+                Left(left!);
+                break;
+                
+            case EitherStatus.IsLazy:
+                Strict().IfLeft(Left);
+                break;
+        }
+        return default;
+    }
 
     /// <summary>
     /// Returns the leftValue if the Either is in a Right state.
@@ -540,29 +635,6 @@ public readonly struct Either<L, R> :
             EitherStatus.IsLeft  => Fail(Left(LeftValue)),
             _                    => default // bottom
         };
-
-    /// <summary>
-    /// Convert to an Aff
-    /// </summary>
-    /// <param name="Left">Map the left value to the Eff Error</param>
-    /// <returns>Aff monad</returns>
-    [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public Aff<R> ToAff(Func<L, Error> Left) =>
-        State switch
-        {
-            EitherStatus.IsRight => SuccessAff(RightValue),
-            EitherStatus.IsLeft  => FailAff<R>(Left(LeftValue)),
-            _                    => default // bottom
-        };
-
-    /// <summary>
-    /// Convert the Either to an TryOption
-    /// </summary>
-    /// <returns>Some(Right) or None</returns>
-    [Pure]
-    public TryOption<R> ToTryOption() =>
-        toTryOption<MEither<L, R>, Either<L, R>, L, R>(this);
 
     /// <summary>
     /// Comparison operator
@@ -1386,16 +1458,6 @@ public readonly struct Either<L, R> :
     [Obsolete(Change.UseToSeqInstead)]
     public Seq<R> RightToSeq() =>
         RightAsEnumerable();
-    
-    /// <summary>
-    /// Convert the Either to an EitherAsync
-    /// </summary>
-    [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public EitherAsync<L, R> ToAsync() =>
-        Match(Left: EitherAsync<L, R>.Left,
-              Right: EitherAsync<L, R>.Right,
-              Bottom: () => EitherAsync<L, R>.Bottom);
 }
 
 /// <summary>

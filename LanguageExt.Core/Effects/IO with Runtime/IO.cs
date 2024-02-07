@@ -17,7 +17,7 @@ namespace LanguageExt;
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="E">Error value type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
+public readonly struct IO<RT, E, A> : KArrow<Any, RT, Sum<E, A>>
     where RT : HasIO<RT, E>
 {
     /// <summary>
@@ -127,7 +127,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Either<E, A> Run(RT env) =>
-        Morphism.Invoke1(env, env.CancellationToken, env.SynchronizationContext)
+        Morphism.Run1(env, env.CancellationToken, env.SynchronizationContext)
                 .ToEither(RT.FromError);
 
     /// <summary>
@@ -136,7 +136,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Fin<S> RunMany<S>(RT env, S initialState, Func<S, Either<E, A>, TResult<S>> reducer) =>
-        Morphism.Invoke(
+        Morphism.Run(
                     env,
                     initialState,
                     Reducer.from<Sum<E, A>, S>(
@@ -173,7 +173,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Task<Either<E, A>> RunAsync(RT env) =>
-        Morphism.Invoke1Async(env, null, env.CancellationToken, env.SynchronizationContext)
+        Morphism.Run1Async(env, null, env.CancellationToken, env.SynchronizationContext)
                 .Map(r => r.ToEither(RT.FromError));
 
     /// <summary>
@@ -182,7 +182,7 @@ public readonly struct IO<RT, E, A> : KArr<Any, RT, Sum<E, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Task<Fin<S>> RunManyAsync<S>(RT env, S initialState, Func<S, Either<E, A>, TResult<S>> reducer) =>
-        Morphism.InvokeAsync(
+        Morphism.RunAsync(
                     env,
                     initialState,
                     Reducer.from<Sum<E, A>, S>(

@@ -28,6 +28,11 @@
         /// <summary>
         /// Right state
         /// </summary>
-        IsRight = 2
+        IsRight = 2,
+        
+        /// <summary>
+        /// Lazy state - uses an internal transducer
+        /// </summary>
+        IsLazy
     }
 }

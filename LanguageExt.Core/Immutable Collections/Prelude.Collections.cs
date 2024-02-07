@@ -1345,6 +1345,15 @@ public static partial class Prelude
     /// items in the enumerable as they're being consumed.
     /// </summary>
     [Pure]
+    public static Seq<A> Seq<A>(ReadOnlySpan<A> value) =>
+        new (value);
+        
+    /// <summary>
+    /// Construct a sequence from an Enumerable
+    /// Deals with `value == null` by returning `[]` and also memoizes the
+    /// items in the enumerable as they're being consumed.
+    /// </summary>
+    [Pure]
     public static Seq<A> Seq<A>(IEnumerable<A> value) =>
         value switch
         {

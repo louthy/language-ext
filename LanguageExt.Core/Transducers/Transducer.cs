@@ -1,5 +1,5 @@
-﻿#nullable enable
-using LanguageExt.HKT;
+﻿using LanguageExt.HKT;
+using LanguageExt.Pipes;
 
 namespace LanguageExt;
 
@@ -12,7 +12,7 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="A">Input value type</typeparam>
 /// <typeparam name="B">Output value type</typeparam>
-public abstract record Transducer<A, B> : KArr<Any, A, B>
+public abstract record Transducer<A, B> : KArrow<Any<A>, A, B>
 {
     /// <summary>
     /// Transform the transducer using the reducer provided 

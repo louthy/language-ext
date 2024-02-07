@@ -1,27 +1,19 @@
-﻿using System;
-using LanguageExt.Common;
-using LanguageExt.HKT;
-using static LanguageExt.Prelude;
+﻿using LanguageExt.HKT;
 
 namespace LanguageExt;
 
 //public delegate Fin<A> Reader<in Env, A>(Env env);
 
-public static partial class Reader
+public static class Reader
 {
-    public static Reader<Env, A> As<Env, A>(this KArr<MReader<Env>, Env, MIdentity, A> ma) =>
+    public static Reader<Env, A> As<Env, A>(this KArrow<MReaderT<Env, MIdentity>, Env, MIdentity, A> ma) =>
         (Reader<Env, A>)ma;
 }
 
-public class MReader<Env> : MonadReaderT<MReader<Env>, Env, MIdentity>
-{
-    public static KArr<MReader<Env>, Env, MIdentity, A> Lift<A>(Transducer<Env, KStar<MIdentity, A>> f) => 
-        new Reader<Env, A>(f);
-    
-    public static Reader<Env, A> Lift<A>(KStar<MIdentity, A> ma) =>
-        new(Transducer.constant<Env, KStar<MIdentity, A>>(ma));
-}
+public record Reader<Env, A>(Transducer<Env, KStar<MIdentity, A>> runReaderT)
+    : ReaderT<Env, MIdentity, A>(runReaderT);
 
+/*
 public record Reader<Env, A>(Transducer<Env, KStar<MIdentity, A>> runReader) : KArr<MReader<Env>, Env, MIdentity, A> 
 {
     public static Reader<Env, Env> Ask =>
@@ -63,3 +55,4 @@ public record Reader<Env, A>(Transducer<Env, KStar<MIdentity, A>> runReader) : K
     public Transducer<Env, KStar<MIdentity, A>> Morphism =>
         runReader.Morphism;
 }
+*/

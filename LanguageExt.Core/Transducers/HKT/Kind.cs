@@ -7,17 +7,17 @@ public interface KLift<F, Env, G>
     where F : KLift<F, Env, G>
     where G : KLift<G>
 {
-    public static abstract KArr<F, Env, G, A> Lift<A>(Transducer<Env, KStar<G, A>> f);
+    public static abstract KArrow<F, Env, G, A> Lift<A>(Transducer<Env, KStar<G, A>> f);
 
-    public static virtual KArr<F, Env, G, A> Lift<A>(Func<Env, KStar<G, A>> f) =>
+    public static virtual KArrow<F, Env, G, A> Lift<A>(Func<Env, KStar<G, A>> f) =>
         F.Lift(lift(f));
 }
 
 public interface KLift<F, Env> where F : KLift<F, Env>
 {
-    public static abstract KArr<F, Env, A> Lift<A>(Transducer<Env, A> f);
+    public static abstract KArrow<F, Env, A> Lift<A>(Transducer<Env, A> f);
 
-    public static virtual KArr<F, Env, A> Lift<A>(Func<Env, A> f) =>
+    public static virtual KArrow<F, Env, A> Lift<A>(Func<Env, A> f) =>
         F.Lift(lift(f));
 }
 
@@ -28,21 +28,6 @@ public interface KLift<F> where F : KLift<F>
     public static virtual KStar<F, A> Lift<A>(Func<Unit, A> f) =>
         F.Lift(lift(f));
 }
-
-/*
-public interface KLift<F, Env, G> 
-    where F : KLift<F, Env>
-    where G : KLift<G>
-{
-    public static abstract KArr<F, Env, A> Lift<A>(Transducer<Env, A> f);
-
-    public static virtual KArr<F, Env, A> Lift<A>(Func<Env, A> f) =>
-        F.Lift(lift(f));
-}
-*/
-
-
-
 
 /// <summary>
 /// Kind
@@ -62,7 +47,7 @@ public interface KLift<F, Env, G>
 /// <typeparam name="Env">Lower kind input type</typeparam>
 /// <typeparam name="G">Higher kind</typeparam>
 /// <typeparam name="A">Lower kind output type</typeparam>
-public interface KArr<F, Env, G, A> 
+public interface KArrow<F, Env, G, A> 
     where F : KLift<F, Env, G>
     where G : KLift<G>
 {
@@ -71,10 +56,10 @@ public interface KArr<F, Env, G, A>
     /// </summary>
     Transducer<Env, KStar<G, A>> Morphism { get; }
 
-    public KStar<G, A> Partial(Env env) =>
-        Morphism.Partial(env);
+    public KStar<G, A> Invoke(Env env) =>
+        Morphism.Invoke(env);
 
-    public KArr<F, Env, G, A> AsKind() => this;
+    public KArrow<F, Env, G, A> AsKind() => this;
 }
 
 
@@ -95,14 +80,14 @@ public interface KArr<F, Env, G, A>
 /// <typeparam name="F">Higher kind</typeparam>
 /// <typeparam name="A">Lower kind input type</typeparam>
 /// <typeparam name="B">Lower kind output type</typeparam>
-public interface KArr<F, A, B> where F : KLift<F, A>
+public interface KArrow<F, A, B> where F : KLift<F, A>
 {
     /// <summary>
     /// Transducer from `A` to `B`
     /// </summary>
     Transducer<A, B> Morphism { get; }
     
-    public KArr<F, A, B> AsKind() => this;
+    public KArrow<F, A, B> AsKind() => this;
 }
 
 /// <summary>
@@ -124,7 +109,7 @@ public interface KArr<F, A, B> where F : KLift<F, A>
 /// <typeparam name="Y">Left destination-type</typeparam>
 /// <typeparam name="A">Right destination-type</typeparam>
 /// <typeparam name="B">Right destination-type</typeparam>
-public interface KArr<F, X, Y, A, B> : KArr<F, Sum<X, A>, Sum<Y, B>> where F : KLift<F, Sum<X, A>>;
+public interface KArrow<F, X, Y, A, B> : KArrow<F, Sum<X, A>, Sum<Y, B>> where F : KLift<F, Sum<X, A>>;
 
 
 /// <summary>
@@ -151,7 +136,11 @@ public interface KStar<F, A>
     /// </summary>
     Transducer<Unit, A> Morphism { get; }
     
-    public KStar<F, A> AsKind() => this;
+    /// <summary>
+    /// Convert any derived type into its base kind
+    /// </summary>
+    public KStar<F, A> AsKind() => 
+        this;
 }
 
 /// <summary>
