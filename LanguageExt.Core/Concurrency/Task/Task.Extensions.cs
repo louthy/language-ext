@@ -371,7 +371,7 @@ namespace LanguageExt
                     }
                 }
             }
-
+            
             void go()
             {
                 try
@@ -387,9 +387,10 @@ namespace LanguageExt
                         {
                             sw.SpinOnce();
                         }
-
+                        
                         lock (sync)
                         {
+                            
                             if (token.IsCancellationRequested)
                             {
                                 throw new TaskCanceledException();

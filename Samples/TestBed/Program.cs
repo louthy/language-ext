@@ -98,6 +98,7 @@ public class Program
         //Console.WriteLine(PipesTestBed.effect.RunEffect().Run(Runtime.New()).Result);
         //Issue1230.Run();
         //Issue1234.Test();
+        SequenceParallelTest.Run();
     }
 
     public static async Task PipesTest()
