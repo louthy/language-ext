@@ -127,19 +127,20 @@ namespace LanguageExt.UnitsOfMeasure
         public Length Max(Length rhs) =>
             new Length(Math.Max(Value, rhs.Value));
 
-        public double Miles       => Value * 6.2137119223484848484848484848485e-4;
-        public double Yards       => Value * 1.0936132983333333333333333333333;
-        public double Feet        => Value * 3.280839895;
-        public double Inches      => Value * 39.37007874;
-        public double Kilometres  => Value / 1000.0;
-        public double Hectometres => Value / 100.0;
-        public double Decametres  => Value / 10.0;
-        public double Metres      => Value;
-        public double Centimetres => Value * 100.0;
-        public double Millimetres => Value * 1000.0;
-        public double Micrometres => Value * 1000000.0;
-        public double Nanometres  => Value * 1000000000.0;
-        public double Angstroms   => Value * 10000000000.0;
+        public double Miles         => Value * 6.2137119223484848484848484848485e-4;
+        public double NauticalMiles => Value * 1852;
+        public double Yards         => Value * 1.0936132983333333333333333333333;
+        public double Feet          => Value * 3.280839895;
+        public double Inches        => Value * 39.37007874;
+        public double Kilometres    => Value / 1000.0;
+        public double Hectometres   => Value / 100.0;
+        public double Decametres    => Value / 10.0;
+        public double Metres        => Value;
+        public double Centimetres   => Value * 100.0;
+        public double Millimetres   => Value * 1000.0;
+        public double Micrometres   => Value * 1000000.0;
+        public double Nanometres    => Value * 1000000000.0;
+        public double Angstroms     => Value * 10000000000.0;
     }
 
     public static class UnitsLengthExtensions
@@ -152,6 +153,15 @@ namespace LanguageExt.UnitsOfMeasure
 
         public static Length Miles(this double self) =>
             new Length(1609.344000006437376000025749504 * self);
+
+        public static Length NauticalMiles(this int self) =>
+            new Length(self / 1852);
+
+        public static Length NauticalMiles(this float self) =>
+            new Length(self / 1852);
+
+        public static Length NauticalMiles(this double self) =>
+            new Length(self / 1852);
 
         public static Length Yards(this int self) =>
             new Length(0.9144000000036576000000146304 * self);
