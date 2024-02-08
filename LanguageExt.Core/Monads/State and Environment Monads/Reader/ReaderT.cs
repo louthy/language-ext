@@ -15,18 +15,36 @@ public static partial class ReaderT
         (ReaderT<Env, M, A>)ma;
 }
 
-public class MReaderT<Env, M> : 
-    MonadReaderT<MReaderT<Env, M>, Env, M>
+public class MReaderT<Env, M> : MonadReaderT<MReaderT<Env, M>, Env, M>
     where M : Monad<M>
 {
-    public static KArrow<MReaderT<Env, M>, Env, M, A> Lift<A>(Transducer<Env, KStar<M, A>> f) => 
-        new ReaderT<Env, M, A>(f);
-
-    public static ReaderT<Env, M, A> Lift<A>(KStar<M, A> ma) =>
-        new(Transducer.constant<Env, KStar<M, A>>(ma));
-    
     public static ReaderT<Env, M, Env> Ask =>
         MonadReaderT.ask<MReaderT<Env, M>, Env, M>().As();
+
+    public static KArrow<MReaderT<Env, M>, Env, M, A> Lift<A>(KStar<M, A> ma) => 
+        ReaderT<Env, M, A>.Lift(ma);
+
+    public static KArrow<MReaderT<Env, M>, Env, M, A> Lift<A>(Transducer<Env, A> ma) => 
+        ReaderT<Env, M, A>.Lift(ma);
+
+    public static TResult<S> Run<S, A>(
+        KArrow<MReaderT<Env, M>, Env, M, A> ma,
+        Env env,
+        S initialState,
+        Reducer<KStar<M, A>, S> reducer,
+        CancellationToken token = default,
+        SynchronizationContext? syncContext = null) =>
+        ma.As().Run(env, initialState, reducer, token, syncContext);
+
+    public static Transducer<Env1, KStar<M, A>> With<Env1, A>(
+        Transducer<Env1, Env> f, 
+        KArrow<MReaderT<Env, M>, Env, M, A> ma) => 
+        ma.As().With(f).Morphism;
+
+    public static KArrow<MReaderT<Env, M>, Env, M, B> Bind<A, B>(
+        KArrow<MReaderT<Env, M>, Env, M, A> ma, 
+        Transducer<A, KArrow<MReaderT<Env, M>, Env, M, B>> f) =>
+        ma.As().Bind(f);
 }
 
 public record ReaderT<Env, M, A>(Transducer<Env, KStar<M, A>> runReaderT) 
@@ -34,16 +52,19 @@ public record ReaderT<Env, M, A>(Transducer<Env, KStar<M, A>> runReaderT)
     where M : Monad<M>
 {
     public static ReaderT<Env, M, Env> Ask =>
-        MonadReaderT.ask<MReaderT<Env, M>, Env, M>().As();
+        new (lift<Env, KStar<M, Env>>(e => M.Pure(e)));
+    
+    public ReaderT<Env1, M, A> With<Env1>(Transducer<Env1, Env> f) =>
+         new(Transducer.compose(f, runReaderT));
     
     public ReaderT<Env, M, A> Local(Func<Env, Env> f) =>
-        MonadReaderT.local(f, this).As();
+        With(lift(f));
     
     public static ReaderT<Env, M, A> Pure(A value) =>
-        MonadReaderT.pure<MReaderT<Env, M>, Env, M, A>(value).As();
+        Lift(M.Pure(value));
     
     public static ReaderT<Env, M, A> Lift(KStar<M, A> monad) => 
-        MonadReaderT.lift<MReaderT<Env, M>, Env, M, A>(monad).As();
+        new (lift<Env, KStar<M, A>>(_ => monad));
 
     public static ReaderT<Env, M, A> Lift(Transducer<Env, A> f) =>
         new (f.Map(M.Pure));
@@ -61,22 +82,28 @@ public record ReaderT<Env, M, A>(Transducer<Env, KStar<M, A>> runReaderT)
         MonadReaderT.map(this, f).As();
 
     public ReaderT<Env, M, B> Bind<B>(Transducer<A, ReaderT<Env, M, B>> f) =>
-        MonadReaderT.bind<
-            MReaderT<Env, M>, 
-            ReaderT<Env, M, B>,
-            Env, M, A, B>(this, f);
-
+         new(lift<Env, Transducer<Env, KStar<M, B>>>(
+                     env =>
+                         runReaderT.Map(ma => M.Map(ma, f.Map(mb => mb.Morphism.Invoke(env)).Flatten()))
+                                   .Map(M.Flatten))
+                .Flatten());
+    
+    public ReaderT<Env, M, B> Bind<B>(Transducer<A, KArrow<MReaderT<Env, M>, Env, M, B>> f) =>
+        new(lift<Env, Transducer<Env, KStar<M, B>>>(
+                    env =>
+                        runReaderT.Map(ma => M.Map(ma, f.Map(mb => mb.Morphism.Invoke(env)).Flatten()))
+                                  .Map(M.Flatten))
+               .Flatten());
+        
+    
     public ReaderT<Env, M, B> Bind<B>(Func<A, ReaderT<Env, M, B>> f) =>
-        MonadReaderT.bind<
-            MReaderT<Env, M>, 
-            ReaderT<Env, M, B>,
-            Env, M, A, B>(this, f);
+        Bind(lift(f));
 
     public ReaderT<Env, M, C> SelectMany<B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
-    
+
     public ReaderT<Env, M, C> SelectMany<B, C>(Func<A, KStar<M, B>> bind, Func<A, B, C> project) =>
-        Bind(x => MReaderT<Env, M>.Lift(bind(x)).Map(y => project(x, y)));
+        Bind(x => ReaderT<Env, M, B>.Lift(bind(x)).Map(y => project(x, y)));
     
     public static implicit operator ReaderT<Env, M, A>(Transducer<Env, KStar<M, A>> runReaderT) =>
         new (runReaderT);
@@ -111,26 +138,4 @@ public record ReaderT<Env, M, A>(Transducer<Env, KStar<M, A>> runReaderT)
         CancellationToken token = default,
         SynchronizationContext? syncContext = null) =>
         Run(env, default, Reducer<KStar<M, A>>.seq, token, syncContext).ToFin(); 
-    
-    public TResult<S> RunT<S>(
-        Env env,
-        S initialState,
-        Reducer<A, S> reducer,
-        CancellationToken token = default,
-        SynchronizationContext? syncContext = null) =>
-        M.Run(runReaderT.Invoke(env), initialState, reducer, token, syncContext); 
-    
-    public Fin<A> RunT(
-        Env env,
-        CancellationToken token = default,
-        SynchronizationContext? syncContext = null) =>
-        RunT(env, default, Reducer<A>.last, token, syncContext)
-           .Bind(ma => ma is null ? TResult.None<A>() : TResult.Continue(ma))
-           .ToFin(); 
-    
-    public Fin<Seq<A>> RunManyT(
-        Env env,
-        CancellationToken token = default,
-        SynchronizationContext? syncContext = null) =>
-        RunT(env, default, Reducer<A>.seq, token, syncContext).ToFin();     
 }

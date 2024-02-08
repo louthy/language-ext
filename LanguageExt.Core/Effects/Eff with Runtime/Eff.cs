@@ -11,11 +11,21 @@ using LanguageExt.HKT;
 namespace LanguageExt;
 
 /// <summary>
+/// Eff lift trait instance
+/// </summary>
+public class MEff<RT> : KLift2<MEff<RT>, RT, Error>
+    where RT : HasIO<RT, Error>
+{
+    public static KArrow2<MEff<RT>, RT, Error, A> Lift<A>(Transducer<RT, Sum<Error, A>> f) => 
+        Eff<RT, A>.Lift(f);
+}
+
+/// <summary>
 /// Transducer based effect/`Eff` monad
 /// </summary>
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly struct Eff<RT, A> : KArrow<Any, RT, Sum<Error, A>>
+public readonly struct Eff<RT, A> : KArrow2<MEff<RT>, RT, Error, A>
     where RT : HasIO<RT, Error>
 {
     /// <summary>
@@ -63,7 +73,15 @@ public readonly struct Eff<RT, A> : KArrow<Any, RT, Sum<Error, A>>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(Func<RT, Either<Error, A>> thunk) 
-        : this(rt => thunk(rt).ToSum())
+        : this(lift(thunk))
+    { }
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    [MethodImpl(Opt.Default)]
+    Eff(Func<RT, Fin<A>> thunk) 
+        : this(lift(thunk))
     { }
 
     /// <summary>
@@ -71,7 +89,15 @@ public readonly struct Eff<RT, A> : KArrow<Any, RT, Sum<Error, A>>
     /// </summary>
     [MethodImpl(Opt.Default)]
     Eff(Transducer<RT, Either<Error, A>> thunk) 
-        : this(Transducer.compose(thunk, lift<Either<Error, A>, Sum<Error, A>>(x => x.ToSum())))
+        : this(thunk.Morphism.Map(e => e.ToSum()))
+    { }
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    [MethodImpl(Opt.Default)]
+    Eff(Transducer<RT, Fin<A>> thunk) 
+        : this(thunk.Morphism.Map(e => e.ToSum()))
     { }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,7 +235,7 @@ public readonly struct Eff<RT, A> : KArrow<Any, RT, Sum<Error, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> Lift(Func<RT, Fin<A>> f) =>
-        new (x => f(x).ToEither());
+        new (f);
 
     /// <summary>
     /// Lift a synchronous effect into the `Eff` monad
@@ -223,7 +249,7 @@ public readonly struct Eff<RT, A> : KArrow<Any, RT, Sum<Error, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> Lift(Transducer<RT, Fin<A>> f) =>
-        new (f.Map(x => x.ToEither()));
+        new (f);
 
     /// <summary>
     /// Lift a synchronous effect into the `Eff` monad
@@ -274,16 +300,16 @@ public readonly struct Eff<RT, A> : KArrow<Any, RT, Sum<Error, A>>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> LiftIO(Func<RT, Task<Either<Error, A>>> f) =>
-        new (liftAsync<RT, Sum<Error, A>>(
-            async (_, rt) => (await f(rt).ConfigureAwait(false)).ToSum()));
+        new (liftAsync<RT, Either<Error, A>>(
+            async (_, rt) => await f(rt).ConfigureAwait(false)));
 
     /// <summary>
     /// Lift a asynchronous effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> LiftIO(Func<RT, Task<Fin<A>>> f) =>
-        new (liftAsync<RT, Sum<Error, A>>(
-            async (_, rt) => (await f(rt).ConfigureAwait(false)).ToSum()));
+        new (liftAsync<RT, Fin<A>>(
+            async (_, rt) => await f(rt).ConfigureAwait(false)));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

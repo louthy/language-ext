@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using static LanguageExt.Choice;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
-using LanguageExt.ClassInstances;
 
 namespace LanguageExt;
 
@@ -15,7 +13,7 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static Either<L, R> flatten<L, R>(Either<L, Either<L, R>> ma) =>
-        ma.Bind(identity);
+        ma.Bind(x => x);
 
     /// <summary>
     /// Add the bound values of x and y, uses an Add trait to provide the add
@@ -85,7 +83,9 @@ public static partial class Prelude
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static Either<L, B> apply<L, A, B>(Either<L, Func<A, B>> fab, Either<L, A> fa) =>
-        ApplEither<L, A, B>.Apply(fab, fa);
+        from f in fab
+        from a in fa
+        select f(a);
 
     /// <summary>
     /// Apply
@@ -95,7 +95,7 @@ public static partial class Prelude
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static Either<L, B> apply<L, A, B>(Func<A, B> fab, Either<L, A> fa) =>
-        ApplEither<L, A, B>.Apply(fab, fa);
+        fa.Map(fab);
 
     /// <summary>
     /// Apply
@@ -106,9 +106,10 @@ public static partial class Prelude
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static Either<L, C> apply<L, A, B, C>(Either<L, Func<A, B, C>> fabc, Either<L, A> fa, Either<L, B> fb) =>
-        from x in fabc
-        from y in ApplEither<L, A, B, C>.Apply(curry(x), fa, fb)
-        select y;
+        from f in fabc
+        from a in fa
+        from b in fb
+        select f(a, b);
 
     /// <summary>
     /// Apply
@@ -119,7 +120,9 @@ public static partial class Prelude
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static Either<L, C> apply<L, A, B, C>(Func<A, B, C> fabc, Either<L, A> fa, Either<L, B> fb) =>
-        ApplEither<L, A, B, C>.Apply(curry(fabc), fa, fb);
+        from a in fa
+        from b in fb
+        select fabc(a, b);
 
     /// <summary>
     /// Apply
@@ -129,9 +132,9 @@ public static partial class Prelude
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static Either<L, Func<B, C>> apply<L, A, B, C>(Either<L, Func<A, B, C>> fabc, Either<L, A> fa) =>
-        from x in fabc
-        from y in ApplEither<L, A, B, C>.Apply(curry(x), fa)
-        select y;
+        from f in fabc
+        from a in fa
+        select curry(f)(a);
 
     /// <summary>
     /// Apply
@@ -141,7 +144,7 @@ public static partial class Prelude
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static Either<L, Func<B, C>> apply<L, A, B, C>(Func<A, B, C> fabc, Either<L, A> fa) =>
-        ApplEither<L, A, B, C>.Apply(curry(fabc), fa);
+        fa.Map(curry(fabc));
 
     /// <summary>
     /// Apply
@@ -151,7 +154,9 @@ public static partial class Prelude
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static Either<L, Func<B, C>> apply<L, A, B, C>(Either<L, Func<A, Func<B, C>>> fabc, Either<L, A> fa) =>
-        ApplEither<L, A, B, C>.Apply(fabc, fa);
+        from f in fabc
+        from a in fa
+        select f(a);
 
     /// <summary>
     /// Apply
@@ -161,7 +166,7 @@ public static partial class Prelude
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static Either<L, Func<B, C>> apply<L, A, B, C>(Func<A, Func<B, C>> fabc, Either<L, A> fa) =>
-        ApplEither<L, A, B, C>.Apply(fabc, fa);
+        fa.Map(fabc);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -171,7 +176,7 @@ public static partial class Prelude
     /// <returns>Applicative of type Option<B></returns>
     [Pure]
     public static Either<L, B> action<L, A, B>(Either<L, A> fa, Either<L, B> fb) =>
-        ApplEither<L, A, B>.Action(fa, fb);
+        fa.Bind(_ => fb);
 
     /// <summary>
     /// Returns the state of the Either provided
@@ -381,8 +386,8 @@ public static partial class Prelude
     /// <param name="Left">Folder function, applied if Either is in a Left state</param>
     /// <returns>The aggregate state</returns>
     [Pure]
-    public static S bifold<L, R, S>(Either<L, R> either, S state, Func<S, R, S> Right, Func<S, L, S> Left) =>
-        either.BiFold(state, Right, Left);
+    public static S bifold<L, R, S>(Either<L, R> either, S state, Func<S, L, S> Left, Func<S, R, S> Right) =>
+        either.BiFold(state, Left, Right);
 
     /// <summary>
     /// Invokes a predicate on the value of the Either if it's in the Right state
@@ -408,8 +413,8 @@ public static partial class Prelude
     /// <param name="Left">Left predicate</param>
     /// <returns>True if the predicate returns True.  True if the Either is in a bottom state.</returns>
     [Pure]
-    public static bool biforall<L, R>(Either<L, R> either, Func<R, bool> Right, Func<L, bool> Left) =>
-        either.BiForAll(Right, Left);
+    public static bool biforall<L, R>(Either<L, R> either, Func<L, bool> Left, Func<R, bool> Right) =>
+        either.BiForAll(Left, Right);
 
     /// <summary>
     /// Counts the Either
@@ -444,8 +449,8 @@ public static partial class Prelude
     /// <param name="Left">Left predicate</param>
     /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
     [Pure]
-    public static bool biexists<L, R>(Either<L, R> either, Func<R, bool> Right, Func<L, bool> Left) =>
-        either.BiExists(Right,Left);
+    public static bool biexists<L, R>(Either<L, R> either, Func<L, bool> Left, Func<R, bool> Right) =>
+        either.BiExists(Left, Right);
 
     /// <summary>
     /// Maps the value in the Either if it's in a Right state
@@ -472,8 +477,8 @@ public static partial class Prelude
     /// <param name="Left">Left map function</param>
     /// <returns>Mapped Either</returns>
     [Pure]
-    public static Either<LRet, RRet> bimap<L, R, LRet, RRet>(Either<L, R> either, Func<R, RRet> Right, Func<L, LRet> Left) =>
-        either.BiMap(Right, Left);
+    public static Either<LRet, RRet> bimap<L, R, LRet, RRet>(Either<L, R> either, Func<L, LRet> Left, Func<R, RRet> Right) =>
+        either.BiMap(Left, Right);
 
     /// <summary>
     /// Partial application map
@@ -558,9 +563,9 @@ public static partial class Prelude
     {
         foreach (var item in list)
         {
-            if (item.IsBottom) continue;
-            if (item.IsLeft) yield return Left(item.LeftValue);
-            if (item.IsRight) yield return Right(item.RightValue);
+            var i = item.Strict();
+            if (i.IsLeft) yield return Left(i.LeftValue);
+            if (i.IsRight) yield return Right(i.RightValue);
         }
     }
 
@@ -641,8 +646,14 @@ public static partial class Prelude
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
     [Pure]
-    public static IEnumerable<L> lefts<L, R>(IEnumerable<Either<L, R>> self) =>
-        lefts<MEither<L, R>, Either<L, R>, L, R>(self);
+    public static IEnumerable<L> lefts<L, R>(IEnumerable<Either<L, R>> self)
+    {
+        foreach (var item in self)
+        {
+            var i = item.Strict();
+            if (i.IsLeft) yield return i.LeftValue;
+        }
+    }
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Left' elements.
@@ -654,7 +665,7 @@ public static partial class Prelude
     /// <returns>An enumerable of L</returns>
     [Pure]
     public static Seq<L> lefts<L, R>(Seq<Either<L, R>> self) =>
-        lefts<MEither<L, R>, Either<L, R>, L, R>(self);
+        lefts(self.AsEnumerable()).ToSeq();
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Right' elements.
@@ -665,8 +676,14 @@ public static partial class Prelude
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
     [Pure]
-    public static IEnumerable<R> rights<L, R>(IEnumerable<Either<L, R>> self) =>
-        rights<MEither<L, R>, Either<L, R>, L, R>(self);
+    public static IEnumerable<R> rights<L, R>(IEnumerable<Either<L, R>> self)
+    {
+        foreach (var item in self)
+        {
+            var i = item.Strict();
+            if (i.IsRight) yield return i.RightValue;
+        }
+    }
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Right' elements.
@@ -678,7 +695,7 @@ public static partial class Prelude
     /// <returns>An enumerable of L</returns>
     [Pure]
     public static Seq<R> rights<L, R>(Seq<Either<L, R>> self) =>
-        rights<MEither<L, R>, Either<L, R>, L, R>(self);
+        rights(self.AsEnumerable()).ToSeq();
 
     /// <summary>
     /// Partitions a list of 'Either' into two lists.
@@ -691,8 +708,18 @@ public static partial class Prelude
     /// <param name="self">Either list</param>
     /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
     [Pure]
-    public static (IEnumerable<L> Lefts, IEnumerable<R> Rights) partition<L, R>(IEnumerable<Either<L, R>> self) =>
-        partition<MEither<L, R>, Either<L, R>, L, R>(self);
+    public static (IEnumerable<L> Lefts, IEnumerable<R> Rights) partition<L, R>(IEnumerable<Either<L, R>> self)
+    {
+        var ls   = new List<L>();
+        var rs   = new List<R>();
+        foreach (var item in self)
+        {
+            var i = item.Strict();
+            if (i.IsLeft) ls.Add(i.LeftValue);
+            if (i.IsRight) rs.Add(i.RightValue);
+        }
+        return (ls, rs);
+    }
 
     /// <summary>
     /// Partitions a list of 'Either' into two lists.
@@ -705,6 +732,9 @@ public static partial class Prelude
     /// <param name="self">Either list</param>
     /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
     [Pure]
-    public static (Seq<L> Lefts, Seq<R> Rights) partition<L, R>(Seq<Either<L, R>> self) =>
-        partition<MEither<L, R>, Either<L, R>, L, R>(self);
+    public static (Seq<L> Lefts, Seq<R> Rights) partition<L, R>(Seq<Either<L, R>> self)
+    {
+        var (ls, rs) = partition(self.AsEnumerable());
+        return (ls.ToSeq(), rs.ToSeq());
+    }
 }

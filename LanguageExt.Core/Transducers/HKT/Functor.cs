@@ -4,7 +4,7 @@ using static LanguageExt.Transducer;
 
 namespace LanguageExt.HKT;
 
-public interface Functor<F> : KLift<F> 
+public interface Functor<F> //: KLift<F> 
     where F : Functor<F>
 {
     public static virtual KStar<F, B> Map<A, B>(KStar<F, A> ma, Transducer<A, B> f) =>
@@ -14,7 +14,7 @@ public interface Functor<F> : KLift<F>
         F.Map(ma, lift(f));
 }
 
-public interface Functor<F, Env> : KLift<F, Env> 
+public interface Functor<F, Env>// : KLift<F, Env> 
     where F : Functor<F, Env>
 {
     public static virtual KArrow<F, Env, B> Map<A, B>(KArrow<F, Env, A> ma, Transducer<A, B> f) =>
@@ -24,7 +24,7 @@ public interface Functor<F, Env> : KLift<F, Env>
         F.Map(ma, lift(f));
 }
 
-public interface Functor<F, Env, G> : KLift<F, Env, G> 
+public interface Functor<F, Env, G>// : KLift<F, Env, G> 
     where F : Functor<F, Env, G>
     where G : Functor<G>
 {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using static LanguageExt.Prelude;
-using static LanguageExt.Transducer;
 
 namespace LanguageExt.HKT;
 

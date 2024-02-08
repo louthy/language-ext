@@ -10,22 +10,24 @@ But, because Monad Transformers need higher-kinds they can't be implemented in C
 
 > _It is then possible to consider that if one had access to the `Bind` function of `Option` and the `Bind` function of `State` then you could compose them into a new `Bind` function that had the behaviour of both_.  
 
-But how do we standardise the `Bind` function for any monadic type and make it available for composition.  This is where Transducers come in.  They are literally designed to be compositional pipeline components.  You could think of them as the LEGO bricks of functional programming (after functions of course! but transducers allow us to embelish our functions with addtional functionality, like resource tracking, streaming, optional behaviour, etc.)  
+But, how do we standardise the `Bind` function for any monadic type and make it available for composition?  This is where Transducers come in.  They are literally designed to be compositional pipeline components.  You could think of them as the LEGO bricks of functional programming (after functions of course! but transducers allow us to embelish our functions with addtional functionality, like resource tracking, streaming, optional behaviour, etc.)  
 
 Therefore I have introduced Transducers as a new core capability in language-ext.  And all of the monadic types are now either implemented with Transducers or have the option to convert to a Transducer.
 
 
-### Reduce the type explosion due to `async`
+### Reduce the type and function explosion due to `async`
 
-If I continued the way I was before then every monadic type would have an `*Async` variant.  This was getting out of hand.  For something like an IO/effect monad where you could also have an optional error-type and optional runtime-type that meant 8 types.  Each with 1000s of lines of code to define them.  Then, when you think there's 20 or so 30 or so monadic types, it becomes a big maintenence problem.  There's also issues around consistency between each type (making sure everything has a `MapAsync`, `BindAsync`, etc.).
+If I continued the way I was before then every monadic type would have an `*Async` variant, as would every method and function.  This was getting out of hand.  For something like an IO/effect monad where you could also have an optional error-type and optional runtime-type that meant 8 types.  Each with 1000s of lines of code to define them.  Then, when you think there's 20 or so 30 or so monadic types, it becomes a big maintenence problem.  There's also issues around consistency between each type (making sure everything has a `MapAsync`, `BindAsync`, etc.) - as well as making sure sync types can work with async types, etc.
 
-So, as of now, this library is against 'declarative async' - i.e. it's adopting a _'green threads mentality'_.  That is we will not be giving you `*Async` variants of anything.  All computation types (`IO`, `Eff`, `Reader`, `Proxy`, etc.) will support the _lifting_ of both synchronous and asynchronous functions.
+So, as of now, this library stands against 'declarative async' - i.e. it's adopting a _'green threads mentality'_.  That is we will not be giving you `*Async` variants of anything.  All computation types (`IO`, `Eff`, `Reader`, `Proxy`, etc.) will support the _lifting_ of both synchronous and asynchronous functions, but you won't see evidence of asynchronicity in any type-signatures.
 
 Many of the `*Async` functions like `MapAsync`, `BindAsync` are also gone.  There is now `Map`, `Bind`, etc. that accept `Transducer` types (as well as the regular `Func` version).  `Transducer` supports `liftAsync` to lift an asynchronous function into a `Transducer` - it can therefore do async operations without lots of extra boilerplate support for async elsewhere.
 
+Of course, if you feel you miss these async variant functions, you can add your own extensions.
+
 ### Leverage modern C# features
 
-The library has been held back by the need to support .NET Framework.  As of now this is a .NET Core only library.  Instantly jumpimg to .NET 8.0 (which has Long Term Support).
+The library has been held back by the need to support .NET Framework.  As of now this library is .NET (formally known as .NET Core) only.  Instantly jumping to .NET 8.0 (which has Long Term Support).
 
 This opens up: static interface members (which allows the trait/ad-hoc polymorphism support to get a power-up) and collection initialisers for all of the immutable collections - amongst others.
 
@@ -34,14 +36,15 @@ This opens up: static interface members (which allows the trait/ad-hoc polymorph
 
 - IO monad
 - Transducers
-- Recursive effects
+- Infinite recursion in monads
 - Streaming effects
 - Auto-resource managment (`use` / `release`)
-- `Pure` / `Fail`
+- `Pure` / `Fail` monads
 - Lifting
 - Improved guards
 - Nullable annotations
 - Collection initialisers
+- Prototype: Monad transformers
 
 ## Breaking changes
 
@@ -126,17 +129,40 @@ This is part of preparing the library for future serialisation improvements.
 * `Aff<RT, A>`, `Aff<A>`, `OptionAsync`, `EitherAsync`, `TryAsync`, `TryOptionAsync` have all been made obsolete, in line with this proposal: https://github.com/louthy/language-ext/discussions/1269.  See the _Type mapping_ table in the proposal of how to migrate.
 	* `runtime<RT>()` now returns a `Transducer`, to continue to use it with `Aff` call `runtime<RT>().ToAff()`
 
+## `Either` 'bi' functions have their arguments flipped
+
+There were lots of methods like `BiMap`, `BiBind`, `BiFold` etc. where `Left` and `Right` were in the wrong order in the method argument list.  So, I have flipped them.
+
+* Impact: Low
+* Mitigation: change the argument order of any usages
+
 
 ## Types removed outright
 
-* `Some<A>` - use nullable references instead
-* `OptionUnsafe<A>` - use `Option<A?>` instead
-* `OptionNone` - use `Fail<Unit>` instead
-* `EitherUnsafe<L, R>` - use `Either<L?, R?>` instead
-* `EitherLeft<L>` - use `Fail<L>` instead
-* `EitherRight<L>` - use `Pure<R>` instead
-* Async extensions for `Option<A>` - use `ToAsync()` instead
-* `ExceptionMatch`, `ExceptionMatchAsync`, `ExceptionMatchOptionalAsync` - use effect monads with `@catch`
+Originally, I was going to just mark these as `[Obsolete]`.  And, for a while, they were.  But after over 1000 files changed with over 100,000 lines of code added or modified, I realised that maintaining these types (updating them to support nullable references and other fixups) was potentially doubling the effort I'd done up to that point.  So, I have just deleted them outright.  It is brutal, but it saved my sanity.
+
+I am very, very, very sorry that this will mean you have to fixup everything before you can work with language-ext `v5`.  But unfortunately, I have to spread the load of this, as it was burning me to the ground!
+
+This is my '.NET Framework to .NET Core' moment.  I realise that.  And I an truly sorry to those that have to do the migration.  Please make sure you have adequate time set aside for the migration.
+
+* `Some<A>`
+	* Mitigtation: use nullable references instead
+* `OptionUnsafe<A>`
+	* Mitigtation: use `Option<A?>` instead
+* `OptionNone`:
+	* Mitigtation: use `Fail<Unit>` instead
+* `EitherUnsafe<L, R>`:
+	* Mitigtation: use `Either<L?, R?>` instead
+* `EitherLeft<L>`
+	* Mitigtation: use `Fail<L>` instead
+* `EitherRight<L>`:
+	* Mitigtation:  use `Pure<R>` instead
+* Async extensions for `Option<A>` 
+	* Mitigtation: use `ToAsync()` instead
+* `ExceptionMatch`, `ExceptionMatchAsync`, `ExceptionMatchOptionalAsync`
+	* Mitigtation: use effect monads with `@catch`
+
+
 
 # TODO
 

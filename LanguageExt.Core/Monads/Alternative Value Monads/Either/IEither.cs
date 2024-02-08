@@ -1,40 +1,21 @@
 ﻿using System;
-using System.Threading.Tasks;
 
-namespace LanguageExt
+namespace LanguageExt;
+
+public interface IEither
 {
-    public interface IEither
+    bool IsRight
     {
-        bool IsRight
-        {
-            get;
-        }
-
-        bool IsLeft
-        {
-            get;
-        }
-
-        TRes MatchUntyped<TRes>(Func<object?, TRes> Right, Func<object?, TRes> Left);
-
-        Type GetUnderlyingRightType();
-        Type GetUnderlyingLeftType();
+        get;
     }
 
-    [Obsolete(Change.UseEffMonadInstead)]
-    public interface IEitherAsync
+    bool IsLeft
     {
-        Task<bool> IsRight
-        {
-            get;
-        }
-
-        Task<bool> IsLeft
-        {
-            get;
-        }
-
-        Type GetUnderlyingRightType();
-        Type GetUnderlyingLeftType();
+        get;
     }
+
+    TRes MatchUntyped<TRes>(Func<object?, TRes> Right, Func<object?, TRes> Left);
+
+    Type GetUnderlyingRightType();
+    Type GetUnderlyingLeftType();
 }

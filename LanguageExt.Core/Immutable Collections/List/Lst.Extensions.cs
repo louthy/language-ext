@@ -876,7 +876,7 @@ public static class ListExtensions
     /// </summary>
     [Pure]
     public static Arr<A> ToArr<A>(this IEnumerable<A> list) =>
-        new Arr<A>(list);
+        new (list);
 
     /// <summary>
     /// Returns the number of items in the Lst T

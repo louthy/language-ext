@@ -5,9 +5,16 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using LanguageExt.Common;
+using LanguageExt.HKT;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
+
+public class MFin : KLift2<MFin, Error>
+{
+    public static KStar2<MFin, Error, A> Lift<A>(Transducer<Unit, Sum<Error, A>> f) => 
+        new Fin<A>(f);
+}
 
 /// <summary>
 /// Equivalent of `Either<Error, A>`
@@ -19,7 +26,8 @@ public readonly struct Fin<A> :
     IComparable, 
     IEquatable<Fin<A>>,
     IEnumerable<A>,
-    ISerializable
+    ISerializable,
+    KStar2<MFin, Error, A>
 {
     readonly Either<Error, A> either;
 
@@ -94,9 +102,7 @@ public readonly struct Fin<A> :
     /// Get hash code
     /// </summary>
     public override int GetHashCode() =>
-        IsSucc
-            ? either.GetHashCode()
-            : FNV32.OffsetBasis;
+        either.GetHashCode();
 
     [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Fin<A>(A value) =>
@@ -120,21 +126,23 @@ public readonly struct Fin<A> :
 
     [Pure, MethodImpl(Opt.Default)]
     public static explicit operator A(Fin<A> ma) =>
-        ma.IsSucc
-            ? ma.Value
-            : throw new EitherIsNotRightException();
+        ma.either.RightValue;
 
     [Pure, MethodImpl(Opt.Default)]
     public static explicit operator Error(Fin<A> ma) =>
-        ma.IsFail
-            ? ma.Error
-            : throw new EitherIsNotLeftException();
+        ma.either.LeftValue;
 
     [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Transducer<Unit, Sum<Error, A>>(Fin<A> value) =>
+        value.either.Morphism;
+
+    [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Fin<A>(Transducer<Unit, Sum<Error, A>> value) =>
+        new (value);
+        
+    [Pure, MethodImpl(Opt.Default)]
     public static Fin<A> operator |(Fin<A> left, Fin<A> right) =>
-        left.IsSucc
-            ? left
-            : right;
+        left.either | right.either;
 
     [Pure, MethodImpl(Opt.Default)]
     public static bool operator true(Fin<A> ma) =>
@@ -152,7 +160,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator <(Fin<A> lhs, A rhs) =>
-        lhs < FinSucc(rhs);
+        lhs.either < rhs;
 
     /// <summary>
     /// Comparison operator
@@ -162,7 +170,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator <=(Fin<A> lhs, A rhs) =>
-        lhs <= FinSucc(rhs);
+        lhs.either <= rhs;
 
     /// <summary>
     /// Comparison operator
@@ -172,7 +180,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator >(Fin<A> lhs, A rhs) =>
-        lhs > FinSucc(rhs);
+        lhs.either > rhs;
 
     /// <summary>
     /// Comparison operator
@@ -182,7 +190,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator >=(Fin<A> lhs, A rhs) =>
-        lhs >= FinSucc(rhs);
+        lhs.either >= rhs;
 
     /// <summary>
     /// Comparison operator
@@ -192,7 +200,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator <(A lhs, Fin<A> rhs) =>
-        FinSucc(lhs) < rhs;
+        lhs < rhs.either;
 
     /// <summary>
     /// Comparison operator
@@ -202,7 +210,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator <=(A lhs, Fin<A> rhs) =>
-        FinSucc(lhs) <= rhs;
+        lhs <= rhs.either;
 
     /// <summary>
     /// Comparison operator
@@ -212,7 +220,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator >(A lhs, Fin<A>rhs) =>
-        FinSucc(lhs) > rhs;
+        lhs > rhs.either;
 
     /// <summary>
     /// Comparison operator
@@ -222,7 +230,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator >=(A lhs, Fin<A>  rhs) =>
-        FinSucc(lhs) >= rhs;
+        lhs >= rhs.either;
 
     /// <summary>
     /// Comparison operator
@@ -232,7 +240,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs < rhs</returns>
     [Pure]
     public static bool operator <(Fin<A> lhs, Fin<A> rhs) =>
-        lhs.CompareTo(rhs) < 0;
+        lhs.either.CompareTo(rhs.either) < 0;
 
     /// <summary>
     /// Comparison operator
@@ -242,7 +250,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs <= rhs</returns>
     [Pure]
     public static bool operator <=(Fin<A> lhs, Fin<A> rhs) =>
-        lhs.CompareTo(rhs) <= 0;
+        lhs.either.CompareTo(rhs.either) <= 0;
 
     /// <summary>
     /// Comparison operator
@@ -252,7 +260,7 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs > rhs</returns>
     [Pure]
     public static bool operator >(Fin<A> lhs, Fin<A> rhs) =>
-        lhs.CompareTo(rhs) > 0;
+        lhs.either.CompareTo(rhs.either) > 0;
 
     /// <summary>
     /// Comparison operator
@@ -262,14 +270,14 @@ public readonly struct Fin<A> :
     /// <returns>True if lhs >= rhs</returns>
     [Pure]
     public static bool operator >=(Fin<A> lhs, Fin<A> rhs) =>
-        lhs.CompareTo(rhs) >= 0;
+        lhs.either.CompareTo(rhs.either) >= 0;
 
     /// <summary>
     /// Equality operator override
     /// </summary>
     [Pure]
     public static bool operator ==(Fin<A> lhs, Fin<A> rhs) =>
-        lhs.Equals(rhs);
+        lhs.either.Equals(rhs.either);
 
     /// <summary>
     /// Non-equality operator override
@@ -285,7 +293,7 @@ public readonly struct Fin<A> :
     /// </summary>
     [Pure]
     public static bool operator ==(Fin<A> lhs, Error rhs) =>
-        lhs.Equals(FinFail<A>(rhs));
+        lhs.either.Equals(rhs);
 
     /// <summary>
     /// Equality operator override
@@ -340,13 +348,9 @@ public readonly struct Fin<A> :
 
     [Pure, MethodImpl(Opt.Default)]
     internal Fin<B> Cast<B>() =>
-        IsSucc
-            ? convert<B>(Value)
-             .Map(Fin<B>.Succ)
-             .IfNone(() => Fin<B>.Fail(Error.New($"Can't cast success value of `{nameof(A)}` to `{nameof(B)}` ")))
-            : IsFail
-                ? Fin<B>.Fail(either.LeftValue)
-                : default;
+        Bind(x => convert<B>(x)
+                    .Map(Fin<B>.Succ)
+                    .IfNone(() => Fin<B>.Fail(Error.New($"Can't cast success value of `{nameof(A)}` to `{nameof(B)}` "))));
 
     [Pure, MethodImpl(Opt.Default)]
     public int CompareTo(Fin<A> other) =>
@@ -357,13 +361,8 @@ public readonly struct Fin<A> :
         either.Equals(other.either);
 
     [Pure, MethodImpl(Opt.Default)]
-    public IEnumerator<A> GetEnumerator()
-    {
-        if (IsSucc)
-        {
-            yield return Value;
-        }
-    }
+    public IEnumerator<A> GetEnumerator() =>
+        either.GetEnumerator();
 
     [Pure, MethodImpl(Opt.Default)]
     public override string ToString() =>
@@ -412,271 +411,119 @@ public readonly struct Fin<A> :
 
     [Pure, MethodImpl(Opt.Default)]
     public B Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
-        IsSucc
-            ? Succ(Value)
-            : Fail(Error);
+        either.Match(Succ, Fail);
 
     [MethodImpl(Opt.Default)]
-    public Unit Match(Action<A> Succ, Action<Error> Fail)
-    {
-        if (IsSucc)
-        {
-            Succ(Value);
-        }
-        else if (IsFail)
-        {
-            Fail(Error);
-        }
-        return default;
-    }
+    public Unit Match(Action<A> Succ, Action<Error> Fail) =>
+        either.Match(Succ, Fail);
 
     [Pure, MethodImpl(Opt.Default)]
     public A IfFail(Func<Error, A> Fail) =>
-        IsSucc
-            ? Value
-            : Fail(Error);
+        either.IfLeft(Fail);
 
     [Pure, MethodImpl(Opt.Default)]
     public A IfFail(in A alternative) =>
-        IsSucc
-            ? Value
-            : alternative;
+        either.IfLeft(alternative);
 
     [MethodImpl(Opt.Default)]
-    public Unit IfFail(Action<Error> Fail)
-    {
-        if (IsFail)
-        {
-            Fail(Error);
-        }
-        return default;
-    }
+    public Unit IfFail(Action<Error> Fail) =>
+        either.IfLeft(Fail);
 
     [MethodImpl(Opt.Default)]
-    public Unit IfSucc(Action<A> Succ)
-    {
-        if (IsSucc)
-        {
-            Succ(Value);
-        }
-        return default;
-    }
+    public Unit IfSucc(Action<A> Succ) =>
+        either.IfRight(Succ);
 
     [MethodImpl(Opt.Default)]
-    public Unit Iter(Action<A> Succ)
-    {
-        if (IsSucc)
-        {
-            Succ(Value);
-        }
-        return default;
-    }
+    public Unit Iter(Action<A> Succ) =>
+        either.Iter(Succ);
 
     [Pure, MethodImpl(Opt.Default)]
-    public Fin<A> Do(Action<A> Succ)
-    {
-        if (IsSucc)
-        {
-            Succ(Value);
-        }
-        return this;
-    }
+    public Fin<A> Do(Action<A> Succ) =>
+        either.Do(Succ);
 
     [Pure, MethodImpl(Opt.Default)]
     public S Fold<S>(in S state, Func<S, A, S> f) =>
-        IsSucc
-            ? f(state, Value)
-            : state;
+        either.Fold(state, f);
 
     [Pure, MethodImpl(Opt.Default)]
     public S BiFold<S>(in S state, Func<S, A, S> Succ, Func<S, Error, S> Fail) =>
-        IsSucc
-            ? Succ(state, Value)
-            : Fail(state, Error);
+        either.BiFold(state, Fail, Succ);
 
     [Pure, MethodImpl(Opt.Default)]
     public bool Exists(Func<A, bool> f) =>
-        IsSucc && f(Value);
+        either.Exists(f);
 
     [Pure, MethodImpl(Opt.Default)]
     public bool ForAll(Func<A, bool> f) =>
-        IsFail || (IsSucc && f(Value));
+        either.ForAll(f);
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> Map<B>(Func<A, B> f) =>
-        IsSucc
-            ? Fin<B>.Succ(f(Value))
-            : Fin<B>.Fail(Error);
+        either.Map(f);
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) =>
-        IsSucc
-            ? Fin<B>.Succ(Succ(Value))
-            : Fin<B>.Fail(Fail(Error));
-
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<B> BiMap<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
-        IsSucc
-            ? Fin<B>.Succ(Succ(Value))
-            : Fin<B>.Succ(Fail(Error));
+        either.BiMap(Fail, Succ);
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> Select<B>(Func<A, B> f) =>
-        IsSucc
-            ? Fin<B>.Succ(f(Value))
-            : Fin<B>.Fail(Error);
+        either.Select(f);
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> Bind<B>(Func<A, Fin<B>> f) =>
-        IsSucc
-            ? f(Value)
-            : Fin<B>.Fail(Error);
+        either.Bind(x => f(x).either);
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> Bind<B>(Func<A, Pure<B>> f) =>
-        IsSucc
-            ? f(Value)
-            : Fin<B>.Fail(Error);
+        either.Bind(f);
 
     [Pure, MethodImpl(Opt.Default)]
-    public Fin<B> Bind<B>(Func<A, Fail<Error>> f) =>
-        IsSucc
-            ? f(Value)
-            : Fin<B>.Fail(Error);
+    public Fin<A> Bind(Func<A, Fail<Error>> f) =>
+        either.Bind(f);
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> BiBind<B>(Func<A, Fin<B>> Succ, Func<Error, Fin<B>> Fail) =>
-        IsSucc
-            ? Succ(Value)
-            : Fail(Error);
+        either.BiBind(x => Fail(x).either, x => Succ(x).either);
 
     [Pure, MethodImpl(Opt.Default)]
-    public Fin<C> SelectMany<B, C>(Func<A, Fin<B>> bind, Func<A, B, C> project)
-    {
-        if(IsSucc)
-        {
-            var mb = bind(Value);
-            return mb.IsSucc
-                       ? project(either.RightValue, mb.Value)
-                       : Fin<C>.Fail(mb.Error);
-        }
-        else
-        {
-            return Fin<C>.Fail(Error);
-        }
-    }
+    public Fin<C> SelectMany<B, C>(Func<A, Fin<B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
 
     [Pure, MethodImpl(Opt.Default)]
-    public Fin<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project)
-    {
-        if(IsSucc)
-        {
-            var mb = bind(Value);
-            return project(either.RightValue, mb.Value);
-        }
-        else
-        {
-            return Fin<C>.Fail(Error);
-        }
-    }
+    public Fin<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
 
     [Pure, MethodImpl(Opt.Default)]
-    public Fin<C> SelectMany<B, C>(Func<A, Fail<Error>> bind, Func<A, B, C> project)
-    {
-        if(IsSucc)
-        {
-            return bind(Value);
-        }
-        else
-        {
-            return Fin<C>.Fail(Error);
-        }
-    }
-
-    /// <summary>
-    /// Convert to a `Transducer`
-    /// </summary>
-    /// <returns></returns>
-    /// <exception cref="BottomException">If the either is in a bottom state then this exception will be thrown</exception>
-    [Pure]
-    public Transducer<Unit, Sum<Error, A>> ToTransducer()
-    {
-        var sum = IsSucc
-                      ? Sum<Error, A>.Right(Value)
-                      : IsFail
-                          ? Sum<Error, A>.Left(Error)
-                          : throw new BottomException();
-
-        return lift<Unit, Sum<Error, A>>(_ => sum);
-    }
-
+    public Fin<Unit> SelectMany(Func<A, Fail<Error>> bind, Func<A, Error, Unit> project) =>
+        Map(x => ignore(bind(x)));
+    
     [Pure, MethodImpl(Opt.Default)]
     public Lst<A> ToList() =>
-        IsSucc
-            ? List(Value)
-            : Empty;
+        either.ToList();
 
     [Pure, MethodImpl(Opt.Default)]
     public Seq<A> ToSeq() =>
-        IsSucc
-            ? [Value]
-            : Empty;
+        either.ToSeq();
 
     [Pure, MethodImpl(Opt.Default)]
-    public Arr<A> ToArr() =>
-        IsSucc
-            ? Array(Value)
-            : Empty;
-
-    [Pure, MethodImpl(Opt.Default)]
-    public A[] ToArray() =>
-        IsSucc
-            ? [Value]
-            : System.Array.Empty<A>();
+    public Arr<A> ToArray() =>
+        either.ToArr();
 
     [Pure, MethodImpl(Opt.Default)]
     public Option<A> ToOption() =>
-        IsSucc
-            ? Some(Value)
-            : None;
-
-    [Pure, MethodImpl(Opt.Default)]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public OptionAsync<A> ToOptionAsync() =>
-        IsSucc
-            ? SomeAsync(Value)
-            : None;
+        either.ToOption();
 
     [Pure, MethodImpl(Opt.Default)]
     public Sum<Error, A> ToSum() =>
-        IsSucc
-            ? Sum<Error, A>.Right(Value)
-            : Sum<Error, A>.Left(Error);
+        either.ToSum();
 
     [Pure, MethodImpl(Opt.Default)]
     public Either<Error, A> ToEither() =>
-        IsSucc
-            ? Right<Error, A>(Value)
-            : Left<Error, A>(Error);
-
-    [Pure, MethodImpl(Opt.Default)]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public EitherAsync<Error, A> ToEitherAsync() =>
-        IsSucc
-            ? RightAsync<Error, A>(Value)
-            : LeftAsync<Error, A>(Error);
+        either;
 
     [Pure, MethodImpl(Opt.Default)]
     public Eff<A> ToEff() =>
-        IsSucc
-            ? Pure(Value)
-            : Fail(Error);
-
-    [Pure, MethodImpl(Opt.Default)]
-    public Aff<A> ToAff() =>
-        IsSucc
-            ? SuccessAff(Value)
-            : FailAff<A>(Error);
+        either.ToEff();
 
     public A ThrowIfFail()
     {
@@ -687,4 +534,7 @@ public readonly struct Fin<A> :
 
         return Value;
     }
+
+    public Transducer<Unit, Sum<Error, A>> Morphism =>
+        either.Morphism;
 }

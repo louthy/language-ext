@@ -151,6 +151,15 @@ namespace LanguageExt
                 : Success(value);
 
         /// <summary>
+        /// Implicit conversion operator from `SUCCESS` to `Validation<MonoidFail, FAIL, SUCCESS>`
+        /// </summary>
+        /// <param name="value">`value`, must not be `null`.</param>
+        /// <exception cref="ValueIsNullException">`value` is `null`</exception>
+        [Pure]
+        public static implicit operator Validation<FAIL, SUCCESS>(Pure<SUCCESS> value) =>
+            Success(value.Value);
+
+        /// <summary>
         /// Implicit conversion operator from `FAIL` to `Validation<MonoidFail, FAIL, SUCCESS>`
         /// </summary>
         /// <param name="value">`value`, must not be `null`.</param>
@@ -192,7 +201,16 @@ namespace LanguageExt
         public static implicit operator Validation<FAIL, SUCCESS>(FAIL value) =>
             isnull(value)
                 ? throw new ValueIsNullException()
-                : Fail(Seq1(value));
+                : Fail([value]);
+
+        /// <summary>
+        /// Implicit conversion operator from `SUCCESS` to `Validation<MonoidFail, FAIL, SUCCESS>`
+        /// </summary>
+        /// <param name="value">`value`, must not be `null`.</param>
+        /// <exception cref="ValueIsNullException">`value` is `null`</exception>
+        [Pure]
+        public static implicit operator Validation<FAIL, SUCCESS>(Fail<FAIL> value) =>
+            Fail([value.Value]);
 
         [Pure]
         public Validation<FAIL, SUCCESS> Disjunction<SUCCESSB>(Validation<FAIL, SUCCESSB> other)

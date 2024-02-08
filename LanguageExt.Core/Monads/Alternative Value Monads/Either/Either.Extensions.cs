@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
+using LanguageExt.Effects;
+using LanguageExt.HKT;
 
 namespace LanguageExt;
 
@@ -16,12 +18,15 @@ namespace LanguageExt;
 /// </summary>
 public static class EitherExtensions
 {
+    public static Either<L, R> As<L, R>(this KStar<MEither<L>, R> ma) =>
+        (Either<L, R>)ma;
+    
     /// <summary>
     /// Monadic join
     /// </summary>
     [Pure]
     public static Either<L, R> Flatten<L, R>(this Either<L, Either<L, R>> ma) =>
-        ma.Bind(identity);
+        ma.Bind(x => x);
 
     /// <summary>
     /// Add the bound values of x and y, uses an Add trait to provide the add
@@ -415,6 +420,7 @@ public static class EitherExtensions
         {
             EitherStatus.IsRight => Pure(ma.RightValue),
             EitherStatus.IsLeft  => Fail(ma.LeftValue),
+            EitherStatus.IsLazy  => Eff<R>.Lift(Transducer.compose(Transducer.constant<MinRT, Unit>(default), ma.Morphism)),
             _                    => default // bottom
         };
 
@@ -441,48 +447,6 @@ public static class EitherExtensions
         {
             EitherStatus.IsRight => Pure(ma.RightValue),
             EitherStatus.IsLeft  => Fail(Error.New(ma.LeftValue)),
-            _                    => default // bottom
-        };
-
-    /// <summary>
-    /// Convert to an Aff
-    /// </summary>
-    /// <returns>Aff monad</returns>
-    [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static Aff<R> ToAff<R>(this Either<Error, R> ma) =>
-        ma.State switch
-        {
-            EitherStatus.IsRight => SuccessAff(ma.RightValue),
-            EitherStatus.IsLeft  => FailAff<R>(ma.LeftValue),
-            _                    => default // bottom
-        };
-
-    /// <summary>
-    /// Convert to an Aff
-    /// </summary>
-    /// <returns>Aff monad</returns>
-    [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static Aff<R> ToAff<R>(this Either<Exception, R> ma) =>
-        ma.State switch
-        {
-            EitherStatus.IsRight => SuccessAff(ma.RightValue),
-            EitherStatus.IsLeft  => FailAff<R>(ma.LeftValue),
-            _                    => default // bottom
-        };
-
-    /// <summary>
-    /// Convert to an Aff
-    /// </summary>
-    /// <returns>Aff monad</returns>
-    [Pure]
-    [Obsolete(Change.UseEffMonadInstead)]
-    public static Aff<R> ToAff<R>(this Either<string, R> ma) =>
-        ma.State switch
-        {
-            EitherStatus.IsRight => SuccessAff(ma.RightValue),
-            EitherStatus.IsLeft  => FailAff<R>(Error.New(ma.LeftValue)),
             _                    => default // bottom
         };
 }
