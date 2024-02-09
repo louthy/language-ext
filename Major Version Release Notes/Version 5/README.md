@@ -44,7 +44,7 @@ This opens up: static interface members (which allows the trait/ad-hoc polymorph
 - Improved guards
 - Nullable annotations
 - Collection initialisers
-- Prototype: Monad transformers
+- Monad transformers - yes, for real: stackable, aliasable, monad-transformers!
 
 ## Breaking changes
 
@@ -123,11 +123,6 @@ This is part of preparing the library for future serialisation improvements.
 * Mitigation:
 	* If you used the feature for serialisation, build your own handler for whatever serialisation library you use.
 	* If you use it in LINQ expressions, write your own extension method to convert the `Either` to an `IEnumerable` that supports 
-
-## Types made obsolete
-
-* `Aff<RT, A>`, `Aff<A>`, `OptionAsync`, `EitherAsync`, `TryAsync`, `TryOptionAsync` have all been made obsolete, in line with this proposal: https://github.com/louthy/language-ext/discussions/1269.  See the _Type mapping_ table in the proposal of how to migrate.
-	* `runtime<RT>()` now returns a `Transducer`, to continue to use it with `Aff` call `runtime<RT>().ToAff()`
 
 ## `Either` 'bi' functions have their arguments flipped
 

@@ -8,7 +8,7 @@ namespace LanguageExt;
 
 public static class Identity
 {
-    public static Identity<A> As<A>(this KStar<MIdentity, A> ma) =>
+    public static Identity<A> As<A>(this Monad<MIdentity, A> ma) =>
         (Identity<A>)ma;
 }
 
@@ -17,8 +17,13 @@ public static class Identity
 /// </summary>
 public class MIdentity : Monad<MIdentity>
 {
-    public static KStar<MIdentity, A> Lift<A>(Transducer<Unit, A> f) => 
-        new Identity<A>(f);
+    public static Monad<MIdentity, A> Pure<A>(A value) => 
+        new Identity<A>(value);
+
+    public static Monad<MIdentity, B> Bind<A, B>(Monad<MIdentity, A> ma, Transducer<A, Monad<MIdentity, B>> f) =>
+        new Identity<B>(
+            Transducer.compose(ma.As().ToTransducer(), f)
+                      .Map(mb => mb.As().ToTransducer()).Flatten());
 }
 
 /// <summary>
@@ -36,7 +41,7 @@ public readonly struct Identity<A> :
     IEquatable<Identity<A>>, 
     IComparable<Identity<A>>, 
     IComparable,
-    KStar<MIdentity, A>
+    Monad<MIdentity, A>
 {
     public static readonly Identity<A> Bottom = default;
     readonly Transducer<Unit, A>? morphism;
@@ -93,9 +98,9 @@ public readonly struct Identity<A> :
 
     [Pure]
     public override int GetHashCode() =>
-        Morphism.Map(HashableDefault<A>.GetHashCode)
-                .Run1(default)
-                .ValueUnsafe;
+        ToTransducer().Map(HashableDefault<A>.GetHashCode)
+                      .Run1(default)
+                      .ValueUnsafe;
 
     [Pure]
     public int CompareTo(object? obj) =>
@@ -117,14 +122,18 @@ public readonly struct Identity<A> :
 
     [Pure]
     public Identity<B> Map<B>(Func<A, B> f) =>
-        Functor.map(this, f).As();
+        Functor.map(this, f).AsMonad().As();
 
     [Pure]
     public Identity<B> Select<B>(Func<A, B> f) =>
-        (Identity<B>)Functor.map(this, f);
+        Functor.map(this, f).AsMonad().As();
 
     [Pure]
     public Identity<B> Bind<B>(Func<A, Identity<B>> f) =>
+        Monad.bind<MIdentity, Identity<B>, A, B>(this, f);
+
+    [Pure]
+    public Identity<B> Bind<B>(Transducer<A, Identity<B>> f) =>
         Monad.bind<MIdentity, Identity<B>, A, B>(this, f);
 
     [Pure]
@@ -132,6 +141,6 @@ public readonly struct Identity<A> :
         Bind(x => bind(x).Map(y => project(x, y)));
 
     [Pure]
-    public Transducer<Unit, A> Morphism =>
+    public Transducer<Unit, A> ToTransducer() =>
         morphism ?? throw new BottomException();
 }
