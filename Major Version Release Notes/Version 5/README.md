@@ -1,5 +1,7 @@
 # Version 5.0.0 Major Release Notes
 
+**_WORK IN PROGRESS NOTES_**
+
 ## Motivations
 
 ### Empower the users of this library to create their own functional types
