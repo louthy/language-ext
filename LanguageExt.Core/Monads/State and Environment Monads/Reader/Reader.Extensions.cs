@@ -10,6 +10,9 @@ namespace LanguageExt;
 /// </summary>
 public static class ReaderExt
 {
+    public static Reader<Env, A> As<Env, A>(this MonadT<ReaderT<Env, MIdentity>, MIdentity, A> ma) =>
+        (Reader<Env, A>)ma;
+    
     public static ReaderT<Env, M, A> As<Env, M, A>(this MonadT<ReaderT<Env, M>, M, A> ma)
         where M : Monad<M> =>
         (ReaderT<Env, M, A>)ma;
