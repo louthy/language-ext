@@ -50,8 +50,8 @@ public static partial class Prelude
     /// <typeparam name="Env">Environment</typeparam>
     /// <returns>Reader monad with the environment in as the bound value</returns>
     [Pure]
-    public static Reader<Env, Env> ask<Env>() =>
-        MReaderT<Env, MIdentity>.Ask.As();
+    public static Ask<Env, Env> ask<Env>() =>
+        new (identity);
 
     /// <summary>
     /// Retrieves a function of the current environment.
@@ -60,8 +60,8 @@ public static partial class Prelude
     /// <typeparam name="A">Bound and mapped value type</typeparam>
     /// <returns>Reader monad with the mapped environment in as the bound value</returns>
     [Pure]
-    public static Reader<Env, A> asks<Env, A>(Func<Env, A> f) =>
-        L.Reader<Env, A>.Lift(f).As();
+    public static Ask<Env, A> asks<Env, A>(Func<Env, A> f) =>
+        new (f);
 
     /// <summary>
     /// Executes a computation in a modified environment

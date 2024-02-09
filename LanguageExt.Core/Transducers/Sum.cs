@@ -30,6 +30,14 @@ public static class Sum
             SumLeft<L, R> r  => r.Value,
             _                => Either<L, R>.Bottom
         };
+
+    public static Sum<L, R> Flatten<L, R>(this Sum<L, Sum<L, R>> mma) =>
+        mma switch
+        {
+            SumRight<L, Sum<L, R>> r => r.Value,
+            SumLeft<L, Sum<L, R>> l  => Sum<L, R>.Left(l.Value),
+            _                        => throw new NotSupportedException()
+        };
 }
 
 /// <summary>

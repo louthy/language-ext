@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace LanguageExt;
+﻿namespace LanguageExt;
 
 /// <summary>
 /// Identity transducer, simply passes the value through 

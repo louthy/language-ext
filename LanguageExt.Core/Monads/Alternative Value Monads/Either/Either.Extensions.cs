@@ -9,7 +9,6 @@ using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.Effects;
-using LanguageExt.HKT;
 
 namespace LanguageExt;
 
@@ -18,7 +17,7 @@ namespace LanguageExt;
 /// </summary>
 public static class EitherExtensions
 {
-    public static Either<L, R> As<L, R>(this KStar<MEither<L>, R> ma) =>
+    public static Either<L, R> As<L, R>(this HKT.Monad<MEither<L>, R> ma) =>
         (Either<L, R>)ma;
     
     /// <summary>

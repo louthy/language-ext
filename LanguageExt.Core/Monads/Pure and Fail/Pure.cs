@@ -2,6 +2,7 @@
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.HKT;
+using LanguageExt.Pipes;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
@@ -145,6 +146,18 @@ public readonly record struct Pure<A>(A Value) : KStar<Any, A>
     public Eff<B> Bind<B>(Func<A, Eff<B>> bind) =>
         bind(Value);
     
+    public MonadT<M, N, B> Bind<M, N, B>(Func<A, MonadT<M, N, B>> bind)
+        where M : MonadT<M, N>
+        where N : Monad<N> =>
+        bind(Value);
+    
+    public ReaderT<Env, M, B> Bind<M, Env, B>(Func<A, ReaderT<Env, M, B>> bind)
+        where M : Monad<M> =>
+        bind(Value);
+    
+    public Reader<Env, B> Bind<Env, B>(Func<A, Reader<Env, B>> bind) =>
+        bind(Value);
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Monadic binding and projection
@@ -177,6 +190,18 @@ public readonly record struct Pure<A>(A Value) : KStar<Any, A>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
+    
+    public MonadT<M, N, C> SelectMany<M, N, B, C>(Func<A, MonadT<M, N, B>> bind, Func<A, B, C> project)
+         where M : MonadT<M, N>
+         where N : Monad<N> =>
+         Bind(x => M.Map(bind(x), y => project(x, y)).AsMonad());
+    
+    public ReaderT<Env, M, C> SelectMany<M, Env, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
+        where M : Monad<M> =>
+        Bind(x => bind(x).Map(y => project(x, y)));
+    
+    public Reader<Env, C> SelectMany<Env, B, C>(Func<A, Reader<Env, B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

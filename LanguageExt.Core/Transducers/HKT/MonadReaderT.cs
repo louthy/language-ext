@@ -1,57 +1,28 @@
 ﻿using System;
-using System.Threading;
-using static LanguageExt.Prelude;
 using static LanguageExt.Transducer;
 
 namespace LanguageExt.HKT;
 
-public interface MonadReaderT<MRdr, Env, M> 
-    : Functor<MRdr, Env, M> 
+public interface MonadReaderT<MRdr, Env, M> : MonadT<MRdr, M> 
     where M : Monad<M>
     where MRdr : MonadReaderT<MRdr, Env, M>
 {
-    public static abstract KArrow<MRdr, Env, M, A> Lift<A>(KStar<M, A> ma);
-
-    public static abstract KArrow<MRdr, Env, M, A> Lift<A>(Transducer<Env, A> ma);
-
-    public static abstract Transducer<Env1, KStar<M, A>> With<Env1, A>(
+    public static abstract MonadT<MRdr1, M, A> With<MRdr1, Env1, A>(
         Transducer<Env1, Env> f, 
-        KArrow<MRdr, Env, M, A> ma);
+        MonadT<MRdr, M, A> ma) where MRdr1 : MonadReaderT<MRdr1, Env1, M>;
 
-    public static abstract KArrow<MRdr, Env, M, B> Bind<A, B>(
-        KArrow<MRdr, Env, M, A> ma, 
-        Transducer<A, KArrow<MRdr, Env, M, B>> f);
+    public static abstract MonadT<MRdr, M, A> Asks<A>(Transducer<Env, A> f);
 
-    public static abstract TResult<S> Run<S, A>(
-        KArrow<MRdr, Env, M, A> ma, 
-        Env env,
-        S initialState,
-        Reducer<KStar<M, A>, S> reducer,
-        CancellationToken token = default,
-        SynchronizationContext? syncContext = null);
-    
-    public static virtual KArrow<MRdr, Env, M, A> Pure<A>(A value) =>
-        MRdr.Lift(M.Pure(value));
+    public static virtual MonadT<MRdr, M,Env> Ask =>
+        MRdr.Asks(identity<Env>());
 
-    public static virtual KArrow<MRdr, Env, M, Env> Ask =>
-        MRdr.Lift(identity<Env>());
-
-    public static virtual KArrow<MRdr, Env, M, A> Local<A>(
+    public static virtual MonadT<MRdr, M, A> Local<A>(
         Transducer<Env, Env> f,
-        KArrow<MRdr, Env, M, A> ma) =>
-        MRdr.With<MRdr, Env, A>(f, ma);
+        MonadT<MRdr, M, A> ma) =>
+        MRdr.With(f, ma);
 
-    public static virtual KArrow<MRdr, Env, M, A> Local<A>(
+    public static virtual MonadT<MRdr, M, A> Local<A>(
         Func<Env, Env> f,
-        KArrow<MRdr, Env, M, A> ma) =>
-        MRdr.Local(lift(f), ma);
-    
-    public static virtual KArrow<MRdr, Env, M, B> Bind<A, B>(
-        KArrow<MRdr, Env, M, A> ma, 
-        Func<A, KArrow<MRdr, Env, M, B>> f) =>
-        MRdr.Bind(ma, lift(f));
-
-    public static virtual KArrow<MRdr, Env, M, A> Flatten<A>(
-        KArrow<MRdr, Env, M, KArrow<MRdr, Env, M, A>> mma) =>
-        MRdr.Bind(mma, identity);
+        MonadT<MRdr, M, A> ma) =>
+        MRdr.Local(Prelude.lift(f), ma);
 }

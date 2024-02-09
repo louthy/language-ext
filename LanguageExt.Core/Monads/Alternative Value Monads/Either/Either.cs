@@ -15,18 +15,16 @@ using LanguageExt.HKT;
 
 namespace LanguageExt;
 
-public class MEither<L> : KLift2<MEither<L>, L>, Monad<MEither<L>>
+public class MEither<L> : Monad<MEither<L>>
 {
-    public static KStar2<MEither<L>, L, A> Lift<A>(Transducer<Unit, Sum<L, A>> f) => 
-        new Either<L, A>(f);
+    public static Functor<MEither<L>, B> Map<A, B>(Functor<MEither<L>, A> ma, Transducer<A, B> f) => 
+        ma.AsMonad().As().Bind(f.Map(Either<L, B>.Right));
 
-    public static KStar<MEither<L>, A> Pure<A>(A value) => 
+    public static Monad<MEither<L>, A> Pure<A>(A value) =>
         Either<L, A>.Right(value);
 
-    public static KStar<MEither<L>, B> Bind<A, B>(
-        KStar<MEither<L>, A> ma,
-        Transducer<A, KStar<MEither<L>, B>> f) =>
-        f.Bind(a => a.As());
+    public static Monad<MEither<L>, B> Bind<A, B>(Monad<MEither<L>, A> ma, Transducer<A, Monad<MEither<L>, B>> f) => 
+        ma.As().Bind(f.Map(x => x.As()));
 }
 
 /// <summary>
@@ -59,8 +57,7 @@ public readonly struct Either<L, R> :
     IEquatable<Pure<R>>,
     IEquatable<R>, 
     ISerializable,
-    KStar2<MEither<L>, L, R>,
-    KStar <MEither<L>, R>
+    Monad<MEither<L>, R>
 {
     public static readonly Either<L, R> Bottom = new ();
 
@@ -598,9 +595,6 @@ public readonly struct Either<L, R> :
                    };
         }
     }
-
-    Transducer<Unit, R> KStar<MEither<L>, R>.Morphism => 
-        throw new Exception("Shouldn't be here");
 
     [Pure]
     public Reducer<Unit, S> Transform<S>(Reducer<Sum<L, R>, S> reduce) => 
@@ -1546,6 +1540,24 @@ public readonly struct Either<L, R> :
             EitherStatus.IsLeft  => left!,
             EitherStatus.IsLazy  => compose(Morphism, 
                                             mapRight<L, R, Transducer<Unit, Sum<L, B>>>(x => f(x).Morphism)).Flatten(),
+            _                    => Either<L, B>.Bottom
+        };
+
+    /// <summary>
+    /// Monadic bind
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <typeparam name="B"></typeparam>
+    /// <param name="f"></param>
+    /// <returns>Bound Either</returns>
+    [Pure]
+    public Either<L, B> Bind<B>(Transducer<R, Either<L, B>> f) =>
+        State switch
+        {
+            EitherStatus.IsRight => compose(pure(right!), f.Map(x => x.ToSum())),
+            EitherStatus.IsLeft  => left!,
+            EitherStatus.IsLazy  => compose(Morphism, mapRight<L, R, Sum<L, B>>(f.Map(x => x.ToSum()))).Map(x => x.Flatten()),
             _                    => Either<L, B>.Bottom
         };
 
