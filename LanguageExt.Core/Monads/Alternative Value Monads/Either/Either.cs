@@ -15,15 +15,15 @@ using LanguageExt.HKT;
 
 namespace LanguageExt;
 
-public class MEither<L> : Monad<MEither<L>>
+public class Either<L> : Monad<Either<L>>
 {
-    public static Functor<MEither<L>, B> Map<A, B>(Functor<MEither<L>, A> ma, Transducer<A, B> f) => 
+    public static Functor<Either<L>, B> Map<A, B>(Functor<Either<L>, A> ma, Transducer<A, B> f) => 
         ma.AsMonad().As().Bind(f.Map(Either<L, B>.Right));
 
-    public static Monad<MEither<L>, A> Pure<A>(A value) =>
+    public static Monad<Either<L>, A> Pure<A>(A value) =>
         Either<L, A>.Right(value);
 
-    public static Monad<MEither<L>, B> Bind<A, B>(Monad<MEither<L>, A> ma, Transducer<A, Monad<MEither<L>, B>> f) => 
+    public static Monad<Either<L>, B> Bind<A, B>(Monad<Either<L>, A> ma, Transducer<A, Monad<Either<L>, B>> f) => 
         ma.As().Bind(f.Map(x => x.As()));
 }
 
@@ -57,7 +57,7 @@ public readonly struct Either<L, R> :
     IEquatable<Pure<R>>,
     IEquatable<R>, 
     ISerializable,
-    Monad<MEither<L>, R>
+    Monad<Either<L>, R>
 {
     public static readonly Either<L, R> Bottom = new ();
 

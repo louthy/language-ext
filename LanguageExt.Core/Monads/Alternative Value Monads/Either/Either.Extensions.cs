@@ -17,7 +17,7 @@ namespace LanguageExt;
 /// </summary>
 public static class EitherExtensions
 {
-    public static Either<L, R> As<L, R>(this HKT.Monad<MEither<L>, R> ma) =>
+    public static Either<L, R> As<L, R>(this HKT.Monad<Either<L>, R> ma) =>
         (Either<L, R>)ma;
     
     /// <summary>
