@@ -14,7 +14,6 @@ using LanguageExt;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.TypeClasses;
-using static LanguageExt.Prelude;
 
 namespace TestBed
 {

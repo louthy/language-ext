@@ -1,5 +1,4 @@
-﻿using static LanguageExt.Prelude;
-using static LanguageExt.HashMap;
+﻿using static LanguageExt.HashMap;
 using Xunit;
 using System;
 using System.Linq;

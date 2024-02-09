@@ -4,8 +4,6 @@ using LanguageExt.Sys;
 using LanguageExt.Sys.IO;
 using LanguageExt.Sys.Test;
 using System.Threading.Tasks;
-using static LanguageExt.Prelude;
-
 using File = LanguageExt.Sys.IO.File<LanguageExt.Sys.Test.Runtime>;
 using Dir  = LanguageExt.Sys.IO.Directory<LanguageExt.Sys.Test.Runtime>;
 

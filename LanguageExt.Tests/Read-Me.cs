@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
-using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 
 namespace LanguageExt.Tests

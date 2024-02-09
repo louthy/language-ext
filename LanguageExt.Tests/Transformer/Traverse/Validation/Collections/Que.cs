@@ -1,8 +1,7 @@
 ﻿    using LanguageExt.Common;
     using Xunit;
-    using static LanguageExt.Prelude;
 
-namespace LanguageExt.Tests.Transformer.Traverse.Validation.Collections
+    namespace LanguageExt.Tests.Transformer.Traverse.Validation.Collections
 {
     public class Que
     {

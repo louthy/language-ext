@@ -3,7 +3,6 @@ using System;
 using System.Linq;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
-using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.Tests

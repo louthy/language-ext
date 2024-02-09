@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Xunit;
 using LanguageExt.Common;
 using LanguageExt.Parsec;
-using static LanguageExt.Prelude;
 using static LanguageExt.Parsec.PrimIO;
 using static LanguageExt.Parsec.ItemIO;
 using static LanguageExt.Parsec.IndentIO;

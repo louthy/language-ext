@@ -4,7 +4,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.Tests

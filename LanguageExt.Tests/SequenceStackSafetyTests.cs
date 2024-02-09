@@ -6,8 +6,7 @@ using Xunit;
 namespace LanguageExt.Tests
 {
     using static Enumerable;
-    using static Prelude;
-    
+
     public class SequenceStackSafetyTests
     {
         [Fact(Skip = "This is fixed in the Traverse branch")]

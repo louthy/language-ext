@@ -4,8 +4,6 @@ using G = System.Collections.Generic;
 
 namespace LanguageExt.Tests.Transformer.Traverse.Lst.Collections
 {
-    using static Prelude;
-    
     public class IEnumerableLst
     {
         G.IEnumerable<T> mkEnum<T>(params T[] ts)

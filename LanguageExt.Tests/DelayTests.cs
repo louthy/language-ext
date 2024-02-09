@@ -1,5 +1,4 @@
-﻿using static LanguageExt.Prelude;
-using static LanguageExt.PreludeRx;
+﻿using static LanguageExt.PreludeRx;
 using System.Reactive;
 using System;
 using System.Threading;

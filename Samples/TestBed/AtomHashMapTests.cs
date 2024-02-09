@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
-using static LanguageExt.Prelude;
 
 namespace TestBed
 {

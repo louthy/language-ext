@@ -20,7 +20,6 @@ using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using Newtonsoft.Json;
 using TestBed;
-using static LanguageExt.Prelude;
 using static LanguageExt.Pipes.Proxy;
 
 public interface IAsyncQueue<A>

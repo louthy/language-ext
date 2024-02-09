@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using static LanguageExt.Prelude;
 using Xunit;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;

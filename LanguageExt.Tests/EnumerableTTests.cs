@@ -2,7 +2,6 @@
 using System.Linq;
 using LanguageExt.ClassInstances;
 //using LanguageExt.Trans;
-using static LanguageExt.Prelude;
 using Xunit;
 
 namespace LanguageExt.Tests

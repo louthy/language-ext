@@ -1,6 +1,5 @@
 ﻿using System;
 using LanguageExt.Common;
-using static LanguageExt.Prelude;
 using Xunit;
 
 namespace LanguageExt.Tests

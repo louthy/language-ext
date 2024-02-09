@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using LanguageExt.ClassInstances;
-using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using Xunit;
 using Newtonsoft.Json;

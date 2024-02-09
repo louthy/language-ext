@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using LanguageExt;
 using LanguageExt.Sys;
-using static LanguageExt.Prelude;
 using LanguageExt.Sys.Live;
 
 namespace TestBed;

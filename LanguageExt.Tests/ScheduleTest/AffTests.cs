@@ -9,7 +9,6 @@ using LanguageExt.Sys;
 using LanguageExt.Sys.Test;
 using LanguageExt.Sys.Traits;
 using Xunit;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.ScheduleTest;
 

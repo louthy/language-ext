@@ -1,5 +1,4 @@
 ﻿using Xunit;
-using static LanguageExt.Prelude;
 using LanguageExt.Common;
 
 namespace LanguageExt.Tests.Transformer.Traverse.Identity.Sync

@@ -2,7 +2,6 @@ using System;
 using Xunit;
 using LanguageExt.Common;
 using System.Threading.Tasks;
-using static LanguageExt.Prelude;
 using LanguageExt.ClassInstances;
 
 namespace LanguageExt.Tests.Transformer.Traverse.TaskT.Async

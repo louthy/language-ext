@@ -1,6 +1,5 @@
 using Xunit;
 using LanguageExt.Common;
-using static LanguageExt.Prelude;
 using System.Threading.Tasks;
 
 namespace LanguageExt.Tests.Transformer.Traverse.TaskT.Sync

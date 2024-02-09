@@ -1,6 +1,5 @@
 using LanguageExt.Common;
 using Xunit;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Collections
 {

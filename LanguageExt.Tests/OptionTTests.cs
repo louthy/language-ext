@@ -3,7 +3,6 @@ using System.Collections.Generic;
 //using LanguageExt.Trans;
 using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
-using static LanguageExt.Prelude;
 using static LanguageExt.List;
 using Xunit;
 using LanguageExt.ClassInstances;

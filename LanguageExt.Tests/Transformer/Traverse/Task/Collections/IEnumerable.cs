@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt.ClassInstances;
-using static LanguageExt.Prelude;
 using System.Threading.Tasks;
 
 namespace LanguageExt.Tests.Transformer.Traverse.TaskT.Collections

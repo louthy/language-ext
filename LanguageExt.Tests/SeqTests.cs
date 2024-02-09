@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using static LanguageExt.Prelude;
 using static LanguageExt.Seq;
 
 namespace LanguageExt.Tests

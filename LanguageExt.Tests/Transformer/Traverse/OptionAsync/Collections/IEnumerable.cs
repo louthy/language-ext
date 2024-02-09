@@ -2,7 +2,6 @@ using Xunit;
 using System;
 using System.Linq;
 using LanguageExt.ClassInstances;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.OptionAsyncT.Collections
 {

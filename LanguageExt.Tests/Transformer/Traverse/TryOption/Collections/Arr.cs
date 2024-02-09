@@ -1,7 +1,6 @@
 using System;
 using LanguageExt.ClassInstances;
 using Xunit;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.TryOptionT.Collections
 {

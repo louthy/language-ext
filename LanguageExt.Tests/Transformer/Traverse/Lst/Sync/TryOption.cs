@@ -1,7 +1,6 @@
 using System;
 using Xunit;
 using Xunit.Abstractions;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.Lst.Sync
 {

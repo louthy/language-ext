@@ -6,7 +6,6 @@ using LanguageExt.Sys;
 using LanguageExt.Sys.IO;
 using LanguageExt.Sys.Live;
 using static LanguageExt.Pipes.Proxy;
-using static LanguageExt.Prelude;
 
 namespace TestBed;
 
