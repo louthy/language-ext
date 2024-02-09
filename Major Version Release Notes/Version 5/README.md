@@ -160,7 +160,19 @@ This is my '.NET Framework to .NET Core' moment.  I realise that.  And I an trul
 * `EitherLeft<L>`
 	* Mitigtation: use `Fail<L>` instead
 * `EitherRight<L>`:
-	* Mitigtation:  use `Pure<R>` instead
+	* Mitigtation: use `Pure<R>` instead
+* `Try<A>`
+	* Mitigtation: use `Eff<A>`
+* `TryOption<A>`
+	* Mitigtation: use `IO<Unit, A>` or `Eff<A>`
+* `TryAsync<A>`
+	* Mitigtation: use `Eff<A>`
+* `TryOptionAsync<A>`
+	* Mitigtation: use `IO<Unit, A>` or `Eff<A>`
+* `Result<A>`
+	* Mitigtation: use `Fin<A>`
+* `OptionalResult<A>`
+	* Mitigtation: use `Fin<A?>`
 * Async extensions for `Option<A>` 
 	* Mitigtation: use `ToAsync()` instead
 * `ExceptionMatch`, `ExceptionMatchAsync`, `ExceptionMatchOptionalAsync`
