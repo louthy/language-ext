@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.ScheduleTest;
 

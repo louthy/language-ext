@@ -3,7 +3,6 @@ using LanguageExt;
 using LanguageExt.Sys;
 using LanguageExt.Common;
 using LanguageExt.Sys.Traits;
-using static LanguageExt.Prelude;
 
 namespace EffectsExamples
 {

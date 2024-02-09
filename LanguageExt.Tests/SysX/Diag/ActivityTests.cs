@@ -6,7 +6,6 @@ using LanguageExt.SysX.Test;
 using Xunit;
 using System.Diagnostics;
 using FluentAssertions;
-using static LanguageExt.Prelude;
 using static LanguageExt.AffExtensions;
 
 namespace LanguageExt.Tests.SysX.Diag;

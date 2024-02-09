@@ -5,8 +5,6 @@ using F = LanguageExt;
 
 namespace LanguageExt.Tests.Transformer.Traverse.SetT.Collections
 {
-    using static Prelude;
-    
     public class IEnumerableSet
     {
         G.IEnumerable<T> mkEnum<T>(params T[] ts)

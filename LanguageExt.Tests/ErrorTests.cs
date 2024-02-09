@@ -3,7 +3,6 @@ using System.Runtime.Serialization;
 using Xunit;
 using LanguageExt.Common;
 using Newtonsoft.Json;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests;
 

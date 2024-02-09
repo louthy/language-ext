@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Xunit;
 using M = LanguageExt.Map;
 using LanguageExt.Parsec;
-using static LanguageExt.Prelude;
 using static LanguageExt.Parsec.Prim;
 using static LanguageExt.Parsec.Char;
 using static LanguageExt.Parsec.Expr;

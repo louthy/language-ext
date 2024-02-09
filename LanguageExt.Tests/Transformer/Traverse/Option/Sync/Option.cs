@@ -1,6 +1,5 @@
 using Xunit;
 using LanguageExt.Common;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.Transformer.Traverse.OptionT.Sync
 {

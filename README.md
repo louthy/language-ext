@@ -111,10 +111,12 @@ If you are concerned about writing functionally and the possible performance ove
 ## Getting started
 
 To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet, and add this to the top of each `.cs` file that needs it:
+
 ```C#
 using LanguageExt;
 using static LanguageExt.Prelude;
 ```
+or put it into the `GlobalUsings.cs` (introduced in C# 10).
 
 The namespace `LanguageExt` contains the core types, and `LanguageExt.Prelude` contains the functions that you bring into scope `using static LanguageExt.Prelude`.
 

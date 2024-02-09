@@ -1,5 +1,4 @@
-﻿using static LanguageExt.Prelude;
-using static LanguageExt.Patch;
+﻿using static LanguageExt.Patch;
 using LanguageExt.ClassInstances;
 using Xunit;
 

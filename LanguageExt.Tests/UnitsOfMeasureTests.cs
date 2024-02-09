@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using LanguageExt.UnitsOfMeasure;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests
 {

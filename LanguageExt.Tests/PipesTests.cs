@@ -4,7 +4,6 @@ using LanguageExt.Sys.Test;
 using Xunit;
 
 using static LanguageExt.Pipes.Proxy;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests;
 

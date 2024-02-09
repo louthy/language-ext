@@ -4,8 +4,6 @@ using LanguageExt.Sys;
 using LanguageExt.Sys.IO;
 using LanguageExt.Sys.Test;
 using System.Threading.Tasks;
-using static LanguageExt.Prelude;
-
 using Console = LanguageExt.Sys.Console<LanguageExt.Sys.Test.Runtime>;
 
 namespace LanguageExt.Tests

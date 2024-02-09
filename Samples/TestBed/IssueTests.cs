@@ -5,7 +5,6 @@ using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Sys;
 using LanguageExt.Sys.Traits;
-using static LanguageExt.Prelude;
 using Newtonsoft.Json;
 
 public class QueueExample<RT>

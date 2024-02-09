@@ -6,7 +6,6 @@ using System;
 using System.Diagnostics;
 using LanguageExt;
 using System.Threading.Tasks;
-using static LanguageExt.Prelude;
 
 public static class ApplicativeTest
 {

@@ -1,5 +1,4 @@
 ﻿using LanguageExt.ClassInstances.Pred;
-using static LanguageExt.Prelude;
 using Xunit;
 using System;
 using LanguageExt.ClassInstances.Const;

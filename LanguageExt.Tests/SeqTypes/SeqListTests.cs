@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Xunit;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests.SeqTypes
 {

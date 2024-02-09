@@ -1,7 +1,6 @@
 ﻿using Xunit;
 using System;
 using System.Collections.Generic;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Tests
 {
