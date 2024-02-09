@@ -17,9 +17,6 @@ public class ReaderT<Env, M> : MonadReaderT<ReaderT<Env, M>, Env, M>
     public static MonadT<ReaderT<Env, M>, M, A> Lift<A>(Monad<M, A> ma) => 
         ReaderT<Env, M, A>.Lift(ma);
 
-    public static MonadT<ReaderT<Env, M>, M, A> Asks<A>(Transducer<Env, A> ma) => 
-        ReaderT<Env, M, A>.Lift(ma);
-
     public static MonadT<ReaderT<Env, M>, M, B> Bind<A, B>(
         MonadT<ReaderT<Env, M>, M, A> mma,
         Transducer<A, MonadT<ReaderT<Env, M>, M, B>> f) =>
@@ -33,7 +30,10 @@ public class ReaderT<Env, M> : MonadReaderT<ReaderT<Env, M>, Env, M>
                                                     .runReader
                                                     .Invoke(env)).Flatten()).AsMonad()).Map(M.Flatten)).Flatten());
     
-    public static MonadT<ReaderT<Env, M>, M, A> Local<A>(
+    public static MonadReaderT<ReaderT<Env, M>, Env, M, A> Asks<A>(Transducer<Env, A> ma) => 
+        ReaderT<Env, M, A>.Lift(ma);
+
+    public static MonadReaderT<ReaderT<Env, M>, Env, M, A> Local<A>(
         Transducer<Env, Env> f,
         MonadT<ReaderT<Env, M>, M, A> ma) =>
         ma.As().Local(f);

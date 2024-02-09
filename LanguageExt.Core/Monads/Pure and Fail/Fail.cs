@@ -16,7 +16,7 @@ namespace LanguageExt;
 /// </remarks>
 /// <param name="Value">Bound value</param>
 /// <typeparam name="E">Bound value type</typeparam>
-public readonly record struct Fail<E>(E Value) : KStar<Any, E>
+public readonly record struct Fail<E>(E Value)
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -49,11 +49,11 @@ public readonly record struct Fail<E>(E Value) : KStar<Any, E>
     //  Transducer
     //
 
-    public Transducer<Unit, E> Morphism { get; } =
+    public Transducer<Unit, E> ToTransducer() =>
         Transducer.pure(Value);
 
     public Reducer<Unit, S> Transform<S>(Reducer<E, S> reduce) =>
-        Morphism.Transform(reduce);
+        ToTransducer().Transform(reduce);
 
     public override string ToString() =>
         $"Fail({Value})";

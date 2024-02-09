@@ -15,7 +15,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
-    MonadT<ReaderT<Env, M>, M, A> 
+    MonadReaderT<ReaderT<Env, M>, Env, M, A> 
     where M : Monad<M>
 {
     /// <summary>
@@ -146,7 +146,7 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ReaderT`</returns>
     public ReaderT<Env, M, B> Map<B>(Transducer<A, B> f) =>
-        Functor.map(this, f).As();
+        FunctorT.map(this, f).As();
 
     /// <summary>
     /// Maps the bound value
@@ -155,7 +155,7 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ReaderT`</returns>
     public ReaderT<Env, M, B> Map<B>(Func<A, B> f) =>
-        Functor.map(this, f).As();
+        FunctorT.map(this, f).As();
     
     /// <summary>
     /// Maps the bound value
@@ -177,8 +177,8 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <param name="f">Mapping transducer</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ReaderT`</returns>
-    public ReaderT<Env, M, B> Bind<B>(Transducer<A, MonadT<ReaderT<Env, M>, M, B>> f) =>
-        MonadReaderT.bind<ReaderT<Env, M>, Env, M, A, B>(this, f).As();
+    public ReaderT<Env, M, B> Bind<B>(Transducer<A, MonadReaderT<ReaderT<Env, M>, Env, M, B>> f) =>
+        MonadReaderT.bind(this, f).As();
 
     /// <summary>
     /// Monad bind operation
@@ -186,8 +186,8 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ReaderT`</returns>
-    public ReaderT<Env, M, B> Bind<B>(Func<A, MonadT<ReaderT<Env, M>, M, B>> f) =>
-        MonadReaderT.bind<ReaderT<Env, M>, Env, M, A, B>(this, f).As();
+    public ReaderT<Env, M, B> Bind<B>(Func<A, MonadReaderT<ReaderT<Env, M>, Env, M, B>> f) =>
+        MonadReaderT.bind(this, f).As();
     
     /// <summary>
     /// Monad bind operation
@@ -196,7 +196,7 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ReaderT`</returns>
     public ReaderT<Env, M, B> Bind<B>(Transducer<A, ReaderT<Env, M, B>> f) =>
-        Bind(f.Map(x => x.AsMonad()));
+        Bind(f.Map(x => (MonadReaderT<ReaderT<Env, M>, Env, M, B>)x));
 
     /// <summary>
     /// Monad bind operation

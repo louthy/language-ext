@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
@@ -331,8 +332,11 @@ public static class ValueTaskExtensions
     /// completion goes and gets the next task from the lazy sequence and awaits that too.  This continues until the
     /// end of the lazy sequence, or forever for infinite streams.
     /// </summary>
-    internal static ValueTask<IList<B>> WindowMap<A, B>(this IEnumerable<ValueTask<A>> ma, Func<A, B> f) =>
-        WindowMap(ma, SysInfo.DefaultAsyncSequenceParallelism, f);
+    internal static ValueTask<IList<B>> WindowMap<A, B>(
+        this IEnumerable<ValueTask<A>> ma, 
+        Func<A, B> f, 
+        CancellationToken token) =>
+        WindowMap(ma, SysInfo.DefaultAsyncSequenceParallelism, f, token);
 
     /// <summary>
     /// Tasks a lazy sequence of tasks and maps them in a 'measured way'.  A default window size of
@@ -341,87 +345,9 @@ public static class ValueTaskExtensions
     /// the lazy sequence and awaits that too.  This continues until the end of the lazy sequence, or forever 
     /// for infinite streams.  Therefore there are at most `windowSize` tasks running concurrently.
     /// </summary>
-    internal static async ValueTask<IList<B>> WindowMap<A, B>(this IEnumerable<ValueTask<A>> ma, int windowSize, Func<A, B> f)
-    {
-        var sync = new object();
-        using var iter = ma.GetEnumerator();
-
-        (bool Success, ValueTask<A> Task) GetNext()
-        {
-            lock (sync)
-            {
-                return iter.MoveNext()
-                           ? (true, iter.Current)
-                           : default;
-            }
-        }
-
-        var tasks = new List<ValueTask<Unit>>();
-        var results = new List<B>[windowSize];
-        var errors = new List<AggregateException>[windowSize];
-
-        for (var i = 0; i < windowSize; i++)
-        {
-            results[i] = new List<B>();
-            errors[i]  = new List<AggregateException>();
-        }
-
-        for (var i = 0; i < windowSize; i++)
-        {
-            var (s, outerTask) = GetNext();
-            if (!s) break;
-
-            var ix = i;
-            tasks.Add(outerTask.Bind(async oa =>
-                                     {
-                                         results[ix].Add(f(oa));
-
-                                         while (true)
-                                         {
-                                             try
-                                             {
-                                                 var next = GetNext();
-                                                 if (!next.Success) return unit;
-                                                 var a = await next.Task.ConfigureAwait(false);
-                                                 if (next.Task.IsFaulted)
-                                                 {
-                                                     errors[ix].Add(next.Task.AsTask().Exception!);
-                                                     return unit;
-                                                 }
-                                                 else
-                                                 {
-                                                     results[ix].Add(f(a));
-                                                 }
-                                             }
-                                             catch (Exception e)
-                                             {
-                                                 errors[ix].Add(new AggregateException(e));
-                                                 return unit;
-                                             }
-                                         }
-                                     }));
-        }
-
-        await Task.WhenAll(tasks.Map(t => t.AsTask())).ConfigureAwait(false);
-
-        // Move all errors into one list
-        for (var i = 1; i < windowSize; i++)
-        {
-            errors[0].AddRange(errors[i]);
-        }
-
-        if (errors[0].Count > 0)
-        {
-            // Throw an aggregate of all exceptions
-            throw new AggregateException(errors[0].SelectMany(e => e.InnerExceptions));
-        }
-
-        // Move all results into one list
-        for (var i = 1; i < windowSize; i++)
-        {
-            results[0].AddRange(results[i]);
-        }
-
-        return results[0];
-    }
+    internal static async ValueTask<IList<B>> WindowMap<A, B>(
+        this IEnumerable<ValueTask<A>> ma, 
+        int windowSize,
+        Func<A, B> f, CancellationToken token) =>
+        await ma.Map(va => va.AsTask()).WindowMap(windowSize, f, token);
 }

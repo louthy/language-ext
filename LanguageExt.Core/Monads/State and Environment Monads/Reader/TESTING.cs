@@ -80,19 +80,19 @@ public static class Testing
     
     public static async Task Test4()
     {
-        var m1 = App<string, int>.Pure(123);
-        var m2 = App<string, int>.Pure(123);
-        var m3 = App<string, int>.Fail(Error.New("fail"));
+        var m1 = App.Pure(123);
+        var m2 = App.Pure(123);
+        var m3 = App.Fail<int>(Error.New("fail"));
         
         var m4 = from w in Pure(234)
                  from x in m1
                  from y in m2
                  from z in m3
-                 from t in liftAsync(async () => await File.ReadAllTextAsync("c:\\test.txt"))
-                 from e in ask<string>()
-                 select $"{t} {e}: {w + x + y + z}";
+                 from r in App.rootFolder
+                 from t in liftAsync(async () => await File.ReadAllTextAsync($"{r}\\test.txt"))
+                 select $"{t}: {w + x + y + z}";
 
-        var r1 = await m4.RunAsync("Hello");
+        var r1 = await m4.RunAsync(new AppConfig("", ""));
     }
     
 }
@@ -104,9 +104,6 @@ public class Maybe : Monad<Maybe>
 
     public static Monad<Maybe, B> Bind<A, B>(Monad<Maybe, A> ma, Transducer<A, Monad<Maybe, B>> f) => 
         ma.As().Bind(f.Map(mb => mb.As()));
-
-    public static Functor<Maybe, B> Map<A, B>(Functor<Maybe, A> ma, Transducer<A, B> f) => 
-        ma.As().Bind(f.Map(Maybe<B>.Just));
 }
 
 public record Maybe<A>(Transducer<Unit, Sum<Unit, A>> M) : Monad<Maybe, A>
@@ -135,10 +132,25 @@ public static class MaybeExt
         (Maybe<A>)ma;
 }
 
-public record App<Env, A>(Transducer<Env, Monad<Either<Error>, A>> RunReader)
-    : ReaderT<Env, Either<Error>, A>(RunReader)
+// Domain monad
+public record App<A>(Transducer<AppConfig, Monad<Either<Error>, A>> runReader)
+    : ReaderT<AppConfig, Either<Error>, A>(runReader);
+
+// Application environment
+public record AppConfig(string ConnectionString, string RootFolder);
+
+public static class App
 {
-    public static ReaderT<Env, Either<Error>, A> Fail(Error error) =>
-        Lift(Left<Error, A>(error));
+    public static App<A> Pure<A>(A value) =>
+        (App<A>)App<A>.Pure(value);
+
+    public static App<A> Fail<A>(Error error) =>
+        (App<A>)App<A>.Lift(Left<Error, A>(error));
+
+    public static App<string> connectionString =>
+        (App<string>)App<string>.Asks(env => env.ConnectionString);
+
+    public static App<string> rootFolder =>
+        (App<string>)App<string>.Asks(env => env.RootFolder);    
 }
 

@@ -2,7 +2,6 @@
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.HKT;
-using LanguageExt.Pipes;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
@@ -18,7 +17,7 @@ namespace LanguageExt;
 /// </remarks>
 /// <param name="Value">Bound value</param>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly record struct Pure<A>(A Value) : KStar<Any, A>
+public readonly record struct Pure<A>(A Value)
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -202,7 +201,7 @@ public readonly record struct Pure<A>(A Value) : KStar<Any, A>
         Bind(x => bind(x).Map(y => project(x, y)));
     
     public Reader<Env, C> SelectMany<Env, B, C>(Func<A, Reader<Env, B>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).Map(y => project(x, y)));
+        Bind(x => bind(x).Map(y => project(x, y))).As();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
