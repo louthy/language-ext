@@ -36,17 +36,24 @@ This opens up: static interface members (which allows the trait/ad-hoc polymorph
 
 ## New Features
 
-- IO monad
+- IO monads
+	- Two new IO effect monads that have parametric errors
 - Transducers
+	- All computation based monads rewritten to use transducers
 - Infinite recursion in monads
 - Streaming effects
 - Auto-resource managment (`use` / `release`)
 - `Pure` / `Fail` monads
+	- Allow easy lifting of pure and failure monadic values (a bit like `None`)
 - Lifting
+	- Allow easy lifting of synchronous functions and asynchronous into computation based monads.
 - Improved guards
 - Nullable annotations
+	- Everywhere!
 - Collection initialisers
-- Monad transformers - yes, for real: stackable, aliasable, monad-transformers!
+	- `Seq<int> xs = [1, 2, 3]` FTW!.
+- Monad transformers
+	- Yes, for real: stackable, aliasable, monad-transformers!
 
 ## Breaking changes
 
