@@ -42,6 +42,8 @@ This opens up: static interface members (which allows the trait/ad-hoc polymorph
 	- All computation based monads rewritten to use transducers
 - Infinite recursion in monads
 - Streaming effects
+	- By calling `many(stream)` in any monafic expression you instantly turn the monad into a stream.
+	- Supported streams: `IAsyncEnumerable`, `IEnumerable`, `IObservable`
 - Auto-resource managment (`use` / `release`)
 - `Pure` / `Fail` monads
 	- Allow easy lifting of pure and failure monadic values (a bit like `None`)
