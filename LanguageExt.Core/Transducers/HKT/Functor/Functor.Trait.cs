@@ -15,13 +15,13 @@ public interface Functor<F>
     //  Abstract members
     //
     
-    public static abstract Functor<F, B> Map<A, B>(Functor<F, A> ma, Transducer<A, B> f);
+    public static abstract Functor<F, B> Map<A, B>(Transducer<A, B> f, Functor<F, A> ma);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Default implementations
     //
     
-    public static virtual Functor<F, B> Map<A, B>(Functor<F, A> ma, Func<A, B> f) =>
-        F.Map(ma, lift(f));
+    public static virtual Functor<F, B> Map<A, B>(Func<A, B> f, Functor<F, A> ma) =>
+        F.Map(lift(f), ma);
 }

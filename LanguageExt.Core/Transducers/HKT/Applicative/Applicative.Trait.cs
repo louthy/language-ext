@@ -1,5 +1,4 @@
 ﻿using System;
-using LanguageExt.Pipes;
 
 namespace LanguageExt.HKT;
 
@@ -32,9 +31,15 @@ public interface Applicative<F> : Functor<F>
     public static virtual Applicative<F, B> Apply<A, B>(Applicative<F, Func<A, B>> mf, Applicative<F, A> ma) =>
         F.Apply(F.Map(mf, Prelude.lift), ma);
 
+    public static virtual Applicative<F, C> Apply<A, B, C>(Applicative<F, Func<A, B, C>> mf, Applicative<F, A> ma, Applicative<F, B> mb) =>
+        F.Apply(F.Apply(F.Map(mf, Prelude.lift), ma), mb);
+
+    public static virtual Applicative<F, C> Apply<A, B, C>(Applicative<F, Func<A, Func<B, C>>> mf, Applicative<F, A> ma, Applicative<F, B> mb) =>
+        F.Apply(F.Apply(F.Map(mf, Prelude.lift), ma), mb);
+
     public static virtual Applicative<F, B> Map<A, B>(Applicative<F, A> ma, Transducer<A, B> f) =>
-        (Applicative<F, B>)F.Map((Functor<F, A>)ma, f);
+        (Applicative<F, B>)F.Map(f, ma);
 
     public static virtual Applicative<F, B> Map<A, B>(Applicative<F, A> ma, Func<A, B> f) =>
-        (Applicative<F, B>)F.Map((Functor<F, A>)ma, f);
+        (Applicative<F, B>)F.Map(f, ma);
 }

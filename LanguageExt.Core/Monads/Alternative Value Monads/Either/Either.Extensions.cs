@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
-using static LanguageExt.Choice;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
-using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.Effects;
+using LanguageExt.HKT;
 
 namespace LanguageExt;
 
@@ -17,9 +15,15 @@ namespace LanguageExt;
 /// </summary>
 public static class EitherExtensions
 {
-    public static Either<L, R> As<L, R>(this HKT.Monad<Either<L>, R> ma) =>
+    public static Either<L, R> As<L, R>(this Monad<Either<L>, R> ma) =>
         (Either<L, R>)ma;
     
+    public static Either<L, R> As<L, R>(this Applicative<Either<L>, R> ma) =>
+        (Either<L, R>)ma;
+
+    public static Either<L, R> As<L, R>(this Functor<Either<L>, R> ma) =>
+        (Either<L, R>)ma;
+ 
     /// <summary>
     /// Monadic join
     /// </summary>
@@ -95,7 +99,7 @@ public static class EitherExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static Either<L, B> Apply<L, A, B>(this Either<L, Func<A, B>> fab, Either<L, A> fa) =>
-        ApplEither<L, A, B>.Apply(fab, fa);
+        Applicative.apply(fab, fa).As();
 
     /// <summary>
     /// Apply
@@ -105,7 +109,7 @@ public static class EitherExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static Either<L, B> Apply<L, A, B>(this Func<A, B> fab, Either<L, A> fa) =>
-        ApplEither<L, A, B>.Apply(fab, fa);
+        Functor.map(fab, fa).As();
 
     /// <summary>
     /// Apply
@@ -116,9 +120,7 @@ public static class EitherExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static Either<L, C> Apply<L, A, B, C>(this Either<L, Func<A, B, C>> fabc, Either<L, A> fa, Either<L, B> fb) =>
-        from x in fabc
-        from y in ApplEither<L, A, B, C>.Apply(curry(x), fa, fb)
-        select y;
+        Applicative.apply(fabc.Map(curry), fa).As().Apply(fb);
 
     /// <summary>
     /// Apply
@@ -129,7 +131,7 @@ public static class EitherExtensions
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static Either<L, C> Apply<L, A, B, C>(this Func<A, B, C> fabc, Either<L, A> fa, Either<L, B> fb) =>
-        ApplEither<L, A, B, C>.Apply(curry(fabc), fa, fb);
+        Functor.map(curry(fabc), fa).As().Apply(fb);
 
     /// <summary>
     /// Apply
@@ -139,9 +141,7 @@ public static class EitherExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static Either<L, Func<B, C>> Apply<L, A, B, C>(this Either<L, Func<A, B, C>> fabc, Either<L, A> fa) =>
-        from x in fabc
-        from y in ApplEither<L, A, B, C>.Apply(curry(x), fa)
-        select y;
+        Applicative.apply(fabc.Map(curry), fa).As();
 
     /// <summary>
     /// Apply
@@ -151,7 +151,7 @@ public static class EitherExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static Either<L, Func<B, C>> Apply<L, A, B, C>(this Func<A, B, C> fabc, Either<L, A> fa) =>
-        ApplEither<L, A, B, C>.Apply(curry(fabc), fa);
+        Functor.map(curry(fabc), fa).As();
 
     /// <summary>
     /// Apply
@@ -161,7 +161,7 @@ public static class EitherExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static Either<L, Func<B, C>> Apply<L, A, B, C>(this Either<L, Func<A, Func<B, C>>> fabc, Either<L, A> fa) =>
-        ApplEither<L, A, B, C>.Apply(fabc, fa);
+        Applicative.apply(fabc, fa).As();
 
     /// <summary>
     /// Apply
@@ -171,7 +171,7 @@ public static class EitherExtensions
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static Either<L, Func<B, C>> Apply<L, A, B, C>(this Func<A, Func<B, C>> fabc, Either<L, A> fa) =>
-        ApplEither<L, A, B, C>.Apply(fabc, fa);
+        Functor.map(fabc, fa).As();
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -181,7 +181,7 @@ public static class EitherExtensions
     /// <returns>Applicative of type Option<B></returns>
     [Pure]
     public static Either<L, B> Action<L, A, B>(this Either<L, A> fa, Either<L, B> fb) =>
-        ApplEither<L, A, B>.Action(fa, fb);
+        Applicative.action(fa, fb).As();
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Left' elements.
@@ -192,8 +192,17 @@ public static class EitherExtensions
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
     [Pure]
-    public static IEnumerable<L> Lefts<L, R>(this IEnumerable<Either<L, R>> self) =>
-        lefts<MEither<L, R>, Either<L, R>, L, R>(self);
+    public static IEnumerable<L> Lefts<L, R>(this IEnumerable<Either<L, R>> self)
+    {
+        foreach (var x in self)
+        {
+            var item = x.Strict();
+            if (item.IsLeft)
+            {
+                yield return item.LeftValue;
+            }
+        }
+    }
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Left' elements.
@@ -205,7 +214,7 @@ public static class EitherExtensions
     /// <returns>An enumerable of L</returns>
     [Pure]
     public static Seq<L> Lefts<L, R>(this Seq<Either<L, R>> self) =>
-        lefts<MEither<L, R>, Either<L, R>, L, R>(self);
+        Lefts(self.AsEnumerable()).ToSeq();
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Right' elements.
@@ -216,8 +225,17 @@ public static class EitherExtensions
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
     [Pure]
-    public static IEnumerable<R> Rights<L, R>(this IEnumerable<Either<L, R>> self) =>
-        rights<MEither<L, R>, Either<L, R>, L, R>(self);
+    public static IEnumerable<R> Rights<L, R>(this IEnumerable<Either<L, R>> self)
+    {
+        foreach (var x in self)
+        {
+            var item = x.Strict();
+            if (item.IsRight)
+            {
+                yield return item.RightValue;
+            }
+        }
+    }
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Right' elements.
@@ -229,7 +247,7 @@ public static class EitherExtensions
     /// <returns>An enumerable of L</returns>
     [Pure]
     public static Seq<R> Rights<L, R>(this Seq<Either<L, R>> self) =>
-        rights<MEither<L, R>, Either<L, R>, L, R>(self);
+        Rights(self.AsEnumerable()).ToSeq();
 
     /// <summary>
     /// Partitions a list of 'Either' into two lists.
@@ -242,8 +260,18 @@ public static class EitherExtensions
     /// <param name="self">Either list</param>
     /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
     [Pure]
-    public static (IEnumerable<L> Lefts, IEnumerable<R> Rights) Partition<L, R>(this IEnumerable<Either<L, R>> self) =>
-        partition<MEither<L, R>, Either<L, R>, L, R>(self);
+    public static (IEnumerable<L> Lefts, IEnumerable<R> Rights) Partition<L, R>(this IEnumerable<Either<L, R>> self)
+    {
+        var ls = new List<L>();
+        var rs = new List<R>();
+        foreach (var x in self)
+        {
+            var item = x.Strict();
+            if (item.IsRight) rs.Add(item.RightValue);
+            if (item.IsLeft) ls.Add(item.LeftValue);
+        }
+        return (ls, rs);
+    }
 
     /// <summary>
     /// Partitions a list of 'Either' into two lists.
@@ -256,43 +284,11 @@ public static class EitherExtensions
     /// <param name="self">Either list</param>
     /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
     [Pure]
-    public static (Seq<L> Lefts, Seq<R> Rights) Partition<L, R>(this Seq<Either<L, R>> self) =>
-        partition<MEither<L, R>, Either<L, R>, L, R>(self);
-
-    /// <summary>
-    /// Sum of the Either
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <param name="self">Either to count</param>
-    /// <returns>0 if Left, or value of Right</returns>
-    [Pure]
-    public static R Sum<NUM, L, R>(this Either<L, R> self) 
-        where NUM : Num<R> =>
-        sum<NUM, MEither<L, R>, Either<L, R>, R>(self);
-
-    /// <summary>
-    /// Sum of the Either
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <param name="self">Either to count</param>
-    /// <returns>0 if Left, or value of Right</returns>
-    [Pure]
-    public static int Sum<L>(this Either<L, int> self)=>
-        sum<TInt, MEither<L, int>, Either<L, int>, int>(self);
-
-    /// <summary>
-    /// Partial application map
-    /// </summary>
-    [Pure]
-    public static Either<L, Func<T2, R>> ParMap<L, T1, T2, R>(this Either<L, T1> self, Func<T1, T2, R> func) =>
-        self.Map(curry(func));
-
-    /// <summary>
-    /// Partial application map
-    /// </summary>
-    [Pure]
-    public static Either<L, Func<T2, Func<T3, R>>> ParMap<L, T1, T2, T3, R>(this Either<L, T1> self, Func<T1, T2, T3, R> func) =>
-        self.Map(curry(func));
+    public static (Seq<L> Lefts, Seq<R> Rights) Partition<L, R>(this Seq<Either<L, R>> self)
+    {
+        var (l, r) =self.AsEnumerable().Partition();
+        return (l.ToSeq(), r.ToSeq());
+    }
 
     /// <summary>
     /// Match the two states of the Either and return a promise of a non-null R2.
@@ -378,37 +374,6 @@ public static class EitherExtensions
         return unit;
     }
 
-    public static async Task<int> CountAsync<L, R>(this Task<Either<L, R>> self) =>
-        (await self.ConfigureAwait(false)).Count();
-
-    public static async Task<int> SumAsync<L>(this Task<Either<L, int>> self) =>
-        (await self.ConfigureAwait(false)).Sum<TInt, L, int>();
-
-    public static async Task<int> SumAsync<L>(this Either<L, Task<int>> self) =>
-        self.IsRight
-            ? await self.RightValue.ConfigureAwait(false)
-            : 0;
-
-    public static async Task<S> FoldAsync<L, R, S>(this Task<Either<L, R>> self, S state, Func<S, R, S> folder) =>
-        (await self.ConfigureAwait(false)).Fold(state, folder);
-
-    public static async Task<S> FoldAsync<L, R, S>(this Either<L, Task<R>> self, S state, Func<S, R, S> folder) =>
-        self.IsRight
-            ? folder(state, await self.RightValue.ConfigureAwait(false))
-            : state;
-
-    public static async Task<bool> ForAllAsync<L, R>(this Task<Either<L, R>> self, Func<R, bool> pred) =>
-        (await self.ConfigureAwait(false)).ForAll(pred);
-
-    public static async Task<bool> ForAllAsync<L, R>(this Either<L, Task<R>> self, Func<R, bool> pred) =>
-        self.IsRight && pred(await self.RightValue.ConfigureAwait(false));
-
-    public static async Task<bool> ExistsAsync<L, R>(this Task<Either<L, R>> self, Func<R, bool> pred) =>
-        (await self.ConfigureAwait(false)).Exists(pred);
-
-    public static async Task<bool> ExistsAsync<L, R>(this Either<L, Task<R>> self, Func<R, bool> pred) =>
-        self.IsRight && pred(await self.RightValue.ConfigureAwait(false));
-
     /// <summary>
     /// Convert to an Eff
     /// </summary>
@@ -419,7 +384,7 @@ public static class EitherExtensions
         {
             EitherStatus.IsRight => Pure(ma.RightValue),
             EitherStatus.IsLeft  => Fail(ma.LeftValue),
-            EitherStatus.IsLazy  => Eff<R>.Lift(Transducer.compose(Transducer.constant<MinRT, Unit>(default), ma.Morphism)),
+            EitherStatus.IsLazy  => Eff<R>.Lift(Transducer.compose(Transducer.constant<MinRT, Unit>(default), ma.ToTransducer())),
             _                    => default // bottom
         };
 

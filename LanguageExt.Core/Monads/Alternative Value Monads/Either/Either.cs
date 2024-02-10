@@ -15,17 +15,6 @@ using LanguageExt.HKT;
 
 namespace LanguageExt;
 
-public class Either<L> : Monad<Either<L>>
-{
-    public static Functor<Either<L>, B> Map<A, B>(Functor<Either<L>, A> ma, Transducer<A, B> f) => 
-        ma.AsMonad().As().Bind(f.Map(Either<L, B>.Right));
-
-    public static Monad<Either<L>, A> Pure<A>(A value) =>
-        Either<L, A>.Right(value);
-
-    public static Monad<Either<L>, B> Bind<A, B>(Monad<Either<L>, A> ma, Transducer<A, Monad<Either<L>, B>> f) => 
-        ma.As().Bind(f.Map(x => x.As()));
-}
 
 /// <summary>
 /// Holds one of two values `Left` or `Right`.  Usually, `Left` is considered _wrong_ or _in-error_, and
@@ -61,17 +50,20 @@ public readonly struct Either<L, R> :
 {
     public static readonly Either<L, R> Bottom = new ();
 
-    readonly Memo? morphism;
+    readonly Thunk? morphism;
     readonly R? right;
     readonly L? left;
 
     internal Either(Transducer<Unit, Sum<L, R>> morphism)
     {
         State = EitherStatus.IsLazy;
-        this.morphism = new Memo(morphism);
+        this.morphism = new Thunk(morphism);
         right = default;
         left = default;
     }
+
+    internal Either(Transducer<Unit, R> morphism) : this(morphism.Map(Sum<L, R>.Right))
+    { }
 
     private Either(R right)
     {
@@ -112,13 +104,13 @@ public readonly struct Either<L, R> :
         }
     }
 
-    class Memo
+    class Thunk
     {
         Transducer<Unit, Sum<L, R>> morphism;
         Either<L, R> result;
         volatile int hasRun; 
 
-        public Memo(Transducer<Unit, Sum<L, R>> morphism) =>
+        public Thunk(Transducer<Unit, Sum<L, R>> morphism) =>
             this.morphism = morphism;
 
         public Either<L, R> Run()
@@ -142,7 +134,7 @@ public readonly struct Either<L, R> :
             return result;
         }
 
-        public static implicit operator Transducer<Unit, Sum<L, R>>(Memo m) =>
+        public static implicit operator Transducer<Unit, Sum<L, R>>(Thunk m) =>
             m.morphism;
     }
 
@@ -581,24 +573,21 @@ public readonly struct Either<L, R> :
     /// Convert `Either` to a `Transducer`
     /// </summary>
     [Pure]
-    public Transducer<Unit, Sum<L, R>> Morphism
+    public Transducer<Unit, Sum<L, R>> ToTransducer()
     {
-        get
-        {
-            if (State == EitherStatus.IsLazy) return morphism!;
-            var self = this;
-            return State switch
-                   {
-                       EitherStatus.IsRight => lift<Unit, Sum<L, R>>(_ => Sum<L, R>.Right(self.RightValue)),
-                       EitherStatus.IsLeft  => lift<Unit, Sum<L, R>>(_ => Sum<L, R>.Left(self.LeftValue)),
-                       _                    => fail<Unit, Sum<L, R>>(Errors.Bottom)
-                   };
-        }
+        if (State == EitherStatus.IsLazy) return morphism!;
+        var self = this;
+        return State switch
+               {
+                   EitherStatus.IsRight => lift<Unit, Sum<L, R>>(_ => Sum<L, R>.Right(self.RightValue)),
+                   EitherStatus.IsLeft  => lift<Unit, Sum<L, R>>(_ => Sum<L, R>.Left(self.LeftValue)),
+                   _                    => fail<Unit, Sum<L, R>>(Errors.Bottom)
+               };
     }
 
     [Pure]
     public Reducer<Unit, S> Transform<S>(Reducer<Sum<L, R>, S> reduce) => 
-        Morphism.Transform(reduce);
+        ToTransducer().Transform(reduce);
 
     /// <summary>
     /// Project the Either into a Lst L
@@ -1482,7 +1471,7 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => f(right!),
             EitherStatus.IsLeft  => left!,
-            EitherStatus.IsLazy  => compose(Morphism, mapRight<L, R, Ret>(f)),
+            EitherStatus.IsLazy  => compose(ToTransducer(), mapRight<L, R, Ret>(f)),
             _                    => Either<L, Ret>.Bottom
         };
 
@@ -1498,9 +1487,9 @@ public readonly struct Either<L, R> :
     public Either<L, Ret> Map<Ret>(Transducer<R, Ret> f) =>
         State switch
         {
-            EitherStatus.IsRight => Morphism.MapRight(f),
+            EitherStatus.IsRight => ToTransducer().MapRight(f),
             EitherStatus.IsLeft  => left!,
-            EitherStatus.IsLazy  => compose(Morphism, mapRight<L, R, Ret>(f)),
+            EitherStatus.IsLazy  => compose(ToTransducer(), mapRight<L, R, Ret>(f)),
             _                    => Either<L, Ret>.Bottom
         };
 
@@ -1518,7 +1507,7 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => right!,
             EitherStatus.IsLeft  => f(left!),
-            EitherStatus.IsLazy  => compose(Morphism, mapLeft<L, Ret, R>(f)),
+            EitherStatus.IsLazy  => compose(ToTransducer(), mapLeft<L, Ret, R>(f)),
             _                    => Either<Ret, R>.Bottom
         };
 
@@ -1535,8 +1524,8 @@ public readonly struct Either<L, R> :
         State switch
         {
             EitherStatus.IsRight => right!,
-            EitherStatus.IsLeft  => Morphism.MapLeft(f),
-            EitherStatus.IsLazy  => compose(Morphism, mapLeft<L, Ret, R>(f)),
+            EitherStatus.IsLeft  => ToTransducer().MapLeft(f),
+            EitherStatus.IsLazy  => compose(ToTransducer(), mapLeft<L, Ret, R>(f)),
             _                    => Either<Ret, R>.Bottom
         };
 
@@ -1556,7 +1545,7 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Right(right!),
             EitherStatus.IsLeft  => Left(left!),
-            EitherStatus.IsLazy  => compose(Morphism, bimap(Left, Right)),
+            EitherStatus.IsLazy  => compose(ToTransducer(), bimap(Left, Right)),
             _                    => Either<L2, R2>.Bottom
         };
 
@@ -1574,8 +1563,8 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => f(right!),
             EitherStatus.IsLeft  => left!,
-            EitherStatus.IsLazy  => compose(Morphism, 
-                                            mapRight<L, R, Transducer<Unit, Sum<L, B>>>(x => f(x).Morphism)).Flatten(),
+            EitherStatus.IsLazy  => compose(ToTransducer(), 
+                                            mapRight<L, R, Transducer<Unit, Sum<L, B>>>(x => f(x).ToTransducer())).Flatten(),
             _                    => Either<L, B>.Bottom
         };
 
@@ -1593,9 +1582,33 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => compose(pure(right!), f.Map(x => x.ToSum())),
             EitherStatus.IsLeft  => left!,
-            EitherStatus.IsLazy  => compose(Morphism, mapRight<L, R, Sum<L, B>>(f.Map(x => x.ToSum()))).Map(x => x.Flatten()),
+            EitherStatus.IsLazy  => compose(ToTransducer(), mapRight<L, R, Sum<L, B>>(f.Map(x => x.ToSum()))).Map(x => x.Flatten()),
             _                    => Either<L, B>.Bottom
         };
+
+    /// <summary>
+    /// Monadic bind
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <typeparam name="B"></typeparam>
+    /// <param name="f"></param>
+    /// <returns>Bound Either</returns>
+    [Pure]
+    public Either<L, B> Bind<B>(Func<R, Monad<Either<L>, B>> f) =>
+        Bind(x => (Either<L, B>)f(x));
+
+    /// <summary>
+    /// Monadic bind
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <typeparam name="B"></typeparam>
+    /// <param name="f"></param>
+    /// <returns>Bound Either</returns>
+    [Pure]
+    public Either<L, B> Bind<B>(Transducer<R, Monad<Either<L>, B>> f) =>
+        Bind(f.Map(mb => (Either<L, B>)mb));
 
     /// <summary>
     /// Bi-bind.  Allows mapping of both monad states
@@ -1606,10 +1619,10 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Right(right!),
             EitherStatus.IsLeft  => Left(left!),
-            EitherStatus.IsLazy  => compose(Morphism, 
+            EitherStatus.IsLazy  => compose(ToTransducer(), 
                                             bimap<L, Transducer<Unit, Sum<L2, R2>>, R, Transducer<Unit, Sum<L2, R2>>>(
-                                                Left: x => Left(x).Morphism,
-                                                Right: x => Right(x).Morphism)).Flatten(),
+                                                Left: x => Left(x).ToTransducer(),
+                                                Right: x => Right(x).ToTransducer())).Flatten(),
             _                    => Either<L2, R2>.Bottom
         };
 
@@ -1689,6 +1702,20 @@ public readonly struct Either<L, R> :
             EitherStatus.IsRight => Bind(x => bind(x).Map(y => project(x, y))),
             EitherStatus.IsLeft  => left!,
             EitherStatus.IsLazy  => Bind(x => bind(x).Map(y => project(x, y))),
+            _                    => Either<L, T>.Bottom
+        };
+
+    /// <summary>
+    /// Monadic bind function
+    /// </summary>
+    /// <returns>Bound Either</returns>
+    [Pure]
+    public Either<L, T> SelectMany<S, T>(Func<R, Transducer<Unit, S>> bind, Func<R, S, T> project) =>
+        State switch
+        {
+            EitherStatus.IsRight => Bind(r => new Either<L, T>(compose(bind(r), lift(curry(project)(r))))),
+            EitherStatus.IsLeft  => left!,
+            EitherStatus.IsLazy  => Bind(r => new Either<L, T>(compose(bind(r), lift(curry(project)(r))))),
             _                    => Either<L, T>.Bottom
         };
         

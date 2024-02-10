@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Diagnostics.Contracts;
 using LanguageExt.Attributes;
 

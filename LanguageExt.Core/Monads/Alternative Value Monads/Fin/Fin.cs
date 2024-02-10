@@ -16,7 +16,19 @@ public class Fin : Monad<Fin>
         new Fin<A>(value);
 
     public static Monad<Fin, B> Bind<A, B>(Monad<Fin, A> ma, Transducer<A, Monad<Fin, B>> f) => 
-        new Fin<B>(ma.Bind( ))
+        throw new NotImplementedException();
+
+    public static Applicative<Fin, B> Apply<A, B>(Applicative<Fin, Transducer<A, B>> mf, Applicative<Fin, A> ma) =>
+        from f in (Fin<Transducer<A, B>>)mf
+        from a in (Fin<A>)ma
+        from r in f.Invoke(a)
+        select r;
+
+    public static Applicative<Fin, B> Action<A, B>(Applicative<Fin, A> ma, Applicative<Fin, B> mb) => 
+        throw new NotImplementedException();
+
+    static Applicative<Fin, A> Applicative<Fin>.Pure<A>(A value) => 
+        throw new NotImplementedException();
 }
 
 /// <summary>
@@ -507,6 +519,10 @@ public readonly struct Fin<A> :
     [Pure, MethodImpl(Opt.Default)]
     public Fin<Unit> SelectMany(Func<A, Fail<Error>> bind, Func<A, Error, Unit> project) =>
         Map(x => ignore(bind(x)));
+
+    [Pure, MethodImpl(Opt.Default)]
+    public Fin<C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
     
     [Pure, MethodImpl(Opt.Default)]
     public Lst<A> ToList() =>

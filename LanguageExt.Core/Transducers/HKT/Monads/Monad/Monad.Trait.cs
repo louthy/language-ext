@@ -30,13 +30,13 @@ public interface Monad<M> : Applicative<M>
 
     // Functor
     
-    public static virtual Monad<M, B> Map<A, B>(Monad<M, A> ma, Transducer<A, B> f) =>
+    public static virtual Monad<M, B> Map<A, B>(Transducer<A, B> f, Monad<M, A> ma) =>
         M.Bind(ma, f.Map(M.Pure));
     
-    public static virtual Monad<M, B> Map<A, B>(Monad<M, A> ma, Func<A, B> f) =>
-        M.Map(ma, lift(f));
+    public static virtual Monad<M, B> Map<A, B>(Func<A, B> f, Monad<M, A> ma) =>
+        M.Map(lift(f), ma);
     
-    static Functor<M, B> Functor<M>.Map<A, B>(Functor<M, A> ma, Transducer<A, B> f) =>
+    static Functor<M, B> Functor<M>.Map<A, B>(Transducer<A, B> f, Functor<M, A> ma) =>
         M.Bind(ma.AsMonad(), f.Map(M.Pure));
     
     // Applicative

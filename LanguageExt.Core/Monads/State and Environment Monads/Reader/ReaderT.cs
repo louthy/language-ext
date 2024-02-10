@@ -147,7 +147,7 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ReaderT`</returns>
     public ReaderT<Env, M, B> Map<B>(Transducer<A, B> f) =>
-        Functor.map(this, f).As();
+        Functor.map(f, this).As();
 
     /// <summary>
     /// Maps the bound value
@@ -156,7 +156,7 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ReaderT`</returns>
     public ReaderT<Env, M, B> Map<B>(Func<A, B> f) =>
-        Functor.map(this, f).As();
+        Functor.map(f, this).As();
     
     /// <summary>
     /// Maps the bound value
