@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿/*
+#nullable enable
 using System;
 using System.Diagnostics.Contracts;
 using LanguageExt.Attributes;
@@ -220,3 +221,4 @@ public interface Monad<Env, Out, MA, A> :
     [Pure]
     public static abstract MA Apply(Func<A, A, A> f, MA ma, MA mb);
 }
+*/

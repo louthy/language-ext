@@ -10,14 +10,18 @@ namespace LanguageExt;
 /// </summary>
 public static class ReaderExt
 {
-    public static Reader<Env, A> As<Env, A>(this MonadT<ReaderT<Env, MIdentity>, MIdentity, A> ma) =>
+    public static Reader<Env, A> As<Env, A>(this MonadT<ReaderT<Env, Identity>, Identity, A> ma) =>
         (Reader<Env, A>)ma;
     
-    public static ReaderT<Env, M, A> As<Env, M, A>(this MonadT<ReaderT<Env, M>, M, A> ma)
+    public static ReaderT<Env, M, A> As<Env, M, A>(this Monad<ReaderT<Env, M>, A> ma)
         where M : Monad<M> =>
         (ReaderT<Env, M, A>)ma;
     
-    public static ReaderT<Env, M, A> As<Env, M, A>(this FunctorT<ReaderT<Env, M>, M, A> ma)
+    public static ReaderT<Env, M, A> As<Env, M, A>(this Applicative<ReaderT<Env, M>, A> ma)
+        where M : Monad<M> =>
+        (ReaderT<Env, M, A>)ma;
+    
+    public static ReaderT<Env, M, A> As<Env, M, A>(this Functor<ReaderT<Env, M>, A> ma)
         where M : Monad<M> =>
         (ReaderT<Env, M, A>)ma;
     
@@ -26,7 +30,7 @@ public static class ReaderExt
     /// </summary>
     [Pure]
     public static Reader<Env, A> Flatten<Env, A>(this Reader<Env, Reader<Env, A>> ma) =>
-        ma.Bind(identity).As();
+        ma.Bind(identity);
 
     /// <summary>
     /// Impure iteration of the bound value in the structure
@@ -35,6 +39,6 @@ public static class ReaderExt
     /// Returns the original unmodified structure
     /// </returns>
     public static Reader<Env, A> Do<Env, A>(this Reader<Env, A> ma, Action<A> f) =>
-        ma.Map(a => { f(a); return a; }).As();
+        ma.Map(a => { f(a); return a; });
 }
 

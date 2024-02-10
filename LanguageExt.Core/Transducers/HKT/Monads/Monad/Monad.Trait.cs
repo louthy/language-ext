@@ -7,7 +7,7 @@ namespace LanguageExt.HKT;
 /// Monad trait
 /// </summary>
 /// <typeparam name="M">Self referring trait</typeparam>
-public interface Monad<M> : Functor<M> 
+public interface Monad<M> : Applicative<M> 
     where M : Monad<M>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,8 +15,6 @@ public interface Monad<M> : Functor<M>
     //  Abstract members
     //
     
-    public static abstract Monad<M, A> Pure<A>(A value);
-
     public static abstract Monad<M, B> Bind<A, B>(Monad<M, A> ma, Transducer<A, Monad<M, B>> f);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -29,6 +27,8 @@ public interface Monad<M> : Functor<M>
 
     public static virtual Monad<M, A> Flatten<A>(Monad<M, Monad<M, A>> mma) =>
         M.Bind(mma, identity);
+
+    // Functor
     
     public static virtual Monad<M, B> Map<A, B>(Monad<M, A> ma, Transducer<A, B> f) =>
         M.Bind(ma, f.Map(M.Pure));
@@ -38,4 +38,18 @@ public interface Monad<M> : Functor<M>
     
     static Functor<M, B> Functor<M>.Map<A, B>(Functor<M, A> ma, Transducer<A, B> f) =>
         M.Bind(ma.AsMonad(), f.Map(M.Pure));
+    
+    // Applicative
+
+    public new static virtual Monad<M, A> Pure<A>(A value) =>
+        (Monad<M, A>)Applicative.pure<M, A>(value);
+
+    public static virtual Monad<M, B> Apply<A, B>(Monad<M, Transducer<A, B>> mf, Monad<M, A> ma) =>
+        (Monad<M, B>)Applicative.apply(mf, ma);
+    
+    public static virtual Monad<M, B> Apply<A, B>(Monad<M, Func<A, B>> mf, Monad<M, A> ma) =>
+        (Monad<M, B>)Applicative.action(mf, ma);
+    
+    public static virtual Monad<M, B> Action<A, B>(Monad<M, A> ma, Monad<M, B> mb) =>
+        (Monad<M, B>)Applicative.action(ma, mb);
 }

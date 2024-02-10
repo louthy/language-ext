@@ -10,10 +10,13 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public class MFin : KLift2<MFin, Error>
+public class Fin : Monad<Fin>
 {
-    public static KStar2<MFin, Error, A> Lift<A>(Transducer<Unit, Sum<Error, A>> f) => 
-        new Fin<A>(f);
+    public static Monad<Fin, A> Pure<A>(A value) => 
+        new Fin<A>(value);
+
+    public static Monad<Fin, B> Bind<A, B>(Monad<Fin, A> ma, Transducer<A, Monad<Fin, B>> f) => 
+        new Fin<B>(ma.Bind( ))
 }
 
 /// <summary>
@@ -27,7 +30,7 @@ public readonly struct Fin<A> :
     IEquatable<Fin<A>>,
     IEnumerable<A>,
     ISerializable,
-    KStar2<MFin, Error, A>
+    Monad<Fin, A>
 {
     readonly Either<Error, A> either;
 
@@ -462,6 +465,10 @@ public readonly struct Fin<A> :
         either.Map(f);
 
     [Pure, MethodImpl(Opt.Default)]
+    public Fin<B> Map<B>(Transducer<A, B> f) =>
+        either.Map(f);
+
+    [Pure, MethodImpl(Opt.Default)]
     public Fin<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) =>
         either.BiMap(Fail, Succ);
 
@@ -472,6 +479,10 @@ public readonly struct Fin<A> :
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> Bind<B>(Func<A, Fin<B>> f) =>
         either.Bind(x => f(x).either);
+
+    [Pure, MethodImpl(Opt.Default)]
+    public Fin<B> Bind<B>(Transducer<A, Fin<B>> f) =>
+        either.Bind(f.Map(mb => mb.either));
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> Bind<B>(Func<A, Pure<B>> f) =>

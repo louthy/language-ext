@@ -145,9 +145,8 @@ public readonly record struct Pure<A>(A Value)
     public Eff<B> Bind<B>(Func<A, Eff<B>> bind) =>
         bind(Value);
     
-    public MonadT<M, N, B> Bind<M, N, B>(Func<A, MonadT<M, N, B>> bind)
-        where M : MonadT<M, N>
-        where N : Monad<N> =>
+    public Monad<M, B> Bind<M, B>(Func<A, Monad<M, B>> bind)
+        where M : Monad<M> =>
         bind(Value);
     
     public ReaderT<Env, M, B> Bind<M, Env, B>(Func<A, ReaderT<Env, M, B>> bind)
@@ -191,10 +190,9 @@ public readonly record struct Pure<A>(A Value)
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
     
-    public MonadT<M, N, C> SelectMany<M, N, B, C>(Func<A, MonadT<M, N, B>> bind, Func<A, B, C> project)
-         where M : MonadT<M, N>
-         where N : Monad<N> =>
-         Bind(x => M.Map(bind(x), y => project(x, y)).AsMonad());
+    public Monad<M, C> SelectMany<M, B, C>(Func<A, Monad<M, B>> bind, Func<A, B, C> project)
+         where M : Monad<M> =>
+         Bind(x => M.Map(bind(x), y => project(x, y)));
     
     public ReaderT<Env, M, C> SelectMany<M, Env, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
         where M : Monad<M> =>

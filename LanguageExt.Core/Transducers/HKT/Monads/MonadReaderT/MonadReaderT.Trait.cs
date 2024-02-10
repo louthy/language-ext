@@ -5,7 +5,7 @@ namespace LanguageExt.HKT;
 
 public interface MonadReaderT<MRdr, Env, M> : MonadT<MRdr, M> 
     where M : Monad<M>
-    where MRdr : MonadReaderT<MRdr, Env, M>, MonadT<MRdr, M>
+    where MRdr : MonadReaderT<MRdr, Env, M>
 {
     public static abstract MonadReaderT<MRdr, Env, M, A> Asks<A>(Transducer<Env, A> f);
 

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.HKT;
 using static LanguageExt.Prelude;
+using static LanguageExt.Transducer;
 
 namespace LanguageExt;
 
@@ -56,7 +57,7 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <param name="t">Transformer to lift</param>
     /// <returns>`ReaderT`</returns>
     public static ReaderT<Env, M, A> Lift(Transducer<Unit, A> t) =>
-        new(Transducer.compose(Transducer.constant<Env, Unit>(default), t.Map(M.Pure)));
+        new(compose(Transducer.constant<Env, Unit>(default), t.Map(M.Pure)));
     
     /// <summary>
     /// Lifts a unit function into the transformer 
@@ -88,7 +89,7 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <param name="f">Mapping transducer</param>
     /// <returns>`ReaderT`</returns>
     public ReaderT<Env1, M, A> With<Env1>(Transducer<Env1, Env> f) =>
-        new(Transducer.compose(f, runReader));
+        new(compose(f, runReader));
 
     /// <summary>
     /// Maps the Reader's environment value
@@ -122,7 +123,7 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <returns>`ReaderT`</returns>
     public ReaderT<Env, M1, A> MapT<M1>(Transducer<Monad<M, A>, Monad<M1, A>> f) 
         where M1 : Monad<M1> =>
-        new(Transducer.compose(runReader, f));
+        new(compose(runReader, f));
 
     /// <summary>
     /// Maps the given monad
@@ -146,7 +147,7 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ReaderT`</returns>
     public ReaderT<Env, M, B> Map<B>(Transducer<A, B> f) =>
-        FunctorT.map(this, f).As();
+        Functor.map(this, f).As();
 
     /// <summary>
     /// Maps the bound value
@@ -155,7 +156,7 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ReaderT`</returns>
     public ReaderT<Env, M, B> Map<B>(Func<A, B> f) =>
-        FunctorT.map(this, f).As();
+        Functor.map(this, f).As();
     
     /// <summary>
     /// Maps the bound value
@@ -177,8 +178,8 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <param name="f">Mapping transducer</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ReaderT`</returns>
-    public ReaderT<Env, M, B> Bind<B>(Transducer<A, MonadReaderT<ReaderT<Env, M>, Env, M, B>> f) =>
-        MonadReaderT.bind(this, f).As();
+    public ReaderT<Env, M, B> Bind<B>(Transducer<A, Monad<ReaderT<Env, M>, B>> f) =>
+        Monad.bind(this, f).As();
 
     /// <summary>
     /// Monad bind operation
@@ -186,8 +187,8 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ReaderT`</returns>
-    public ReaderT<Env, M, B> Bind<B>(Func<A, MonadReaderT<ReaderT<Env, M>, Env, M, B>> f) =>
-        MonadReaderT.bind(this, f).As();
+    public ReaderT<Env, M, B> Bind<B>(Func<A, Monad<ReaderT<Env, M>, B>> f) =>
+        Monad.bind(this, f).As();
     
     /// <summary>
     /// Monad bind operation
@@ -196,7 +197,7 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`ReaderT`</returns>
     public ReaderT<Env, M, B> Bind<B>(Transducer<A, ReaderT<Env, M, B>> f) =>
-        Bind(f.Map(x => (MonadReaderT<ReaderT<Env, M>, Env, M, B>)x));
+        Bind(f.Map(x => (Monad<ReaderT<Env, M>, B>)x));
 
     /// <summary>
     /// Monad bind operation
@@ -238,7 +239,7 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`ReaderT`</returns>
-    public ReaderT<Env, M, C> SelectMany<B, C>(Func<A, MonadT<ReaderT<Env, M>, M, B>> bind, Func<A, B, C> project) =>
+    public ReaderT<Env, M, C> SelectMany<B, C>(Func<A, Monad<ReaderT<Env, M>, B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).As().Map(y => project(x, y)));
 
     /// <summary>
@@ -313,7 +314,7 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
     //
 
     public static implicit operator ReaderT<Env, M, A>(Transducer<Unit, A> t) =>
-        new(Transducer.compose(Transducer.constant<Env, Unit>(default), t.Map(M.Pure)));
+        new(compose(Transducer.constant<Env, Unit>(default), t.Map(M.Pure)));
     
     public static implicit operator ReaderT<Env, M, A>(Transducer<Env, A> t) =>
         new (t.Map(M.Pure));
@@ -325,7 +326,7 @@ public record ReaderT<Env, M, A>(Transducer<Env, Monad<M, A>> runReader) :
         Pure(ma.Value);
     
     public static implicit operator ReaderT<Env, M, A>(Fail<Error> ma) =>
-        Lift(Transducer.fail<Env, A>(ma.Value));
+        Lift(fail<Env, A>(ma.Value));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

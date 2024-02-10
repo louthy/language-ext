@@ -6,21 +6,38 @@ using LanguageExt.HKT;
 
 namespace LanguageExt;
 
-public static class Identity
+public static class IdentityExt
 {
-    public static Identity<A> As<A>(this Monad<MIdentity, A> ma) =>
+    public static Identity<A> As<A>(this Monad<Identity, A> ma) =>
+        (Identity<A>)ma;
+    
+    public static Identity<A> As<A>(this Applicative<Identity, A> ma) =>
+        (Identity<A>)ma;
+    
+    public static Identity<A> As<A>(this Functor<Identity, A> ma) =>
         (Identity<A>)ma;
 }
 
 /// <summary>
 /// Identity monad
 /// </summary>
-public class MIdentity : Monad<MIdentity>
+public class Identity : Monad<Identity>
 {
-    public static Monad<MIdentity, A> Pure<A>(A value) => 
+    static Applicative<Identity, A> Applicative<Identity>.Pure<A>(A value) => 
         new Identity<A>(value);
 
-    public static Monad<MIdentity, B> Bind<A, B>(Monad<MIdentity, A> ma, Transducer<A, Monad<MIdentity, B>> f) =>
+    public static Applicative<Identity, B> Apply<A, B>(Applicative<Identity, Transducer<A, B>> mf, Applicative<Identity, A> ma) => 
+        from f in mf.As()
+        from a in ma.As()
+        from r in f.Invoke(a)
+        select r;
+
+    public static Applicative<Identity, B> Action<A, B>(Applicative<Identity, A> ma, Applicative<Identity, B> mb) => 
+        from _ in ma.As()
+        from b in mb.As()
+        select b;
+
+    public static Monad<Identity, B> Bind<A, B>(Monad<Identity, A> ma, Transducer<A, Monad<Identity, B>> f) =>
         new Identity<B>(
             Transducer.compose(ma.As().ToTransducer(), f)
                       .Map(mb => mb.As().ToTransducer()).Flatten());
@@ -41,7 +58,7 @@ public readonly struct Identity<A> :
     IEquatable<Identity<A>>, 
     IComparable<Identity<A>>, 
     IComparable,
-    Monad<MIdentity, A>
+    Monad<Identity, A>
 {
     public static readonly Identity<A> Bottom = default;
     readonly Transducer<Unit, A>? morphism;
@@ -125,20 +142,32 @@ public readonly struct Identity<A> :
         Functor.map(this, f).AsMonad().As();
 
     [Pure]
+    public Identity<B> Map<B>(Transducer<A, B> f) =>
+        Functor.map(this, f).AsMonad().As();
+
+    [Pure]
     public Identity<B> Select<B>(Func<A, B> f) =>
         Functor.map(this, f).AsMonad().As();
 
     [Pure]
     public Identity<B> Bind<B>(Func<A, Identity<B>> f) =>
-        Monad.bind<MIdentity, Identity<B>, A, B>(this, f);
+        Monad.bind<Identity, Identity<B>, A, B>(this, f);
+
+    [Pure]
+    public Identity<B> Bind<B>(Func<A, Transducer<Unit, B>> f) =>
+        Monad.bind<Identity, Identity<B>, A, B>(this, x => new Identity<B>(f(x)));
 
     [Pure]
     public Identity<B> Bind<B>(Transducer<A, Identity<B>> f) =>
-        Monad.bind<MIdentity, Identity<B>, A, B>(this, f);
+        Monad.bind<Identity, Identity<B>, A, B>(this, f);
 
     [Pure]
     public Identity<C> SelectMany<B, C>(Func<A, Identity<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
+
+    [Pure]
+    public Identity<C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> bind, Func<A, B, C> project) =>
+        Bind(x => new Identity<C>(bind(x).Map(y => project(x, y))));
 
     [Pure]
     public Transducer<Unit, A> ToTransducer() =>

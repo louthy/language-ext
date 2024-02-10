@@ -12,7 +12,7 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="A">Input value type</typeparam>
 /// <typeparam name="B">Output value type</typeparam>
-public abstract record Transducer<A, B> : KArrow<Any<A>, A, B>
+public abstract record Transducer<A, B>
 {
     /// <summary>
     /// Transform the transducer using the reducer provided 

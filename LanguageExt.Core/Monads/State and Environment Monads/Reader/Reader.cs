@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.HKT;
-using LanguageExt.Pipes;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -11,75 +11,75 @@ namespace LanguageExt;
 /// Reader monad
 /// </summary>
 /// <remarks>
-/// This is a composition of the `ReaderT` monad transformer and the `Identity` monad
+/// This is a composition of the `Reader` monad transformer and the `Identity` monad
 /// </remarks>
 /// <param name="runReader">Transducer that is the reader operation</param>
 /// <typeparam name="Env">Reader environment type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
-    : ReaderT<Env, MIdentity, A>(runReader)
+public record Reader<Env, A>(Transducer<Env, Monad<Identity, A>> runReader)
+    : ReaderT<Env, Identity, A>(runReader)
 {
     /// <summary>
     /// Lift a pure value into the monad-transformer
     /// </summary>
     /// <param name="value">Value to lift</param>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new static Reader<Env, A> Pure(A value) =>
-        (Reader<Env, A>)ReaderT<Env, MIdentity, A>.Pure(value);
+        (Reader<Env, A>)ReaderT<Env, Identity, A>.Pure(value);
 
     /// <summary>
     /// Extracts the environment value and maps it to the bound value
     /// </summary>
     /// <param name="f">Environment mapping function</param>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new static Reader<Env, A> Asks(Func<Env, A> f) =>
-        (Reader<Env, A>)ReaderT<Env, MIdentity, A>.Asks(f);
+        (Reader<Env, A>)ReaderT<Env, Identity, A>.Asks(f);
 
     /// <summary>
     /// Extracts the environment value and maps it to the bound value
     /// </summary>
     /// <param name="f">Environment mapping transducer</param>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new static Reader<Env, A> Asks(Transducer<Env, A> f) =>
-        (Reader<Env, A>)ReaderT<Env, MIdentity, A>.Asks(f);
+        (Reader<Env, A>)ReaderT<Env, Identity, A>.Asks(f);
 
     /// <summary>
     /// Lifts a unit transducer into the transformer 
     /// </summary>
     /// <param name="t">Transformer to lift</param>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new static Reader<Env, A> Lift(Transducer<Unit, A> t) =>
-        (Reader<Env, A>)ReaderT<Env, MIdentity, A>.Lift(t);
+        (Reader<Env, A>)ReaderT<Env, Identity, A>.Lift(t);
     
     /// <summary>
     /// Lifts a unit function into the transformer 
     /// </summary>
     /// <param name="t">Transformer to lift</param>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new static Reader<Env, A> Lift(Func<Unit, A> t) =>
-        (Reader<Env, A>)ReaderT<Env, MIdentity, A>.Lift(t);
+        (Reader<Env, A>)ReaderT<Env, Identity, A>.Lift(t);
     
     /// <summary>
     /// Lifts a environment transducer into the transformer 
     /// </summary>
     /// <param name="t">Transformer to lift</param>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new static Reader<Env, A> Lift(Transducer<Env, A> t) =>
-        (Reader<Env, A>)ReaderT<Env, MIdentity, A>.Lift(t);
+        (Reader<Env, A>)ReaderT<Env, Identity, A>.Lift(t);
     
     /// <summary>
     /// Lifts a environment function into the transformer 
     /// </summary>
     /// <param name="t">Transformer to lift</param>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new static Reader<Env, A> Lift(Func<Env, A> f) =>
-        (Reader<Env, A>)ReaderT<Env, MIdentity, A>.Lift(f);
+        (Reader<Env, A>)ReaderT<Env, Identity, A>.Lift(f);
 
     /// <summary>
     /// Maps the Reader's environment value
     /// </summary>
     /// <param name="f">Mapping transducer</param>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new Reader<Env1, A> With<Env1>(Transducer<Env1, Env> f) =>
         (Reader<Env1, A>)base.With(f);
 
@@ -87,7 +87,7 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// Maps the Reader's environment value
     /// </summary>
     /// <param name="f">Mapping function</param>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new Reader<Env1, A> With<Env1>(Func<Env1, Env> f) =>
         (Reader<Env1, A>)base.With(f);
 
@@ -95,7 +95,7 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// Maps the Reader's environment value
     /// </summary>
     /// <param name="f">Mapping transducer</param>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new Reader<Env, A> Local(Transducer<Env, Env> f) =>
         (Reader<Env, A>)base.Local(f);
 
@@ -103,7 +103,7 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// Maps the Reader's environment value
     /// </summary>
     /// <param name="f">Mapping function</param>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new Reader<Env, A> Local(Func<Env, Env> f) =>
         (Reader<Env, A>)base.Local(f);
 
@@ -117,7 +117,7 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// </summary>
     /// <param name="f">Mapping transducer</param>
     /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new Reader<Env, B> Map<B>(Transducer<A, B> f) =>
         (Reader<Env, B>)base.Map(f);
 
@@ -126,7 +126,7 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// </summary>
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new Reader<Env, B> Map<B>(Func<A, B> f) =>
         (Reader<Env, B>)base.Map(f);
     
@@ -135,7 +135,7 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// </summary>
     /// <param name="f">Mapping transducer</param>
     /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new Reader<Env, B> Select<B>(Func<A, B> f) =>
         Map(f);
 
@@ -149,8 +149,8 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// </summary>
     /// <param name="f">Mapping transducer</param>
     /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
-    public new Reader<Env, B> Bind<B>(Transducer<A, MonadReaderT<ReaderT<Env, MIdentity>, Env, MIdentity, B>> f) =>
+    /// <returns>`Reader`</returns>
+    public new Reader<Env, B> Bind<B>(Transducer<A, Monad<ReaderT<Env, Identity>, B>> f) =>
         (Reader<Env, B>)base.Bind(f);
 
     /// <summary>
@@ -158,8 +158,8 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// </summary>
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
-    public new Reader<Env, B> Bind<B>(Func<A, MonadReaderT<ReaderT<Env, MIdentity>, Env, MIdentity, B>> f) =>
+    /// <returns>`Reader`</returns>
+    public new Reader<Env, B> Bind<B>(Func<A, Monad<ReaderT<Env, Identity>, B>> f) =>
         (Reader<Env, B>)base.Bind(f);
     
     /// <summary>
@@ -167,16 +167,16 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// </summary>
     /// <param name="f">Mapping transducer</param>
     /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public Reader<Env, B> Bind<B>(Transducer<A, Reader<Env, B>> f) =>
-        (Reader<Env, B>)base.Bind(f.Map(mb => (ReaderT<Env, MIdentity, B>)mb));
+        (Reader<Env, B>)base.Bind(f.Map(mb => (ReaderT<Env, Identity, B>)mb));
 
     /// <summary>
     /// Monad bind operation
     /// </summary>
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public Reader<Env, B> Bind<B>(Func<A, Reader<Env, B>> f) =>
         (Reader<Env, B>)base.Bind(f);
 
@@ -185,7 +185,7 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// </summary>
     /// <param name="f">Mapping transducer</param>
     /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new Reader<Env, B> Bind<B>(Transducer<A, Ask<Env, B>> f) =>
         (Reader<Env, B>)base.Bind(f);
     
@@ -194,7 +194,7 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// </summary>
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new Reader<Env, B> Bind<B>(Func<A, Ask<Env, B>> f) =>
         (Reader<Env, B>)base.Bind(f);
 
@@ -210,8 +210,8 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// <param name="project">Projection function</param>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
-    public new Reader<Env, C> SelectMany<B, C>(Func<A, MonadT<ReaderT<Env, MIdentity>, MIdentity, B>> bind, Func<A, B, C> project) =>
+    /// <returns>`Reader`</returns>
+    public new Reader<Env, C> SelectMany<B, C>(Func<A, Monad<ReaderT<Env, Identity>, B>> bind, Func<A, B, C> project) =>
         (Reader<Env, C>)base.SelectMany(bind, project);
 
     /// <summary>
@@ -221,7 +221,7 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// <param name="project">Projection function</param>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public Reader<Env, C> SelectMany<B, C>(Func<A, Reader<Env, B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
@@ -232,8 +232,8 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// <param name="project">Projection function</param>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
-    public new Reader<Env, C> SelectMany<B, C>(Func<A, Monad<MIdentity, B>> bind, Func<A, B, C> project) =>
+    /// <returns>`Reader`</returns>
+    public new Reader<Env, C> SelectMany<B, C>(Func<A, Monad<Identity, B>> bind, Func<A, B, C> project) =>
         (Reader<Env, C>)base.SelectMany(bind, project);
 
     /// <summary>
@@ -243,7 +243,7 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// <param name="project">Projection function</param>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new Reader<Env, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         (Reader<Env, C>)base.SelectMany(bind, project);
     
@@ -254,7 +254,7 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// <param name="project">Projection function</param>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
+    /// <returns>`Reader`</returns>
     public new Reader<Env, C> SelectMany<B, C>(Func<A, Ask<Env, B>> bind, Func<A, B, C> project) =>
         (Reader<Env, C>)base.SelectMany(bind, project);
 
@@ -265,8 +265,8 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// <param name="project">Projection function</param>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
-    public Reader<Env, C> SelectMany<B, C>(Func<A, Transducer<Env, B>> bind, Func<A, B, C> project) =>
+    /// <returns>`Reader`</returns>
+    public new Reader<Env, C> SelectMany<B, C>(Func<A, Transducer<Env, B>> bind, Func<A, B, C> project) =>
         Bind(x => Reader<Env, B>.Lift(bind(x)).Map(y => project(x, y)));
 
     /// <summary>
@@ -276,8 +276,8 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// <param name="project">Projection function</param>
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
-    public Reader<Env, C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> bind, Func<A, B, C> project) =>
+    /// <returns>`Reader`</returns>
+    public new Reader<Env, C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> bind, Func<A, B, C> project) =>
         Bind(x => Reader<Env, B>.Lift(bind(x)).Map(y => project(x, y)));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -286,19 +286,19 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     //
 
     public static implicit operator Reader<Env, A>(Transducer<Unit, A> t) =>
-        (Reader<Env, A>)(ReaderT<Env, MIdentity, A>)t;
+        (Reader<Env, A>)(ReaderT<Env, Identity, A>)t;
     
     public static implicit operator Reader<Env, A>(Transducer<Env, A> t) =>
-        (Reader<Env, A>)(ReaderT<Env, MIdentity, A>)t;
+        (Reader<Env, A>)(ReaderT<Env, Identity, A>)t;
     
-    public static implicit operator Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader) =>
-        (Reader<Env, A>)(ReaderT<Env, MIdentity, A>)runReader;
+    public static implicit operator Reader<Env, A>(Transducer<Env, Monad<Identity, A>> runReader) =>
+        (Reader<Env, A>)(ReaderT<Env, Identity, A>)runReader;
     
     public static implicit operator Reader<Env, A>(Pure<A> ma) =>
-        (Reader<Env, A>)(ReaderT<Env, MIdentity, A>)ma;
+        (Reader<Env, A>)(ReaderT<Env, Identity, A>)ma;
     
     public static implicit operator Reader<Env, A>(Fail<Error> ma) =>
-        (Reader<Env, A>)(ReaderT<Env, MIdentity, A>)ma;
+        (Reader<Env, A>)(ReaderT<Env, Identity, A>)ma;
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -321,7 +321,8 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
         Reducer<A, S> reducer,
         CancellationToken token = default,
         SynchronizationContext? syncContext = null) =>
-        runReader.Run(env, initialState, reducer, token, syncContext).ToFin();
+        runReader.Run(env, initialState, new Reduce1<S>(reducer), token, syncContext)
+                 .ToFin();
 
     /// <summary>
     /// Run the reader monad 
@@ -333,14 +334,13 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// <param name="env">Input environment</param>
     /// <param name="token">Optional cancellation token</param>
     /// <param name="syncContext">Optional synchronisation context</param>
-    /// <returns>Latest given monad</returns>
+    /// <returns>Latest given value</returns>
     public Fin<A> Run(
         Env env,
         CancellationToken token = default,
         SynchronizationContext? syncContext = null) =>
-        runReader.Run(env, default, Reducer<Monad<MIdentity, A>>.last, token, syncContext)
-                 .Bind(ma => ma is null ? TResult.None<A>() : TResult.Continue(ma.As().Value))
-                 .ToFin(); 
+        Run(env, default, Reducer<A>.last, token, syncContext)
+           .Bind(a => a is null ? Errors.None : FinSucc(a));
 
     /// <summary>
     /// Run the reader monad 
@@ -352,17 +352,15 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// <param name="env">Input environment</param>
     /// <param name="token">Optional cancellation token</param>
     /// <param name="syncContext">Optional synchronisation context</param>
-    /// <returns>Sequence of given monads</returns>
+    /// <returns>Sequence of given values</returns>
     public Fin<Seq<A>> RunMany(
         Env env,
         CancellationToken token = default,
         SynchronizationContext? syncContext = null) =>
-        runReader.Run(env, default, Reducer<Monad<MIdentity, A>>.seq, token, syncContext)
-                 .ToFin()
-                 .Map(seq => seq.Choose(x => ))
+        Run(env, default, Reducer<A>.seq, token, syncContext);
 
     /// <summary>
-    /// Run the reader monad using transducer reduction asynchronously
+    /// Run the reader monad using transducer reduction
     /// </summary>
     /// <param name="env">Input environment</param>
     /// <param name="initialState">Initial state of the reduction</param>
@@ -374,13 +372,14 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     public Task<Fin<S>> RunAsync<S>(
         Env env,
         S initialState,
-        Reducer<Monad<M, A>, S> reducer,
+        Reducer<A, S> reducer,
         CancellationToken token = default,
         SynchronizationContext? syncContext = null) =>
-        runReader.RunAsync(env, initialState, reducer, null, token, syncContext).Map(r => r.ToFin());
+        runReader.RunAsync(env, initialState, new Reduce1<S>(reducer), null, token, syncContext)
+                 .Map(r => r.ToFin());
 
     /// <summary>
-    /// Run the reader monad asynchronously
+    /// Run the reader monad 
     /// </summary>
     /// <remarks>
     /// Because the internals are using transducers, this is using a built-in reducer that
@@ -389,17 +388,16 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// <param name="env">Input environment</param>
     /// <param name="token">Optional cancellation token</param>
     /// <param name="syncContext">Optional synchronisation context</param>
-    /// <returns>Latest given monad</returns>
-    public Task<Fin<Monad<M, A>>> RunAsync(
+    /// <returns>Latest given value</returns>
+    public new Task<Fin<A>> RunAsync(
         Env env,
         CancellationToken token = default,
         SynchronizationContext? syncContext = null) =>
-        runReader.RunAsync(env, default, Reducer<Monad<M, A>>.last, null, token, syncContext)
-                 .Map(r => r.Bind(ma => ma is null ? TResult.None<Monad<M, A>>() : TResult.Continue(ma))
-                            .ToFin());
+        RunAsync(env, default, Reducer<A>.last, token, syncContext)
+           .Map(r => r.Bind(a => a is null ? Errors.None : FinSucc(a)));
 
     /// <summary>
-    /// Run the reader monad asynchronously
+    /// Run the reader monad 
     /// </summary>
     /// <remarks>
     /// Because the internals are using transducers, this is using a built-in reducer that
@@ -408,11 +406,20 @@ public record Reader<Env, A>(Transducer<Env, Monad<MIdentity, A>> runReader)
     /// <param name="env">Input environment</param>
     /// <param name="token">Optional cancellation token</param>
     /// <param name="syncContext">Optional synchronisation context</param>
-    /// <returns>Sequence of given monads</returns>
-    public Task<Fin<Seq<Monad<M, A>>>> RunManyAsync(
+    /// <returns>Sequence of given values</returns>
+    public Task<Fin<Seq<A>>> RunManyAsync(
         Env env,
         CancellationToken token = default,
         SynchronizationContext? syncContext = null) =>
-        runReader.RunAsync(env, default, Reducer<Monad<M, A>>.seq, null, token, syncContext).Map(r => r.ToFin());
+        RunAsync(env, default, Reducer<A>.seq, token, syncContext);
 
+    
+    record Reduce1<S>(Reducer<A, S> reducer) : Reducer<Monad<Identity, A>, S>
+    {
+        public override TResult<S> Run(TState state, S stateValue, Monad<Identity, A> value)
+        {
+            var id = (Identity<A>)value;
+            return id.ToTransducer().Transform(reducer).Run(state, stateValue, default);
+        }
+    }
 }

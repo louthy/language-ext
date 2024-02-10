@@ -1487,6 +1487,24 @@ public readonly struct Either<L, R> :
         };
 
     /// <summary>
+    /// Maps the value in the Either if it's in a Right state
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <typeparam name="Ret">Mapped Either type</typeparam>
+    /// <param name="f">Map function</param>
+    /// <returns>Mapped Either</returns>
+    [Pure]
+    public Either<L, Ret> Map<Ret>(Transducer<R, Ret> f) =>
+        State switch
+        {
+            EitherStatus.IsRight => Morphism.MapRight(f),
+            EitherStatus.IsLeft  => left!,
+            EitherStatus.IsLazy  => compose(Morphism, mapRight<L, R, Ret>(f)),
+            _                    => Either<L, Ret>.Bottom
+        };
+
+    /// <summary>
     /// Maps the value in the Either if it's in a Left state
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
@@ -1500,6 +1518,24 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => right!,
             EitherStatus.IsLeft  => f(left!),
+            EitherStatus.IsLazy  => compose(Morphism, mapLeft<L, Ret, R>(f)),
+            _                    => Either<Ret, R>.Bottom
+        };
+
+    /// <summary>
+    /// Maps the value in the Either if it's in a Left state
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <typeparam name="Ret">Mapped Either type</typeparam>
+    /// <param name="f">Map function</param>
+    /// <returns>Mapped Either</returns>
+    [Pure]
+    public Either<Ret, R> MapLeft<Ret>(Transducer<L, Ret> f) =>
+        State switch
+        {
+            EitherStatus.IsRight => right!,
+            EitherStatus.IsLeft  => Morphism.MapLeft(f),
             EitherStatus.IsLazy  => compose(Morphism, mapLeft<L, Ret, R>(f)),
             _                    => Either<Ret, R>.Bottom
         };

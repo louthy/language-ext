@@ -15,6 +15,19 @@ public static class Testing
         var m1 = ReaderT<string, Maybe, int>.Lift(Maybe<int>.Just(123));
         var m2 = ReaderT<string, Maybe, int>.Lift(Maybe<int>.Just(123));
         
+        var mx = ReaderT<string, ReaderT<string, Maybe>, int>.Lift(m1);
+
+                
+        var m0 = from w in Pure(123)
+                 from x in mx
+                 from r in use(() => File.Open("c:\\test.txt", FileMode.Open))
+                 from y in mx
+                 from z in asks((string env) => env.Length)
+                 from e in ask<string>()
+                 from _ in release(r)
+                 from n in ReaderT<string, Maybe, string>.Lift(Maybe<string>.Just("Paul"))
+                 select $"{e} {n}: {w + x + y + z}";
+
         var m3 = from w in Pure(123)
                  from x in m1
                  from r in use(() => File.Open("c:\\test.txt", FileMode.Open))
@@ -102,13 +115,27 @@ public class Maybe : Monad<Maybe>
     public static Monad<Maybe, A> Pure<A>(A value) => 
         Maybe<A>.Just(value);
 
+    public static Applicative<Maybe, B> Apply<A, B>(
+        Applicative<Maybe, Transducer<A, B>> mf, 
+        Applicative<Maybe, A> ma) =>
+        from f in mf.As()
+        from a in ma.As()
+        from r in f.Invoke(a)
+        select r;
+
+    public static Applicative<Maybe, B> Action<A, B>(Applicative<Maybe, A> ma, Applicative<Maybe, B> mb) => 
+        throw new NotImplementedException();
+
     public static Monad<Maybe, B> Bind<A, B>(Monad<Maybe, A> ma, Transducer<A, Monad<Maybe, B>> f) => 
         ma.As().Bind(f.Map(mb => mb.As()));
+
+    static Applicative<Maybe, A> Applicative<Maybe>.Pure<A>(A value) => 
+        throw new NotImplementedException();
 }
 
 public record Maybe<A>(Transducer<Unit, Sum<Unit, A>> M) : Monad<Maybe, A>
 {
-    public Transducer<Unit, Sum<Unit, A>> Morphism { get; } = M;
+    public Transducer<Unit, Sum<Unit, A>> ToTransducer() => M;
 
     public static Maybe<A> Just(A value) =>
         new(constant<Unit, Sum<Unit, A>>(Sum<Unit, A>.Right(value)));
@@ -116,11 +143,26 @@ public record Maybe<A>(Transducer<Unit, Sum<Unit, A>> M) : Monad<Maybe, A>
     public static readonly Maybe<A> Nothing = 
         new(constant<Unit, Sum<Unit, A>>(Sum<Unit, A>.Left(default)));
 
+    public Maybe<B> Map<B>(Func<A, B> f) =>
+        new(mapRight(M, f));
+
+    public Maybe<B> Map<B>(Transducer<A, B> f) =>
+        new(mapRight(M, f));
+
     public Maybe<B> Bind<B>(Func<A, Maybe<B>> f) =>
         Bind(lift(f));
 
+    public Maybe<B> Bind<B>(Func<A, Transducer<Unit, B>> f) =>
+        Bind(lift(f).Flatten().Map(Maybe<B>.Just));
+
     public Maybe<B> Bind<B>(Transducer<A, Maybe<B>> f) =>
-        new(mapRight(M, f.Map(b => b.Morphism)).Flatten());
+        new(mapRight(M, f.Map(b => b.ToTransducer())).Flatten());
+
+    public Maybe<C> SelectMany<B, C>(Func<A, Maybe<B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
+
+    public Maybe<C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
 }
 
 public static class MaybeExt

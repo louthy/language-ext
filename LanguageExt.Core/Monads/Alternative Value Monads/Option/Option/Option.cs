@@ -559,27 +559,6 @@ public readonly struct Option<A> :
         isSome
             ? Pure(Value!)
             : Prelude.Fail(Fail);
-        
-    /// <summary>
-    /// Convert the structure to an Aff
-    /// </summary>
-    /// <returns>An Aff representation of the structure</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Aff<A> ToAff() =>
-        ToAff(Errors.None);
-        
-    /// <summary>
-    /// Convert the structure to an Aff
-    /// </summary>
-    /// <param name="Fail">Default value if the structure is in a None state</param>
-    /// <returns>An Aff representation of the structure</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Aff<A> ToAff(Error Fail) =>
-        isSome
-            ? SuccessAff<A>(Value!)
-            : FailAff<A>(Fail);
 
     /// <summary>
     /// Convert the structure to a Fin
@@ -626,15 +605,6 @@ public readonly struct Option<A> :
         isSome
             ? Right<L, A>(Value!)
             : Left<L, A>(Left());
-
-    /// <summary>
-    /// Convert the structure to a TryOption
-    /// </summary>
-    /// <returns>A TryOption representation of the structure</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TryOption<A> ToTryOption() =>
-        toTryOption<MOption<A>, Option<A>, A>(this);
 
     /// <summary>
     /// Fluent pattern matching.  Provide a Some handler and then follow

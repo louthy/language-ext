@@ -12,7 +12,7 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     public static Reader<Env, A> flatten<Env, A>(Reader<Env, Reader<Env, A>> ma) =>
-        ma.Bind(identity).As();
+        ma.Bind(identity);
 
     /// <summary>
     /// Reader monad constructor
@@ -23,7 +23,7 @@ public static partial class Prelude
     /// <returns>Reader monad</returns>
     [Pure]
     public static Reader<Env, A> Reader<Env, A>(A value) =>
-        L.Reader<Env, A>.Pure(value).As();
+        L.Reader<Env, A>.Pure(value);
 
     /// <summary>
     /// Reader monad constructor
@@ -35,14 +35,14 @@ public static partial class Prelude
     [Pure]
     [Obsolete("Use `asks` - it's the same function")]
     public static Reader<Env, A> Reader<Env, A>(Func<Env, A> f) =>
-        L.Reader<Env, A>.Lift(f).As();
+        L.Reader<Env, A>.Lift(f);
 
     /// <summary>
     /// Reader failure
     /// </summary>
     [Pure]
     public static Reader<Env, A> ReaderFail<Env, A>(Error error) =>
-        L.Reader<Env, A>.Lift(Transducer.fail<Env, A>(error)).As();
+        L.Reader<Env, A>.Lift(Transducer.fail<Env, A>(error));
 
     /// <summary>
     /// Retrieves the reader monad environment.
@@ -71,7 +71,7 @@ public static partial class Prelude
     /// <returns>Modified reader</returns>
     [Pure]
     public static Reader<Env, A> local<Env, A>(Reader<Env, A> ma, Func<Env, Env> f) =>
-        ma.Local(f).As();
+        ma.Local(f);
 
     /// <summary>
     /// Chooses the first monad result that has a Some(x) for the value
@@ -80,10 +80,10 @@ public static partial class Prelude
     public static Reader<Env, Option<A>> choose<Env, A>(Seq<Reader<Env, Option<A>>> ms) =>
         ms switch
         {
-            { IsEmpty: true } => L.Reader<Env, Option<A>>.Pure(Option<A>.None).As(),
+            { IsEmpty: true } => L.Reader<Env, Option<A>>.Pure(Option<A>.None),
             var (x, xs) => x.Bind(oa => oa.IsSome
                                             ? L.Reader<Env, Option<A>>.Pure(oa)
-                                            : choose(xs)).As()
+                                            : choose(xs))
         };
 
     /// <summary>

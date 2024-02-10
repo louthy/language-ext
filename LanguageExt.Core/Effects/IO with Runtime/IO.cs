@@ -17,7 +17,7 @@ namespace LanguageExt;
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="E">Error value type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly struct IO<RT, E, A> : KArrow<Any, RT, Sum<E, A>>
+public readonly struct IO<RT, E, A> : Kind<,>
     where RT : HasIO<RT, E>
 {
     /// <summary>
