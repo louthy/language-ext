@@ -24,6 +24,10 @@ public static class Functor
         (Alternative<F, A>)fa;
     
     public static Monad<F, A> AsMonad<F, A>(this Functor<F, A> fa)
-        where F : Functor<F>, Monad<F> => 
+        where F : Monad<F> => 
         (Monad<F, A>)fa;
+    
+    public static Traversable<T, A> AsTraversable<T, A>(this Functor<T, A> fa)
+        where T : Functor<T>, Traversable<T> => 
+        (Traversable<T, A>)fa;
 }

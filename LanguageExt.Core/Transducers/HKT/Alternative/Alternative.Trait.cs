@@ -29,6 +29,12 @@ public interface Alternative<F> : Applicative<F>
         F.Or(ma, (Alternative<F, A>)mb);
 
     /// <summary>
+    /// Associative binary operator
+    /// </summary>
+    public static virtual Alternative<F, A> Or<A>(Applicative<F, A> ma, Alternative<F, A> mb) =>
+        F.Or((Alternative<F, A>)ma, mb);
+
+    /// <summary>
     /// One or more...
     /// </summary>
     /// <remarks>
