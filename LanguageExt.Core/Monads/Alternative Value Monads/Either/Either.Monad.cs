@@ -1,3 +1,4 @@
+using System;
 using LanguageExt.HKT;
 
 namespace LanguageExt;
@@ -6,7 +7,7 @@ namespace LanguageExt;
 /// Monad trait implementation for `Either<L, R>`
 /// </summary>
 /// <typeparam name="L">Left type parameter</typeparam>
-public class Either<L> : Monad<Either<L>>
+public class Either<L> : Monad<Either<L>>, Traversable<Either<L>>
 {
     public static Applicative<Either<L>, B> Apply<A, B>(
         Applicative<Either<L>, Transducer<A, B>> mf, 
@@ -31,7 +32,11 @@ public class Either<L> : Monad<Either<L>>
     public static Applicative<Either<L>, A> Pure<A>(A value) => 
         Either<L, A>.Right(value);
 
-    public static Alternative<Either<L>, A> Empty<A>() => throw new System.NotImplementedException();
-
-    public static Alternative<Either<L>, A> Or<A>(Alternative<Either<L>, A> ma, Alternative<Either<L>, A> mb) => throw new System.NotImplementedException();
+    public static Applicative<F, Traversable<Either<L>, B>> Traverse<F, A, B>(
+        Func<A, Applicative<F, B>> f,
+        Traversable<Either<L>, A> ta)
+        where F : Applicative<F> =>
+        ta.As()
+          .Match(Right: r => F.Map(x => (Traversable<Either<L>, B>)Either<L, B>.Right(x), f(r)).AsApplicative(),
+                 Left:  l => F.Pure((Traversable<Either<L>, B>)Either<L, B>.Left(l)));
 }

@@ -46,7 +46,8 @@ public readonly struct Either<L, R> :
     IEquatable<Pure<R>>,
     IEquatable<R>, 
     ISerializable,
-    Monad<Either<L>, R>
+    Monad<Either<L>, R>,
+    Traversable<Either<L>, R>
 {
     public static readonly Either<L, R> Bottom = new ();
 
