@@ -15,24 +15,12 @@ public interface Alternative<F> : Applicative<F>
     /// </summary>
     /// <typeparam name="A"></typeparam>
     /// <returns></returns>
-    public static abstract Alternative<F, A> Empty<A>();
+    public static abstract K<F, A> Empty<A>();
     
     /// <summary>
     /// Associative binary operator
     /// </summary>
-    public static abstract Alternative<F, A> Or<A>(Alternative<F, A> ma, Alternative<F, A> mb);
-
-    /// <summary>
-    /// Associative binary operator
-    /// </summary>
-    public static virtual Alternative<F, A> Or<A>(Alternative<F, A> ma, Applicative<F, A> mb) =>
-        F.Or(ma, (Alternative<F, A>)mb);
-
-    /// <summary>
-    /// Associative binary operator
-    /// </summary>
-    public static virtual Alternative<F, A> Or<A>(Applicative<F, A> ma, Alternative<F, A> mb) =>
-        F.Or((Alternative<F, A>)ma, mb);
+    public static abstract K<F, A> Or<A>(K<F, A> ma, K<F, A> mb);
 
     /// <summary>
     /// One or more...
@@ -44,15 +32,15 @@ public interface Alternative<F> : Applicative<F>
     /// </remarks>
     /// <param name="v">Applicative functor</param>
     /// <returns>One or more values</returns>
-    public static virtual Alternative<F, Seq<A>> Some<A>(Alternative<F, A> v)
+    public static virtual K<F, Seq<A>> Some<A>(K<F, A> v)
     {
         return some_v();
         
-        Alternative<F, Seq<A>> many_v() =>
-            some_v() | F.Pure(Seq<A>());
+        K<F, Seq<A>> many_v() =>
+            F.Or(some_v(), F.Pure(Seq<A>()));
 
-        Alternative<F, Seq<A>> some_v() =>
-            F.Apply(Append<F, A>.cons, v, many_v()).AsAlternative();
+        K<F, Seq<A>> some_v() =>
+            F.Apply(Append<F, A>.cons, v, many_v());
     }
     
     /// <summary>
@@ -65,20 +53,20 @@ public interface Alternative<F> : Applicative<F>
     /// </remarks>
     /// <param name="v">Applicative functor</param>
     /// <returns>Zero or more values</returns>
-    public static virtual Alternative<F, Seq<A>> Many<A>(Alternative<F, A> v)
+    public static virtual K<F, Seq<A>> Many<A>(K<F, A> v)
     {
         return many_v();
         
-        Alternative<F, Seq<A>> many_v() =>
-            some_v() | F.Pure(Seq<A>());
+        K<F, Seq<A>> many_v() =>
+            F.Or(some_v(), F.Pure(Seq<A>()));
 
-        Alternative<F, Seq<A>> some_v() =>
-            F.Apply(Append<F, A>.cons, v, many_v()).AsAlternative();
+        K<F, Seq<A>> some_v() =>
+            F.Apply(Append<F, A>.cons, v, many_v());
     }
 }
 
 static class Append<F, A> where F : Applicative<F>
 {
-    public static readonly Applicative<F, Func<A, Seq<A>, Seq<A>>> cons =
+    public static readonly K<F, Func<A, Seq<A>, Seq<A>>> cons =
         F.Pure((A x, Seq<A> y) => x.Cons(y));
 }

@@ -11,30 +11,31 @@ public static class Alternative
     /// </summary>
     /// <typeparam name="A"></typeparam>
     /// <returns></returns>
-    public static Alternative<F, A> empty<F, A>()
+    public static K<F, A> empty<F, A>()
         where F : Alternative<F> =>
         F.Empty<A>();
 
     /// <summary>
-    /// Associative binary operator
+    /// Given a set of applicative functors, return the first one to succeed.
     /// </summary>
-    public static Alternative<F, A> either<F, A>(Alternative<F, A> ma, Alternative<F, A> mb)
+    /// <remarks>
+    /// If none succeed, the last applicative functor will be returned.
+    /// </remarks>
+    public static K<F, A> oneOf<F, A>(K<F, A> mx, params K<F, A>[] mxs)
         where F : Alternative<F> =>
-        ma | mb;
+        oneOf(mx, mxs.ToSeq());
 
     /// <summary>
-    /// Associative binary operator
+    /// Given a set of applicative functors, return the first one to succeed.
     /// </summary>
-    public static Alternative<F, A> either<F, A>(Alternative<F, A> ma, Applicative<F, A> mb)
+    /// <remarks>
+    /// If none succeed, the last applicative functor will be returned.
+    /// </remarks>
+    public static K<F, A> oneOf<F, A>(K<F, A> mx, Seq<K<F, A>> mxs)
         where F : Alternative<F> =>
-        ma | mb;
-
-    /// <summary>
-    /// Associative binary operator
-    /// </summary>
-    public static Alternative<F, A> either<F, A>(Applicative<F, A> ma, Alternative<F, A> mb) 
-        where F : Alternative<F> =>
-        ma | mb;
+        mxs.IsEmpty
+            ? mx
+            : F.Or(mx, oneOf(mxs.Head, mxs.Tail));
 
     /// <summary>
     /// One or more...
@@ -46,7 +47,7 @@ public static class Alternative
     /// </remarks>
     /// <param name="v">Applicative functor</param>
     /// <returns>One or more values</returns>
-    public static Alternative<F, Seq<A>> some<F, A>(Alternative<F, A> v)
+    public static K<F, Seq<A>> some<F, A>(K<F, A> v)
         where F : Alternative<F> =>
         F.Some(v);
 
@@ -60,7 +61,7 @@ public static class Alternative
     /// </remarks>
     /// <param name="v">Applicative functor</param>
     /// <returns>Zero or more values</returns>
-    public static Alternative<F, Seq<A>> many<F, A>(Alternative<F, A> v)
+    public static K<F, Seq<A>> many<F, A>(K<F, A> v)
         where F : Alternative<F> =>
         F.Many(v);
 }

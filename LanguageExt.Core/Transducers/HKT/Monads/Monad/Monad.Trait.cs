@@ -15,41 +15,16 @@ public interface Monad<M> : Applicative<M>
     //  Abstract members
     //
     
-    public static abstract Monad<M, B> Bind<A, B>(Monad<M, A> ma, Transducer<A, Monad<M, B>> f);
+    public static abstract K<M, B> Bind<A, B>(K<M, A> ma, Func<A, K<M, B>> f);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Default implementations
     //
     
-    public static virtual Monad<M, B> Bind<A, B>(Monad<M, A> ma, Func<A, Monad<M, B>> f) =>
-        M.Bind(ma, lift(f));
-
-    public static virtual Monad<M, A> Flatten<A>(Monad<M, Monad<M, A>> mma) =>
+    public static virtual K<M, A> Flatten<A>(K<M, K<M, A>> mma) =>
         M.Bind(mma, identity);
-
-    // Functor
     
-    public static virtual Monad<M, B> Map<A, B>(Transducer<A, B> f, Monad<M, A> ma) =>
-        M.Bind(ma, f.Map(M.Pure));
-    
-    public static virtual Monad<M, B> Map<A, B>(Func<A, B> f, Monad<M, A> ma) =>
-        M.Map(lift(f), ma);
-    
-    static Functor<M, B> Functor<M>.Map<A, B>(Transducer<A, B> f, Functor<M, A> ma) =>
-        M.Bind(ma.AsMonad(), f.Map(M.Pure));
-    
-    // Applicative
-
-    public new static virtual Monad<M, A> Pure<A>(A value) =>
-        (Monad<M, A>)Applicative.pure<M, A>(value);
-
-    public static virtual Monad<M, B> Apply<A, B>(Monad<M, Transducer<A, B>> mf, Monad<M, A> ma) =>
-        (Monad<M, B>)Applicative.apply(mf, ma);
-    
-    public static virtual Monad<M, B> Apply<A, B>(Monad<M, Func<A, B>> mf, Monad<M, A> ma) =>
-        (Monad<M, B>)Applicative.action(mf, ma);
-    
-    public static virtual Monad<M, B> Action<A, B>(Monad<M, A> ma, Monad<M, B> mb) =>
-        (Monad<M, B>)Applicative.action(ma, mb);
+    public new static virtual K<M, B> Map<A, B>(Func<A, B> f, K<M, A> ma) =>
+        M.Bind(ma, x => M.Pure(f(x)));
 }

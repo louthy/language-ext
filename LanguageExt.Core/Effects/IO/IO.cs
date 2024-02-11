@@ -16,7 +16,7 @@ namespace LanguageExt;
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="E">Error value type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly struct IO<E, A> : Kind<,>
+public readonly struct IO<E, A> : K<,>
 {
     /// <summary>
     /// Underlying transducer that captures all of the IO behaviour 

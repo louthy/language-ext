@@ -10,24 +10,37 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public class Fin : Monad<Fin>
+public class Fin : Monad<Fin>, Traversable<Fin>, Alternative <Fin>
 {
-    public static Monad<Fin, A> Pure<A>(A value) => 
-        new Fin<A>(value);
-
-    public static Monad<Fin, B> Bind<A, B>(Monad<Fin, A> ma, Transducer<A, Monad<Fin, B>> f) => 
+    public static K<Fin, B> Bind<A, B>(K<Fin, A> ma, Func<A, K<Fin, B>> f) => 
         throw new NotImplementedException();
 
-    public static Applicative<Fin, B> Apply<A, B>(Applicative<Fin, Transducer<A, B>> mf, Applicative<Fin, A> ma) =>
-        from f in (Fin<Transducer<A, B>>)mf
-        from a in (Fin<A>)ma
-        from r in f.Invoke(a)
-        select r;
-
-    public static Applicative<Fin, B> Action<A, B>(Applicative<Fin, A> ma, Applicative<Fin, B> mb) => 
+    public static K<Fin, B> Map<A, B>(Func<A, B> f, K<Fin, A> ma) => 
         throw new NotImplementedException();
 
-    static Applicative<Fin, A> Applicative<Fin>.Pure<A>(A value) => 
+    public static K<Fin, A> Pure<A>(A value) => 
+        throw new NotImplementedException();
+
+    public static K<Fin, B> Apply<A, B>(K<Fin, Func<A, B>> mf, K<Fin, A> ma) => 
+        throw new NotImplementedException();
+
+    public static K<Fin, B> Action<A, B>(K<Fin, A> ma, K<Fin, B> mb) => 
+        throw new NotImplementedException();
+
+    public static S Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Fin, A> ta) => 
+        throw new NotImplementedException();
+
+    public static S FoldBack<A, S>(Func<S, Func<A, S>> f, S initialState, K<Fin, A> ta) => 
+        throw new NotImplementedException();
+
+    public static K<F, K<Fin, B>> Traverse<F, A, B>(Func<A, K<F, B>> f, K<Fin, A> ta) 
+        where F : Applicative<F> => 
+        throw new NotImplementedException();
+
+    public static K<Fin, A> Empty<A>() => 
+        throw new NotImplementedException();
+
+    public static K<Fin, A> Or<A>(K<Fin, A> ma, K<Fin, A> mb) => 
         throw new NotImplementedException();
 }
 
@@ -42,7 +55,7 @@ public readonly struct Fin<A> :
     IEquatable<Fin<A>>,
     IEnumerable<A>,
     ISerializable,
-    Monad<Fin, A>
+    K<Fin, A>
 {
     readonly Either<Error, A> either;
 

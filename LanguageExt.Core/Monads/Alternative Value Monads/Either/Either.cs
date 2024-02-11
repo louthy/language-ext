@@ -9,12 +9,10 @@ using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
 using System.Runtime.Serialization;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using LanguageExt.Common;
 using LanguageExt.HKT;
 
 namespace LanguageExt;
-
 
 /// <summary>
 /// Holds one of two values `Left` or `Right`.  Usually, `Left` is considered _wrong_ or _in-error_, and
@@ -46,19 +44,16 @@ public readonly struct Either<L, R> :
     IEquatable<Pure<R>>,
     IEquatable<R>, 
     ISerializable,
-    Monad<Either<L>, R>,
-    Traversable<Either<L>, R>
+    K<Either<L>, R>
 {
     public static readonly Either<L, R> Bottom = new ();
 
-    readonly Thunk? morphism;
     readonly R? right;
     readonly L? left;
 
     internal Either(Transducer<Unit, Sum<L, R>> morphism)
     {
         State = EitherStatus.IsLazy;
-        this.morphism = new Thunk(morphism);
         right = default;
         left = default;
     }
@@ -71,7 +66,6 @@ public readonly struct Either<L, R> :
         State = EitherStatus.IsRight;
         this.right = right;
         left = default;
-        morphism = null;
     }
 
     private Either(L left)
@@ -79,7 +73,6 @@ public readonly struct Either<L, R> :
         State = EitherStatus.IsLeft;
         right = default;
         this.left = left;
-        morphism = null;
     }
 
     Either(SerializationInfo info, StreamingContext context)
@@ -105,51 +98,11 @@ public readonly struct Either<L, R> :
         }
     }
 
-    class Thunk
-    {
-        Transducer<Unit, Sum<L, R>> morphism;
-        Either<L, R> result;
-        volatile int hasRun; 
-
-        public Thunk(Transducer<Unit, Sum<L, R>> morphism) =>
-            this.morphism = morphism;
-
-        public Either<L, R> Run()
-        {
-            SpinWait sw = default;
-            while (hasRun == 0)
-            {
-                if (Interlocked.CompareExchange(ref hasRun, 1, 0) == 0)
-                {
-                    result = morphism.Run1(unit)
-                                     .ToFin()
-                                     .Match(Succ: mx => mx.ToEither(),
-                                            Fail: e => e is L left
-                                                           ? Left<L, R>(left)
-                                                           : e.Throw<Either<L, R>>());
-
-                    hasRun = 1;
-                }
-                sw.SpinOnce();
-            }
-            return result;
-        }
-
-        public static implicit operator Transducer<Unit, Sum<L, R>>(Thunk m) =>
-            m.morphism;
-    }
-
-    public Either<L, R> Strict() =>
-        State == EitherStatus.IsLazy
-            ? morphism!.Run()
-            : this;
-
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-        var e = Strict();
-        info.AddValue("State", e.State);
-        if (e.IsRight) info.AddValue("Right", e.right);
-        if (e.IsLeft) info.AddValue("Left", e.left);
+        info.AddValue("State", State);
+        if (IsRight) info.AddValue("Right", right);
+        if (IsLeft) info.AddValue("Left", left);
     }
 
     /// <summary>
@@ -168,7 +121,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => right,
             EitherStatus.IsLeft  => left,
-            EitherStatus.IsLazy    => Strict().Case,
             _                    => null
         };
 
@@ -190,7 +142,6 @@ public readonly struct Either<L, R> :
         State switch
         {
             EitherStatus.IsRight => true,
-            EitherStatus.IsLazy  => Strict().IsRight,
             _                    => false
         };
 
@@ -202,8 +153,7 @@ public readonly struct Either<L, R> :
         State switch
         {
             EitherStatus.IsLeft => true,
-            EitherStatus.IsLazy  => Strict().IsLeft,
-            _                    => false
+            _                   => false
         };
 
     /// <summary>
@@ -226,7 +176,7 @@ public readonly struct Either<L, R> :
     [Pure]
     public bool IsLazy =>
         State == EitherStatus.IsLazy;
-    
+
     /// <summary>
     /// Is the Either in a Bottom state?
     /// When the Either is filtered, both Right and Left are meaningless.
@@ -245,8 +195,7 @@ public readonly struct Either<L, R> :
         State switch
         {
             EitherStatus.IsBottom => true,
-            EitherStatus.IsLazy  => Strict().IsBottom,
-            _                    => false
+            _                     => false
         };
 
     /// <summary>
@@ -297,7 +246,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Right(right!),
             EitherStatus.IsLeft  => Left(left!),
-            EitherStatus.IsLazy  => Strict().Match(Right, Left, Bottom),
             _                    => Bottom is null ? throw new BottomException() : Bottom()
         };
 
@@ -320,10 +268,6 @@ public readonly struct Either<L, R> :
                 Left(left!);
                 break;
             
-            case EitherStatus.IsLazy:
-                Strict().Match(Right, Left, Bottom);
-                break;
-
             case EitherStatus.IsBottom when Bottom != null:
                 Bottom();
                 break;
@@ -370,7 +314,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => right!,
             EitherStatus.IsLeft  => Left(),
-            EitherStatus.IsLazy  => Strict().IfLeft(Left),
             _                    => throw new BottomException()
         };
 
@@ -386,7 +329,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => right!,
             EitherStatus.IsLeft  => leftMap(left!),
-            EitherStatus.IsLazy  => Strict().IfLeft(leftMap),
             _                    => throw new BottomException()
         };
 
@@ -402,7 +344,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => right!,
             EitherStatus.IsLeft  => rightValue,
-            EitherStatus.IsLazy  => Strict().IfLeft(rightValue),
             _                    => throw new BottomException()
         };
 
@@ -417,10 +358,6 @@ public readonly struct Either<L, R> :
         {
             case EitherStatus.IsLeft:
                 Left(left!);
-                break;
-                
-            case EitherStatus.IsLazy:
-                Strict().IfLeft(Left);
                 break;
         }
         return default;
@@ -438,10 +375,6 @@ public readonly struct Either<L, R> :
             case EitherStatus.IsRight:
                 Right(right!);
                 break;
-                
-            case EitherStatus.IsLazy:
-                Strict().IfRight(Right);
-                break;
         }
         return default;
     }
@@ -458,7 +391,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => leftValue,
             EitherStatus.IsLeft  => left!,
-            EitherStatus.IsLazy  => Strict().IfRight(leftValue),
             _                    => throw new BottomException()
         };
 
@@ -474,7 +406,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Right(),
             EitherStatus.IsLeft  => left!,
-            EitherStatus.IsLazy  => Strict().IfRight(Right),
             _                    => throw new BottomException()
         };
 
@@ -490,7 +421,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => rightMap(right!),
             EitherStatus.IsLeft  => left!,
-            EitherStatus.IsLazy  => Strict().IfRight(rightMap),
             _                    => throw new BottomException()
         };
 
@@ -522,7 +452,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => right is null ? "Right(null)" : $"Right({right})",
             EitherStatus.IsLeft  => left is null ? "Left(null)" : $"Left({left})",
-            EitherStatus.IsLazy  => Strict().ToString(),
             _                    => "Bottom"
         };
 
@@ -539,7 +468,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => right is null ? 0 : HashableDefault<R>.GetHashCode(right),
             EitherStatus.IsLeft  => left is null ? 0 : HashableDefault<L>.GetHashCode(left),
-            EitherStatus.IsLazy  => Strict().GetHashCode(),
             _                    => 0
         };
 
@@ -553,11 +481,6 @@ public readonly struct Either<L, R> :
         if (IsRight)
         {
             yield return RightValue;
-        }
-
-        if (IsLazy)
-        {
-            foreach (var x in Strict()) yield return x;
         }
     }
 
@@ -576,7 +499,6 @@ public readonly struct Either<L, R> :
     [Pure]
     public Transducer<Unit, Sum<L, R>> ToTransducer()
     {
-        if (State == EitherStatus.IsLazy) return morphism!;
         var self = this;
         return State switch
                {
@@ -600,7 +522,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => [],
             EitherStatus.IsLeft  => [left!],
-            EitherStatus.IsLazy  => Strict().LeftToList(),
             _                    => []
         };
 
@@ -614,7 +535,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => [],
             EitherStatus.IsLeft  => [left!],
-            EitherStatus.IsLazy  => Strict().LeftToArray(),
             _                    => []
         };
 
@@ -627,7 +547,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => [right!],
             EitherStatus.IsLeft  => [],
-            EitherStatus.IsLazy  => Strict().ToList(),
             _                    => []
         };
 
@@ -640,7 +559,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => [right!],
             EitherStatus.IsLeft  => [],
-            EitherStatus.IsLazy  => Strict().ToArray(),
             _                    => []
         };
 
@@ -653,7 +571,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => [right!],
             EitherStatus.IsLeft  => [],
-            EitherStatus.IsLazy  => Strict().ToSeq(),
             _                    => []
         };
 
@@ -666,7 +583,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => [],
             EitherStatus.IsLeft  => [left!],
-            EitherStatus.IsLazy  => Strict().LeftToSeq(),
             _                    => []
         };
 
@@ -680,7 +596,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => [right!],
             EitherStatus.IsLeft  => [],
-            EitherStatus.IsLazy  => Strict().RightAsEnumerable(),
             _                    => []
         };
 
@@ -694,7 +609,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => [],
             EitherStatus.IsLeft  => [left!],
-            EitherStatus.IsLazy  => Strict().LeftAsEnumerable(),
             _                    => []
         };
 
@@ -704,7 +618,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Pure(right!),
             EitherStatus.IsLeft  => Fail(left!),
-            EitherStatus.IsLazy  => Strict().ToValidation(),
             _                    => throw new BottomException()
         };
 
@@ -718,7 +631,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Pure(right!),
             EitherStatus.IsLeft  => None,
-            EitherStatus.IsLazy  => Strict().ToOption(),
             _                    => None
         };
 
@@ -731,7 +643,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Pure(right!),
             EitherStatus.IsLeft  => Fail(left!),
-            EitherStatus.IsLazy  => Strict().ToSum(),
             _                    => throw new BottomException()
         };
 
@@ -745,7 +656,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Pure(right!),
             EitherStatus.IsLeft  => Fail(left!),
-            EitherStatus.IsLazy  => Strict().ToIO(),
             _                    => throw new BottomException()
         };
 
@@ -760,7 +670,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Pure(right!),
             EitherStatus.IsLeft  => Fail(Left(left!)),
-            EitherStatus.IsLazy  => Strict().ToEff(Left),
             _                    => throw new BottomException()
         };
 
@@ -1043,12 +952,6 @@ public readonly struct Either<L, R> :
     public static Either<L, R> operator |(Either<L, R> lhs, Either<L, R> rhs) =>
         (lhs.State, rhs.State) switch
         {
-            (EitherStatus.IsLazy, _) =>
-                lhs.Strict() | rhs,
-            
-            (_, EitherStatus.IsLazy) =>
-                lhs | rhs.Strict(),
-            
             (EitherStatus.IsRight, _) =>
                 lhs,
             
@@ -1081,7 +984,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => true,
             EitherStatus.IsLeft  => false,
-            EitherStatus.IsLazy  => value.Strict() is true,
             _                    => false
         };
 
@@ -1094,7 +996,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => false,
             EitherStatus.IsLeft  => true,
-            EitherStatus.IsLazy  => value.Strict() is false,
             _                    => false
         };
 
@@ -1105,8 +1006,6 @@ public readonly struct Either<L, R> :
     public int CompareTo(Either<L, R> other) =>
         (State, other.State) switch
         {
-            (EitherStatus.IsLazy, _)                       => Strict().CompareTo(other),
-            (_, EitherStatus.IsLazy)                       => CompareTo(other.Strict()),
             (EitherStatus.IsRight, EitherStatus.IsRight)   => OrdDefault<R>.Compare(right!, other.RightValue),
             (EitherStatus.IsLeft, EitherStatus.IsLeft)     => OrdDefault<L>.Compare(left!, other.LeftValue),
             (EitherStatus.IsBottom, EitherStatus.IsBottom) => 0,
@@ -1170,8 +1069,6 @@ public readonly struct Either<L, R> :
     public bool Equals(Either<L, R> other) =>
         (State, other.State) switch
         {
-            (EitherStatus.IsLazy, _)                       => Strict().Equals(other),
-            (_, EitherStatus.IsLazy)                       => Equals(other.Strict()),
             (EitherStatus.IsRight, EitherStatus.IsRight)   => EqDefault<R>.Equals(right!, other.RightValue),
             (EitherStatus.IsLeft, EitherStatus.IsLeft)     => EqDefault<L>.Equals(left!, other.LeftValue),
             (EitherStatus.IsBottom, EitherStatus.IsBottom) => true,
@@ -1201,7 +1098,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Right(right),
             EitherStatus.IsLeft  => Left(left),
-            EitherStatus.IsLazy  => Strict().MatchUntyped(Right, Left),
             _                    => throw new BottomException()
         };
 
@@ -1232,7 +1128,6 @@ public readonly struct Either<L, R> :
         State switch
         {
             EitherStatus.IsRight => right!,
-            EitherStatus.IsLazy  => Strict().RightValue,
             _                    => throw new EitherIsNotRightException()
         };
 
@@ -1241,7 +1136,6 @@ public readonly struct Either<L, R> :
         State switch
         {
             EitherStatus.IsLeft => left!,
-            EitherStatus.IsLazy => Strict().LeftValue,
             _                   => throw new EitherIsNotLeftException()
         };
 
@@ -1262,7 +1156,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => 1,
             EitherStatus.IsLeft  => 0,
-            EitherStatus.IsLazy  => Strict().Count(),
             _                    => throw new BottomException()
         };
 
@@ -1276,7 +1169,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Either<R, L>.Left(RightValue),
             EitherStatus.IsLeft  => Either<R, L>.Right(LeftValue),
-            EitherStatus.IsLazy  => Strict().Swap(),
             _                    => Either<R, L>.Bottom
         };
 
@@ -1290,10 +1182,6 @@ public readonly struct Either<L, R> :
         {
             case EitherStatus.IsRight:
                 Right(right!);
-                break;
-
-            case EitherStatus.IsLazy:
-                Strict().Iter(Right);
                 break;
         }
         return default;
@@ -1313,10 +1201,6 @@ public readonly struct Either<L, R> :
 
             case EitherStatus.IsLeft:
                 Left(left!);
-                break;
-
-            case EitherStatus.IsLazy:
-                Strict().BiIter(Left, Right);
                 break;
         }
         return default;
@@ -1338,7 +1222,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Right(right!),
             EitherStatus.IsLeft  => true,
-            EitherStatus.IsLazy  => Strict().ForAll(Right),
             _                    => true
         };
 
@@ -1357,7 +1240,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Right(right!),
             EitherStatus.IsLeft  => Left(left!),
-            EitherStatus.IsLazy  => Strict().BiForAll(Left, Right),
             _                    => true
         };
 
@@ -1382,7 +1264,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Right(state, right!),
             EitherStatus.IsLeft  => state,
-            EitherStatus.IsLazy  => Strict().Fold(state, Right),
             _                    => state
         };
 
@@ -1408,7 +1289,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Right(state, right!),
             EitherStatus.IsLeft  => Left(state, left!),
-            EitherStatus.IsLazy  => Strict().BiFold(state, Left, Right),
             _                    => state
         };
 
@@ -1426,7 +1306,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => pred(right!),
             EitherStatus.IsLeft  => false,
-            EitherStatus.IsLazy  => Strict().Exists(pred),
             _                    => false
         };
 
@@ -1445,7 +1324,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Right(right!),
             EitherStatus.IsLeft  => Left(left!),
-            EitherStatus.IsLazy  => Strict().BiExists(Left, Right),
             _                    => false
         };
 
@@ -1596,8 +1474,8 @@ public readonly struct Either<L, R> :
     /// <param name="f"></param>
     /// <returns>Bound Either</returns>
     [Pure]
-    public Either<L, B> Bind<B>(Func<R, Monad<Either<L>, B>> f) =>
-        Bind(x => (Either<L, B>)f(x));
+    public Either<L, B> Bind<B>(Func<R, K<Either<L>, B>> f) =>
+        Bind(x => f(x).As());
 
     /// <summary>
     /// Monadic bind
@@ -1608,8 +1486,8 @@ public readonly struct Either<L, R> :
     /// <param name="f"></param>
     /// <returns>Bound Either</returns>
     [Pure]
-    public Either<L, B> Bind<B>(Transducer<R, Monad<Either<L>, B>> f) =>
-        Bind(f.Map(mb => (Either<L, B>)mb));
+    public Either<L, B> Bind<B>(Transducer<R, K<Either<L>, B>> f) =>
+        Bind(f.Map(mb => mb.As()));
 
     /// <summary>
     /// Bi-bind.  Allows mapping of both monad states
@@ -1813,7 +1691,7 @@ public readonly struct EitherContext<L, R, Ret>
 
     internal EitherContext(Either<L, R> either, Func<R, Ret> rightHandler)
     {
-        this.either = either.Strict();
+        this.either = either;
         this.rightHandler = rightHandler;
     }
 
@@ -1837,7 +1715,7 @@ public readonly struct EitherUnitContext<L, R>
 
     internal EitherUnitContext(Either<L, R> either, Action<R> rightHandler)
     {
-        this.either = either.Strict();
+        this.either = either;
         this.rightHandler = rightHandler;
     }
 

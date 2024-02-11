@@ -15,19 +15,7 @@ namespace LanguageExt;
 /// </summary>
 public static class EitherExtensions
 {
-    public static Either<L, R> As<L, R>(this Monad<Either<L>, R> ma) =>
-        (Either<L, R>)ma;
-    
-    public static Either<L, R> As<L, R>(this Applicative<Either<L>, R> ma) =>
-        (Either<L, R>)ma;
-
-    public static Either<L, R> As<L, R>(this Functor<Either<L>, R> ma) =>
-        (Either<L, R>)ma;
-
-    public static Either<L, R> As<L, R>(this Foldable<Either<L>, R> ma) =>
-        (Either<L, R>)ma;
-
-    public static Either<L, R> As<L, R>(this Traversable<Either<L>, R> ma) =>
+    public static Either<L, R> As<L, R>(this K<Either<L>, R> ma) =>
         (Either<L, R>)ma;
  
     /// <summary>

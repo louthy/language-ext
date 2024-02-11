@@ -7,19 +7,23 @@ namespace LanguageExt.HKT;
 /// </summary>
 public static class Applicative
 {
-    public static Applicative<F, A> pure<F, A>(A value) 
+    public static K<F, A> pure<F, A>(A value) 
         where F : Applicative<F> =>
         F.Pure(value);
 
-    public static Applicative<F, B> apply<F, A, B>(Applicative<F, Transducer<A, B>> mf, Applicative<F, A> ma)
+    public static K<F, B> apply<F, A, B>(K<F, Func<A, B>> mf, K<F, A> ma)
         where F : Applicative<F> =>
         F.Apply(mf, ma);
 
-    public static Applicative<F, B> apply<F, A, B>(Applicative<F, Func<A, B>> mf, Applicative<F, A> ma)
+    public static K<F, Func<B, C>> apply<F, A, B, C>(K<F, Func<A, B, C>> mf, K<F, A> ma)
         where F : Applicative<F> =>
-        F.Apply(mf, ma);
+        F.Apply(F.Map(Prelude.curry, mf), ma);
+
+    public static K<F, C> apply<F, A, B, C>(K<F, Func<A, B, C>> mf, K<F, A> ma, K<F, B> mb)
+        where F : Applicative<F> =>
+        F.Apply(F.Apply(F.Map(Prelude.curry, mf), ma), mb);
     
-    public static Applicative<F, B> action<F, A, B>(Applicative<F, A> ma, Applicative<F, B> mb)
+    public static K<F, B> action<F, A, B>(K<F, A> ma, K<F, B> mb)
         where F : Applicative<F> =>
         F.Action(ma, mb);
 }
