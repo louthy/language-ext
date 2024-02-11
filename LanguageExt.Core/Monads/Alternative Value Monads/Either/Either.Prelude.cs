@@ -481,20 +481,6 @@ public static partial class Prelude
         either.BiMap(Left, Right);
 
     /// <summary>
-    /// Partial application map
-    /// </summary>
-    [Pure]
-    public static Either<L, Func<T2, R>> parmap<L, T1, T2, R>(Either<L, T1> either, Func<T1, T2, R> func) =>
-        either.ParMap(func);
-
-    /// <summary>
-    /// Partial application map
-    /// </summary>
-    [Pure]
-    public static Either<L, Func<T2, Func<T3, R>>> parmap<L, T1, T2, T3, R>(Either<L, T1> either, Func<T1, T2, T3, R> func) =>
-        either.ParMap(func);
-
-    /// <summary>
     /// Filter the Either
     /// </summary>
     /// <remarks>

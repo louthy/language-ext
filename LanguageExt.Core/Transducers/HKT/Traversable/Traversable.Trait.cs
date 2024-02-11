@@ -2,8 +2,8 @@ using System;
 
 namespace LanguageExt.HKT;
 
-public interface Traversable<T> : Functor<T>//, Foldable<T> 
-    where T : Traversable<T>, Functor<T>//, Foldable<T>
+public interface Traversable<T> : Functor<T>, Foldable<T> 
+    where T : Traversable<T>, Functor<T>, Foldable<T>
 {
     public static virtual Applicative<F, Traversable<T, B>> Traverse<F, A, B>(
         Func<A, Applicative<F, B>> f,
@@ -36,5 +36,5 @@ public interface Traversable<T> : Functor<T>//, Foldable<T>
         Functor.map(f, ma).AsTraversable();
 }
 
-public interface Traversable<T, A> : Functor<T, A> //, Foldable<T, A>
-    where T : Functor<T>;//, Foldable<T>;
+public interface Traversable<T, A> : Functor<T, A>, Foldable<T, A>
+    where T : Functor<T>, Foldable<T>;

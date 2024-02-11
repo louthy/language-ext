@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Diagnostics.Contracts;
+﻿using System.Diagnostics.Contracts;
 using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses;
@@ -18,5 +17,5 @@ public interface Monoid<A> : Semigroup<A>
     /// Identity
     /// <summary>
     [Pure]
-    public static abstract A Empty();
+    public static abstract A Empty { get; }
 }

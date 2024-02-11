@@ -37,6 +37,12 @@ public class Either<L> : Monad<Either<L>>, Traversable<Either<L>>
         Traversable<Either<L>, A> ta)
         where F : Applicative<F> =>
         ta.As()
-          .Match(Right: r => F.Map(x => (Traversable<Either<L>, B>)Either<L, B>.Right(x), f(r)).AsApplicative(),
-                 Left:  l => F.Pure((Traversable<Either<L>, B>)Either<L, B>.Left(l)));
+          .Match(Right: r => F.Map(x => Either<L, B>.Right(x).AsTraversable(), f(r)).AsApplicative(),
+                 Left:  l => F.Pure(Either<L, B>.Left(l).AsTraversable()));
+
+    public static S Fold<A, S>(Func<A, S, S> f, S initialState, Foldable<Either<L>, A> ta) => 
+        ta.As().Match(Right: r => f(r, initialState), Left: _ => initialState);
+
+    public static B FoldBack<A, B>(Func<B, A, B> f, B initialState, Foldable<Either<L>, A> ta) => 
+        ta.As().Match(Right: r => f(initialState, r), Left: _ => initialState);
 }
