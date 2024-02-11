@@ -19,6 +19,6 @@ public struct MChange<A> : Monoid<Change<A>>
             _                                                      => y 
         };
 
-    public static Change<A> Empty() => 
+    public static Change<A> Empty => 
         Change<A>.None;
 }

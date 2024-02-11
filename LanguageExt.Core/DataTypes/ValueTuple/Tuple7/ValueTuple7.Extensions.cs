@@ -99,22 +99,6 @@ public static class ValueTuple7Extensions
         (self.Item2, self.Item3, self.Item4, self.Item5, self.Item6, self.Item7);
 
     /// <summary>
-    /// Sum of the items
-    /// </summary>
-    [Pure]
-    public static A Sum<NUM, A>(this (A, A, A, A, A, A, A) self)
-        where NUM : Num<A> =>
-        TypeClass.sum<NUM, FoldTuple<A>, (A, A, A, A, A, A, A), A>(self);
-
-    /// <summary>
-    /// Product of the items
-    /// </summary>
-    [Pure]
-    public static A Product<NUM, A>(this(A, A, A, A, A, A, A) self)
-        where NUM : Num<A> =>
-        TypeClass.product<NUM, FoldTuple<A>, (A, A, A, A, A, A, A), A>(self);
-
-    /// <summary>
     /// One of the items matches the value passed
     /// </summary>
     [Pure]

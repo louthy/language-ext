@@ -13,5 +13,5 @@ public struct TArray<A> : Monoid<A[]>
         x.ConcatFast(y).ToArray();
 
     [Pure]
-    public static A[] Empty() => emp;
+    public static A[] Empty => emp;
 }

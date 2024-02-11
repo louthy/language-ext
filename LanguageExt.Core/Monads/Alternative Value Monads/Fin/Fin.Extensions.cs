@@ -5,6 +5,7 @@ using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
 using LanguageExt.Common;
+using LanguageExt.HKT;
 
 namespace LanguageExt;
 
@@ -13,6 +14,9 @@ namespace LanguageExt;
 /// </summary>
 public static class FinExtensions
 {
+    public static Fin<A> As<A>(this K<Fin, A> ma) =>
+        (Fin<A>)ma;
+    
     /// <summary>
     /// Natural transformation from `Either` to `Fin`
     /// </summary>

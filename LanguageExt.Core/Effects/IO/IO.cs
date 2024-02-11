@@ -16,12 +16,14 @@ namespace LanguageExt;
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="E">Error value type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly struct IO<E, A> : K<,>
+public readonly struct IO<E, A> : K<MIO<E>, A>
 {
     /// <summary>
     /// Underlying transducer that captures all of the IO behaviour 
     /// </summary>
     readonly IO<MinRT<E>, E, A> effect;
+
+    public K<MIO<E>, A> Kind => this;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -649,6 +651,17 @@ public readonly struct IO<E, A> : K<,>
     [Pure, MethodImpl(Opt.Default)]
     public IO<E, B> Bind<B>(Func<A, IO<E, B>> f) =>
         new(Transducer.bind(Morphism, x => f(x).Morphism));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+    /// function provided; which in turn returns a new IO monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public IO<E, B> Bind<B>(Func<A, K<MIO<E>, B>> f) =>
+        new(Transducer.bind(Morphism, x => f(x).As().Morphism));
 
     /// <summary>
     /// Monadic bind operation.  This runs the current IO monad and feeds its result to the

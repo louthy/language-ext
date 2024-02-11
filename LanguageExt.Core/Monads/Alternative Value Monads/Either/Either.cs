@@ -51,16 +51,6 @@ public readonly struct Either<L, R> :
     readonly R? right;
     readonly L? left;
 
-    internal Either(Transducer<Unit, Sum<L, R>> morphism)
-    {
-        State = EitherStatus.IsLazy;
-        right = default;
-        left = default;
-    }
-
-    internal Either(Transducer<Unit, R> morphism) : this(morphism.Map(Sum<L, R>.Right))
-    { }
-
     private Either(R right)
     {
         State = EitherStatus.IsRight;
@@ -155,27 +145,6 @@ public readonly struct Either<L, R> :
             EitherStatus.IsLeft => true,
             _                   => false
         };
-
-    /// <summary>
-    /// Is the Either in a Lazy state
-    /// </summary>
-    /// <remarks>
-    /// Lazy means its internal computation is evaluated on-demand and when a concrete
-    /// non-Either value needs to be computed (i.e. when Match is called).
-    /// 
-    /// If it is not lazy then this is a pure data type and the value is always ready
-    /// to be read without any additional computation.
-    ///
-    /// Note, the only way this type can get into a lazy state is:
-    ///
-    ///     * If we lift a transducer into an Either
-    ///     * Or, if an Either value is lifted into a monad-transformer
-    ///
-    /// If you don't do any of these things then it will be 'strict'. 
-    /// </remarks>
-    [Pure]
-    public bool IsLazy =>
-        State == EitherStatus.IsLazy;
 
     /// <summary>
     /// Is the Either in a Bottom state?
@@ -1350,25 +1319,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => f(right!),
             EitherStatus.IsLeft  => left!,
-            EitherStatus.IsLazy  => compose(ToTransducer(), mapRight<L, R, Ret>(f)),
-            _                    => Either<L, Ret>.Bottom
-        };
-
-    /// <summary>
-    /// Maps the value in the Either if it's in a Right state
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <typeparam name="Ret">Mapped Either type</typeparam>
-    /// <param name="f">Map function</param>
-    /// <returns>Mapped Either</returns>
-    [Pure]
-    public Either<L, Ret> Map<Ret>(Transducer<R, Ret> f) =>
-        State switch
-        {
-            EitherStatus.IsRight => ToTransducer().MapRight(f),
-            EitherStatus.IsLeft  => left!,
-            EitherStatus.IsLazy  => compose(ToTransducer(), mapRight<L, R, Ret>(f)),
             _                    => Either<L, Ret>.Bottom
         };
 
@@ -1386,25 +1336,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => right!,
             EitherStatus.IsLeft  => f(left!),
-            EitherStatus.IsLazy  => compose(ToTransducer(), mapLeft<L, Ret, R>(f)),
-            _                    => Either<Ret, R>.Bottom
-        };
-
-    /// <summary>
-    /// Maps the value in the Either if it's in a Left state
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <typeparam name="Ret">Mapped Either type</typeparam>
-    /// <param name="f">Map function</param>
-    /// <returns>Mapped Either</returns>
-    [Pure]
-    public Either<Ret, R> MapLeft<Ret>(Transducer<L, Ret> f) =>
-        State switch
-        {
-            EitherStatus.IsRight => right!,
-            EitherStatus.IsLeft  => ToTransducer().MapLeft(f),
-            EitherStatus.IsLazy  => compose(ToTransducer(), mapLeft<L, Ret, R>(f)),
             _                    => Either<Ret, R>.Bottom
         };
 
@@ -1424,7 +1355,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Right(right!),
             EitherStatus.IsLeft  => Left(left!),
-            EitherStatus.IsLazy  => compose(ToTransducer(), bimap(Left, Right)),
             _                    => Either<L2, R2>.Bottom
         };
 
@@ -1442,26 +1372,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => f(right!),
             EitherStatus.IsLeft  => left!,
-            EitherStatus.IsLazy  => compose(ToTransducer(), 
-                                            mapRight<L, R, Transducer<Unit, Sum<L, B>>>(x => f(x).ToTransducer())).Flatten(),
-            _                    => Either<L, B>.Bottom
-        };
-
-    /// <summary>
-    /// Monadic bind
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <typeparam name="B"></typeparam>
-    /// <param name="f"></param>
-    /// <returns>Bound Either</returns>
-    [Pure]
-    public Either<L, B> Bind<B>(Transducer<R, Either<L, B>> f) =>
-        State switch
-        {
-            EitherStatus.IsRight => compose(pure(right!), f.Map(x => x.ToSum())),
-            EitherStatus.IsLeft  => left!,
-            EitherStatus.IsLazy  => compose(ToTransducer(), mapRight<L, R, Sum<L, B>>(f.Map(x => x.ToSum()))).Map(x => x.Flatten()),
             _                    => Either<L, B>.Bottom
         };
 
@@ -1478,18 +1388,6 @@ public readonly struct Either<L, R> :
         Bind(x => f(x).As());
 
     /// <summary>
-    /// Monadic bind
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <typeparam name="B"></typeparam>
-    /// <param name="f"></param>
-    /// <returns>Bound Either</returns>
-    [Pure]
-    public Either<L, B> Bind<B>(Transducer<R, K<Either<L>, B>> f) =>
-        Bind(f.Map(mb => mb.As()));
-
-    /// <summary>
     /// Bi-bind.  Allows mapping of both monad states
     /// </summary>
     [Pure]
@@ -1498,10 +1396,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Right(right!),
             EitherStatus.IsLeft  => Left(left!),
-            EitherStatus.IsLazy  => compose(ToTransducer(), 
-                                            bimap<L, Transducer<Unit, Sum<L2, R2>>, R, Transducer<Unit, Sum<L2, R2>>>(
-                                                Left: x => Left(x).ToTransducer(),
-                                                Right: x => Right(x).ToTransducer())).Flatten(),
             _                    => Either<L2, R2>.Bottom
         };
 
@@ -1533,7 +1427,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => pred(right!) ? this : Bottom,
             EitherStatus.IsLeft  => left!,
-            EitherStatus.IsLazy  => Bind(x => pred(x) ? Right(x) : Bottom),
             _                    => this
         };
 
@@ -1580,7 +1473,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => Bind(x => bind(x).Map(y => project(x, y))),
             EitherStatus.IsLeft  => left!,
-            EitherStatus.IsLazy  => Bind(x => bind(x).Map(y => project(x, y))),
             _                    => Either<L, T>.Bottom
         };
 
@@ -1589,15 +1481,14 @@ public readonly struct Either<L, R> :
     /// </summary>
     /// <returns>Bound Either</returns>
     [Pure]
-    public Either<L, T> SelectMany<S, T>(Func<R, Transducer<Unit, S>> bind, Func<R, S, T> project) =>
+    public Either<L, T> SelectMany<S, T>(Func<R, K<Either<L>, S>> bind, Func<R, S, T> project) =>
         State switch
         {
-            EitherStatus.IsRight => Bind(r => new Either<L, T>(compose(bind(r), lift(curry(project)(r))))),
+            EitherStatus.IsRight => Bind(x => bind(x).As().Map(y => project(x, y))),
             EitherStatus.IsLeft  => left!,
-            EitherStatus.IsLazy  => Bind(r => new Either<L, T>(compose(bind(r), lift(curry(project)(r))))),
             _                    => Either<L, T>.Bottom
         };
-        
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
     // `Pure` and `Fail` support
@@ -1644,10 +1535,6 @@ public readonly struct Either<L, R> :
     [Pure]
     public static implicit operator Either<L, R>(Fail<L> mr) =>
         Left(mr.Value);
-
-    [Pure]
-    public static implicit operator Either<L, R>(Transducer<Unit, Sum<L, R>> t) =>
-        new (t);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -1679,6 +1566,9 @@ public readonly struct Either<L, R> :
     [Obsolete(Change.UseToSeqInstead)]
     public Seq<R> RightToSeq() =>
         ToSeq();
+
+    public K<Either<L>, R> Kind =>
+        this;
 }
 
 /// <summary>

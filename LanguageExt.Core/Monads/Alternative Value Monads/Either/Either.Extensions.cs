@@ -188,9 +188,8 @@ public static class EitherExtensions
     [Pure]
     public static IEnumerable<L> Lefts<L, R>(this IEnumerable<Either<L, R>> self)
     {
-        foreach (var x in self)
+        foreach (var item in self)
         {
-            var item = x.Strict();
             if (item.IsLeft)
             {
                 yield return item.LeftValue;
@@ -221,9 +220,8 @@ public static class EitherExtensions
     [Pure]
     public static IEnumerable<R> Rights<L, R>(this IEnumerable<Either<L, R>> self)
     {
-        foreach (var x in self)
+        foreach (var item in self)
         {
-            var item = x.Strict();
             if (item.IsRight)
             {
                 yield return item.RightValue;
@@ -258,9 +256,8 @@ public static class EitherExtensions
     {
         var ls = new List<L>();
         var rs = new List<R>();
-        foreach (var x in self)
+        foreach (var item in self)
         {
-            var item = x.Strict();
             if (item.IsRight) rs.Add(item.RightValue);
             if (item.IsLeft) ls.Add(item.LeftValue);
         }
@@ -378,7 +375,6 @@ public static class EitherExtensions
         {
             EitherStatus.IsRight => Pure(ma.RightValue),
             EitherStatus.IsLeft  => Fail(ma.LeftValue),
-            EitherStatus.IsLazy  => Eff<R>.Lift(Transducer.compose(Transducer.constant<MinRT, Unit>(default), ma.ToTransducer())),
             _                    => default // bottom
         };
 

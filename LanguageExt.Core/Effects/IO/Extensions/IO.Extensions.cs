@@ -1,10 +1,14 @@
 using System;
 using LanguageExt.Effects;
+using LanguageExt.HKT;
 
 namespace LanguageExt;
 
 public static partial class IOExtensions
 {
+    public static IO<E, A> As<E, A>(this K<MIO<E>, A> ma) =>
+        (IO<E, A>)ma;
+    
     /// <summary>
     /// Lift transducer into an effect monad
     /// </summary>

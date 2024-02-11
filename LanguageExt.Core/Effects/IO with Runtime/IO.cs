@@ -5,7 +5,6 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using LanguageExt.Effects;
 using LanguageExt.Effects.Traits;
 using LanguageExt.HKT;
 
@@ -17,13 +16,15 @@ namespace LanguageExt;
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="E">Error value type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly struct IO<RT, E, A> : K<,>
+public readonly struct IO<RT, E, A> : K<MIO<RT, E>, A>
     where RT : HasIO<RT, E>
 {
     /// <summary>
     /// Underlying transducer that captures all of the IO behaviour 
     /// </summary>
     readonly Transducer<RT, Sum<E, A>> thunk;
+    
+    public K<MIO<RT, E>, A> Kind => this;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -599,6 +600,16 @@ public readonly struct IO<RT, E, A> : K<,>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     public IO<RT, E, B> Bind<B>(Func<A, IO<RT, E, B>> f) =>
         new(Transducer.bind(Morphism, x => f(x).Morphism));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
+    /// function provided; which in turn returns a new IO monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    public IO<RT, E, B> Bind<B>(Func<A, K<MIO<RT, E>, B>> f) =>
+        new(Transducer.bind(Morphism, x => f(x).As().Morphism));
 
     /// <summary>
     /// Monadic bind operation.  This runs the current IO monad and feeds its result to the

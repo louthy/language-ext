@@ -182,7 +182,7 @@ public static class List
     [Pure]
     public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail) =>
         list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq1(fail)))
+            .DefaultIfEmpty(Validation<Fail, Success>.Fail([fail]))
             .FirstOrDefault();
 
     /// <summary>
@@ -247,7 +247,7 @@ public static class List
     [Pure]
     public static Validation<Fail, Success> lastOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail) =>
         list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Seq1(fail)))
+            .DefaultIfEmpty(Validation<Fail, Success>.Fail([fail]))
             .LastOrDefault();
 
     /// <summary>
@@ -1254,17 +1254,7 @@ public static class List
     /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
     [Pure]
     public static IEnumerable<B> apply<A, B>(IEnumerable<Func<A, B>> fabc, IEnumerable<A> fa) =>
-        ApplEnumerable<A, B>.Apply(fabc, fa);
-
-    /// <summary>
-    /// Apply an IEnumerable of values to an IEnumerable of functions
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable of argument values</param>
-    /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
-    [Pure]
-    public static IEnumerable<B> apply<A, B>(Func<A, B> fabc, IEnumerable<A> fa) =>
-        ApplEnumerable<A, B>.Apply(new[] { fabc }, fa);
+        fabc.Apply(fa);
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1275,18 +1265,7 @@ public static class List
     /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
     [Pure]
     public static IEnumerable<Func<B, C>> apply<A, B, C>(IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa) =>
-        ApplEnumerable<A, B, C>.Apply(fabc.Map(curry), fa);
-
-    /// <summary>
-    /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable argument values</param>
-    /// <returns>Returns the result of applying the IEnumerable of argument values to the 
-    /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
-    [Pure]
-    public static IEnumerable<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, IEnumerable<A> fa) =>
-        ApplEnumerable<A, B, C>.Apply(new[] { curry(fabc) }, fa);
+        fabc.Apply(fa);
 
     /// <summary>
     /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1296,19 +1275,8 @@ public static class List
     /// <param name="fb">IEnumerable argument values</param>
     /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
     [Pure]
-    public static IEnumerable<C> apply<A, B, C>( IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplEnumerable<A, B, C>.Apply(fabc.Map(curry), fa, fb);
-
-    /// <summary>
-    /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable argument values</param>
-    /// <param name="fb">IEnumerable argument values</param>
-    /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
-    [Pure]
-    public static IEnumerable<C> apply<A, B, C>(Func<A, B, C> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplEnumerable<A, B, C>.Apply(new[] { curry(fabc) }, fa, fb);
+    public static IEnumerable<C> apply<A, B, C>(IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
+        fabc.Apply(fa, fb);
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1319,18 +1287,7 @@ public static class List
     /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
     [Pure]
     public static IEnumerable<Func<B, C>> apply<A, B, C>(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa) =>
-        ApplEnumerable<A, B, C>.Apply(fabc, fa);
-
-    /// <summary>
-    /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable argument values</param>
-    /// <returns>Returns the result of applying the IEnumerable of argument values to the 
-    /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
-    [Pure]
-    public static IEnumerable<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, IEnumerable<A> fa) =>
-        ApplEnumerable<A, B, C>.Apply(new[] { fabc }, fa);
+        fabc.Apply(fa);
 
     /// <summary>
     /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
@@ -1341,18 +1298,7 @@ public static class List
     /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
     [Pure]
     public static IEnumerable<C> apply<A, B, C>(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplEnumerable<A, B, C>.Apply(fabc, fa, fb);
-
-    /// <summary>
-    /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">IEnumerable of functions</param>
-    /// <param name="fa">IEnumerable argument values</param>
-    /// <param name="fb">IEnumerable argument values</param>
-    /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
-    [Pure]
-    public static IEnumerable<C> apply<A, B, C>(Func<A, Func<B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplEnumerable<A, B, C>.Apply(new[] { fabc }, fa, fb);
+        fabc.Apply(fa, fb);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -1362,8 +1308,7 @@ public static class List
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static IEnumerable<B> action<A, B>(IEnumerable<A> fa, IEnumerable<B> fb) =>
-        ApplEnumerable<A, B>.Action(fa, fb);
-
+        fa.Action(fb);
 
     /// <summary>
     /// The tails function returns all final segments of the argument, longest first. For example,

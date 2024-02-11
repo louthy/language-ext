@@ -17,5 +17,5 @@ namespace LanguageExt.HKT;
 /// <typeparam name="A">Bound value type</typeparam>
 public interface K<in F, out A>
 {
-    public virtual K<F, A> K => this;
+    K<F, A> Kind { get; }
 }

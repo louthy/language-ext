@@ -84,22 +84,6 @@ public static partial class Prelude
         Tuple(self.Item2, self.Item3, self.Item4);
 
     /// <summary>
-    /// Sum of the items
-    /// </summary>
-    [Pure]
-    public static A sum<NUM, A>(Tuple<A, A, A, A> self)
-        where NUM : Num<A> =>
-        TypeClass.sum<NUM, FoldTuple<A>, Tuple<A, A, A, A>, A>(self);
-
-    /// <summary>
-    /// Product of the items
-    /// </summary>
-    [Pure]
-    public static A product<NUM, A>(Tuple<A, A, A, A> self)
-        where NUM : Num<A> =>
-        TypeClass.product<NUM, FoldTuple<A>, Tuple<A, A, A, A>, A>(self);
-
-    /// <summary>
     /// One of the items matches the value passed
     /// </summary>
     [Pure]

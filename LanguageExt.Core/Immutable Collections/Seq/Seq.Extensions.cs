@@ -1,17 +1,22 @@
 ﻿#pragma warning disable CS0693 // Type parameter has the same name as the type parameter from outer type
 
-using LanguageExt;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using LanguageExt.HKT;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 
+namespace LanguageExt;
+
 public static class SeqExtensions
 {
+    public static Seq<A> As<A>(this K<Seq, A> xs) =>
+        (Seq<A>)xs;
+    
     /// <summary>
     /// Monadic join
     /// </summary>
@@ -52,7 +57,7 @@ public static class SeqExtensions
     /// <returns>Mapped and filtered sequence</returns>
     [Pure]
     public static Seq<B> Choose<A, B>(this Seq<A> list, Func<A, Option<B>> selector) =>
-        LanguageExt.Seq.choose(list, selector);
+        Seq.choose(list, selector);
 
     /// <summary>
     /// Applies the given function 'selector' to each element of the sequence. Returns the 
@@ -65,7 +70,7 @@ public static class SeqExtensions
     /// <returns>Mapped and filtered sequence</returns>
     [Pure]
     public static Seq<B> Choose<A, B>(this Seq<A> list, Func<int, A, Option<B>> selector) =>
-        LanguageExt.Seq.choose(list, selector);
+        Seq.choose(list, selector);
 
     /// <summary>
     /// Returns the sum total of all the items in the list (Sum in LINQ)
@@ -83,7 +88,7 @@ public static class SeqExtensions
     /// <returns>Sum total</returns>
     [Pure]
     public static int Sum(this Seq<int> list) =>
-        LanguageExt.Seq.sum(list);
+        Seq.sum(list);
 
     /// <summary>
     /// Returns the sum total of all the items in the list (Sum in LINQ)
@@ -92,7 +97,7 @@ public static class SeqExtensions
     /// <returns>Sum total</returns>
     [Pure]
     public static float Sum(this Seq<float> list) =>
-        LanguageExt.Seq.sum(list);
+        Seq.sum(list);
 
     /// <summary>
     /// Returns the sum total of all the items in the list (Sum in LINQ)
@@ -101,7 +106,7 @@ public static class SeqExtensions
     /// <returns>Sum total</returns>
     [Pure]
     public static double Sum(this Seq<double> list) =>
-        LanguageExt.Seq.sum(list);
+        Seq.sum(list);
 
     /// <summary>
     /// Returns the sum total of all the items in the list (Sum in LINQ)
@@ -110,7 +115,7 @@ public static class SeqExtensions
     /// <returns>Sum total</returns>
     [Pure]
     public static decimal Sum(this Seq<decimal> list) =>
-        LanguageExt.Seq.sum(list);
+        Seq.sum(list);
 
     /// <summary>
     /// Reverses the sequence (Reverse in LINQ)
@@ -120,7 +125,7 @@ public static class SeqExtensions
     /// <returns>Reversed sequence</returns>
     [Pure]
     public static Seq<T> Rev<T>(this Seq<T> list) =>
-        LanguageExt.Seq.rev(list);
+        Seq.rev(list);
 
     /// <summary>
     /// Concatenate two sequences (Concat in LINQ)
@@ -131,7 +136,7 @@ public static class SeqExtensions
     /// <returns>Concatenated sequence</returns>
     [Pure]
     public static Seq<T> Append<T>(this Seq<T> lhs, Seq<T> rhs) =>
-        LanguageExt.Seq.append(lhs, rhs);
+        Seq.append(lhs, rhs);
 
     /// <summary>
     /// Concatenate a sequence and a sequence of sequences
@@ -142,7 +147,7 @@ public static class SeqExtensions
     /// <returns>Concatenated list</returns>
     [Pure]
     public static Seq<T> Append<T>(this Seq<T> x, Seq<Seq<T>> xs) =>
-        LanguageExt.Seq.append(x, xs);
+        Seq.append(x, xs);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence whilst the predicate function 
@@ -160,7 +165,7 @@ public static class SeqExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldWhile<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
-        LanguageExt.Seq.foldWhile(list, state, folder, preditem: preditem);
+        Seq.foldWhile(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence, threading an accumulator 
@@ -178,7 +183,7 @@ public static class SeqExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldWhile<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
-        LanguageExt.Seq.foldWhile(list, state, folder, predstate: predstate);
+        Seq.foldWhile(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence (from last element to first)
@@ -197,7 +202,7 @@ public static class SeqExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldBackWhile<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
-        LanguageExt.Seq.foldBackWhile(list, state, folder, preditem: preditem);
+        Seq.foldBackWhile(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence (from last element to first), 
@@ -216,7 +221,7 @@ public static class SeqExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldBackWhile<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
-        LanguageExt.Seq.foldBackWhile(list, state, folder, predstate: predstate);
+        Seq.foldBackWhile(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence whilst the predicate function 
@@ -234,7 +239,7 @@ public static class SeqExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldUntil<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
-        LanguageExt.Seq.foldUntil(list, state, folder, preditem: preditem);
+        Seq.foldUntil(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence, threading an accumulator 
@@ -252,7 +257,7 @@ public static class SeqExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldUntil<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
-        LanguageExt.Seq.foldUntil(list, state, folder, predstate: predstate);
+        Seq.foldUntil(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence (from last element to first)
@@ -271,7 +276,7 @@ public static class SeqExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldBackUntil<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<T, bool> preditem) =>
-        LanguageExt.Seq.foldBackUntil(list, state, folder, preditem: preditem);
+        Seq.foldBackUntil(list, state, folder, preditem: preditem);
 
     /// <summary>
     /// Applies a function 'folder' to each element of the sequence (from last element to first), 
@@ -290,7 +295,7 @@ public static class SeqExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static S FoldBackUntil<S, T>(this Seq<T> list, S state, Func<S, T, S> folder, Func<S, bool> predstate) =>
-        LanguageExt.Seq.foldBackUntil(list, state, folder, predstate: predstate);
+        Seq.foldBackUntil(list, state, folder, predstate: predstate);
 
     /// <summary>
     /// Applies a function to each element of the sequence, threading 
@@ -304,7 +309,7 @@ public static class SeqExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static T Reduce<T>(this Seq<T> list, Func<T, T, T> reducer) =>
-        LanguageExt.Seq.reduce(list, reducer);
+        Seq.reduce(list, reducer);
 
     /// <summary>
     /// Applies a function to each element of the sequence (from last element to first), threading an accumulator argument 
@@ -318,7 +323,7 @@ public static class SeqExtensions
     /// <returns>Aggregate value</returns>
     [Pure]
     public static T ReduceBack<T>(this Seq<T> list, Func<T, T, T> reducer) =>
-        LanguageExt.Seq.reduceBack(list, reducer);
+        Seq.reduceBack(list, reducer);
 
     /// <summary>
     /// Applies a function to each element of the sequence, threading an accumulator argument 
@@ -335,7 +340,7 @@ public static class SeqExtensions
     /// <returns>Aggregate state</returns>
     [Pure]
     public static Seq<S> Scan<S, T>(this Seq<T> list, S state, Func<S, T, S> folder) =>
-        LanguageExt.Seq.scan(list, state, folder);
+        Seq.scan(list, state, folder);
 
     /// <summary>
     /// Applies a function to each element of the sequence (from last element to first), 
@@ -352,7 +357,7 @@ public static class SeqExtensions
     /// <returns>Aggregate state</returns>
     [Pure]
     public static Seq<S> ScanBack<S, T>(this Seq<T> list, S state, Func<S, T, S> folder) =>
-        LanguageExt.Seq.scanBack(list, state, folder);
+        Seq.scanBack(list, state, folder);
 
     /// <summary>
     /// Returns Some(x) for the first item in the sequence that matches the predicate 
@@ -365,7 +370,7 @@ public static class SeqExtensions
     /// provided, None otherwise.</returns>
     [Pure]
     public static Option<T> Find<T>(this Seq<T> list, Func<T, bool> pred) =>
-        LanguageExt.Seq.find(list, pred);
+        Seq.find(list, pred);
 
     /// <summary>
     /// Returns [x] for the first item in the sequence that matches the predicate 
@@ -378,7 +383,7 @@ public static class SeqExtensions
     /// provided, [] otherwise.</returns>
     [Pure]
     public static Seq<T> FindSeq<T>(this Seq<T> list, Func<T, bool> pred) =>
-        LanguageExt.Seq.findSeq(list, pred);
+        Seq.findSeq(list, pred);
 
     /// <summary>
     /// Joins two sequences together either into a single sequence using the join 
@@ -411,7 +416,7 @@ public static class SeqExtensions
     /// <param name="action">Action to invoke with each item</param>
     /// <returns>Unit</returns>
     public static Unit Iter<T>(this Seq<T> list, Action<T> action) =>
-        LanguageExt.Seq.iter(list, action);
+        Seq.iter(list, action);
 
     /// <summary>
     /// Invokes an action for each item in the sequence in order and supplies
@@ -422,7 +427,7 @@ public static class SeqExtensions
     /// <param name="action">Action to invoke with each item</param>
     /// <returns>Unit</returns>
     public static Unit Iter<T>(this Seq<T> list, Action<int, T> action) =>
-        LanguageExt.Seq.iter(list, action);
+        Seq.iter(list, action);
 
     /// <summary>
     /// Return a new sequence with all duplicate values removed
@@ -465,17 +470,7 @@ public static class SeqExtensions
     /// <returns>Returns the result of applying the sequence argument values to the sequence functions</returns>
     [Pure]
     public static Seq<B> Apply<A, B>(this Seq<Func<A, B>> fabc, Seq<A> fa) =>
-        ApplSeq<A, B>.Apply(fabc, fa);
-
-    /// <summary>
-    /// Apply a sequence of values to a sequence of functions
-    /// </summary>
-    /// <param name="fabc">sequence of functions</param>
-    /// <param name="fa">sequence of argument values</param>
-    /// <returns>Returns the result of applying the sequence argument values to the sequence functions</returns>
-    [Pure]
-    public static Seq<B> Apply<A, B>(this Func<A, B> fabc, Seq<A> fa) =>
-        ApplSeq<A, B>.Apply(fabc.Cons(), fa);
+        fabc.Bind(fa.Map);
 
     /// <summary>
     /// Apply a sequence of values to a sequence of functions of arity 2
@@ -486,18 +481,7 @@ public static class SeqExtensions
     /// IEnumerable of functions: a sequence of functions of arity 1</returns>
     [Pure]
     public static Seq<Func<B, C>> Apply<A, B, C>(this Seq<Func<A, B, C>> fabc, Seq<A> fa) =>
-        ApplSeq<A, B, C>.Apply(fabc.Map(curry), fa);
-
-    /// <summary>
-    /// Apply a sequence of values to a sequence of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">sequence of functions</param>
-    /// <param name="fa">sequence argument values</param>
-    /// <returns>Returns the result of applying the sequence of argument values to the 
-    /// sequence of functions: a sequence of functions of arity 1</returns>
-    [Pure]
-    public static Seq<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, Seq<A> fa) =>
-        ApplSeq<A, B, C>.Apply(curry(fabc).Cons(), fa);
+        fabc.Bind(f => fa.Map(curry(f)));
 
     /// <summary>
     /// Apply sequence of values to a sequence of functions of arity 2
@@ -508,18 +492,7 @@ public static class SeqExtensions
     /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
     [Pure]
     public static Seq<C> Apply<A, B, C>(this Seq<Func<A, B, C>> fabc, Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B, C>.Apply(fabc.Map(curry), fa, fb);
-
-    /// <summary>
-    /// Apply sequence of values to an sequence of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">sequence of functions</param>
-    /// <param name="fa">sequence argument values</param>
-    /// <param name="fb">sequence argument values</param>
-    /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
-    [Pure]
-    public static Seq<C> Apply<A, B, C>(this Func<A, B, C> fabc, Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B, C>.Apply(curry(fabc).Cons(), fa, fb);
+        fabc.Bind(f => fa.Bind(a => fb.Map(b => f(a, b))));
 
     /// <summary>
     /// Apply a sequence of values to a sequence of functions of arity 2
@@ -530,18 +503,7 @@ public static class SeqExtensions
     /// sequence of functions: a sequence of functions of arity 1</returns>
     [Pure]
     public static Seq<Func<B, C>> Apply<A, B, C>(this Seq<Func<A, Func<B, C>>> fabc, Seq<A> fa) =>
-        ApplSeq<A, B, C>.Apply(fabc, fa);
-
-    /// <summary>
-    /// Apply an sequence of values to an sequence of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">sequence of functions</param>
-    /// <param name="fa">sequence argument values</param>
-    /// <returns>Returns the result of applying the sequence of argument values to the 
-    /// sequence of functions: a sequence of functions of arity 1</returns>
-    [Pure]
-    public static Seq<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, Seq<A> fa) =>
-        ApplSeq<A, B, C>.Apply(fabc.Cons(), fa);
+        fabc.Bind(fa.Map);
 
     /// <summary>
     /// Apply sequence of values to an sequence of functions of arity 2
@@ -552,18 +514,7 @@ public static class SeqExtensions
     /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
     [Pure]
     public static Seq<C> Apply<A, B, C>(this Seq<Func<A, Func<B, C>>> fabc, Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B, C>.Apply(fabc, fa, fb);
-
-    /// <summary>
-    /// Apply sequence of values to a sequence of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">sequence of functions</param>
-    /// <param name="fa">sequence argument values</param>
-    /// <param name="fb">sequence argument values</param>
-    /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
-    [Pure]
-    public static Seq<C> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B, C>.Apply(fabc.Cons(), fa, fb);
+        fabc.Bind(f => fa.Bind(a => fb.Map(f(a))));
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -573,7 +524,7 @@ public static class SeqExtensions
     /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
     public static Seq<B> Action<A, B>(this Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B>.Action(fa, fb);
+        fa.Bind(_ => fb);
 
     /// <summary>
     /// The tails function returns all final segments of the argument, longest first. For example:
@@ -585,7 +536,7 @@ public static class SeqExtensions
     /// <returns>Seq of Seq of A</returns>
     [Pure]
     public static Seq<Seq<A>> Tails<A>(this Seq<A> self) =>
-        LanguageExt.Seq.tails(self);
+        Seq.tails(self);
 
     /// <summary>
     /// The tailsr function returns all final segments of the argument, longest first. For example:
@@ -601,7 +552,7 @@ public static class SeqExtensions
     /// <returns>Seq of Seq of A</returns>
     [Pure]
     public static Seq<Seq<A>> Tailsr<A>(this Seq<A> self) =>
-        LanguageExt.Seq.tailsr(self);
+        Seq.tailsr(self);
 
     /// <summary>
     /// Span, applied to a predicate 'pred' and a list, returns a tuple where first element is 
@@ -623,7 +574,7 @@ public static class SeqExtensions
     /// <returns>Split list</returns>
     [Pure]
     public static (Seq<T>, Seq<T>) Span<T>(this Seq<T> self, Func<T, bool> pred) =>
-        LanguageExt.Seq.span(self, pred);
+        Seq.span(self, pred);
 
     /// <summary>
     /// Applies an accumulator function over a sequence. The specified seed value is used as the initial accumulator value.

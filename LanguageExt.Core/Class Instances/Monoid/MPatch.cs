@@ -96,7 +96,7 @@ public struct MPatch<EqA, A> : Monoid<Patch<EqA, A>>, Eq<Patch<EqA, A>> where Eq
     /// <summary>
     /// Monoid empty value: A patch with no edits
     /// </summary>
-    public static Patch<EqA, A> Empty() =>
+    public static Patch<EqA, A> Empty =>
         Patch<EqA, A>.Empty;
 
     public static bool Equals(Patch<EqA, A> x, Patch<EqA, A> y) =>

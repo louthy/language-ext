@@ -59,6 +59,21 @@ This opens up: static interface members (which allows the trait/ad-hoc polymorph
 
 ## Breaking changes
 
+### `Seq1` made `[Obsolete]`
+
+The plan to remove the `Seq1` singleton `Seq` constructor was announced a few years ago.  I've taken this opportunity to make it obsolete.
+
+* Impact: Low
+* Mitigation: Use `[x]` or `Seq.singleton(x)`
+
+### `Apply` extensions that use raw `Func` removed
+
+The applicative-functor `Apply` function is supposed to work on lifted functions, not the raw `Func`.  I orignally put them in for convenience, but really they're just `Map` by another name.
+
+* Impact: Medium
+* Mitigation: Use `Map` instead.  For the `Apply` variants that take additional arguments, you can use `curry` to turn your `Func<A, B, ...>` into `Func<A, Func<B, ...>` - and that allows the `Func` to be used in `Map`.
+
+
 ### `netstandard2.0` no longer supported
 
 I held off for as long as I could, but there are lots of new C# features that this library can make use of (primarily static interfaces, but others too); so it's time to leave .NET Framework behind and focus on .NET Core.  This version jumps straight to `net8.0` support.

@@ -64,4 +64,17 @@ public static class Alternative
     public static K<F, Seq<A>> many<F, A>(K<F, A> v)
         where F : Alternative<F> =>
         F.Many(v);
+    
+    /// <summary>
+    /// Conditional failure of `Alternative` computations. Defined by
+    //
+    //      guard(true)  = Applicative.pure
+    //      guard(false) = Alternative.empty
+    /// </summary>
+    /// <param name="flag"></param>
+    /// <typeparam name="F"></typeparam>
+    /// <returns></returns>
+    public static K<F, Unit> guard<F>(bool flag)
+        where F : Alternative<F> =>
+        flag ? Applicative.pure<F, Unit>(default) : empty<F, Unit>();
 }

@@ -11,7 +11,7 @@ public struct MCompositions<MonoidA, A> : Monoid<Compositions<A>> where MonoidA 
         Seq<Compositions<A>.Node> go(Seq<Compositions<A>.Node> mx, Seq<Compositions<A>.Node> my)
         {
             if (mx.IsEmpty) return my;
-            if (my.IsEmpty) return go(mx.Tail, Seq1(mx.Head));
+            if (my.IsEmpty) return go(mx.Tail, [mx.Head]);
 
             var x = mx.Head;
             var sx = mx.Head.Size;
@@ -39,5 +39,5 @@ public struct MCompositions<MonoidA, A> : Monoid<Compositions<A>> where MonoidA 
         return new Compositions<A>(go(compx.Tree, compy.Tree));
     }
 
-    public static Compositions<A> Empty() => Compositions<A>.Empty;
+    public static Compositions<A> Empty => Compositions<A>.Empty;
 }

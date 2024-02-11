@@ -8,6 +8,6 @@ public struct MUnit : Monoid<Unit>
     public static Unit Append(Unit x, Unit y) =>
         unit;
 
-    public static Unit Empty() =>
+    public static Unit Empty =>
         unit;
 }

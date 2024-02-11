@@ -294,7 +294,7 @@ public struct TDecimal : Floating<decimal>
     /// Zero
     /// </summary>
     [Pure]
-    public static decimal Empty() => 0;
+    public static decimal Empty => 0;
 
     /// <summary>
     /// Get the hash-code of the provided value

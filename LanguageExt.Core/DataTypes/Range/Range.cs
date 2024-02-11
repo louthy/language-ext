@@ -22,7 +22,7 @@ public class Range<SELF, MonoidOrdA, A> : IEnumerable<A>
     /// <summary>
     /// Zero range using MonoidOrdA.Empty()
     /// </summary>
-    public static readonly SELF Zero = FromMinMax(MonoidOrdA.Empty(), MonoidOrdA.Empty(), MonoidOrdA.Empty());
+    public static readonly SELF Zero = FromMinMax(MonoidOrdA.Empty, MonoidOrdA.Empty, MonoidOrdA.Empty);
 
     /// <summary>
     /// First value in the range
@@ -82,7 +82,7 @@ public class Range<SELF, MonoidOrdA, A> : IEnumerable<A>
         From = from;
         To = to;
         Step = step;
-        StepIsAscending = MonoidOrdA.Compare(step, MonoidOrdA.Empty()) >= 0;
+        StepIsAscending = MonoidOrdA.Compare(step, MonoidOrdA.Empty) >= 0;
     }
 
     /// <summary>

@@ -549,9 +549,8 @@ public static partial class Prelude
     {
         foreach (var item in list)
         {
-            var i = item.Strict();
-            if (i.IsLeft) yield return Left(i.LeftValue);
-            if (i.IsRight) yield return Right(i.RightValue);
+            if (item.IsLeft) yield return Left(item.LeftValue);
+            if (item.IsRight) yield return Right(item.RightValue);
         }
     }
 
@@ -636,8 +635,7 @@ public static partial class Prelude
     {
         foreach (var item in self)
         {
-            var i = item.Strict();
-            if (i.IsLeft) yield return i.LeftValue;
+            if (item.IsLeft) yield return item.LeftValue;
         }
     }
 
@@ -666,8 +664,7 @@ public static partial class Prelude
     {
         foreach (var item in self)
         {
-            var i = item.Strict();
-            if (i.IsRight) yield return i.RightValue;
+            if (item.IsRight) yield return item.RightValue;
         }
     }
 
@@ -700,9 +697,8 @@ public static partial class Prelude
         var rs   = new List<R>();
         foreach (var item in self)
         {
-            var i = item.Strict();
-            if (i.IsLeft) ls.Add(i.LeftValue);
-            if (i.IsRight) rs.Add(i.RightValue);
+            if (item.IsLeft) ls.Add(item.LeftValue);
+            if (item.IsRight) rs.Add(item.RightValue);
         }
         return (ls, rs);
     }

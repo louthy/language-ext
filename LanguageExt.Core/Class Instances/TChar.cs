@@ -39,7 +39,7 @@ public struct TChar : Ord<char>, Monoid<char>, Arithmetic<char>
     /// </summary>
     /// <returns>0</returns>
     [Pure]
-    public static char Empty() => (char)0;
+    public static char Empty => (char)0;
 
     /// <summary>
     /// Semigroup append (sum)

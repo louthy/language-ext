@@ -295,7 +295,7 @@ public struct TFloat : Floating<float>
     /// Zero
     /// </summary>
     [Pure]
-    public static float Empty() => 0.0f;
+    public static float Empty => 0.0f;
 
     /// <summary>
     /// Get the hash-code of the provided value

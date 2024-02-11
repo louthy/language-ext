@@ -10,7 +10,7 @@ public struct EqOption<A> : Eq<Option<A>>
 {
     [Pure]
     public static bool Equals(Option<A> x, Option<A> y) =>
-        EqOptional<MOption<A>, Option<A>, A>.Equals(x, y);
+        x.Equals(y);
 
     [Pure]
     public static int GetHashCode(Option<A> x) =>

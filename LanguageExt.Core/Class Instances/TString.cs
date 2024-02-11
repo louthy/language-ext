@@ -17,7 +17,7 @@ public struct TString : Ord<string>, Monoid<string>
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public static string Empty() => 
+    public static string Empty => 
         "";
 
     /// <summary>
@@ -69,7 +69,7 @@ public struct TStringOrdinalIgnoreCase : Ord<string>, Monoid<string>
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public static string Empty() =>
+    public static string Empty =>
         "";
 
     /// <summary>
@@ -121,7 +121,7 @@ public struct TStringOrdinal : Ord<string>, Monoid<string>
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public static string Empty() =>
+    public static string Empty =>
         "";
 
     /// <summary>
@@ -173,7 +173,7 @@ public struct TStringCurrentCultureIgnoreCase : Ord<string>, Monoid<string>
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public static string Empty() =>
+    public static string Empty =>
         "";
 
     /// <summary>
@@ -225,7 +225,7 @@ public struct TStringCurrentCulture : Ord<string>, Monoid<string>
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public static string Empty() =>
+    public static string Empty =>
         "";
 
     /// <summary>

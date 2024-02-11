@@ -153,7 +153,7 @@ public struct TLong : Num<long>, Bool<long>
     /// Zero
     /// </summary>
     [Pure]
-    public static long Empty() => 0;
+    public static long Empty => 0;
 
     /// <summary>
     /// Get the hash-code of the provided value

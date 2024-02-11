@@ -15,6 +15,6 @@ public struct TLst<A> : Monoid<Lst<A>>
         x.Subtract(y);
 
     [Pure]
-    public static Lst<A> Empty() =>
+    public static Lst<A> Empty =>
         List.empty<A>();
 }

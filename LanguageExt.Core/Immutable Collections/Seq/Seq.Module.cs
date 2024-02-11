@@ -17,7 +17,7 @@ namespace LanguageExt;
 /// issues of multiple evaluation for key LINQ operators like Skip, Count, etc.
 /// </summary>
 /// <typeparam name="A">Type of the values in the sequence</typeparam>
-public static class Seq
+public partial class Seq
 {
     /// <summary>
     /// Monadic join
@@ -883,18 +883,7 @@ public static class Seq
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<B> apply<A, B>(Seq<Func<A, B>> fabc, Seq<A> fa) =>
-        ApplSeq<A, B>.Apply(fabc, fa);
-
-    /// <summary>
-    /// Apply a sequence of values to a sequence of functions
-    /// </summary>
-    /// <param name="fabc">sequence of functions</param>
-    /// <param name="fa">sequence of argument values</param>
-    /// <returns>Returns the result of applying the sequence argument values to the sequence functions</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Seq<B> apply<A, B>(Func<A, B> fabc, Seq<A> fa) =>
-        ApplSeq<A, B>.Apply(fabc.Cons(), fa);
+        fabc.Apply(fa);
 
     /// <summary>
     /// Apply a sequence of values to a sequence of functions of arity 2
@@ -906,19 +895,7 @@ public static class Seq
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<Func<B, C>> apply<A, B, C>(Seq<Func<A, B, C>> fabc, Seq<A> fa) =>
-        ApplSeq<A, B, C>.Apply(fabc.Map(curry), fa);
-
-    /// <summary>
-    /// Apply a sequence of values to a sequence of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">sequence of functions</param>
-    /// <param name="fa">sequence argument values</param>
-    /// <returns>Returns the result of applying the sequence of argument values to the 
-    /// sequence of functions: a sequence of functions of arity 1</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Seq<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, Seq<A> fa) =>
-        ApplSeq<A, B, C>.Apply(curry(fabc).Cons(), fa);
+        fabc.Apply(fa);
 
     /// <summary>
     /// Apply sequence of values to a sequence of functions of arity 2
@@ -930,19 +907,7 @@ public static class Seq
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<C> apply<A, B, C>(Seq<Func<A, B, C>> fabc, Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B, C>.Apply(fabc.Map(curry), fa, fb);
-
-    /// <summary>
-    /// Apply sequence of values to an sequence of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">sequence of functions</param>
-    /// <param name="fa">sequence argument values</param>
-    /// <param name="fb">sequence argument values</param>
-    /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Seq<C> apply<A, B, C>(Func<A, B, C> fabc, Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B, C>.Apply(curry(fabc).Cons(), fa, fb);
+        fabc.Apply(fa, fb);
 
     /// <summary>
     /// Apply a sequence of values to a sequence of functions of arity 2
@@ -954,19 +919,7 @@ public static class Seq
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<Func<B, C>> apply<A, B, C>(Seq<Func<A, Func<B, C>>> fabc, Seq<A> fa) =>
-        ApplSeq<A, B, C>.Apply(fabc, fa);
-
-    /// <summary>
-    /// Apply an sequence of values to an sequence of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">sequence of functions</param>
-    /// <param name="fa">sequence argument values</param>
-    /// <returns>Returns the result of applying the sequence of argument values to the 
-    /// sequence of functions: a sequence of functions of arity 1</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Seq<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, Seq<A> fa) =>
-        ApplSeq<A, B, C>.Apply(fabc.Cons(), fa);
+        fabc.Apply(fa);
 
     /// <summary>
     /// Apply sequence of values to an sequence of functions of arity 2
@@ -978,19 +931,7 @@ public static class Seq
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<C> apply<A, B, C>(Seq<Func<A, Func<B, C>>> fabc, Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B, C>.Apply(fabc, fa, fb);
-
-    /// <summary>
-    /// Apply sequence of values to a sequence of functions of arity 2
-    /// </summary>
-    /// <param name="fabc">sequence of functions</param>
-    /// <param name="fa">sequence argument values</param>
-    /// <param name="fb">sequence argument values</param>
-    /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Seq<C> apply<A, B, C>(Func<A, Func<B, C>> fabc, Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B, C>.Apply(fabc.Cons(), fa, fb);
+        fabc.Apply(fa, fb);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -1001,7 +942,7 @@ public static class Seq
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<B> action<A, B>(Seq<A> fa, Seq<B> fb) =>
-        ApplSeq<A, B>.Action(fa, fb);
+        fa.Action(fb);
 
     /// <summary>
     /// The tails function returns all final segments of the argument, longest first. For example:

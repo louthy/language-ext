@@ -91,22 +91,6 @@ public static class Tuple7Extensions
         (self.Item2, self.Item3, self.Item4, self.Item5, self.Item6, self.Item7);
 
     /// <summary>
-    /// Sum of the items
-    /// </summary>
-    [Pure]
-    public static A Sum<NUM, A>(this Tuple<A, A, A, A, A, A, A> self)
-        where NUM : Num<A> =>
-        sum<NUM, FoldTuple<A>, Tuple<A, A, A, A, A, A, A>, A>(self);
-
-    /// <summary>
-    /// Product of the items
-    /// </summary>
-    [Pure]
-    public static A Product<NUM, A>(this Tuple<A, A, A, A, A, A, A> self)
-        where NUM : Num<A> =>
-        product<NUM, FoldTuple<A>, Tuple<A, A, A, A, A, A, A>, A>(self);
-
-    /// <summary>
     /// One of the items matches the value passed
     /// </summary>
     [Pure]

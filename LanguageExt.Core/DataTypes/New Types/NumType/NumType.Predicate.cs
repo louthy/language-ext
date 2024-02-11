@@ -177,7 +177,7 @@ public abstract class NumType<SELF, NUM, A, PRED> :
     [Pure]
     static A ValueOrDefault(NumType<SELF, NUM, A, PRED> numType) =>
         ReferenceEquals(numType, null)
-            ? NUM.Empty()
+            ? NUM.Empty
             : numType.Value;
 
     [Pure]

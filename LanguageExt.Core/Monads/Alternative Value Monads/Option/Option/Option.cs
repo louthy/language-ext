@@ -38,7 +38,8 @@ public readonly struct Option<A> :
     IEquatable<Option<A>>,
     IComparable<Option<A>>,
     IComparable,
-    ISerializable
+    ISerializable,
+    K<Option, A>
 {
     internal readonly A? Value;
     internal readonly bool isSome;

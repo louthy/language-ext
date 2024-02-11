@@ -92,7 +92,7 @@ public static class Compositions
             else
             {
                 return MCompositions<MonoidA, A>
-                      .Append(new Compositions<A>(Seq1(x)), new Compositions<A>(go(n - s, ri)))
+                      .Append(new Compositions<A>([x]), new Compositions<A>(go(n - s, ri)))
                       .Tree;
             }
         }
@@ -107,8 +107,8 @@ public static class Compositions
     {
         A go(int n, Seq<Compositions<A>.Node> nodes)
         {
-            if (nodes.IsEmpty) return MonoidA.Empty();
-            if (n <= 0) return MonoidA.Empty();
+            if (nodes.IsEmpty) return MonoidA.Empty;
+            if (n <= 0) return MonoidA.Empty;
             var x   = nodes.Head;
             var s   = x.Size;
             var c   = x.Children;
@@ -140,13 +140,13 @@ public static class Compositions
     /// </summary>
     public static A composed<MonoidA, A>(Compositions<A> compositions)
         where MonoidA : Monoid<A> =>
-        FoldCompositions<A>.Fold(compositions, MonoidA.Empty(), MonoidA.Append)(unit);
+        FoldCompositions<A>.Fold(compositions, MonoidA.Empty, MonoidA.Append)(unit);
 
     /// <summary>
     /// Construct a compositions list containing just one element.
     /// </summary>
     public static Compositions<A> singleton<A>(A value) =>
-        new (Seq1(new Compositions<A>.Node(1, None, value)));
+        new ([new Compositions<A>.Node(1, None, value)]);
 
     /// <summary>
     /// Get the number of elements in the compositions list, in `O(log n)` time.
@@ -167,5 +167,5 @@ public static class Compositions
     /// </summary>
     public static Compositions<A> fromList<MonoidA, A>(IEnumerable<A> ma)
         where MonoidA : Monoid<A> =>
-        ma.Fold(MCompositions<MonoidA, A>.Empty(), (s, x) => MCompositions<MonoidA, A>.Append(s, singleton(x)));
+        ma.Fold(MCompositions<MonoidA, A>.Empty, (s, x) => MCompositions<MonoidA, A>.Append(s, singleton(x)));
 }

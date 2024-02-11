@@ -78,7 +78,7 @@ internal static class PatchInternal
 
             if (quot == 0 && rem == 0)
             {
-                return (MonoidC.Empty(), Seq<Option<O>>());
+                return (MonoidC.Empty, Seq<Option<O>>());
             }
             else if (quot == 0)
             {

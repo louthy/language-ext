@@ -1,12 +1,17 @@
 using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.HKT;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
 public static partial class IOExtensions
 {
+    public static IO<RT, E, A> As<RT, E, A>(this K<MIO<RT, E>, A> ma)
+        where RT : HasIO<RT, E> =>
+        (IO<RT, E, A>)ma;
+    
     /// <summary>
     /// Lift transducer into an effect monad
     /// </summary>

@@ -73,30 +73,6 @@ public static class Tuple2Extensions
         Tuple(self.Item2);
 
     /// <summary>
-    /// Sum of the items
-    /// </summary>
-    [Pure]
-    public static A Sum<NUM, A>(this Tuple<A, A> self)
-        where NUM : Num<A> =>
-        TypeClass.sum<NUM, FoldTuple<A>, Tuple<A, A>, A>(self);
-
-    /// <summary>
-    /// Product of the items
-    /// </summary>
-    [Pure]
-    public static A Product<NUM, A>(this Tuple<A, A> self)
-        where NUM : Num<A> =>
-        TypeClass.product<NUM, FoldTuple<A>, Tuple<A, A>, A>(self);
-
-    /// <summary>
-    /// One of the items matches the value passed
-    /// </summary>
-    [Pure]
-    public static bool Contains<EQ, A>(this Tuple<A, A> self, A value)
-        where EQ : Eq<A> =>
-        TypeClass.contains<EQ, FoldTuple<A>, Tuple<A, A>, A>(self, value);
-
-    /// <summary>
     /// Map 
     /// </summary>
     [Pure]

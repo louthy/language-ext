@@ -297,7 +297,7 @@ public struct TDouble : Floating<double>
     /// Zero
     /// </summary>
     [Pure]
-    public static double Empty() => 0.0;
+    public static double Empty => 0.0;
 
     /// <summary>
     /// Get the hash-code of the provided value

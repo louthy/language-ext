@@ -74,30 +74,6 @@ public static class ValueTuple2Extensions
         VTuple(self.Item2);
 
     /// <summary>
-    /// Sum of the items
-    /// </summary>
-    [Pure]
-    public static A Sum<NUM, A>(this ValueTuple<A, A> self)
-        where NUM : Num<A> =>
-        TypeClass.sum<NUM, FoldTuple<A>, ValueTuple<A, A>, A>(self);
-
-    /// <summary>
-    /// Product of the items
-    /// </summary>
-    [Pure]
-    public static A Product<NUM, A>(this ValueTuple<A, A> self)
-        where NUM : Num<A> =>
-        TypeClass.product<NUM, FoldTuple<A>, ValueTuple<A, A>, A>(self);
-
-    /// <summary>
-    /// One of the items matches the value passed
-    /// </summary>
-    [Pure]
-    public static bool Contains<EQ, A>(this ValueTuple<A, A> self, A value)
-        where EQ : Eq<A> =>
-        TypeClass.contains<EQ, FoldTuple<A>, ValueTuple<A, A>, A>(self, value);
-
-    /// <summary>
     /// Map
     /// </summary>
     [Pure]

@@ -8,6 +8,7 @@ using LanguageExt.ClassInstances.Pred;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using System.Runtime.CompilerServices;
+using LanguageExt.HKT;
 
 namespace LanguageExt;
 
@@ -21,7 +22,8 @@ public readonly struct Lst<A> :
     IComparable<Lst<A>>,
     IComparable,
     IReadOnlyList<A>,
-    IEquatable<Lst<A>>
+    IEquatable<Lst<A>>,
+    K<Lst, A>
 {
     /// <summary>
     /// Empty list
@@ -602,4 +604,7 @@ public readonly struct Lst<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Lst<A>(SeqEmpty _) =>
         Empty;
+
+    public K<Lst, A> Kind =>
+        this;
 }

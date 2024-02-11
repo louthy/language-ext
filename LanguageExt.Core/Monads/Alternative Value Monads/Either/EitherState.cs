@@ -28,24 +28,5 @@ public enum EitherStatus : byte
     /// <summary>
     /// Right state
     /// </summary>
-    IsRight = 2,
-        
-    /// <summary>
-    /// Lazy
-    /// </summary>
-    /// <remarks>
-    /// Lazy means its internal computation is evaluated on-demand and when a concrete
-    /// non-`Either` value needs to be computed (i.e. when `Match` is called).
-    /// 
-    /// If it is not lazy then the `Either` is a pure data type and the value is always
-    /// ready to be read without any additional computation.
-    ///
-    /// Note, the only way this type can get into a lazy state is:
-    ///
-    ///     * If we lift a transducer into an Either
-    ///     * Or, if an Either value is lifted into a monad-transformer
-    ///
-    /// If you don't do any of these things then it will be 'strict'. 
-    /// </remarks>
-    IsLazy
+    IsRight = 2
 }

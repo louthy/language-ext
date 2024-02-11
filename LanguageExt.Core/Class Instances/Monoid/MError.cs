@@ -13,5 +13,5 @@ public readonly struct MError : Monoid<Error>
     public static Error Append(Error x, Error y) => x + y;
 
     [Pure]
-    public static Error Empty() => Errors.None;
+    public static Error Empty => Errors.None;
 }

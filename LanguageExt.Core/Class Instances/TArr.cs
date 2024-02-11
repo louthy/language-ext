@@ -4,8 +4,7 @@ using System.Linq;
 
 namespace LanguageExt.ClassInstances;
 
-public struct TArr<A> : 
-    Monoid<Arr<A>>
+public struct TArr<A> : Monoid<Arr<A>>
 {
     static readonly Arr<A> emp = [];
 
@@ -14,5 +13,5 @@ public struct TArr<A> :
         x.ConcatFast(y).ToArray();
 
     [Pure]
-    public static Arr<A> Empty() => emp;
+    public static Arr<A> Empty => emp;
 }

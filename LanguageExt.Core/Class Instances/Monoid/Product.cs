@@ -17,6 +17,6 @@ public struct Product<NUM, A> : Monoid<A> where NUM : Num<A>
         product<NUM, A>(x, y);
 
     [Pure]
-    public static A Empty() =>
+    public static A Empty =>
         fromInteger<NUM, A>(1);
 }

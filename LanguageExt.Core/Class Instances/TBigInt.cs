@@ -103,7 +103,7 @@ public struct TBigInt : Num<bigint>, Bool<bigint>
     /// <returns>The equivalent of x in the Num<A></returns>
     [Pure]
     public static bigint FromInteger(int x) =>
-        (bigint)x;
+        x;
 
     /// <summary>
     /// Generate a numeric value from a float
@@ -137,7 +137,7 @@ public struct TBigInt : Num<bigint>, Bool<bigint>
     /// </summary>
     /// <returns>0</returns>
     [Pure]
-    public static bigint Empty() => bigint.Zero;
+    public static bigint Empty => bigint.Zero;
 
     /// <summary>
     /// Negate the value

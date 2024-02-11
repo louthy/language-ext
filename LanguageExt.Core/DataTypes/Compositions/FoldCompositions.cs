@@ -4,7 +4,7 @@ using System;
 
 namespace LanguageExt.ClassInstances;
 
-public struct FoldCompositions<A> : Foldable<Compositions<A>, A>
+public struct FoldCompositions<A>
 {
     static S FoldNode<S>(S state, Func<S, A, S> f, Compositions<A>.Node node)
     {

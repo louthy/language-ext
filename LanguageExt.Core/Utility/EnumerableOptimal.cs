@@ -16,7 +16,7 @@ namespace LanguageExt
                 : new ConcatEnum<A>(Seq(ma, mb));
 
         internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A> ma, Func<A, IEnumerable<B>> f) =>
-            ma == null
+            ma is null
                 ? System.Linq.Enumerable.Empty<B>()
                 : new BindEnum<A, B>(ma, f);
 

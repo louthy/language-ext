@@ -134,7 +134,7 @@ public struct TInt : Num<int>, Bool<int>
     /// </summary>
     /// <returns>0</returns>
     [Pure]
-    public static int Empty() => 0;
+    public static int Empty => 0;
 
     /// <summary>
     /// Negate the value

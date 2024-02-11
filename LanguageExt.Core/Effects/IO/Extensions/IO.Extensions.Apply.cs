@@ -210,4 +210,13 @@ public static partial class IOExtensions
         this Func<A, B, C, D, E> f,
         IO<Err, A> ma) =>
         IO<Err, Func<A, B, C, D, E>>.Pure(f).Apply(ma);
+    
+    /// <summary>
+    /// Applicative apply: takes the lifted function and the lifted argument, applies the function to the argument
+    /// and returns the result, lifted.
+    /// </summary>
+    public static IO<Err, B> Action<Err, A, B>(
+        this IO<Err, A> ma,
+        IO<Err, B> mb) =>
+        new(ma.Morphism.Action(mb.Morphism));
 }    

@@ -7,6 +7,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
+using LanguageExt.HKT;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
@@ -23,7 +24,8 @@ public readonly struct Seq<A> :
     IEnumerable<A>,
     IComparable<Seq<A>>, 
     IEquatable<Seq<A>>, 
-    IComparable
+    IComparable,
+    K<Seq, A>
 {
     /// <summary>
     /// Empty sequence
@@ -744,6 +746,28 @@ public readonly struct Seq<A> :
     /// Monadic bind (flatmap) of the sequence
     /// </summary>
     /// <typeparam name="B">Bound return value type</typeparam>
+    /// <param name="f">Bind function</param>
+    /// <returns>Flat-mapped sequence</returns>
+    [Pure]
+    public Seq<B> Bind<B>(Func<A, K<Seq, B>> f)
+    {
+        static IEnumerable<B> Yield(K<Seq, A> ma, Func<A, K<Seq, B>> bnd)
+        {
+            foreach (var a in ma.As())
+            {
+                foreach (var b in bnd(a).As())
+                {
+                    yield return b;
+                }
+            }
+        }
+        return new Seq<B>(Yield(this, f));
+    }
+
+    /// <summary>
+    /// Monadic bind (flatmap) of the sequence
+    /// </summary>
+    /// <typeparam name="B">Bound return value type</typeparam>
     /// <param name="bind">Bind function</param>
     /// <returns>Flat-mapped sequence</returns>
     [Pure]
@@ -1270,4 +1294,7 @@ public readonly struct Seq<A> :
                    ? new Seq<B>(mb)
                    : new Seq<B>(Yield(this));
     }
+
+    public K<Seq, A> Kind =>
+        this;
 }

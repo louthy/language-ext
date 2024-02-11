@@ -151,7 +151,7 @@ public struct TShort : Num<short>, Bool<short>
     /// Zero
     /// </summary>
     [Pure]
-    public static short Empty() => 0;
+    public static short Empty => 0;
 
     /// <summary>
     /// Get the hash-code of the provided value

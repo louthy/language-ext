@@ -10,40 +10,6 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
-public class Fin : Monad<Fin>, Traversable<Fin>, Alternative <Fin>
-{
-    public static K<Fin, B> Bind<A, B>(K<Fin, A> ma, Func<A, K<Fin, B>> f) => 
-        throw new NotImplementedException();
-
-    public static K<Fin, B> Map<A, B>(Func<A, B> f, K<Fin, A> ma) => 
-        throw new NotImplementedException();
-
-    public static K<Fin, A> Pure<A>(A value) => 
-        throw new NotImplementedException();
-
-    public static K<Fin, B> Apply<A, B>(K<Fin, Func<A, B>> mf, K<Fin, A> ma) => 
-        throw new NotImplementedException();
-
-    public static K<Fin, B> Action<A, B>(K<Fin, A> ma, K<Fin, B> mb) => 
-        throw new NotImplementedException();
-
-    public static S Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Fin, A> ta) => 
-        throw new NotImplementedException();
-
-    public static S FoldBack<A, S>(Func<S, Func<A, S>> f, S initialState, K<Fin, A> ta) => 
-        throw new NotImplementedException();
-
-    public static K<F, K<Fin, B>> Traverse<F, A, B>(Func<A, K<F, B>> f, K<Fin, A> ta) 
-        where F : Applicative<F> => 
-        throw new NotImplementedException();
-
-    public static K<Fin, A> Empty<A>() => 
-        throw new NotImplementedException();
-
-    public static K<Fin, A> Or<A>(K<Fin, A> ma, K<Fin, A> mb) => 
-        throw new NotImplementedException();
-}
-
 /// <summary>
 /// Equivalent of `Either<Error, A>`
 /// Called `Fin` because it is expected to be used as the concrete result of a computation
@@ -159,14 +125,6 @@ public readonly struct Fin<A> :
     [Pure, MethodImpl(Opt.Default)]
     public static explicit operator Error(Fin<A> ma) =>
         ma.either.LeftValue;
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Transducer<Unit, Sum<Error, A>>(Fin<A> value) =>
-        value.either.Morphism;
-
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Fin<A>(Transducer<Unit, Sum<Error, A>> value) =>
-        new (value);
         
     [Pure, MethodImpl(Opt.Default)]
     public static Fin<A> operator |(Fin<A> left, Fin<A> right) =>
@@ -490,10 +448,6 @@ public readonly struct Fin<A> :
         either.Map(f);
 
     [Pure, MethodImpl(Opt.Default)]
-    public Fin<B> Map<B>(Transducer<A, B> f) =>
-        either.Map(f);
-
-    [Pure, MethodImpl(Opt.Default)]
     public Fin<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) =>
         either.BiMap(Fail, Succ);
 
@@ -506,8 +460,8 @@ public readonly struct Fin<A> :
         either.Bind(x => f(x).either);
 
     [Pure, MethodImpl(Opt.Default)]
-    public Fin<B> Bind<B>(Transducer<A, Fin<B>> f) =>
-        either.Bind(f.Map(mb => mb.either));
+    public Fin<B> Bind<B>(Func<A, K<Fin, B>> f) =>
+        Bind(x => f(x).As());
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> Bind<B>(Func<A, Pure<B>> f) =>
@@ -526,16 +480,16 @@ public readonly struct Fin<A> :
         Bind(x => bind(x).Map(y => project(x, y)));
 
     [Pure, MethodImpl(Opt.Default)]
+    public Fin<C> SelectMany<B, C>(Func<A, K<Fin, B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).As().Map(y => project(x, y)));
+
+    [Pure, MethodImpl(Opt.Default)]
     public Fin<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     [Pure, MethodImpl(Opt.Default)]
     public Fin<Unit> SelectMany(Func<A, Fail<Error>> bind, Func<A, Error, Unit> project) =>
         Map(x => ignore(bind(x)));
-
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).Map(y => project(x, y)));
     
     [Pure, MethodImpl(Opt.Default)]
     public Lst<A> ToList() =>
@@ -575,6 +529,13 @@ public readonly struct Fin<A> :
         return Value;
     }
 
-    public Transducer<Unit, Sum<Error, A>> Morphism =>
-        either.Morphism;
+    public Transducer<Unit, Sum<Error, A>> ToTransducer() =>
+        either.ToTransducer();
+    
+    [Pure]
+    public Reducer<Unit, S> Transform<S>(Reducer<Sum<Error, A>, S> reduce) => 
+        ToTransducer().Transform(reduce);
+
+    public K<Fin, A> Kind => 
+        this;
 }

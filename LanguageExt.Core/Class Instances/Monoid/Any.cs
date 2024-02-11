@@ -12,7 +12,7 @@ public struct Any : Monoid<bool>, Bool<bool>
     public static bool Append(bool x, bool y) => x || y;
 
     [Pure]
-    public static bool Empty() => false;
+    public static bool Empty => false;
 
     [Pure]
     public static bool And(bool a, bool b) =>

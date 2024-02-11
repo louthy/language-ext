@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 
 namespace LanguageExt;
 
@@ -85,4 +84,39 @@ record ApplySumTransducer2<E, X, A, B>(Transducer<E, Sum<X, Transducer<A, B>>> F
 
     public override string ToString() =>  
         "applySum";
+}
+
+/// <summary>
+/// Applicative apply transducer
+/// </summary>
+record ActionSumTransducer<E, X, A, B>(Transducer<E, Sum<X, A>> FA, Transducer<E, Sum<X, B>> FB) : Transducer<E, Sum<X, B>>
+{
+    public override Reducer<E, S> Transform<S>(Reducer<Sum<X, B>, S> reduce) =>
+        new Reduce<S>(FA, FB, reduce);
+
+    record Reduce<S>(Transducer<E, Sum<X, A>> FA, Transducer<E, Sum<X, B>> FB, Reducer<Sum<X, B>, S> Reducer) : Reducer<E, S>
+    {
+        public override TResult<S> Run(TState state, S stateValue, E env) =>
+            FA.Transform(new Ap<S>(env, FB, Reducer)).Run(state, stateValue, env);
+    }
+    
+    record Ap<S>(E Env, Transducer<E, Sum<X, B>> FB, Reducer<Sum<X, B>, S> Reducer) : Reducer<Sum<X, A>, S>
+    {
+        public override TResult<S> Run(TState state, S stateValue, Sum<X, A> xf) =>
+            xf switch
+            {
+                SumRight<X, A>  => TResult.Recursive(state, stateValue, Env, FB.Transform(new Ap2<S>(Reducer))),
+                SumLeft<X, A> l => Reducer.Run(state, stateValue, Sum<X, B>.Left(l.Value)),
+                _               => TResult.Continue(stateValue)
+            };
+    }
+
+    record Ap2<S>(Reducer<Sum<X, B>, S> Reducer) : Reducer<Sum<X, B>, S>
+    {
+        public override TResult<S> Run(TState state, S stateValue, Sum<X, B> xa) =>
+            Reducer.Run(state, stateValue, xa);
+    }
+
+    public override string ToString() =>  
+        "actionSum";
 }

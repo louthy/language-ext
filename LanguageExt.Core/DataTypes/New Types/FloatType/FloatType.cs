@@ -56,6 +56,6 @@ public abstract class FloatType<SELF, FLOATING, A> : FloatType<SELF, FLOATING, A
     [Pure]
     public static explicit operator A(FloatType<SELF, FLOATING, A> type) =>
         ReferenceEquals(type, null)
-            ? FLOATING.Empty()
+            ? FLOATING.Empty
             : type.Value;
 }
