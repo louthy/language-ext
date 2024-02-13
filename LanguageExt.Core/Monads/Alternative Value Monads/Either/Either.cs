@@ -14,6 +14,7 @@ using LanguageExt.HKT;
 
 namespace LanguageExt;
 
+
 /// <summary>
 /// Holds one of two values `Left` or `Right`.  Usually, `Left` is considered _wrong_ or _in-error_, and
 /// `Right` is, well, right - as in correct.  When the `Either` is in a `Left` state, it cancels
@@ -50,6 +51,15 @@ public readonly struct Either<L, R> :
 
     readonly R? right;
     readonly L? left;
+
+    internal Either(Transducer<Unit, Sum<L, R>> morphism)
+    {
+        right = default;
+        left = default;
+    }
+
+    internal Either(Transducer<Unit, R> morphism) : this(morphism.Map(Sum<L, R>.Right))
+    { }
 
     private Either(R right)
     {
@@ -143,9 +153,9 @@ public readonly struct Either<L, R> :
         State switch
         {
             EitherStatus.IsLeft => true,
-            _                   => false
+            _                    => false
         };
-
+    
     /// <summary>
     /// Is the Either in a Bottom state?
     /// When the Either is filtered, both Right and Left are meaningless.
@@ -164,7 +174,7 @@ public readonly struct Either<L, R> :
         State switch
         {
             EitherStatus.IsBottom => true,
-            _                     => false
+            _                    => false
         };
 
     /// <summary>
@@ -1323,6 +1333,23 @@ public readonly struct Either<L, R> :
         };
 
     /// <summary>
+    /// Maps the value in the Either if it's in a Right state
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <typeparam name="Ret">Mapped Either type</typeparam>
+    /// <param name="f">Map function</param>
+    /// <returns>Mapped Either</returns>
+    [Pure]
+    public Either<L, Ret> Map<Ret>(Transducer<R, Ret> f) =>
+        State switch
+        {
+            EitherStatus.IsRight => ToTransducer().MapRight(f),
+            EitherStatus.IsLeft  => left!,
+            _                    => Either<L, Ret>.Bottom
+        };
+
+    /// <summary>
     /// Maps the value in the Either if it's in a Left state
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
@@ -1336,6 +1363,23 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => right!,
             EitherStatus.IsLeft  => f(left!),
+            _                    => Either<Ret, R>.Bottom
+        };
+
+    /// <summary>
+    /// Maps the value in the Either if it's in a Left state
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <typeparam name="Ret">Mapped Either type</typeparam>
+    /// <param name="f">Map function</param>
+    /// <returns>Mapped Either</returns>
+    [Pure]
+    public Either<Ret, R> MapLeft<Ret>(Transducer<L, Ret> f) =>
+        State switch
+        {
+            EitherStatus.IsRight => right!,
+            EitherStatus.IsLeft  => ToTransducer().MapLeft(f),
             _                    => Either<Ret, R>.Bottom
         };
 
@@ -1384,8 +1428,37 @@ public readonly struct Either<L, R> :
     /// <param name="f"></param>
     /// <returns>Bound Either</returns>
     [Pure]
+    public Either<L, B> Bind<B>(Transducer<R, Either<L, B>> f) =>
+        State switch
+        {
+            EitherStatus.IsRight => compose(pure(right!), f.Map(x => x.ToSum())),
+            EitherStatus.IsLeft  => left!,
+            _                    => Either<L, B>.Bottom
+        };
+
+    /// <summary>
+    /// Monadic bind
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <typeparam name="B"></typeparam>
+    /// <param name="f"></param>
+    /// <returns>Bound Either</returns>
+    [Pure]
     public Either<L, B> Bind<B>(Func<R, K<Either<L>, B>> f) =>
-        Bind(x => f(x).As());
+        Bind(x => (Either<L, B>)f(x));
+
+    /// <summary>
+    /// Monadic bind
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <typeparam name="B"></typeparam>
+    /// <param name="f"></param>
+    /// <returns>Bound Either</returns>
+    [Pure]
+    public Either<L, B> Bind<B>(Transducer<R, K<Either<L>, B>> f) =>
+        Bind(f.Map(mb => (Either<L, B>)mb));
 
     /// <summary>
     /// Bi-bind.  Allows mapping of both monad states
@@ -1481,14 +1554,14 @@ public readonly struct Either<L, R> :
     /// </summary>
     /// <returns>Bound Either</returns>
     [Pure]
-    public Either<L, T> SelectMany<S, T>(Func<R, K<Either<L>, S>> bind, Func<R, S, T> project) =>
+    public Either<L, T> SelectMany<S, T>(Func<R, Transducer<Unit, S>> bind, Func<R, S, T> project) =>
         State switch
         {
-            EitherStatus.IsRight => Bind(x => bind(x).As().Map(y => project(x, y))),
+            EitherStatus.IsRight => Bind(r => new Either<L, T>(compose(bind(r), lift(curry(project)(r))))),
             EitherStatus.IsLeft  => left!,
             _                    => Either<L, T>.Bottom
         };
-    
+        
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
     // `Pure` and `Fail` support
@@ -1535,6 +1608,10 @@ public readonly struct Either<L, R> :
     [Pure]
     public static implicit operator Either<L, R>(Fail<L> mr) =>
         Left(mr.Value);
+
+    [Pure]
+    public static implicit operator Either<L, R>(Transducer<Unit, Sum<L, R>> t) =>
+        new (t);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -1566,9 +1643,6 @@ public readonly struct Either<L, R> :
     [Obsolete(Change.UseToSeqInstead)]
     public Seq<R> RightToSeq() =>
         ToSeq();
-
-    public K<Either<L>, R> Kind =>
-        this;
 }
 
 /// <summary>

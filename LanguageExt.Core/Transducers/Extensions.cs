@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.HKT;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 

@@ -11,21 +11,11 @@ using LanguageExt.HKT;
 namespace LanguageExt;
 
 /// <summary>
-/// Eff lift trait instance
-/// </summary>
-public class MEff<RT> : KLift2<MEff<RT>, RT, Error>
-    where RT : HasIO<RT, Error>
-{
-    public static KArrow2<MEff<RT>, RT, Error, A> Lift<A>(Transducer<RT, Sum<Error, A>> f) => 
-        Eff<RT, A>.Lift(f);
-}
-
-/// <summary>
 /// Transducer based effect/`Eff` monad
 /// </summary>
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly struct Eff<RT, A> : KArrow2<MEff<RT>, RT, Error, A>
+public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     where RT : HasIO<RT, Error>
 {
     /// <summary>
@@ -590,6 +580,28 @@ public readonly struct Eff<RT, A> : KArrow2<MEff<RT>, RT, Error, A>
 
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, B> Bind<B>(Func<A, K<Eff, B>> f) =>
+        Bind(a => f(a).As());
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, B> Bind<B>(Func<A, K<Eff.Runtime<RT>, B>> f) =>
+        Bind(a => f(a).As());
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
     /// transducer provided; which in turn returns a new `Eff` monad.  This can be thought of as
     /// chaining IO operations sequentially.
     /// </summary>
@@ -658,6 +670,17 @@ public readonly struct Eff<RT, A> : KArrow2<MEff<RT>, RT, Error, A>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, C> SelectMany<B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project) =>
         new(Transducer.selectMany(Morphism, x => bind(x).Morphism, project));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, C> SelectMany<B, C>(Func<A, K<Eff.Runtime<RT>, B>> bind, Func<A, B, C> project) =>
+        new(Transducer.selectMany(Morphism, x => bind(x).As().Morphism, project));
 
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the

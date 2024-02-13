@@ -16,7 +16,7 @@ public interface Monad<M> : Applicative<M>
     //
     
     public static abstract K<M, B> Bind<A, B>(K<M, A> ma, Func<A, K<M, B>> f);
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Default implementations

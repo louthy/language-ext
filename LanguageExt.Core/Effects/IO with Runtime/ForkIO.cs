@@ -21,7 +21,7 @@ public readonly record struct ForkIO<RT, E, A>(
 /// <param name="Cancel">An IO monad, which if invoked, would cancel the forked IO operation</param>
 /// <param name="Await">An IO monad, which if invoked, would attempt to get the result of the forked IO operation</param>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly record struct ForkIO<E, A>(
-    IO<E, Unit> Cancel,
-    IO<E, A> Await);
+// public readonly record struct ForkIO<E, A>(
+//     IO<E, Unit> Cancel,
+//     IO<E, A> Await);
 

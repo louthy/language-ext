@@ -1,11 +1,19 @@
 using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.HKT;
 
 namespace LanguageExt;
 
 public static partial class EffExtensions
 {
+    /// <summary>
+    /// Cast type to its Kind
+    /// </summary>
+    public static Eff<RT, A> As<RT, A>(this K<Eff.Runtime<RT>, A> ma)
+        where RT : HasIO<RT, Error> =>
+        (Eff<RT, A>)ma;
+    
     /// <summary>
     /// Lift transducer into an effect monad
     /// </summary>

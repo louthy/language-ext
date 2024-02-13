@@ -36,7 +36,7 @@ public class Lst : Monad<Lst>, Alternative<Lst>, Traversable<Lst>
     static K<F, K<Lst, B>> Traversable<Lst>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Lst, A> ta) 
     {
         return F.Map<Lst<B>, K<Lst, B>>(
-            ks => ks.Kind, 
+            ks => ks, 
             Foldable.fold(a => s => cons(a, s), F.Pure(List.empty<B>()), ta));
 
         K<F, Lst<B>> cons(A x, K<F, Lst<B>> ys) =>

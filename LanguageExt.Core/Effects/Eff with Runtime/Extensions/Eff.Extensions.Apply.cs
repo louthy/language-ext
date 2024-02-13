@@ -231,4 +231,13 @@ public static partial class EffExtensions
         Eff<RT, A> ma)
         where RT : HasIO<RT, Error> =>
         Eff<RT, Func<A, B, C, D, E>>.Pure(f).Apply(ma);
+        
+    /// <summary>
+    /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
+    /// </summary>
+    public static Eff<RT, B> Action<RT, A, B>(
+        this Eff<RT, A> ma,
+        Eff<RT, B> mb)
+        where RT : HasIO<RT, Error> =>
+        new(ma.Morphism.Action(mb.Morphism));
 }    

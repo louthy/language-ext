@@ -604,7 +604,4 @@ public readonly struct Lst<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Lst<A>(SeqEmpty _) =>
         Empty;
-
-    public K<Lst, A> Kind =>
-        this;
 }

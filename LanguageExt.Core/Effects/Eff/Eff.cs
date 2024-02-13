@@ -11,25 +11,18 @@ using LanguageExt.HKT;
 namespace LanguageExt;
 
 /// <summary>
-/// Eff lift trait instance
-/// </summary>
-public class MEff : KLift2<MEff, MinRT, Error>
-{
-    public static KArrow2<MEff, MinRT, Error, A> Lift<A>(Transducer<MinRT, Sum<Error, A>> f) => 
-        Eff<A>.Lift(f);
-}
-
-/// <summary>
 /// Transducer based effect/`Eff` monad
 /// </summary>
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly struct Eff<A> : KArrow2<MEff, MinRT, Error, A>
+public readonly struct Eff<A> : K<Eff, A>
 {
     /// <summary>
     /// Underlying transducer that captures all of the IO behaviour 
     /// </summary>
     readonly IO<MinRT, Error, A> effect;
+
+    public K<Eff, A>  this;
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -668,6 +661,17 @@ public readonly struct Eff<A> : KArrow2<MEff, MinRT, Error, A>
 
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<B> Bind<B>(Func<A, K<Eff, B>> f) =>
+        new(Transducer.bind(Morphism, x => f(x).As().Morphism));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
     /// transducer provided; which in turn returns a new `Eff` monad.  This can be thought of as
     /// chaining IO operations sequentially.
     /// </summary>
@@ -736,6 +740,17 @@ public readonly struct Eff<A> : KArrow2<MEff, MinRT, Error, A>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
         new(Transducer.selectMany(Morphism, x => bind(x).Morphism, project));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<C> SelectMany<B, C>(Func<A, K<Eff, B>> bind, Func<A, B, C> project) =>
+        new(Transducer.selectMany(Morphism, x => bind(x).As().Morphism, project));
 
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the

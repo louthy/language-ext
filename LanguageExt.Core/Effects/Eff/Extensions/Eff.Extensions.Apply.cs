@@ -211,4 +211,12 @@ public static partial class EffExtensions
         this Func<A, B, C, D, E> f,
         Eff<A> ma) =>
         Eff<Func<A, B, C, D, E>>.Pure(f).Apply(ma);
+        
+    /// <summary>
+    /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
+    /// </summary>
+    public static Eff<B> Action<A, B>(
+        this Eff<A> ma,
+        Eff<B> mb) =>
+        new(ma.Morphism.Action(mb.Morphism));
 }    

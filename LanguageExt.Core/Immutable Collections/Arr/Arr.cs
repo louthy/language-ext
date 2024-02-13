@@ -672,16 +672,38 @@ public struct Arr<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(object? obj) =>
         obj is Arr<A> t ? CompareTo(t) : 1;
-        
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(Arr<A> other) =>
-        MArr<A>.Equals(this, other);
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int CompareTo(Arr<A> other) =>
-        MArr<A>.Compare(this, other);
+    public bool Equals(Arr<A> other)
+    {
+        if (Count != other.Count) return false;
+
+        var ia = GetEnumerator();
+        var ib = other.GetEnumerator();
+        while (ia.MoveNext() && ib.MoveNext())
+        {
+            if (!EqDefault<A>.Equals(ia.Current, ib.Current)) return false;
+        }
+        return true;
+    }
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int CompareTo(Arr<A> other)
+    {
+        if (Count < other.Count) return -1;
+        if (Count > other.Count) return 1;
+
+        var ia = GetEnumerator();
+        var ib = other.GetEnumerator();
+        while (ia.MoveNext() && ib.MoveNext())
+        {
+            var cmp = OrdDefault<A>.Compare(ia.Current, ib.Current);
+            if (cmp != 0) return cmp;
+        }
+        return 0;
+    }
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

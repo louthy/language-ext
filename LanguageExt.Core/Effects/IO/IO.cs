@@ -16,14 +16,12 @@ namespace LanguageExt;
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="E">Error value type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly struct IO<E, A> : K<MIO<E>, A>
+public readonly struct IO<E, A> : K<IO<E>, A>
 {
     /// <summary>
     /// Underlying transducer that captures all of the IO behaviour 
     /// </summary>
     readonly IO<MinRT<E>, E, A> effect;
-
-    public K<MIO<E>, A> Kind => this;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -660,7 +658,7 @@ public readonly struct IO<E, A> : K<MIO<E>, A>
     /// <param name="f">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public IO<E, B> Bind<B>(Func<A, K<MIO<E>, B>> f) =>
+    public IO<E, B> Bind<B>(Func<A, K<IO<E>, B>> f) =>
         new(Transducer.bind(Morphism, x => f(x).As().Morphism));
 
     /// <summary>

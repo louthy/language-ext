@@ -101,4 +101,19 @@ public static class Errors
     /// Many errors code
     /// </summary>
     public const int ManyErrorsCode = -2000000006;
+
+    /// <summary>
+    /// IO monad not in transformer stack text
+    /// </summary>
+    public const string IONotInTransformerStackText = "IO monad not in transformer stack, so it's not possible to `liftIO`.";
+
+    /// <summary>
+    /// IO monad not in transformer stack code
+    /// </summary>
+    public const int IONotInTransformerStackCode = -2000000007;
+
+    /// <summary>
+    /// IO monad not in transformer stack error
+    /// </summary>
+    public static readonly Error IONotInTransformerStack = (IONotInTransformerStackCode, IONotInTransformerStackText);
 }

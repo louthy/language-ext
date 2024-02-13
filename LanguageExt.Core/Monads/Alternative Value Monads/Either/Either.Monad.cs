@@ -7,54 +7,54 @@ namespace LanguageExt;
 /// Monad trait implementation for `Either<L, R>`
 /// </summary>
 /// <typeparam name="L">Left type parameter</typeparam>
-public class Either<L> : Monad<Either<L>>, Traversable<Either<L>>, Alternative<Either<L>>
+public class Either<L> : MonadIO<Either<L>>, Traversable<Either<L>>, Alternative<Either<L>>
 {
-    public static K<Either<L>, B> Apply<A, B>(
+    static K<Either<L>, B> Applicative<Either<L>>.Apply<A, B>(
         K<Either<L>, Func<A, B>> mf, 
         K<Either<L>, A> ma) =>
         from f in mf.As()
         from x in ma.As()
         select f(x);
 
-    public static K<Either<L>, B> Action<A, B>(
+    static K<Either<L>, B> Applicative<Either<L>>.Action<A, B>(
         K<Either<L>, A> ma, 
         K<Either<L>, B> mb) => 
         from _ in ma.As()
         from b in mb.As()
         select b;
 
-    public static K<Either<L>, B> Bind<A, B>(
-        K<Either<L>, A> ma,
-        Func<A, K<Either<L>, B>> f) =>
+    static K<Either<L>, B> Monad<Either<L>>.Bind<A, B>(K<Either<L>, A> ma, Func<A, K<Either<L>, B>> f) => 
         ma.As().Bind(f);
 
-    public static K<Either<L>, A> Pure<A>(A value) => 
+    static K<Either<L>, A> Applicative<Either<L>>.Pure<A>(A value) => 
         Either<L, A>.Right(value);
 
-    public static K<F, K<Either<L>, B>> Traverse<F, A, B>(Func<A, K<F, B>> f, K<Either<L>, A> ta)
-        where F : Applicative<F> =>
+    static K<F, K<Either<L>, B>> Traversable<Either<L>>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Either<L>, A> ta) =>
         ta.As()
           .Match(Right: r => F.Map(Right, f(r)),
                  Left:  l => F.Pure(Left<B>(l)));
 
-    public static S Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Either<L>, A> ta) => 
+    static S Foldable<Either<L>>.Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Either<L>, A> ta) => 
         ta.As().Match(Right: r => f(r)(initialState), Left: _ => initialState);
 
-    public static B FoldBack<A, B>(Func<B, Func<A, B>> f, B initialState, K<Either<L>, A> ta) => 
+    static B Foldable<Either<L>>.FoldBack<A, B>(Func<B, Func<A, B>> f, B initialState, K<Either<L>, A> ta) => 
         ta.As().Match(Right: f(initialState), Left: _ => initialState);
+
+    static K<Either<L>, B> Functor<Either<L>>.Map<A, B>(Func<A, B> f, K<Either<L>, A> ma) => 
+        ma.As().Map(f);
+
+    static K<Either<L>, A> Alternative<Either<L>>.Empty<A>() => 
+        Either<L, A>.Bottom;
+
+    static K<Either<L>, A> Alternative<Either<L>>.Or<A>(K<Either<L>, A> ma, K<Either<L>, A> mb) => 
+        ma.As().IsRight ? ma : mb;
+
+    static K<Either<L>, A> MonadIO<Either<L>>.LiftIO<A>(IO<A> ma) =>
+        MonadIO.liftNoIO<Either<L>, A>(ma);
 
     static K<Either<L>, A> Right<A>(A value) =>
         Either<L, A>.Right(value);
 
     static K<Either<L>, A> Left<A>(L value) =>
         Either<L, A>.Left(value);
-
-    public static K<Either<L>, B> Map<A, B>(Func<A, B> f, K<Either<L>, A> ma) => 
-        ma.As().Map(f);
-
-    public static K<Either<L>, A> Empty<A>() => 
-        Either<L, A>.Bottom;
-
-    public static K<Either<L>, A> Or<A>(K<Either<L>, A> ma, K<Either<L>, A> mb) => 
-        ma.As().IsRight ? ma : mb;
 }

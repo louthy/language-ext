@@ -6,7 +6,7 @@ namespace LanguageExt;
 
 public static partial class IOExtensions
 {
-    public static IO<E, A> As<E, A>(this K<MIO<E>, A> ma) =>
+    public static IO<E, A> As<E, A>(this K<IO<E>, A> ma) =>
         (IO<E, A>)ma;
     
     /// <summary>

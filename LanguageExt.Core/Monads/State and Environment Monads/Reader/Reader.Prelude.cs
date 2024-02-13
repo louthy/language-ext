@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
-using LanguageExt.Common;
+using LanguageExt.HKT;
 using L = LanguageExt;
 
 namespace LanguageExt;
 
 public static partial class Prelude
 {
+    public static K<T, A> liftIO<T, M, A>(IO<A> ma)
+        where T : MonadT<T, M>
+        where M : Monad<M>, MonadIO<M> => 
+        T.Lift(M.LiftIO(ma));
+    
     /// <summary>
     /// Monadic join
     /// </summary>
@@ -35,15 +40,8 @@ public static partial class Prelude
     [Pure]
     [Obsolete("Use `asks` - it's the same function")]
     public static Reader<Env, A> Reader<Env, A>(Func<Env, A> f) =>
-        L.Reader<Env, A>.Lift(f);
-
-    /// <summary>
-    /// Reader failure
-    /// </summary>
-    [Pure]
-    public static Reader<Env, A> ReaderFail<Env, A>(Error error) =>
-        L.Reader<Env, A>.Lift(Transducer.fail<Env, A>(error));
-
+        L.Reader<Env, A>.Asks(f);
+    
     /// <summary>
     /// Retrieves the reader monad environment.
     /// </summary>

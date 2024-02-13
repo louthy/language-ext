@@ -28,5 +28,5 @@ public enum EitherStatus : byte
     /// <summary>
     /// Right state
     /// </summary>
-    IsRight = 2
+    IsRight = 2,
 }

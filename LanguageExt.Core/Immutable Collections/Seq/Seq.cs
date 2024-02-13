@@ -1294,7 +1294,4 @@ public readonly struct Seq<A> :
                    ? new Seq<B>(mb)
                    : new Seq<B>(Yield(this));
     }
-
-    public K<Seq, A> Kind =>
-        this;
 }

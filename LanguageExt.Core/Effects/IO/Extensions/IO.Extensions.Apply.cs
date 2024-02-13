@@ -212,8 +212,7 @@ public static partial class IOExtensions
         IO<Err, Func<A, B, C, D, E>>.Pure(f).Apply(ma);
     
     /// <summary>
-    /// Applicative apply: takes the lifted function and the lifted argument, applies the function to the argument
-    /// and returns the result, lifted.
+    /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static IO<Err, B> Action<Err, A, B>(
         this IO<Err, A> ma,

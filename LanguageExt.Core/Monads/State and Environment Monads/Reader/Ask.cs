@@ -19,7 +19,8 @@ public readonly record struct Ask<Env, A>(Func<Env, A> F)
     /// <summary>
     /// Convert ot a `ReaderT`
     /// </summary>
-    public ReaderT<Env, M, A> ToReaderT<M>() where M : Monad<M> =>
+    public ReaderT<Env, M, A> ToReaderT<M>()
+        where M : MonadIO<M> =>
         ReaderT<Env, M, A>.Asks(F);
     
     /// <summary>
@@ -32,7 +33,7 @@ public readonly record struct Ask<Env, A>(Func<Env, A> F)
     /// Monadic bind with `ReaderT`
     /// </summary>
     public ReaderT<Env, M, C> SelectMany<M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
         ToReaderT<M>().SelectMany(bind, project);
 
     /// <summary>

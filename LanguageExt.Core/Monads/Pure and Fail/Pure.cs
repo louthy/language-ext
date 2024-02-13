@@ -3,7 +3,6 @@ using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 using LanguageExt.HKT;
 using LanguageExt.TypeClasses;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -52,6 +51,15 @@ public readonly record struct Pure<A>(A Value)
         f(Value);
 
     /// <summary>
+    /// Monadic bind
+    /// </summary>
+    /// <param name="f">Bind function</param>
+    /// <typeparam name="B">Result bound value type</typeparam>
+    /// <returns>Result of the applying the bind function to the `Pure` value</returns>
+    public IO<B> Bind<B>(Func<A, IO<B>> f) =>
+        ToIO().Bind(f); 
+
+    /// <summary>
     /// Monadic bind and project
     /// </summary>
     /// <param name="bind">Bind function</param>
@@ -70,10 +78,21 @@ public readonly record struct Pure<A>(A Value)
     /// <typeparam name="B">Result of the bind operation bound value type</typeparam>
     /// <typeparam name="C">Result of the mapping operation bound value type</typeparam>
     /// <returns>Result of the applying the bind and mapping function to the `Pure` value</returns>
+    public IO<C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
+        ToIO().SelectMany(bind, project);
+
+    /// <summary>
+    /// Monadic bind and project
+    /// </summary>
+    /// <param name="bind">Bind function</param>
+    /// <param name="project">Project function</param>
+    /// <typeparam name="B">Result of the bind operation bound value type</typeparam>
+    /// <typeparam name="C">Result of the mapping operation bound value type</typeparam>
+    /// <returns>Result of the applying the bind and mapping function to the `Pure` value</returns>
     public Transducer<E, C> SelectMany<E, B, C>(Func<A, Transducer<E, B>> bind, Func<A, B, C> project)
     {
         var a = Value;
-        return Transducer.compose(bind(a), lift<B, C>(b => project(a, b)));
+        return Transducer.compose(bind(a), Transducer.lift<B, C>(b => project(a, b)));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,6 +124,9 @@ public readonly record struct Pure<A>(A Value)
     
     public IO<E, A> ToIO<E>() =>
         IO<E, A>.Pure(Value);
+    
+    public IO<A> ToIO() =>
+        IO<A>.Pure(Value);
     
     public Eff<RT, A> ToEff<RT>()
         where RT : HasIO<RT, Error> =>
@@ -145,17 +167,21 @@ public readonly record struct Pure<A>(A Value)
     public Eff<B> Bind<B>(Func<A, Eff<B>> bind) =>
         bind(Value);
     
-    public Monad<M, B> Bind<M, B>(Func<A, Monad<M, B>> bind)
+    public K<M, B> Bind<M, B>(Func<A, K<M, B>> bind)
         where M : Monad<M> =>
         bind(Value);
     
     public ReaderT<Env, M, B> Bind<M, Env, B>(Func<A, ReaderT<Env, M, B>> bind)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
+        bind(Value);
+    
+    public ResourceT<M, B> Bind<M, B>(Func<A, ResourceT<M, B>> bind)
+        where M : MonadIO<M> =>
         bind(Value);
     
     public Reader<Env, B> Bind<Env, B>(Func<A, Reader<Env, B>> bind) =>
         bind(Value);
-
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Monadic binding and projection
@@ -190,12 +216,16 @@ public readonly record struct Pure<A>(A Value)
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
     
-    public Monad<M, C> SelectMany<M, B, C>(Func<A, Monad<M, B>> bind, Func<A, B, C> project)
+    public K<M, C> SelectMany<M, B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project)
          where M : Monad<M> =>
-         Bind(x => M.Map(bind(x), y => project(x, y)));
+         Bind(x => M.Map(y => project(x, y), bind(x)));
     
     public ReaderT<Env, M, C> SelectMany<M, Env, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M> =>
+        where M : MonadIO<M> =>
+        Bind(x => bind(x).Map(y => project(x, y)));
+    
+    public ResourceT<M, C> SelectMany<M, B, C>(Func<A, ResourceT<M, B>> bind, Func<A, B, C> project)
+        where M : MonadIO<M> =>
         Bind(x => bind(x).Map(y => project(x, y)));
     
     public Reader<Env, C> SelectMany<Env, B, C>(Func<A, Reader<Env, B>> bind, Func<A, B, C> project) =>

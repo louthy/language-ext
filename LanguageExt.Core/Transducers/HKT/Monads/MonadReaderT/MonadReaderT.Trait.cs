@@ -2,7 +2,7 @@
 
 namespace LanguageExt.HKT;
 
-public interface MonadReaderT<MRdr, Env, M> : MonadT<MRdr, M> 
+public interface MonadReaderT<MRdr, Env, out M> : MonadT<MRdr, M> 
     where M : Monad<M>
     where MRdr : MonadReaderT<MRdr, Env, M>
 {

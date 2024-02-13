@@ -5,7 +5,6 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using LanguageExt.Common;
-using LanguageExt.Effects;
 using LanguageExt.HKT;
 
 namespace LanguageExt;
@@ -99,33 +98,12 @@ public static class EitherExtensions
     /// Apply
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type FB derived from Applicative of B</returns>
-    [Pure]
-    public static Either<L, B> Apply<L, A, B>(this Func<A, B> fab, Either<L, A> fa) =>
-        Functor.map(fab, fa).As();
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
     /// <param name="fa">Applicative a to apply</param>
     /// <param name="fb">Applicative b to apply</param>
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static Either<L, C> Apply<L, A, B, C>(this Either<L, Func<A, B, C>> fabc, Either<L, A> fa, Either<L, B> fb) =>
         Applicative.apply(fabc.Map(curry), fa).As().Apply(fb);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative a to apply</param>
-    /// <param name="fb">Applicative b to apply</param>
-    /// <returns>Applicative of type FC derived from Applicative of C</returns>
-    [Pure]
-    public static Either<L, C> Apply<L, A, B, C>(this Func<A, B, C> fabc, Either<L, A> fa, Either<L, B> fb) =>
-        Functor.map(curry(fabc), fa).As().Apply(fb);
 
     /// <summary>
     /// Apply
@@ -144,28 +122,8 @@ public static class EitherExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static Either<L, Func<B, C>> Apply<L, A, B, C>(this Func<A, B, C> fabc, Either<L, A> fa) =>
-        Functor.map(curry(fabc), fa).As();
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
     public static Either<L, Func<B, C>> Apply<L, A, B, C>(this Either<L, Func<A, Func<B, C>>> fabc, Either<L, A> fa) =>
         Applicative.apply(fabc, fa).As();
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    public static Either<L, Func<B, C>> Apply<L, A, B, C>(this Func<A, Func<B, C>> fabc, Either<L, A> fa) =>
-        Functor.map(fabc, fa).As();
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa

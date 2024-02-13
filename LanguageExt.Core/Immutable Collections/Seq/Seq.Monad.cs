@@ -35,7 +35,7 @@ public partial class Seq : Monad<Seq>, Alternative<Seq>, Traversable<Seq>
     static K<F, K<Seq, B>> Traversable<Seq>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Seq, A> ta) 
     {
         return F.Map<Seq<B>, K<Seq, B>>(
-            ks => ks.Kind, 
+            ks => ks, 
             Foldable.fold(a => s => cons(a, s), F.Pure(empty<B>()), ta));
 
         K<F, Seq<B>> cons(A x, K<F, Seq<B>> ys) =>

@@ -535,7 +535,4 @@ public readonly struct Fin<A> :
     [Pure]
     public Reducer<Unit, S> Transform<S>(Reducer<Sum<Error, A>, S> reduce) => 
         ToTransducer().Transform(reduce);
-
-    public K<Fin, A> Kind => 
-        this;
 }

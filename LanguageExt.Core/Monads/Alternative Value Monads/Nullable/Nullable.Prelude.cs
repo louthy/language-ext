@@ -121,10 +121,6 @@ public static partial class Prelude
             ? Right<L, T>(self.Value)
             : Left<L, T>(Left());
 
-    [Pure]
-    public static TryOption<T> toTryOption<L, T>(T? self, L defaultLeftValue) where T : struct =>
-        () => Optional(self);
-
     /// <summary>
     /// Append the Some(x) of one option to the Some(y) of another.
     /// For numeric values the behaviour is to sum the Somes (lhs + rhs)

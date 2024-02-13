@@ -15,7 +15,4 @@ namespace LanguageExt.HKT;
 /// </remarks>
 /// <typeparam name="F">Trait type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public interface K<in F, out A>
-{
-    K<F, A> Kind { get; }
-}
+public interface K<in F, in A>;

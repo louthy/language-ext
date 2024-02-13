@@ -57,7 +57,4 @@
   <ItemGroup>
     <None Include="README.md" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Transducers\HKT\Monads\" />
-  </ItemGroup>
 </Project>

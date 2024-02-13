@@ -16,7 +16,7 @@ namespace LanguageExt;
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="E">Error value type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly struct IO<RT, E, A> : K<MIO<RT, E>, A>
+public readonly struct IO<RT, E, A> : K<IO<E>.Runtime<RT>, A>
     where RT : HasIO<RT, E>
 {
     /// <summary>
@@ -24,7 +24,7 @@ public readonly struct IO<RT, E, A> : K<MIO<RT, E>, A>
     /// </summary>
     readonly Transducer<RT, Sum<E, A>> thunk;
     
-    public K<MIO<RT, E>, A> Kind => this;
+    public K<IO<E>.Runtime<RT>, A>  this;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -608,7 +608,7 @@ public readonly struct IO<RT, E, A> : K<MIO<RT, E>, A>
     /// </summary>
     /// <param name="f">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
-    public IO<RT, E, B> Bind<B>(Func<A, K<MIO<RT, E>, B>> f) =>
+    public IO<RT, E, B> Bind<B>(Func<A, K<IO<E>.Runtime<RT>, B>> f) =>
         new(Transducer.bind(Morphism, x => f(x).As().Morphism));
 
     /// <summary>
