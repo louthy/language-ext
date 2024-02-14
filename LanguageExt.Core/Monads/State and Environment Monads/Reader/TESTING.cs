@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using LanguageExt.Common;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 using static LanguageExt.Transducer;
 
@@ -118,7 +118,7 @@ public static class Testing
                  from x in IO.Pure("Hello")
                  from i in ReaderT<string, IdentityT<IO>>.liftIO(IO.Pure("Hello"))
                  from j in IO.Pure("Hello").Fork()
-                 from r in IO.askIO 
+                 from r in IO.envIO 
                  from y in m2
                  select $"{p} {y} {j}";
 
@@ -132,12 +132,12 @@ public static class Testing
                 
         var m0 = from w in Pure(123)
                  from q in m1
-                 from f in ResourceT<ReaderT<string, IO>>.acquire(() => File.Open("c:\\test.txt", FileMode.Open))
+                 from f in ResourceT<ReaderT<string, IO>>.use(() => File.Open("c:\\test.txt", FileMode.Open))
                  from p in ReaderT<string, IO>.ask
                  from x in IO.Pure("Hello")
                  from i in ReaderT<string, IO>.liftIO(IO.Pure("Hello"))
                  from j in IO.Pure("Hello").Fork()
-                 from r in IO.askIO 
+                 from r in IO.envIO 
                  from y in m2
                  select $"{p} {y} {j}";
 
@@ -146,24 +146,36 @@ public static class Testing
    
     public static void Test8()
     {
-        var m1 = ResourceT<ReaderT<string, OptionT<IO>>>.lift(ReaderT<string, OptionT<IO>>.lift(OptionT<IO>.lift(IO.Pure(123))));
-        var m2 = ResourceT<ReaderT<string, OptionT<IO>>>.lift(ReaderT<string, OptionT<IO>>.lift(OptionT<IO>.lift(IO.Pure(123))));
-                
+        var m1 = ResourceT.lift(ReaderT<string>.lift(OptionT.lift(IO.Pure(123))));
+        var m2 = ResourceT.lift(ReaderT<string>.lift(OptionT.lift(IO.Pure(123))));
+
         var m0 = from w in Pure(123)
                  from q in m1
-                 from f in ResourceT<ReaderT<string, OptionT<IO>>>.acquire(() => File.Open("c:\\test.txt", FileMode.Open))
-                 from p in ReaderT<string, OptionT<IO>>.ask
-                 from x in IO.Pure("Hello")
-                 from i in ReaderT<string, OptionT<IO>>.liftIO(IO.Pure("Hello"))
+                 from f in use(() => File.Open("c:\\test.txt", FileMode.Open))
+                 from p in ask<string>()
+                 from i in liftIO(IO.Pure("Hello"))
                  from j in IO.Pure("Hello").Fork()
-                 from r in IO.askIO 
-                 from _ in ResourceT<ReaderT<string, OptionT<IO>>>.release(f)
+                 from r in IO.envIO 
+                 from _ in release(f)
                  from y in m2
-                 select $"{p} {y} {j}";
+                 select $"{w} {f} {i}";
 
         var value = m0.Run(ma => ma.As().Run("Hello")
-                                   .As().Match(Some: x => x, None: () => "nothing")
+                                   .As().Match(Some: x => x, None: () => "hello")
                                    .As());
+
+        ResourceT<ReaderT<Env, OptionT<IO>>, Env> ask<Env>() =>
+            ResourceT.lift(ReaderT.ask<Env, OptionT<IO>>());
+        
+        ResourceT<ReaderT<string, OptionT<IO>>, A> use<A>(Func<A> f) where A : IDisposable =>
+            ResourceT<ReaderT<string, OptionT<IO>>>.use(f);
+        
+        ResourceT<ReaderT<string, OptionT<IO>>, Unit> release<A>(A value) where A : IDisposable =>
+            ResourceT<ReaderT<string, OptionT<IO>>>.release(value);
+
+        ResourceT<ReaderT<string, OptionT<IO>>, A> liftIO<A>(IO<A> ma) =>
+            ResourceT.lift(ReaderT.liftIO<string, OptionT<IO>, A>(ma));
+        
     }
 
     
@@ -174,7 +186,7 @@ public static class Testing
 //  Maybe test
 //
 
-public class Maybe : Monad<Maybe>, MonadIO<Maybe>
+public class Maybe : Monad<Maybe>
 {
     public static Maybe<A> Just<A>(A value) =>
         new Just<A>(value);

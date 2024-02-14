@@ -5,7 +5,7 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using LanguageExt.Common;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 

@@ -7,7 +7,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 

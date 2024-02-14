@@ -1,5 +1,5 @@
 ﻿using System;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -8,8 +8,8 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="Env">Reader environment type</typeparam>
 /// <typeparam name="M">Given monad trait</typeparam>
-public partial class ReaderT<Env, M> : MonadReaderT<ReaderT<Env, M>, Env, M>, MonadIO<ReaderT<Env, M>>
-    where M : MonadIO<M>
+public partial class ReaderT<Env, M> : MonadReaderT<ReaderT<Env, M>, Env, M>
+    where M : Monad<M>
 {
     static K<ReaderT<Env, M>, B> Monad<ReaderT<Env, M>>.Bind<A, B>(K<ReaderT<Env, M>, A> ma, Func<A, K<ReaderT<Env, M>, B>> f) => 
         ma.As().Bind(f);
@@ -38,6 +38,6 @@ public partial class ReaderT<Env, M> : MonadReaderT<ReaderT<Env, M>, Env, M>, Mo
     static K<ReaderT<Env, M>, A> MonadReaderT<ReaderT<Env, M>, Env, M>.Local<A>(Func<Env, Env> f, K<ReaderT<Env, M>, A> ma) =>
         ma.As().Local(f);
 
-    static K<ReaderT<Env, M>, A> MonadIO<ReaderT<Env, M>>.LiftIO<A>(IO<A> ma) => 
+    static K<ReaderT<Env, M>, A> Monad<ReaderT<Env, M>>.LiftIO<A>(IO<A> ma) =>
         ReaderT<Env, M, A>.Lift(M.LiftIO(ma));
 }

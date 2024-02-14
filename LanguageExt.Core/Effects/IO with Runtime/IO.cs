@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Effects.Traits;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 

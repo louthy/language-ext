@@ -1,11 +1,14 @@
 using System;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
 public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<ResourceT<M>, A> 
-    where M : MonadIO<M>
+    where M : Monad<M>
 {
+    /// <summary>
+    /// Pure constructor
+    /// </summary>
     public static ResourceT<M, A> Pure(A value) =>
         new(_ => M.Pure(value));
     
@@ -48,7 +51,7 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
     /// <typeparam name="M1">Trait of the monad to map to</typeparam>
     /// <returns>`ResourceT`</returns>
     public ResourceT<M1, A> MapT<M1>(Func<K<M, A>, K<M1, A>> f)
-        where M1 : Monad<M1>, MonadIO<M1> =>
+        where M1 : Monad<M1> =>
         new (env => f(runResource(env)));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

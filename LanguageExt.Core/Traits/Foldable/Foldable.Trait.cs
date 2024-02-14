@@ -2,7 +2,7 @@ using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.HKT;
+namespace LanguageExt.Traits;
 
 public interface Foldable<T> where T : Foldable<T>
 {

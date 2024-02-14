@@ -1,5 +1,5 @@
 ﻿using System;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -10,7 +10,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
-    where M : Monad<M>, MonadIO<M>
+    where M : Monad<M>
 {
     /// <summary>
     /// Lift a pure value into the monad-transformer

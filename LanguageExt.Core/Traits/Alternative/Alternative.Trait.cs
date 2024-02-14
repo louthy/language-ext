@@ -1,7 +1,7 @@
 using System;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.HKT;
+namespace LanguageExt.Traits;
 
 /// <summary>
 /// A monoid on applicative functors

@@ -6,7 +6,7 @@ using System.Diagnostics.Contracts;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 

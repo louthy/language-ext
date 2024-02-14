@@ -1,5 +1,5 @@
 using System;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -20,7 +20,7 @@ public readonly record struct Ask<Env, A>(Func<Env, A> F)
     /// Convert ot a `ReaderT`
     /// </summary>
     public ReaderT<Env, M, A> ToReaderT<M>()
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         ReaderT<Env, M, A>.Asks(F);
     
     /// <summary>
@@ -33,7 +33,7 @@ public readonly record struct Ask<Env, A>(Func<Env, A> F)
     /// Monadic bind with `ReaderT`
     /// </summary>
     public ReaderT<Env, M, C> SelectMany<M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         ToReaderT<M>().SelectMany(bind, project);
 
     /// <summary>

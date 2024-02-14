@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 

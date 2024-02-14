@@ -1,7 +1,7 @@
 
 using System;
 using System.Threading.Tasks;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 

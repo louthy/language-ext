@@ -1,7 +1,20 @@
 ﻿using System;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
+
+
+/// <summary>
+/// `MonadReaderT` trait implementation for `ReaderT` 
+/// </summary>
+/// <typeparam name="Env">Reader environment type</typeparam>
+/// <typeparam name="M">Given monad trait</typeparam>
+public class ReaderT<Env>
+{
+    public static ReaderT<Env, M, A> lift<M, A>(K<M, A> ma)  
+        where M : Monad<M> => 
+        ReaderT<Env, M, A>.Lift(ma);
+}
 
 /// <summary>
 /// `MonadReaderT` trait implementation for `ReaderT` 
@@ -9,35 +22,69 @@ namespace LanguageExt;
 /// <typeparam name="Env">Reader environment type</typeparam>
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class ReaderT<Env, M>
-    where M : MonadIO<M>
+    where M : Monad<M> 
 {
-    public static ReaderT<Env, M, B> bind<A, B>(ReaderT<Env, M, A> ma, Func<A, ReaderT<Env, M, B>> f) => 
-        ma.As().Bind(f);
-
-    public static ReaderT<Env, M, B> map<A, B>(Func<A, B> f, ReaderT<Env, M, A> ma) => 
-        ma.As().Map(f);
-
     public static ReaderT<Env, M, A> Pure<A>(A value) => 
         ReaderT<Env, M, A>.Pure(value);
 
-    public static ReaderT<Env, M, B> apply<A, B>(ReaderT<Env, M, Func<A, B>> mf, ReaderT<Env, M, A> ma) => 
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="effect">Monad to lift</param>
+    /// <returns>`ReaderT`</returns>
+    public static ReaderT<Env, M, A> liftIO<A>(IO<A> effect) =>
+        ReaderT<Env, M, A>.Lift(M.LiftIO(effect));
+}
+
+/// <summary>
+/// `MonadReaderT` trait implementation for `ReaderT` 
+/// </summary>
+/// <typeparam name="Env">Reader environment type</typeparam>
+/// <typeparam name="M">Given monad trait</typeparam>
+public partial class ReaderT
+{
+    public static ReaderT<Env, M, B> bind<Env, M, A, B>(ReaderT<Env, M, A> ma, Func<A, ReaderT<Env, M, B>> f) 
+        where M : Monad<M> => 
+        ma.As().Bind(f);
+
+    public static ReaderT<Env, M, B> map<Env, M, A, B>(Func<A, B> f, ReaderT<Env, M, A> ma)  
+        where M : Monad<M> => 
+        ma.As().Map(f);
+
+    public static ReaderT<Env, M, A> Pure<Env, M, A>(A value)  
+        where M : Monad<M> => 
+        ReaderT<Env, M, A>.Pure(value);
+
+    public static ReaderT<Env, M, B> apply<Env, M, A, B>(ReaderT<Env, M, Func<A, B>> mf, ReaderT<Env, M, A> ma)  
+        where M : Monad<M> => 
         mf.As().Bind(ma.As().Map);
 
-    public static ReaderT<Env, M, B> action<A, B>(ReaderT<Env, M, A> ma, ReaderT<Env, M, B> mb) =>
+    public static ReaderT<Env, M, B> action<Env, M, A, B>(ReaderT<Env, M, A> ma, ReaderT<Env, M, B> mb) 
+        where M : Monad<M> => 
         ma.As().Bind(_ => mb);
 
-    public static ReaderT<Env, M, A> lift<A>(K<M, A> ma) => 
+    public static ReaderT<Env, M, A> lift<Env, M, A>(K<M, A> ma)  
+        where M : Monad<M> => 
         ReaderT<Env, M, A>.Lift(ma);
 
-    public static ReaderT<Env, M, Env> ask =>
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="effect">Monad to lift</param>
+    /// <returns>`ReaderT`</returns>
+    public static ReaderT<Env, M, A> liftIO<Env, M, A>(IO<A> effect)
+        where M : Monad<M> =>
+        ReaderT<Env, M, A>.Lift(M.LiftIO(effect));
+    
+    public static ReaderT<Env, M, Env> ask<Env, M>() 
+        where M : Monad<M> => 
         ReaderT<Env, M, Env>.Asks(Prelude.identity);
 
-    public static ReaderT<Env, M, A> asks<A>(Func<Env, A> f) => 
+    public static ReaderT<Env, M, A> asks<Env, M, A>(Func<Env, A> f)  
+        where M : Monad<M> => 
         ReaderT<Env, M, A>.Asks(f);
 
-    public static ReaderT<Env, M, A> local<A>(Func<Env, Env> f, ReaderT<Env, M, A> ma) =>
+    public static ReaderT<Env, M, A> local<Env, M, A>(Func<Env, Env> f, ReaderT<Env, M, A> ma) 
+        where M : Monad<M> => 
         ma.As().Local(f);
-
-    public static ReaderT<Env, M, A> liftIO<A>(IO<A> ma) => 
-        ReaderT<Env, M, A>.Lift(M.LiftIO(ma));
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -11,7 +11,7 @@ namespace LanguageExt;
 public static class OptionTExt
 {
     public static OptionT<M, A> As<M, A>(this K<OptionT<M>, A> ma)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         (OptionT<M, A>)ma;
     
     /// <summary>
@@ -19,7 +19,7 @@ public static class OptionTExt
     /// </summary>
     [Pure]
     public static OptionT<M, A> Flatten<M, A>(this OptionT<M, OptionT<M, A>> mma)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         mma.Bind(identity);
 
     /// <summary>
@@ -30,11 +30,12 @@ public static class OptionTExt
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`OptionT`</returns>
+    [Pure]
     public static OptionT<M, C> SelectMany<M, A, B, C>(
         this K<M, A> ma, 
         Func<A, K<OptionT<M>, B>> bind, 
         Func<A, B, C> project)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         OptionT<M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
@@ -45,11 +46,12 @@ public static class OptionTExt
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`OptionT`</returns>
+    [Pure]
     public static OptionT<M, C> SelectMany<M, A, B, C>(
         this K<M, A> ma, 
         Func<A, OptionT<M, B>> bind, 
         Func<A, B, C> project)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         OptionT<M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
@@ -60,10 +62,27 @@ public static class OptionTExt
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`OptionT`</returns>
+    [Pure]
     public static OptionT<M, C> SelectMany<M, A, B, C>(
         this OptionT<M, A> ma, 
         Func<A, IO<B>> bind, 
         Func<A, B, C> project)
-        where M : Monad<M>, MonadIO<M> =>
+        where M : Monad<M> =>
         ma.SelectMany(x => M.LiftIO(bind(x)), project);
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    [Pure]
+    public static OptionT<M, B> Apply<M, A, B>(this OptionT<M, Func<A, B>> mf, OptionT<M, A> ma) 
+        where M : Monad<M> => 
+        mf.As().Bind(ma.As().Map);
+
+    /// <summary>
+    /// Applicative action
+    /// </summary>
+    [Pure]
+    public static OptionT<M, B> Action<M, A, B>(this OptionT<M, A> ma, OptionT<M, B> mb)
+        where M : Monad<M> => 
+        ma.As().Bind(_ => mb);
 }

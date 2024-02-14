@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 

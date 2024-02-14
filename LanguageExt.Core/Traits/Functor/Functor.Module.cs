@@ -1,6 +1,6 @@
 using System;
 
-namespace LanguageExt.HKT;
+namespace LanguageExt.Traits;
 
 /// <summary>
 /// Functor module

@@ -1,5 +1,5 @@
 ﻿using System;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 

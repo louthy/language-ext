@@ -2,7 +2,7 @@
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
 using LanguageExt.Common;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 

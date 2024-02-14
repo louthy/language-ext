@@ -1,4 +1,4 @@
-﻿namespace LanguageExt.HKT;
+﻿namespace LanguageExt.Traits;
 
 /// <summary>
 /// MonadT trait

@@ -1,4 +1,4 @@
-namespace LanguageExt.HKT;
+namespace LanguageExt.Traits;
 
 /// <summary>
 /// Arrow kind: `* -> *` used to represent higher-kinded types.
@@ -15,4 +15,4 @@ namespace LanguageExt.HKT;
 /// </remarks>
 /// <typeparam name="F">Trait type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public interface K<in F, in A>;
+public interface K<in F, out A>;

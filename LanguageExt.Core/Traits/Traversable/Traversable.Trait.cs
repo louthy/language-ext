@@ -1,6 +1,6 @@
 using System;
 
-namespace LanguageExt.HKT;
+namespace LanguageExt.Traits;
 
 public interface Traversable<T> : Functor<T>, Foldable<T> 
     where T : Traversable<T>, Functor<T>, Foldable<T>

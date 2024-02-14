@@ -1,6 +1,5 @@
 ﻿using System;
-using LanguageExt.Common;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -8,7 +7,7 @@ namespace LanguageExt;
 /// Identity module
 /// </summary>
 public class Identity : 
-    MonadIO<Identity>, 
+    Monad<Identity>, 
     Traversable<Identity>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +70,4 @@ public class Identity :
 
     static K<F, K<Identity, B>> Traversable<Identity>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Identity, A> ta) =>
         F.Map(Pure, f(ta.As().Value));
-
-    static K<Identity, A> MonadIO<Identity>.LiftIO<A>(IO<A> ma) =>
-        MonadIO.liftNoIO<Identity, A>(ma);
 }

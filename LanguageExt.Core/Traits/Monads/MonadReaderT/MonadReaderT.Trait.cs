@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LanguageExt.HKT;
+namespace LanguageExt.Traits;
 
 public interface MonadReaderT<MRdr, Env, out M> : MonadT<MRdr, M> 
     where M : Monad<M>

@@ -5,7 +5,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using LanguageExt.Common;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;

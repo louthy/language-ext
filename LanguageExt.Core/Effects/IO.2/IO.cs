@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt.Common;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt;

@@ -1,14 +1,14 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
 public partial class IO
 {
-    public static readonly IO<EnvIO> askIO = 
+    public static readonly IO<EnvIO> envIO = 
         IO<EnvIO>.LiftIO(ValueTask.FromResult);
     
     public static IO<A> asksIO<A>(Func<EnvIO, A> f) => 

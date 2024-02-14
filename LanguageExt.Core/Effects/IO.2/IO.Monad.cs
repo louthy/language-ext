@@ -1,9 +1,9 @@
 using System;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class IO : Monad<IO>, Alternative<IO>, MonadIO<IO>
+public partial class IO : Monad<IO>, Alternative<IO>
 {
     public static IO<A> Pure<A>(A value) => 
         IO<A>.Pure(value);
@@ -29,6 +29,6 @@ public partial class IO : Monad<IO>, Alternative<IO>, MonadIO<IO>
     static K<IO, A> Alternative<IO>.Or<A>(K<IO, A> ma, K<IO, A> mb) => 
         ma.As() | mb.As();
 
-    static K<IO, A> MonadIO<IO>.LiftIO<A>(IO<A> ma) => 
+    static K<IO, A> Monad<IO>.LiftIO<A>(IO<A> ma) => 
         ma;
 }

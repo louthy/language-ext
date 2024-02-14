@@ -1,17 +1,17 @@
 ﻿using System;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
 /// <summary>
 /// Reader monad extensions
 /// </summary>
-public static class ResourceT
+public static partial class ResourceT
 {
     public static ResourceT<M, A> As<M, A>(this K<ResourceT<M>, A> ma)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         (ResourceT<M, A>)ma;
 
     /// <summary>
@@ -19,7 +19,7 @@ public static class ResourceT
     /// </summary>
     [Pure]
     public static ResourceT<M, A> Flatten<M, A>(this ResourceT<M, ResourceT<M, A>> mma)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         mma.Bind(identity);
 
     /// <summary>
@@ -34,7 +34,7 @@ public static class ResourceT
         this K<M, A> ma, 
         Func<A, K<ResourceT<M>, B>> bind, 
         Func<A, B, C> project)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         ResourceT<M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
@@ -49,7 +49,7 @@ public static class ResourceT
         this K<M, A> ma, 
         Func<A, ResourceT<M, B>> bind, 
         Func<A, B, C> project)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         ResourceT<M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
@@ -64,6 +64,6 @@ public static class ResourceT
         this ResourceT<M, A> ma, 
         Func<A, IO<B>> bind, 
         Func<A, B, C> project)
-        where M : Monad<M>, MonadIO<M> =>
+        where M : Monad<M> =>
         ma.SelectMany(x => M.LiftIO(bind(x)), project);
 }

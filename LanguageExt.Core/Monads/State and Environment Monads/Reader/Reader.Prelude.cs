@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
-using LanguageExt.HKT;
 using L = LanguageExt;
 
 namespace LanguageExt;
 
 public static partial class Prelude
 {
-    public static K<T, A> liftIO<T, M, A>(IO<A> ma)
-        where T : MonadT<T, M>
-        where M : Monad<M>, MonadIO<M> => 
-        T.Lift(M.LiftIO(ma));
-    
     /// <summary>
     /// Monadic join
     /// </summary>

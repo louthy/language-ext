@@ -1,5 +1,4 @@
 using System;
-using LanguageExt.HKT;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;

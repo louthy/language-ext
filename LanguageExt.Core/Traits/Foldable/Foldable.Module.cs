@@ -3,7 +3,7 @@ using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.HKT;
+namespace LanguageExt.Traits;
 
 public static class Foldable
 {

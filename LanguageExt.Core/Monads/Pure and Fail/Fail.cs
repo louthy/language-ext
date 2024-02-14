@@ -1,7 +1,7 @@
 ﻿using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt;

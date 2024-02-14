@@ -1,7 +1,7 @@
 ﻿using System;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -14,7 +14,7 @@ public static class ReaderExt
         (Reader<Env, A>)ma;
     
     public static ReaderT<Env, M, A> As<Env, M, A>(this K<ReaderT<Env, M>, A> ma)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         (ReaderT<Env, M, A>)ma;
     
     /// <summary>
@@ -38,7 +38,7 @@ public static class ReaderExt
     /// </summary>
     [Pure]
     public static ReaderT<Env, M, A> Flatten<Env, M, A>(this ReaderT<Env, M, ReaderT<Env, M, A>> mma)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         mma.Bind(identity);
 
     /// <summary>
@@ -53,7 +53,7 @@ public static class ReaderExt
         this K<M, A> ma, 
         Func<A, K<ReaderT<Env, M>, B>> bind, 
         Func<A, B, C> project)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         ReaderT<Env, M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
@@ -68,7 +68,7 @@ public static class ReaderExt
         this K<M, A> ma, 
         Func<A, ReaderT<Env, M, B>> bind, 
         Func<A, B, C> project)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         ReaderT<Env, M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
@@ -83,6 +83,6 @@ public static class ReaderExt
         this ReaderT<Env, M, A> ma, 
         Func<A, IO<B>> bind, 
         Func<A, B, C> project)
-        where M : Monad<M>, MonadIO<M> =>
+        where M : Monad<M> =>
         ma.SelectMany(x => M.LiftIO(bind(x)), project);
 }

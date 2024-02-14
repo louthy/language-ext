@@ -10,7 +10,7 @@ using LanguageExt.ClassInstances;
 using System.Runtime.Serialization;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 

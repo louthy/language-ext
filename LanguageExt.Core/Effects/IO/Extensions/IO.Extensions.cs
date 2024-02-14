@@ -1,6 +1,6 @@
 using System;
 using LanguageExt.Effects;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 

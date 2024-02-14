@@ -1,7 +1,7 @@
 ﻿using System;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
-using LanguageExt.HKT;
+using LanguageExt.Traits;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt;
@@ -172,11 +172,11 @@ public readonly record struct Pure<A>(A Value)
         bind(Value);
     
     public ReaderT<Env, M, B> Bind<M, Env, B>(Func<A, ReaderT<Env, M, B>> bind)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         bind(Value);
     
     public ResourceT<M, B> Bind<M, B>(Func<A, ResourceT<M, B>> bind)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         bind(Value);
     
     public Reader<Env, B> Bind<Env, B>(Func<A, Reader<Env, B>> bind) =>
@@ -221,11 +221,11 @@ public readonly record struct Pure<A>(A Value)
          Bind(x => M.Map(y => project(x, y), bind(x)));
     
     public ReaderT<Env, M, C> SelectMany<M, Env, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         Bind(x => bind(x).Map(y => project(x, y)));
     
     public ResourceT<M, C> SelectMany<M, B, C>(Func<A, ResourceT<M, B>> bind, Func<A, B, C> project)
-        where M : MonadIO<M> =>
+        where M : Monad<M> =>
         Bind(x => bind(x).Map(y => project(x, y)));
     
     public Reader<Env, C> SelectMany<Env, B, C>(Func<A, Reader<Env, B>> bind, Func<A, B, C> project) =>
