@@ -131,6 +131,7 @@ public static class Testing
         var m2 = ResourceT<ReaderT<string, IO>>.lift(ReaderT<string, IO>.lift(IO.Pure(123)));
                 
         var m0 = from w in Pure(123)
+                 from q in m1
                  from f in ResourceT<ReaderT<string, IO>>.acquire(() => File.Open("c:\\test.txt", FileMode.Open))
                  from p in ReaderT<string, IO>.ask
                  from x in IO.Pure("Hello")
@@ -141,6 +142,28 @@ public static class Testing
                  select $"{p} {y} {j}";
 
         var value = m0.Run(ma => ma.As().Run("Hello").As());
+    }
+   
+    public static void Test8()
+    {
+        var m1 = ResourceT<ReaderT<string, OptionT<IO>>>.lift(ReaderT<string, OptionT<IO>>.lift(OptionT<IO>.lift(IO.Pure(123))));
+        var m2 = ResourceT<ReaderT<string, OptionT<IO>>>.lift(ReaderT<string, OptionT<IO>>.lift(OptionT<IO>.lift(IO.Pure(123))));
+                
+        var m0 = from w in Pure(123)
+                 from q in m1
+                 from f in ResourceT<ReaderT<string, OptionT<IO>>>.acquire(() => File.Open("c:\\test.txt", FileMode.Open))
+                 from p in ReaderT<string, OptionT<IO>>.ask
+                 from x in IO.Pure("Hello")
+                 from i in ReaderT<string, OptionT<IO>>.liftIO(IO.Pure("Hello"))
+                 from j in IO.Pure("Hello").Fork()
+                 from r in IO.askIO 
+                 from _ in ResourceT<ReaderT<string, OptionT<IO>>>.release(f)
+                 from y in m2
+                 select $"{p} {y} {j}";
+
+        var value = m0.Run(ma => ma.As().Run("Hello")
+                                   .As().Match(Some: x => x, None: () => "nothing")
+                                   .As());
     }
 
     

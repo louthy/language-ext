@@ -1,5 +1,4 @@
-﻿using LanguageExt.TypeClasses;
-using System;
+﻿using System;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -10,14 +9,13 @@ namespace LanguageExt;
 /// context to complete the matching operation.
 /// </summary>
 /// <typeparam name="A">Bound optional value type</typeparam>
-public class SomeUnitContext<OPT, OA, A> 
-    where OPT  : Optional<OA, A>
+public class SomeUnitContext<A>
 {
-    readonly OA option;
+    readonly Option<A> option;
     readonly Action<A> someHandler;
     Action? noneHandler;
 
-    internal SomeUnitContext(OA option, Action<A> someHandler)
+    internal SomeUnitContext(Option<A> option, Action<A> someHandler)
     {
         this.option      = option;
         this.someHandler = someHandler;
@@ -30,52 +28,10 @@ public class SomeUnitContext<OPT, OA, A>
     public Unit None(Action f)
     {
         noneHandler = f;
-        return OPT.Match(option, HandleSome, HandleNone);
+        return option.Match(HandleSome, HandleNone);
     }
 
     Unit HandleSome(A value)
-    {
-        someHandler(value);
-        return unit;
-    }
-
-    Unit HandleNone()
-    {
-        noneHandler?.Invoke();
-        return unit;
-    }
-}
-
-/// <summary>
-/// Provides a fluent context when calling the Some(Action) method from
-/// OptionalUnsafe<A> trait.  Must call None(Action) or None(Value) on this 
-/// context to complete the matching operation.
-/// </summary>
-/// <typeparam name="A">Bound optional value type</typeparam>
-public class SomeUnsafeUnitContext<OPT, OA, A>
-    where OPT : OptionalUnsafe<OA, A>
-{
-    readonly OA option;
-    readonly Action<A?> someHandler;
-    Action? noneHandler;
-
-    internal SomeUnsafeUnitContext(OA option, Action<A?> someHandler)
-    {
-        this.option      = option;
-        this.someHandler = someHandler;
-    }
-
-    /// <summary>
-    /// The None branch of the matching operation
-    /// </summary>
-    /// <param name="noneHandler">None branch operation</param>
-    public Unit None(Action f)
-    {
-        noneHandler = f;
-        return OPT.MatchUnsafe(option, HandleSome, HandleNone);
-    }
-
-    Unit HandleSome(A? value)
     {
         someHandler(value);
         return unit;

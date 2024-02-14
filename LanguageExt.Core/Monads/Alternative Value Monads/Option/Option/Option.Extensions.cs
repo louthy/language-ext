@@ -6,6 +6,7 @@ using System.Diagnostics.Contracts;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
+using LanguageExt.HKT;
 
 namespace LanguageExt;
 
@@ -14,6 +15,9 @@ namespace LanguageExt;
 /// </summary>
 public static class OptionExtensions
 {
+    public static Option<A> As<A>(this K<Option, A> ma) =>
+        (Option<A>)ma;
+    
     /// <summary>
     /// Monadic join
     /// </summary>
@@ -133,18 +137,7 @@ public static class OptionExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<B> Apply<A, B>(this Option<Func<A, B>> fab, Option<A> fa) =>
-        ApplOption<A, B>.Apply(fab, fa);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type FB derived from Applicative of B</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<B> Apply<A, B>(this Func<A, B> fab, Option<A> fa) =>
-        ApplOption<A, B>.Apply(fab, fa);
+        fab.Bind(fa.Map);
 
     /// <summary>
     /// Apply
@@ -156,19 +149,7 @@ public static class OptionExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<C> Apply<A, B, C>(this Option<Func<A, B, C>> fabc, Option<A> fa, Option<B> fb) =>
-        ApplOption<B, C>.Apply(ApplOption<A, Func<B, C>>.Apply(fabc.Map(curry), fa), fb);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative a to apply</param>
-    /// <param name="fb">Applicative b to apply</param>
-    /// <returns>Applicative of type FC derived from Applicative of C</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<C> Apply<A, B, C>(this Func<A, B, C> fabc, Option<A> fa, Option<B> fb) =>
-        ApplOption<B, C>.Apply(ApplOption<A, Func<B, C>>.Apply(Some(curry(fabc)), fa), fb);
+        fabc.Bind(f => fa.Bind(a => fb.Map(b => f(a, b))));
 
     /// <summary>
     /// Apply
@@ -179,18 +160,7 @@ public static class OptionExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, B, C>> fabc, Option<A> fa) =>
-        ApplOption<A, Func<B, C>>.Apply(fabc.Map(curry), fa);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, Option<A> fa) =>
-        ApplOption<A, Func<B, C>>.Apply(Some(curry(fabc)), fa);
+        fabc.Map(curry).Bind(fa.Map);
 
     /// <summary>
     /// Apply
@@ -201,18 +171,7 @@ public static class OptionExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, Func<B, C>>> fabc, Option<A> fa) =>
-        ApplOption<A, Func<B, C>>.Apply(fabc, fa);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, Option<A> fa) =>
-        ApplOption<A, Func<B, C>>.Apply(Some(fabc), fa);
+        fabc.Bind(fa.Map);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -223,7 +182,7 @@ public static class OptionExtensions
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<B> Action<A, B>(this Option<A> fa, Option<B> fb) =>
-        ApplOption<A, B>.Action(fa, fb);
+        fb;
 
     /// <summary>
     /// Convert the Option type to a Nullable of A
@@ -283,25 +242,4 @@ public static class OptionExtensions
         Func<T, IEnumerable<R>> Some,
         IEnumerable<R> None) =>
         match(list, Some, () => None);
-
-    /// <summary>
-    /// Sum the bound value
-    /// </summary>
-    /// <remarks>This is a legacy method for backwards compatibility</remarks>
-    /// <param name="a">Option of int</param>
-    /// <returns>The bound value or 0 if None</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int Sum(this Option<int> a) =>
-        (int)a;
-
-    /// <summary>
-    /// Sum the bound value
-    /// </summary>
-    /// <remarks>This is a legacy method for backwards compatibility</remarks>
-    /// <param name="self">Option of A that is from the trait NUM</param>
-    /// <returns>The bound value or 0 if None</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A Sum<NUM, A>(this Option<A> self)
-        where NUM : Num<A> =>
-        sum<NUM, MOption<A>, Option<A>, A>(self);
 }

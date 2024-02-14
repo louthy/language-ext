@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
-using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
 
 namespace LanguageExt;
@@ -233,18 +232,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<B> apply<A, B>(Option<Func<A, B>> fab, Option<A> fa) =>
-        ApplOption<A, B>.Apply(fab, fa);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type FB derived from Applicative of B</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<B> apply<A, B>(Func<A, B> fab, Option<A> fa) =>
-        ApplOption<A, B>.Apply(fab, fa);
+        fab.Apply(fa);
 
     /// <summary>
     /// Apply
@@ -256,19 +244,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<C> apply<A, B, C>(Option<Func<A, B, C>> fabc, Option<A> fa, Option<B> fb) =>
-        ApplOption<B, C>.Apply(ApplOption<A, Func<B, C>>.Apply(fabc.Map(curry), fa), fb);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative a to apply</param>
-    /// <param name="fb">Applicative b to apply</param>
-    /// <returns>Applicative of type FC derived from Applicative of C</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<C> apply<A, B, C>(Func<A, B, C> fabc, Option<A> fa, Option<B> fb) =>
-        ApplOption<B, C>.Apply(ApplOption<A, Func<B, C>>.Apply(curry(fabc), fa), fb);
+        fabc.Apply(fa, fb);
 
     /// <summary>
     /// Apply
@@ -279,18 +255,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<Func<B, C>> apply<A, B, C>(Option<Func<A, B, C>> fabc, Option<A> fa) =>
-        ApplOption<A, Func<B, C>>.Apply(fabc.Map(curry), fa);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, Option<A> fa) =>
-        ApplOption<A, Func<B, C>>.Apply(curry(fabc), fa);
+        fabc.Apply(fa);
 
     /// <summary>
     /// Apply
@@ -301,18 +266,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<Func<B, C>> apply<A, B, C>(Option<Func<A, Func<B, C>>> fabc, Option<A> fa) =>
-        ApplOption<A, Func<B, C>>.Apply(fabc, fa);
-
-    /// <summary>
-    /// Apply
-    /// </summary>
-    /// <param name="fab">Function to apply the applicative to</param>
-    /// <param name="fa">Applicative to apply</param>
-    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Option<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, Option<A> fa) =>
-        ApplOption<A, Func<B, C>>.Apply(fabc, fa);
+        fabc.Apply(fa);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa
@@ -323,7 +277,7 @@ public static partial class Prelude
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Option<B> action<A, B>(Option<A> fa, Option<B> fb) =>
-        ApplOption<A, B>.Action(fa, fb);
+        fa.Action(fb);
 
     /// <summary>
     /// <para>

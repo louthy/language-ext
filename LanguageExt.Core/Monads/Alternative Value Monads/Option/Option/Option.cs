@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using static LanguageExt.Optional;
-using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
@@ -10,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
+using LanguageExt.HKT;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt;
@@ -432,6 +431,16 @@ public readonly struct Option<A> :
             : default;
 
     /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Option<B> Bind<B>(Func<A, K<Option, B>> f) =>
+        isSome
+            ? f(Value!).As()
+            : default;
+
+    /// <summary>
     /// Bi-bind.  Allows mapping of both monad states
     /// </summary>
     [Pure]
@@ -467,7 +476,9 @@ public readonly struct Option<A> :
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public R MatchUntyped<R>(Func<object?, R> Some, Func<R> None) =>
-        matchUntyped<MOption<A>, Option<A>, A, R>(this, Some, None)!;
+        IsSome
+            ? Some(Value)
+            : None();    
 
     /// <summary>
     /// Get the Type of the bound value
@@ -488,7 +499,7 @@ public readonly struct Option<A> :
                       ? Sum<Unit, A>.Right(Value!)
                       : Sum<Unit, A>.Left(default);
 
-        return lift<Unit, Sum<Unit, A>>(_ => sum);
+        return Transducer.lift<Unit, Sum<Unit, A>>(_ => sum);
     }
         
     /// <summary>
@@ -616,7 +627,7 @@ public readonly struct Option<A> :
     /// <param name="f">The Some(x) match operation</param>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SomeUnitContext<MOption<A>, Option<A>, A> Some(Action<A> f) =>
+    public SomeUnitContext<A> Some(Action<A> f) =>
         new (this, f);
 
     /// <summary>
@@ -630,7 +641,7 @@ public readonly struct Option<A> :
     /// <returns>The result of the match operation</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SomeContext<MOption<A>, Option<A>, A, B> Some<B>(Func<A, B> f) =>
+    public SomeContext<A, B> Some<B>(Func<A, B> f) =>
         new (this, f);
 
     /// <summary>
@@ -1145,19 +1156,6 @@ public readonly struct Option<A> :
         isSome && pred(Value!)
             ? this
             : default;
-
-    /// <summary>
-    /// Monadic join
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Option<D> Join<B, C, D>(
-        Option<B> inner,
-        Func<A, C> outerKeyMap,
-        Func<B, C> innerKeyMap,
-        Func<A, B, D> project) =>
-        join<EqDefault<C>, MOption<A>, MOption<B>, MOption<D>, Option<A>, Option<B>, Option<D>, A, B, C, D>(
-            this, inner, outerKeyMap, innerKeyMap, project);
 
     /// <summary>
     /// Partial application map
