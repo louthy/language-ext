@@ -32,7 +32,8 @@ public partial class IO : Monad<IO>, Alternative<IO>
 
     static K<IO, A> Monad<IO>.LiftIO<A>(IO<A> ma) => 
         ma;
-
-    static K<IO, Func<K<IO, A>, IO<A>>> Monad<IO>.UnliftIO<A>() =>
-        Pure<Func<K<IO, A>, IO<A>>>(io => io.As());
+    
+    static K<IO, B> Monad<IO>.WithRunInIO<A, B>(
+        Func<Func<K<IO, A>, IO<A>>, IO<B>> inner) =>
+        inner(io => io.As());
 }

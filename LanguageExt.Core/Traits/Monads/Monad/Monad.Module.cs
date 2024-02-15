@@ -23,12 +23,4 @@ public static class Monad
         where MB : K<M, B>
         where M : Monad<M> =>
         (MB)bind(ma, x => f(x));
-    
-    /// <summary>
-    /// Embeds the `IO` monad into the `M<A>` monad.  NOTE: This will fail if the monad transformer
-    /// stack doesn't have an `IO` monad as its inner-most monad.
-    /// </summary>
-    public static K<M, A> liftIO<M, A>(IO<A> ma) 
-        where M : Monad<M> =>
-        M.LiftIO(ma);
 }

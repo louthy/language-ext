@@ -206,23 +206,17 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
     /// Run the resource monad and automatically clean up the resources after 
     /// </summary>
     /// <returns>Bound monad</returns>
-    public A Run(EnvIO envIO, Func<K<M, A>, IO<A>> unliftIO)
+    public K<M, A> Run(EnvIO envIO)
     {
         using var env = new Resources();
-        return unliftIO(runResource(env)).Run(envIO);
+        var       mio = MonadIO.toIO(this).As();
+        return M.Map(m => m.Run(envIO),  mio.runResource(env));
     }
 
     /// <summary>
     /// Run the resource monad and automatically clean up the resources after 
     /// </summary>
     /// <returns>Bound monad</returns>
-    public A Run(Func<K<M, A>, IO<A>> unliftIO) =>
-        Run(EnvIO.New(), unliftIO);
-
-    /// <summary>
-    /// Run the resource monad and automatically clean up the resources after 
-    /// </summary>
-    /// <returns>Bound monad</returns>
-    public A Run(Func<K<M, A>, K<IO, A>> unliftIO) =>
-        Run(EnvIO.New(), ma => unliftIO(ma).As());
+    public K<M, A> Run() =>
+        Run(EnvIO.New());
 }

@@ -52,9 +52,10 @@ public class IdentityT<M> : MonadT<IdentityT<M>, M>, Monad<IdentityT<M>>
     public static K<IdentityT<M>, A> LiftIO<A>(IO<A> ma) => 
         IdentityT<M, A>.Lift(M.LiftIO(ma));
 
-    static K<IdentityT<M>, Func<K<IdentityT<M>, A>, IO<A>>> Monad<IdentityT<M>>.UnliftIO<A>() =>
-        new IdentityT<M, Func<K<IdentityT<M>, A>, IO<A>>>(
-            M.Map(f => new Func<K<IdentityT<M>, A>, IO<A>>(
-                      ma => f(ma.As().Value))
-                , M.UnliftIO<A>()));
+    static K<IdentityT<M>, B> Monad<IdentityT<M>>.WithRunInIO<A, B>(
+        Func<Func<K<IdentityT<M>, A>, IO<A>>, IO<B>> inner) =>
+        new IdentityT<M, B>(
+            M.WithRunInIO<A, B>(
+                run =>
+                    inner(ma => run(ma.As().Value))));
 }

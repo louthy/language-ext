@@ -27,13 +27,12 @@ public partial class ResourceT<M> : MonadT<ResourceT<M>, M>
     static K<ResourceT<M>, A> Monad<ResourceT<M>>.LiftIO<A>(IO<A> ma) => 
         ResourceT<M, A>.Lift(M.LiftIO(ma));
 
-    static K<ResourceT<M>, Func<K<ResourceT<M>, A>, IO<A>>> Monad<ResourceT<M>>.UnliftIO<A>() =>
-        ResourceT.lift(
-            M.Map(f => new Func<K<ResourceT<M>, A>, IO<A>>(
-                          ma =>
-                          {
-                              using var env = new Resources();
-                              return f(ma.As().runResource(env));
-                          })
-                , M.UnliftIO<A>()));
+    static K<ResourceT<M>, B> Monad<ResourceT<M>>.WithRunInIO<A, B>(
+        Func<Func<K<ResourceT<M>, A>, IO<A>>, IO<B>> inner) =>
+        new ResourceT<M, B>(
+            env =>
+                M.WithRunInIO<A, B>(
+                    run =>
+                        inner(ma => run(ma.As().runResource(env)))));
 }
+    

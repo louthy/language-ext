@@ -130,7 +130,8 @@ public static class Testing
                  from y in m2
                  select $"{p} {y} {j}";
 
-        var value = m0.Run(ma => ma.As().Run("Hello").As());
+        var value = m0.Run().As()
+                      .Run("Hello").As();
     }
    
     public static void Test8()
@@ -151,7 +152,7 @@ public static class Testing
 
         var value = m0.Match(Some: v => $"foo {v}", None: () => "bar")
                       .As().Run("Paul")
-                      .As().Run(io => io); 
+                      .As().Run(); 
 
         OptionT<ReaderT<Env, ResourceT<IO>>, Env> ask<Env>() =>
             OptionT.lift(ReaderT.ask<Env, ResourceT<IO>>()); 
@@ -164,10 +165,19 @@ public static class Testing
 
         OptionT<ReaderT<string, ResourceT<IO>>, A> liftIO<A>(IO<A> ma) =>
             OptionT.lift(ReaderT<string>.lift(ResourceT<IO>.liftIO(ma)));
-        
     }
+}
 
-    
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+//  Generalised IO
+//
+
+public static class GeneralIO<M>
+    where M : Monad<M>
+{
+    public static K<M, string> readAllText(string path) =>
+        M.LiftIO(liftIO(async _ => await File.ReadAllTextAsync(path)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
