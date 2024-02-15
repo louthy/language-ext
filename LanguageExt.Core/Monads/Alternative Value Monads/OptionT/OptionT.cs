@@ -76,6 +76,9 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
     public K<M, B> Match<B>(Func<A, B> Some, Func<B> None) =>
         M.Map(mx => mx.Match(Some, None), runOption);
  
+    public K<M, Option<A>> Run() =>
+        runOption;
+ 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Map

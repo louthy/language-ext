@@ -17,9 +17,8 @@ public record Lift<A>(Func<A> Function)
         where M : Monad<M> =>
         new (_ => M.Pure(Function()));
 
-    public AsyncT<M, A> ToAsyncT<M>() 
-        where M : Monad<M> =>
-        new (_ => ValueTask.FromResult(M.Pure(Function())));
+    public IO<A> ToIO() =>
+        new (_ => ValueTask.FromResult(Function()));
 
     public Lift<B> Map<B>(Func<A, B> f) =>
         new (() => f(Function()));
@@ -27,8 +26,8 @@ public record Lift<A>(Func<A> Function)
     public Lift<B> Bind<B>(Func<A, Lift<B>> f) =>
         new(() => f(Function()).Function());
 
-    public AsyncT<M, B> Bind<M, B>(Func<A, AsyncT<M, B>> f) where M : Monad<M> =>
-        ToAsyncT<M>().Bind(f);
+    public IO<B> Bind<B>(Func<A, IO<B>> f) =>
+        ToIO().Bind(f);
 
     public Lift<B> Bind<B>(Func<A, Pure<B>> f) =>
         new (() => f(Function()).Value);
@@ -36,9 +35,8 @@ public record Lift<A>(Func<A> Function)
     public Lift<B> Select<B>(Func<A, B> f) =>
         Map(f);
 
-    public AsyncT<M, C> SelectMany<M, B, C>(Func<A, AsyncT<M, B>> bind, Func<A, B, C> project) 
-        where M : Monad<M> =>
-        ToAsyncT<M>().SelectMany(bind, project);
+    public IO<C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) => 
+        ToIO().SelectMany(bind, project);
 
     public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project) 
         where M : Monad<M> =>

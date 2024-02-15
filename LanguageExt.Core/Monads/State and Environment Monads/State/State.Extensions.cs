@@ -2,9 +2,6 @@
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
-using System.Collections.Generic;
-using LanguageExt.ClassInstances;
-using LanguageExt.Common;
 
 /// <summary>
 /// Extension methods for State
@@ -15,74 +12,12 @@ public static class StateExtensions
     /// Monadic join
     /// </summary>
     [Pure]
-    public static State<Env, A> Flatten<Env, A>(this State<Env, State<Env, A>> ma) =>
-        ma.Bind(identity);
-
-    /// <summary>
-    /// Runs the State monad and memoizes the result in a TryOption monad.  Use
-    /// Match, IfSucc, IfNone, etc to extract.
-    /// </summary>
-    public static (TryOption<A> Value, S State) Run<S, A>(this State<S, A> self, S state)
-    {
-        try
-        {
-            if (self == null) return (() => Option<A>.None, state);
-            if (state == null) return (() => Option<A>.None, state);
-            var (a, s, b) = self(state);
-            if (b)
-            {
-                return (() => Option<A>.None, state);
-            }
-            else
-            {
-                return (() => Optional(a), s);
-            }
-        }
-        catch (Exception e)
-        {
-            return (() => new OptionalResult<A>(e), state);
-        }
-    }
+    public static State<S, A> Flatten<S, A>(this State<S, State<S, A>> ma) =>
+        new(ma.Bind(x => x));
 
     [Pure]
     public static State<S, int> Sum<S>(this State<S, int> self) =>
         self;
-
-    [Pure]
-    public static State<S, Seq<A>> ToSeq<S, A>(this State<S, A> self) =>
-        self.Select(x => x.Cons());
-
-    [Pure]
-    public static Seq<A> ToSeq<S, A>(this State<S, A> self, S state)
-    {
-        IEnumerable<A> Yield()
-        {
-            var (x, s, b) = self(state);
-            if (!b)
-            {
-                yield return x;
-            }
-        }
-        return toSeq(Yield());
-    }
-
-    [Pure]
-    public static State<S, Seq<A>> AsEnumerable<S, A>(this State<S, A> self) =>
-        ToSeq(self);
-
-    [Pure]
-    public static Seq<A> AsEnumerable<S, A>(this State<S, A> self, S state) =>
-        ToSeq(self, state);
-
-    [Pure]
-    public static State<S, int> Count<S>(this State<S, int> self) =>
-        state =>
-        {
-            var (x, s, b) = self(state);
-            return b
-                ? (0, state, false)
-                : (1, s, false);
-        };
 
     [Pure]
     public static State<S, bool> ForAll<S, A>(this State<S, A> self, Func<A, bool> pred) =>

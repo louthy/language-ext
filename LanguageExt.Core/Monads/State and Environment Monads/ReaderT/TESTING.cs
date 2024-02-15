@@ -167,6 +167,49 @@ public static class Testing
         OptionT<ReaderT<string, ResourceT<IO>>, A> liftIO<A>(IO<A> ma) =>
             OptionT.lift(ReaderT<string>.lift(ResourceT<IO>.liftIO(ma)));
     }
+       
+    public static void Test9()
+    {
+        var m1 = OptionT.lift(StateT<string>.lift(IO.Pure(100)));
+        var m2 = OptionT.lift(StateT<string>.lift(IO.Pure(200)));
+
+        var m0 = from w in Pure(123)
+                 from q in m1
+                 from x in StateT.get<string, IO>()
+                 from i in OptionT<StateT<string, IO>>.liftIO(IO.Pure("Hello"))
+                 from j in IO.Pure("Hello").Fork()
+                 from _ in StateT.put<string, IO>(x)
+                 from r in IO.envIO
+                 from y in m2
+                 select $"{w} {j} {i}";
+
+        var value = m0.Match(Some: v => $"foo {v}", 
+                             None: () => "bar").As()
+                      .Run("Paul").As()
+                      .Run(); 
+    }
+       
+    public static void Test10()
+    {
+        var m1 = StateT<string>.lift(OptionT.lift(IO.Pure(100)));
+        var m2 = StateT<string>.lift(OptionT.lift(IO.Pure(200)));
+
+        var m0 = from w in Pure(123)
+                 from q in m1
+                 from x in StateT.get<string, OptionT<IO>>()
+                 from i in StateT<string, OptionT<IO>>.liftIO(IO.Pure("Hello"))
+                 from j in IO.Pure("Hello").Fork()
+                 from _ in StateT.put<string, OptionT<IO>>(x)
+                 from r in IO.envIO
+                 from y in m2
+                 select $"{w} {j} {i}";
+
+        var value = m0.Run("Paul").As()
+                      .Match(Some: v => $"value: {v.Value}, state: {v.State}", 
+                             None: () => "bar").As()
+                      .Run(); 
+    }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
