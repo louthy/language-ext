@@ -6,8 +6,8 @@ namespace LanguageExt;
 /// <summary>
 /// Identity module
 /// </summary>
-public class IdentityT<M> : MonadT<IdentityT<M>, M>, MonadIO<IdentityT<M>>
-    where M : MonadIO<M>
+public class IdentityT<M> : MonadT<IdentityT<M>, M>, Monad<IdentityT<M>>
+    where M : Monad<M>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -51,4 +51,10 @@ public class IdentityT<M> : MonadT<IdentityT<M>, M>, MonadIO<IdentityT<M>>
 
     public static K<IdentityT<M>, A> LiftIO<A>(IO<A> ma) => 
         IdentityT<M, A>.Lift(M.LiftIO(ma));
+
+    static K<IdentityT<M>, Func<K<IdentityT<M>, A>, IO<A>>> Monad<IdentityT<M>>.UnliftIO<A>() =>
+        new IdentityT<M, Func<K<IdentityT<M>, A>, IO<A>>>(
+            M.Map(f => new Func<K<IdentityT<M>, A>, IO<A>>(
+                      ma => f(ma.As().Value))
+                , M.UnliftIO<A>()));
 }

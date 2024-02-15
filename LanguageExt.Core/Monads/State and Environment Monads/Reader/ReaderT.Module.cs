@@ -33,7 +33,7 @@ public partial class ReaderT<Env, M>
     /// <param name="effect">Monad to lift</param>
     /// <returns>`ReaderT`</returns>
     public static ReaderT<Env, M, A> liftIO<A>(IO<A> effect) =>
-        ReaderT<Env, M, A>.Lift(M.LiftIO(effect));
+        ReaderT<Env, M, A>.LiftIO(effect);
 }
 
 /// <summary>
@@ -74,7 +74,7 @@ public partial class ReaderT
     /// <returns>`ReaderT`</returns>
     public static ReaderT<Env, M, A> liftIO<Env, M, A>(IO<A> effect)
         where M : Monad<M> =>
-        ReaderT<Env, M, A>.Lift(M.LiftIO(effect));
+        ReaderT<Env, M, A>.LiftIO(effect);
     
     public static ReaderT<Env, M, Env> ask<Env, M>() 
         where M : Monad<M> => 

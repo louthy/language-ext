@@ -16,7 +16,7 @@ public partial class ResourceT<M> : MonadT<ResourceT<M>, M>
         ResourceT<M, A>.Pure(value);
 
     static K<ResourceT<M>, B> Applicative<ResourceT<M>>.Apply<A, B>(K<ResourceT<M>, Func<A, B>> mf, K<ResourceT<M>, A> ma) => 
-        mf.As().Bind(ma.As().Map);
+        mf.As().Bind(f => ma.As().Map(f));
 
     static K<ResourceT<M>, B> Applicative<ResourceT<M>>.Action<A, B>(K<ResourceT<M>, A> ma, K<ResourceT<M>, B> mb) => 
         ma.As().Bind(_ => mb);
@@ -26,4 +26,14 @@ public partial class ResourceT<M> : MonadT<ResourceT<M>, M>
 
     static K<ResourceT<M>, A> Monad<ResourceT<M>>.LiftIO<A>(IO<A> ma) => 
         ResourceT<M, A>.Lift(M.LiftIO(ma));
+
+    static K<ResourceT<M>, Func<K<ResourceT<M>, A>, IO<A>>> Monad<ResourceT<M>>.UnliftIO<A>() =>
+        ResourceT.lift(
+            M.Map(f => new Func<K<ResourceT<M>, A>, IO<A>>(
+                          ma =>
+                          {
+                              using var env = new Resources();
+                              return f(ma.As().runResource(env));
+                          })
+                , M.UnliftIO<A>()));
 }

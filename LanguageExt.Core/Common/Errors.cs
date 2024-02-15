@@ -116,4 +116,21 @@ public static class Errors
     /// IO monad not in transformer stack error
     /// </summary>
     public static readonly Error IONotInTransformerStack = (IONotInTransformerStackCode, IONotInTransformerStackText);
+
+    /// <summary>
+    /// Transformer stack has no unliftIO support text
+    /// </summary>
+    public const string UnliftIONotSupportedText = 
+        "UnliftIO has limited support in monad transformer stacks.  Make sure the caller monad transformer right down " +
+        "to the inner IO monad has unlift support.";
+
+    /// <summary>
+    /// Transformer stack has no unliftIO support code
+    /// </summary>
+    public const int UnliftIONotSupportedCode = -2000000008;
+
+    /// <summary>
+    /// Transformer stack has no unliftIO support error
+    /// </summary>
+    public static readonly Error UnliftIONotSupported = (UnliftIONotSupportedCode, UnliftIONotSupportedText);
 }

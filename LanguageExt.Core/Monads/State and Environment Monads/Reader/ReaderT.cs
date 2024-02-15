@@ -52,6 +52,14 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
     /// <returns>`ReaderT`</returns>
     public static ReaderT<Env, M, A> Lift(Func<A> f) =>
         new (_ => M.Pure(f()));
+    
+    /// <summary>
+    /// Lifts a unit function into the transformer 
+    /// </summary>
+    /// <param name="f">Function to lift</param>
+    /// <returns>`ReaderT`</returns>
+    public static ReaderT<Env, M, A> LiftIO(IO<A> ma) =>
+        new (_ => M.LiftIO(ma));
 
     /// <summary>
     /// Maps the Reader's environment value
@@ -134,6 +142,15 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
     public ReaderT<Env, M, B> Bind<B>(Func<A, Ask<Env, B>> f) =>
         Bind(x => (ReaderT<Env, M, B>)f(x));
 
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`ReaderT`</returns>
+    public ReaderT<Env, M, B> Bind<B>(Func<A, IO<B>> f) =>
+        Bind(x => ReaderT<Env, M, B>.LiftIO(f(x)));
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  SelectMany
@@ -194,6 +211,17 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
     public ReaderT<Env, M, C> SelectMany<B, C>(Func<A, Ask<Env, B>> bind, Func<A, B, C> project) =>
         SelectMany(x => bind(x).ToReaderT<M>(), project);
 
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`ReaderT`</returns>
+    public ReaderT<Env, M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Conversion operators
@@ -204,6 +232,9 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
     
     public static implicit operator ReaderT<Env, M, A>(Ask<Env, A> ma) =>
         Asks(ma.F);
+
+    public static implicit operator ReaderT<Env, M, A>(IO<A> ma) =>
+        LiftIO(ma);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

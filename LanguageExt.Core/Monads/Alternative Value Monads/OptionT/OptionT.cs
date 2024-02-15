@@ -60,6 +60,14 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
     public static OptionT<M, A> Lift(K<M, A> monad) =>
         new(M.Map(Option<A>.Some, monad));
 
+    /// <summary>
+    /// Lifts a given monad into the transformer
+    /// </summary>
+    /// <param name="monad">Monad to lift</param>
+    /// <returns>`OptionT`</returns>
+    public static OptionT<M, A> LiftIO(IO<A> monad) =>
+        Lift(M.LiftIO(monad));
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Match
@@ -67,7 +75,7 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
 
     public K<M, B> Match<B>(Func<A, B> Some, Func<B> None) =>
         M.Map(mx => mx.Match(Some, None), runOption);
-
+ 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Map
@@ -116,7 +124,25 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
                    ox => ox.Match(
                        Some: x => f(x).runOption,
                        None: () => M.Pure(Option<B>.None))));
- 
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`OptionT`</returns>
+    public OptionT<M, B> Bind<B>(Func<A, IO<B>> f) =>
+        Bind(a => OptionT<M, B>.LiftIO(f(a)));
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`OptionT`</returns>
+    public OptionT<M, B> Bind<B>(Func<A, Pure<B>> f) =>
+        Map(a => f(a).Value);
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  SelectMany
@@ -177,6 +203,17 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
     public OptionT<M, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Map(x => project(x, bind(x).Value));
 
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`OptionT`</returns>
+    public OptionT<M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
+        SelectMany(x => M.LiftIO(bind(x)), project);
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Conversion operators
@@ -187,4 +224,7 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
     
     public static implicit operator OptionT<M, A>(Fail<Unit> ma) =>
         Lift(Option<A>.None);
+    
+    public static implicit operator OptionT<M, A>(IO<A> ma) =>
+        LiftIO(ma);
 }

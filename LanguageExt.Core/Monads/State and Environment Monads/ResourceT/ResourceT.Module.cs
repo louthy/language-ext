@@ -14,7 +14,7 @@ public partial class ResourceT<M>
         ResourceT<M, A>.Pure(value);
 
     public static ResourceT<M, A> liftIO<A>(IO<A> ma) => 
-        ResourceT<M, A>.Lift(M.LiftIO(ma));
+        ResourceT<M, A>.LiftIO(ma);
 
     public static ResourceT<M, A> use<A>(IO<A> ma, Action<A> release) 
         where A : class =>
@@ -74,7 +74,7 @@ public partial class ResourceT
 
     public static ResourceT<M, B> apply<M, A, B>(ResourceT<M, Func<A, B>> mf, ResourceT<M, A> ma)
         where M : Monad<M> =>
-        mf.As().Bind(ma.As().Map);
+        mf.As().Bind(f => ma.As().Map(f));
 
     public static ResourceT<M, B> action<M, A, B>(ResourceT<M, A> ma, ResourceT<M, B> mb)
         where M : Monad<M> =>
@@ -86,9 +86,9 @@ public partial class ResourceT
 
     public static ResourceT<M, A> liftIO<M, A>(IO<A> ma) 
         where M : Monad<M> =>
-        ResourceT<M, A>.Lift(M.LiftIO(ma));
+        ResourceT<M, A>.LiftIO(ma);
 
-    public static ResourceT<M, A> acquire<M, A>(IO<A> ma, Action<A> release) 
+    public static ResourceT<M, A> use<M, A>(IO<A> ma, Action<A> release) 
         where A : class 
         where M : Monad<M> =>
         liftIO<M, A>(ma).Bind(
@@ -99,17 +99,17 @@ public partial class ResourceT
                     return a;
                 }));
 
-    public static ResourceT<M, A> acquire<M, A>(Func<EnvIO, A> f) 
+    public static ResourceT<M, A> use<M, A>(Func<EnvIO, A> f) 
         where A : IDisposable
         where M : Monad<M> =>
-        acquire<M, A>(IO<A>.Lift(f));
+        use<M, A>(IO<A>.Lift(f));
 
-    public static ResourceT<M, A> acquire<M, A>(Func<A> f) 
+    public static ResourceT<M, A> use<M, A>(Func<A> f) 
         where A : IDisposable
         where M : Monad<M> =>
-        acquire<M, A>(IO<A>.Lift(f));
+        use<M, A>(IO<A>.Lift(f));
 
-    public static ResourceT<M, A> acquire<M, A>(IO<A> ma) 
+    public static ResourceT<M, A> use<M, A>(IO<A> ma) 
         where A : IDisposable 
         where M : Monad<M> =>
         liftIO<M, A>(ma).Bind(

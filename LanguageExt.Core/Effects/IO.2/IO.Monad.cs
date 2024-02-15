@@ -1,5 +1,6 @@
 using System;
 using LanguageExt.Traits;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
@@ -31,4 +32,7 @@ public partial class IO : Monad<IO>, Alternative<IO>
 
     static K<IO, A> Monad<IO>.LiftIO<A>(IO<A> ma) => 
         ma;
+
+    static K<IO, Func<K<IO, A>, IO<A>>> Monad<IO>.UnliftIO<A>() =>
+        Pure<Func<K<IO, A>, IO<A>>>(io => io.As());
 }

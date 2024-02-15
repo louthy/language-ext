@@ -40,4 +40,10 @@ public partial class ReaderT<Env, M> : MonadReaderT<ReaderT<Env, M>, Env, M>
 
     static K<ReaderT<Env, M>, A> Monad<ReaderT<Env, M>>.LiftIO<A>(IO<A> ma) =>
         ReaderT<Env, M, A>.Lift(M.LiftIO(ma));
+    
+    static K<ReaderT<Env, M>, Func<K<ReaderT<Env, M>, A>, IO<A>>> Monad<ReaderT<Env, M>>.UnliftIO<A>() =>
+        new ReaderT<Env, M, Func<K<ReaderT<Env, M>, A>, IO<A>>>(
+            env => M.Map(f => new Func<K<ReaderT<Env, M>, A>, IO<A>>(
+                             ma =>f(ma.As().runReader(env)))
+                       , M.UnliftIO<A>()));
 }

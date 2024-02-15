@@ -27,7 +27,7 @@ public static partial class Prelude
     /// <returns>RWS monad</returns>
     [Pure]
     public static RWS<MonoidW, R, W, S, A> RWS<MonoidW, R, W, S, A>(A value) where MonoidW : Monoid<W> => (_, state) =>
-        (MonoidW.Empty(), state, value);
+        (MonoidW.Empty, state, value);
 
     /// <summary>
     /// RWS monad constructor
@@ -40,7 +40,7 @@ public static partial class Prelude
     /// <returns>RWS monad</returns>
     [Pure]
     public static RWS<MonoidW, R, W, S, A> RWS<MonoidW, R, W, S, A>(S state, A value) where MonoidW : Monoid<W> => (_, _) =>
-        (MonoidW.Empty(), state, value);
+        (MonoidW.Empty, state, value);
 
     /// <summary>
     /// RWS monad constructor
@@ -176,7 +176,7 @@ public static partial class Prelude
     public static RWS<MonoidW, R, W, S, Unit> modify<MonoidW, R, W, S, A>(Func<S, S> f)
         where MonoidW : Monoid<W> => 
         (_, state) => 
-            (MonoidW.Empty(), f(state), unit);
+            (MonoidW.Empty, f(state), unit);
 
     /// <summary>
     /// Gets a projection of the state
@@ -254,7 +254,7 @@ public static partial class Prelude
                 }
             }
 
-            return (MonoidW.Empty(), state, Option<A>.None);
+            return (MonoidW.Empty, state, Option<A>.None);
         };
 
     /// <summary>

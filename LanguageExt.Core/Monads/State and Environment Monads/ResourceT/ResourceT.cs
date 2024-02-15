@@ -43,6 +43,14 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
     /// <returns>`ResourceT`</returns>
     public static ResourceT<M, A> Lift(Func<A> f) =>
         new (_ => M.Pure(f()));
+    
+    /// <summary>
+    /// Lifts a unit function into the transformer 
+    /// </summary>
+    /// <param name="ma">IO computation to lift</param>
+    /// <returns>`ResourceT`</returns>
+    public static ResourceT<M, A> LiftIO(IO<A> ma) =>
+        new (_ => M.LiftIO(ma));
 
     /// <summary>
     /// Maps the given monad
@@ -99,7 +107,24 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
     /// <returns>`ResourceT`</returns>
     public ResourceT<M, B> Bind<B>(Func<A, ResourceT<M, B>> f) =>
         new(env => M.Bind(runResource(env), x => f(x).runResource(env)));
+
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`ResourceT`</returns>
+    public ResourceT<M, B> Bind<B>(Func<A, K<M, B>> f) =>
+        Bind(x => ResourceT<M, B>.Lift(f(x)));
     
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>`ResourceT`</returns>
+    public ResourceT<M, B> Bind<B>(Func<A, IO<B>> f) =>
+        Bind(x => M.LiftIO(f(x)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -150,6 +175,17 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
     public ResourceT<M, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Map(x => project(x, bind(x).Value));
 
+    /// <summary>
+    /// Monad bind operation
+    /// </summary>
+    /// <param name="bind">Monadic bind function</param>
+    /// <param name="project">Projection function</param>
+    /// <typeparam name="B">Intermediate bound value type</typeparam>
+    /// <typeparam name="C">Target bound value type</typeparam>
+    /// <returns>`ResourceT`</returns>
+    public ResourceT<M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
+        SelectMany(x => ResourceT<M, B>.LiftIO(bind(x)), project);
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Conversion operators
@@ -157,6 +193,9 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
 
     public static implicit operator ResourceT<M, A>(Pure<A> ma) =>
         Pure(ma.Value);
+
+    public static implicit operator ResourceT<M, A>(IO<A> ma) =>
+        LiftIO(ma);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -179,4 +218,11 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
     /// <returns>Bound monad</returns>
     public A Run(Func<K<M, A>, IO<A>> unliftIO) =>
         Run(EnvIO.New(), unliftIO);
+
+    /// <summary>
+    /// Run the resource monad and automatically clean up the resources after 
+    /// </summary>
+    /// <returns>Bound monad</returns>
+    public A Run(Func<K<M, A>, K<IO, A>> unliftIO) =>
+        Run(EnvIO.New(), ma => unliftIO(ma).As());
 }

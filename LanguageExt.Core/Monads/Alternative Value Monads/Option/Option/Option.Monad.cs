@@ -3,7 +3,7 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public class Option : MonadIO<Option>, Traversable<Option>, Alternative<Option>
+public class Option : Monad<Option>, Traversable<Option>, Alternative<Option>
 {
     static K<Option, B> Monad<Option>.Bind<A, B>(K<Option, A> ma, Func<A, K<Option, B>> f) =>
         ma.As().Bind(f);
@@ -19,9 +19,6 @@ public class Option : MonadIO<Option>, Traversable<Option>, Alternative<Option>
 
     static K<Option, B> Applicative<Option>.Action<A, B>(K<Option, A> ma, K<Option, B> mb) =>
         mb;
-
-    static K<Option, A> MonadIO<Option>.LiftIO<A>(IO<A> ma) => 
-        MonadIO.liftNoIO<Option, A>(ma);
 
     static S Foldable<Option>.Fold<A, S>(Func<A, Func<S, S>> f, S initialState, K<Option, A> ta) =>
         ta.As().Fold(initialState, (s, a) => f(a)(s));

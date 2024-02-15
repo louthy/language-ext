@@ -91,6 +91,18 @@ public record IO<A>(Func<EnvIO, ValueTask<A>> runIO) : K<IO, A>, Monoid<IO<A>>
     public IO<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
+    public OptionT<M, C> SelectMany<M, B, C>(Func<A, OptionT<M, B>> bind, Func<A, B, C> project)
+        where M : Monad<M> =>
+        OptionT<M, A>.LiftIO(this).SelectMany(bind, project);
+
+    public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
+        where M : Monad<M> =>
+        ReaderT<Env, M, A>.LiftIO(this).SelectMany(bind, project);
+
+    public ResourceT<M, C> SelectMany<M, B, C>(Func<A, ResourceT<M, B>> bind, Func<A, B, C> project)
+        where M : Monad<M> =>
+        ResourceT<M, A>.LiftIO(this).SelectMany(bind, project);
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Fail coalescing

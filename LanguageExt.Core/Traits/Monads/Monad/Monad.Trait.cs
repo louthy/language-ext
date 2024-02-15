@@ -47,4 +47,23 @@ public interface Monad<M> : Applicative<M>
     /// then it will throw an exception.</exception>
     public static virtual K<M, A> LiftIO<A>(IO<A> ma) =>
         throw new ExceptionalException(Errors.IONotInTransformerStack);
+
+    /// <summary>
+    /// Unlifts the IO monad from the monad transformer stack.  
+    /// </summary>
+    /// <remarks>
+    /// If this method isn't overloaded in the inner monad or any monad in the
+    /// stack on the way to the inner monad then it will throw an exception.
+    ///
+    /// This isn't ideal - however it appears to be the only way to achieve this
+    /// kind of functionality in C# without resorting to magic. 
+    /// </remarks>
+    /// <param name="mma">IO computation to lift</param>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <returns>The outer monad with the IO monad lifted into it</returns>
+    /// <exception cref="ExceptionalException">If this method isn't overloaded in
+    /// the inner monad or any monad in the stack on the way to the inner monad
+    /// then it will throw an exception.</exception>
+    public static virtual K<M, Func<K<M, A>, IO<A>>> UnliftIO<A>() =>
+        throw new ExceptionalException(Errors.UnliftIONotSupported);
 }

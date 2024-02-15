@@ -157,7 +157,7 @@ public static class RWSExtensions
     [Pure]
     public static RWS<MonoidW, R, W, S, Unit> Modify<MonoidW, R, W, S, A>(RWS<MonoidW, R, W, S, A> self, Func<S, S> f)
         where MonoidW : Monoid<W> => (_, state) =>
-            (MonoidW.Empty(), f(state), unit);
+            (MonoidW.Empty, f(state), unit);
 
     [Pure]
     public static RWS<MonoidW, R, W, S, B> Map<MonoidW, R, W, S, A, B>(this RWS<MonoidW, R, W, S, A> self, Func<A, B> project)

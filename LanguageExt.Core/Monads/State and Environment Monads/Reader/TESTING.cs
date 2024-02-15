@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
-using static LanguageExt.Transducer;
 
 namespace LanguageExt;
 
@@ -12,40 +11,32 @@ public static class Testing
 {
     public static void Test1()
     {
-        var m1 = ReaderT<string, Maybe, int>.Lift(Maybe.Just(123));
-        var m2 = ReaderT<string, Maybe, int>.Lift(Maybe.Just(123));
-        
-        var mx = ReaderT<string, ReaderT<string, Maybe>, int>.Lift(m1);
-
+        var m1 = ReaderT<string>.lift(Some(123));
+        var m2 = ReaderT<string>.lift(Some(123));
                 
         var m0 = from w in Pure(123)
-                 from x in mx
-             //  from r in use(() => File.Open("c:\\test.txt", FileMode.Open))
-                 from y in mx
+                 from x in m1
+                 from y in m2
                  from z in asks((string env) => env.Length)
                  from e in ask<string>()
-             //  from _ in release(r)
-                 from n in ReaderT<string, Maybe, string>.Lift(Maybe.Just("Paul"))
+                 from n in ReaderT<string, Option, string>.Lift(Some("Paul"))
                  select $"{e} {n}: {w + x + y + z}";
 
         var m3 = from w in Pure(123)
                  from x in m1
-           //    from r in use(() => File.Open("c:\\test.txt", FileMode.Open))
                  from y in m2
-                 from z in Maybe.Just(100)
+                 from z in Some(100)
                  from e in ask<string>()
-           //    from _ in release(r)
                  select $"{e}: {w + x + y + z}";
 
         var r1 = m3.Run("Hello");
         
         var m4 = from x in m1
                  from y in m2
-                 from z in Maybe<int>.Nothing
                  from e in ask<string>()
-                 select $"{e}: {x + y + z}";
+                 select $"{e}: {x + y}";
 
-        var r2 = m4.Run("Hello");
+        var r2 = m4.Run("Hello").As();
     }
     
     public static void Test2()
@@ -67,16 +58,14 @@ public static class Testing
     
     public static void Test3()
     {
-        var m1 = ReaderT<string, Either<string>, int>.Lift(Right(123));
-        var m2 = ReaderT<string, Either<string>, int>.Lift(Right(123));
+        var m1 = ReaderT<string>.lift(Right<string, int>(123));
+        var m2 = ReaderT<string>.lift(Right<string, int>(123));
         
         var m3 = from w in Pure(123)
                  from x in m1
-                 from r in use(() => File.Open("c:\\test.txt", FileMode.Open))
                  from y in m2
                  from z in Right(100)
                  from e in ask<string>()
-                 from _ in release(r)
                  select $"{e}: {w + x + y + z}";
 
         var r1 = m3.Run("Hello");
@@ -102,19 +91,19 @@ public static class Testing
                  from y in m2
                  from z in m3
                  from r in App.rootFolder
-                 from t in liftAsync(async () => await File.ReadAllTextAsync($"{r}\\test.txt"))
+                 from t in liftIO(async () => await File.ReadAllTextAsync($"{r}\\test.txt"))
                  select $"{t}: {w + x + y + z}";
 
-        var r1 = await m4.RunAsync(new AppConfig("", ""));
+        var r1 = m4.Run(new AppConfig("", "")).As();
     }
    
     public static void Test6()
     {
-        var m1 = ReaderT<string, IdentityT<IO>>.lift(IdentityT<IO, int>.Lift(IO.Pure(123)));
-        var m2 = ReaderT<string, IdentityT<IO>>.lift(IdentityT<IO, int>.Lift(IO.Pure(123)));
+        var m1 = ReaderT<string>.lift(IdentityT<IO, int>.Lift(IO.Pure(123)));
+        var m2 = ReaderT<string>.lift(IdentityT<IO, int>.Lift(IO.Pure(123)));
                 
         var m0 = from w in Pure(123)
-                 from p in ReaderT<string, IdentityT<IO>>.ask
+                 from p in ReaderT.ask<string, IdentityT<IO>>()
                  from x in IO.Pure("Hello")
                  from i in ReaderT<string, IdentityT<IO>>.liftIO(IO.Pure("Hello"))
                  from j in IO.Pure("Hello").Fork()
@@ -127,13 +116,13 @@ public static class Testing
    
     public static void Test7()
     {
-        var m1 = ResourceT<ReaderT<string, IO>>.lift(ReaderT<string, IO>.lift(IO.Pure(123)));
-        var m2 = ResourceT<ReaderT<string, IO>>.lift(ReaderT<string, IO>.lift(IO.Pure(123)));
+        var m1 = ResourceT.lift(ReaderT<string>.lift(IO.Pure(123)));
+        var m2 = ResourceT.lift(ReaderT<string>.lift(IO.Pure(123)));
                 
         var m0 = from w in Pure(123)
                  from q in m1
                  from f in ResourceT<ReaderT<string, IO>>.use(() => File.Open("c:\\test.txt", FileMode.Open))
-                 from p in ReaderT<string, IO>.ask
+                 from p in ReaderT.ask<string, IO>()
                  from x in IO.Pure("Hello")
                  from i in ReaderT<string, IO>.liftIO(IO.Pure("Hello"))
                  from j in IO.Pure("Hello").Fork()
@@ -146,8 +135,8 @@ public static class Testing
    
     public static void Test8()
     {
-        var m1 = ResourceT.lift(ReaderT<string>.lift(OptionT.lift(IO.Pure(123))));
-        var m2 = ResourceT.lift(ReaderT<string>.lift(OptionT.lift(IO.Pure(123))));
+        var m1 = OptionT.lift(ReaderT<string>.lift(ResourceT.lift(IO.Pure(123))));
+        var m2 = OptionT.lift(ReaderT<string>.lift(ResourceT.lift(IO.Pure(123))));
 
         var m0 = from w in Pure(123)
                  from q in m1
@@ -160,21 +149,21 @@ public static class Testing
                  from y in m2
                  select $"{w} {f} {i}";
 
-        var value = m0.Run(ma => ma.As().Run("Hello")
-                                   .As().Match(Some: x => x, None: () => "hello")
-                                   .As());
+        var value = m0.Match(Some: v => $"foo {v}", None: () => "bar")
+                      .As().Run("Paul")
+                      .As().Run(io => io); 
 
-        ResourceT<ReaderT<Env, OptionT<IO>>, Env> ask<Env>() =>
-            ResourceT.lift(ReaderT.ask<Env, OptionT<IO>>());
+        OptionT<ReaderT<Env, ResourceT<IO>>, Env> ask<Env>() =>
+            OptionT.lift(ReaderT.ask<Env, ResourceT<IO>>()); 
         
-        ResourceT<ReaderT<string, OptionT<IO>>, A> use<A>(Func<A> f) where A : IDisposable =>
-            ResourceT<ReaderT<string, OptionT<IO>>>.use(f);
+        OptionT<ReaderT<string, ResourceT<IO>>, A> use<A>(Func<A> f) where A : IDisposable =>
+            OptionT.lift(ReaderT<string>.lift(ResourceT<IO>.use(f)));
         
-        ResourceT<ReaderT<string, OptionT<IO>>, Unit> release<A>(A value) where A : IDisposable =>
-            ResourceT<ReaderT<string, OptionT<IO>>>.release(value);
+        OptionT<ReaderT<string, ResourceT<IO>>, Unit> release<A>(A value) where A : IDisposable =>
+            OptionT.lift(ReaderT<string>.lift(ResourceT<IO>.release(value)));
 
-        ResourceT<ReaderT<string, OptionT<IO>>, A> liftIO<A>(IO<A> ma) =>
-            ResourceT.lift(ReaderT.liftIO<string, OptionT<IO>, A>(ma));
+        OptionT<ReaderT<string, ResourceT<IO>>, A> liftIO<A>(IO<A> ma) =>
+            OptionT.lift(ReaderT<string>.lift(ResourceT<IO>.liftIO(ma)));
         
     }
 

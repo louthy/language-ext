@@ -20,7 +20,7 @@ public static partial class ResourceT
     [Pure]
     public static ResourceT<M, A> Flatten<M, A>(this ResourceT<M, ResourceT<M, A>> mma)
         where M : Monad<M> =>
-        mma.Bind(identity);
+        mma.Bind(x => x);
 
     /// <summary>
     /// Monad bind operation
@@ -51,19 +51,4 @@ public static partial class ResourceT
         Func<A, B, C> project)
         where M : Monad<M> =>
         ResourceT<M, A>.Lift(ma).SelectMany(bind, project);
-
-    /// <summary>
-    /// Monad bind operation
-    /// </summary>
-    /// <param name="bind">Monadic bind function</param>
-    /// <param name="project">Projection function</param>
-    /// <typeparam name="B">Intermediate bound value type</typeparam>
-    /// <typeparam name="C">Target bound value type</typeparam>
-    /// <returns>`ReaderT`</returns>
-    public static ResourceT<M, C> SelectMany<M, A, B, C>(
-        this ResourceT<M, A> ma, 
-        Func<A, IO<B>> bind, 
-        Func<A, B, C> project)
-        where M : Monad<M> =>
-        ma.SelectMany(x => M.LiftIO(bind(x)), project);
 }
