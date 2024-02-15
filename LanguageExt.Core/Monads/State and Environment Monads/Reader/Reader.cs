@@ -44,7 +44,7 @@ public record Reader<Env, A>(Func<Env, K<Identity, A>> runReader)
     /// </summary>
     /// <param name="f">Mapping function</param>
     /// <returns>`Reader`</returns>
-    public new Reader<Env1, A> With<Env1>(Func<Env1, Env> f) =>
+    public Reader<Env1, A> With<Env1>(Func<Env1, Env> f) =>
         base.With(f).As();
 
     /// <summary>

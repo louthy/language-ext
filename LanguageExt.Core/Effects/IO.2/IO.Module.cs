@@ -8,6 +8,9 @@ namespace LanguageExt;
 
 public partial class IO
 {
+    public static readonly IO<Unit> unitIO = 
+        IO<Unit>.Pure(default);
+    
     public static readonly IO<EnvIO> envIO = 
         IO<EnvIO>.LiftIO(ValueTask.FromResult);
     

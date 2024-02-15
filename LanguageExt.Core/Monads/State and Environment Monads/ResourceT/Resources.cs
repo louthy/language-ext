@@ -8,13 +8,13 @@ namespace LanguageExt;
 /// </summary>
 public class Resources : IDisposable
 {
-    readonly AtomHashMap<object, IDisposable> resources = AtomHashMap<object, IDisposable>();
+    readonly AtomHashMap<object, Resource> resources = AtomHashMap<object, Resource>();
 
     public void Dispose()
     {
         foreach (var item in resources)
         {
-            item.Value.Dispose();
+            item.Value.Release().Run();
         }
     }
 
@@ -22,31 +22,55 @@ public class Resources : IDisposable
     {
         var obj = (object?)value;
         if (obj is null) throw new InvalidCastException();
-        return resources.TryAdd(obj, value);
+        return resources.TryAdd(obj, new ResourceDisposable<A>(value));
     }
 
-    public Unit Acquire<A>(A value, Action<A> release) where A : class
+    public Unit Acquire<A>(A value, Func<A, IO<Unit>> release) where A : class
     {
         var obj = (object?)value;
         if (obj is null) throw new InvalidCastException();
-        return resources.TryAdd(obj, new ResourceFree<A>(value, release));
+        return resources.TryAdd(obj, new ResourceWithFree<A>(value, release));
     }
 
-    public Unit Release<A>(A value)
+    public IO<Unit> Release<A>(A value)
     {
         var obj = (object?)value;
         if (obj is null) throw new InvalidCastException();
         return resources.Find(obj)
-                        .Iter(f =>
-                              {
-                                  f.Dispose();
-                                  resources.Remove(obj);
-                              });
+                        .Match(Some: f =>
+                                     {
+                                         resources.Remove(obj);
+                                         return f.Release();
+                                     },
+                               None: () => IO.unitIO);
     }
 }
 
-public record ResourceFree<A>(A Value, Action<A> Release) : IDisposable
+abstract record Resource
 {
-    public void Dispose() =>
-        Release(Value);
+    public abstract IO<Unit> Release();
+}
+
+/// <summary>
+/// Holds a resource with its disposal function
+/// </summary>
+record ResourceWithFree<A>(A Value, Func<A, IO<Unit>> Dispose) : Resource
+{
+    public override IO<Unit> Release() => 
+        Dispose(Value);
+}
+
+/// <summary>
+/// Holds a resource with its disposal function
+/// </summary>
+record ResourceDisposable<A>(A Value) : Resource
+    where A : IDisposable
+{
+    public override IO<Unit> Release() =>
+        IO<Unit>.Lift(
+            () =>
+            {
+                Value.Dispose();
+                return unit;
+            });
 }

@@ -5,7 +5,7 @@ namespace LanguageExt.Traits;
 /// <summary>
 /// Monad module
 /// </summary>
-public static class Monad
+public static partial class Monad
 {
     public static K<M, A> pure<M, A>(A value) 
         where M : Monad<M> =>

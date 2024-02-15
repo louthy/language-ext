@@ -150,9 +150,10 @@ public static class Testing
                  from y in m2
                  select $"{w} {f} {i}";
 
-        var value = m0.Match(Some: v => $"foo {v}", None: () => "bar")
-                      .As().Run("Paul")
-                      .As().Run(); 
+        var value = m0.Match(Some: v => $"foo {v}", 
+                             None: () => "bar").As()
+                      .Run("Paul").As()
+                      .Run(); 
 
         OptionT<ReaderT<Env, ResourceT<IO>>, Env> ask<Env>() =>
             OptionT.lift(ReaderT.ask<Env, ResourceT<IO>>()); 

@@ -16,7 +16,17 @@ public partial class ResourceT<M>
     public static ResourceT<M, A> liftIO<A>(IO<A> ma) => 
         ResourceT<M, A>.LiftIO(ma);
 
-    public static ResourceT<M, A> use<A>(IO<A> ma, Action<A> release) 
+    public static ResourceT<M, A> use<A>(IO<A> ma, Action<A> release)
+        where A : class =>
+        use(ma,
+            value => IO<Unit>.Lift(
+                _ =>
+                {
+                    release(value);
+                    return Prelude.unit;
+                }));
+
+    public static ResourceT<M, A> use<A>(IO<A> ma, Func<A, IO<Unit>> release) 
         where A : class =>
         liftIO(ma).Bind(
             a => ResourceT<M, A>.Asks(
@@ -45,12 +55,7 @@ public partial class ResourceT<M>
                 }));
 
     public static ResourceT<M, Unit> release<A>(A value) =>
-        ResourceT<M, Unit>.Asks(
-            rs =>
-            {
-                rs.Release(value);
-                return Prelude.unit;
-            });
+        new (rs => M.LiftIO(rs.Release(value)));
 }
 
 /// <summary>
@@ -88,7 +93,17 @@ public partial class ResourceT
         where M : Monad<M> =>
         ResourceT<M, A>.LiftIO(ma);
 
-    public static ResourceT<M, A> use<M, A>(IO<A> ma, Action<A> release) 
+    public static ResourceT<M, A> use<M, A>(IO<A> ma, Action<A> release)
+        where A : class 
+        where M : Monad<M> =>
+        use<M, A>(ma, value => IO<Unit>.Lift(
+                          _ =>
+                          {
+                              release(value);
+                              return Prelude.unit;
+                          }));
+
+    public static ResourceT<M, A> use<M, A>(IO<A> ma, Func<A, IO<Unit>> release) 
         where A : class 
         where M : Monad<M> =>
         liftIO<M, A>(ma).Bind(
@@ -97,8 +112,8 @@ public partial class ResourceT
                 {
                     rs.Acquire(a, release);
                     return a;
-                }));
-
+                }));    
+    
     public static ResourceT<M, A> use<M, A>(Func<EnvIO, A> f) 
         where A : IDisposable
         where M : Monad<M> =>
