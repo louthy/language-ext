@@ -15,7 +15,7 @@ public static partial class EffExtensions
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> Repeat<RT, A>(this Eff<RT, A> ma)
         where RT : HasIO<RT, Error> =>
-        new(ma.As.Repeat());
+        ma.MapIO(io => io.Repeat());
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires  
@@ -27,7 +27,7 @@ public static partial class EffExtensions
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> Repeat<RT, A>(this Eff<RT, A> ma, Schedule schedule)
         where RT : HasIO<RT, Error> =>
-        new(ma.As.Repeat(schedule));
+        ma.MapIO(io => io.Repeat(schedule));
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns false
@@ -38,7 +38,7 @@ public static partial class EffExtensions
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> RepeatWhile<RT, A>(this Eff<RT, A> ma, Func<A, bool> predicate) 
         where RT : HasIO<RT, Error> =>
-        new(ma.As.RepeatWhile(predicate));
+        ma.MapIO(io => io.RepeatWhile(predicate));
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns false
@@ -53,7 +53,7 @@ public static partial class EffExtensions
         Schedule schedule,
         Func<A, bool> predicate)
         where RT : HasIO<RT, Error> =>
-        new(ma.As.RepeatWhile(schedule, predicate));
+        ma.MapIO(io => io.RepeatWhile(schedule, predicate));
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns true
@@ -66,7 +66,7 @@ public static partial class EffExtensions
         this Eff<RT, A> ma,
         Func<A, bool> predicate)
         where RT : HasIO<RT, Error> =>
-        new(ma.As.RepeatUntil(predicate));
+        ma.MapIO(io => io.RepeatUntil(predicate));
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true
@@ -81,5 +81,5 @@ public static partial class EffExtensions
         Schedule schedule,
         Func<A, bool> predicate)
         where RT : HasIO<RT, Error> =>
-        new(ma.As.RepeatUntil(schedule, predicate));
+        ma.MapIO(io => io.RepeatUntil(schedule, predicate));
 }

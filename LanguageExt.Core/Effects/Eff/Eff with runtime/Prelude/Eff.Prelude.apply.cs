@@ -14,7 +14,7 @@ public static partial class Prelude
         Eff<RT, Func<A, B>> mf,
         Eff<RT, A> ma)
         where RT : HasIO<RT, Error> =>
-        new(mf.Morphism.Apply(ma.Morphism));
+        mf.Apply(ma);
 
     /// <summary>
     /// Applicative apply: takes the lifted function and the lifted argument, applies the function to the argument

@@ -62,9 +62,6 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     Eff<RT, B> MapResource<B>(Func<ResourceT<IO, A>, ResourceT<IO, B>> f) =>
         MapReader(reader => reader.MapT(resource => f(resource.As())));
 
-    Eff<RT, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
-        MapResource(resource => resource.MapT(io => f(io.As())));
-    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Constructors
@@ -88,6 +85,14 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     [MethodImpl(Opt.Default)]
     Eff(A value) 
         : this(pure(value))
+    { }
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    [MethodImpl(Opt.Default)]
+    Eff(Error value) 
+        : this(fail<A>(value))
     { }
 
     /// <summary>
@@ -171,49 +176,42 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> Fail(Error error) =>
-        new(fail<A>(error));
+        new(error);
 
     /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
+    /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> Lift(Func<RT, Either<Error, A>> f) =>
         new (f);
 
     /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
+    /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> Lift(Func<RT, Fin<A>> f) =>
         new (f);
 
     /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
+    /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> Lift(Func<RT, A> f) =>
         new (f);
 
     /// <summary>
-    /// Lift a asynchronous effect into the `Eff` monad
+    /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> LiftIO(Func<RT, ValueTask<A>> f) =>
-        new (asksIO(f));
+        new (f);
 
     /// <summary>
-    /// Lift a asynchronous effect into the `Eff` monad
+    /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> LiftIO(IO<A> ma) =>
-        new(liftIO(ma));
-
-    /// <summary>
-    /// Lift a asynchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<RT, A> LiftIO(Func<RT, Fin<A>> f) =>
-        new (asks(f));
+        new(ma);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
@@ -263,6 +261,15 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     public Eff<RT, A> MapFail(Func<Error, Error> f) =>
         MapIO(io => io.MapFail(f));
 
+    /// <summary>
+    /// Maps the inner IO monad
+    /// </summary>
+    /// <param name="f">Function to map with</param>
+    /// <returns>Mapped `Eff` monad</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
+        MapResource(resource => resource.MapT(io => f(io.As())));
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Bi-map
@@ -304,15 +311,6 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
         MapIO(io => io.IfFail(Fail));
 
     /// <summary>
-    /// Map the failure to a success value
-    /// </summary>
-    /// <param name="f">Function to map the fail value</param>
-    /// <returns>IO in a success state</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, A> IfFail(A Fail) =>
-        MapIO(io => io.IfFail(Fail));
-
-    /// <summary>
     /// Map the failure to a new IO effect
     /// </summary>
     /// <param name="f">Function to map the fail value</param>
@@ -320,15 +318,6 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, A> IfFailEff(Func<Error, Eff<RT, A>> Fail) =>
         Match(Succ: Pure, Fail: Fail).Flatten();
-
-    /// <summary>
-    /// Map the failure to a new IO effect
-    /// </summary>
-    /// <param name="f">Function to map the fail value</param>
-    /// <returns>IO that encapsulates that IfFail</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, A> IfFailEff(Eff<RT, A> Fail) =>
-        IfFailEff(_ => Fail);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -369,6 +358,28 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     public Eff<RT, B> Bind<B>(Func<A, Eff<RT, B>> f) =>
         new(effect.Bind(x => f(x).effect));
 
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, B> Bind<B>(Func<A, IO<B>> f) =>
+        new(effect.Bind(f));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, B> Bind<B>(Func<A, Ask<RT, B>> f) =>
+        new(effect.Bind(f));
+    
     /*
      TODO
      
@@ -468,6 +479,28 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<RT, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
+        new(effect.SelectMany(bind, project));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
+        new(effect.SelectMany(bind, project));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, C> SelectMany<B, C>(Func<A, Ask<RT, B>> bind, Func<A, B, C> project) =>
         new(effect.SelectMany(bind, project));
 
     /// <summary>
@@ -741,6 +774,70 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
                  var ra = ma.Run(rt);
                  if (ra.IsSucc) return ra;
                  return mb.Run(rt);
+             });
+
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="mb">Alternative value if the IO operation fails</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> operator |(Eff<RT, A> ma, Pure<A> mb) =>
+        Lift(rt =>
+            {
+                 var ra = ma.Run(rt);
+                 if (ra.IsSucc) return ra;
+                 return mb.Value;
+             });
+
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="error">Alternative value if the IO operation fails</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> operator |(Eff<RT, A> ma, Fail<Error> error) =>
+        Lift(rt =>
+             {
+                 var ra = ma.Run(rt);
+                 if (ra.IsSucc) return ra;
+                 return error.Value;
+             });
+
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="error">Error if the IO operation fails</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> operator |(Eff<RT, A> ma, Error error) =>
+        Lift(rt =>
+             {
+                 var ra = ma.Run(rt);
+                 if (ra.IsSucc) return ra;
+                 return error;
+             });
+
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="value">Alternative value if the IO operation fails</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> operator |(Eff<RT, A> ma, A value) =>
+        Lift(rt =>
+             {
+                 var ra = ma.Run(rt);
+                 if (ra.IsSucc) return ra;
+                 return value;
              });
 
     /// <summary>

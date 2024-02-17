@@ -101,8 +101,8 @@ public static partial class EffExtensions
         where RT : HasIO<RT, Error> =>
         from e1 in tuple.First.Fork()
         from e2 in tuple.Second.Fork()
-        from r1 in Eff<RT, A>.LiftIO(e1.Await)
-        from r2 in Eff<RT, B>.LiftIO(e2.Await)
+        from r1 in e1.Await
+        from r2 in e2.Await
         select (r1, r2);
 
     /// <summary>
@@ -126,9 +126,9 @@ public static partial class EffExtensions
         from e1 in tuple.First.Fork()
         from e2 in tuple.Second.Fork()
         from e3 in tuple.Third.Fork()
-        from r1 in Eff<RT, A>.LiftIO(e1.Await)
-        from r2 in Eff<RT, B>.LiftIO(e2.Await)
-        from r3 in Eff<RT, C>.LiftIO(e3.Await)
+        from r1 in e1.Await
+        from r2 in e2.Await
+        from r3 in e3.Await
         select (r1, r2, r3);
 
     /// <summary>
@@ -155,10 +155,10 @@ public static partial class EffExtensions
         from e2 in tuple.Second.Fork()
         from e3 in tuple.Third.Fork()
         from e4 in tuple.Fourth.Fork()
-        from r1 in Eff<RT, A>.LiftIO(e1.Await)
-        from r2 in Eff<RT, B>.LiftIO(e2.Await)
-        from r3 in Eff<RT, C>.LiftIO(e3.Await)
-        from r4 in Eff<RT, D>.LiftIO(e4.Await)
+        from r1 in e1.Await
+        from r2 in e2.Await
+        from r3 in e3.Await
+        from r4 in e4.Await
         select (r1, r2, r3, r4);
     /// <summary>
     /// Takes two IO monads and zips their result

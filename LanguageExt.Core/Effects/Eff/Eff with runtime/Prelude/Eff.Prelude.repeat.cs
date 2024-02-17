@@ -15,7 +15,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> repeat<RT, A>(Eff<RT, A> ma)
         where RT : HasIO<RT, Error> =>
-        new(repeat(ma.As));
+        ma.Repeat();
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires  
@@ -27,7 +27,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<RT, A> repeat<RT, A>(Schedule schedule, Eff<RT, A> ma)
         where RT : HasIO<RT, Error> =>
-        new(repeat(schedule, ma.As));
+        ma.Repeat(schedule);
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns false
@@ -39,7 +39,7 @@ public static partial class Prelude
     public static Eff<RT, A> repeatWhile<RT, A>(
         Eff<RT, A> ma,
         Func<A, bool> predicate) where RT : HasIO<RT, Error> =>
-        new(repeatWhile(ma.As, predicate));
+        ma.RepeatWhile(predicate);
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns false
@@ -54,7 +54,7 @@ public static partial class Prelude
         Eff<RT, A> ma,
         Func<A, bool> predicate)
         where RT : HasIO<RT, Error> =>
-        new(repeatWhile(schedule, ma.As, predicate));
+        ma.RepeatWhile(schedule, predicate);
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns true
@@ -67,7 +67,7 @@ public static partial class Prelude
         Eff<RT, A> ma,
         Func<A, bool> predicate)
         where RT : HasIO<RT, Error> =>
-        new(repeatUntil(ma.As, predicate));
+        ma.RepeatUntil(predicate);
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true
@@ -82,5 +82,5 @@ public static partial class Prelude
         Eff<RT, A> ma,
         Func<A, bool> predicate)
         where RT : HasIO<RT, Error> =>
-        new(repeatUntil(schedule, ma.As, predicate));
+        ma.RepeatUntil(schedule, predicate);
 }

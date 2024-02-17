@@ -229,29 +229,15 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 var token = envIO.Token;
                 foreach (var delay in schedule.Run())
                 {
-                    yield(delay, token);
+                    YieldFor(delay, token);
                     r = Run(envIO);
                     state = folder(state, r);
                     if (predicate((state, r))) return state;
                 }
                 return state;
             });
-
-        static void yield(Duration d, CancellationToken token)
-        {
-            if (d == Duration.Zero) return;
-            var      start = TimeProvider.System.GetTimestamp();
-            var      span  = (TimeSpan)d;
-            SpinWait sw    = default;
-            do
-            {
-                if (token.IsCancellationRequested) return;
-                if (TimeProvider.System.GetElapsedTime(start) >= span) return;
-                sw.SpinOnce();
-            } while (true);
-        }
     }
-
+    
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Cross thread-context posting
@@ -485,6 +471,185 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
+    //  Repeating the effect
+    //
+    
+    /// <summary>
+    /// Keeps repeating the computation forever, or until an error occurs
+    /// </summary>
+    /// <returns>The result of the last invocation</returns>
+    public IO<A> Repeat() =>
+        RepeatUntil(Schedule.Forever, _ => true);
+
+    /// <summary>
+    /// Keeps repeating the computation, until the scheduler expires, or an error occurs  
+    /// </summary>
+    /// <param name="schedule">Scheduler strategy for repeating</param>
+    /// <returns>The result of the last invocation</returns>
+    public IO<A> Repeat(Schedule schedule) =>
+        RepeatUntil(schedule, _ => true);
+
+    /// <summary>
+    /// Keeps repeating the computation until the predicate returns false, or an error occurs 
+    /// </summary>
+    /// <param name="predicate">Keep repeating while this predicate returns `true` for each computed value</param>
+    /// <returns>The result of the last invocation</returns>
+    public IO<A> RepeatWhile(Func<A, bool> predicate) => 
+        RepeatUntil(Schedule.Forever, Prelude.not(predicate));
+
+    /// <summary>
+    /// Keeps repeating the computation, until the scheduler expires, or the predicate returns false, or an error occurs
+    /// </summary>
+    /// <param name="schedule">Scheduler strategy for repeating</param>
+    /// <param name="predicate">Keep repeating while this predicate returns `true` for each computed value</param>
+    /// <returns>The result of the last invocation</returns>
+    public IO<A> RepeatWhile(
+        Schedule schedule,
+        Func<A, bool> predicate) =>
+        RepeatUntil(schedule, Prelude.not(predicate));
+
+    /// <summary>
+    /// Keeps repeating the computation until the predicate returns true, or an error occurs
+    /// </summary>
+    /// <param name="predicate">Keep repeating until this predicate returns `true` for each computed value</param>
+    /// <returns>The result of the last invocation</returns>
+    public IO<A> RepeatUntil(
+        Func<A, bool> predicate) =>
+        RepeatUntil(Schedule.Forever, predicate);
+
+    /// <summary>
+    /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true, or an error occurs
+    /// </summary>
+    /// <param name="schedule">Scheduler strategy for repeating</param>
+    /// <param name="predicate">Keep repeating until this predicate returns `true` for each computed value</param>
+    /// <returns>The result of the last invocation</returns>
+    public IO<A> RepeatUntil(
+        Schedule schedule,
+        Func<A, bool> predicate) =>
+        new(env =>
+            {
+                var token  = env.Token;
+                var result = Run(env);
+                if (predicate(result)) return result;
+                
+                foreach(var delay in  schedule.Run())
+                {
+                    YieldFor(delay, token);
+                    result = Run(env);
+                    if (predicate(result)) return result;
+                }
+                return result;
+            });
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Retrying the effect when it fails
+    //
+
+    /// <summary>
+    /// Retry if the IO computation fails 
+    /// </summary>
+    /// <remarks>
+    /// This variant will retry forever
+    /// </remarks>
+    public IO<A> Retry() =>
+        RetryUntil(Schedule.Forever, _ => true);
+
+    /// <summary>
+    /// Retry if the IO computation fails 
+    /// </summary>
+    /// <remarks>
+    /// This variant will retry until the schedule expires
+    /// </remarks>
+    public IO<A> Retry(Schedule schedule) =>
+        RetryUntil(schedule, _ => true);
+
+    /// <summary>
+    /// Retry if the IO computation fails 
+    /// </summary>
+    /// <remarks>
+    /// This variant will keep retrying whilst the predicate returns `true` for the error generated at each iteration;
+    /// at which point the last raised error will be thrown.
+    /// </remarks>
+    public IO<A> RetryWhile(Func<Error, bool> predicate) => 
+        RetryUntil(Schedule.Forever, Prelude.not(predicate));
+
+    /// <summary>
+    /// Retry if the IO computation fails 
+    /// </summary>
+    /// <remarks>
+    /// This variant will keep retrying whilst the predicate returns `true` for the error generated at each iteration;
+    /// or, until the schedule expires; at which point the last raised error will be thrown.
+    /// </remarks>
+    public IO<A> RetryWhile(
+        Schedule schedule,
+        Func<Error, bool> predicate) =>
+        RetryUntil(schedule, Prelude.not(predicate));
+
+    /// <summary>
+    /// Retry if the IO computation fails 
+    /// </summary>
+    /// <remarks>
+    /// This variant will keep retrying until the predicate returns `true` for the error generated at each iteration;
+    /// at which point the last raised error will be thrown.
+    /// </remarks>
+    public IO<A> RetryUntil(
+        Func<Error, bool> predicate) =>
+        RetryUntil(Schedule.Forever, predicate);
+
+    /// <summary>
+    /// Retry if the IO computation fails 
+    /// </summary>
+    /// <remarks>
+    /// This variant will keep retrying until the predicate returns `true` for the error generated at each iteration;
+    /// or, until the schedule expires; at which point the last raised error will be thrown.
+    /// </remarks>
+    public IO<A> RetryUntil(
+        Schedule schedule,
+        Func<Error, bool> predicate) =>
+        new(env =>
+            {
+                var token  = env.Token;
+                var lastError = BottomException.Default as Exception;
+                try
+                {
+                    return Run(env);
+                }
+                catch (ErrorException e)
+                {
+                    if (predicate(e.ToError())) throw;
+                    lastError = e;
+                }
+                catch (Exception e)
+                {
+                    if (predicate(Error.New(e))) throw;
+                    lastError = e;
+                }
+                
+                foreach(var delay in  schedule.Run())
+                {
+                    YieldFor(delay, token);
+
+                    try
+                    {
+                        return Run(env);
+                    }
+                    catch (ErrorException e)
+                    {
+                        if (predicate(e.ToError())) throw;
+                        lastError = e;
+                    }
+                    catch (Exception e)
+                    {
+                        if (predicate(Error.New(e))) throw;
+                        lastError = e;
+                    }
+                }
+                return lastError.Rethrow<A>();
+            });
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
     //  Internal
     //
 
@@ -524,6 +689,24 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         }
 
         return t.Result;
+    }
+
+    /// <summary>
+    /// Yields the thread for the `Duration` specified allowing for concurrency
+    /// on the current thread without having to use async/await
+    /// </summary>
+    static void YieldFor(Duration d, CancellationToken token)
+    {
+        if (d == Duration.Zero) return;
+        var      start = TimeProvider.System.GetTimestamp();
+        var      span  = (TimeSpan)d;
+        SpinWait sw    = default;
+        do
+        {
+            if (token.IsCancellationRequested) return;
+            if (TimeProvider.System.GetElapsedTime(start) >= span) return;
+            sw.SpinOnce();
+        } while (true);
     }
     
     record CleanUp(CancellationTokenSource Src, CancellationTokenRegistration Reg) : IDisposable

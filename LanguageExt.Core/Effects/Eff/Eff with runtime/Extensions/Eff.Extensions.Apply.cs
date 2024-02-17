@@ -15,8 +15,12 @@ public static partial class EffExtensions
         this Eff<RT, Func<A, B>> mf,
         Eff<RT, A> ma)
         where RT : HasIO<RT, Error> =>
-        new(mf.Morphism.Apply(ma.Morphism));
-
+        from tf in mf.Fork()
+        from ta in ma.Fork()
+        from rf in tf.Await
+        from ra in ta.Await
+        select rf(ra);
+    
     /// <summary>
     /// Applicative apply: takes the lifted function and the lifted argument, applies the function to the argument
     /// and returns the result, lifted.
@@ -239,5 +243,7 @@ public static partial class EffExtensions
         this Eff<RT, A> ma,
         Eff<RT, B> mb)
         where RT : HasIO<RT, Error> =>
-        new(ma.Morphism.Action(mb.Morphism));
+        from a in ma.Fork()
+        from b in mb
+        select b;
 }    

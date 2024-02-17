@@ -15,7 +15,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> retry<RT, A>(Eff<RT, A> ma)
         where RT : HasIO<RT, Error> =>
-        new(retry(ma.As));
+        ma.Retry();
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires  
@@ -27,7 +27,7 @@ public static partial class Prelude
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<RT, A> retry<RT, A>(Schedule schedule, Eff<RT, A> ma)
         where RT : HasIO<RT, Error> =>
-        new(retry(schedule, ma.As));
+        ma.Retry(schedule);
 
     /// <summary>
     /// Keeps retrying the computation until the predicate returns false
@@ -39,7 +39,7 @@ public static partial class Prelude
     public static Eff<RT, A> retryWhile<RT, A>(
         Eff<RT, A> ma,
         Func<Error, bool> predicate) where RT : HasIO<RT, Error> =>
-        new(retryWhile(ma.As, predicate));
+        ma.RetryWhile(predicate);
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires, or the predicate returns false
@@ -54,7 +54,7 @@ public static partial class Prelude
         Eff<RT, A> ma,
         Func<Error, bool> predicate)
         where RT : HasIO<RT, Error> =>
-        new(retryWhile(schedule, ma.As, predicate));
+        ma.RetryWhile(schedule, predicate);
 
     /// <summary>
     /// Keeps retrying the computation until the predicate returns true
@@ -67,7 +67,7 @@ public static partial class Prelude
         Eff<RT, A> ma,
         Func<Error, bool> predicate)
         where RT : HasIO<RT, Error> =>
-        new(retryUntil(ma.As, predicate));
+        ma.RetryUntil(predicate);
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires, or the predicate returns true
@@ -82,5 +82,5 @@ public static partial class Prelude
         Eff<RT, A> ma,
         Func<Error, bool> predicate)
         where RT : HasIO<RT, Error> =>
-        new(retryUntil(schedule, ma.As, predicate));
+        ma.RetryUntil(schedule, predicate);
 }

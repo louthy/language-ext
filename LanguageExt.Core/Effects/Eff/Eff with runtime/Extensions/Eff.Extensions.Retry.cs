@@ -16,7 +16,7 @@ public static partial class EffExtensions
     public static Eff<RT, A> Retry<RT, A>(
         this Eff<RT, A> ma)
         where RT : HasIO<RT, Error> =>
-        new(ma.As.Retry());
+        ma.MapIO(io => io.Retry());
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires  
@@ -30,7 +30,7 @@ public static partial class EffExtensions
         this Eff<RT, A> ma, 
         Schedule schedule)
         where RT : HasIO<RT, Error> =>
-        new(ma.As.Retry(schedule));
+        ma.MapIO(io => io.Retry(schedule));
 
     /// <summary>
     /// Keeps retrying the computation until the predicate returns false
@@ -43,7 +43,7 @@ public static partial class EffExtensions
         this Eff<RT, A> ma, 
         Func<Error, bool> predicate) 
         where RT : HasIO<RT, Error> =>
-        new(ma.As.RetryWhile(predicate));
+        ma.MapIO(io => io.RetryWhile(predicate));
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires, or the predicate returns false
@@ -58,7 +58,7 @@ public static partial class EffExtensions
         Schedule schedule,
         Func<Error, bool> predicate)
         where RT : HasIO<RT, Error> =>
-        new(ma.As.RetryWhile(schedule, predicate));
+        ma.MapIO(io => io.RetryWhile(schedule, predicate));
 
     /// <summary>
     /// Keeps retrying the computation until the predicate returns true
@@ -71,7 +71,7 @@ public static partial class EffExtensions
         this Eff<RT, A> ma,
         Func<Error, bool> predicate)
         where RT : HasIO<RT, Error> =>
-        new(ma.As.RetryUntil(predicate));
+        ma.MapIO(io => io.RetryUntil(predicate));
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires, or the predicate returns true
@@ -86,5 +86,5 @@ public static partial class EffExtensions
         Schedule schedule,
         Func<Error, bool> predicate)
         where RT : HasIO<RT, Error> =>
-        new(ma.As.RetryUntil(schedule, predicate));
+        ma.MapIO(io => io.RetryUntil(schedule, predicate));
 }

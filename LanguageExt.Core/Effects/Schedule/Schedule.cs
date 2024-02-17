@@ -14,9 +14,10 @@ namespace LanguageExt;
 /// A schedule is defined as a potentially infinite stream of durations, combined with mechanisms for composing them.
 /// </summary>
 /// <remarks>
-/// Used heavily by `repeat`, `retry`, and `fold` with the `Aff` and `Eff` types.  Use the static methods to create parts
+/// Used heavily by `repeat`, `retry`, and `fold` with the effect types.  Use the static methods to create parts
 /// of schedulers and then union them using `|` or intersect them using `&`.  Union will take the minimum of the two
-/// schedules to the length of the longest, intersect will take the maximum of the two schedules to the length of the shortest.
+/// schedules to the length of the longest, intersect will take the maximum of the two schedules to the length of the
+/// shortest.
 /// </remarks>
 /// <example>
 /// This example creates a schedule that repeats 5 times, with an exponential delay between each stage, starting
