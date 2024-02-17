@@ -84,6 +84,10 @@ public partial class ReaderT
         where M : Monad<M> => 
         ReaderT<Env, M, A>.Asks(f);
 
+    public static ReaderT<Env, M, A> asksM<Env, M, A>(Func<Env, K<M, A>> f)  
+        where M : Monad<M> => 
+        ReaderT<Env, M, A>.AsksM(f);
+
     public static ReaderT<Env, M, A> local<Env, M, A>(Func<Env, Env> f, ReaderT<Env, M, A> ma) 
         where M : Monad<M> => 
         ma.As().Local(f);

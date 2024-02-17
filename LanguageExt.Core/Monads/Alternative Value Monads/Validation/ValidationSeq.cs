@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
+using static LanguageExt.Trait;
 using static LanguageExt.Choice;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;

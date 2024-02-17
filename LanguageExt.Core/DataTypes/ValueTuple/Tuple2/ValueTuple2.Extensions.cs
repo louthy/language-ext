@@ -1,7 +1,7 @@
 ﻿using System;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
+using static LanguageExt.Trait;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
@@ -354,35 +354,6 @@ public static class ValueTuple2Extensions
     /// </summary>
     [Pure]
     public static Set<(A, B)> Sequence<A, B>(this (Set<A> ma, Set<B> mb) tuple) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        select (a, b);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static State<S, (C, D)> Traverse<S, A, B, C, D>(this (State<S, A> ma, State<S, B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        let r = f((a, b))
-        select (r.Item1, r.Item2);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static State<S, (C, D)> Traverse<S, A, B, C, D>(this (State<S, A> ma, State<S, B> mb) tuple, Func<A, B, (C c, D d)> f) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        let r = f(a, b)
-        select (r.Item1, r.Item2);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static State<S, (A, B)> Sequence<S, A, B>(this (State<S, A> ma, State<S, B> mb) tuple) =>
         from a in tuple.ma
         from b in tuple.mb
         select (a, b);

@@ -30,6 +30,14 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
         new(env => M.Pure(f(env)));
 
     /// <summary>
+    /// Extracts the environment value and maps it to the bound value
+    /// </summary>
+    /// <param name="f">Environment mapping function</param>
+    /// <returns>`ReaderT`</returns>
+    public static ReaderT<Env, M, A> AsksM(Func<Env, K<M, A>> f) =>
+        new(f);
+
+    /// <summary>
     /// Lifts a given monad into the transformer
     /// </summary>
     /// <param name="monad">Monad to lift</param>
@@ -83,7 +91,7 @@ public record ReaderT<Env, M, A>(Func<Env, K<M, A>> runReader) : K<ReaderT<Env, 
     /// <param name="f">Mapping function</param>
     /// <typeparam name="M1">Trait of the monad to map to</typeparam>
     /// <returns>`ReaderT`</returns>
-    public ReaderT<Env, M1, A> MapT<M1>(Func<K<M, A>, K<M1, A>> f)
+    public ReaderT<Env, M1, B> MapT<M1, B>(Func<K<M, A>, K<M1, B>> f)
         where M1 : Monad<M1> =>
         new (env => f(runReader(env)));
 

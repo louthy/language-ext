@@ -29,6 +29,14 @@ public static partial class Prelude
     /// <returns>Value that can be used with monadic types in LINQ expressions</returns>
     public static Lift<A> lift<A>(Func<A> function) =>
         new(function);
+
+    /// <summary>
+    /// Lift a function 
+    /// </summary>
+    /// <param name="function">Function</param>
+    /// <returns>Value that can be used with monadic types in LINQ expressions</returns>
+    public static Lift<A, B> lift<A, B>(Func<A, B> function) =>
+        new(function);
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

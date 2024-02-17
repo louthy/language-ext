@@ -96,15 +96,16 @@ public partial class ReaderT
     public static Reader<Env, IEnumerable<A>> Sequence<Env, A>(this IEnumerable<Reader<Env, A>> ta) =>
         SequenceFast(ta).Map(Enumerable.AsEnumerable);
                 
-    internal static Reader<Env, List<A>> SequenceFast<Env, A>(this IEnumerable<Reader<Env, A>> ta) => env =>
+    internal static Reader<Env, IEnumerable<A>> SequenceFast<Env, A>(this IEnumerable<Reader<Env, A>> ta)  
     {
-        var values = new List<A>();
-        foreach (var item in ta)
+        return Reader<Env, IEnumerable<A>>.Asks(Go);
+        IEnumerable<A> Go(Env env)
         {
-            var resA = item(env);
-            if (resA.IsFaulted) return ReaderResult<List<A>>.New(resA.ErrorInt);
-            values.Add(resA.Value);
+            // ReSharper disable once PossibleMultipleEnumeration
+            foreach (var item in ta)
+            {
+                yield return item.Run(env);
+            }
         }
-        return ReaderResult<List<A>>.New(values);
-    };
+    }
 }

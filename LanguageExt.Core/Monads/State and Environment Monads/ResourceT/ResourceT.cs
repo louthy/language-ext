@@ -58,7 +58,7 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
     /// <param name="f">Mapping function</param>
     /// <typeparam name="M1">Trait of the monad to map to</typeparam>
     /// <returns>`ResourceT`</returns>
-    public ResourceT<M1, A> MapT<M1>(Func<K<M, A>, K<M1, A>> f)
+    public ResourceT<M1, B> MapT<M1, B>(Func<K<M, A>, K<M1, B>> f)
         where M1 : Monad<M1> =>
         new (env => f(runResource(env)));
 

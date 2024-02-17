@@ -3,7 +3,7 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
-using static LanguageExt.TypeClass;
+using static LanguageExt.Trait;
 
 namespace LanguageExt.ClassInstances
 {

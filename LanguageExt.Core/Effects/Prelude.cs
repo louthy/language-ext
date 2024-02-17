@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Diagnostics.Contracts;
+﻿using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 
 namespace LanguageExt;

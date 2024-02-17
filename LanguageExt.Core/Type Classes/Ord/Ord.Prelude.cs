@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace LanguageExt;
 
-public static partial class TypeClass
+public static partial class Trait
 {
     /// <summary>
     /// Returns true if x is greater than y
@@ -79,7 +79,7 @@ public static partial class TypeClass
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int compare<ORD, A>(Option<A> x, Option<A> y) where ORD : Ord<A> =>
-        OrdOptional<ORD, MOption<A>, Option<A>, A>.Compare(x, y);
+        x.CompareTo<ORD>(y);
 
     /// <summary>
     /// Compare one item to another to ascertain ordering
@@ -96,7 +96,7 @@ public static partial class TypeClass
     public static int compare<ORDA, ORDB, A, B>(Either<A, B> x, Either<A, B> y)
         where ORDA : Ord<A>
         where ORDB : Ord<B> =>
-        OrdChoice<ORDA, ORDB, MEither<A, B>, Either<A, B>, A, B>.Compare(x, y);
+        x.CompareTo<ORDA, ORDB>(y);
 
     /// <summary>
     /// Compare one item to another to ascertain ordering
@@ -114,7 +114,7 @@ public static partial class TypeClass
         where MonoidA : Monoid<A>, Eq<A>
         where ORDA : Ord<A>
         where ORDB : Ord<B> =>
-        OrdChoice<ORDA, ORDB, FoldValidation<MonoidA, A, B>, Validation<MonoidA, A, B>, A, B>.Compare(x, y);
+        x.CompareTo<ORDA, ORDB>(y);
 
     /// <summary>
     /// Compare one item to another to ascertain ordering
@@ -197,7 +197,7 @@ public static partial class TypeClass
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int compare<ORD, L, R>(Either<L, R> x, Either<L, R> y) where ORD : Ord<R> =>
-        OrdChoice<ORD, MEither<L, R>, Either<L, R>, L, R>.Compare(x, y);
+        x.CompareTo<ORD>(y);
 
     /// <summary>
     /// Find the minimum value between any two values
@@ -234,8 +234,18 @@ public static partial class TypeClass
     /// <returns>When ordering the values in ascending order, this is the first of those</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A min<OrdA, A>(A x, A y, A z, params A[] tail) where OrdA : Ord<A> =>
-        MArray<A>.Fold(tail, min<OrdA, A>(x, min<OrdA, A>(y, z)), min<OrdA, A>)(Prelude.unit);
+    public static A min<OrdA, A>(A x, params A[] tail) where OrdA : Ord<A>
+    {
+        var min = x;
+        foreach (var v in tail)
+        {
+            if (OrdA.Compare(v, x) < 0)
+            {
+                min = v;
+            }
+        }
+        return min;
+    }
 
     /// <summary>
     /// Find the maximum value between a set of values
@@ -246,6 +256,16 @@ public static partial class TypeClass
     /// <returns>When ordering the values in ascending order, this is the last of those</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A max<OrdA, A>(A x, A y, A z, params A[] tail) where OrdA : Ord<A> =>
-        MArray<A>.Fold(tail, max<OrdA, A>(x, max<OrdA, A>(y, z)), max<OrdA, A>)(Prelude.unit);
+    public static A max<OrdA, A>(A x, A y, A z, params A[] tail) where OrdA : Ord<A>
+    {
+        var max = x;
+        foreach (var v in tail)
+        {
+            if (OrdA.Compare(v, x) > 0)
+            {
+                max = v;
+            }
+        }
+        return max;
+    }
 }

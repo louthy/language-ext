@@ -528,11 +528,4 @@ public readonly struct Fin<A> :
 
         return Value;
     }
-
-    public Transducer<Unit, Sum<Error, A>> ToTransducer() =>
-        either.ToTransducer();
-    
-    [Pure]
-    public Reducer<Unit, S> Transform<S>(Reducer<Sum<Error, A>, S> reduce) => 
-        ToTransducer().Transform(reduce);
 }

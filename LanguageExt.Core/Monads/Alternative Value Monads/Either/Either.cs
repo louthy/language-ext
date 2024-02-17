@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
-using static LanguageExt.Transducer;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
@@ -11,6 +10,7 @@ using System.Runtime.Serialization;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
 using LanguageExt.Traits;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt;
 
@@ -473,25 +473,6 @@ public readonly struct Either<L, R> :
         obj is Either<L, R> rhs && Equals(rhs);  
 
     /// <summary>
-    /// Convert `Either` to a `Transducer`
-    /// </summary>
-    [Pure]
-    public Transducer<Unit, Sum<L, R>> ToTransducer()
-    {
-        var self = this;
-        return State switch
-               {
-                   EitherStatus.IsRight => lift<Unit, Sum<L, R>>(_ => Sum<L, R>.Right(self.RightValue)),
-                   EitherStatus.IsLeft  => lift<Unit, Sum<L, R>>(_ => Sum<L, R>.Left(self.LeftValue)),
-                   _                    => fail<Unit, Sum<L, R>>(Errors.Bottom)
-               };
-    }
-
-    [Pure]
-    public Reducer<Unit, S> Transform<S>(Reducer<Sum<L, R>, S> reduce) => 
-        ToTransducer().Transform(reduce);
-
-    /// <summary>
     /// Project the Either into a Lst L
     /// </summary>
     /// <returns>If the Either is in a Left state, a Lst of L with one item.  A zero length Lst L otherwise</returns>
@@ -618,19 +599,6 @@ public readonly struct Either<L, R> :
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Sum<L, R> ToSum() =>
-        State switch
-        {
-            EitherStatus.IsRight => Pure(right!),
-            EitherStatus.IsLeft  => Fail(left!),
-            _                    => throw new BottomException()
-        };
-
-    /// <summary>
-    /// Convert to an `IO` monad
-    /// </summary>
-    /// <returns>`IO` monad</returns>
-    [Pure]
-    public IO<L, R> ToIO() =>
         State switch
         {
             EitherStatus.IsRight => Pure(right!),
@@ -983,10 +951,27 @@ public readonly struct Either<L, R> :
     /// </summary>
     [Pure]
     public int CompareTo(Either<L, R> other) =>
+        CompareTo<OrdDefault<L>, OrdDefault<R>>(other);
+
+    /// <summary>
+    /// CompareTo override
+    /// </summary>
+    [Pure]
+    public int CompareTo<OrdR>(Either<L, R> other)
+        where OrdR : Ord<R> =>
+        CompareTo<OrdDefault<L>, OrdR>(other);
+
+    /// <summary>
+    /// CompareTo override
+    /// </summary>
+    [Pure]
+    public int CompareTo<OrdL, OrdR>(Either<L, R> other)
+        where OrdL : Ord<L>
+        where OrdR : Ord<R> =>
         (State, other.State) switch
         {
-            (EitherStatus.IsRight, EitherStatus.IsRight)   => OrdDefault<R>.Compare(right!, other.RightValue),
-            (EitherStatus.IsLeft, EitherStatus.IsLeft)     => OrdDefault<L>.Compare(left!, other.LeftValue),
+            (EitherStatus.IsRight, EitherStatus.IsRight)   => OrdR.Compare(right!, other.RightValue),
+            (EitherStatus.IsLeft, EitherStatus.IsLeft)     => OrdL.Compare(left!, other.LeftValue),
             (EitherStatus.IsBottom, EitherStatus.IsBottom) => 0,
             _                                              => throw new NotSupportedException()
         };
@@ -1046,10 +1031,26 @@ public readonly struct Either<L, R> :
     /// </summary>
     [Pure]
     public bool Equals(Either<L, R> other) =>
+        Equals<EqDefault<L>, EqDefault<R>>(other);
+
+    /// <summary>
+    /// Equality override
+    /// </summary>
+    [Pure]
+    public bool Equals<EqR>(Either<L, R> other) where EqR : Eq<R> =>
+        Equals<EqDefault<L>, EqR>(other);
+
+    /// <summary>
+    /// Equality override
+    /// </summary>
+    [Pure]
+    public bool Equals<EqL, EqR>(Either<L, R> other) 
+        where EqL : Eq<L> 
+        where EqR : Eq<R> =>
         (State, other.State) switch
         {
-            (EitherStatus.IsRight, EitherStatus.IsRight)   => EqDefault<R>.Equals(right!, other.RightValue),
-            (EitherStatus.IsLeft, EitherStatus.IsLeft)     => EqDefault<L>.Equals(left!, other.LeftValue),
+            (EitherStatus.IsRight, EitherStatus.IsRight)   => EqR.Equals(right!, other.RightValue),
+            (EitherStatus.IsLeft, EitherStatus.IsLeft)     => EqL.Equals(left!, other.LeftValue),
             (EitherStatus.IsBottom, EitherStatus.IsBottom) => true,
             _                                              => throw new NotSupportedException()
         };
@@ -1333,23 +1334,6 @@ public readonly struct Either<L, R> :
         };
 
     /// <summary>
-    /// Maps the value in the Either if it's in a Right state
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <typeparam name="Ret">Mapped Either type</typeparam>
-    /// <param name="f">Map function</param>
-    /// <returns>Mapped Either</returns>
-    [Pure]
-    public Either<L, Ret> Map<Ret>(Transducer<R, Ret> f) =>
-        State switch
-        {
-            EitherStatus.IsRight => ToTransducer().MapRight(f),
-            EitherStatus.IsLeft  => left!,
-            _                    => Either<L, Ret>.Bottom
-        };
-
-    /// <summary>
     /// Maps the value in the Either if it's in a Left state
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
@@ -1363,23 +1347,6 @@ public readonly struct Either<L, R> :
         {
             EitherStatus.IsRight => right!,
             EitherStatus.IsLeft  => f(left!),
-            _                    => Either<Ret, R>.Bottom
-        };
-
-    /// <summary>
-    /// Maps the value in the Either if it's in a Left state
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <typeparam name="Ret">Mapped Either type</typeparam>
-    /// <param name="f">Map function</param>
-    /// <returns>Mapped Either</returns>
-    [Pure]
-    public Either<Ret, R> MapLeft<Ret>(Transducer<L, Ret> f) =>
-        State switch
-        {
-            EitherStatus.IsRight => right!,
-            EitherStatus.IsLeft  => ToTransducer().MapLeft(f),
             _                    => Either<Ret, R>.Bottom
         };
 
@@ -1428,37 +1395,8 @@ public readonly struct Either<L, R> :
     /// <param name="f"></param>
     /// <returns>Bound Either</returns>
     [Pure]
-    public Either<L, B> Bind<B>(Transducer<R, Either<L, B>> f) =>
-        State switch
-        {
-            EitherStatus.IsRight => compose(pure(right!), f.Map(x => x.ToSum())),
-            EitherStatus.IsLeft  => left!,
-            _                    => Either<L, B>.Bottom
-        };
-
-    /// <summary>
-    /// Monadic bind
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <typeparam name="B"></typeparam>
-    /// <param name="f"></param>
-    /// <returns>Bound Either</returns>
-    [Pure]
     public Either<L, B> Bind<B>(Func<R, K<Either<L>, B>> f) =>
         Bind(x => (Either<L, B>)f(x));
-
-    /// <summary>
-    /// Monadic bind
-    /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <typeparam name="B"></typeparam>
-    /// <param name="f"></param>
-    /// <returns>Bound Either</returns>
-    [Pure]
-    public Either<L, B> Bind<B>(Transducer<R, K<Either<L>, B>> f) =>
-        Bind(f.Map(mb => (Either<L, B>)mb));
 
     /// <summary>
     /// Bi-bind.  Allows mapping of both monad states
@@ -1545,19 +1483,6 @@ public readonly struct Either<L, R> :
         State switch
         {
             EitherStatus.IsRight => Bind(x => bind(x).Map(y => project(x, y))),
-            EitherStatus.IsLeft  => left!,
-            _                    => Either<L, T>.Bottom
-        };
-
-    /// <summary>
-    /// Monadic bind function
-    /// </summary>
-    /// <returns>Bound Either</returns>
-    [Pure]
-    public Either<L, T> SelectMany<S, T>(Func<R, Transducer<Unit, S>> bind, Func<R, S, T> project) =>
-        State switch
-        {
-            EitherStatus.IsRight => Bind(r => new Either<L, T>(compose(bind(r), lift(curry(project)(r))))),
             EitherStatus.IsLeft  => left!,
             _                    => Either<L, T>.Bottom
         };

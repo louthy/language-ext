@@ -5,7 +5,6 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-
 /// <summary>
 /// Lifts a function into a type that can be used with other
 /// monadic types (in LINQ expressions, for example) and with implicit
@@ -46,5 +45,28 @@ public record Lift<A>(Func<A> Function)
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public Lift<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
+}
+
+/// <summary>
+/// Lifts a function into a type that can be used with other
+/// monadic types (in LINQ expressions, for example) and with implicit
+/// conversions.
+/// </summary>
+public record Lift<A, B>(Func<A, B> Function)
+{
+    public Lift<A, C> Map<C>(Func<B, C> f) =>
+        new (x => f(Function(x)));
+
+    public Lift<A, C> Bind<C>(Func<B, Lift<A, C>> f) =>
+        new(x => f(Function(x)).Function(x));
+
+    public Lift<A, C> Bind<C>(Func<B, Pure<C>> f) =>
+        new (x => f(Function(x)).Value);
+
+    public Lift<A, C> Select<C>(Func<B, C> f) =>
+        Map(f);
+
+    public Lift<A, D> SelectMany<C, D>(Func<B, Pure<C>> bind, Func<B, C, D> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 }

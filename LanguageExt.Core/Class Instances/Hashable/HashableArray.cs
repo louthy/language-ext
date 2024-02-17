@@ -2,7 +2,7 @@
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
+using static LanguageExt.Trait;
 
 namespace LanguageExt.ClassInstances;
 

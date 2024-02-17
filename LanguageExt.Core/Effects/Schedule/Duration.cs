@@ -12,7 +12,7 @@ public readonly struct Duration :
     IEquatable<Duration>,
     IComparable<Duration>
 {
-    readonly double Milliseconds;
+    public readonly double Milliseconds;
 
     /// <summary>
     /// Duration constructor

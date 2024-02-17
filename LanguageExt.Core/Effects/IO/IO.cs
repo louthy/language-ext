@@ -1,1358 +1,541 @@
 using System;
-using LanguageExt.Common;
-using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
-using LanguageExt.Effects;
-using LanguageExt.Effects.Traits;
+using LanguageExt.Common;
 using LanguageExt.Traits;
-using static LanguageExt.Prelude;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt;
 
 /// <summary>
-/// Transducer based IO monad
+/// A value of type `IO` a is a computation which, when performed, does some I/O before returning
+/// a value of type `A`.
+///
+/// There is really only one way you should _"perform"_ an I/O action: bind it to `Main` in your
+/// program:  When your program is run, the I/O will be performed. It shouldn't be possible to
+/// perform I/O from an arbitrary function, unless that function is itself in the `IO` monad and
+/// called at some point, directly or indirectly, from `Main`.
+///
+/// Obviously, as this is C#, the above restrictions are for you to enforce. It would be reasonable
+/// to relax that approach and have IO invoked from, say, web-request handlers - or any other 'edges'
+/// of your application.
+/// 
+/// `IO` is a monad, so `IO` actions can be combined using either the LINQ-notation or the `bind` 
+/// operations from the `Monad` class.
 /// </summary>
-/// <typeparam name="RT">Runtime struct</typeparam>
-/// <typeparam name="E">Error value type</typeparam>
-/// <typeparam name="A">Bound value type</typeparam>
-public readonly struct IO<E, A> : K<IO<E>, A>
+/// <param name="runIO">The lifted thunk that is the IO operation</param>
+/// <typeparam name="A">Bound value</typeparam>
+public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
 {
-    /// <summary>
-    /// Underlying transducer that captures all of the IO behaviour 
-    /// </summary>
-    readonly IO<MinRT<E>, E, A> effect;
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    // Constructors
+    //  Construction
     //
     
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    internal IO(IO<MinRT<E>, E, A> effect) =>
-        this.effect = effect;
-    
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    internal IO(Transducer<MinRT<E>, Sum<E, A>> thunk) =>
-        effect = new IO<MinRT<E>, E, A>(thunk);
+    public static IO<A> Pure(A value) => 
+        new(_ => value);
 
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    IO(Func<MinRT<E>, Sum<E, A>> thunk)
-        : this(lift(thunk))
-    { }
+    public static readonly IO<A> Empty =
+        new(_ => throw new ManyExceptions([]));
 
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    IO(Func<MinRT<E>, A> thunk) 
-        : this(rt => Sum<E, A>.Right(thunk(rt)))
-    { }
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    IO(Transducer<MinRT<E>, A> thunk) 
-        : this(Transducer.compose(thunk, Transducer.mkRight<E, A>()))
-    { }
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    IO(Func<MinRT<E>, Either<E, A>> thunk) 
-        : this(rt => thunk(rt).ToSum())
-    { }
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    IO(Transducer<MinRT<E>, Either<E, A>> thunk) 
-        : this(Transducer.compose(thunk, lift<Either<E, A>, Sum<E, A>>(x => x.ToSum())))
-    { }
-    
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    internal IO(Transducer<Unit, Sum<E, A>> thunk) 
-        : this (Transducer.compose(Transducer.constant<MinRT<E>, Unit>(default), thunk))
-    { }
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    IO(Func<Sum<E, A>> thunk)
-        : this (lift(thunk))
-    { }
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    IO(Func<A> thunk) 
-        : this(_ => Sum<E, A>.Right(thunk()))
-    { }
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    IO(Transducer<Unit, A> thunk) 
-        : this(Transducer.compose(thunk, Transducer.mkRight<E, A>()))
-    { }
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    IO(Func<Either<E, A>> thunk) 
-        : this(_ => thunk().ToSum())
-    { }
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    IO(Transducer<Unit, Either<E, A>> thunk) 
-        : this(Transducer.compose(thunk, lift<Either<E, A>, Sum<E, A>>(x => x.ToSum())))
-    { }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    // Transducer
-    //
-
-    /// <summary>
-    /// Access to the underlying transducer
-    /// </summary>
-    [Pure]
-    public Transducer<MinRT<E>, Sum<E, A>> Morphism =>
-        effect.Morphism;
-    
-    /// <summary>
-    /// Reduction of the underlying transducer
-    /// </summary>
-    /// <param name="reduce">Reducer </param>
-    /// <typeparam name="S"></typeparam>
-    /// <returns></returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Reducer<MinRT<E>, S> Transform<S>(Reducer<Sum<E, A>, S> reduce) => 
-        Morphism.Transform(reduce);
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Invoking
+    //  Lifting
     //
     
-    /// <summary>
-    /// All IO monads will catch exceptions at their point of invocation (i.e. in the `Run*` methods).
-    /// But they do not catch exceptions elsewhere without explicitly using this `Try()` method.
-    ///
-    /// This wraps the `IO` monad in a try/catch that converts exceptional errors to an `E` and 
-    /// therefore puts the `IO` in a `Fail` state the expression that can then be matched upon.
-    /// </summary>
-    /// <remarks>
-    /// Useful when you want exceptions to be dealt with through matching/bi-mapping/etc.
-    /// and not merely be caught be the exception handler in `Run*`.
-    /// </remarks>
-    /// <remarks>
-    /// This is used automatically for the first argument in the coalescing `|` operator so that any
-    /// exceptional failures, in the first argument, allow the second argument to be invoked. 
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, A> Try() =>
-        new(effect.Try());
+    public static IO<A> Lift(Func<A> f) =>
+        new(_ => f());
 
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Either<E, A> Run(MinRT<E> env) =>
-        effect.Run(env);
+    public static IO<A> Lift(Func<EnvIO, A> f) =>
+        new(f);
 
-    /// <summary>
-    /// Invoke the effect
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Either<E, A> Run() =>
-        Run(new MinRT<E>());
+    public static IO<A> LiftIO(Func<ValueTask<A>> f) =>
+        new(env => Run(_ => f(), env));
 
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Run a reducer for
-    /// each value yielded.
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<S> RunMany<S>(MinRT<E> env, S initialState, Func<S, Either<E, A>, TResult<S>> reducer) =>
-        effect.RunMany(env, initialState, reducer);
+    public static IO<A> LiftIO(Func<EnvIO, ValueTask<A>> f) =>
+        new(env => Run(f, env));
 
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Run a reducer for
-    /// each value yielded.
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<S> RunMany<S>(S initialState, Func<S, Either<E, A>, TResult<S>> reducer) =>
-        effect.RunMany(new MinRT<E>(), initialState, reducer);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Functor
+    //
 
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Collect those results in a `Seq`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Either<E, Seq<A>> RunMany(MinRT<E> env) =>
-        effect.RunMany(env);
+    public IO<B> Map<B>(Func<A, B> f) => 
+        new(e => f(Run(e)));
 
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Collect those results in a `Seq`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Either<E, Seq<A>> RunMany() =>
-        effect.RunMany(new MinRT<E>());
+    public IO<A> MapFail(Func<Error, Error> f) => 
+        new(e =>
+            {
+                try
+                {
+                    return Run(e);
+                }
+                catch (ErrorException ex)
+                {
+                    return f(ex.ToError()).Throw<A>();
+                }
+                catch (Exception ex)
+                {
+                    return f(ex).Throw<A>();
+                }
+            });
 
-    /// <summary>
-    /// Invoke the effect asynchronously
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Task<Either<E, A>> RunAsync(MinRT<E> env) =>
-        effect.RunAsync(env);
+    public IO<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) => 
+        new(e =>
+            {
+                try
+                {
+                    return Succ(Run(e));
+                }
+                catch (ErrorException ex)
+                {
+                    return Fail(ex.ToError()).Throw<B>();
+                }
+                catch (Exception ex)
+                {
+                    return Fail(ex).Throw<B>();
+                }
+            });
 
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Run a reducer for
-    /// each value yielded.
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Task<Fin<S>> RunManyAsync<S>(MinRT<E> env, S initialState, Func<S, Either<E, A>, TResult<S>> reducer) =>
-        effect.RunManyAsync(env, initialState, reducer);
+    public IO<B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail) => 
+        new(e =>
+            {
+                try
+                {
+                    return Succ(Run(e));
+                }
+                catch (ErrorException ex)
+                {
+                    return Fail(ex.ToError());
+                }
+                catch (Exception ex)
+                {
+                    return Fail(ex);
+                }
+            });
 
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Run a reducer for
-    /// each value yielded.
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Task<Fin<S>> RunManyAsync<S>(S initialState, Func<S, Either<E, A>, TResult<S>> reducer) =>
-        effect.RunManyAsync(new MinRT<E>(), initialState, reducer);
+    public IO<A> IfFail(Func<Error, A> Fail) =>
+        Match(Prelude.identity, Fail);
 
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Collect those results in a `Seq`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Task<Either<E, Seq<A>>> RunManyAsync(MinRT<E> env) =>
-        effect.RunManyAsync(env);
-
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Collect those results in a `Seq`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Task<Either<E, Seq<A>>> RunManyAsync() =>
-        effect.RunManyAsync(new MinRT<E>());
+    public IO<A> IfFail(A Fail) =>
+        Match(Prelude.identity, _ => Fail);
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Timeout
-    //
-
-    /// <summary>
-    /// Cancel the operation if it takes too long
-    /// </summary>
-    /// <param name="timeoutDelay">Timeout period</param>
-    /// <returns>An IO operation that will timeout if it takes too long</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, A> Timeout(TimeSpan timeoutDelay) =>
-        new(effect.Timeout(timeoutDelay));
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Lifting
-    //
-    
-    /// <summary>
-    /// Lift a value into the IO monad 
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> Pure(A value) =>
-        new (_ => Sum<E, A>.Right(value));
-
-    /// <summary>
-    /// Lift a failure into the IO monad 
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> Fail(E error) =>
-        new (_ => Sum<E, A>.Left(error));
-
-    /// <summary>
-    /// Lift a synchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> Lift(Func<MinRT<E>, Either<E, A>> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> Lift(Func<Either<E, A>> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> Lift(Transducer<MinRT<E>, Either<E, A>> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> Lift(Transducer<Unit, Either<E, A>> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> Lift(Func<MinRT<E>, Sum<E, A>> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> Lift(Func<Sum<E, A>> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> Lift(Transducer<MinRT<E>, Sum<E, A>> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> Lift(Transducer<Unit, Sum<E, A>> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> Lift(Func<MinRT<E>, A> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> Lift(Func<A> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> Lift(Transducer<MinRT<E>, A> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> Lift(Transducer<Unit, A> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a asynchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> LiftIO(Func<MinRT<E>, Task<A>> f) =>
-        new(IO<MinRT<E>, E, A>.LiftIO(f));
-
-    /// <summary>
-    /// Lift a asynchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> LiftIO(Func<MinRT<E>, Task<Sum<E, A>>> f) =>
-        new(IO<MinRT<E>, E, A>.LiftIO(f));
-
-    /// <summary>
-    /// Lift a asynchronous effect into the IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> LiftIO(Func<MinRT<E>, Task<Either<E, A>>> f) =>
-        new(IO<MinRT<E>, E, A>.LiftIO(f));
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Memoisation and tail calls
-    //
-    
-    /// <summary>
-    /// Memoise the result, so subsequent calls don't invoke the side-effect
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, A> Memo() =>
-        new(effect.Memo());
-
-    /// <summary>
-    /// Wrap this around the final `from` call in a `IO` LINQ expression to void a recursion induced space-leak.
-    /// </summary>
-    /// <example>
-    /// 
-    ///     IO<MinRT, E, A> recursive(int x) =>
-    ///         from x in writeLine(x)
-    ///         from r in tail(recursive(x + 1))
-    ///         select r;      <--- this never runs
-    /// 
-    /// </example>
-    /// <remarks>
-    /// This means the result of the LINQ expression comes from the final `from`, _not_ the `select.  If the
-    /// type of the `final` from differs from the type of the `select` then this has no effect.
-    /// </remarks>
-    /// <remarks>
-    /// Background: When making recursive LINQ expressions, the final `select` is problematic because it means
-    /// there's code to run _after_ the final `from` expression.  This means there's you're guaranteed to have a
-    /// space-leak due to the need to hold thunks to the final `select` on every recursive step.
-    ///
-    /// This function ignores the `select` altogether and says that the final `from` is where we get our return
-    /// result from and therefore there's no need to hold the thunk. 
-    /// </remarks>
-    /// <returns>IO operation that's marked ready for tail recursion</returns>        
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, A> Tail() =>
-        new(effect.Tail());
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
-    // Forking
+    //  Folding
     //
 
-    /// <summary>
-    /// Queue this IO operation to run on the thread-pool. 
-    /// </summary>
-    /// <param name="timeout">Maximum time that the forked IO operation can run for. `None` for no timeout.</param>
-    /// <returns>Returns a `ForkIO` data-structure that contains two IO effects that can be used to either cancel
-    /// the forked IO operation or to await the result of it.
-    /// </returns>
-    [MethodImpl(Opt.Default)]
-    public IO<E, ForkIO<E, A>> Fork(Option<TimeSpan> timeout = default) =>
-        new(Transducer.fork(Morphism, timeout).Map(TFork.ToIO));
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Map and map-left
-    //
-
-    /// <summary>
-    /// Maps the IO monad if it's in a success state
-    /// </summary>
-    /// <param name="f">Function to map the success value with</param>
-    /// <returns>Mapped IO monad</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, B> Map<B>(Func<A, B> f) =>
-        new(effect.Map(f));
-
-    /// <summary>
-    /// Maps the IO monad if it's in a success state
-    /// </summary>
-    /// <param name="f">Function to map the success value with</param>
-    /// <returns>Mapped IO monad</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, B> Select<B>(Func<A, B> f) =>
-        new(effect.Map(f));
-
-    /// <summary>
-    /// Maps the IO monad if it's in a success state
-    /// </summary>
-    /// <param name="f">Function to map the success value with</param>
-    /// <returns>Mapped IO monad</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, B> Map<B>(Transducer<A, B> f) =>
-        new(effect.Map(f));
-
-    /// <summary>
-    /// Maps the IO monad if it's in a success state
-    /// </summary>
-    /// <param name="f">Function to map the success value with</param>
-    /// <returns>Mapped IO monad</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public  IO<E, A> MapFail(Func<E, E> f) =>
-        new(effect.MapFail(f));
-
-    /// <summary>
-    /// Maps the IO monad if it's in a success state
-    /// </summary>
-    /// <param name="f">Function to map the success value with</param>
-    /// <returns>Mapped IO monad</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public  IO<E, A> MapFail(Transducer<E, E> f) =>
-        new(effect.MapFail(f));
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Bi-map
-    //
-
-    /// <summary>
-    /// Mapping of either the Success state or the Failure state depending on what
-    /// state this IO monad is in.  
-    /// </summary>
-    /// <param name="Succ">Mapping to use if the IO monad is in a success state</param>
-    /// <param name="Fail">Mapping to use if the IO monad is in a failure state</param>
-    /// <returns>Mapped IO monad</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, B> BiMap<B>(Func<A, B> Succ, Func<E, E> Fail) =>
-        new(effect.BiMap(Succ, Fail));
-
-    /// <summary>
-    /// Mapping of either the Success state or the Failure state depending on what
-    /// state this IO monad is in.  
-    /// </summary>
-    /// <param name="Succ">Mapping to use if the IO monad is in a success state</param>
-    /// <param name="Fail">Mapping to use if the IO monad is in a failure state</param>
-    /// <returns>Mapped IO monad</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, B> BiMap<B>(Transducer<A, B> Succ, Transducer<E, E> Fail) =>
-        new(effect.BiMap(Succ, Fail));
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Matching
-    //
-
-    /// <summary>
-    /// Pattern match the success or failure values and collapse them down to a success value
-    /// </summary>
-    /// <param name="Succ">Success value mapping</param>
-    /// <param name="Fail">Failure value mapping</param>
-    /// <returns>IO in a success state</returns>
-    [Pure]
-    public IO<E, B> Match<B>(Func<A, B> Succ, Func<E, B> Fail) =>
-        new(effect.Match(Succ, Fail));
-
-    /// <summary>
-    /// Pattern match the success or failure values and collapse them down to a success value
-    /// </summary>
-    /// <param name="Succ">Success value mapping</param>
-    /// <param name="Fail">Failure value mapping</param>
-    /// <returns>IO in a success state</returns>
-    [Pure]
-    public IO<E, B> Match<B>(Transducer<A, B> Succ, Transducer<E, B> Fail) =>
-        new(effect.Match(Succ, Fail));
-
-    /// <summary>
-    /// Map the failure to a success value
-    /// </summary>
-    /// <param name="f">Function to map the fail value</param>
-    /// <returns>IO in a success state</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, A> IfFail(Func<E, A> Fail) =>
-        new(effect.IfFail(Fail));
-
-    /// <summary>
-    /// Map the failure to a success value
-    /// </summary>
-    /// <param name="f">Function to map the fail value</param>
-    /// <returns>IO in a success state</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, A> IfFail(Transducer<E, A> Fail) =>
-        new(effect.IfFail(Fail));
-
-    /// <summary>
-    /// Map the failure to a success value
-    /// </summary>
-    /// <param name="f">Function to map the fail value</param>
-    /// <returns>IO in a success state</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, A> IfFail(A Fail) =>
-        new(effect.IfFail(Fail));
-
-    /// <summary>
-    /// Map the failure to a new IO effect
-    /// </summary>
-    /// <param name="f">Function to map the fail value</param>
-    /// <returns>IO that encapsulates that IfFail</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, A> IfFailIO(Func<E, IO<E, A>> Fail) =>
-        new(Transducer.bimap(
-                Morphism,
-                e => Fail(e).Morphism,
-                x => Transducer.constant<MinRT<E>, Sum<E, A>>(Sum<E, A>.Right(x)))
-            .Flatten());
-
-    /// <summary>
-    /// Map the failure to a new IO effect
-    /// </summary>
-    /// <param name="f">Function to map the fail value</param>
-    /// <returns>IO that encapsulates that IfFail</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, A> IfFailIO(IO<E, A> Fail) =>
-        IfFailIO(_ => Fail);
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Filter
-    //
-
-    /// <summary>
-    /// Only allow values through the effect if the predicate returns `true` for the bound value
-    /// </summary>
-    /// <param name="predicate">Predicate to apply to the bound value></param>
-    /// <returns>Filtered IO</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, A> Filter(Func<A, bool> predicate) =>
-        new(effect.Filter(predicate));
-
-    /// <summary>
-    /// Only allow values through the effect if the predicate returns `true` for the bound value
-    /// </summary>
-    /// <param name="predicate">Predicate to apply to the bound value></param>
-    /// <returns>Filtered IO</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, A> Filter(Transducer<A, bool> predicate) =>
-        new(effect.Filter(predicate));
-
-    /// <summary>
-    /// Only allow values through the effect if the predicate returns `true` for the bound value
-    /// </summary>
-    /// <param name="predicate">Predicate to apply to the bound value></param>
-    /// <returns>Filtered IO</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, A> Where(Func<A, bool> predicate) =>
-        new(effect.Filter(predicate));
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Monadic binding
-    //
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, B> Bind<B>(Func<A, IO<E, B>> f) =>
-        new(Transducer.bind(Morphism, x => f(x).Morphism));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, B> Bind<B>(Func<A, K<IO<E>, B>> f) =>
-        new(Transducer.bind(Morphism, x => f(x).As().Morphism));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// transducer provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the transducer provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, B> Bind<B>(Transducer<A, IO<E, B>> f) =>
-        Map(f).Flatten();
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, B> Bind<B>(Func<A, Pure<B>> f) =>
-        new(effect.Bind(f));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, A> Bind(Func<A, Fail<E>> f) =>
-        new(effect.Bind(f));
-    
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, B> Bind<B>(Func<A, Transducer<Unit, B>> f) =>
-        new(effect.Bind(f));
-    
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, B> Bind<B>(Func<A, Transducer<MinRT<E>, B>> f) =>
-        new(effect.Bind(f));
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    //  Monadic binding and projection
-    //
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, C> SelectMany<B, C>(Func<A, IO<E, B>> bind, Func<A, B, C> project) =>
-        new(Transducer.selectMany(Morphism, x => bind(x).Morphism, project));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
-        new(effect.SelectMany(bind, project));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, C> SelectMany<B, C>(Func<A, Fail<E>> bind, Func<A, B, C> project) =>
-        new(effect.SelectMany(bind, project));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, C> SelectMany<C>(Func<A, Guard<E, Unit>> bind, Func<A, Unit, C> project) =>
-        new(effect.SelectMany(bind, project));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, C> SelectMany<C>(Func<A, Guard<Fail<E>, Unit>> bind, Func<A, Unit, C> project) =>
-        new(effect.SelectMany(bind, project));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> bind, Func<A, B, C> project) =>
-        new(effect.SelectMany(bind, project));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current IO monad and feeds its result to the
-    /// function provided; which in turn returns a new IO monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, C> SelectMany<B, C>(Func<A, Transducer<MinRT<E>, B>> bind, Func<A, B, C> project) =>
-        new(effect.SelectMany(bind, project));
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Folding
-    //
-
-    /// <summary>
-    /// Fold the effect forever or until the schedule expires
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> Fold<S>(
-        Schedule schedule, 
+    public IO<S> Fold<S>(
+        Schedule schedule,
         S initialState,
         Func<S, A, S> folder) =>
-        new(effect.Fold(schedule, initialState, folder));
-    
-    /// <summary>
-    /// Fold the effect forever
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> Fold<S>(
+        FoldUntil(schedule, initialState, folder, predicate: _ => false);
+
+    public IO<S> Fold<S>(
         S initialState,
         Func<S, A, S> folder) =>
-        new(effect.Fold(initialState, folder));
+        FoldUntil(Schedule.Forever, initialState, folder, predicate: _ => false);
 
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldUntil<S>(
-        Schedule schedule, 
+
+    public IO<S> FoldWhile<S>(
+        Schedule schedule,
         S initialState,
-        Func<S, A, S> folder, 
-        Func<(S State, A Value), bool> predicate) =>
-        new(effect.FoldUntil(schedule, initialState, folder, predicate));
-    
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldUntil<S>(
-        Schedule schedule, 
-        S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        new(effect.FoldUntil(schedule, initialState, folder, stateIs));
+        FoldUntil(schedule, initialState, folder, Prelude.not(stateIs));
 
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldUntil<S>(
-        Schedule schedule, 
+    public IO<S> FoldWhile<S>(
         S initialState,
-        Func<S, A, S> folder, 
-        Func<A, bool> valueIs) =>
-        new(effect.FoldUntil(schedule, initialState, folder, valueIs));
-
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldUntil<S>(
-        S initialState,
-        Func<S, A, S> folder, 
-        Func<(S State, A Value), bool> predicate) =>
-        new(effect.FoldUntil(initialState, folder, predicate));
-    
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldUntil<S>(
-        S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        new(effect.FoldUntil(initialState, folder, stateIs));
+        FoldUntil(Schedule.Forever, initialState, folder, Prelude.not(stateIs));
 
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldUntil<S>(
+    
+    public IO<S> FoldWhile<S>(
+        Schedule schedule,
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
-        new(effect.FoldUntil(initialState, folder, valueIs));
+        FoldUntil(schedule, initialState, folder, Prelude.not(valueIs));
 
-    /// <summary>
-    /// Fold the effect while the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldWhile<S>(
-        Schedule schedule, 
+    public IO<S> FoldWhile<S>(
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
+        Func<A, bool> valueIs) =>
+        FoldUntil(Schedule.Forever, initialState, folder, Prelude.not(valueIs));
+
+    
+    public IO<S> FoldWhile<S>(
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        new(effect.FoldWhile(schedule, initialState, folder, predicate));
-    
-    /// <summary>
-    /// Fold the effect while the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldWhile<S>(
-        Schedule schedule, 
-        S initialState,
-        Func<S, A, S> folder, 
-        Func<S, bool> stateIs) =>
-        new(effect.FoldWhile(schedule, initialState, folder, stateIs));
+        FoldUntil(schedule, initialState, folder, Prelude.not(predicate));
 
-    /// <summary>
-    /// Fold the effect while the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldWhile<S>(
-        Schedule schedule, 
+    public IO<S> FoldWhile<S>(
         S initialState,
-        Func<S, A, S> folder, 
-        Func<A, bool> valueIs) =>
-        new(effect.FoldWhile(schedule, initialState, folder, valueIs));
-
-    /// <summary>
-    /// Fold the effect while the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldWhile<S>(
-        S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
-        new(effect.FoldWhile(initialState, folder, predicate));
+        FoldUntil(Schedule.Forever, initialState, folder, Prelude.not(predicate));
     
-    /// <summary>
-    /// Fold the effect while the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldWhile<S>(
+    
+    public IO<S> FoldUntil<S>(
+        Schedule schedule,
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
-        new(effect.FoldWhile(initialState, folder, stateIs));
-
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldWhile<S>(
-        S initialState,
-        Func<S, A, S> folder, 
-        Func<A, bool> valueIs) =>
-        new(effect.FoldWhile(initialState, folder, valueIs));
+        FoldUntil(schedule, initialState, folder, p => stateIs(p.State));
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public IO<S> FoldUntil<S>(
+        S initialState,
+        Func<S, A, S> folder,
+        Func<S, bool> stateIs) =>
+        FoldUntil(Schedule.Forever, initialState, folder, p => stateIs(p.State));
+
+    
+    public IO<S> FoldUntil<S>(
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<A, bool> valueIs) =>
+        FoldUntil(schedule, initialState, folder, p => valueIs(p.Value));
+    
+    public IO<S> FoldUntil<S>(
+        S initialState,
+        Func<S, A, S> folder,
+        Func<A, bool> valueIs) =>
+        FoldUntil(Schedule.Forever, initialState, folder, p => valueIs(p.Value));
+    
+    
+    public IO<S> FoldUntil<S>(
+        S initialState,
+        Func<S, A, S> folder,
+        Func<(S State, A Value), bool> predicate) =>
+        FoldUntil(Schedule.Forever, initialState, folder, predicate);
+    
+    public IO<S> FoldUntil<S>(
+        Schedule schedule,
+        S initialState,
+        Func<S, A, S> folder,
+        Func<(S State, A Value), bool> predicate)
+    {
+        return new(
+            envIO =>
+            {
+                var r = Run(envIO);
+                var state = folder(initialState, r);
+                if (predicate((state, r))) return state;
+                
+                var token = envIO.Token;
+                foreach (var delay in schedule.Run())
+                {
+                    yield(delay, token);
+                    r = Run(envIO);
+                    state = folder(state, r);
+                    if (predicate((state, r))) return state;
+                }
+                return state;
+            });
+
+        static void yield(Duration d, CancellationToken token)
+        {
+            if (d == Duration.Zero) return;
+            var      start = TimeProvider.System.GetTimestamp();
+            var      span  = (TimeSpan)d;
+            SpinWait sw    = default;
+            do
+            {
+                if (token.IsCancellationRequested) return;
+                if (TimeProvider.System.GetElapsedTime(start) >= span) return;
+                sw.SpinOnce();
+            } while (true);
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    // Folding, where each fold is monadic
+    // Cross thread-context posting
+    //
+ 
+    /// <summary>
+    /// Make this IO computation run on the `SynchronizationContext` that was captured at the start
+    /// of the IO chain (i.e. the one embedded within the `EnvIO` environment that is passed through
+    /// all IO computations)
+    /// </summary>
+    public IO<A> Post() =>
+        new(env =>
+            {
+                if (env.SyncContext is null) return Run(env);
+
+                A?         value = default;
+                Exception? error = default;
+                using var  wait  = new AutoResetEvent(false);
+                env.SyncContext.Post(_ =>
+                                     {
+                                         try
+                                         {
+                                             value = Run(env);
+                                         }
+                                         catch (Exception e)
+                                         {
+                                             error = e;
+                                         }
+                                         finally
+                                         {
+                                             wait.Set();
+                                         }
+                                     }, null);
+
+                wait.WaitOne();
+                if (error is not null) error.Rethrow<A>();
+                return value!;
+            });
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Monad
     //
 
-    /// <summary>
-    /// Fold the effect forever or until the schedule expires
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldM<S>(
-        Schedule schedule, 
-        S initialState,
-        Func<S, A, IO<E, S>> folder) =>
-        new(effect.FoldM(schedule, initialState, (s, x) => folder(s, x).Morphism));
+    public IO<B> Bind<B>(Func<A, IO<B>> f) =>
+        new(e => f(Run(e)).Run(e));
 
-    /// <summary>
-    /// Fold the effect forever
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldM<S>(
-        S initialState,
-        Func<S, A, IO<E, S>> folder) =>
-        new(effect.FoldM(initialState, (s, x) => folder(s, x).Morphism));
+    public IO<B> Bind<B>(Func<A, K<IO, B>> f) =>
+        new(e => f(Run(e)).As().Run(e));
 
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldUntilM<S>(
-        Schedule schedule, 
-        S initialState,
-        Func<S, A, IO<E, S>> folder, 
-        Func<A, bool> valueIs) =>
-        new(effect.FoldUntilM(schedule, initialState, (s, x) => folder(s, x).Morphism, valueIs));
+    public IO<B> Bind<B>(Func<A, Pure<B>> f) =>
+        new(e => f(Run(e)).Value);
 
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldUntilM<S>(
-        S initialState,
-        Func<S, A, IO<E, S>> folder, 
-        Func<A, bool> valueIs) =>
-        new(effect.FoldUntilM(initialState, (s, x) => folder(s, x).Morphism, valueIs));
-
-    /// <summary>
-    /// Fold the effect while the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldWhileM<S>(
-        Schedule schedule, 
-        S initialState,
-        Func<S, A, IO<E, S>> folder, 
-        Func<A, bool> valueIs) =>
-        new(effect.FoldWhileM(schedule, initialState, (s, x) => folder(s, x).Morphism, valueIs));
-
-    /// <summary>
-    /// Fold the effect while the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, S> FoldWhileM<S>(
-        S initialState,
-        Func<S, A, IO<E, S>> folder, 
-        Func<A, bool> valueIs) =>
-        new(effect.FoldWhileM(initialState, (s, x) => folder(s, x).Morphism, valueIs));
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    // Synchronisation between contexts
+    //  LINQ
     //
     
+    public IO<B> Select<B>(Func<A, B> f) =>
+        Map(f);
+
+    public IO<C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
+
+    public IO<C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
+        Bind(x => bind(x).Map(y => project(x, y)));
+
+    public OptionT<M, C> SelectMany<M, B, C>(Func<A, OptionT<M, B>> bind, Func<A, B, C> project)
+        where M : Monad<M> =>
+        OptionT<M, A>.LiftIO(this).SelectMany(bind, project);
+
+    public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
+        where M : Monad<M> =>
+        ReaderT<Env, M, A>.LiftIO(this).SelectMany(bind, project);
+
+    public ResourceT<M, C> SelectMany<M, B, C>(Func<A, ResourceT<M, B>> bind, Func<A, B, C> project)
+        where M : Monad<M> =>
+        ResourceT<M, A>.LiftIO(this).SelectMany(bind, project);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Fail coalescing
+    //
+
+    public IO<A> Or(IO<A> mb) =>
+        new(e =>
+            {
+                try
+                {
+                    return Run(e);
+                }
+                catch
+                {
+                    return mb.Run(e);
+                }
+            });
+    
+    public static IO<A> operator |(IO<A> ma, IO<A> mb) =>
+        ma.Or(mb);
+
+    public static IO<A> operator |(IO<A> ma, Pure<A> mb) =>
+        ma.Or(mb);
+
+    public static IO<A> operator |(IO<A> ma, Fail<Error> mb) =>
+        ma.Or(mb);
+
+    public static IO<A> operator |(IO<A> ma, Fail<Exception> mb) =>
+        ma.Or(mb);
+
+    public static IO<A> operator |(IO<A> ma, Error mb) =>
+        ma.Or(mb);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Trait implementation
+    //
+    
+    static IO<A> Semigroup<IO<A>>.Append(IO<A> x, IO<A> y) => 
+        x | y;
+
+    static IO<A> Monoid<IO<A>>.Empty =>
+        Empty;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Conversion
+    //
+    
+    public static implicit operator IO<A>(Pure<A> ma) =>
+        Pure(ma.Value);
+
+    public static implicit operator IO<A>(Error error) =>
+        Lift(error.Throw<A>);
+
+    public static implicit operator IO<A>(Fail<Error> ma) =>
+        Lift(() => ma.Value.Throw<A>());
+
+    public static implicit operator IO<A>(Fail<Exception> ma) =>
+        Lift(() => ma.Value.Rethrow<A>());
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Parallel
+    //
+
     /// <summary>
-    /// Make a transducer run on the `SynchronizationContext` that was captured at the start
-    /// of an `Invoke` call.
+    /// Applies a time limit to the IO computation.  If exceeded an exception is thrown.  
+    /// </summary>
+    /// <param name="timeout">Timeout</param>
+    /// <returns>Result of the operation or throws if the time limit exceeded.</returns>
+    public IO<A> Timeout(TimeSpan timeout) =>
+        from f in Fork(timeout)
+        from r in f.Await
+        select r;
+    
+    /// <summary>
+    /// Queues the specified work to run on the thread pool  
+    /// </summary>
+    /// <param name="timeout">Optional timeout</param>
+    /// <returns>`Fork` record that contains members for cancellation and optional awaiting</returns>
+    public IO<ForkIO<A>> Fork(Option<TimeSpan> timeout = default) =>
+        IO<ForkIO<A>>.Lift(
+            env =>
+            {
+                // Create a new local token-source with its own cancellation token
+                var tsrc = timeout.IsSome
+                               ? new CancellationTokenSource((TimeSpan)timeout)
+                               : new CancellationTokenSource();
+                var token = tsrc.Token;
+
+                // If the parent cancels, we should too
+                var reg = env.Token.Register(() => tsrc.Cancel());
+
+                // Run the transducer asynchronously
+                var cleanup = new CleanUp(tsrc, reg);
+
+                var task = Task.Run(
+                    () =>
+                    {
+                        try
+                        {
+                            return runIO(new EnvIO(token, tsrc, env.SyncContext));
+                        }
+                        finally
+                        {
+                            cleanup.Dispose();
+                        }
+                    }, token);
+
+                return new ForkIO<A>(
+                        IO<Unit>.Lift(() => { tsrc.Cancel(); return default; }),
+                        LiftIO(async _ => await task.ConfigureAwait(false)));
+            });
+
+    /// <summary>
+    /// Run the `IO` monad to get its result
     /// </summary>
     /// <remarks>
-    /// The transducer receives its input value from the currently running sync-context and
-    /// then proceeds to run its operation in the captured `SynchronizationContext`:
-    /// typically a UI context, but could be any captured context.  The result of the
-    /// transducer is the received back on the currently running sync-context. 
+    /// Any lifted asynchronous operations will yield to the thread-scheduler, allowing other queued
+    /// operations to run concurrently.  So, even though this call isn't awaitable it still plays
+    /// nicely and doesn't block the thread.
     /// </remarks>
-    /// <param name="f">Transducer</param>
-    /// <returns></returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<E, A> Post() =>
-        new(effect.Post());        
+    /// <remarks>
+    /// NOTE: An exception will always be thrown if the IO operation fails.  Lift this monad into
+    /// other error handling monads to leverage more declarative error handling. 
+    /// </remarks>
+    /// <returns>Result of the IO operation</returns>
+    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
+    /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
+    public A Run() =>
+        Run(EnvIO.New());
+
+    /// <summary>
+    /// Run the `IO` monad to get its result
+    /// </summary>
+    /// <remarks>
+    /// Any lifted asynchronous operations will yield to the thread-scheduler, allowing other queued
+    /// operations to run concurrently.  So, even though this call isn't awaitable it still plays
+    /// nicely and doesn't block the thread.
+    /// </remarks>
+    /// <remarks>
+    /// NOTE: An exception will always be thrown if the IO operation fails.  Lift this monad into
+    /// other error handling monads to leverage more declarative error handling. 
+    /// </remarks>
+    /// <param name="env">IO environment</param>
+    /// <returns>Result of the IO operation</returns>
+    /// <exception cref="TaskCanceledException">Throws if the operation is cancelled</exception>
+    /// <exception cref="BottomException">Throws if any lifted task fails without a value `Exception` value.</exception>
+    public A Run(EnvIO env) =>
+        runIO(env);
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    // Conversion
-    //
-    
-    /// <summary>
-    /// Natural transformation to an `IO` monad
-    /// </summary>
-    [Pure]
-    public IO<MinRT<E>, E, A> As =>
-        effect;
-
-    /// <summary>
-    /// Convert to an `IO` monad that has a runtime
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public IO<RT, E, A> WithRuntime<RT>() where RT : HasIO<RT, E> =>
-        IO<RT, E, A>.Lift(Transducer.compose(MinRT<E>.convert<RT>(), Morphism));
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Operators
+    //  Internal
     //
 
     /// <summary>
-    /// Convert to an IO monad
+    /// Internal running of tasks without using the async/await machinery but still
+    /// yielding the thread for concurrency.
     /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator IO<E, A>(Pure<A> ma) =>
-        ma.ToIO<E>();
+    /// <exception cref="TaskCanceledException"></exception>
+    /// <exception cref="BottomException"></exception>
+    static A Run(Func<EnvIO, ValueTask<A>> runIO, EnvIO env)
+    {
+        var token = env.Token;
+        if (token.IsCancellationRequested) throw new TaskCanceledException();
 
-    /// <summary>
-    /// Convert to an IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator IO<E, A>(Fail<E> ma) =>
-        ma.ToIO<A>();
+        // Launch the task
+        #pragma warning disable CA2012
+        var t = runIO(env);
+        #pragma warning restore CA2012
 
-    /// <summary>
-    /// Convert to an `IO` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator IO<E, A>(in Either<E, A> ma) =>
-        ma.Match(Right: Pure, Left: Fail);
+        // Spin waiting for the task to complete or be cancelled
+        SpinWait sw = default;
+        while (!t.IsCompleted && !token.IsCancellationRequested)
+        {
+            sw.SpinOnce();
+        }
 
-    /// <summary>
-    /// Convert to an IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator IO<E, A>(Transducer<MinRT<E>, Sum<E, A>> ma) =>
-        Lift(ma);
+        if (t.IsCanceled || token.IsCancellationRequested)
+        {
+            throw new TaskCanceledException();
+        }
 
-    /// <summary>
-    /// Convert to an IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator IO<E, A>(Transducer<MinRT<E>, Either<E, A>> ma) =>
-        Lift(ma);
+        if (t.IsFaulted)
+        {
+            return t.AsTask().Exception is Exception e
+                       ? e.Rethrow<A>()
+                       : throw new BottomException();
+        }
 
-    /// <summary>
-    /// Convert to an IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator IO<E, A>(Transducer<Unit, Sum<E, A>> ma) =>
-        Lift(ma);
-
-    /// <summary>
-    /// Convert to an IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator IO<E, A>(Transducer<Unit, Either<E, A>> ma) =>
-        Lift(ma);
-
-    /// <summary>
-    /// Convert to an IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator IO<E, A>(Transducer<MinRT<E>, A> ma) =>
-        Lift(ma);
-
-    /// <summary>
-    /// Convert to an IO monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator IO<E, A>(Transducer<Unit, A> ma) =>
-        Lift(ma);
+        return t.Result;
+    }
     
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(IO<E, A> ma, IO<E, A> mb) =>
-        new(ma.effect | mb.effect);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(IO<E, A> ma, CatchError<E> mb) =>
-        new(ma.effect | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(IO<E, A> ma, CatchValue<E, A> mb) =>
-        new(Transducer.@try(
-            ma.Morphism,
-            mb.Match,
-            Transducer.compose(lift(mb.Value), Transducer.mkRight<E, A>())));
-    
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(IO<E, A> ma, IOCatch<MinRT<E>, E, A> mb) =>
-        new(ma.effect | mb);
-    
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(IO<E, A> ma, IOCatch<E, A> mb) =>
-        new(ma.effect | mb.As);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(IO<E, A> ma, Transducer<MinRT<E>, A> mb) =>
-        new(ma.effect | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(IO<E, A> ma, Transducer<MinRT<E>, E> mb) =>
-        new(ma.effect | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(IO<E, A> ma, Transducer<Unit, A> mb) =>
-        new(ma.effect | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(IO<E, A> ma, Transducer<Unit, E> mb) =>
-        new(ma.effect | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(IO<E, A> ma, Transducer<MinRT<E>, Sum<E, A>> mb) =>
-        new(ma.effect | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(IO<E, A> ma, Transducer<Unit, Sum<E, A>> mb) =>
-        new(ma.effect | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(IO<E, A> ma, Transducer<MinRT<E>, Sum<Error, A>> mb) =>
-        new(ma.effect | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(IO<E, A> ma, Transducer<Unit, Sum<Error, A>> mb) =>
-        new(ma.effect | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(Transducer<MinRT<E>, A> ma, IO<E, A> mb) =>
-        new(ma | mb.effect);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(Transducer<MinRT<E>, E> ma, IO<E, A> mb) =>
-        new(ma | mb.effect);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(Transducer<Unit, A> ma, IO<E, A> mb) =>
-        new(ma | mb.effect);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(Transducer<Unit, E> ma, IO<E, A> mb) =>
-        new(ma | mb.effect);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(Transducer<MinRT<E>, Sum<E, A>> ma, IO<E, A>  mb) =>
-        new(ma | mb.effect);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(Transducer<Unit, Sum<E, A>> ma, IO<E, A> mb) =>
-        new(ma | mb.effect);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(Transducer<MinRT<E>, Sum<Error, A>> ma, IO<E, A> mb) =>
-        new(ma | mb.effect);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static IO<E, A> operator |(Transducer<Unit, Sum<Error, A>> ma, IO<E, A> mb) =>
-        new(ma | mb.effect);
+    record CleanUp(CancellationTokenSource Src, CancellationTokenRegistration Reg) : IDisposable
+    {
+        volatile int disposed;
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref disposed, 1) == 0)
+            {
+                try{Src.Dispose();} catch { /* not important */ } 
+                try{Reg.Dispose();} catch { /* not important */ }
+            }
+        }
+    }
 }

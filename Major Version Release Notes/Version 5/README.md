@@ -59,27 +59,52 @@ This opens up: static interface members (which allows the trait/ad-hoc polymorph
 
 ## Breaking changes
 
+### `netstandard2.0` no longer supported
+
+Version 5 of language-ext jumps straight to `net8.0` support.
+
+**Motivation**
+
+I held off for as long as I could, but there are lots of new C# features that this library can make use of (primarily static interfaces, but others too like collection initialisers); so it's time to leave .NET Framework behind and focus on .NET [Core].  
+
+**Impact**
+
+High (if you're still on .NET Framework)
+
+**Mitigation** 
+
+Migrate your application to .NET Core
+
+
 ### `Seq1` made `[Obsolete]`
 
-The plan to remove the `Seq1` singleton `Seq` constructor was announced a few years ago.  I've taken this opportunity to make it obsolete.
+A [previous attempt](https://github.com/louthy/language-ext/releases/tag/v4.0.2) to remove `Seq1` was paused due to [potential migration issues](https://github.com/louthy/language-ext/discussions/931).  
 
-* Impact: Low
-* Mitigation: Use `[x]` or `Seq.singleton(x)`
+**Motivation**
+
+The plan to remove the `Seq1` singleton `Seq` constructor was announced a few years ago.  I've taken this opportunity to make it obsolete as we now have collection initialisers and the previous reasons for the delay in making `Seq1` obsolete have subsided (a 3 year window should be enough!).  
+
+**Impact**
+
+Low
+
+**Mitigation** 
+
+Use `[x]` or `Seq.singleton(x)`
 
 ### `Apply` extensions that use raw `Func` removed
 
-The applicative-functor `Apply` function is supposed to work on lifted functions, not the raw `Func`.  I orignally put them in for convenience, but really they're just `Map` by another name.
+**Motivation**
 
-* Impact: Medium
-* Mitigation: Use `Map` instead.  For the `Apply` variants that take additional arguments, you can use `curry` to turn your `Func<A, B, ...>` into `Func<A, Func<B, ...>` - and that allows the `Func` to be used in `Map`.
+The applicative-functor `Apply` function is supposed to work on lifted functions (i.e. `M<Func<A, B>>` not the raw `Func<A, B>`).  I orignally provided variants that work with the raw `Func` for convenience, but really they're just `Map` by another name.
 
+**Impact**
 
-### `netstandard2.0` no longer supported
+Medium
 
-I held off for as long as I could, but there are lots of new C# features that this library can make use of (primarily static interfaces, but others too); so it's time to leave .NET Framework behind and focus on .NET Core.  This version jumps straight to `net8.0` support.
+**Mitigation** 
 
-* Impact: High (if you're still on .NET Framework)
-* Mitigation: Migrate your application to .NET Core
+Use `Map` instead.  For the `Apply` variants that take additional arguments, you can use `curry` to turn your `Func<A, B, ...>` into `Func<A, Func<B, ...>` - and that allows the `Func` to be used in `Map`.
 
 ### 'Trait' types now use static interface methods
 
@@ -87,34 +112,92 @@ Before static interface methods existed, the technique was to rely on the non-nu
 
 Language-ext has many of these 'trait types', like `Eq<A>`, `HasCancel<A>`, etc.  They have all been updated to use `static abstract` methods.
 
+**Motivation**
+
 So, where before you might call: `default(EqA).Equals(x, y)` (where `EqA` is `struct, Eq<A>`) - you now need to call `EqA.Equals(x, y)` (where `EqA` is `Eq<A>`) .  
 
 This is obviously much more elegant and removes the need for the `struct` constraint.
+
+**Impact**
+
+Medium - your code will throw up lots of 'Cannot access static method' errors.  It is a fairly mechanical processes to fix them up.  
+
+**Mitigation** 
 
 If you have implemented any of these traits, as instances, then you'll need to implement these changes:
 
 * Remove the `struct` from any constraints (`where X : struct`)
 * Add `static` to trait method implementations
 * Any default `Inst` usages should be removed
-* The types can still be implemented as structs, so that doesn't need to change, but they can be implemented with any instance type.
+* The types can still be implemented as structs, so that doesn't need to change, but they can now be implemented with any instance type.
 
-* Impact: Medium - your code will throw up lots of 'Cannot access static method' errors.  It is a fairly mechanical processes to fix them up.  
+### The 'higher-kind' trait types have all been refactored
 
-### `ToComparer` doesn't exist on the `Ord<A>` trait any mroe
+The following types have all bee rewritten: `Monad`, `Functor`, `Applicative`, `Alternative`, `Foldable`, etc.
+
+**Motivation**
+
+The new static interfaces have opened up a more effective approach to higher-kinds in C#.  Instead of doing as much as possible to retain the original types in methods like `Bind`, `Map`, `Apply`, etc. we now expect all types that need to leverage `Monad`, `Functor`, etc. to inherit `K<M, A>`.  
+
+For example, `Option<A>` inherits `K<Option, A>`, `Seq<A>` inehrits `K<Seq, A>`, `Either<L, R>` inherits `K<Either<L>, R>`.  The `M` in `K<M, A>` is the trait implementation.  So, `Option` (no generic argument) would inherit `Monad<Option>`, `Traversable<Option>`, etc.  
+
+**Impact**
+
+High, if you have built your own `Monad`, `Functor`, `Applicative` implementations; or you have been writing code that leverages the generic nature of the traits.  However, I doubt this impact will be large because the previous approach was cumbersome - hence the refactor.
+
+**Mitigation** 
+
+This is rewrite territory.  I would encourage you to look at the new traits and monad transformers - as they're much more effective.
+
+
+### The static `TypeClass` class has been renamed `Trait`
+
+`LanguageExt.TypeClass` is effectively a Prelude for the trait functions, this has been renamed to `LanguageExt.Trait`.
+
+
+**Motivation**
+
+The name type-class comes from Haskell, which has been a massive influence on this library, however, I think the word 'trait' is more descriptive than 'type class', which is potentially a bit confusing to the average C# developer.
+
+**Impact**
+
+Low
+
+**Mitigation** 
+
+Search and replace `TypeClass` for `Trait`.
+
+
+### `ToComparer` doesn't exist on the `Ord<A>` trait any more
+
+**Motivation**
 
 Because the trait types now use `static` methods, we can't now have a `ToComparer()` extension for the `Ord<A>` type.  Instead there's a class called `OrdComparer` that contains a singleton `IComparer` property called `Default`.
 
-* Impact: Low
-* Use `OrdComparer<OrdA, A>.Default` instead of `<OrdA>.ToComparer()`.
+**Impact**
+
+Low
+
+**Mitigation** 
+
+Use `OrdComparer<OrdA, A>.Default` instead of `<OrdA>.ToComparer()`.
+
 
 ### Renamed `LanguageExt.ClassInstances.Sum<NUM, A>`
 
 Renamed to `LanguageExt.ClassInstances.Addition<SUM, A>`
 
+**Mitigation** 
+
 There's a new type called `Sum<L, R>` for use with transducers.  
 
-* Impact: Low
-* Mitigation: Rename uses of `Sum<NUM, A>` to `Addition<NUM, A>`
+**Impact**
+
+Low
+
+**Mitigation** 
+
+Mitigation: Rename uses of `Sum<NUM, A>` to `Addition<NUM, A>`
 
 
 ###  `Guard<E>` has become `Guard<E, A>`
@@ -204,3 +287,4 @@ This is my '.NET Framework to .NET Core' moment.  I realise that.  And I an trul
 * Find a way of resolving default implementations for classes now that we're using static interface methods.
 * Test that resources are freed correctly in ResourceT when the result of Run is lazy
 	* `bracket`
+* `EitherT`, `TryT` (derives `EitherT<M, Error, A>)`, `Try` (derives `TryT<Identity, A>`)

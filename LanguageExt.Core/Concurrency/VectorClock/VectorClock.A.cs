@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
-using static LanguageExt.TypeClass;
+using static LanguageExt.Trait;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -262,7 +262,7 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
         static Relation go(Seq<(A, long)> es1, Seq<(A, long)> es2) =>
             (es1.IsEmpty, es2.IsEmpty) switch
             {
-                (false, false) => TypeClass.equals<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1)
+                (false, false) => Trait.equals<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1)
                                       ? es1.Head.Item2 == es2.Head.Item2
                                             ? go(es1.Tail, es2.Tail)
                                             : es1.Head.Item2 < es2.Head.Item2
@@ -270,9 +270,9 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
                                                 : checkCauses(es2.Tail, es1.Tail)
                                                     ? LanguageExt.Relation.CausedBy
                                                     : LanguageExt.Relation.Concurrent
-                                      : TypeClass.lessThan<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1)
+                                      : Trait.lessThan<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1)
                                           ? checkCauses(es2, es1.Tail) ? LanguageExt.Relation.CausedBy : LanguageExt.Relation.Concurrent
-                                          : TypeClass.greaterThan<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1)
+                                          : Trait.greaterThan<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1)
                                               ? checkCauses(es1, es2.Tail) ? LanguageExt.Relation.Causes : LanguageExt.Relation.Concurrent
                                               : LanguageExt.Relation.Concurrent,
                 (true, _) => LanguageExt.Relation.Causes,
@@ -282,9 +282,9 @@ public record VectorClock<A>(Seq<(A, long)> Entries)
         static bool checkCauses(Seq<(A, long)> es1, Seq<(A, long)> es2) =>
             (es1.IsEmpty, es2.IsEmpty) switch
             {
-                (false, false) => TypeClass.equals<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1)
+                (false, false) => Trait.equals<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1)
                                       ? es1.Head.Item2 <= es2.Head.Item2 && checkCauses(es1.Tail, es2.Tail)
-                                      : !TypeClass.lessThan<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1) && checkCauses(es1, es2.Tail),
+                                      : !Trait.lessThan<OrdDefault<A>, A>(es1.Head.Item1, es2.Head.Item1) && checkCauses(es1, es2.Tail),
                 (true, _) => true,
                 _         => false
             };

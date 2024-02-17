@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
+using static LanguageExt.Trait;
 using static LanguageExt.Choice;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
@@ -623,12 +623,29 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public int CompareTo(Validation<MonoidFail, FAIL, SUCCESS> other) =>
+            CompareTo<OrdDefault<FAIL>, OrdDefault<SUCCESS>>(other);
+
+        /// <summary>
+        /// CompareTo override
+        /// </summary>
+        [Pure]
+        public int CompareTo<OrdSuccess>(Validation<MonoidFail, FAIL, SUCCESS> other) 
+            where OrdSuccess : Ord<SUCCESS> =>
+            CompareTo<OrdDefault<FAIL>, OrdSuccess>(other);
+
+        /// <summary>
+        /// CompareTo override
+        /// </summary>
+        [Pure]
+        public int CompareTo<OrdFail, OrdSuccess>(Validation<MonoidFail, FAIL, SUCCESS> other) 
+            where OrdFail : Ord<FAIL>
+            where OrdSuccess : Ord<SUCCESS> =>
             OrdChoice<
-                OrdDefault<FAIL>,
-                OrdDefault<SUCCESS>,
-                FoldValidation<MonoidFail, FAIL, SUCCESS>,
-                Validation<MonoidFail, FAIL, SUCCESS>,
-                FAIL, SUCCESS>
+                    OrdFail,
+                    OrdSuccess,
+                    FoldValidation<MonoidFail, FAIL, SUCCESS>,
+                    Validation<MonoidFail, FAIL, SUCCESS>,
+                    FAIL, SUCCESS>
                .Inst.Compare(this, other);
 
         /// <summary>

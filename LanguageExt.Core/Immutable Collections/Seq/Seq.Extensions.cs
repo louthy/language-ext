@@ -8,7 +8,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
+using static LanguageExt.Trait;
 
 namespace LanguageExt;
 

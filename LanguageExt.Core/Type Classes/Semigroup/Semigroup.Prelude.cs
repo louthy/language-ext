@@ -1,11 +1,10 @@
-﻿using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
+﻿using LanguageExt.TypeClasses;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt;
 
-public static partial class TypeClass
+public static partial class Trait
 {
     /// <summary>
     /// An associative binary operation
@@ -29,47 +28,6 @@ public static partial class TypeClass
         from y in rhs
         select SEMI.Append(x, y);
 
-    /// <summary>
-    /// An associative binary operation
-    /// </summary>
-    /// <param name="x">The left hand side of the operation</param>
-    /// <param name="y">The right hand side of the operation</param>
-    /// <returns>The result of the operation</returns>
-    [Pure]
-    public static HashMap<K, V> append<K, V>(HashMap<K, V> x, HashMap<K, V> y) =>
-        MHashMap<K, V>.Append(x, y);
-
-    /// <summary>
-    /// An associative binary operation
-    /// </summary>
-    /// <param name="x">The left hand side of the operation</param>
-    /// <param name="y">The right hand side of the operation</param>
-    /// <returns>The result of the operation</returns>
-    [Pure]
-    public static HashSet<A> append<A>(HashSet<A> x, HashSet<A> y) =>
-        MHashSet<A>.Append(x, y);
-
-    /// <summary>
-    /// An associative binary operation
-    /// </summary>
-    /// <param name="x">The left hand side of the operation</param>
-    /// <param name="y">The right hand side of the operation</param>
-    /// <returns>The result of the operation</returns>
-    [Pure]
-    public static Lst<A> append<A>(Lst<A> x, Lst<A> y) =>
-        MLst<A>.Append(x, y);
-
-    /// <summary>
-    /// An associative binary operation
-    /// </summary>
-    /// <param name="x">The left hand side of the operation</param>
-    /// <param name="y">The right hand side of the operation</param>
-    /// <returns>The result of the operation</returns>
-    [Pure]
-    public static Map<K, V> append<K, V>(Map<K, V> x, Map<K, V> y) =>
-        MMap<K, V>.Append(x, y);
-
-    /// <summary>
     /// An associative binary operation
     /// </summary>
     /// <param name="x">The left hand side of the operation</param>
@@ -152,28 +110,4 @@ public static partial class TypeClass
         foreach (var b in y)
             yield return SEMI.Append(a, b);
     }
-
-    /// <summary>
-    /// An associative binary operation
-    /// </summary>
-    /// <param name="x">The left hand side of the operation</param>
-    /// <param name="y">The right hand side of the operation</param>
-    /// <returns>The result of the operation</returns>
-    [Pure]
-    public static Try<A> append<SEMI, A>(Try<A> x, Try<A> y) where SEMI : Semigroup<A> =>
-        from a in x
-        from b in y
-        select SEMI.Append(a, b);
-
-    /// <summary>
-    /// An associative binary operation
-    /// </summary>
-    /// <param name="x">The left hand side of the operation</param>
-    /// <param name="y">The right hand side of the operation</param>
-    /// <returns>The result of the operation</returns>
-    [Pure]
-    public static TryOption<A> append<SEMI, A>(TryOption<A> x, TryOption<A> y) where SEMI : Semigroup<A> =>
-        from a in x
-        from b in y
-        select SEMI.Append(a, b);
 }

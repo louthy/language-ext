@@ -1,4 +1,3 @@
-#nullable enable
 using LanguageExt.Common;
 using LanguageExt.Effects;
 using LanguageExt.Effects.Traits;

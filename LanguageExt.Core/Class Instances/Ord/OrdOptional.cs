@@ -1,7 +1,7 @@
 ﻿using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using static LanguageExt.TypeClass;
+using static LanguageExt.Trait;
 
 namespace LanguageExt.ClassInstances;
 

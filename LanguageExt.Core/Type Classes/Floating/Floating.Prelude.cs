@@ -4,7 +4,7 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt;
 
-public static partial class TypeClass
+public static partial class Trait
 {
     /// <summary>
     /// Ratio constructor

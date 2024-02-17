@@ -85,6 +85,17 @@ public record OptionT<M, A>(K<M, Option<A>> runOption) : K<OptionT<M>, A>
     //
 
     /// <summary>
+    /// Maps the bound monad
+    /// </summary>
+    /// <param name="f">Mapping function</param>
+    /// <typeparam name="M1">Target monad type</typeparam>
+    /// <typeparam name="B">Target bound value type</typeparam>
+    /// <returns>Mapped monad</returns>
+    public OptionT<M1, B> MapT<M1, B>(Func<K<M, Option<A>>, K<M1, Option<B>>> f)
+        where M1 : Monad<M1> =>
+        new (f(runOption));
+
+    /// <summary>
     /// Maps the bound value
     /// </summary>
     /// <param name="f">Mapping function</param>
