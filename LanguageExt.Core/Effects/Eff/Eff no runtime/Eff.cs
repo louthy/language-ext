@@ -14,27 +14,13 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="RT">Runtime struct</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public readonly struct Eff<A> : K<Eff, A>
+public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
 {
-    readonly Eff<MinRT, A> effect;
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Constructors
-    //
-    
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    internal Eff(in Eff<MinRT, A> effect) =>
-        this.effect = effect;
-    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Invoking
     //
-    
+
     /// <summary>
     /// Invoke the effect
     /// </summary>
@@ -48,7 +34,7 @@ public readonly struct Eff<A> : K<Eff, A>
     [Pure, MethodImpl(Opt.Default)]
     public Fin<A> Run() =>
         Run(new MinRT());
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Timeout
@@ -62,12 +48,12 @@ public readonly struct Eff<A> : K<Eff, A>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<A> Timeout(TimeSpan timeoutDelay) =>
         new(effect.Timeout(timeoutDelay));
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Lifting
     //
-    
+
     /// <summary>
     /// Lift a value into the `Eff` monad 
     /// </summary>
@@ -116,6 +102,34 @@ public readonly struct Eff<A> : K<Eff, A>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> LiftIO(IO<A> ma) =>
         new(Eff<MinRT, A>.LiftIO(ma));
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> Lift(Func<Either<Error, A>> f) =>
+        new(Eff<MinRT, A>.Lift(_ => f()));
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> Lift(Func<Fin<A>> f) =>
+        new(Eff<MinRT, A>.Lift(_ => f()));
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> Lift(Func<A> f) =>
+        new(Eff<MinRT, A>.Lift(_ => f()));
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> LiftIO(Func<ValueTask<A>> f) =>
+        new(Eff<MinRT, A>.LiftIO(_ => f()));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
@@ -132,7 +146,7 @@ public readonly struct Eff<A> : K<Eff, A>
     [MethodImpl(Opt.Default)]
     public Eff<ForkIO<A>> Fork(Option<TimeSpan> timeout = default) =>
         new(effect.Fork(timeout));
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Map and map-left
@@ -222,7 +236,7 @@ public readonly struct Eff<A> : K<Eff, A>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<A> IfFailEff(Func<Error, Eff<A>> Fail) =>
         new(effect.IfFailEff(x => Fail(x).effect));
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Filter
@@ -304,7 +318,7 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <param name="f">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, B> Bind<RT, B>(Func<A, K<Eff.Runtime<RT>, B>> f) 
+    public Eff<RT, B> Bind<RT, B>(Func<A, K<Eff.Runtime<RT>, B>> f)
         where RT : HasIO<RT, Error> =>
         Bind(a => f(a).As());
 
@@ -365,7 +379,7 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <param name="bind">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project) 
+    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project)
         where RT : HasIO<RT, Error> =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
@@ -634,7 +648,7 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <summary>
     /// Convert to an `Eff` monad with a runtime
     /// </summary>
-    public Eff<RT, A> WithRuntime<RT>() 
+    public Eff<RT, A> WithRuntime<RT>()
         where RT : HasIO<RT, Error> =>
         effect.MapReader(rdr => rdr.With<RT>(rt => rt.ToMin()));
 
@@ -675,7 +689,7 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, Eff<A> mb) =>
-        new (ma.effect | mb.effect);
+        new(ma.effect | mb.effect);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -686,7 +700,7 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, Pure<A> mb) =>
-        new (ma.effect | mb);
+        new(ma.effect | mb);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -697,7 +711,7 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, Fail<Error> error) =>
-        new (ma.effect | error);
+        new(ma.effect | error);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -708,7 +722,7 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, Error error) =>
-        new (ma.effect | error);
+        new(ma.effect | error);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -719,7 +733,7 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> operator |(Eff<A> ma, A value) =>
-        new (ma.effect | Prelude.Pure(value));
+        new(ma.effect | Prelude.Pure(value));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the

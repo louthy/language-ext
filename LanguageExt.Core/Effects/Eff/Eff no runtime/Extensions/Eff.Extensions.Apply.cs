@@ -1,6 +1,4 @@
 ﻿using System;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -14,7 +12,7 @@ public static partial class EffExtensions
     public static Eff<B> Apply<A, B>(
         this Eff<Func<A, B>> mf,
         Eff<A> ma) =>
-        new(mf.Morphism.Apply(ma.Morphism));
+        mf.effect.Apply(ma.effect).As();
 
     /// <summary>
     /// Applicative apply: takes the lifted function and the lifted argument, applies the function to the argument
@@ -211,12 +209,12 @@ public static partial class EffExtensions
         this Func<A, B, C, D, E> f,
         Eff<A> ma) =>
         Eff<Func<A, B, C, D, E>>.Pure(f).Apply(ma);
-        
+
     /// <summary>
     /// Applicative action: runs the first applicative, ignores the result, and returns the second applicative
     /// </summary>
     public static Eff<B> Action<A, B>(
         this Eff<A> ma,
         Eff<B> mb) =>
-        new(ma.Morphism.Action(mb.Morphism));
+        ma.effect.Action(mb.effect).As();
 }    

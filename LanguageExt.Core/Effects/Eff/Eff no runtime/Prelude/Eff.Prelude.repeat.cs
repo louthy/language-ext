@@ -12,7 +12,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<A> repeat<A>(Eff<A> ma) =>
-        new(ma.As.Repeat());
+        new(ma.Repeat());
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires  
@@ -23,7 +23,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<A> repeat<A>(Eff<A> ma, Schedule schedule) =>
-        new(ma.As.Repeat(schedule));
+        new(ma.Repeat(schedule));
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns false
@@ -33,7 +33,7 @@ public static partial class Prelude
     /// <typeparam name="A">Computation bound value type</typeparam>
     /// <returns>The result of the last invocation of `ma`</returns>
     public static Eff<A> repeatWhile<A>(Eff<A> ma, Func<A, bool> predicate) => 
-        new(ma.As.RepeatWhile(predicate));
+        new(ma.RepeatWhile(predicate));
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns false
@@ -47,7 +47,7 @@ public static partial class Prelude
         Eff<A> ma,
         Schedule schedule,
         Func<A, bool> predicate) =>
-        new(ma.As.RepeatWhile(schedule, predicate));
+        new(ma.RepeatWhile(schedule, predicate));
 
     /// <summary>
     /// Keeps repeating the computation until the predicate returns true
@@ -59,7 +59,7 @@ public static partial class Prelude
     public static Eff<A> repeatUntil<A>(
         Eff<A> ma,
         Func<A, bool> predicate) =>
-        new(ma.As.RepeatUntil(predicate));
+        new(ma.RepeatUntil(predicate));
 
     /// <summary>
     /// Keeps repeating the computation, until the scheduler expires, or the predicate returns true
@@ -73,5 +73,5 @@ public static partial class Prelude
         Eff<A> ma,
         Schedule schedule,
         Func<A, bool> predicate) =>
-        new(ma.As.RepeatUntil(schedule, predicate));
+        new(ma.RepeatUntil(schedule, predicate));
 }

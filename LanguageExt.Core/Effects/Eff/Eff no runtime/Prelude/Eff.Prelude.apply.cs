@@ -8,10 +8,10 @@ public static partial class Prelude
     /// Applicative apply: takes the lifted function and the lifted argument, applies the function to the argument
     /// and returns the result, lifted.
     /// </summary>
-    public static Eff<B> apply <A, B>(
+    public static Eff<B> apply<A, B>(
         Eff<Func<A, B>> mf,
         Eff<A> ma) =>
-        new(mf.Morphism.Apply(ma.Morphism));
+        mf.Apply(ma);
 
     /// <summary>
     /// Applicative apply: takes the lifted function and the lifted argument, applies the function to the argument

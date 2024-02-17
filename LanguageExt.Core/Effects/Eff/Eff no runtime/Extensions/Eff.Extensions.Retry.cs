@@ -14,7 +14,7 @@ public static partial class EffExtensions
     /// <returns>The result of the last invocation of ma</returns>
     public static Eff<A> Retry<A>(
         this Eff<A> ma) =>
-        new(ma.As.Retry());
+        new(ma.effect.Retry());
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires  
@@ -27,7 +27,7 @@ public static partial class EffExtensions
     public static Eff<A> Retry<A>(
         this Eff<A> ma, 
         Schedule schedule) =>
-        new(ma.As.Retry(schedule));
+        new(ma.effect.Retry(schedule));
 
     /// <summary>
     /// Keeps retrying the computation until the predicate returns false
@@ -39,7 +39,7 @@ public static partial class EffExtensions
     public static Eff<A> RetryWhile<A>(
         this Eff<A> ma, 
         Func<Error, bool> predicate) => 
-        new(ma.As.RetryWhile(predicate));
+        new(ma.effect.RetryWhile(predicate));
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires, or the predicate returns false
@@ -53,7 +53,7 @@ public static partial class EffExtensions
         this Eff<A> ma,
         Schedule schedule,
         Func<Error, bool> predicate) =>
-        new(ma.As.RetryWhile(schedule, predicate));
+        new(ma.effect.RetryWhile(schedule, predicate));
 
     /// <summary>
     /// Keeps retrying the computation until the predicate returns true
@@ -65,7 +65,7 @@ public static partial class EffExtensions
     public static Eff<A> RetryUntil<A>(
         this Eff<A> ma,
         Func<Error, bool> predicate) =>
-        new(ma.As.RetryUntil(predicate));
+        new(ma.effect.RetryUntil(predicate));
 
     /// <summary>
     /// Keeps retrying the computation, until the scheduler expires, or the predicate returns true
@@ -79,5 +79,5 @@ public static partial class EffExtensions
         this Eff<A> ma,
         Schedule schedule,
         Func<Error, bool> predicate) =>
-        new(ma.As.RetryUntil(schedule, predicate));
+        new(ma.effect.RetryUntil(schedule, predicate));
 }

@@ -91,7 +91,7 @@ public static partial class Prelude
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> flatten<RT, A>(Eff<RT, Eff<RT, A>> mma)
         where RT : HasIO<RT, Error> =>
-        mma.Bind(identity);
+        mma.Bind(x => x);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

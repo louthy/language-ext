@@ -19,6 +19,7 @@ public readonly struct EffCatch<A>
         this(e => predicate(e) ? fail(e) : Eff<A>.Fail(e))
     { }
 
+    /*
     public IOCatch<MinRT, Error, A> As()
     {
         var f = fail;
@@ -30,6 +31,7 @@ public readonly struct EffCatch<A>
         var f = fail;
         return new IOCatch<RT, Error, A>(e => Transducer.compose(MinRT.convert<RT>(), f(e).Morphism));
     }
+    */
 
     [Pure, MethodImpl(Opt.Default)]
     public Eff<A> Run(Error error) =>
