@@ -14,7 +14,7 @@ public static partial class ReaderExt
         (Reader<Env, A>)ma;
     
     public static ReaderT<Env, M, A> As<Env, M, A>(this K<ReaderT<Env, M>, A> ma)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         (ReaderT<Env, M, A>)ma;
     
     /// <summary>
@@ -22,7 +22,7 @@ public static partial class ReaderExt
     /// </summary>
     [Pure]
     public static ReaderT<Env, M, A> Flatten<Env, M, A>(this ReaderT<Env, M, ReaderT<Env, M, A>> mma)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         mma.Bind(identity);
 
     /// <summary>
@@ -37,7 +37,7 @@ public static partial class ReaderExt
         this K<M, A> ma, 
         Func<A, K<ReaderT<Env, M>, B>> bind, 
         Func<A, B, C> project)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         ReaderT<Env, M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
@@ -52,6 +52,6 @@ public static partial class ReaderExt
         this K<M, A> ma, 
         Func<A, ReaderT<Env, M, B>> bind, 
         Func<A, B, C> project)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         ReaderT<Env, M, A>.Lift(ma).SelectMany(bind, project);
 }

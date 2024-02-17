@@ -306,15 +306,15 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public OptionT<M, C> SelectMany<M, B, C>(Func<A, OptionT<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         OptionT<M, A>.LiftIO(this).SelectMany(bind, project);
 
     public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         ReaderT<Env, M, A>.LiftIO(this).SelectMany(bind, project);
 
     public ResourceT<M, C> SelectMany<M, B, C>(Func<A, ResourceT<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         ResourceT<M, A>.LiftIO(this).SelectMany(bind, project);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -349,6 +349,103 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
 
     public static IO<A> operator |(IO<A> ma, Error mb) =>
         ma.Or(mb);
+
+    public static IO<A> operator |(IO<A> ma, CatchError mb) =>
+        ma | mb.As();
+
+    public static IO<A> operator |(IO<A> ma, CatchValue<A> mb) =>
+        ma | mb.As();
+
+    public static IO<A> operator |(IO<A> ma, CatchIO<A> mb) =>
+        new(env =>
+            {
+                try
+                {
+                    return ma.Run(env);
+                }
+                catch (ErrorException ex)
+                {
+                    var err = ex.ToError();
+                    if(mb.Match(err)) return mb.Value(err).Run(env);
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    var err = Error.New(ex);
+                    if(mb.Match(err)) return mb.Value(err).Run(env);
+                    throw;
+                }
+            });
+
+    public static IO<A> operator |(IO<A> ma, CatchError<Error> mb) =>
+        new(env =>
+            {
+                try
+                {
+                    return ma.Run(env);
+                }
+                catch (ErrorException ex)
+                {
+                    var err = ex.ToError();
+                    if(mb.Match(err)) return mb.Value(err).Throw<A>();
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    var err = Error.New(ex);
+                    if(mb.Match(err)) return mb.Value(err).Throw<A>();
+                    throw;
+                }
+            });
+
+    public static IO<A> operator |(IO<A> ma, CatchError<Exception> mb) =>
+        new(env =>
+            {
+                try
+                {
+                    return ma.Run(env);
+                }
+                catch (Exception ex)
+                {
+                    if(mb.Match(ex)) return mb.Value(ex).Rethrow<A>();
+                    throw;
+                }
+            });
+
+    public static IO<A> operator |(IO<A> ma, CatchValue<Error, A> mb) =>
+        new(env =>
+            {
+                try
+                {
+                    return ma.Run(env);
+                }
+                catch (ErrorException ex)
+                {
+                    var err = ex.ToError();
+                    if(mb.Match(err)) return mb.Value(err);
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    var err = Error.New(ex);
+                    if(mb.Match(err)) return mb.Value(err);
+                    throw;
+                }
+            });
+
+    public static IO<A> operator |(IO<A> ma, CatchValue<Exception, A> mb) =>
+        new(env =>
+            {
+                try
+                {
+                    return ma.Run(env);
+                }
+                catch (Exception ex)
+                {
+                    if(mb.Match(ex)) return mb.Value(ex);
+                    throw;
+                }
+            });
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

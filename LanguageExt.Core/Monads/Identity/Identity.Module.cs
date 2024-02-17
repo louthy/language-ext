@@ -8,7 +8,8 @@ namespace LanguageExt;
 /// </summary>
 public class Identity : 
     Monad<Identity>, 
-    Traversable<Identity>
+    Traversable<Identity>,
+    Alternative<Identity>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -70,4 +71,15 @@ public class Identity :
 
     static K<F, K<Identity, B>> Traversable<Identity>.Traverse<F, A, B>(Func<A, K<F, B>> f, K<Identity, A> ta) =>
         F.Map(Pure, f(ta.As().Value));
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //  Alternative
+    //
+
+    static K<Identity, A> Alternative<Identity>.Empty<A>() => 
+        throw new NotSupportedException("Identity<A> doesn't have Alternative support and can't therefore use Alternative.Empty");
+
+    static K<Identity, A> Alternative<Identity>.Or<A>(K<Identity, A> ma, K<Identity, A> mb) => 
+        throw new NotSupportedException("Identity<A> doesn't have Alternative support and can't therefore use Alternative.Or");
 }

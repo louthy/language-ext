@@ -8,8 +8,8 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="Env">Reader environment type</typeparam>
 /// <typeparam name="M">Given monad trait</typeparam>
-public partial class ReaderT<Env, M> : MonadReaderT<ReaderT<Env, M>, Env, M>
-    where M : Monad<M>
+public partial class ReaderT<Env, M> : MonadReaderT<ReaderT<Env, M>, Env, M>, Alternative<ReaderT<Env, M>>
+    where M : Monad<M>, Alternative<M>
 {
     static K<ReaderT<Env, M>, B> Monad<ReaderT<Env, M>>.Bind<A, B>(K<ReaderT<Env, M>, A> ma, Func<A, K<ReaderT<Env, M>, B>> f) => 
         ma.As().Bind(f);
@@ -48,4 +48,12 @@ public partial class ReaderT<Env, M> : MonadReaderT<ReaderT<Env, M>, Env, M>
                 M.WithRunInIO<A, B>(
                     run =>
                         inner(ma => run(ma.As().runReader(env)))));
+
+    static K<ReaderT<Env, M>, A> Alternative<ReaderT<Env, M>>.Empty<A>() => 
+        ReaderT<Env, M, A>.Lift(M.Empty<A>());
+
+    static K<ReaderT<Env, M>, A> Alternative<ReaderT<Env, M>>.Or<A>(
+        K<ReaderT<Env, M>, A> ma, K<ReaderT<Env, M>, A> mb) =>
+        new ReaderT<Env, M, A>(env => M.Or(ma.As().runReader(env), mb.As().runReader(env)));
+
 }

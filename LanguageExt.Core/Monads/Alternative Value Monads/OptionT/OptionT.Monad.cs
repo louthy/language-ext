@@ -7,7 +7,7 @@ namespace LanguageExt;
 /// Trait implementation for `OptionT` 
 /// </summary>
 /// <typeparam name="M">Given monad trait</typeparam>
-public partial class OptionT<M> : MonadT<OptionT<M>, M>
+public partial class OptionT<M> : MonadT<OptionT<M>, M>, Alternative<OptionT<M>>
     where M : Monad<M>
 {
     static K<OptionT<M>, B> Monad<OptionT<M>>.Bind<A, B>(K<OptionT<M>, A> ma, Func<A, K<OptionT<M>, B>> f) => 
@@ -30,4 +30,15 @@ public partial class OptionT<M> : MonadT<OptionT<M>, M>
     
     static K<OptionT<M>, A> Monad<OptionT<M>>.LiftIO<A>(IO<A> ma) => 
         OptionT<M, A>.Lift(M.LiftIO(ma));
+
+    static K<OptionT<M>, A> Alternative<OptionT<M>>.Empty<A>() =>
+        OptionT<M, A>.None;
+ 
+    static K<OptionT<M>, A> Alternative<OptionT<M>>.Or<A>(K<OptionT<M>, A> ma, K<OptionT<M>, A> mb) =>
+        new OptionT<M, A>(
+            M.Bind(ma.As().runOption,
+                   ea => ea.IsSome
+                             ? M.Pure(ea)
+                             : mb.As().runOption));
+
 }

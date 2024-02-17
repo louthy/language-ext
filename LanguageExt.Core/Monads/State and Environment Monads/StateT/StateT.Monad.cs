@@ -8,8 +8,8 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="S">State environment type</typeparam>
 /// <typeparam name="M">Given monad trait</typeparam>
-public partial class StateT<S, M> : MonadStateT<StateT<S, M>, S, M>
-    where M : Monad<M>
+public partial class StateT<S, M> : MonadStateT<StateT<S, M>, S, M>, Alternative<StateT<S, M>>
+    where M : Monad<M>, Alternative<M>
 {
     static K<StateT<S, M>, B> Monad<StateT<S, M>>.Bind<A, B>(K<StateT<S, M>, A> ma, Func<A, K<StateT<S, M>, B>> f) => 
         ma.As().Bind(f);
@@ -40,4 +40,11 @@ public partial class StateT<S, M> : MonadStateT<StateT<S, M>, S, M>
 
     static K<StateT<S, M>, A> Monad<StateT<S, M>>.LiftIO<A>(IO<A> ma) =>
         StateT<S, M, A>.Lift(M.LiftIO(ma));
+
+    static K<StateT<S, M>, A> Alternative<StateT<S, M>>.Empty<A>() =>
+        StateT<S, M, A>.Lift(M.Empty<A>());
+
+    static K<StateT<S, M>, A> Alternative<StateT<S, M>>.Or<A>(K<StateT<S, M>, A> ma, K<StateT<S, M>, A> mb) => 
+        new StateT<S, M, A>(state =>
+            M.Or(ma.As().runState(state), mb.As().runState(state)));
 }

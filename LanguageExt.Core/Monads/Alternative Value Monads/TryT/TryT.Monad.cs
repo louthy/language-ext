@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.Common;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -7,7 +8,7 @@ namespace LanguageExt;
 /// Trait implementation for `TryT` 
 /// </summary>
 /// <typeparam name="M">Given monad trait</typeparam>
-public partial class TryT<M> : MonadT<TryT<M>, M>
+public partial class TryT<M> : MonadT<TryT<M>, M>, Alternative<TryT<M>>
     where M : Monad<M>
 {
     static K<TryT<M>, B> Monad<TryT<M>>.Bind<A, B>(K<TryT<M>, A> ma, Func<A, K<TryT<M>, B>> f) => 
@@ -30,4 +31,21 @@ public partial class TryT<M> : MonadT<TryT<M>, M>
     
     static K<TryT<M>, A> Monad<TryT<M>>.LiftIO<A>(IO<A> ma) => 
         TryT<M, A>.Lift(M.LiftIO(ma));
+
+    static K<TryT<M>, A> Alternative<TryT<M>>.Empty<A>() =>
+        new TryT<M, A>(() => throw new ManyExceptions([]));
+
+    static K<TryT<M>, A> Alternative<TryT<M>>.Or<A>(K<TryT<M>, A> ma, K<TryT<M>, A> mb) =>
+        new TryT<M, A>(
+            () =>
+            {
+                try
+                {
+                    return ma.As().runTry();
+                }
+                catch
+                {
+                    return mb.As().runTry();
+                }
+            });
 }

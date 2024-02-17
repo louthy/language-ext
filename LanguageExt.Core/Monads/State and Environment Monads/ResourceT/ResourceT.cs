@@ -4,7 +4,7 @@ using LanguageExt.Traits;
 namespace LanguageExt;
 
 public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<ResourceT<M>, A> 
-    where M : Monad<M>
+    where M : Monad<M>, Alternative<M>
 {
     /// <summary>
     /// Pure constructor
@@ -59,7 +59,7 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
     /// <typeparam name="M1">Trait of the monad to map to</typeparam>
     /// <returns>`ResourceT`</returns>
     public ResourceT<M1, B> MapT<M1, B>(Func<K<M, A>, K<M1, B>> f)
-        where M1 : Monad<M1> =>
+        where M1 : Monad<M1>, Alternative<M1> =>
         new (env => f(runResource(env)));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -188,7 +188,7 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
-    //  Conversion operators
+    //  Operators
     //
 
     public static implicit operator ResourceT<M, A>(Pure<A> ma) =>
@@ -196,6 +196,15 @@ public record ResourceT<M, A>(Func<Resources, K<M, A>> runResource) : K<Resource
 
     public static implicit operator ResourceT<M, A>(IO<A> ma) =>
         LiftIO(ma);
+    
+    public static ResourceT<M, A> operator |(ResourceT<M, A> ma, ResourceT<M, A> mb) =>
+        ResourceT.or(ma, mb);
+    
+    public static ResourceT<M, A> operator |(ResourceT<M, A> ma, Pure<A> mb) =>
+        ResourceT.or(ma, mb);
+    
+    public static ResourceT<M, A> operator |(IO<A> ma, ResourceT<M, A> mb) =>
+        ResourceT.or(ma, mb);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

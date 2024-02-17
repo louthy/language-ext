@@ -12,7 +12,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
 public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<StateT<S, M>, A>
-    where M : Monad<M>
+    where M : Monad<M>, Alternative<M>
 {
     /// <summary>
     /// Lift a pure value into the monad-transformer

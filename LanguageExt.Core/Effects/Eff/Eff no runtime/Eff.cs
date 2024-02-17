@@ -16,10 +16,7 @@ namespace LanguageExt;
 /// <typeparam name="A">Bound value type</typeparam>
 public readonly struct Eff<A> : K<Eff, A>
 {
-    /// <summary>
-    /// Underlying transducer that captures all of the IO behaviour 
-    /// </summary>
-    readonly IO<MinRT, Error, A> effect;
+    readonly Eff<MinRT, A> effect;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -30,116 +27,20 @@ public readonly struct Eff<A> : K<Eff, A>
     /// Constructor
     /// </summary>
     [MethodImpl(Opt.Default)]
-    internal Eff(in IO<MinRT, Error, A> effect) =>
+    internal Eff(in Eff<MinRT, A> effect) =>
         this.effect = effect;
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    Eff(Func<MinRT, Sum<Error, A>> thunk) =>
-        effect = Transducer.lift(thunk);
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    Eff(Func<MinRT, A> thunk) 
-        : this(rt => Sum<Error, A>.Right(thunk(rt)))
-    { }
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    Eff(Transducer<MinRT, A> thunk) 
-        : this(Transducer.compose(thunk, Transducer.mkRight<Error, A>()))
-    { }
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    Eff(Func<MinRT, Either<Error, A>> thunk) 
-        : this(Transducer.lift(thunk))
-    { }
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    Eff(Func<MinRT, Fin<A>> thunk) 
-        : this(Transducer.lift(thunk))
-    { }
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    Eff(Transducer<MinRT, Either<Error, A>> thunk) 
-        : this(thunk.Morphism.Map(x => x.ToSum()))
-    { }
-
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    [MethodImpl(Opt.Default)]
-    Eff(Transducer<MinRT, Fin<A>> thunk) 
-        : this(thunk.Morphism.Map(x => x.ToSum()))
-    { }
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Transducer
-    //
-
-    /// <summary>
-    /// Access to the underlying transducer
-    /// </summary>
-    [Pure]
-    public Transducer<MinRT, Sum<Error, A>> Morphism =>
-        effect.Morphism;
-    
-    /// <summary>
-    /// Reduction of the underlying transducer
-    /// </summary>
-    /// <param name="reduce">Reducer </param>
-    /// <typeparam name="S"></typeparam>
-    /// <returns></returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Reducer<MinRT, S> Transform<S>(Reducer<Sum<Error, A>, S> reduce) => 
-        Morphism.Transform(reduce);
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Invoking
     //
     
     /// <summary>
-    /// All `Eff` monads will catch exceptions at their point of invocation (i.e. in the `Run*` methods).
-    /// But they do not catch exceptions elsewhere without explicitly using this `Try()` method.
-    ///
-    /// This wraps the `Eff` monad in a try/catch that converts exceptional errors to an `E` and 
-    /// therefore puts the `Eff` in a `Fail` state the expression that can then be matched upon.
-    /// </summary>
-    /// <remarks>
-    /// Useful when you want exceptions to be dealt with through matching/bi-mapping/etc.
-    /// and not merely be caught by the exception handler in `Run*`.
-    /// </remarks>
-    /// <remarks>
-    /// This is used automatically for the first argument in the coalescing `|` operator so that any
-    /// exceptional failures, in the first argument, allow the second argument to be invoked. 
-    /// </remarks>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<MinRT, A> Try() =>
-        new(effect.Try());
-
-    /// <summary>
     /// Invoke the effect
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Fin<A> Run(MinRT env) =>
-        effect.Run(env).ToFin();
+        effect.Run(env);
 
     /// <summary>
     /// Invoke the effect
@@ -147,80 +48,6 @@ public readonly struct Eff<A> : K<Eff, A>
     [Pure, MethodImpl(Opt.Default)]
     public Fin<A> Run() =>
         Run(new MinRT());
-
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Run a reducer for
-    /// each value yielded.
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<S> RunMany<S>(MinRT env, S initialState, Func<S, Either<Error, A>, TResult<S>> reducer) =>
-        effect.RunMany(env, initialState, reducer);
-
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Run a reducer for
-    /// each value yielded.
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<S> RunMany<S>(S initialState, Func<S, Either<Error, A>, TResult<S>> reducer) =>
-        RunMany(new MinRT(), initialState, reducer);
-
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Collect those results in a `Seq`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<Seq<A>> RunMany(MinRT env) =>
-        effect.RunMany(env).ToFin();
-
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Collect those results in a `Seq`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Fin<Seq<A>> RunMany() =>
-        RunMany(new MinRT());
-
-    /// <summary>
-    /// Invoke the effect asynchronously
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Task<Fin<A>> RunAsync(MinRT env) =>
-        effect.RunAsync(env).Map(e => e.ToFin());
-
-    /// <summary>
-    /// Invoke the effect asynchronously
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Task<Fin<A>> RunAsync() =>
-        RunAsync(new MinRT());
-
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Run a reducer for
-    /// each value yielded.
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Task<Fin<S>> RunManyAsync<S>(MinRT env, S initialState, Func<S, Either<Error, A>, TResult<S>> reducer) =>
-        effect.RunManyAsync(env, initialState, reducer);
-
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Run a reducer for
-    /// each value yielded.
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Task<Fin<S>> RunManyAsync<S>(S initialState, Func<S, Either<Error, A>, TResult<S>> reducer) =>
-        RunManyAsync(new MinRT(), initialState, reducer);
-
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Collect those results in a `Seq`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Task<Fin<Seq<A>>> RunManyAsync(MinRT env) =>
-        effect.RunManyAsync(env).Map(e => e.ToFin());
-
-    /// <summary>
-    /// Invoke the effect (which could produce multiple values).  Collect those results in a `Seq`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Task<Fin<Seq<A>>> RunManyAsync() =>
-        effect.RunManyAsync(new MinRT()).Map(e => e.ToFin());
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -246,200 +73,49 @@ public readonly struct Eff<A> : K<Eff, A>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> Pure(A value) =>
-        new (_ => Sum<Error, A>.Right(value));
-    
+        new(Eff<MinRT, A>.Pure(value));
+
     /// <summary>
     /// Lift a failure into the `Eff` monad 
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> Fail(Error error) =>
-        new (_ => Sum<Error, A>.Left(error));
+        new(Eff<MinRT, A>.Fail(error));
 
     /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> Lift(Func<Either<Error, A>> f) =>
-        new (_ => f());
-
-    /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
+    /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> Lift(Func<MinRT, Either<Error, A>> f) =>
-        new (f);
+        new(Eff<MinRT, A>.Lift(f));
 
     /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> Lift(Func<Fin<A>> f) =>
-        new (_ => f());
-
-    /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
+    /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> Lift(Func<MinRT, Fin<A>> f) =>
-        new (f);
+        new(Eff<MinRT, A>.Lift(f));
 
     /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> Lift(Transducer<MinRT, Either<Error, A>> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> Lift(Transducer<MinRT, Fin<A>> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> Lift(Func<MinRT, Sum<Error, A>> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> Lift(Func<Sum<Error, A>> f) =>
-        new (_ => f());
-
-    /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> Lift(Transducer<MinRT, Sum<Error, A>> f) =>
-        new (f);
-
-    /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> Lift(Func<A> f) =>
-        new (_ => f());
-
-    /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
+    /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> Lift(Func<MinRT, A> f) =>
-        new (f);
+        new(Eff<MinRT, A>.Lift(f));
 
     /// <summary>
-    /// Lift a synchronous effect into the `Eff` monad
+    /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> Lift(Transducer<MinRT, A> f) =>
-        new (f);
+    public static Eff<A> LiftIO(Func<MinRT, ValueTask<A>> f) =>
+        new(Eff<MinRT, A>.LiftIO(f));
 
     /// <summary>
-    /// Lift a asynchronous effect into the `Eff` monad
+    /// Lift an effect into the `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> LiftIO(Func<Task<A>> f) =>
-        new (Transducer.liftAsync<MinRT, Sum<Error, A>>(
-            async (_, _) => Sum<Error, A>.Right(await f().ConfigureAwait(false))));
-
-    /// <summary>
-    /// Lift a asynchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> LiftIO(Func<MinRT, Task<A>> f) =>
-        new (Transducer.liftAsync<MinRT, Sum<Error, A>>(
-                 async (_, rt) => Sum<Error, A>.Right(await f(rt).ConfigureAwait(false))));
-
-    /// <summary>
-    /// Lift a asynchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> LiftIO(Func<Task<Sum<Error, A>>> f) =>
-        new(Transducer.liftAsync<MinRT, Sum<Error, A>>(async (_, _) => await f().ConfigureAwait(false)));
-
-    /// <summary>
-    /// Lift a asynchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> LiftIO(Func<MinRT, Task<Sum<Error, A>>> f) =>
-        new(Transducer.liftAsync<MinRT, Sum<Error, A>>(
-                async (_, rt) => await f(rt).ConfigureAwait(false)));
-
-    /// <summary>
-    /// Lift a asynchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> LiftIO(Func<Task<Either<Error, A>>> f) =>
-        new (Transducer.liftAsync<MinRT, Either<Error, A>>(
-                 async (_, _) => await f().ConfigureAwait(false)));
-
-    /// <summary>
-    /// Lift a asynchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> LiftIO(Func<MinRT, Task<Either<Error, A>>> f) =>
-        new (Transducer.liftAsync<MinRT, Either<Error, A>>(async (_, rt) => await f(rt).ConfigureAwait(false)));
-
-    /// <summary>
-    /// Lift a asynchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> LiftIO(Func<Task<Fin<A>>> f) =>
-        new (Transducer.liftAsync<MinRT, Fin<A>>(
-                 async (_, _) => await f().ConfigureAwait(false)));
-
-    /// <summary>
-    /// Lift a asynchronous effect into the `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> LiftIO(Func<MinRT, Task<Fin<A>>> f) =>
-        new (Transducer.liftAsync<MinRT, Fin<A>>(
-                 async (_, rt) => await f(rt).ConfigureAwait(false)));
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Memoisation and tail calls
-    //
-    
-    /// <summary>
-    /// Memoise the result, so subsequent calls don't invoke the side-effect
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<A> Memo() =>
-        new(effect.Memo());
-
-    /// <summary>
-    /// Wrap this around the final `from` call in a `IO` LINQ expression to void a recursion induced space-leak.
-    /// </summary>
-    /// <example>
-    /// 
-    ///     Eff<RT, A> recursive(int x) =>
-    ///         from x in writeLine(x)
-    ///         from r in tail(recursive(x + 1))
-    ///         select r;      <--- this never runs
-    /// 
-    /// </example>
-    /// <remarks>
-    /// This means the result of the LINQ expression comes from the final `from`, _not_ the `select.  If the
-    /// type of the `final` from differs from the type of the `select` then this has no effect.
-    /// </remarks>
-    /// <remarks>
-    /// Background: When making recursive LINQ expressions, the final `select` is problematic because it means
-    /// there's code to run _after_ the final `from` expression.  This means there's you're guaranteed to have a
-    /// space-leak due to the need to hold thunks to the final `select` on every recursive step.
-    ///
-    /// This function ignores the `select` altogether and says that the final `from` is where we get our return
-    /// result from and therefore there's no need to hold the thunk. 
-    /// </remarks>
-    /// <returns>IO operation that's marked ready for tail recursion</returns>        
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<A> Tail() =>
-        new(effect.Tail());
+    public static Eff<A> LiftIO(IO<A> ma) =>
+        new(Eff<MinRT, A>.LiftIO(ma));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 
@@ -454,8 +130,8 @@ public readonly struct Eff<A> : K<Eff, A>
     /// the forked IO operation or to await the result of it.
     /// </returns>
     [MethodImpl(Opt.Default)]
-    public Eff<ForkEff<A>> Fork(Option<TimeSpan> timeout = default) =>
-        new(Transducer.fork(Morphism, timeout).Map(TFork.ToEff));
+    public Eff<ForkIO<A>> Fork(Option<TimeSpan> timeout = default) =>
+        new(effect.Fork(timeout));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -486,26 +162,17 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <param name="f">Function to map the success value with</param>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<B> Map<B>(Transducer<A, B> f) =>
-        new(effect.Map(f));
-
-    /// <summary>
-    /// Maps the `Eff` monad if it's in a success state
-    /// </summary>
-    /// <param name="f">Function to map the success value with</param>
-    /// <returns>Mapped `Eff` monad</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public  Eff<A> MapFail(Func<Error, Error> f) =>
+    public Eff<A> MapFail(Func<Error, Error> f) =>
         new(effect.MapFail(f));
 
     /// <summary>
-    /// Maps the `Eff` monad if it's in a success state
+    /// Maps the inner IO monad
     /// </summary>
-    /// <param name="f">Function to map the success value with</param>
+    /// <param name="f">Function to map with</param>
     /// <returns>Mapped `Eff` monad</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public  Eff<A> MapFail(Transducer<Error, Error> f) =>
-        new(effect.MapFail(f));
+    public Eff<B> MapIO<B>(Func<IO<A>, IO<B>> f) =>
+        new(effect.MapIO(f));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -523,17 +190,6 @@ public readonly struct Eff<A> : K<Eff, A>
     public Eff<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) =>
         new(effect.BiMap(Succ, Fail));
 
-    /// <summary>
-    /// Mapping of either the Success state or the Failure state depending on what
-    /// state this `Eff` monad is in.  
-    /// </summary>
-    /// <param name="Succ">Mapping to use if the `Eff` monad if in a success state</param>
-    /// <param name="Fail">Mapping to use if the `Eff` monad if in a failure state</param>
-    /// <returns>Mapped `Eff` monad</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<B> BiMap<B>(Transducer<A, B> Succ, Transducer<Error, Error> Fail) =>
-        new(effect.BiMap(Succ, Fail));
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Matching
@@ -545,18 +201,8 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <param name="Succ">Success value mapping</param>
     /// <param name="Fail">Failure value mapping</param>
     /// <returns>IO in a success state</returns>
-    [Pure, MethodImpl(Opt.Default)]
+    [Pure]
     public Eff<B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail) =>
-        new(effect.Match(Succ, Fail));
-
-    /// <summary>
-    /// Pattern match the success or failure values and collapse them down to a success value
-    /// </summary>
-    /// <param name="Succ">Success value mapping</param>
-    /// <param name="Fail">Failure value mapping</param>
-    /// <returns>IO in a success state</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<B> Match<B>(Transducer<A, B> Succ, Transducer<Error, B> Fail) =>
         new(effect.Match(Succ, Fail));
 
     /// <summary>
@@ -569,44 +215,13 @@ public readonly struct Eff<A> : K<Eff, A>
         new(effect.IfFail(Fail));
 
     /// <summary>
-    /// Map the failure to a success value
-    /// </summary>
-    /// <param name="f">Function to map the fail value</param>
-    /// <returns>IO in a success state</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<A> IfFail(Transducer<Error, A> Fail) =>
-        new(effect.IfFail(Fail));
-
-    /// <summary>
-    /// Map the failure to a success value
-    /// </summary>
-    /// <param name="f">Function to map the fail value</param>
-    /// <returns>IO in a success state</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<A> IfFail(in A Fail) =>
-        new(effect.IfFail(Fail));
-
-    /// <summary>
     /// Map the failure to a new IO effect
     /// </summary>
     /// <param name="f">Function to map the fail value</param>
     /// <returns>IO that encapsulates that IfFail</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<A> IfFailEff(Func<Error, Eff<A>> Fail) =>
-        new(Transducer.bimap(
-                Morphism,
-                e => Fail(e).Morphism,
-                x => Transducer.constant<MinRT, Sum<Error, A>>(Sum<Error, A>.Right(x)))
-            .Flatten());
-
-    /// <summary>
-    /// Map the failure to a new IO effect
-    /// </summary>
-    /// <param name="f">Function to map the fail value</param>
-    /// <returns>IO that encapsulates that IfFail</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<A> IfFailEff(Eff<A> Fail) =>
-        IfFailEff(_ => Fail);
+        new(effect.IfFailEff(x => Fail(x).effect));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -620,15 +235,6 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <returns>Filtered IO</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<A> Filter(Func<A, bool> predicate) =>
-        new(effect.Filter(predicate));
-
-    /// <summary>
-    /// Only allow values through the effect if the predicate returns `true` for the bound value
-    /// </summary>
-    /// <param name="predicate">Predicate to apply to the bound value></param>
-    /// <returns>Filtered IO</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<A> Filter(Transducer<A, bool> predicate) =>
         new(effect.Filter(predicate));
 
     /// <summary>
@@ -654,7 +260,53 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<B> Bind<B>(Func<A, Eff<B>> f) =>
-        new(Transducer.bind(Morphism, x => f(x).Morphism));
+        new(effect.Bind(x => f(x).effect));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<B> Bind<B>(Func<A, IO<B>> f) =>
+        new(effect.Bind(f));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<B> Bind<B>(Func<A, Ask<MinRT, B>> f) =>
+        new(effect.Bind(f));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, B> Bind<RT, B>(Func<A, Eff<RT, B>> f)
+        where RT : HasIO<RT, Error> =>
+        WithRuntime<RT>().Bind(f);
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="f">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, B> Bind<RT, B>(Func<A, K<Eff.Runtime<RT>, B>> f) 
+        where RT : HasIO<RT, Error> =>
+        Bind(a => f(a).As());
 
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
@@ -665,18 +317,7 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<B> Bind<B>(Func<A, K<Eff, B>> f) =>
-        new(Transducer.bind(Morphism, x => f(x).As().Morphism));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// transducer provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the transducer provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<B> Bind<B>(Transducer<A, Eff<B>> f) =>
-        Map(f).Flatten();
+        Bind(a => f(a).As());
 
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
@@ -687,7 +328,7 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<B> Bind<B>(Func<A, Pure<B>> f) =>
-        new(effect.Bind(f));
+        Map(x => f(x).Value);
 
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
@@ -698,30 +339,8 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<A> Bind(Func<A, Fail<Error>> f) =>
-        new(effect.Bind(f));
-    
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<B> Bind<B>(Func<A, Transducer<Unit, B>> f) =>
-        new(effect.Bind(f));
-    
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="f">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<B> Bind<B>(Func<A, Transducer<MinRT, B>> f) =>
-        new(effect.Bind(f));
-    
+        Bind(x => Fail(f(x).Value));
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Monadic binding and projection
@@ -736,7 +355,31 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
-        new(Transducer.selectMany(Morphism, x => bind(x).Morphism, project));
+        Bind(x => bind(x).Map(y => project(x, y)));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project) 
+        where RT : HasIO<RT, Error> =>
+        Bind(x => bind(x).Map(y => project(x, y)));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<RT, C> SelectMany<RT, B, C>(Func<A, K<Eff.Runtime<RT>, B>> bind, Func<A, B, C> project)
+        where RT : HasIO<RT, Error> =>
+        SelectMany(x => bind(x).As(), project);
 
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
@@ -747,7 +390,7 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<C> SelectMany<B, C>(Func<A, K<Eff, B>> bind, Func<A, B, C> project) =>
-        new(Transducer.selectMany(Morphism, x => bind(x).As().Morphism, project));
+        SelectMany(x => bind(x).As(), project);
 
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
@@ -768,8 +411,30 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <param name="bind">Bind operation</param>
     /// <returns>Composition of this monad and the result of the function provided</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public Eff<C> SelectMany<B, C>(Func<A, Fail<Error>> bind, Func<A, B, C> project) =>
+    public Eff<C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
         new(effect.SelectMany(bind, project));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<C> SelectMany<B, C>(Func<A, Ask<MinRT, B>> bind, Func<A, B, C> project) =>
+        new(effect.SelectMany(bind, project));
+
+    /// <summary>
+    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
+    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
+    /// chaining IO operations sequentially.
+    /// </summary>
+    /// <param name="bind">Bind operation</param>
+    /// <returns>Composition of this monad and the result of the function provided</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public Eff<C> SelectMany<B, C>(Func<A, Fail<Error>> bind, Func<A, B, C> project) =>
+        SelectMany(x => Eff<B>.Fail(bind(x).Value), project);
 
     /// <summary>
     /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
@@ -793,28 +458,6 @@ public readonly struct Eff<A> : K<Eff, A>
     public Eff<C> SelectMany<C>(Func<A, Guard<Fail<Error>, Unit>> bind, Func<A, Unit, C> project) =>
         new(effect.SelectMany(bind, project));
 
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> bind, Func<A, B, C> project) =>
-        new(effect.SelectMany(bind, project));
-
-    /// <summary>
-    /// Monadic bind operation.  This runs the current `Eff` monad and feeds its result to the
-    /// function provided; which in turn returns a new `Eff` monad.  This can be thought of as
-    /// chaining IO operations sequentially.
-    /// </summary>
-    /// <param name="bind">Bind operation</param>
-    /// <returns>Composition of this monad and the result of the function provided</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<C> SelectMany<B, C>(Func<A, Transducer<MinRT, B>> bind, Func<A, B, C> project) =>
-        new(effect.SelectMany(bind, project));
-    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Folding
@@ -829,7 +472,7 @@ public readonly struct Eff<A> : K<Eff, A>
         S initialState,
         Func<S, A, S> folder) =>
         new(effect.Fold(schedule, initialState, folder));
-    
+
     /// <summary>
     /// Fold the effect forever
     /// </summary>
@@ -844,20 +487,20 @@ public readonly struct Eff<A> : K<Eff, A>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<S> FoldUntil<S>(
-        Schedule schedule, 
+        Schedule schedule,
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
         new(effect.FoldUntil(schedule, initialState, folder, predicate));
-    
+
     /// <summary>
     /// Fold the effect until the predicate returns `true`
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<S> FoldUntil<S>(
-        Schedule schedule, 
+        Schedule schedule,
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
         new(effect.FoldUntil(schedule, initialState, folder, stateIs));
 
@@ -866,9 +509,9 @@ public readonly struct Eff<A> : K<Eff, A>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<S> FoldUntil<S>(
-        Schedule schedule, 
+        Schedule schedule,
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
         new(effect.FoldUntil(schedule, initialState, folder, valueIs));
 
@@ -878,17 +521,17 @@ public readonly struct Eff<A> : K<Eff, A>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<S> FoldUntil<S>(
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
         new(effect.FoldUntil(initialState, folder, predicate));
-    
+
     /// <summary>
     /// Fold the effect until the predicate returns `true`
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<S> FoldUntil<S>(
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
         new(effect.FoldUntil(initialState, folder, stateIs));
 
@@ -898,7 +541,7 @@ public readonly struct Eff<A> : K<Eff, A>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<S> FoldUntil<S>(
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
         new(effect.FoldUntil(initialState, folder, valueIs));
 
@@ -907,20 +550,20 @@ public readonly struct Eff<A> : K<Eff, A>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<S> FoldWhile<S>(
-        Schedule schedule, 
+        Schedule schedule,
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
         new(effect.FoldWhile(schedule, initialState, folder, predicate));
-    
+
     /// <summary>
     /// Fold the effect while the predicate returns `true`
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<S> FoldWhile<S>(
-        Schedule schedule, 
+        Schedule schedule,
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
         new(effect.FoldWhile(schedule, initialState, folder, stateIs));
 
@@ -929,9 +572,9 @@ public readonly struct Eff<A> : K<Eff, A>
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<S> FoldWhile<S>(
-        Schedule schedule, 
+        Schedule schedule,
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
         new(effect.FoldWhile(schedule, initialState, folder, valueIs));
 
@@ -941,17 +584,17 @@ public readonly struct Eff<A> : K<Eff, A>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<S> FoldWhile<S>(
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<(S State, A Value), bool> predicate) =>
         new(effect.FoldWhile(initialState, folder, predicate));
-    
+
     /// <summary>
     /// Fold the effect while the predicate returns `true`
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<S> FoldWhile<S>(
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<S, bool> stateIs) =>
         new(effect.FoldWhile(initialState, folder, stateIs));
 
@@ -961,133 +604,39 @@ public readonly struct Eff<A> : K<Eff, A>
     [Pure, MethodImpl(Opt.Default)]
     public Eff<S> FoldWhile<S>(
         S initialState,
-        Func<S, A, S> folder, 
+        Func<S, A, S> folder,
         Func<A, bool> valueIs) =>
         new(effect.FoldWhile(initialState, folder, valueIs));
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Folding, where each fold is monadic
-    //
-
-    /// <summary>
-    /// Fold the effect forever or until the schedule expires
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<S> FoldM<S>(
-        Schedule schedule, 
-        S initialState,
-        Func<S, A, Eff<S>> folder) =>
-        new(effect.FoldM(schedule, initialState, (s, x) => folder(s, x).Morphism));
-
-    /// <summary>
-    /// Fold the effect forever
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<S> FoldM<S>(
-        S initialState,
-        Func<S, A, Eff<MinRT, S>> folder) =>
-        new(effect.FoldM(initialState, (s, x) => folder(s, x).Morphism));
-
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<S> FoldUntilM<S>(
-        Schedule schedule, 
-        S initialState,
-        Func<S, A, Eff<S>> folder, 
-        Func<A, bool> valueIs) =>
-        new(effect.FoldUntilM(schedule, initialState, (s, x) => folder(s, x).Morphism, valueIs));
-
-    /// <summary>
-    /// Fold the effect until the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<S> FoldUntilM<S>(
-        S initialState,
-        Func<S, A, Eff<S>> folder, 
-        Func<A, bool> valueIs) =>
-        new(effect.FoldUntilM(initialState, (s, x) => folder(s, x).Morphism, valueIs));
-
-    /// <summary>
-    /// Fold the effect while the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<S> FoldWhileM<S>(
-        Schedule schedule, 
-        S initialState,
-        Func<S, A, Eff<S>> folder, 
-        Func<A, bool> valueIs) =>
-        new(effect.FoldWhileM(schedule, initialState, (s, x) => folder(s, x).Morphism, valueIs));
-
-    /// <summary>
-    /// Fold the effect while the predicate returns `true`
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<S> FoldWhileM<S>(
-        S initialState,
-        Func<S, A, Eff<S>> folder, 
-        Func<A, bool> valueIs) =>
-        new(effect.FoldWhileM(initialState, (s, x) => folder(s, x).Morphism, valueIs));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Synchronisation between contexts
     //
-    
+
     /// <summary>
     /// Make the effect run on the `SynchronizationContext` that was captured at the start
-    /// of an `Invoke` call.
+    /// of an `Run` call.
     /// </summary>
     /// <remarks>
     /// The effect receives its input value from the currently running sync-context and
     /// then proceeds to run its operation in the captured `SynchronizationContext`:
     /// typically a UI context, but could be any captured context.  The result of the
-    /// effect is the received back on the currently running sync-context. 
+    /// effect is the received back on the currently running sync-context.
     /// </remarks>
     public Eff<A> Post() =>
-        new(effect.Post());        
+        new(effect.Post());
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Conversion
-    //
-    
-    /// <summary>
-    /// Natural transformation to an `IO` monad
-    /// </summary>
-    [Pure]
-    public IO<MinRT, Error, A> As =>
-        effect;
-    
-    /// <summary>
-    /// Natural transformation to an `IO` monad
-    /// </summary>
-    [Pure]
-    [MethodImpl(Opt.Default)]
-    public IO<Error, A> ToIO() =>
-        IO<Error, A>.Lift(Transducer.compose(MinRT.convert<MinRT<Error>>(), Morphism));
-
-    /// <summary>
-    /// Natural transformation to an `IO` monad
-    /// </summary>
-    [Pure]
-    [MethodImpl(Opt.Default)]
-    public IO<RT, Error, A> ToIO<RT>() where RT : HasIO<RT, Error> =>
-        IO<RT, Error, A>.Lift(Transducer.compose(MinRT.convert<RT>(), Morphism));
-
-    /// <summary>
-    /// Convert to an `Eff` monad that has a runtime
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public Eff<RT, A> WithRuntime<RT>() where RT : HasIO<RT, Error> =>
-        Eff<RT, A>.Lift(Transducer.compose(MinRT.convert<RT>(), Morphism));
-    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Operators
     //
+
+    /// <summary>
+    /// Convert to an `Eff` monad with a runtime
+    /// </summary>
+    public Eff<RT, A> WithRuntime<RT>() 
+        where RT : HasIO<RT, Error> =>
+        effect.MapReader(rdr => rdr.With<RT>(rt => rt.ToMin()));
 
     /// <summary>
     /// Convert to an `Eff` monad
@@ -1107,34 +656,6 @@ public readonly struct Eff<A> : K<Eff, A>
     /// Convert to an `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(Lift<Error> ma) =>
-        Lift(_ => ma.Function());
-
-    /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(in Lift<MinRT, A> ma) =>
-        Lift(ma.Function);
-
-    /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(in Lift<MinRT, Fin<A>> ma) =>
-        Lift(ma.Function);
-
-    /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(in Lift<MinRT, Either<Error, A>> ma) =>
-        Lift(ma.Function);
-
-    /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Eff<A>(in Either<Error, A> ma) =>
         ma.Match(Right: Pure, Left: Fail, Bottom: () => Fail(Errors.Bottom));
 
@@ -1146,62 +667,6 @@ public readonly struct Eff<A> : K<Eff, A>
         ma.Match(Succ: Pure, Fail: Fail);
 
     /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(Transducer<MinRT, Sum<Error, A>> ma) =>
-        Lift(ma);
-
-    /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(Transducer<MinRT, Either<Error, A>> ma) =>
-        ma.Map(x => x.ToSum());
-
-    /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(Transducer<MinRT, Fin<A>> ma) =>
-        ma.Map(x => x.ToSum());
-
-    /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(Transducer<Unit, Sum<Error, A>> ma) =>
-        Lift(Transducer.compose(Transducer.constant<MinRT, Unit>(default), ma));
-
-    /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(Transducer<Unit, Either<Error, A>> ma) =>
-        ma.Map(x => x.ToSum());
-
-    /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(Transducer<Unit, Fin<A>> ma) =>
-        ma.Map(x => x.ToSum());
-
-    /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(Transducer<MinRT, A> ma) =>
-        Lift(ma);
-
-    /// <summary>
-    /// Convert to an `Eff` monad
-    /// </summary>
-    [Pure, MethodImpl(Opt.Default)]
-    public static implicit operator Eff<A>(Transducer<Unit, A> ma) =>
-        Lift(Transducer.compose(Transducer.constant<MinRT, Unit>(default), ma));
-    
-    /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
     /// result of the first without running the second.
     /// </summary>
@@ -1209,8 +674,52 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <param name="mb">Alternative IO operation</param>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(in Eff<A> ma, in Eff<A> mb) =>
-        new(ma.effect | mb.effect);
+    public static Eff<A> operator |(Eff<A> ma, Eff<A> mb) =>
+        new (ma.effect | mb.effect);
+
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="mb">Alternative value if the IO operation fails</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> operator |(Eff<A> ma, Pure<A> mb) =>
+        new (ma.effect | mb);
+
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="error">Alternative value if the IO operation fails</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> operator |(Eff<A> ma, Fail<Error> error) =>
+        new (ma.effect | error);
+
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="error">Error if the IO operation fails</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> operator |(Eff<A> ma, Error error) =>
+        new (ma.effect | error);
+
+    /// <summary>
+    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
+    /// result of the first without running the second.
+    /// </summary>
+    /// <param name="ma">First IO operation</param>
+    /// <param name="value">Alternative value if the IO operation fails</param>
+    /// <returns>Result of either the first or second operation</returns>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<A> operator |(Eff<A> ma, A value) =>
+        new (ma.effect | Prelude.Pure(value));
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1220,8 +729,8 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <param name="mb">Alternative IO operation</param>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(in Eff<A> ma, in CatchError<Error> mb) =>
-        new(ma.effect | mb);
+    public static Eff<A> operator |(Eff<A> ma, CatchError<Error> mb) =>
+        ma.MapIO(io => io | mb);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1231,8 +740,8 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <param name="mb">Alternative IO operation</param>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(in Eff<A> ma, in CatchError mb) =>
-        new(ma.effect | mb.As());
+    public static Eff<A> operator |(Eff<A> ma, CatchError mb) =>
+        ma.MapIO(io => io | mb);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1242,8 +751,8 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <param name="mb">Alternative IO operation</param>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(in Eff<A> ma, in CatchValue<Error, A> mb) =>
-        new(ma.effect | mb);
+    public static Eff<A> operator |(Eff<A> ma, CatchError<Exception> mb) =>
+        ma.MapIO(io => io | mb);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1253,30 +762,8 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <param name="mb">Alternative IO operation</param>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(in Eff<A> ma, in CatchValue<A> mb) =>
-        new(ma.effect | mb.As());
-    
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(in Eff<A> ma, in IOCatch<MinRT, Error, A> mb) =>
-        new(ma.effect | mb);
-    
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(in Eff<A> ma, in EffCatch<A> mb) =>
-        new(ma.effect | mb.As());
+    public static Eff<A> operator |(Eff<A> ma, CatchValue<Error, A> mb) =>
+        ma.MapIO(io => io | mb);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1286,8 +773,8 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <param name="mb">Alternative IO operation</param>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, Transducer<MinRT, A> mb) =>
-        new(ma.effect | mb);
+    public static Eff<A> operator |(Eff<A> ma, CatchValue<Exception, A> mb) =>
+        ma.MapIO(io => io | mb);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1297,8 +784,8 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <param name="mb">Alternative IO operation</param>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, Transducer<MinRT, Error> mb) =>
-        new(ma.effect | mb);
+    public static Eff<A> operator |(Eff<A> ma, CatchValue<A> mb) =>
+        ma.MapIO(io => io | mb);
 
     /// <summary>
     /// Run the first IO operation; if it fails, run the second.  Otherwise return the
@@ -1308,121 +795,22 @@ public readonly struct Eff<A> : K<Eff, A>
     /// <param name="mb">Alternative IO operation</param>
     /// <returns>Result of either the first or second operation</returns>
     [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, Transducer<Unit, A> mb) =>
-        new(ma.effect | mb);
+    public static Eff<A> operator |(Eff<A> ma, EffCatch<A> mb) =>
+        ma.IfFailEff(mb.Run);
 
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, Transducer<Unit, Error> mb) =>
-        new(ma.effect | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, Transducer<MinRT, Sum<Error, A>> mb) =>
-        new(ma.effect | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Eff<A> ma, Transducer<Unit, Sum<Error, A>> mb) =>
-        new(ma.effect | mb);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Transducer<MinRT, A> ma, Eff<A> mb) =>
-        new(ma | mb.effect);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Transducer<MinRT, Error> ma, Eff<A> mb) =>
-        new(ma | mb.effect);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Transducer<Unit, A> ma, Eff<A> mb) =>
-        new(ma | mb.effect);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Transducer<Unit, Error> ma, Eff<A> mb) =>
-        new(ma | mb.effect);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Transducer<MinRT, Sum<Error, A>> ma, Eff<A> mb) =>
-        new(ma | mb.effect);
-
-    /// <summary>
-    /// Run the first IO operation; if it fails, run the second.  Otherwise return the
-    /// result of the first without running the second.
-    /// </summary>
-    /// <param name="ma">First IO operation</param>
-    /// <param name="mb">Alternative IO operation</param>
-    /// <returns>Result of either the first or second operation</returns>
-    [Pure, MethodImpl(Opt.Default)]
-    public static Eff<A> operator |(Transducer<Unit, Sum<Error, A>> ma, Eff<A> mb) =>
-        new(ma | mb.effect);
-    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Obsolete
     //
-    
+
     /// <summary>
-    /// Lift a value into the `Eff` monad 
+    /// Lift a value into the `Eff` monad
     /// </summary>
     [Obsolete("Use either: `Eff<A>.Lift`, `Prelude.liftEff`, or `lift`")]
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<A> Success(A value) =>
         Pure(value);
-    
+
     /// <summary>
     /// Lift a synchronous effect into the `Eff` monad
     /// </summary>

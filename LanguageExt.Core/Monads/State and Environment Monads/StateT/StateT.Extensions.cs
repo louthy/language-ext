@@ -14,7 +14,7 @@ public static partial class StateExt
       //  (State<Env, A>)ma;
     
     public static StateT<Env, M, A> As<Env, M, A>(this K<StateT<Env, M>, A> ma)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         (StateT<Env, M, A>)ma;
     
     /// <summary>
@@ -22,7 +22,7 @@ public static partial class StateExt
     /// </summary>
     [Pure]
     public static StateT<Env, M, A> Flatten<Env, M, A>(this StateT<Env, M, StateT<Env, M, A>> mma)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         mma.Bind(identity);
 
     /// <summary>
@@ -37,7 +37,7 @@ public static partial class StateExt
         this K<M, A> ma, 
         Func<A, K<StateT<Env, M>, B>> bind, 
         Func<A, B, C> project)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         StateT<Env, M, A>.Lift(ma).SelectMany(bind, project);
 
     /// <summary>
@@ -52,6 +52,6 @@ public static partial class StateExt
         this K<M, A> ma, 
         Func<A, StateT<Env, M, B>> bind, 
         Func<A, B, C> project)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         StateT<Env, M, A>.Lift(ma).SelectMany(bind, project);
 }

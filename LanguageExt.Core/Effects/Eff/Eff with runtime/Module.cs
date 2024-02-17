@@ -24,7 +24,7 @@ public class Eff : Monad<Eff>, Alternative<Eff>
         ma.As().Action(mb.As());
 
     static K<Eff, A> Alternative<Eff>.Empty<A>() => 
-        Eff<A>.Lift(Transducer.fail<MinRT, Sum<Error, A>>(Errors.None));
+        Eff<A>.Fail(Errors.None);
 
     static K<Eff, A> Alternative<Eff>.Or<A>(K<Eff, A> ma, K<Eff, A> mb) => 
         ma.As() | mb.As();
