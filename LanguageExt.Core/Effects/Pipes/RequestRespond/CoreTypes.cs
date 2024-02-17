@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.Contracts;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
@@ -17,9 +18,9 @@ namespace LanguageExt.Pipes;
 /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
 ///
 /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-public class Request<RT, UOut, UIn, DIn, DOut, A>(UOut Value, Func<UIn, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next)
-    : Proxy<RT, UOut, UIn, DIn, DOut, A>
-    where RT : HasIO<RT, Error>
+public class Request<UOut, UIn, DIn, DOut, M, A>(UOut Value, Func<UIn, Proxy<UOut, UIn, DIn, DOut, M, A>> Next)
+    : Proxy<UOut, UIn, DIn, DOut, M, A>
+    where M : Monad<M> 
 {
     [Pure]
     public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
@@ -80,7 +81,7 @@ public class Request<RT, UOut, UIn, DIn, DOut, A>(UOut Value, Func<UIn, Proxy<RT
 
     [Pure]
     public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
-        new M<RT, UOut, UIn, DIn, DOut, A>(
+        new ProxyM<RT, UOut, UIn, DIn, DOut, A>(
             Transducer.constant<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>>(
                 new Request<RT, UOut, UIn, DIn, DOut, A>(
                     Value,
@@ -107,9 +108,9 @@ public class Request<RT, UOut, UIn, DIn, DOut, A>(UOut Value, Func<UIn, Proxy<RT
 /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
 ///
 /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-public class Respond<RT, UOut, UIn, DIn, DOut, A>(DOut Value, Func<DIn, Proxy<RT, UOut, UIn, DIn, DOut, A>> Next)
-    : Proxy<RT, UOut, UIn, DIn, DOut, A>
-    where RT : HasIO<RT, Error>
+public class Respond<UOut, UIn, DIn, DOut, M, A>(DOut Value, Func<DIn, Proxy<UOut, UIn, DIn, DOut, M, A>> Next)
+    : Proxy<UOut, UIn, DIn, DOut, M, A>
+    where M : Monad<M> 
 {
     [Pure]
     public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
@@ -178,7 +179,7 @@ public class Respond<RT, UOut, UIn, DIn, DOut, A>(DOut Value, Func<DIn, Proxy<RT
 
     [Pure]
     public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
-        new M<RT, UOut, UIn, DIn, DOut, A>(
+        new ProxyM<RT, UOut, UIn, DIn, DOut, A>(
             Transducer.constant<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>>(
                 new Respond<RT, UOut, UIn, DIn, DOut, A>(
                     Value,

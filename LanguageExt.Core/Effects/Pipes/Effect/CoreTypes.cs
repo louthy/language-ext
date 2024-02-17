@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
@@ -24,15 +23,16 @@ namespace LanguageExt.Pipes;
 ///                A
 /// 
 /// </remarks>
-public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : HasIO<RT, Error>
+public record Effect<M, A> : Proxy<Void, Unit, Unit, Void, M, A> 
+    where M : Monad<M> 
 {
-    public readonly Proxy<RT, Void, Unit, Unit, Void, A> Value;
+    public readonly Proxy<Void, Unit, Unit, Void, M, A> Value;
 
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="value">Correctly shaped `Proxy` that represents an `Effect`</param>
-    public Effect(Proxy<RT, Void, Unit, Unit, Void, A> value) =>
+    public Effect(Proxy<Void, Unit, Unit, Void, M, A> value) =>
         Value = value;
         
     /// <summary>
@@ -43,7 +43,7 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// however, and removes a level of indirection</remarks>
     /// <returns>A general `Proxy` type from a more specialised type</returns>
     [Pure]
-    public override Proxy<RT, Void, Unit, Unit, Void, A> ToProxy() =>
+    public override Proxy<Void, Unit, Unit, Void, M, A> ToProxy() =>
         Value.ToProxy();
 
     /// <summary>
@@ -53,7 +53,8 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public override Proxy<RT, Void, Unit, Unit, Void, S> Bind<S>(Func<A, Proxy<RT, Void, Unit, Unit, Void, S>> f) =>
+    public override Proxy<Void, Unit, Unit, Void, M, S> Bind<S>(
+        Func<A, Proxy<Void, Unit, Unit, Void, M, S>> f) =>
         Value.Bind(f);
 
     /// <summary>
@@ -63,7 +64,7 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Effect<RT, S> Bind<S>(Func<A, Effect<RT, S>> f) =>
+    public Effect<M, S> Bind<S>(Func<A, Effect<M, S>> f) =>
         Value.Bind(f).ToEffect();
         
     /// <summary>
@@ -73,38 +74,8 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Effect<RT, B> Bind<B>(Func<A, Transducer<RT, B>> f) => 
+    public Effect<M, B> Bind<B>(Func<A, K<M, B>> f) => 
         Value.Bind(x => Effect.lift(f(x))).ToEffect();
-        
-    /// <summary>
-    /// Monadic bind operation, for chaining `Proxy` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Effect<RT, B> Bind<B>(Func<A, Transducer<RT, Sum<Error, B>>> f) => 
-        Value.Bind(x => Effect.lift(f(x))).ToEffect();
-        
-    /// <summary>
-    /// Monadic bind operation, for chaining `Proxy` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Effect<RT, B> Bind<B>(Func<A, Transducer<Unit, B>> f) => 
-        Value.Bind(x => Effect.lift<RT, B>(f(x))).ToEffect();
-
-    /// <summary>
-    /// Monadic bind operation, for chaining `Proxy` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Effect<RT, B> Bind<B>(Func<A, Transducer<Unit, Sum<Error, B>>> f) => 
-        Value.Bind(x => Effect.lift<RT, B>(f(x))).ToEffect();
             
     /// <summary>
     /// Lifts a pure function into the `Proxy` domain, causing it to map the bound value within
@@ -113,7 +84,7 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
     [Pure]
-    public override Proxy<RT, Void, Unit, Unit, Void, S> Map<S>(Func<A, S> f) =>
+    public override Proxy<Void, Unit, Unit, Void, M, S> Map<S>(Func<A, S> f) =>
         Value.Map(f);
 
     /// <summary>
@@ -124,7 +95,7 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// processing of the computation</param>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the function provided</returns>
     [Pure]
-    public override Proxy<RT, Void, Unit, C1, C, A> For<C1, C>(Func<Void, Proxy<RT, Void, Unit, C1, C, Unit>> body) =>
+    public override Proxy<Void, Unit, C1, C, M, A> For<C1, C>(Func<Void, Proxy<Void, Unit, C1, C, M, Unit>> body) =>
         Value.For(body);
 
     /// <summary>
@@ -134,7 +105,7 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// </summary>
     /// <param name="r">`Proxy` to run after this one</param>
     [Pure]
-    public override Proxy<RT, Void, Unit, Unit, Void, S> Action<S>(Proxy<RT, Void, Unit, Unit, Void, S> r) =>
+    public override Proxy<Void, Unit, Unit, Void, M, S> Action<S>(Proxy<Void, Unit, Unit, Void, M, S> r) =>
         Value.Action(r);
 
     /// <summary>
@@ -145,7 +116,8 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
     /// </remarks>
     [Pure]
-    public override Proxy<RT, UOutA, AUInA, Unit, Void, A> PairEachRequestWithRespond<UOutA, AUInA>(Func<Void, Proxy<RT, UOutA, AUInA, Void, Unit, A>> lhs) =>
+    public override Proxy<UOutA, AUInA, Unit, Void, M, A> PairEachRequestWithRespond<UOutA, AUInA>(
+        Func<Void, Proxy<UOutA, AUInA, Void, Unit, M, A>> lhs) =>
         Value.PairEachRequestWithRespond(lhs);
 
     /// <summary>
@@ -153,7 +125,8 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
     /// </summary>
     [Pure]
-    public override Proxy<RT, UOutA, AUInA, Unit, Void, A> ReplaceRequest<UOutA, AUInA>(Func<Void, Proxy<RT, UOutA, AUInA, Unit, Void, Unit>> lhs) =>
+    public override Proxy<UOutA, AUInA, Unit, Void, M, A> ReplaceRequest<UOutA, AUInA>(
+        Func<Void, Proxy<UOutA, AUInA, Unit, Void, M, Unit>> lhs) =>
         Value.ReplaceRequest(lhs);
 
     /// <summary>
@@ -161,7 +134,8 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
     /// </summary>
     [Pure]
-    public override Proxy<RT, Void, Unit, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(Func<Void, Proxy<RT, Unit, Void, DInC, DOutC, A>> rhs) =>
+    public override Proxy<Void, Unit, DInC, DOutC, M, A> PairEachRespondWithRequest<DInC, DOutC>(
+        Func<Void, Proxy<Unit, Void, DInC, DOutC, M, A>> rhs) =>
         Value.PairEachRespondWithRequest(rhs);
 
     /// <summary>
@@ -169,7 +143,8 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
     /// </summary>
     [Pure]
-    public override Proxy<RT, Void, Unit, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(Func<Void, Proxy<RT, Void, Unit, DInC, DOutC, Unit>> rhs) =>
+    public override Proxy<Void, Unit, DInC, DOutC, M, A> ReplaceRespond<DInC, DOutC>(
+        Func<Void, Proxy<Void, Unit, DInC, DOutC, M, Unit>> rhs) =>
         Value.ReplaceRespond(rhs);
 
     /// <summary>
@@ -177,7 +152,7 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// </summary>
     /// <returns>The dual of `this`</returns>
     [Pure]
-    public override Proxy<RT, Void, Unit, Unit, Void, A> Reflect() =>
+    public override Proxy<Void, Unit, Unit, Void, M, A> Reflect() =>
         Value.Reflect();
 
     /// <summary>
@@ -190,11 +165,11 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// use observe if you stick to the safe API.        
     /// </summary>
     [Pure]
-    public override Proxy<RT, Void, Unit, Unit, Void, A> Observe() =>
+    public override Proxy<Void, Unit, Unit, Void, M, A> Observe() =>
         Value.Observe();
 
     [Pure]
-    public void Deconstruct(out Proxy<RT, Void, Unit, Unit, Void, A> value) =>
+    public void Deconstruct(out Proxy<Void, Unit, Unit, Void, M, A> value) =>
         value = Value;
 
         
@@ -205,18 +180,8 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Effect<RT, C> SelectMany<B, C>(Func<A, Effect<RT, B>> f, Func<A, B, C> project) => 
+    public Effect<M, C> SelectMany<B, C>(Func<A, Effect<M, B>> f, Func<A, B, C> project) => 
         Value.Bind(x => f(x).Map(y => project(x, y))).ToEffect();
-    
-    /// <summary>
-    /// Monadic bind operation, for chaining `Effect` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Eff` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Eff<RT, C> SelectMany<B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project) =>
-        this.RunEffect().Bind(a => bind(a).Map(b => project(a, b)));
 
     /// <summary>
     /// Monadic bind operation, for chaining `Effect` computations together.
@@ -225,55 +190,15 @@ public class Effect<RT, A> : Proxy<RT, Void, Unit, Unit, Void, A> where RT : Has
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Eff` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Eff<RT, C> SelectMany<B, C>(Func<A, Eff<B>> bind, Func<A, B, C> project) =>
-        this.RunEffect().MapRight(a => bind(a).WithRuntime<RT>().Morphism.MapRight(b => project(a, b))).Flatten();
-
-    /// <summary>
-    /// Monadic bind operation, for chaining `Effect` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Transducer` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Transducer<RT, Sum<Error, C>> SelectMany<B, C>(Func<A, Transducer<RT, B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => bind(x).Map(Sum<Error, B>.Right), project);
-
-    /// <summary>
-    /// Monadic bind operation, for chaining `Effect` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Transducer` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Transducer<RT, Sum<Error, C>> SelectMany<B, C>(Func<A, Transducer<RT, Sum<Error, B>>> bind, Func<A, B, C> project) =>
-        this.RunEffect().MapRight(a => bind(a).MapRight(b => project(a, b))).Flatten();
-
-    /// <summary>
-    /// Monadic bind operation, for chaining `Effect` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Transducer` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Transducer<RT, Sum<Error, C>> SelectMany<B, C>(Func<A, Transducer<Unit, B>> bind, Func<A, B, C> project) =>
-        SelectMany(x => bind(x).Map(Sum<Error, B>.Right), project);
-
-    /// <summary>
-    /// Monadic bind operation, for chaining `Effect` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Eff` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Transducer<RT, Sum<Error, C>> SelectMany<B, C>(Func<A, Transducer<Unit, Sum<Error, B>>> bind, Func<A, B, C> project) =>
-        this.RunEffect().MapRight(a => bind(a).MapRight(b => project(a, b))).Flatten();
+    public K<M, C> SelectMany<B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project) =>
+        M.Bind(this.RunEffect(), a => M.Map(b => project(a, b), bind(a)));
 
     /// <summary>
     /// Chain one effect after another
     /// </summary>
     [Pure]
-    public static Effect<RT, A> operator &(
-        Effect<RT, A> lhs,
-        Effect<RT, A> rhs) =>
+    public static Effect<M, A> operator &(
+        Effect<M, A> lhs,
+        Effect<M, A> rhs) =>
         lhs.Bind(_ => rhs).ToEffect();
 }

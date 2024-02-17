@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
@@ -22,15 +21,16 @@ namespace LanguageExt.Pipes;
 ///                |
 ///                A
 /// </remarks>
-public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where RT : HasIO<RT, Error>
+public record Server<REQ, RES, M, A> : Proxy<Void, Unit, REQ, RES, M, A> 
+    where M : Monad<M>
 {
-    public readonly Proxy<RT, Void, Unit, REQ, RES, A> Value;
+    public readonly Proxy<Void, Unit, REQ, RES, M, A> Value;
     
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="value">Correctly shaped `Proxy` that represents a `Server`</param>
-    public Server(Proxy<RT, Void, Unit, REQ, RES, A> value) =>
+    public Server(Proxy<Void, Unit, REQ, RES, M, A> value) =>
         Value = value;
         
     /// <summary>
@@ -41,7 +41,7 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// however, and removes a level of indirection</remarks>
     /// <returns>A general `Proxy` type from a more specialised type</returns>
     [Pure]
-    public override Proxy<RT, Void, Unit, REQ, RES, A> ToProxy() =>
+    public override Proxy<Void, Unit, REQ, RES, M, A> ToProxy() =>
         Value.ToProxy();
 
     /// <summary>
@@ -51,7 +51,7 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public override Proxy<RT, Void, Unit, REQ, RES, S> Bind<S>(Func<A, Proxy<RT, Void, Unit, REQ, RES, S>> f) =>
+    public override Proxy<Void, Unit, REQ, RES, M, S> Bind<S>(Func<A, Proxy<Void, Unit, REQ, RES, M, S>> f) =>
         Value.Bind(f);
             
     /// <summary>
@@ -61,7 +61,7 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
     [Pure]
-    public override Proxy<RT, Void, Unit, REQ, RES, S> Map<S>(Func<A, S> f) =>
+    public override Proxy<Void, Unit, REQ, RES, M, S> Map<S>(Func<A, S> f) =>
         Value.Map(f);
         
     /// <summary>
@@ -71,7 +71,7 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Server<RT, REQ, RES, B> Bind<B>(Func<A, Server<RT, REQ, RES, B>> f) => 
+    public Server<REQ, RES, M, B> Bind<B>(Func<A, Server<REQ, RES, M, B>> f) => 
         Value.Bind(f).ToServer();
         
     /// <summary>
@@ -81,7 +81,7 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Server<RT, REQ, RES, B> SelectMany<B>(Func<A, Server<RT, REQ, RES, B>> f) => 
+    public Server<REQ, RES, M, B> SelectMany<B>(Func<A, Server<REQ, RES, M, B>> f) => 
         Value.Bind(f).ToServer();
         
     /// <summary>
@@ -91,7 +91,7 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Server<RT, REQ, RES, C> SelectMany<B, C>(Func<A, Server<RT, REQ, RES, B>> f, Func<A, B, C> project) => 
+    public Server<REQ, RES, M, C> SelectMany<B, C>(Func<A, Server<REQ, RES, M, B>> f, Func<A, B, C> project) => 
         Value.Bind(a => f(a).Map(b => project(a, b))).ToServer();
         
     /// <summary>
@@ -101,7 +101,7 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
     [Pure]
-    public new Server<RT, REQ, RES, B> Select<B>(Func<A, B> f) => 
+    public new Server<REQ, RES, M, B> Select<B>(Func<A, B> f) => 
         Value.Map(f).ToServer();
         
     /// <summary>
@@ -112,7 +112,7 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// processing of the computation</param>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the function provided</returns>
     [Pure]
-    public override Proxy<RT, Void, Unit, C1, C, A> For<C1, C>(Func<RES, Proxy<RT, Void, Unit, C1, C, REQ>> body) =>
+    public override Proxy<Void, Unit, C1, C, M, A> For<C1, C>(Func<RES, Proxy<Void, Unit, C1, C, M, REQ>> body) =>
         Value.For(body);
 
     /// <summary>
@@ -122,7 +122,7 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// </summary>
     /// <param name="r">`Proxy` to run after this one</param>
     [Pure]
-    public override Proxy<RT, Void, Unit, REQ, RES, S> Action<S>(Proxy<RT, Void, Unit, REQ, RES, S> r) =>
+    public override Proxy<Void, Unit, REQ, RES, M, S> Action<S>(Proxy<Void, Unit, REQ, RES, M, S> r) =>
         Value.Action(r);
 
     /// <summary>
@@ -133,7 +133,8 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
     /// </remarks>
     [Pure]
-    public override Proxy<RT, UOutA, AUInA, REQ, RES, A> PairEachRequestWithRespond<UOutA, AUInA>(Func<Void, Proxy<RT, UOutA, AUInA, Void, Unit, A>> lhs) =>
+    public override Proxy<UOutA, AUInA, REQ, RES, M, A> PairEachRequestWithRespond<UOutA, AUInA>(
+        Func<Void, Proxy<UOutA, AUInA, Void, Unit, M, A>> lhs) =>
         Value.PairEachRequestWithRespond(lhs);
 
     /// <summary>
@@ -141,7 +142,8 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
     /// </summary>
     [Pure]
-    public override Proxy<RT, UOutA, AUInA, REQ, RES, A> ReplaceRequest<UOutA, AUInA>(Func<Void, Proxy<RT, UOutA, AUInA, REQ, RES, Unit>> lhs) =>
+    public override Proxy<UOutA, AUInA, REQ, RES, M, A> ReplaceRequest<UOutA, AUInA>(
+        Func<Void, Proxy<UOutA, AUInA, REQ, RES, M, Unit>> lhs) =>
         Value.ReplaceRequest(lhs);
 
     /// <summary>
@@ -149,7 +151,8 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
     /// </summary>
     [Pure]
-    public override Proxy<RT, Void, Unit, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(Func<RES, Proxy<RT, REQ, RES, DInC, DOutC, A>> rhs) =>
+    public override Proxy<Void, Unit, DInC, DOutC, M, A> PairEachRespondWithRequest<DInC, DOutC>(
+        Func<RES, Proxy<REQ, RES, DInC, DOutC, M, A>> rhs) =>
         Value.PairEachRespondWithRequest(rhs);
 
     /// <summary>
@@ -157,7 +160,8 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
     /// </summary>
     [Pure]
-    public override Proxy<RT, Void, Unit, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(Func<RES, Proxy<RT, Void, Unit, DInC, DOutC, REQ>> rhs) =>
+    public override Proxy<Void, Unit, DInC, DOutC, M, A> ReplaceRespond<DInC, DOutC>(
+        Func<RES, Proxy<Void, Unit, DInC, DOutC, M, REQ>> rhs) =>
         Value.ReplaceRespond(rhs);
 
     /// <summary>
@@ -165,7 +169,7 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// </summary>
     /// <returns>The dual of `this`</returns>
     [Pure]
-    public override Proxy<RT, RES, REQ, Unit, Void, A> Reflect() =>
+    public override Proxy<RES, REQ, Unit, Void, M, A> Reflect() =>
         Value.Reflect();
 
     /// <summary>
@@ -178,19 +182,19 @@ public class Server<RT, REQ, RES, A> : Proxy<RT, Void, Unit, REQ, RES, A>  where
     /// use observe if you stick to the safe API.        
     /// </summary>
     [Pure]
-    public override Proxy<RT, Void, Unit, REQ, RES, A> Observe() =>
+    public override Proxy<Void, Unit, REQ, RES, M, A> Observe() =>
         Value.Observe();
 
     [Pure]
-    public void Deconstruct(out Proxy<RT, Void, Unit, REQ, RES, A> value) =>
+    public void Deconstruct(out Proxy<Void, Unit, REQ, RES, M, A> value) =>
         value = Value;
 
     /// <summary>
     /// Chain one server after another
     /// </summary>
     [Pure]
-    public static Server<RT, REQ, RES, A> operator &(
-        Server<RT, REQ, RES, A> lhs,
-        Server<RT, REQ, RES, A> rhs) =>
+    public static Server<REQ, RES, M, A> operator &(
+        Server<REQ, RES, M, A> lhs,
+        Server<REQ, RES, M, A> rhs) =>
         lhs.Bind(_ => rhs);
 }

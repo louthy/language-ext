@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
@@ -20,15 +19,16 @@ namespace LanguageExt.Pipes;
 ///                |
 ///                A
 /// </remarks>
-public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT : HasIO<RT, Error>
+public record Consumer<IN, M, A> : Proxy<Unit, IN, Unit, Void, M, A>
+    where M : Monad<M>
 {
-    public readonly Proxy<RT, Unit, IN, Unit, Void, A> Value;
+    public readonly Proxy<Unit, IN, Unit, Void, M, A> Value;
         
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="value">Correctly shaped `Proxy` that represents a `Consumer`</param>
-    public Consumer(Proxy<RT, Unit, IN, Unit, Void, A> value) =>
+    public Consumer(Proxy<Unit, IN, Unit, Void, M, A> value) =>
         Value = value;
 
     /// <summary>
@@ -39,7 +39,7 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// however, and removes a level of indirection</remarks>
     /// <returns>A general `Proxy` type from a more specialised type</returns>
     [Pure]
-    public override Proxy<RT, Unit, IN, Unit, Void, A> ToProxy() =>
+    public override Proxy<Unit, IN, Unit, Void, M, A> ToProxy() =>
         Value.ToProxy();
 
     /// <summary>
@@ -49,7 +49,7 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public override Proxy<RT, Unit, IN, Unit, Void, S> Bind<S>(Func<A, Proxy<RT, Unit, IN, Unit, Void, S>> f) =>
+    public override Proxy<Unit, IN, Unit, Void, M, S> Bind<S>(Func<A, Proxy<Unit, IN, Unit, Void, M, S>> f) =>
         Value.Bind(f);
         
     /// <summary>
@@ -59,7 +59,7 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Consumer<RT, IN, B> Bind<B>(Func<A, Consumer<RT, IN, B>> f) => 
+    public Consumer<IN, M, B> Bind<B>(Func<A, Consumer<IN, M, B>> f) => 
         Value.Bind(f).ToConsumer();
         
     /// <summary>
@@ -69,38 +69,8 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Consumer<RT, IN, B> Bind<B>(Func<A, Transducer<RT, B>> f) => 
-        Value.Bind(x => Consumer.lift<RT, IN, B>(f(x))).ToConsumer();
-        
-    /// <summary>
-    /// Monadic bind operation, for chaining `Proxy` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Consumer<RT, IN, B> Bind<B>(Func<A, Transducer<RT, Sum<Error, B>>> f) => 
-        Value.Bind(x => Consumer.lift<RT, IN, B>(f(x))).ToConsumer();
-        
-    /// <summary>
-    /// Monadic bind operation, for chaining `Proxy` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Consumer<RT, IN, B> Bind<B>(Func<A, Transducer<Unit, B>> f) => 
-        Value.Bind(x => Consumer.lift<RT, IN, B>(f(x))).ToConsumer();
-        
-    /// <summary>
-    /// Monadic bind operation, for chaining `Proxy` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Consumer<RT, IN, B> Bind<B>(Func<A, Transducer<Unit, Sum<Error, B>>> f) => 
-        Value.Bind(x => Consumer.lift<RT, IN, B>(f(x))).ToConsumer();
+    public Consumer<IN, M, B> Bind<B>(Func<A, K<M, B>> f) => 
+        Value.Bind(x => Consumer.lift<IN, M, B>(f(x))).ToConsumer();
 
     /// <summary>
     /// Lifts a pure function into the `Proxy` domain, causing it to map the bound value within
@@ -109,7 +79,7 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
     [Pure]
-    public override Proxy<RT, Unit, IN, Unit, Void, S> Map<S>(Func<A, S> f) =>
+    public override Proxy<Unit, IN, Unit, Void, M, S> Map<S>(Func<A, S> f) =>
         Value.Map(f);
         
     /// <summary>
@@ -119,7 +89,7 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Consumer<RT, IN, C> SelectMany<B, C>(Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) => 
+    public Consumer<IN, M, C> SelectMany<B, C>(Func<A, Consumer<IN, M, B>> f, Func<A, B, C> project) => 
         Value.Bind(a => f(a).Map(b => project(a, b))).ToConsumer();
         
         
@@ -130,38 +100,8 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Consumer<RT, IN, C> SelectMany<B, C>(Func<A, Transducer<RT, B>> f, Func<A, B, C> project) => 
-        Value.Bind(x => Consumer.lift<RT, IN, C>(f(x).Map(y => project(x, y)))).ToConsumer();
-        
-    /// <summary>
-    /// Monadic bind operation, for chaining `Proxy` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Consumer<RT, IN, C> SelectMany<B, C>(Func<A, Transducer<RT, Sum<Error, B>>> f, Func<A, B, C> project) => 
-        Value.Bind(x => Consumer.lift<RT, IN, C>(f(x).Map(my => my.Map(y => project(x, y))))).ToConsumer();
-        
-    /// <summary>
-    /// Monadic bind operation, for chaining `Proxy` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Consumer<RT, IN, C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> f, Func<A, B, C> project) => 
-        Value.Bind(x => Consumer.lift<RT, IN, C>(f(x).Map(y => project(x, y)))).ToConsumer();
-        
-    /// <summary>
-    /// Monadic bind operation, for chaining `Proxy` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Consumer<RT, IN, C> SelectMany<B, C>(Func<A, Transducer<Unit, Sum<Error, B>>> f, Func<A, B, C> project) => 
-        Value.Bind(x => Consumer.lift<RT, IN, C>(f(x).Map(my => my.Map(y => project(x, y))))).ToConsumer();
+    public Consumer<IN, M, C> SelectMany<B, C>(Func<A, K<M, B>> f, Func<A, B, C> project) => 
+        Value.Bind(x => Consumer.lift<IN, M, C>(M.Map(y => project(x, y), f(x)))).ToConsumer();
     
     /// <summary>
     /// Lifts a pure function into the `Proxy` domain, causing it to map the bound value within
@@ -170,7 +110,7 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
     [Pure]
-    public new Consumer<RT, IN, B> Select<B>(Func<A, B> f) => 
+    public new Consumer<IN, M, B> Select<B>(Func<A, B> f) => 
         Value.Map(f).ToConsumer();        
 
     /// <summary>
@@ -181,7 +121,7 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// processing of the computation</param>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the function provided</returns>
     [Pure]
-    public override Proxy<RT, Unit, IN, C1, C, A> For<C1, C>(Func<Void, Proxy<RT, Unit, IN, C1, C, Unit>> body) =>
+    public override Proxy<Unit, IN, C1, C, M, A> For<C1, C>(Func<Void, Proxy<Unit, IN, C1, C, M, Unit>> body) =>
         Value.For(body);
 
     /// <summary>
@@ -191,7 +131,7 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// </summary>
     /// <param name="r">`Proxy` to run after this one</param>
     [Pure]
-    public override Proxy<RT, Unit, IN, Unit, Void, S> Action<S>(Proxy<RT, Unit, IN, Unit, Void, S> r) =>
+    public override Proxy<Unit, IN, Unit, Void, M, S> Action<S>(Proxy<Unit, IN, Unit, Void, M, S> r) =>
         Value.Action(r);
 
     /// <summary>
@@ -202,8 +142,8 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
     /// </remarks>
     [Pure]
-    public override Proxy<RT, UOutA, AUInA, Unit, Void, A> PairEachRequestWithRespond<UOutA, AUInA>(
-        Func<Unit, Proxy<RT, UOutA, AUInA, Unit, IN, A>> lhs) =>
+    public override Proxy<UOutA, AUInA, Unit, Void, M, A> PairEachRequestWithRespond<UOutA, AUInA>(
+        Func<Unit, Proxy<UOutA, AUInA, Unit, IN, M, A>> lhs) =>
         Value.PairEachRequestWithRespond(lhs);
 
     /// <summary>
@@ -211,8 +151,8 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
     /// </summary>
     [Pure]
-    public override Proxy<RT, UOutA, AUInA, Unit, Void, A> ReplaceRequest<UOutA, AUInA>(
-        Func<Unit, Proxy<RT, UOutA, AUInA, Unit, Void, IN>> lhs) =>
+    public override Proxy<UOutA, AUInA, Unit, Void, M, A> ReplaceRequest<UOutA, AUInA>(
+        Func<Unit, Proxy<UOutA, AUInA, Unit, Void, M, IN>> lhs) =>
         Value.ReplaceRequest(lhs);
 
     /// <summary>
@@ -220,8 +160,8 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
     /// </summary>
     [Pure]
-    public override Proxy<RT, Unit, IN, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(
-        Func<Void, Proxy<RT, Unit, Void, DInC, DOutC, A>> rhs) =>
+    public override Proxy<Unit, IN, DInC, DOutC, M, A> PairEachRespondWithRequest<DInC, DOutC>(
+        Func<Void, Proxy<Unit, Void, DInC, DOutC, M, A>> rhs) =>
         Value.PairEachRespondWithRequest(rhs);
 
     /// <summary>
@@ -229,8 +169,8 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
     /// </summary>
     [Pure]
-    public override Proxy<RT, Unit, IN, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(
-        Func<Void, Proxy<RT, Unit, IN, DInC, DOutC, Unit>> rhs) =>
+    public override Proxy<Unit, IN, DInC, DOutC, M, A> ReplaceRespond<DInC, DOutC>(
+        Func<Void, Proxy<Unit, IN, DInC, DOutC, M, Unit>> rhs) =>
         Value.ReplaceRespond(rhs);
         
     /// <summary>
@@ -238,7 +178,7 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// </summary>
     /// <returns>The dual of `this`</returns>
     [Pure]
-    public override Proxy<RT, Void, Unit, IN, Unit, A> Reflect() =>
+    public override Proxy<Void, Unit, IN, Unit, M, A> Reflect() =>
         Value.Reflect();
 
     /// <summary>
@@ -251,11 +191,11 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// use observe if you stick to the safe API.        
     /// </summary>
     [Pure]
-    public override Proxy<RT, Unit, IN, Unit, Void, A> Observe() =>
+    public override Proxy<Unit, IN, Unit, Void, M, A> Observe() =>
         Value.Observe();
 
     [Pure]
-    public void Deconstruct(out Proxy<RT, Unit, IN, Unit, Void, A> value) =>
+    public void Deconstruct(out Proxy<Unit, IN, Unit, Void, M, A> value) =>
         value = Value;
 
     /// <summary>
@@ -264,8 +204,8 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// <param name="p">Pure `Consumer`</param>
     /// <returns>Monad transformer version of the `Consumer`</returns>
     [Pure]
-    public static implicit operator Consumer<RT, IN, A>(Consumer<IN, A> c) =>
-        c.Interpret<RT>();
+    public static implicit operator Consumer<IN, M, A>(Consumer<IN, A> c) =>
+        c.Interpret<M>();
 
     /// <summary>
     /// Conversion operator from the `Pure` type, to the monad transformer version of the `Consumer`
@@ -273,44 +213,8 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// <param name="p">`Pure` value</param>
     /// <returns>Monad transformer version of the `Consumer`</returns>
     [Pure]
-    public static implicit operator Consumer<RT, IN, A>(Pure<A> p) =>
-        Consumer.Pure<RT, IN, A>(p.Value);
-
-    /// <summary>
-    /// Conversion operator from the `Pure` type, to the monad transformer version of the `Consumer`
-    /// </summary>
-    /// <param name="t">Transformer</param>
-    /// <returns>Monad transformer version of the `Consumer`</returns>
-    [Pure]
-    public static implicit operator Consumer<RT, IN, A>(Transducer<Unit, A> t) =>
-        Consumer.lift<RT, IN, A>(t);
-
-    /// <summary>
-    /// Conversion operator from the `Pure` type, to the monad transformer version of the `Consumer`
-    /// </summary>
-    /// <param name="t">Transformer</param>
-    /// <returns>Monad transformer version of the `Consumer`</returns>
-    [Pure]
-    public static implicit operator Consumer<RT, IN, A>(Transducer<Unit, Sum<Error, A>> t) =>
-        Consumer.lift<RT, IN, A>(t);
-
-    /// <summary>
-    /// Conversion operator from the `Pure` type, to the monad transformer version of the `Consumer`
-    /// </summary>
-    /// <param name="t">Transformer</param>
-    /// <returns>Monad transformer version of the `Consumer`</returns>
-    [Pure]
-    public static implicit operator Consumer<RT, IN, A>(Transducer<RT, A> t) =>
-        Consumer.lift<RT, IN, A>(t);
-
-    /// <summary>
-    /// Conversion operator from the `Pure` type, to the monad transformer version of the `Consumer`
-    /// </summary>
-    /// <param name="t">Transformer</param>
-    /// <returns>Monad transformer version of the `Consumer`</returns>
-    [Pure]
-    public static implicit operator Consumer<RT, IN, A>(Transducer<RT, Sum<Error, A>> t) =>
-        Consumer.lift<RT, IN, A>(t);
+    public static implicit operator Consumer<IN, M, A>(Pure<A> p) =>
+        Consumer.Pure<IN, M, A>(p.Value);
 
     /// <summary>
     /// Compose an `IN` and a `Consumer` together into an `Effect`.  This effectively creates a singleton `Producer`
@@ -320,8 +224,8 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// <param name="p2">`Consumer`</param>
     /// <returns>`Effect`</returns>
     [Pure]
-    public static Effect<RT, A?> operator |(IN p1, Consumer<RT, IN, A?> p2) => 
-        Proxy.compose(Producer.yield<RT, IN>(p1).Map(_ => default(A)), p2).ToEffect();
+    public static Effect<M, A?> operator |(IN p1, Consumer<IN, M, A?> p2) => 
+        Proxy.compose(Producer.yield<IN, M>(p1).Map(_ => default(A)), p2).ToEffect();
 
     /// <summary>
     /// Monadic bind operation, for chaining `Proxy` computations together.
@@ -330,15 +234,15 @@ public class Consumer<RT, IN, A> : Proxy<RT, Unit, IN, Unit, Void, A>  where RT 
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Consumer<RT, IN, C> SelectMany<B, C>(Func<A, Consumer<IN, B>> bind, Func<A, B, C> project) =>
-        Value.Bind(a =>  bind(a).Interpret<RT>().Map(b => project(a, b))).ToConsumer();
+    public Consumer<IN, M, C> SelectMany<B, C>(Func<A, Consumer<IN, B>> bind, Func<A, B, C> project) =>
+        Value.Bind(a =>  bind(a).Interpret<M>().Map(b => project(a, b))).ToConsumer();
 
     /// <summary>
     /// Chain one consumer's set of awaits after another
     /// </summary>
     [Pure]
-    public static Consumer<RT, IN, A> operator &(
-        Consumer<RT, IN, A> lhs,
-        Consumer<RT, IN, A> rhs) =>
+    public static Consumer<IN, M, A> operator &(
+        Consumer<IN, M, A> lhs,
+        Consumer<IN, M, A> rhs) =>
         lhs.Bind(_ => rhs);
 }

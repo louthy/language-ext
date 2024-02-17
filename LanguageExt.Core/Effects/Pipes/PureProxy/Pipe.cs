@@ -8,16 +8,17 @@
 using System;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Common;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
 public abstract class Pipe<IN, OUT, A>
 {
     public abstract Pipe<IN, OUT, B> Select<B>(Func<A, B> f);
-    public abstract Pipe<RT, IN, OUT, A> Interpret<RT>() where RT : HasIO<RT, Error>;
+    public abstract Pipe<IN, OUT, M, A> Interpret<M>() where M : Monad<M>;
     
     public abstract Pipe<IN, OUT, B> Bind<B>(Func<A, Pipe<IN, OUT, B>> f);
-    public abstract Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where RT : HasIO<RT, Error>;
+    public abstract Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where M : Monad<M>;
     public abstract Pipe<IN, OUT, B> Bind<B>(Func<A, Consumer<IN, B>> f);
     public abstract Pipe<IN, OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f);
     
@@ -34,11 +35,11 @@ public abstract class Pipe<IN, OUT, A>
         Bind(a => new Pipe<IN, OUT, B>.Lift<B>(f(a), PureProxy.PipePure<IN, OUT, B>));
  
     public Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Transducer<RT, B>> f) 
-        where RT : HasIO<RT, Error> =>
+        where M : Monad<M> =>
         Interpret<RT>().Bind(f);
 
     public Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Transducer<RT, Sum<Error, B>>> f) 
-        where RT : HasIO<RT, Error> =>
+        where M : Monad<M> =>
         Interpret<RT>().Bind(f);
     
     public Pipe<IN, OUT, B> Map<B>(Func<A, B> f) => 
@@ -60,14 +61,14 @@ public abstract class Pipe<IN, OUT, A>
         Bind(a => f(a).Select(mb => mb.Map(b => project(a, b))));
         
     public Pipe<RT, IN, OUT, C> SelectMany<RT, B, C>(Func<A, Transducer<RT, B>> f, Func<A, B, C> project)
-        where RT : HasIO<RT, Error> =>
+        where M : Monad<M> =>
         Bind(a => f(a).Select(b => project(a, b)));
         
     public Pipe<RT, IN, OUT, C> SelectMany<RT, B, C>(Func<A, Transducer<RT, Sum<Error, B>>> f, Func<A, B, C> project)
-        where RT : HasIO<RT, Error> =>
+        where M : Monad<M> =>
         Bind(a => f(a).Select(mb => mb.Map(b => project(a, b))));
         
-    public Pipe<RT, IN, OUT, C> SelectMany<RT, B, C>(Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+    public Pipe<RT, IN, OUT, C> SelectMany<RT, B, C>(Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where M : Monad<M> =>
         Bind(a => f(a).Select(b => project(a, b)));
         
     public Pipe<IN, OUT, C> SelectMany<B, C>(Func<A, Consumer<IN, B>> f, Func<A, B, C> project) =>

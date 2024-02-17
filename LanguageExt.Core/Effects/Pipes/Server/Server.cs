@@ -50,7 +50,7 @@ public class Server
     [Pure, MethodImpl(Proxy.mops)]
     public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Eff<R> ma) 
         where RT : HasIO<RT, Error> =>
-        new M<RT, Void, Unit, REQ, RES, R>(ma.WithRuntime<RT>().Morphism.MapRight(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
+        new ProxyM<RT, Void, Unit, REQ, RES, R>(ma.WithRuntime<RT>().Morphism.MapRight(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
 
     /// <summary>
     /// Lift am IO monad into the `Proxy` monad transformer
@@ -58,7 +58,7 @@ public class Server
     [Pure, MethodImpl(Proxy.mops)]
     public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Eff<RT, R> ma) 
         where RT : HasIO<RT, Error> =>
-        new M<RT, Void, Unit, REQ, RES, R>(ma.Map(Proxy.Pure<RT, Void, Unit, REQ, RES, R>).Morphism).ToServer();
+        new ProxyM<RT, Void, Unit, REQ, RES, R>(ma.Map(Proxy.Pure<RT, Void, Unit, REQ, RES, R>).Morphism).ToServer();
 
     /// <summary>
     /// Lift am IO monad into the `Proxy` monad transformer
@@ -66,7 +66,7 @@ public class Server
     [Pure, MethodImpl(Proxy.mops)]
     public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Transducer<RT, R> ma) 
         where RT : HasIO<RT, Error> =>
-        new M<RT, Void, Unit, REQ, RES, R>(ma.Map(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
+        new ProxyM<RT, Void, Unit, REQ, RES, R>(ma.Map(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
 
     /// <summary>
     /// Lift am IO monad into the `Proxy` monad transformer
@@ -74,7 +74,7 @@ public class Server
     [Pure, MethodImpl(Proxy.mops)]
     public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Transducer<Unit, R> ma) 
         where RT : HasIO<RT, Error> =>
-        new M<RT, Void, Unit, REQ, RES, R>(ma.Map(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
+        new ProxyM<RT, Void, Unit, REQ, RES, R>(ma.Map(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
 
     /// <summary>
     /// Lift am IO monad into the `Proxy` monad transformer
@@ -82,7 +82,7 @@ public class Server
     [Pure, MethodImpl(Proxy.mops)]
     public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Transducer<RT, Sum<Error, R>> ma) 
         where RT : HasIO<RT, Error> =>
-        new M<RT, Void, Unit, REQ, RES, R>(ma.MapRight(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
+        new ProxyM<RT, Void, Unit, REQ, RES, R>(ma.MapRight(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
 
     /// <summary>
     /// Lift am IO monad into the `Proxy` monad transformer
@@ -90,5 +90,5 @@ public class Server
     [Pure, MethodImpl(Proxy.mops)]
     public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Transducer<Unit, Sum<Error, R>> ma) 
         where RT : HasIO<RT, Error> =>
-        new M<RT, Void, Unit, REQ, RES, R>(ma.MapRight(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
+        new ProxyM<RT, Void, Unit, REQ, RES, R>(ma.MapRight(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
 }

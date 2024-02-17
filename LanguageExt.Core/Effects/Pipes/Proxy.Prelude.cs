@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.Effects.Traits;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Pipes;
@@ -34,11 +35,12 @@ public static class Proxy
     /// </summary>
     /// <remarks>A `Queue` is a `Producer` with an `Enqueue`, and a `Done` to cancel the operation</remarks>
     [Pure, MethodImpl(mops)]
-    public static Queue<RT, A, Unit> Queue<RT, A>() where RT : HasIO<RT, Error>
+    public static Queue<A, M, Unit> Queue<M, A>() 
+        where M : Monad<M>
     {
         var c = new Channel<A>();
-        var p = Producer.yieldAll<RT, A>(c);
-        return new Queue<RT, A, Unit>(p, c);
+        var p = Producer.yieldAll<M, A>(c);
+        return new Queue<A, M, Unit>(p, c);
     }
 
     /// <summary>
@@ -85,7 +87,8 @@ public static class Proxy
     /// Repeat the `Producer` indefinitely
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Producer<RT, OUT, Unit> repeat<RT, OUT, R>(Producer<RT, OUT, R> ma) where RT : HasIO<RT, Error> =>
+    public static Producer<OUT, M, Unit> repeat<OUT, M, R>(Producer<OUT, M, R> ma) 
+        where M : Monad<M> =>
         from _ in many(units)
         from x in ma
         select unit;
@@ -94,7 +97,8 @@ public static class Proxy
     /// Repeat the `Consumer` indefinitely
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Consumer<RT, IN, Unit> repeat<RT, IN, R>(Consumer<RT, IN, R> ma) where RT : HasIO<RT, Error> =>
+    public static Consumer<IN, M, Unit> repeat<IN, M, R>(Consumer<IN, M, R> ma) 
+        where M : Monad<M> =>
         from _ in many(units)
         from x in ma
         select unit;
@@ -103,7 +107,8 @@ public static class Proxy
     /// Repeat the `Pipe` indefinitely
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Pipe<RT, IN, OUT, Unit> repeat<RT, IN, OUT, R>(Pipe<RT, IN, OUT, R> ma) where RT : HasIO<RT, Error> =>
+    public static Pipe<IN, OUT, M, Unit> repeat<IN, OUT, M, R>(Pipe<IN, OUT, M, R> ma) 
+        where M : Monad<M> =>
         from _ in many(units)
         from x in ma
         select unit;
@@ -120,52 +125,20 @@ public static class Proxy
     }
 
     /// <summary>
-    /// Lift an IO monad into the `Proxy` monad transformer
+    /// Lift a monad into the `Proxy` monad transformer
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, B1, B, R> lift<RT, A1, A, B1, B, R>(Eff<R> ma) where RT : HasIO<RT, Error> =>
-        new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).WithRuntime<RT>().Morphism);
+    public static Proxy<A1, A, B1, B, M, R> lift<A1, A, B1, B, M, R>(K<M, R> ma) 
+        where M : Monad<M> =>
+        new ProxyM<A1, A, B1, B, M, R>(M.Map(Pure<A1, A, B1, B, M, R>, ma));
 
     /// <summary>
     /// Lift an IO monad into the `Proxy` monad transformer
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, B1, B, R> lift<RT, A1, A, B1, B, R>(Eff<RT, R> ma) where RT : HasIO<RT, Error> =>
-        new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>).Morphism);
-
-    /// <summary>
-    /// Lift an IO monad into the `Proxy` monad transformer
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, B1, B, R> lift<RT, A1, A, B1, B, R>(Transducer<RT, R> ma) 
-        where RT : HasIO<RT, Error> =>
-        new M<RT, A1, A, B1, B, R>(ma.Map(Pure<RT, A1, A, B1, B, R>));
-
-    /// <summary>
-    /// Lift a transducer into the `Proxy` monad transformer
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, B1, B, R> lift<RT, A1, A, B1, B, R>(Transducer<RT, Sum<Error, R>> ma) 
-        where RT : HasIO<RT, Error> =>
-        new M<RT, A1, A, B1, B, R>(ma.MapRight(Pure<RT, A1, A, B1, B, R>));
-
-    /// <summary>
-    /// Lift a transducer into the `Proxy` monad transformer
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, B1, B, R> lift<RT, A1, A, B1, B, R>(Transducer<Unit, R> ma) 
-        where RT : HasIO<RT, Error> =>
-        new M<RT, A1, A, B1, B, R>(
-            Transducer.compose(Transducer.constant<RT, Unit>(default), ma.Map(Pure<RT, A1, A, B1, B, R>)));
-
-    /// <summary>
-    /// Lift a transducer into the `Proxy` monad transformer
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, B1, B, R> lift<RT, A1, A, B1, B, R>(Transducer<Unit, Sum<Error, R>> ma)
-        where RT : HasIO<RT, Error> =>
-        new M<RT, A1, A, B1, B, R>(
-            Transducer.compose(Transducer.constant<RT, Unit>(default), ma.MapRight(Pure<RT, A1, A, B1, B, R>)));
+    public static Proxy<A1, A, B1, B, M, R> liftIO<A1, A, B1, B, M, R>(IO<R> ma) 
+        where M : Monad<M> =>
+        lift<A1, A, B1, B, M, R>(M.LiftIO(ma));
 
     internal static Unit dispose<A>(A d) where A : IDisposable
     {
@@ -187,8 +160,9 @@ public static class Proxy
     /// The identity `Pipe`, simply replicates its upstream value and propagates it downstream 
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Pipe<RT, A, A, R> cat<RT, A, R>() where RT : HasIO<RT, Error> =>
-        pull<RT, Unit, A, R>(default).ToPipe();
+    public static Pipe<A, A, M, R> cat<A, M, R>()
+        where M : Monad<M> =>
+        pull<Unit, A, M, R>(default).ToPipe();
 
     /// <summary>
     /// Forward requests followed by responses
@@ -200,11 +174,13 @@ public static class Proxy
     /// `pull` is the identity of the pull category.
     /// </remarks>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, UOut, UIn, UOut, UIn, A> pull<RT, UOut, UIn, A>(UOut a1)
-        where RT : HasIO<RT, Error> =>
-        new Request<RT, UOut, UIn, UOut, UIn, A>(a1,
-                                                 a => new Respond<RT, UOut, UIn, UOut, UIn, A>(a,
-                                                     pull<RT, UOut, UIn, A>));
+    public static Proxy<UOut, UIn, UOut, UIn, M, A> pull<UOut, UIn, M, A>(UOut a1)
+        where M : Monad<M> =>
+        new Request<UOut, UIn, UOut, UIn, M, A>(
+            a1,
+            a => new Respond<UOut, UIn, UOut, UIn, M, A>(
+                a,
+                pull<UOut, UIn, M, A>));
 
     /// <summary>
     /// `push = respond | request | push`
@@ -213,11 +189,13 @@ public static class Proxy
     /// `push` is the identity of the push category.
     /// </remarks>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, UOut, UIn, UOut, UIn, A> push<RT, UOut, UIn, A>(UIn a) 
-        where RT : HasIO<RT, Error> =>
-        new Respond<RT, UOut, UIn, UOut, UIn, A>(a, 
-                                                 a1 => new Request<RT, UOut, UIn, UOut, UIn, A>(a1, 
-                                                     push<RT, UOut, UIn, A>));
+    public static Proxy<UOut, UIn, UOut, UIn, M, A> push<UOut, UIn, M, A>(UIn a)
+        where M : Monad<M> =>
+        new Respond<UOut, UIn, UOut, UIn, M, A>(
+            a,
+            a1 => new Request<UOut, UIn, UOut, UIn, M, A>(
+                a1,
+                push<UOut, UIn, M, A>));
 
     /// <summary>
     /// Send a value of type `DOut` downstream and block waiting for a reply of type `DIn`
@@ -226,9 +204,9 @@ public static class Proxy
     /// `respond` is the identity of the respond category.
     /// </remarks>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, X1, X, DIn, DOut, DIn> respond<RT, X1, X, DIn, DOut>(DOut value) 
-        where RT : HasIO<RT, Error> =>
-        new Respond<RT, X1, X, DIn, DOut, DIn>(value, r => new Pure<RT, X1, X, DIn, DOut, DIn>(r));
+    public static Proxy<X1, X, DIn, DOut, M, DIn> respond<X1, X, DIn, DOut, M>(DOut value) 
+        where M : Monad<M> =>
+        new Respond<X1, X, DIn, DOut, M, DIn>(value, r => new Pure<X1, X, DIn, DOut, M, DIn>(r));
 
     /// <summary>
     /// Send a value of type `UOut` upstream and block waiting for a reply of type `UIn`
@@ -237,9 +215,9 @@ public static class Proxy
     /// `request` is the identity of the request category.
     /// </remarks>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, UOut, UIn, Y1, Y, UIn> request<RT, UOut, UIn, Y1, Y>(UOut value) 
-        where RT : HasIO<RT, Error> =>
-        new Request<RT, UOut, UIn, Y1, Y, UIn>(value, r => new Pure<RT, UOut, UIn, Y1, Y, UIn>(r));
+    public static Proxy<UOut, UIn, Y1, Y, M, UIn> request<UOut, UIn, Y1, Y, M>(UOut value) 
+        where M : Monad<M> =>
+        new Request<UOut, UIn, Y1, Y, M, UIn>(value, r => new Pure<UOut, UIn, Y1, Y, M, UIn>(r));
 
 
     /// <summary>
@@ -261,9 +239,9 @@ public static class Proxy
     ///
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, DOut, DIn, UIn, UOut, R> reflect<RT, UOut, UIn, DIn, DOut, R>(
-        Proxy<RT, UOut, UIn, DIn, DOut, R> p)
-        where RT : HasIO<RT, Error> =>
+    public static Proxy<DOut, DIn, UIn, UOut, M, R> reflect<UOut, UIn, DIn, DOut, M, R>(
+        Proxy<UOut, UIn, DIn, DOut, M, R> p)
+        where M : Monad<M> =>
         p.Reflect();
 
     /// <summary>
@@ -272,10 +250,10 @@ public static class Proxy
     ///     Producer b r -> (b -> Producer c ()) -> Producer c r
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Producer<RT, OUT_B, A> ForEach<RT, OUT_A, OUT_B, A>(
-        this Producer<RT, OUT_A, A> p, 
-        Func<OUT_A, Producer<RT, OUT_B, Unit>> body)
-        where RT : HasIO<RT, Error> =>
+    public static Producer<OUT_B, M, A> ForEach<OUT_A, OUT_B, M, A>(
+        this Producer<OUT_A, M, A> p, 
+        Func<OUT_A, Producer<OUT_B, M, Unit>> body)
+        where M : Monad<M> =>
         p.For(body).ToProducer();
 
     /// <summary>
@@ -284,10 +262,10 @@ public static class Proxy
     ///     Producer b r -> (b -> Effect ()) -> Effect r
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Effect<RT, A> ForEach<RT, OUT, A>(
-        this Producer<RT, OUT, A> p, 
-        Func<OUT, Effect<RT, Unit>> fb)
-        where RT : HasIO<RT, Error> =>
+    public static Effect<M, A> ForEach<OUT, M, A>(
+        this Producer<OUT, M, A> p, 
+        Func<OUT, Effect<M, Unit>> fb)
+        where M : Monad<M> =>
         p.For(fb).ToEffect();
 
     /// <summary>
@@ -296,10 +274,10 @@ public static class Proxy
     ///     Pipe x b r -> (b -> Consumer x ()) -> Consumer x r
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Consumer<RT, IN, A> ForEach<RT, IN, OUT, A>(
-        this Pipe<RT, IN, OUT, A> p0, 
-        Func<OUT, Consumer<RT, IN, Unit>> fb)
-        where RT : HasIO<RT, Error> =>
+    public static Consumer<IN, M, A> ForEach<IN, OUT, M, A>(
+        this Pipe<IN, OUT, M, A> p0, 
+        Func<OUT, Consumer<IN, M, Unit>> fb)
+        where M : Monad<M> =>
         p0.For(fb).ToConsumer();
 
     /// <summary>
@@ -308,20 +286,20 @@ public static class Proxy
     ///     Pipe x b r -> (b -> Pipe x c ()) -> Pipe x c r
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Pipe<RT, IN, OUT, R> ForEach<RT, IN, B, OUT, R>(
-        this Pipe<RT, IN, B, R> p0, 
-        Func<B, Pipe<RT, IN, OUT, Unit>> fb)
-        where RT : HasIO<RT, Error> =>
+    public static Pipe<IN, OUT, M, R> ForEach<IN, B, OUT, M, R>(
+        this Pipe<IN, B, M, R> p0, 
+        Func<B, Pipe<IN, OUT, M, Unit>> fb)
+        where M : Monad<M> =>
         p0.For(fb).ToPipe();
 
     /// <summary>
     /// `compose(draw, p)` loops over `p` replacing each `await` with `draw`
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, UOut, UIn, DIn, DOut, B> compose<RT, UOut, UIn, DIn, DOut, A, B>(
-        Proxy<RT, UOut, UIn, DIn, DOut, A> p1, 
-        Proxy<RT, Unit, A, DIn, DOut, B> p2)
-        where RT : HasIO<RT, Error> =>
+    public static Proxy<UOut, UIn, DIn, DOut, M, B> compose<UOut, UIn, DIn, DOut, A, M, B>(
+        Proxy<UOut, UIn, DIn, DOut, M, A> p1, 
+        Proxy<Unit, A, DIn, DOut, M, B> p2)
+        where M : Monad<M> =>
         compose(_ => p1, p2);
 
     /// <summary>
@@ -330,10 +308,10 @@ public static class Proxy
     ///     Effect b -> Consumer b c -> Effect c
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Effect<RT, A> compose<RT, OUT, A>(
-        Effect<RT, OUT> p1, 
-        Consumer<RT, OUT, A> p2)
-        where RT : HasIO<RT, Error> =>
+    public static Effect<M, A> compose<OUT, M, A>(
+        Effect<M, OUT> p1, 
+        Consumer<OUT, M, A> p2)
+        where M : Monad<M> =>
         compose(_ => p1, p2).ToEffect();
 
     /// <summary>
@@ -342,10 +320,10 @@ public static class Proxy
     ///     Consumer a b -> Consumer b c -> Consumer a c
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, C> compose<RT, A, B, C>(
-        Consumer<RT, A, B> p1, 
-        Consumer<RT, B, C> p2) 
-        where RT : HasIO<RT, Error> =>
+    public static Consumer<A, M, C> compose<A, B, M, C>(
+        Consumer<A, M, B> p1, 
+        Consumer<B, M, C> p2) 
+        where M : Monad<M> =>
         compose(_ => p1, p2).ToConsumer();
 
     /// <summary>
@@ -354,10 +332,10 @@ public static class Proxy
     ///     Producer y b -> Pipe b y m c -> Producer y c
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Producer<RT, OUT, C> compose<RT, OUT, IN, C>(
-        Producer<RT, OUT, IN> p1, 
-        Pipe<RT, IN, OUT, C> p2) 
-        where RT : HasIO<RT, Error> =>
+    public static Producer<OUT, M, C> compose<OUT, IN, M, C>(
+        Producer<OUT, M, IN> p1, 
+        Pipe<IN, OUT, M, C> p2) 
+        where M : Monad<M> =>
         compose(_ => p1, p2).ToProducer();
 
     /// <summary>
@@ -366,58 +344,58 @@ public static class Proxy
     ///     Pipe a y b -> Pipe b y c -> Pipe a y c
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Pipe<RT, A, Y, C> compose<RT, Y, A, B, C>(
-        Pipe<RT, A, Y, B> p1,
-        Pipe<RT, B, Y, C> p2) 
-        where RT : HasIO<RT, Error> =>
+    public static Pipe<A, Y, M, C> compose<Y, A, B, M, C>(
+        Pipe<A, Y, M, B> p1,
+        Pipe<B, Y, M, C> p2) 
+        where M : Monad<M> =>
         compose(_ => p1, p2).ToPipe();
 
     // fixAwaitDual
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, Y1, Y, C> compose<RT, A1, A, Y1, Y, B, C>(
-        Proxy<RT, Unit, B, Y1, Y, C> p2,
-        Proxy<RT, A1, A, Y1, Y, B> p1) 
-        where RT : HasIO<RT, Error> =>
+    public static Proxy<A1, A, Y1, Y, M, C> compose<A1, A, Y1, Y, B, M, C>(
+        Proxy<Unit, B, Y1, Y, M, C> p2,
+        Proxy<A1, A, Y1, Y, M, B> p1) 
+        where M : Monad<M> =>
         compose(p1, p2);
 
     /// <summary>
     /// Replaces each `request` or `respond` in `p0` with `fb1`.
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, Y1, Y, C> compose<RT, A1, A, B1, B, Y1, Y, C>(
-        Func<B1, Proxy<RT, A1, A, Y1, Y, B>> fb1,
-        Proxy<RT, B1, B, Y1, Y, C> p0) 
-        where RT : HasIO<RT, Error> =>
+    public static Proxy<A1, A, Y1, Y, M, C> compose<A1, A, B1, B, Y1, Y, M, C>(
+        Func<B1, Proxy<A1, A, Y1, Y, M, B>> fb1,
+        Proxy<B1, B, Y1, Y, M, C> p0) 
+        where M : Monad<M> =>
         p0.ReplaceRequest(fb1);
 
     /// <summary>
     /// `compose(p, f)` pairs each `respond` in `p` with a `request` in `f`.
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, C1, C, R> compose<RT, A1, A, B1, B, C1, C, R>(
-        Proxy<RT, A1, A, B1, B, R> p,
-        Func<B, Proxy<RT, B1, B, C1, C, R>> fb)
-        where RT : HasIO<RT, Error> =>
+    public static Proxy<A1, A, C1, C, M, R> compose<A1, A, B1, B, C1, C, M, R>(
+        Proxy<A1, A, B1, B, M, R> p,
+        Func<B, Proxy<B1, B, C1, C, M, R>> fb)
+        where M : Monad<M> =>
         p.PairEachRespondWithRequest(fb);
 
     /// <summary>
     /// `compose(f, p)` pairs each `request` in `p` with a `respond` in `f`
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, C1, C, R> compose<RT, A1, A, B1, B, C1, C, R>(
-        Func<B1, Proxy<RT, A1, A, B1, B, R>> fb1,
-        Proxy<RT, B1, B, C1, C, R> p)
-        where RT : HasIO<RT, Error> =>
+    public static Proxy<A1, A, C1, C, M, R> compose<A1, A, B1, B, C1, C, M, R>(
+        Func<B1, Proxy<A1, A, B1, B, M, R>> fb1,
+        Proxy<B1, B, C1, C, M, R> p)
+        where M : Monad<M> =>
         p.PairEachRequestWithRespond(fb1);
 
     /// <summary>
     /// Pipe composition
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, C1, C, R> compose<RT, A1, A, B, C1, C, R>(
-        Proxy<RT, A1, A, Unit, B, R> p1,
-        Proxy<RT, Unit, B, C1, C, R> p2)
-        where RT : HasIO<RT, Error> =>
+    public static Proxy<A1, A, C1, C, M, R> compose<A1, A, B, C1, C, M, R>(
+        Proxy<A1, A, Unit, B, M, R> p1,
+        Proxy<Unit, B, C1, C, M, R> p2)
+        where M : Monad<M> =>
         compose(_ => p1, p2);
 
     /// <summary>
@@ -427,10 +405,10 @@ public static class Proxy
     /// 
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Effect<RT, R> compose<RT, B, R>(
-        Producer<RT, B, R> p1,
-        Consumer<RT, B, R> p2)
-        where RT : HasIO<RT, Error> =>
+    public static Effect<M, R> compose<B, M, R>(
+        Producer<B, M, R> p1,
+        Consumer<B, M, R> p2)
+        where M : Monad<M> =>
         compose(p1.ToProxy(), p2).ToEffect();
 
     /// <summary>
@@ -440,10 +418,10 @@ public static class Proxy
     /// 
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Producer<RT, C, R> compose<RT, B, C, R>(
-        Producer<RT, B, R> p1,
-        Pipe<RT, B, C, R> p2)
-        where RT : HasIO<RT, Error> =>
+    public static Producer<C, M, R> compose<B, C, M, R>(
+        Producer<B, M, R> p1,
+        Pipe<B, C, M, R> p2)
+        where M : Monad<M> =>
         compose(p1.ToProxy(), p2).ToProducer();
 
     /// <summary>
@@ -453,10 +431,10 @@ public static class Proxy
     /// 
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, R> compose<RT, A, B, R>(
-        Pipe<RT, A, B, R> p1,
-        Consumer<RT, B, R> p2)
-        where RT : HasIO<RT, Error> =>
+    public static Consumer<A, M, R> compose<A, B, M, R>(
+        Pipe<A, B, M, R> p1,
+        Consumer<B, M, R> p2)
+        where M : Monad<M> =>
         compose(p1.ToProxy(), p2).ToConsumer();
 
     /// <summary>
@@ -466,10 +444,10 @@ public static class Proxy
     /// 
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Pipe<RT, A, C, R> compose<RT, A, B, C, R>(
-        Pipe<RT, A, B, R> p1,
-        Pipe<RT, B, C, R> p2)
-        where RT : HasIO<RT, Error> =>
+    public static Pipe<A, C, M, R> compose<A, B, C, M, R>(
+        Pipe<A, B, M, R> p1,
+        Pipe<B, C, M, R> p2)
+        where M : Monad<M> =>
         compose(p1.ToProxy(), p2).ToPipe();
 
     /// <summary>
@@ -479,10 +457,10 @@ public static class Proxy
     /// This is the composition operator of the respond category.
     /// </remarks>
     [Pure, MethodImpl(mops)]
-    public static Func<A, Proxy<RT, X1, X, C1, C, A1>> compose<RT, X1, X, A1, A, B1, B, C1, C>(
-        Func<A, Proxy<RT, X1, X, B1, B, A1>> fa,
-        Func<B, Proxy<RT, X1, X, C1, C, B1>> fb) 
-        where RT : HasIO<RT, Error> =>
+    public static Func<A, Proxy<X1, X, C1, C, M, A1>> compose<X1, X, A1, A, B1, B, C1, M, C>(
+        Func<A, Proxy<X1, X, B1, B, M, A1>> fa,
+        Func<B, Proxy<X1, X, C1, C, M, B1>> fb) 
+        where M : Monad<M> =>
         a => compose(fa(a), fb);
 
     /// <summary>
@@ -492,30 +470,30 @@ public static class Proxy
     /// This is the composition operator of the respond category.
     /// </remarks>
     [Pure, MethodImpl(mops)]
-    public static Func<A, Proxy<RT, X1, X, C1, C, A1>> Then<RT, X1, X, A1, A, B1, B, C1, C>(
-        this Func<A, Proxy<RT, X1, X, B1, B, A1>> fa,
-        Func<B, Proxy<RT, X1, X, C1, C, B1>> fb) 
-        where RT : HasIO<RT, Error> =>
+    public static Func<A, Proxy<X1, X, C1, C, M, A1>> Then<X1, X, A1, A, B1, B, C1, M, C>(
+        this Func<A, Proxy<X1, X, B1, B, M, A1>> fa,
+        Func<B, Proxy<X1, X, C1, C, M, B1>> fb) 
+        where M : Monad<M> =>
         a => compose(fa(a), fb);
 
     /// <summary>
     /// `compose(p, f)` replaces each `respond` in `p` with `f`.
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, X1, X, C1, C, A1> compose<RT, X1, X, A1, B1, C1, C, B>(
-        Proxy<RT, X1, X, B1, B, A1> p0,
-        Func<B, Proxy<RT, X1, X, C1, C, B1>> fb) 
-        where RT : HasIO<RT, Error> =>
+    public static Proxy<X1, X, C1, C, M, A1> compose<X1, X, A1, B1, C1, C, M, B>(
+        Proxy<X1, X, B1, B, M, A1> p0,
+        Func<B, Proxy<X1, X, C1, C, M, B1>> fb) 
+        where M : Monad<M> =>
         p0.ReplaceRespond(fb);
 
     /// <summary>
     /// `compose(p, f)` replaces each `respond` in `p` with `f`.
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, X1, X, C1, C, A1> Then<RT, X1, X, A1, B1, C1, C, B>(
-        this Proxy<RT, X1, X, B1, B, A1> p0,
-        Func<B, Proxy<RT, X1, X, C1, C, B1>> fb) 
-        where RT : HasIO<RT, Error> =>
+    public static Proxy<X1, X, C1, C, M, A1> Then<X1, X, A1, B1, C1, C, M, B>(
+        this Proxy<X1, X, B1, B, M, A1> p0,
+        Func<B, Proxy<X1, X, C1, C, M, B1>> fb) 
+        where M : Monad<M> =>
         compose(p0, fb);
 
 
@@ -527,10 +505,10 @@ public static class Proxy
     ///     | is the composition operator of the request category.
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Func<C1, Proxy<RT, A1, A, Y1, Y, C>> compose<RT, A1, A, B1, B, Y1, Y, C1, C>(
-        Func<B1, Proxy<RT, A1, A, Y1, Y, B>> fb1,
-        Func<C1, Proxy<RT, B1, B, Y1, Y, C>> fc1) 
-        where RT : HasIO<RT, Error> =>
+    public static Func<C1, Proxy<A1, A, Y1, Y, M, C>> compose<A1, A, B1, B, Y1, Y, C1, M, C>(
+        Func<B1, Proxy<A1, A, Y1, Y, M, B>> fb1,
+        Func<C1, Proxy<B1, B, Y1, Y, M, C>> fc1) 
+        where M : Monad<M> =>
         c1 => compose(fb1, fc1(c1));
 
     /// <summary>
@@ -543,9 +521,9 @@ public static class Proxy
     /// use observe if you stick to the safe API.        
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, B1, B, R> observe<RT, A1, A, B1, B, R>(
-        Proxy<RT, A1, A, B1, B, R> p0)
-        where RT : HasIO<RT, Error> =>
+    public static Proxy<A1, A, B1, B, M, R> observe<A1, A, B1, B, M, R>(
+        Proxy<A1, A, B1, B, M, R> p0)
+        where M : Monad<M> =>
         p0.Observe();
 
     /// <summary>
@@ -561,20 +539,20 @@ public static class Proxy
     /// Applicative apply
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, B1, B, S> apply<RT, A1, A, B1, B, R, S>(
-        Proxy<RT, A1, A, B1, B, Func<R, S>> pf,
-        Proxy<RT, A1, A, B1, B, R> px) where RT : HasIO<RT, Error>
+    public static Proxy<A1, A, B1, B, M, S> apply<A1, A, B1, B, R, M, S>(
+        Proxy<A1, A, B1, B, M, Func<R, S>> pf,
+        Proxy<A1, A, B1, B, M, R> px) where M : Monad<M>
     {
         return Go(pf);
 
-        Proxy<RT, A1, A, B1, B, S> Go(Proxy<RT, A1, A, B1, B, Func<R, S>> p) =>
+        Proxy<A1, A, B1, B, M, S> Go(Proxy<A1, A, B1, B, M, Func<R, S>> p) =>
             p.ToProxy() switch
             {
-                Request<RT, A1, A, B1, B, Func<R, S>> (var a1, var fa) => new Request<RT, A1, A, B1, B, S>(a1, a => Go(fa(a))),
-                Respond<RT, A1, A, B1, B, Func<R, S>> (var b, var fb1) => new Respond<RT, A1, A, B1, B, S>(b, b1 => Go(fb1(b1))),
-                M<RT, A1, A, B1, B, Func<R, S>> (var m)                => new M<RT, A1, A, B1, B, S>(m.MapRight(Go).Tail()),
-                Pure<RT, A1, A, B1, B, Func<R, S>> (var f)             => px.Map(f),
-                _                                                      => throw new NotSupportedException()
+                Request<A1, A, B1, B, M, Func<R, S>> (var a1, var fa) => new Request<A1, A, B1, B, M, S>(a1, a => Go(fa(a))),
+                Respond<A1, A, B1, B, M, Func<R, S>> (var b, var fb1) => new Respond<A1, A, B1, B, M, S>(b, b1 => Go(fb1(b1))),
+                ProxyM<A1, A, B1, B, M, Func<R, S>> (var m)           => new ProxyM<A1, A, B1, B, M, S>(M.Map(Go, m)),
+                Pure<A1, A, B1, B, M, Func<R, S>> (var f)             => px.Map(f),
+                _                                                     => throw new NotSupportedException()
             };
     }
 
@@ -582,48 +560,53 @@ public static class Proxy
     /// Applicative apply
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, B1, B, S> Apply<RT, A1, A, B1, B, R, S>(this Proxy<RT, A1, A, B1, B, Func<R, S>> pf, Proxy<RT, A1, A, B1, B, R> px) 
-        where RT : HasIO<RT, Error> =>
+    public static Proxy<A1, A, B1, B, M, S> Apply<A1, A, B1, B, R, M, S>(
+        this Proxy<A1, A, B1, B, M, Func<R, S>> pf, 
+        Proxy<A1, A, B1, B, M, R> px) 
+        where M : Monad<M> =>
         apply(pf, px);
 
     /// <summary>
     /// Applicative action
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, B1, B, S> Action<RT, A1, A, B1, B, R, S>(this Proxy<RT, A1, A, B1, B, R> l, Proxy<RT, A1, A, B1, B, S> r) 
-        where RT : HasIO<RT, Error> =>
+    public static Proxy<A1, A, B1, B, M, S> Action<A1, A, B1, B, R, M, S>(
+        this Proxy<A1, A, B1, B, M, R> l, 
+        Proxy<A1, A, B1, B, M, S> r) 
+        where M : Monad<M> =>
         l.Action(r);
 
     /// <summary>
     /// Monad return / pure
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Proxy<RT, A1, A, B1, B, R> Pure<RT, A1, A, B1, B, R>(R value) 
-        where RT : HasIO<RT, Error> =>
-        new Pure<RT, A1, A, B1, B, R>(value);
+    public static Proxy<A1, A, B1, B, M, R> Pure<A1, A, B1, B, M, R>(R value) 
+        where M : Monad<M> =>
+        new Pure<A1, A, B1, B, M, R>(value);
 
     /// <summary>
     /// Creates a non-yielding producer that returns the result of the effects
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Transducer<RT, Sum<Error, (A, B)>> collect<RT, A, B>(Effect<RT, A> ma, Effect<RT, B> mb) 
-        where RT : HasIO<RT, Error> =>
+    public static K<M, (A, B)> collect<M, A, B>(Effect<M, A> ma, Effect<M, B> mb) 
+        where M : Monad<M> =>
         ma.RunEffect().Zip(mb.RunEffect());
 
     /// <summary>
     /// Creates a non-yielding producer that returns the result of the effects
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Transducer<RT, Sum<Error, (A, B, C)>> collect<RT, A, B, C>(Effect<RT, A> ma, Effect<RT, B> mb, Effect<RT, C> mc) 
-        where RT : HasIO<RT, Error> =>
+    public static K<M, (A, B, C)> collect<M, A, B, C>(Effect<M, A> ma, Effect<M, B> mb, Effect<M, C> mc) 
+        where M : Monad<M> =>
         ma.RunEffect().Zip(mb.RunEffect(), mc.RunEffect());
 
     /// <summary>
     /// Creates a non-yielding producer that returns the result of the effects
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Producer<RT, (A, B), Unit> yield<RT, A, B>(Effect<RT, A> ma, Effect<RT, B> mb) where RT : HasIO<RT, Error> =>
-        from r in collect(ma, mb).ToEff()
+    public static Producer<(A, B), M, Unit> yield<M, A, B>(Effect<M, A> ma, Effect<M, B> mb) 
+        where M : Monad<M> =>
+        from r in collect(ma, mb)
         from _ in yield(r)
         select unit;
 
@@ -631,8 +614,9 @@ public static class Proxy
     /// Creates a non-yielding producer that returns the result of the effects
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Producer<RT, (A, B, C), Unit> yield<RT, A, B, C>(Effect<RT, A> ma, Effect<RT, B> mb, Effect<RT, C> mc) where RT : HasIO<RT, Error> =>
-        from r in collect(ma, mb, mc).ToEff()
+    public static Producer<(A, B, C), M, Unit> yield<M, A, B, C>(Effect<M, A> ma, Effect<M, B> mb, Effect<M, C> mc) 
+        where M : Monad<M> =>
+        from r in collect(ma, mb, mc)
         from _ in yield(r)
         select unit;
 

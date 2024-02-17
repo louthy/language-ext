@@ -1,9 +1,8 @@
 using System;
-using LanguageExt.Effects.Traits;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Pipes.Proxy;
 using System.Runtime.CompilerServices;
-using LanguageExt.Common;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
@@ -27,43 +26,29 @@ namespace LanguageExt.Pipes;
 public static class Effect
 {
     [Pure]
-    internal static Transducer<RT, Sum<Error, R>> RunEffect<RT, R>(this Proxy<RT, Void, Unit, Unit, Void, R> ma) 
-        where RT : HasIO<RT, Error> 
+    internal static K<M, R> RunEffect<M, R>(this Proxy<Void, Unit, Unit, Void, M, R> ma) 
+        where M : Monad<M> 
     {
         return Go(ma);
             
-        Transducer<RT, Sum<Error, R>> Go(Proxy<RT, Void, Unit, Unit, Void, R> p) =>
+        K<M, R> Go(Proxy<Void, Unit, Unit, Void, M, R> p) =>
             p.ToProxy() switch
             {
-                M<RT, Void, Unit, Unit, Void, R> (var mx)         => mx.MapRight(Go).Flatten(),
-                Pure<RT, Void, Unit, Unit, Void, R> (var r)       => Transducer.constant<RT, Sum<Error, R>>(Sum<Error, R>.Right(r)),                                                                                
-                Request<RT, Void, Unit, Unit, Void, R> (var v, _) => closed<Transducer<RT, Sum<Error, R>>>(v),
-                Respond<RT, Void, Unit, Unit, Void, R> (var v, _) => closed<Transducer<RT, Sum<Error, R>>>(v),
+                ProxyM<Void, Unit, Unit, Void, M, R> (var mx)     => M.Bind(mx, Go),
+                Pure<Void, Unit, Unit, Void, M, R> (var r)        => M.Pure(r),                                                                                
+                Request<Void, Unit, Unit, Void, M, R > (var v, _) => closed<K<M, R>>(v),
+                Respond<Void, Unit, Unit, Void, M, R> (var v, _)  => closed<K<M, R>>(v),
                 _                                                 => throw new NotSupportedException()
             };
     }        
         
     [Pure, MethodImpl(mops)]
-    public static Effect<RT, R> lift<RT, R>(Eff<R> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
+    public static Effect<M, R> lift<M, R>(K<M, R> ma) 
+        where M : Monad<M> =>
+        lift<Void, Unit, Unit, Void, M, R>(ma).ToEffect();
 
     [Pure, MethodImpl(mops)]
-    public static Effect<RT, R> lift<RT, R>(Eff<RT, R> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
-
-    [Pure, MethodImpl(mops)]
-    public static Effect<RT, R> lift<RT, R>(Transducer<RT, R> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
-
-    [Pure, MethodImpl(mops)]
-    public static Effect<RT, R> lift<RT, R>(Transducer<RT, Sum<Error, R>> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
-
-    [Pure, MethodImpl(mops)]
-    public static Effect<RT, R> lift<RT, R>(Transducer<Unit, R> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
-
-    [Pure, MethodImpl(mops)]
-    public static Effect<RT, R> lift<RT, R>(Transducer<Unit, Sum<Error, R>> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Void, Unit, Unit, Void, R>(ma).ToEffect();
+    public static Effect<M, R> liftIO<M, R>(IO<R> ma) 
+        where M : Monad<M> =>
+        liftIO<Void, Unit, Unit, Void, M, R>(ma).ToEffect();
 }

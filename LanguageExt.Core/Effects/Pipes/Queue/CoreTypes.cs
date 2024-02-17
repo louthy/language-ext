@@ -2,11 +2,12 @@ using System;
 using System.Diagnostics.Contracts;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
-public class Queue<RT, OUT, A> : Producer<RT, OUT, A> 
-    where RT : HasIO<RT, Error>
+public record Queue<OUT, M, A> : Producer<OUT, M, A> 
+    where M : Monad<M>
 {
     /// <summary>
     /// Single queue channel
@@ -22,15 +23,8 @@ public class Queue<RT, OUT, A> : Producer<RT, OUT, A>
     /// <summary>
     /// Enqueue an item 
     /// </summary>
-    [Obsolete("Use `EnqueueEffect` instead")]
-    public Eff<RT, Unit> EnqueueEff(OUT value) =>
-        Prelude.SuccessEff(Enqueue(value));
-
-    /// <summary>
-    /// Enqueue an item 
-    /// </summary>
-    public Transducer<RT, Unit> EnqueueEffect(OUT value) =>
-        Prelude.lift<RT, Unit>(_ => Enqueue(value));
+    public K<M, Unit> EnqueueM(OUT value) =>
+        M.Pure(Enqueue(value));
 
     /// <summary>
     /// Mark the Queue as done and cancel any Effect that it is in
@@ -41,72 +35,72 @@ public class Queue<RT, OUT, A> : Producer<RT, OUT, A>
     /// <summary>
     /// Mark the Queue as done and cancel any Effect that it is in
     /// </summary>
-    [Obsolete("Use `DoneEffect` instead")]
-    public Eff<RT, Unit> DoneEff =>
-        Prelude.SuccessEff(Done());
-
-    public Transducer<RT, Unit> DoneEffect =>
-        Prelude.lift<RT, Unit>(_ => Done());
+    public K<M, Unit> DoneM =>
+        M.Pure(Done());
  
-    internal Queue(Proxy<RT, Void, Unit, Unit, OUT, A> value, Channel<OUT> channel) : base(value) =>
+    internal Queue(Proxy<Void, Unit, Unit, OUT, M, A> value, Channel<OUT> channel) : base(value) =>
         this.channel = channel;
         
     [Pure]
-    public override Proxy<RT, Void, Unit, Unit, OUT, A> ToProxy() =>
+    public override Proxy<Void, Unit, Unit, OUT, M, A> ToProxy() =>
         Value.ToProxy();
 
     [Pure]
-    public override Proxy<RT, Void, Unit, Unit, OUT, S> Bind<S>(Func<A, Proxy<RT, Void, Unit, Unit, OUT, S>> f) =>
+    public override Proxy<Void, Unit, Unit, OUT, M, S> Bind<S>(Func<A, Proxy<Void, Unit, Unit, OUT, M, S>> f) =>
         Value.Bind(f);
 
     [Pure]
-    public override Proxy<RT, Void, Unit, Unit, OUT, B> Map<B>(Func<A, B> f) =>
+    public override Proxy<Void, Unit, Unit, OUT, M, B> Map<B>(Func<A, B> f) =>
         Value.Map(f);
         
     [Pure]
-    public new Producer<RT, OUT, B> Select<B>(Func<A, B> f) => 
+    public new Producer<OUT, M, B> Select<B>(Func<A, B> f) => 
         Value.Map(f).ToProducer();
 
     [Pure]
-    public override Proxy<RT, Void, Unit, C1, C, A> For<C1, C>(Func<OUT, Proxy<RT, Void, Unit, C1, C, Unit>> body) =>
+    public override Proxy<Void, Unit, C1, C, M, A> For<C1, C>(Func<OUT, Proxy<Void, Unit, C1, C, M, Unit>> body) =>
         Value.For(body);
 
     [Pure]
-    public override Proxy<RT, Void, Unit, Unit, OUT, B> Action<B>(Proxy<RT, Void, Unit, Unit, OUT, B> r) =>
+    public override Proxy<Void, Unit, Unit, OUT, M, B> Action<B>(Proxy<Void, Unit, Unit, OUT, M, B> r) =>
         Value.Action(r);
 
     /// <remarks>
     /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
     /// </remarks>
     [Pure]
-    public override Proxy<RT, UOutA, AUInA, Unit, OUT, A> PairEachRequestWithRespond<UOutA, AUInA>(Func<Void, Proxy<RT, UOutA, AUInA, Void, Unit, A>> lhs) =>
+    public override Proxy<UOutA, AUInA, Unit, OUT, M, A> PairEachRequestWithRespond<UOutA, AUInA>(
+        Func<Void, Proxy<UOutA, AUInA, Void, Unit, M, A>> lhs) =>
         Value.PairEachRequestWithRespond(lhs);
 
     [Pure]
-    public override Proxy<RT, UOutA, AUInA, Unit, OUT, A> ReplaceRequest<UOutA, AUInA>(Func<Void, Proxy<RT, UOutA, AUInA, Unit, OUT, Unit>> lhs) =>
+    public override Proxy<UOutA, AUInA, Unit, OUT, M, A> ReplaceRequest<UOutA, AUInA>(
+        Func<Void, Proxy<UOutA, AUInA, Unit, OUT, M, Unit>> lhs) =>
         Value.ReplaceRequest(lhs);
 
     [Pure]
-    public override Proxy<RT, Void, Unit, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(Func<OUT, Proxy<RT, Unit, OUT, DInC, DOutC, A>> rhs) =>
+    public override Proxy<Void, Unit, DInC, DOutC, M, A> PairEachRespondWithRequest<DInC, DOutC>(
+        Func<OUT, Proxy<Unit, OUT, DInC, DOutC, M, A>> rhs) =>
         Value.PairEachRespondWithRequest(rhs);
 
     [Pure]
-    public override Proxy<RT, Void, Unit, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(Func<OUT, Proxy<RT, Void, Unit, DInC, DOutC, Unit>> rhs) =>
+    public override Proxy<Void, Unit, DInC, DOutC, M, A> ReplaceRespond<DInC, DOutC>(
+        Func<OUT, Proxy<Void, Unit, DInC, DOutC, M, Unit>> rhs) =>
         Value.ReplaceRespond(rhs);
 
     [Pure]
-    public override Proxy<RT, OUT, Unit, Unit, Void, A> Reflect() =>
+    public override Proxy<OUT, Unit, Unit, Void, M, A> Reflect() =>
         Value.Reflect();
 
     [Pure]
-    public override Proxy<RT, Void, Unit, Unit, OUT, A> Observe() =>
+    public override Proxy<Void, Unit, Unit, OUT, M, A> Observe() =>
         Value.Observe();
 
     [Pure]
-    public static Effect<RT, A> operator |(Queue<RT, OUT, A> p1, Consumer<RT, OUT, A> p2) => 
+    public static Effect<M, A> operator |(Queue<OUT, M, A> p1, Consumer<OUT, M, A> p2) => 
         Proxy.compose(p1, p2);
         
     [Pure]
-    public static Effect<RT, A> operator |(Queue<RT, OUT, A> p1, Consumer<OUT, A> p2) => 
+    public static Effect<M, A> operator |(Queue<OUT, M, A> p1, Consumer<OUT, A> p2) => 
         Proxy.compose(p1, p2);
 }

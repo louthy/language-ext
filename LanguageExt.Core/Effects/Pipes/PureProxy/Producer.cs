@@ -8,6 +8,7 @@
 using System;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Common;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
@@ -16,9 +17,9 @@ public abstract class Producer<OUT, A>
     public abstract Producer<OUT, B> Select<B>(Func<A, B> f);
     
     public abstract Producer<OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f);
-    public abstract Producer<RT, OUT, B> Bind<RT, B>(Func<A, Producer<RT, OUT, B>> f) where RT : HasIO<RT, Error>;
+    public abstract Producer<RT, OUT, B> Bind<RT, B>(Func<A, Producer<RT, OUT, B>> f) where M : Monad<M>;
     
-    public abstract Producer<RT, OUT, A> Interpret<RT>() where RT : HasIO<RT, Error>;
+    public abstract Producer<OUT, M, A> Interpret<M>() where M : Monad<M>;
     public abstract Pipe<IN, OUT, A> ToPipe<IN>();
 
     public Producer<OUT, B> Bind<B>(Func<A, Pure<B>> f) =>
@@ -34,11 +35,11 @@ public abstract class Producer<OUT, A>
         Bind(a => new Producer<OUT, B>.Lift<B>(f(a), PureProxy.ProducerPure<OUT, B>));
  
     public Producer<RT, OUT, B> Bind<RT, B>(Func<A, Transducer<RT, B>> f) 
-        where RT : HasIO<RT, Error> =>
+        where M : Monad<M> =>
         Interpret<RT>().Bind(f);
 
     public Producer<RT, OUT, B> Bind<RT, B>(Func<A, Transducer<RT, Sum<Error, B>>> f) 
-        where RT : HasIO<RT, Error> =>
+        where M : Monad<M> =>
         Interpret<RT>().Bind(f);
     
     public Producer<OUT, B> Map<B>(Func<A, B> f) => 
@@ -47,7 +48,7 @@ public abstract class Producer<OUT, A>
     public Producer<OUT, C> SelectMany<B, C>(Func<A, Producer<OUT, B>> f, Func<A, B, C> project) =>
         Bind(a => f(a).Select(b => project(a, b)));
         
-    public Producer<RT, OUT, C> SelectMany<RT, B, C>(Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where RT : HasIO<RT, Error> =>
+    public Producer<RT, OUT, C> SelectMany<RT, B, C>(Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where M : Monad<M> =>
         Bind(a => f(a).Select(b => project(a, b)));
         
     public Producer<OUT, C> SelectMany<B, C>(Func<A, Pure<B>> f, Func<A, B, C> project) =>
@@ -63,11 +64,11 @@ public abstract class Producer<OUT, A>
         Bind(a => f(a).Select(mb => mb.Map(b => project(a, b))));
         
     public Producer<RT, OUT, C> SelectMany<RT, B, C>(Func<A, Transducer<RT, B>> f, Func<A, B, C> project)
-        where RT : HasIO<RT, Error> =>
+        where M : Monad<M> =>
         Bind(a => f(a).Select(b => project(a, b)));
         
     public Producer<RT, OUT, C> SelectMany<RT, B, C>(Func<A, Transducer<RT, Sum<Error, B>>> f, Func<A, B, C> project)
-        where RT : HasIO<RT, Error> =>
+        where M : Monad<M> =>
         Bind(a => f(a).Select(mb => mb.Map(b => project(a, b))));
                         
     public static implicit operator Producer<OUT, A>(Pure<A> ma) =>

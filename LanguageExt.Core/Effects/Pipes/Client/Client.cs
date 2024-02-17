@@ -1,7 +1,6 @@
-using LanguageExt.Effects.Traits;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Common;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
@@ -29,8 +28,9 @@ public class Client
     /// Monad return / pure
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Client<RT, REQ, RES, R> Pure<RT, REQ, RES, R>(R value) where RT : HasIO<RT, Error> =>
-        new Pure<RT, REQ, RES, Unit, Void, R>(value).ToClient();
+    public static Client<REQ, RES, M, R> Pure<REQ, RES, M, R>(R value)
+        where M : Monad<M> =>
+        new Pure<REQ, RES, Unit, Void, M, R>(value).ToClient();
 
     /// <summary>
     /// Send a value of type `RES` downstream and block waiting for a reply of type `REQ`
@@ -39,20 +39,23 @@ public class Client
     /// `respond` is the identity of the respond category.
     /// </remarks>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Client<RT, REQ, RES, RES> request<RT, REQ, RES>(REQ value) where RT : HasIO<RT, Error> =>
-        new Request<RT, REQ, RES, Unit, Void, RES>(value, r => new Pure<RT, REQ, RES, Unit, Void, RES>(r)).ToClient();
+    public static Client<REQ, RES, M, RES> request<REQ, M, RES>(REQ value)
+        where M : Monad<M> =>
+        new Request<REQ, RES, Unit, Void, M, RES>(value, r => new Pure<REQ, RES, Unit, Void, M, RES>(r)).ToClient();
 
     /// <summary>
     /// Lift am IO monad into the `Proxy` monad transformer
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Client<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Eff<R> ma) where RT : HasIO<RT, Error> =>
-        new M<RT, REQ, RES, Unit, Void, R>(ma.WithRuntime<RT>().Morphism.MapRight(Proxy.Pure<RT, REQ, RES, Unit, Void, R>)).ToClient();
+    public static Client<REQ, RES, M, R> lift<REQ, RES, M, R>(K<M, R> ma) 
+        where M : Monad<M> =>
+        new ProxyM<REQ, RES, Unit, Void, M, R>(M.Map(Proxy.Pure<REQ, RES, Unit, Void, M, R>, ma)).ToClient();
 
     /// <summary>
     /// Lift am IO monad into the `Proxy` monad transformer
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Client<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Eff<RT, R> ma) where RT : HasIO<RT, Error> =>
-        new M<RT, REQ, RES, Unit, Void, R>(ma.Morphism.MapRight(Proxy.Pure<RT, REQ, RES, Unit, Void, R>)).ToClient();
+    public static Client<REQ, RES, M, R> liftIO<REQ, RES, M, R>(IO<R> ma) 
+        where M : Monad<M> =>
+        new ProxyM<REQ, RES, Unit, Void, M, R>(M.Map(Proxy.Pure<REQ, RES, Unit, Void, M, R>, M.LiftIO(ma))).ToClient();
 }

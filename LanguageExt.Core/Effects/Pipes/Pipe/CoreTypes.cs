@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
@@ -20,15 +19,16 @@ namespace LanguageExt.Pipes;
 ///                |
 ///                A
 /// </remarks>
-public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT : HasIO<RT, Error>
+public record Pipe<IN, OUT, M, A> : Proxy<Unit, IN, Unit, OUT, M, A> 
+    where M : Monad<M>
 {
-    public readonly Proxy<RT, Unit, IN, Unit, OUT, A> Value;
+    public readonly Proxy<Unit, IN, Unit, OUT, M, A> Value;
         
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="value">Correctly shaped `Proxy` that represents a `Pipe`</param>
-    public Pipe(Proxy<RT, Unit, IN, Unit, OUT, A> value) =>
+    public Pipe(Proxy<Unit, IN, Unit, OUT, M, A> value) =>
         Value = value;
         
     /// <summary>
@@ -39,7 +39,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// however, and removes a level of indirection</remarks>
     /// <returns>A general `Proxy` type from a more specialised type</returns>
     [Pure]
-    public override Proxy<RT, Unit, IN, Unit, OUT, A> ToProxy() =>
+    public override Proxy<Unit, IN, Unit, OUT, M, A> ToProxy() =>
         Value.ToProxy();
 
     /// <summary>
@@ -49,7 +49,8 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public override Proxy<RT, Unit, IN, Unit, OUT, S> Bind<S>(Func<A, Proxy<RT, Unit, IN, Unit, OUT, S>> f) =>
+    public override Proxy<Unit, IN, Unit, OUT, M, S> Bind<S>(
+        Func<A, Proxy<Unit, IN, Unit, OUT, M, S>> f) =>
         Value.Bind(f);
 
     /// <summary>
@@ -59,8 +60,8 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Pipe<RT, IN, OUT, B> Bind<B>(Func<A, Transducer<RT, B>> f) =>
-        Value.Bind(x => Pipe.lift<RT, IN, OUT, B>(f(x))).ToPipe();
+    public Pipe<IN, OUT, M, B> Bind<B>(Func<A, K<M, B>> f) =>
+        Value.Bind(x => Pipe.lift<IN, OUT, M, B>(f(x))).ToPipe();
 
     /// <summary>
     /// Monadic bind operation, for chaining `Proxy` computations together.
@@ -69,28 +70,8 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Pipe<RT, IN, OUT, B> Bind<B>(Func<A, Transducer<RT, Sum<Error, B>>> f) =>
-        Value.Bind(x => Pipe.lift<RT, IN, OUT, B>(f(x))).ToPipe();
-
-    /// <summary>
-    /// Monadic bind operation, for chaining `Proxy` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Pipe<RT, IN, OUT, B> Bind<B>(Func<A, Transducer<Unit, B>> f) =>
-        Value.Bind(x => Pipe.lift<RT, IN, OUT, B>(f(x))).ToPipe();
-
-    /// <summary>
-    /// Monadic bind operation, for chaining `Proxy` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Pipe<RT, IN, OUT, B> Bind<B>(Func<A, Transducer<Unit, Sum<Error, B>>> f) =>
-        Value.Bind(x => Pipe.lift<RT, IN, OUT, B>(f(x))).ToPipe();
+    public Pipe<IN, OUT, M, B> Bind<B>(Func<A, IO<B>> f) =>
+        Value.Bind(x => Pipe.liftIO<IN, OUT, M, B>(f(x))).ToPipe();
             
     /// <summary>
     /// Lifts a pure function into the `Proxy` domain, causing it to map the bound value within
@@ -99,7 +80,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
     [Pure]
-    public override Proxy<RT, Unit, IN, Unit, OUT, S> Map<S>(Func<A, S> f) =>
+    public override Proxy<Unit, IN, Unit, OUT, M, S> Map<S>(Func<A, S> f) =>
         Value.Map(f);
         
     /// <summary>
@@ -109,7 +90,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Pipe<RT, IN, OUT, B> Bind<B>(Func<A, Pipe<RT, IN, OUT, B>> f) => 
+    public Pipe<IN, OUT, M, B> Bind<B>(Func<A, Pipe<IN, OUT, M, B>> f) => 
         Value.Bind(f).ToPipe();
         
     /// <summary>
@@ -119,7 +100,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the map operation</returns>
     [Pure]
-    public new Pipe<RT, IN, OUT, B> Select<B>(Func<A, B> f) => 
+    public new Pipe<IN, OUT, M, B> Select<B>(Func<A, B> f) => 
         Value.Map(f).ToPipe();        
 
     /// <summary>
@@ -130,7 +111,8 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// processing of the computation</param>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the function provided</returns>
     [Pure]
-    public override Proxy<RT, Unit, IN, C1, C, A> For<C1, C>(Func<OUT, Proxy<RT, Unit, IN, C1, C, Unit>> body) =>
+    public override Proxy<Unit, IN, C1, C, M, A> For<C1, C>(
+        Func<OUT, Proxy<Unit, IN, C1, C, M, Unit>> body) =>
         Value.For(body);
 
     /// <summary>
@@ -140,7 +122,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// </summary>
     /// <param name="r">`Proxy` to run after this one</param>
     [Pure]
-    public override Proxy<RT, Unit, IN, Unit, OUT, S> Action<S>(Proxy<RT, Unit, IN, Unit, OUT, S> r) =>
+    public override Proxy<Unit, IN, Unit, OUT, M, S> Action<S>(Proxy<Unit, IN, Unit, OUT, M, S> r) =>
         Value.Action(r);
 
 
@@ -152,8 +134,8 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
     /// </remarks>
     [Pure]
-    public override Proxy<RT, UOutA, AUInA, Unit, OUT, A> PairEachRequestWithRespond<UOutA, AUInA>(
-        Func<Unit, Proxy<RT, UOutA, AUInA, Unit, IN, A>> lhs) =>
+    public override Proxy<UOutA, AUInA, Unit, OUT, M, A> PairEachRequestWithRespond<UOutA, AUInA>(
+        Func<Unit, Proxy<UOutA, AUInA, Unit, IN, M, A>> lhs) =>
         Value.PairEachRequestWithRespond(lhs);
 
     /// <summary>
@@ -161,8 +143,8 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
     /// </summary>
     [Pure]
-    public override Proxy<RT, UOutA, AUInA, Unit, OUT, A> ReplaceRequest<UOutA, AUInA>(
-        Func<Unit, Proxy<RT, UOutA, AUInA, Unit, OUT, IN>> lhs) =>
+    public override Proxy<UOutA, AUInA, Unit, OUT, M, A> ReplaceRequest<UOutA, AUInA>(
+        Func<Unit, Proxy<UOutA, AUInA, Unit, OUT, M, IN>> lhs) =>
         Value.ReplaceRequest(lhs);
 
     /// <summary>
@@ -170,8 +152,8 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
     /// </summary>
     [Pure]
-    public override Proxy<RT, Unit, IN, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(
-        Func<OUT, Proxy<RT, Unit, OUT, DInC, DOutC, A>> rhs) =>
+    public override Proxy<Unit, IN, DInC, DOutC, M, A> PairEachRespondWithRequest<DInC, DOutC>(
+        Func<OUT, Proxy<Unit, OUT, DInC, DOutC, M, A>> rhs) =>
         Value.PairEachRespondWithRequest(rhs);
 
     /// <summary>
@@ -179,8 +161,8 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// wouldn't need to call this directly, instead either pipe them using `|` or call `Proxy.compose(lhs, rhs)` 
     /// </summary>
     [Pure]
-    public override Proxy<RT, Unit, IN, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(
-        Func<OUT, Proxy<RT, Unit, IN, DInC, DOutC, Unit>> rhs) =>
+    public override Proxy<Unit, IN, DInC, DOutC, M, A> ReplaceRespond<DInC, DOutC>(
+        Func<OUT, Proxy<Unit, IN, DInC, DOutC, M, Unit>> rhs) =>
         Value.ReplaceRespond(rhs);
 
     /// <summary>
@@ -188,7 +170,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// </summary>
     /// <returns>The dual of `this`</returns>
     [Pure]
-    public override Proxy<RT, OUT, Unit, IN, Unit, A> Reflect() =>
+    public override Proxy<OUT, Unit, IN, Unit, M, A> Reflect() =>
         Value.Reflect();
 
     /// <summary>
@@ -201,11 +183,11 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// use observe if you stick to the safe API.        
     /// </summary>
     [Pure]
-    public override Proxy<RT, Unit, IN, Unit, OUT, A> Observe() =>
+    public override Proxy<Unit, IN, Unit, OUT, M, A> Observe() =>
         Value.Observe();
 
     [Pure]
-    public void Deconstruct(out Proxy<RT, Unit, IN, Unit, OUT, A> value) =>
+    public void Deconstruct(out Proxy<Unit, IN, Unit, OUT, M, A> value) =>
         value = Value;
         
     /// <summary>
@@ -215,7 +197,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <param name="p2">`Pipe`</param>
     /// <returns>`Producer`</returns>
     [Pure]
-    public static Producer<RT, OUT, A> operator |(Producer<RT, IN, A> p1, Pipe<RT, IN, OUT, A> p2) =>
+    public static Producer<OUT, M, A> operator |(Producer<IN, M, A> p1, Pipe<IN, OUT, M, A> p2) =>
         Proxy.compose(p1, p2);
         
     /// <summary>
@@ -225,7 +207,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <param name="p2">`Pipe`</param>
     /// <returns>`Producer`</returns>
     [Pure]
-    public static Producer<RT, OUT, A> operator |(Producer<IN, A> p1, Pipe<RT, IN, OUT, A> p2) =>
+    public static Producer<OUT, M, A> operator |(Producer<IN, A> p1, Pipe<IN, OUT, M, A> p2) =>
         Proxy.compose(p1, p2);
         
     /// <summary>
@@ -235,7 +217,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <param name="p2">`Pipe`</param>
     /// <returns>`Producer`</returns>
     [Pure]
-    public static Producer<RT, OUT, A> operator |(Producer<OUT, IN> p1, Pipe<RT, IN, OUT, A> p2) =>
+    public static Producer<OUT, M, A> operator |(Producer<OUT, IN> p1, Pipe<IN, OUT, M, A> p2) =>
         Proxy.compose(p1, p2);
         
     /// <summary>
@@ -245,7 +227,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <param name="p2">`Consumer`</param>
     /// <returns>`Consumer`</returns>
     [Pure]
-    public static Consumer<RT, IN, A> operator |(Pipe<RT, IN, OUT, A> p1, Consumer<OUT, A> p2) =>
+    public static Consumer<IN, M, A> operator |(Pipe<IN, OUT, M, A> p1, Consumer<OUT, A> p2) =>
         Proxy.compose(p1, p2);
         
     /// <summary>
@@ -255,7 +237,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <param name="p2">`Consumer`</param>
     /// <returns>`Consumer`</returns>
     [Pure]
-    public static Consumer<RT, IN, A> operator |(Pipe<RT, IN, OUT, A> p1, Consumer<RT, OUT, A> p2) =>
+    public static Consumer<IN, M, A> operator |(Pipe<IN, OUT, M, A> p1, Consumer<OUT, M, A> p2) =>
         Proxy.compose(p1, p2);
         
     /// <summary>
@@ -269,7 +251,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <typeparam name="C">Type of value that the right hand side pipe yields</typeparam>
     /// <returns>A composition of this pipe and the `Pipe` provided</returns>
     [Pure]
-    public Pipe<RT, IN, C, A> Then<C>(Pipe<RT, OUT, C, A> pipe) =>
+    public Pipe<IN, C, M, A> Then<C>(Pipe<OUT, C, M, A> pipe) =>
         Proxy.compose(this, pipe);
 
     /// <summary>
@@ -278,8 +260,8 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <param name="p">Pure `Pipe`</param>
     /// <returns>Monad transformer version of the `Pipe`</returns>
     [Pure]
-    public static implicit operator Pipe<RT, IN, OUT, A>(Pipe<IN, OUT, A> p) =>
-        p.Interpret<RT>();
+    public static implicit operator Pipe<IN, OUT, M, A>(Pipe<IN, OUT, A> p) =>
+        p.Interpret<M>();
 
     /// <summary>
     /// Conversion operator from the `Pure` type, to the monad transformer version of the `Pipe`
@@ -287,44 +269,8 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <param name="p">`Pure` value</param>
     /// <returns>Monad transformer version of the `Pipe`</returns>
     [Pure]
-    public static implicit operator Pipe<RT, IN, OUT, A>(Pure<A> p) =>
-        Pipe.Pure<RT, IN, OUT, A>(p.Value);
-
-    /// <summary>
-    /// Conversion operator from the `Transducer` type, to the monad transformer version of the `Pipe`
-    /// </summary>
-    /// <param name="t">`Transducer</param>
-    /// <returns>Monad transformer version of the `Pipe`</returns>
-    [Pure]
-    public static implicit operator Pipe<RT, IN, OUT, A>(Transducer<Unit, A> t) =>
-        Pipe.lift<RT, IN, OUT, A>(t);
-
-    /// <summary>
-    /// Conversion operator from the `Transducer` type, to the monad transformer version of the `Pipe`
-    /// </summary>
-    /// <param name="t">`Transducer</param>
-    /// <returns>Monad transformer version of the `Pipe`</returns>
-    [Pure]
-    public static implicit operator Pipe<RT, IN, OUT, A>(Transducer<RT, A> t) =>
-        Pipe.lift<RT, IN, OUT, A>(t);
-
-    /// <summary>
-    /// Conversion operator from the `Transducer` type, to the monad transformer version of the `Pipe`
-    /// </summary>
-    /// <param name="t">`Transducer</param>
-    /// <returns>Monad transformer version of the `Pipe`</returns>
-    [Pure]
-    public static implicit operator Pipe<RT, IN, OUT, A>(Transducer<Unit, Sum<Error, A>> t) =>
-        Pipe.lift<RT, IN, OUT, A>(t);
-
-    /// <summary>
-    /// Conversion operator from the `Transducer` type, to the monad transformer version of the `Pipe`
-    /// </summary>
-    /// <param name="t">`Transducer</param>
-    /// <returns>Monad transformer version of the `Pipe`</returns>
-    [Pure]
-    public static implicit operator Pipe<RT, IN, OUT, A>(Transducer<RT, Sum<Error, A>> t) =>
-        Pipe.lift<RT, IN, OUT, A>(t);
+    public static implicit operator Pipe<IN, OUT, M, A>(Pure<A> p) =>
+        Pipe.Pure<IN, OUT, M, A>(p.Value);
 
     /// <summary>
     /// Monadic bind operation, for chaining `Proxy` computations together.
@@ -333,8 +279,8 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Pipe<RT, IN, OUT, B> SelectMany<B>(Func<A, Pipe<IN, OUT, B>> bind) =>
-        Value.Bind(a => bind(a).Interpret<RT>()).ToPipe();
+    public Pipe<IN, OUT, M, B> SelectMany<B>(Func<A, Pipe<IN, OUT, B>> bind) =>
+        Value.Bind(a => bind(a).Interpret<M>()).ToPipe();
 
     /// <summary>
     /// Monadic bind operation, for chaining `Proxy` computations together.
@@ -343,7 +289,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Pipe<RT, IN, OUT, C> SelectMany<B, C>(Func<A, Pipe<IN, OUT, B>> bind, Func<A, B, C> project) =>
+    public Pipe<IN, OUT, M, C> SelectMany<B, C>(Func<A, Pipe<IN, OUT, B>> bind, Func<A, B, C> project) =>
         SelectMany(a => bind(a).Select(b => project(a, b)));
         
     /// <summary>
@@ -353,7 +299,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Pipe<RT, IN, OUT, B> SelectMany<B>(Func<A, Pipe<RT, IN, OUT, B>> f) => 
+    public Pipe<IN, OUT, M, B> SelectMany<B>(Func<A, Pipe<IN, OUT, M, B>> f) => 
         Value.Bind(f).ToPipe();
         
     /// <summary>
@@ -363,7 +309,7 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Pipe<RT, IN, OUT, C> SelectMany<B, C>(Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) => 
+    public Pipe<IN, OUT, M, C> SelectMany<B, C>(Func<A, Pipe<IN, OUT, M, B>> f, Func<A, B, C> project) => 
         Value.Bind(a => f(a).Map(b => project(a, b))).ToPipe();
 
     /// <summary>
@@ -373,45 +319,25 @@ public class Pipe<RT, IN, OUT, A> : Proxy<RT, Unit, IN, Unit, OUT, A> where RT :
     /// <typeparam name="B">The mapped bound value type</typeparam>
     /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
     [Pure]
-    public Pipe<RT, IN, OUT, C> SelectMany<B, C>(Func<A, Transducer<RT, B>> bind, Func<A, B, C> project) =>
+    public Pipe<IN, OUT, M, C> SelectMany<B, C>(Func<A, K<M, B>> bind, Func<A, B, C> project) =>
+        Bind(x => M.Map(y => project(x, y), bind(x)));
+
+    /// <summary>
+    /// Monadic bind operation, for chaining `Proxy` computations together.
+    /// </summary>
+    /// <param name="f">The bind function</param>
+    /// <typeparam name="B">The mapped bound value type</typeparam>
+    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
+    [Pure]
+    public Pipe<IN, OUT, M, C> SelectMany<B, C>(Func<A, IO<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
-    /// <summary>
-    /// Monadic bind operation, for chaining `Proxy` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Pipe<RT, IN, OUT, C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).Map(y => project(x, y)));
-
-    /// <summary>
-    /// Monadic bind operation, for chaining `Proxy` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Pipe<RT, IN, OUT, C> SelectMany<B, C>(Func<A, Transducer<RT, Sum<Error, B>>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).MapRight(y => project(x, y)));
-
-    /// <summary>
-    /// Monadic bind operation, for chaining `Proxy` computations together.
-    /// </summary>
-    /// <param name="f">The bind function</param>
-    /// <typeparam name="B">The mapped bound value type</typeparam>
-    /// <returns>A new `Proxy` that represents the composition of this `Proxy` and the result of the bind operation</returns>
-    [Pure]
-    public Pipe<RT, IN, OUT, C> SelectMany<B, C>(Func<A, Transducer<Unit, Sum<Error, B>>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).MapRight(y => project(x, y)));
-    
     /// <summary>
     /// Chain one pipe's set of awaits and yields after another
     /// </summary>
     [Pure]
-    public static Pipe<RT, IN, OUT, A> operator &(
-        Pipe<RT, IN, OUT, A> lhs,
-        Pipe<RT, IN, OUT, A> rhs) =>
+    public static Pipe<IN, OUT, M, A> operator &(
+        Pipe<IN, OUT, M, A> lhs,
+        Pipe<IN, OUT, M, A> rhs) =>
         lhs.Bind(_ => rhs);
 }

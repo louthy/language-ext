@@ -1,8 +1,7 @@
 using System;
+using LanguageExt.Traits;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 using static LanguageExt.Pipes.Proxy;
 using static LanguageExt.Prelude;
 
@@ -29,123 +28,48 @@ public static class Consumer
     /// Monad return / pure
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, R> Pure<RT, A, R>(R value) where RT : HasIO<RT, Error> =>
-        new Pure<RT, Unit, A, Unit, Void, R>(value).ToConsumer();
+    public static Consumer<A, M, R> Pure<A, M, R>(R value)
+        where M : Monad<M> =>
+        new Pure<Unit, A, Unit, Void, M, R>(value).ToConsumer();
         
     /// <summary>
     /// Wait for a value from upstream (whilst in a consumer)
     /// </summary>
-    /// <remarks>
-    /// This is the simpler version (fewer generic arguments required) of `await` that works
-    /// for consumers.  In pipes, use `Pipe.await`
-    /// </remarks>
     [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, A> awaiting<RT, A>() where RT : HasIO<RT, Error> =>
-        request<RT, Unit, A, Unit, Void>(unit).ToConsumer();
+    public static Consumer<A, M, A> awaiting<M, A>() 
+        where M : Monad<M> =>
+        request<Unit, A, Unit, Void, M>(unit).ToConsumer();
 
     /// <summary>
     /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, R> lift<RT, A, R>(Eff<R> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Unit, A, Unit, Void, R>(ma).ToConsumer();
+    public static Consumer<A, M, R> lift<A, M, R>(K<M, R> ma)
+        where M : Monad<M>  =>
+        lift<Unit, A, Unit, Void, M, R>(ma).ToConsumer();
 
     /// <summary>
     /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, R> lift<RT, A, R>(Eff<RT, R> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Unit, A, Unit, Void, R>(ma).ToConsumer();
-
-    /// <summary>
-    /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, Unit> lift<RT, A>(Eff<RT, Unit> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Unit, A, Unit, Void, Unit>(ma).ToConsumer();
-
-    /// <summary>
-    /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, R> lift<RT, A, R>(Transducer<RT, R> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Unit, A, Unit, Void, R>(ma).ToConsumer();
-
-    /// <summary>
-    /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, R> lift<RT, A, R>(Transducer<RT, Sum<Error, R>> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Unit, A, Unit, Void, R>(ma).ToConsumer();
-
-    /// <summary>
-    /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, R> lift<RT, A, R>(Transducer<Unit, R> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Unit, A, Unit, Void, R>(ma).ToConsumer();
-
-    /// <summary>
-    /// Lift the IO monad into the Consumer monad transformer (a specialism of the Proxy monad transformer)
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, R> lift<RT, A, R>(Transducer<Unit, Sum<Error, R>> ma) where RT : HasIO<RT, Error> =>
-        lift<RT, Unit, A, Unit, Void, R>(ma).ToConsumer();
+    public static Consumer<A, M, R> liftIO<A, M, R>(IO<R> ma) 
+        where M : Monad<M> =>
+        liftIO<Unit, A, Unit, Void, M, R>(ma).ToConsumer();
         
     /// <summary>
     /// Consume all values using a monadic function
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Eff<RT, Unit>> f) where RT : HasIO<RT, Error> =>
-        cat<RT, A, R>().ForEach(a => lift<RT, A>(f(a)));
+    public static Consumer<A, M, R> mapM<A, M, R>(Func<A, K<M, Unit>> f) 
+        where M : Monad<M> =>
+        cat<A, M, R>().ForEach(a => lift<A, M, Unit>(f(a)));
         
     /// <summary>
     /// Consume all values using a monadic function
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Eff<RT, Unit>> f) where RT : HasIO<RT, Error> =>
-        cat<RT, A, Unit>().ForEach(a => lift<RT, A>(f(a)));
-        
-    /// <summary>
-    /// Consume all values using a monadic function
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Eff<Unit>> f) where RT : HasIO<RT, Error> =>
-        cat<RT, A, R>().ForEach(a => lift<RT, A, Unit>(f(a)));
-
-    /// <summary>
-    /// Consume all values using a monadic function
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, Unit> mapM<RT, A>(Func<A, Eff<Unit>> f) where RT : HasIO<RT, Error> =>
-        cat<RT, A, Unit>().ForEach(a => lift<RT, A, Unit>(f(a)));
-    
-    /// <summary>
-    /// Consume all values using a monadic function
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Transducer<RT, Unit>> f) where RT : HasIO<RT, Error> =>
-        cat<RT, A, R>().ForEach(a => lift<RT, A>(f(a)));
-    
-    /// <summary>
-    /// Consume all values using a monadic function
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Transducer<RT, Sum<Error, Unit>>> f) where RT : HasIO<RT, Error> =>
-        cat<RT, A, R>().ForEach(a => lift<RT, A>(f(a)));
-    
-    /// <summary>
-    /// Consume all values using a monadic function
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Transducer<Unit, Unit>> f) where RT : HasIO<RT, Error> =>
-        cat<RT, A, R>().ForEach(a => lift<RT, A>(f(a)));
-    
-    /// <summary>
-    /// Consume all values using a monadic function
-    /// </summary>
-    [Pure, MethodImpl(mops)]
-    public static Consumer<RT, A, R> mapM<RT, A, R>(Func<A, Transducer<Unit, Sum<Error, Unit>>> f) where RT : HasIO<RT, Error> =>
-        cat<RT, A, R>().ForEach(a => lift<RT, A>(f(a)));
+    public static Consumer<A, M, R> mapM<A, M, R>(Func<A, IO<Unit>> f) 
+        where M : Monad<M> =>
+        cat<A, M, R>().ForEach(a => lift<A, M, Unit>(M.LiftIO(f(a))));
     
 }
