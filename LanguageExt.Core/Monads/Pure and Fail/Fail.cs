@@ -33,9 +33,6 @@ public readonly record struct Fail<E>(E Value)
 
     public Either<E, A> ToEither<A>() =>
         Either<E, A>.Left(Value);
-    
-    public Validation<E, A> ToValidation<A>() =>
-        Validation<E, A>.Fail([Value]);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -62,9 +59,9 @@ public static class FailExtensions
     public static Fin<A> ToFin<A>(this Fail<Error> fail) =>
         Fin<A>.Fail(fail.Value);
     
-    public static Validation<MonadFail, FAIL, A> ToValidation<MonadFail, FAIL, A>(this Fail<FAIL> fail) 
-        where MonadFail : Monoid<FAIL>, Eq<FAIL> =>
-        Validation<MonadFail, FAIL, A>.Fail(fail.Value);
+    public static Validation<F, A> ToValidation<F, A>(this Fail<F> fail) 
+        where F : Monoid<F> =>
+        Validation<F, A>.Fail(fail.Value);
     
     public static Eff<RT, A> ToEff<RT, A>(this Fail<Error> fail)
         where RT : HasIO<RT, Error> =>

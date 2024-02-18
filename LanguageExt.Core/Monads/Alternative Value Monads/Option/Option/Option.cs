@@ -543,13 +543,6 @@ public readonly struct Option<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<A> AsEnumerable() =>
         ToSeq();
-
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Validation<FAIL, A> ToValidation<FAIL>(FAIL defaultFailureValue) =>
-        isSome
-            ? Success<FAIL, A>(Value!)
-            : Fail<FAIL, A>(defaultFailureValue);
         
     /// <summary>
     /// Convert the structure to an Eff

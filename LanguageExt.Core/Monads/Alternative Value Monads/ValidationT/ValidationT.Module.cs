@@ -12,7 +12,7 @@ public partial class ValidationT<L, M>
     public static ValidationT<L, M, A> Left<A>(L value) => 
         ValidationT<L, M, A>.Fail(value);
 
-    public static ValidationT<L, M, A> lift<A>(Either<L, A> ma) => 
+    public static ValidationT<L, M, A> lift<A>(Validation<L, A> ma) => 
         ValidationT<L, M, A>.Lift(ma);
 
     public static ValidationT<L, M, A> lift<A>(Pure<A> ma) => 
@@ -57,7 +57,7 @@ public partial class ValidationT
         where M : Monad<M> =>
         ma.Action(mb);
 
-    public static ValidationT<L, M, A> lift<L, M, A>(Either<L, A> ma)  
+    public static ValidationT<L, M, A> lift<L, M, A>(Validation<L, A> ma)  
         where L : Monoid<L>
         where M : Monad<M> =>
         ValidationT<L, M, A>.Lift(ma);
@@ -82,8 +82,8 @@ public partial class ValidationT
         where M : Monad<M> =>
         ValidationT<L, M, A>.Lift(M.LiftIO(ma));
     
-    public static K<M, B> match<L, M, A, B>(ValidationT<L, M, A> ma, Func<L, B> Left, Func<A, B> Right) 
+    public static K<M, B> match<L, M, A, B>(ValidationT<L, M, A> ma, Func<A, B> Succ, Func<L, B> Fail) 
         where L : Monoid<L>
         where M : Monad<M> =>
-        ma.Match(Left, Right);
+        ma.Match(Succ, Fail);
 }

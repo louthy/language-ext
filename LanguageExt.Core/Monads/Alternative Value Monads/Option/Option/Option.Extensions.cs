@@ -17,6 +17,14 @@ public static class OptionExtensions
 {
     public static Option<A> As<A>(this K<Option, A> ma) =>
         (Option<A>)ma;
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<F, A> ToValidation<F, A>(Option<A> ma, F defaultFailureValue)
+        where F : Monoid<F>
+        => ma.IsSome
+               ? Validation<F, A>.Success(ma.Value!)
+               : Validation<F, A>.Fail(defaultFailureValue);
     
     /// <summary>
     /// Monadic join

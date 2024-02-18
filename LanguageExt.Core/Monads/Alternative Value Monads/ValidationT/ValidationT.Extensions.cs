@@ -67,35 +67,30 @@ public static class ValidationTExt
         where M : Monad<M>
         where L : Monoid<L> =>
         new(M.Bind(mf.As().runValidation,
-                   ef => ef.State switch
+                   ef => ef.IsSuccess switch
                          {
-                             EitherStatus.IsRight => 
+                             true => 
                                  M.Bind(ma.As().runValidation,
-                                        ea => ea.State switch
+                                        ea => ea.IsSuccess switch
                                               {
-                                                  EitherStatus.IsRight => 
-                                                      M.Pure(Either<L, B>.Right(ef.RightValue(ea.RightValue))),
+                                                  true => 
+                                                      M.Pure(Validation<L, B>.Success(ef.SuccessValue(ea.SuccessValue))),
                                                  
-                                                  EitherStatus.IsLeft => 
-                                                      M.Pure(Either<L, B>.Left(ef.LeftValue.Append(ea.LeftValue))),
-                                                 
-                                                  _ => 
-                                                      M.Pure(Either<L, B>.Left(ef.LeftValue))
-
+                                                  false => 
+                                                      M.Pure(Validation<L, B>.Fail(ef.FailValue.Append(ea.FailValue))),
                                               }),
                              
-                             EitherStatus.IsLeft =>
+                             false =>
                                  M.Bind(ma.As().runValidation,
-                                        ea => ea.State switch
+                                        ea => ea.IsSuccess switch
                                               {
-                                                  EitherStatus.IsLeft => 
-                                                      M.Pure(Either<L, B>.Left(ef.LeftValue.Append(ea.LeftValue))),
+                                                  true => 
+                                                      M.Pure(Validation<L, B>.Fail(ef.FailValue.Append(ea.FailValue))),
                                                  
-                                                  _ => 
-                                                      M.Pure(Either<L, B>.Left(ef.LeftValue))
+                                                  false => 
+                                                      M.Pure(Validation<L, B>.Fail(ef.FailValue))
 
-                                              }),
-                             _ => M.Pure(L.Empty)
+                                              })
                          }));
 
     /// <summary>

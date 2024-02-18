@@ -111,13 +111,6 @@ public readonly record struct Pure<A>(A Value)
     public Fin<A> ToFin() =>
         Fin<A>.Succ(Value);
     
-    public Validation<FAIL, A> ToValidation<FAIL>() =>
-        Validation<FAIL, A>.Success(Value);
-    
-    public Validation<MonadFail, FAIL, A> ToValidation<MonadFail, FAIL>() 
-        where MonadFail : Monoid<FAIL>, Eq<FAIL> =>
-        Validation<MonadFail, FAIL, A>.Success(Value);
-    
     public IO<A> ToIO() =>
         IO<A>.Pure(Value);
     
@@ -137,13 +130,6 @@ public readonly record struct Pure<A>(A Value)
         bind(Value);
 
     public Fin<B> Bind<B>(Func<A, Fin<B>> bind) =>
-        bind(Value);
-
-    public Validation<FAIL, B> Bind<FAIL, B>(Func<A, Validation<FAIL, B>> bind) =>
-        bind(Value);
-
-    public Validation<MonoidFail, FAIL, B> Bind<MonoidFail, FAIL, B>(Func<A, Validation<MonoidFail, FAIL, B>> bind)
-        where MonoidFail : Eq<FAIL>, Monoid<FAIL> =>
         bind(Value);
 
     public Eff<RT, B> Bind<RT, B>(Func<A, Eff<RT, B>> bind)
@@ -188,15 +174,6 @@ public readonly record struct Pure<A>(A Value)
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public Fin<C> SelectMany<B, C>(Func<A, Fin<B>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).Map(y => project(x, y)));
-
-    public Validation<FAIL, C> SelectMany<FAIL, B, C>(Func<A, Validation<FAIL, B>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).Map(y => project(x, y)));
-
-    public Validation<MonoidFail, FAIL, C> SelectMany<MonoidFail, FAIL, B, C>(
-        Func<A, Validation<MonoidFail, FAIL, B>> bind, 
-        Func<A, B, C> project)
-        where MonoidFail : Eq<FAIL>, Monoid<FAIL> =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
     public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project)
@@ -260,4 +237,19 @@ public static class PureExtensions
     /// <returns>Flattened monad</returns>
     public static Pure<A> Flatten<A>(this Pure<Pure<A>> mma) =>
         mma.Value;
+
+    public static Validation<F, B> Bind<F, A, B>(this Pure<A> ma, Func<A, Validation<F, B>> bind)
+        where F : Monoid<F> =>
+        bind(ma.Value);
+
+    public static Validation<F, A> ToValidation<F, A>(this Pure<A> ma)
+        where F : Monoid<F> =>
+        Validation<F, A>.Success(ma.Value);
+
+    public static Validation<F, C> SelectMany<F, A, B, C>(
+        this Pure<A> ma,
+        Func<A, Validation<F, B>> bind,
+        Func<A, B, C> project)
+        where F : Monoid<F> =>
+        bind(ma.Value).Map(y => project(ma.Value, y));
 }

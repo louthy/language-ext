@@ -76,9 +76,9 @@ public interface Foldable<T> where T : Foldable<T>
     /// lazy in the accumulator.  When you need a strict left-associative fold,
     /// use 'foldMap'' instead, with 'id' as the map.
     /// </summary>
-    public static virtual A Fold<M, A>(K<T, A> tm) 
-        where M : Monoid<A> =>
-        T.FoldMap<M, A, A>(identity, tm) ;
+    public static virtual A Fold<A>(K<T, A> tm) 
+        where A : Monoid<A> =>
+        T.FoldMap(identity, tm) ;
 
     /// <summary>
     /// Map each element of the structure into a monoid, and combine the
@@ -86,18 +86,18 @@ public interface Foldable<T> where T : Foldable<T>
     /// accumulator.  For strict left-associative folds consider `FoldMapBack`
     /// instead.
     /// </summary>
-    public static virtual B FoldMap<M, A, B>(Func<A, B> f, K<T, A> ta)
-        where M : Monoid<B> =>
-        T.Fold((x, a) => M.Append(f(x), a), M.Empty, ta);
+    public static virtual B FoldMap<A, B>(Func<A, B> f, K<T, A> ta)
+        where B : Monoid<B> =>
+        T.Fold((x, a) => f(x).Append(a), B.Empty, ta);
 
     /// <summary>
     /// A left-associative variant of 'FoldMap' that is strict in the
     /// accumulator.  Use this method for strict reduction when partial
     /// results are merged via `Append`.
     /// </summary>
-    public static virtual B FoldMapBack<M, A, B>(Func<A, B> f, K<T, A> ta)
-        where M : Monoid<B> =>
-        T.FoldBack((x, a) => M.Append(x, f(a)), M.Empty, ta);
+    public static virtual B FoldMapBack<A, B>(Func<A, B> f, K<T, A> ta)
+        where B : Monoid<B> =>
+        T.FoldBack((x, a) => x.Append(f(a)), B.Empty, ta);
 
     /// <summary>
     /// List of elements of a structure, from left to right

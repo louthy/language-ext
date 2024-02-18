@@ -73,10 +73,10 @@ public static class Foldable
     /// lazy in the accumulator.  When you need a strict left-associative fold,
     /// use 'foldMap'' instead, with 'id' as the map.
     /// </summary>
-    public static A fold<T, M, A>(K<T, A> tm)
-        where M : Monoid<A>
+    public static A fold<T, A>(K<T, A> tm)
+        where A : Monoid<A>
         where T : Foldable<T> =>
-        T.Fold<M, A>(tm);
+        T.Fold(tm);
 
     /// <summary>
     /// Map each element of the structure into a monoid, and combine the
@@ -84,20 +84,20 @@ public static class Foldable
     /// accumulator.  For strict left-associative folds consider `FoldMapBack`
     /// instead.
     /// </summary>
-    public static B foldMap<T, M, A, B>(Func<A, B> f, K<T, A> ta)
-        where M : Monoid<B>
+    public static B foldMap<T, A, B>(Func<A, B> f, K<T, A> ta)
+        where B : Monoid<B>
         where T : Foldable<T> =>
-        T.FoldMap<M, A, B>(f, ta);
+        T.FoldMap(f, ta);
 
     /// <summary>
     /// A left-associative variant of 'FoldMap' that is strict in the
     /// accumulator.  Use this method for strict reduction when partial
     /// results are merged via `Append`.
     /// </summary>
-    public static B foldMapBack<T, M, A, B>(Func<A, B> f, K<T, A> ta)
-        where M : Monoid<B>
+    public static B foldMapBack<T, A, B>(Func<A, B> f, K<T, A> ta)
+        where B : Monoid<B>
         where T : Foldable<T> =>
-        T.FoldBack((x, a) => M.Append(x, f(a)), M.Empty, ta);
+        T.FoldBack((x, a) => x.Append(f(a)), B.Empty, ta);
 
     /// <summary>
     /// Right-to-left monadic fold over the elements of a structure.

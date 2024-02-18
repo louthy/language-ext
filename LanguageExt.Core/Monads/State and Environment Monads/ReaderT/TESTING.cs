@@ -13,9 +13,11 @@ public static class Testing
     {
         var m1 = ReaderT<string>.lift(Some(123));
         var m2 = ReaderT<string>.lift(Some(123));
+        var mt = ReaderT<string>.lift(Some(unit));
                 
         var m0 = from w in Pure(123)
                  from x in m1
+                 from _ in unless(true, mt)
                  from y in m2
                  from z in asks((string env) => env.Length)
                  from e in ask<string>()
