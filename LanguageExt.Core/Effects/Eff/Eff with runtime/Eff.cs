@@ -31,7 +31,7 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
         ReaderT.asksM(f);
 
     static ReaderT<RT, ResourceT<IO>, X> asksIO<X>(Func<EnvIO, RT, ValueTask<X>> f) =>
-        asksM(rt => ResourceT<IO>.liftIO(IO.asksIO(eio => f(eio, rt))));
+        asksM(rt => ResourceT<IO>.liftIO(IO.liftAsync(eio => f(eio, rt))));
 
     static ReaderT<RT, ResourceT<IO>, X> asksIO<X>(Func<RT, ValueTask<X>> f) =>
         asksIO<X>((_, rt) => f(rt));
@@ -206,6 +206,34 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     [Pure, MethodImpl(Opt.Default)]
     public static Eff<RT, A> LiftIO(Func<RT, ValueTask<A>> f) =>
         new (f);
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> Lift(Func<Either<Error, A>> f) =>
+        new (_ => f());    
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> Lift(Func<Fin<A>> f) =>
+        new (_ => f());    
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> Lift(Func<A> f) =>
+        new (_ => f());    
+
+    /// <summary>
+    /// Lift an effect into the `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static Eff<RT, A> LiftIO(Func<ValueTask<A>> f) =>
+        new (_ => f());    
 
     /// <summary>
     /// Lift an effect into the `Eff` monad
@@ -759,6 +787,34 @@ public readonly struct Eff<RT, A> : K<Eff.Runtime<RT>, A>
     public static implicit operator Eff<RT, A>(in Fail<Error> ma) =>
         ma.ToEff<RT, A>();
 
+    /// <summary>
+    /// Convert to an `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Eff<RT, A>(in Lift<A> ma) =>
+        Lift(ma.Function);
+
+    /// <summary>
+    /// Convert to an `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Eff<RT, A>(in Lift<Fin<A>> ma) =>
+        Lift(ma.Function);
+
+    /// <summary>
+    /// Convert to an `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Eff<RT, A>(in Lift<RT, A> ma) =>
+        Lift(ma.Function);
+
+    /// <summary>
+    /// Convert to an `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Eff<RT, A>(in Lift<RT, Fin<A>> ma) =>
+        Lift(ma.Function);    
+    
     /// <summary>
     /// Convert to an `Eff` monad
     /// </summary>

@@ -670,6 +670,34 @@ public readonly record struct Eff<A>(Eff<MinRT,A> effect) : K<Eff, A>
     /// Convert to an `Eff` monad
     /// </summary>
     [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Eff<A>(in Lift<A> ma) =>
+        Lift(ma.Function);
+
+    /// <summary>
+    /// Convert to an `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Eff<A>(in Lift<Fin<A>> ma) =>
+        Lift(ma.Function);
+
+    /// <summary>
+    /// Convert to an `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Eff<A>(in Lift<MinRT, A> ma) =>
+        Lift(ma.Function);
+
+    /// <summary>
+    /// Convert to an `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
+    public static implicit operator Eff<A>(in Lift<MinRT, Fin<A>> ma) =>
+        Lift(ma.Function);
+
+    /// <summary>
+    /// Convert to an `Eff` monad
+    /// </summary>
+    [Pure, MethodImpl(Opt.Default)]
     public static implicit operator Eff<A>(in Either<Error, A> ma) =>
         ma.Match(Right: Pure, Left: Fail, Bottom: () => Fail(Errors.Bottom));
 

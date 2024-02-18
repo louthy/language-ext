@@ -36,13 +36,6 @@ public readonly record struct Fail<E>(E Value)
     
     public Validation<E, A> ToValidation<A>() =>
         Validation<E, A>.Fail([Value]);
-    
-    public IO<RT, E, A> ToIO<RT, A>()
-        where RT : HasIO<RT, E> =>
-        IO<RT, E, A>.Fail(Value);
-    
-    public IO<E, A> ToIO<A>() =>
-        IO<E, A>.Fail(Value);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

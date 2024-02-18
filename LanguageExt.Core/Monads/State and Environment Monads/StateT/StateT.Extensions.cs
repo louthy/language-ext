@@ -1,5 +1,4 @@
 ﻿using System;
-using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using LanguageExt.Traits;
 
@@ -8,10 +7,10 @@ namespace LanguageExt;
 /// <summary>
 /// State monad extensions
 /// </summary>
-public static partial class StateExt
+public static class StateExt
 {
-     //public static State<Env, A> As<Env, A>(this K<StateT<Env, Identity>, A> ma) =>
-      //  (State<Env, A>)ma;
+     public static State<Env, A> As<Env, A>(this K<StateT<Env, Identity>, A> ma) =>
+        (State<Env, A>)ma;
     
     public static StateT<Env, M, A> As<Env, M, A>(this K<StateT<Env, M>, A> ma)
         where M : Monad<M>, Alternative<M> =>
@@ -23,7 +22,7 @@ public static partial class StateExt
     [Pure]
     public static StateT<Env, M, A> Flatten<Env, M, A>(this StateT<Env, M, StateT<Env, M, A>> mma)
         where M : Monad<M>, Alternative<M> =>
-        mma.Bind(identity);
+        mma.Bind(x => x);
 
     /// <summary>
     /// Monad bind operation

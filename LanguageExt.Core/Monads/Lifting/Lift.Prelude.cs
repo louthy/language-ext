@@ -49,7 +49,7 @@ public static partial class Prelude
     /// <param name="action">Function</param>
     /// <returns>Value that can be used with monadic types in LINQ expressions</returns>
     public static IO<Unit> liftIO(Func<Task> action) =>
-        IO<Unit>.LiftIO(async _ =>
+        IO<Unit>.LiftAsync(async _ =>
                         {
                             await action().ConfigureAwait(false);
                             return unit;
@@ -61,7 +61,7 @@ public static partial class Prelude
     /// <param name="action">Action</param>
     /// <returns>Value that can be used with monadic types in LINQ expressions</returns>
     public static IO<Unit> liftIO(Func<EnvIO, Task> action) =>
-        IO<Unit>.LiftIO(async env =>
+        IO<Unit>.LiftAsync(async env =>
                         {
                             await action(env).ConfigureAwait(false);
                             return unit;
@@ -73,7 +73,7 @@ public static partial class Prelude
     /// <param name="function">Function</param>
     /// <returns>Value that can be used with monadic types in LINQ expressions</returns>
     public static IO<A> liftIO<A>(Func<Task<A>> function) =>
-        new(async _ => await function().ConfigureAwait(false));
+        IO<A>.LiftAsync(async () => await function().ConfigureAwait(false));
 
     /// <summary>
     /// Lift a asynchronous IO function 
@@ -81,5 +81,5 @@ public static partial class Prelude
     /// <param name="function">Function</param>
     /// <returns>Value that can be used with monadic types in LINQ expressions</returns>
     public static IO<A> liftIO<A>(Func<EnvIO, Task<A>> function) =>
-        new(async e => await function(e).ConfigureAwait(false));
+        IO<A>.LiftAsync(async e => await function(e).ConfigureAwait(false));
 }

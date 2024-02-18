@@ -1,6 +1,5 @@
 
 using System;
-using System.Threading.Tasks;
 using LanguageExt.Traits;
 
 namespace LanguageExt;
@@ -13,11 +12,11 @@ namespace LanguageExt;
 public record Lift<A>(Func<A> Function)
 {
     public ReaderT<Env, M, A> ToReaderT<Env, M>() 
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         new (_ => M.Pure(Function()));
 
     public IO<A> ToIO() =>
-        new (_ => ValueTask.FromResult(Function()));
+        new (_ => Function());
 
     public Lift<B> Map<B>(Func<A, B> f) =>
         new (() => f(Function()));
@@ -38,7 +37,7 @@ public record Lift<A>(Func<A> Function)
         ToIO().SelectMany(bind, project);
 
     public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project) 
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         ToReaderT<Env, M>().SelectMany(bind, project);
 
     public Lift<C> SelectMany<B, C>(Func<A, Lift<B>> bind, Func<A, B, C> project) =>

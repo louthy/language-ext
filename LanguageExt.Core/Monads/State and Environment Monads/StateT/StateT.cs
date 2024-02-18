@@ -148,7 +148,7 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`StateT`</returns>
-    public StateT<S, M, Unit> Bind<B>(Func<A, Put<S>> f) =>
+    public StateT<S, M, Unit> Bind(Func<A, Put<S>> f) =>
         Bind(x => f(x).ToStateT<M>());
 
     /// <summary>
@@ -157,7 +157,7 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     /// <param name="f">Mapping function</param>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>`StateT`</returns>
-    public StateT<S, M, Unit> Bind<B>(Func<A, Modify<S>> f) =>
+    public StateT<S, M, Unit> Bind(Func<A, Modify<S>> f) =>
         Bind(x => f(x).ToStateT<M>());
 
     /// <summary>

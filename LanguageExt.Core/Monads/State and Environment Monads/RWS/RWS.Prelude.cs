@@ -1,4 +1,5 @@
-﻿using LanguageExt.ClassInstances;
+﻿/*
+using LanguageExt.ClassInstances;
 using LanguageExt.Common;
 using LanguageExt.TypeClasses;
 using System;
@@ -383,3 +384,4 @@ public static partial class Prelude
         where MonoidW : Monoid<W> =>
         self.Iter(action);
 }
+*/

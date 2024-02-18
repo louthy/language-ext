@@ -118,13 +118,6 @@ public readonly record struct Pure<A>(A Value)
         where MonadFail : Monoid<FAIL>, Eq<FAIL> =>
         Validation<MonadFail, FAIL, A>.Success(Value);
     
-    public IO<RT, E, A> ToIO<RT, E>()
-        where RT : HasIO<RT, E> =>
-        IO<RT, E, A>.Pure(Value);
-    
-    public IO<E, A> ToIO<E>() =>
-        IO<E, A>.Pure(Value);
-    
     public IO<A> ToIO() =>
         IO<A>.Pure(Value);
     
@@ -153,10 +146,6 @@ public readonly record struct Pure<A>(A Value)
         where MonoidFail : Eq<FAIL>, Monoid<FAIL> =>
         bind(Value);
 
-    public IO<RT, E, B> Bind<RT, E, B>(Func<A, IO<RT, E, B>> bind)
-        where RT : HasIO<RT, E> =>
-        bind(Value);
-
     public Eff<RT, B> Bind<RT, B>(Func<A, Eff<RT, B>> bind)
         where RT : HasIO<RT, Error> =>
         bind(Value);
@@ -169,18 +158,18 @@ public readonly record struct Pure<A>(A Value)
         bind(Value);
     
     public ReaderT<Env, M, B> Bind<Env, M, B>(Func<A, ReaderT<Env, M, B>> bind)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         bind(Value);
     
     public Reader<Env, B> Bind<Env, B>(Func<A, Reader<Env, B>> bind) =>
         bind(Value);
     
     public StateT<S, M, B> Bind<S, M, B>(Func<A, StateT<S, M, B>> bind)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         bind(Value);
     
     public ResourceT<M, B> Bind<M, B>(Func<A, ResourceT<M, B>> bind)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         bind(Value);
     
     public OptionT<M, B> Bind<M, B>(Func<A, OptionT<M, B>> bind)
@@ -210,10 +199,6 @@ public readonly record struct Pure<A>(A Value)
         where MonoidFail : Eq<FAIL>, Monoid<FAIL> =>
         Bind(x => bind(x).Map(y => project(x, y)));
 
-    public IO<RT, E, C> SelectMany<RT, E, B, C>(Func<A, IO<RT, E, B>> bind, Func<A, B, C> project)
-        where RT : HasIO<RT, E> =>
-        Bind(x => bind(x).Map(y => project(x, y)));
-
     public Eff<RT, C> SelectMany<RT, B, C>(Func<A, Eff<RT, B>> bind, Func<A, B, C> project)
         where RT : HasIO<RT, Error> =>
         Bind(x => bind(x).Map(y => project(x, y)));
@@ -226,18 +211,18 @@ public readonly record struct Pure<A>(A Value)
          Bind(x => M.Map(y => project(x, y), bind(x)));
     
     public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         Bind(x => bind(x).Map(y => project(x, y)));
     
     public Reader<Env, C> SelectMany<Env, B, C>(Func<A, Reader<Env, B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y))).As();
     
     public StateT<S, M, C> SelectMany<S, M, B, C>(Func<A, StateT<S, M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         Bind(x => bind(x).Map(y => project(x, y)));
     
     public ResourceT<M, C> SelectMany<M, B, C>(Func<A, ResourceT<M, B>> bind, Func<A, B, C> project)
-        where M : Monad<M> =>
+        where M : Monad<M>, Alternative<M> =>
         Bind(x => bind(x).Map(y => project(x, y)));
     
     public OptionT<M, C> SelectMany<M, B, C>(Func<A, OptionT<M, B>> bind, Func<A, B, C> project)

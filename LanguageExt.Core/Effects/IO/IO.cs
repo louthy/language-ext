@@ -49,10 +49,10 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     public static IO<A> Lift(Func<EnvIO, A> f) =>
         new(f);
 
-    public static IO<A> LiftIO(Func<ValueTask<A>> f) =>
+    public static IO<A> LiftAsync(Func<ValueTask<A>> f) =>
         new(env => Run(_ => f(), env));
 
-    public static IO<A> LiftIO(Func<EnvIO, ValueTask<A>> f) =>
+    public static IO<A> LiftAsync(Func<EnvIO, ValueTask<A>> f) =>
         new(env => Run(f, env));
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,12 +60,18 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     //  Functor
     //
 
-    public IO<B> Map<B>(Func<A, B> f) => 
-        new(e => f(Run(e)));
+    public IO<B> Map<B>(Func<A, B> f) =>
+        new(e =>
+            {
+                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
+                return f(Run(e));
+            });
+                
 
     public IO<A> MapFail(Func<Error, Error> f) => 
         new(e =>
             {
+                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
                 try
                 {
                     return Run(e);
@@ -83,6 +89,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     public IO<B> BiMap<B>(Func<A, B> Succ, Func<Error, Error> Fail) => 
         new(e =>
             {
+                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
                 try
                 {
                     return Succ(Run(e));
@@ -100,6 +107,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     public IO<B> Match<B>(Func<A, B> Succ, Func<Error, B> Fail) => 
         new(e =>
             {
+                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
                 try
                 {
                     return Succ(Run(e));
@@ -222,6 +230,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         return new(
             envIO =>
             {
+                if (envIO.Token.IsCancellationRequested) throw new TaskCanceledException();
                 var r = Run(envIO);
                 var state = folder(initialState, r);
                 if (predicate((state, r))) return state;
@@ -251,6 +260,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     public IO<A> Post() =>
         new(env =>
             {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                 if (env.SyncContext is null) return Run(env);
 
                 A?         value = default;
@@ -283,13 +293,25 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     //
 
     public IO<B> Bind<B>(Func<A, IO<B>> f) =>
-        new(e => f(Run(e)).Run(e));
+        new(e =>
+            {
+                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
+                return f(Run(e)).Run(e);
+            });
 
     public IO<B> Bind<B>(Func<A, K<IO, B>> f) =>
-        new(e => f(Run(e)).As().Run(e));
+        new(e =>
+            {
+                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
+                return f(Run(e)).As().Run(e);
+            });
 
     public IO<B> Bind<B>(Func<A, Pure<B>> f) =>
-        new(e => f(Run(e)).Value);
+        new(e =>
+            {
+                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
+                return f(Run(e)).Value;
+            });
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -325,6 +347,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     public IO<A> Or(IO<A> mb) =>
         new(e =>
             {
+                if (e.Token.IsCancellationRequested) throw new TaskCanceledException();
                 try
                 {
                     return Run(e);
@@ -359,6 +382,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     public static IO<A> operator |(IO<A> ma, CatchIO<A> mb) =>
         new(env =>
             {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                 try
                 {
                     return ma.Run(env);
@@ -380,6 +404,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     public static IO<A> operator |(IO<A> ma, CatchError<Error> mb) =>
         new(env =>
             {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                 try
                 {
                     return ma.Run(env);
@@ -401,6 +426,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     public static IO<A> operator |(IO<A> ma, CatchError<Exception> mb) =>
         new(env =>
             {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                 try
                 {
                     return ma.Run(env);
@@ -415,6 +441,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     public static IO<A> operator |(IO<A> ma, CatchValue<Error, A> mb) =>
         new(env =>
             {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                 try
                 {
                     return ma.Run(env);
@@ -436,6 +463,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     public static IO<A> operator |(IO<A> ma, CatchValue<Exception, A> mb) =>
         new(env =>
             {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                 try
                 {
                     return ma.Run(env);
@@ -499,6 +527,8 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         IO<ForkIO<A>>.Lift(
             env =>
             {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
+                
                 // Create a new local token-source with its own cancellation token
                 var tsrc = timeout.IsSome
                                ? new CancellationTokenSource((TimeSpan)timeout)
@@ -526,7 +556,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
 
                 return new ForkIO<A>(
                         IO<Unit>.Lift(() => { tsrc.Cancel(); return default; }),
-                        LiftIO(async _ => await task.ConfigureAwait(false)));
+                        LiftAsync(async _ => await task.ConfigureAwait(false)));
             });
 
     /// <summary>
@@ -625,6 +655,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         Func<A, bool> predicate) =>
         new(env =>
             {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                 var token  = env.Token;
                 var result = Run(env);
                 if (predicate(result)) return result;
@@ -706,6 +737,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         Func<Error, bool> predicate) =>
         new(env =>
             {
+                if (env.Token.IsCancellationRequested) throw new TaskCanceledException();
                 var token  = env.Token;
                 var lastError = BottomException.Default as Exception;
                 try
@@ -726,7 +758,6 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
                 foreach(var delay in  schedule.Run())
                 {
                     YieldFor(delay, token);
-
                     try
                     {
                         return Run(env);
@@ -800,7 +831,7 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
         SpinWait sw    = default;
         do
         {
-            if (token.IsCancellationRequested) return;
+            if (token.IsCancellationRequested) throw new TaskCanceledException();
             if (TimeProvider.System.GetElapsedTime(start) >= span) return;
             sw.SpinOnce();
         } while (true);

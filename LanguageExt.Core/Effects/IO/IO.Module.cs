@@ -12,22 +12,28 @@ public partial class IO
         IO<Unit>.Pure(default);
     
     public static readonly IO<EnvIO> envIO = 
-        IO<EnvIO>.LiftIO(ValueTask.FromResult);
+        IO<EnvIO>.LiftAsync(ValueTask.FromResult);
     
-    public static IO<A> asksIO<A>(Func<EnvIO, A> f) => 
-        IO<A>.LiftIO(e => ValueTask.FromResult(f(e)));
+    public static IO<A> lift<A>(Func<A> f) => 
+        IO<A>.Lift(f);
+    
+    public static IO<A> lift<A>(Func<EnvIO, A> f) => 
+        IO<A>.Lift(f);
 
-    public static IO<A> asksIO<A>(Func<EnvIO, ValueTask<A>> f) => 
-        IO<A>.LiftIO(f);
+    public static IO<A> liftAsync<A>(Func<ValueTask<A>> f) => 
+        IO<A>.LiftAsync(f);
+
+    public static IO<A> liftAsync<A>(Func<EnvIO, ValueTask<A>> f) => 
+        IO<A>.LiftAsync(f);
 
     public static readonly IO<CancellationToken> token = 
-        asksIO(e => e.Token);
+        lift(e => e.Token);
     
     public static readonly IO<CancellationTokenSource> source = 
-        asksIO(e => e.Source);
+        lift(e => e.Source);
     
     public static readonly IO<Option<SynchronizationContext>> syncContext = 
-        asksIO(e => Optional(e.SyncContext));
+        lift(e => Optional(e.SyncContext));
     
     public static IO<B> bind<A, B>(K<IO, A> ma, Func<A, K<IO, B>> f) =>
         ma.As().Bind(f);

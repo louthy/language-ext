@@ -72,10 +72,8 @@ public static partial class Prelude
     public static Reader<Env, Option<A>> choose<Env, A>(Seq<Reader<Env, Option<A>>> ms) =>
         ms switch
         {
-            { IsEmpty: true } => L.Reader<Env, Option<A>>.Pure(Option<A>.None),
-            var (x, xs) => x.Bind(oa => oa.IsSome
-                                            ? L.Reader<Env, Option<A>>.Pure(oa)
-                                            : choose(xs))
+            { IsEmpty: true } => Pure(Option<A>.None),
+            var (x, xs)       => x.Bind(oa => oa.IsSome ? Pure(oa) : choose(xs))
         };
 
     /// <summary>
