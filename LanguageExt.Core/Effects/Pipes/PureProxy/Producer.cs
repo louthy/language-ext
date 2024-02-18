@@ -6,7 +6,6 @@
 //
 
 using System;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 
@@ -17,7 +16,7 @@ public abstract class Producer<OUT, A>
     public abstract Producer<OUT, B> Select<B>(Func<A, B> f);
     
     public abstract Producer<OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f);
-    public abstract Producer<RT, OUT, B> Bind<RT, B>(Func<A, Producer<RT, OUT, B>> f) where M : Monad<M>;
+    public abstract Producer<OUT, M, B> Bind<M, B>(Func<A, Producer<OUT, M, B>> f) where M : Monad<M>;
     
     public abstract Producer<OUT, M, A> Interpret<M>() where M : Monad<M>;
     public abstract Pipe<IN, OUT, A> ToPipe<IN>();
@@ -28,27 +27,17 @@ public abstract class Producer<OUT, A>
     public Producer<OUT, B> Bind<B>(Func<A, Fail<Error>> f) =>
         Bind(x => new Producer<OUT, B>.Fail(f(x).Value));
 
-    public Producer<OUT, B> Bind<B>(Func<A, Transducer<Unit, B>> f) =>
-        Bind(a => f(a).Map(Sum<Error, B>.Right));
- 
-    public Producer<OUT, B> Bind<B>(Func<A, Transducer<Unit, Sum<Error, B>>> f) =>
-        Bind(a => new Producer<OUT, B>.Lift<B>(f(a), PureProxy.ProducerPure<OUT, B>));
- 
-    public Producer<RT, OUT, B> Bind<RT, B>(Func<A, Transducer<RT, B>> f) 
+    public Producer<OUT, M, B> Bind<M, B>(Func<A, K<M, B>> f) 
         where M : Monad<M> =>
-        Interpret<RT>().Bind(f);
+        Interpret<M>().Bind(f);
 
-    public Producer<RT, OUT, B> Bind<RT, B>(Func<A, Transducer<RT, Sum<Error, B>>> f) 
-        where M : Monad<M> =>
-        Interpret<RT>().Bind(f);
-    
     public Producer<OUT, B> Map<B>(Func<A, B> f) => 
         Select(f);
     
     public Producer<OUT, C> SelectMany<B, C>(Func<A, Producer<OUT, B>> f, Func<A, B, C> project) =>
         Bind(a => f(a).Select(b => project(a, b)));
         
-    public Producer<RT, OUT, C> SelectMany<RT, B, C>(Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) where M : Monad<M> =>
+    public Producer<OUT, M, C> SelectMany<M, B, C>(Func<A, Producer<OUT, M, B>> f, Func<A, B, C> project) where M : Monad<M> =>
         Bind(a => f(a).Select(b => project(a, b)));
         
     public Producer<OUT, C> SelectMany<B, C>(Func<A, Pure<B>> f, Func<A, B, C> project) =>
@@ -56,20 +45,10 @@ public abstract class Producer<OUT, A>
         
     public Producer<OUT, C> SelectMany<B, C>(Func<A, Fail<Error>> f, Func<A, B, C> project) =>
         Bind<C>(f);
-    
-    public Producer<OUT, C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> f, Func<A, B, C> project) =>
-        Bind(a => f(a).Select(b => project(a, b)));
         
-    public Producer<OUT, C> SelectMany<B, C>(Func<A, Transducer<Unit, Sum<Error, B>>> f, Func<A, B, C> project) =>
-        Bind(a => f(a).Select(mb => mb.Map(b => project(a, b))));
-        
-    public Producer<RT, OUT, C> SelectMany<RT, B, C>(Func<A, Transducer<RT, B>> f, Func<A, B, C> project)
+    public Producer<OUT, M, C> SelectMany<B, M, C>(Func<A, K<M, B>> f, Func<A, B, C> project)
         where M : Monad<M> =>
-        Bind(a => f(a).Select(b => project(a, b)));
-        
-    public Producer<RT, OUT, C> SelectMany<RT, B, C>(Func<A, Transducer<RT, Sum<Error, B>>> f, Func<A, B, C> project)
-        where M : Monad<M> =>
-        Bind(a => f(a).Select(mb => mb.Map(b => project(a, b))));
+        Bind(a => M.Map(b => project(a, b), f(a)));
                         
     public static implicit operator Producer<OUT, A>(Pure<A> ma) =>
         new Pure(ma.Value);
@@ -87,11 +66,11 @@ public abstract class Producer<OUT, A>
         public override Producer<OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) =>
             f(Value);
 
-        public override Producer<RT, OUT, B> Bind<RT, B>(Func<A, Producer<RT, OUT, B>> f) =>
+        public override Producer<OUT, M, B> Bind<M, B>(Func<A, Producer<OUT, M, B>> f) =>
             f(Value);
 
-        public override Producer<RT, OUT, A> Interpret<RT>() =>
-            Producer.Pure<RT, OUT, A>(Value);
+        public override Producer<OUT, M, A> Interpret<M>() =>
+            Producer.Pure<OUT, M, A>(Value);
 
         public override Pipe<IN, OUT, A> ToPipe<IN>() =>
             new Pipe<IN, OUT, A>.Pure(Value);
@@ -105,32 +84,32 @@ public abstract class Producer<OUT, A>
         public override Producer<OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) => 
             new Producer<OUT, B>.Fail(Error);
 
-        public override Producer<RT, OUT, B> Bind<RT, B>(Func<A, Producer<RT, OUT, B>> f) => 
-            Producer.lift<RT, OUT, B>(Transducer.constant<RT, Sum<Error, B>>(Sum<Error, B>.Left(Error)));
+        public override Producer<OUT, M, B> Bind<M, B>(Func<A, Producer<OUT, M, B>> f) =>
+            PureProxy.ProducerLift<OUT, A>(Error.Throw<A>).Bind(f);
 
-        public override Producer<RT, OUT, A> Interpret<RT>() => 
-            Producer.lift<RT, OUT, A>(Transducer.constant<RT, Sum<Error, A>>(Sum<Error, A>.Left(Error)));
+        public override Producer<OUT, M, A> Interpret<M>() => 
+            PureProxy.ProducerLift<OUT, A>(Error.Throw<A>);
 
         public override Pipe<IN, OUT, A> ToPipe<IN>() => 
             new Pipe<IN, OUT, A>.Fail(Error);
     }
 
-    public class Lift<X>(Transducer<Unit, Sum<Error, X>> Morphism, Func<X, Producer<OUT, A>> Next) : Producer<OUT, A>
+    public class Lift<X>(Func<X> Function, Func<X, Producer<OUT, A>> Next) : Producer<OUT, A>
     {
         public override Producer<OUT, B> Select<B>(Func<A, B> f) => 
-            new Producer<OUT, B>.Lift<X>(Morphism, x => Next(x).Select(f));
+            new Producer<OUT, B>.Lift<X>(Function, x => Next(x).Select(f));
 
         public override Producer<OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) => 
-            new Producer<OUT, B>.Lift<X>(Morphism, x => Next(x).Bind(f));
+            new Producer<OUT, B>.Lift<X>(Function, x => Next(x).Bind(f));
 
-        public override Producer<RT, OUT, B> Bind<RT, B>(Func<A, Producer<RT, OUT, B>> f) => 
-            Producer.lift<RT, OUT, X>(Morphism).SelectMany(x => Next(x).Bind(f)).ToProducer();
+        public override Producer<OUT, M, B> Bind<M, B>(Func<A, Producer<OUT, M, B>> f) => 
+            Producer.lift<OUT, M, X>(M.Pure(Function())).SelectMany(x => Next(x).Bind(f)).ToProducer();
 
-        public override Producer<RT, OUT, A> Interpret<RT>() => 
-            Producer.lift<RT, OUT, X>(Morphism).Bind(x => Next(x).Interpret<RT>());
+        public override Producer<OUT, M, A> Interpret<M>() => 
+            Producer.lift<OUT, M, X>(M.Pure(Function())).Bind(x => Next(x).Interpret<M>());
 
         public override Pipe<IN, OUT, A> ToPipe<IN>() =>
-            new Pipe<IN, OUT, A>.Lift<X>(Morphism, x => Next(x).ToPipe<IN>());
+            new Pipe<IN, OUT, A>.Lift<X>(Function, x => Next(x).ToPipe<IN>());
     }
 
     public class Yield(OUT Value, Func<Unit, Producer<OUT, A>> Next) : Producer<OUT, A>
@@ -141,11 +120,11 @@ public abstract class Producer<OUT, A>
         public override Producer<OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) =>
             new Producer<OUT, B>.Yield(Value, n => Next(n).Bind(f));
 
-        public override Producer<RT, OUT, B> Bind<RT, B>(Func<A, Producer<RT, OUT, B>> f) =>
-            Interpret<RT>().Bind(f).ToProducer();
+        public override Producer<OUT, M, B> Bind<M, B>(Func<A, Producer<OUT, M, B>> f) =>
+            Interpret<M>().Bind(f).ToProducer();
 
-        public override Producer<RT, OUT, A> Interpret<RT>() =>
-            Producer.yield<RT, OUT>(Value).Bind(x => Next(x).Interpret<RT>()).ToProducer();
+        public override Producer<OUT, M, A> Interpret<M>() =>
+            Producer.yield<OUT, M>(Value).Bind(x => Next(x).Interpret<M>()).ToProducer();
 
         public override Pipe<IN, OUT, A> ToPipe<IN>() =>
             new Pipe<IN, OUT, A>.Yield(Value, x => Next(x).ToPipe<IN>());

@@ -6,7 +6,6 @@
 //
 
 using System;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 
@@ -18,7 +17,7 @@ public abstract class Pipe<IN, OUT, A>
     public abstract Pipe<IN, OUT, M, A> Interpret<M>() where M : Monad<M>;
     
     public abstract Pipe<IN, OUT, B> Bind<B>(Func<A, Pipe<IN, OUT, B>> f);
-    public abstract Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) where M : Monad<M>;
+    public abstract Pipe<IN, OUT, M, B> Bind<M, B>(Func<A, Pipe<IN, OUT, M, B>> f) where M : Monad<M>;
     public abstract Pipe<IN, OUT, B> Bind<B>(Func<A, Consumer<IN, B>> f);
     public abstract Pipe<IN, OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f);
     
@@ -28,19 +27,13 @@ public abstract class Pipe<IN, OUT, A>
     public Pipe<IN, OUT, B> Bind<B>(Func<A, Fail<Error>> f) =>
         Bind(x => new Pipe<IN, OUT, B>.Fail(f(x).Value));
 
-    public Pipe<IN, OUT, B> Bind<B>(Func<A, Transducer<Unit, B>> f) =>
-        Bind(a => f(a).Map(Sum<Error, B>.Right));
- 
-    public Pipe<IN, OUT, B> Bind<B>(Func<A, Transducer<Unit, Sum<Error, B>>> f) =>
-        Bind(a => new Pipe<IN, OUT, B>.Lift<B>(f(a), PureProxy.PipePure<IN, OUT, B>));
- 
-    public Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Transducer<RT, B>> f) 
+    public Pipe<IN, OUT, M, B> Bind<M, B>(Func<A, K<M, B>> f) 
         where M : Monad<M> =>
-        Interpret<RT>().Bind(f);
+        Interpret<M>().Bind(f);
 
-    public Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Transducer<RT, Sum<Error, B>>> f) 
+    public Pipe<IN, OUT, M, B> Bind<M, B>(Func<A, IO<B>> f) 
         where M : Monad<M> =>
-        Interpret<RT>().Bind(f);
+        Interpret<M>().Bind(f);
     
     public Pipe<IN, OUT, B> Map<B>(Func<A, B> f) => 
         Select(f);
@@ -54,21 +47,15 @@ public abstract class Pipe<IN, OUT, A>
     public Pipe<IN, OUT, C> SelectMany<B, C>(Func<A, Fail<Error>> f, Func<A, B, C> project) =>
         Bind<C>(f);
 
-    public Pipe<IN, OUT, C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> f, Func<A, B, C> project) =>
-        Bind(a => f(a).Select(b => project(a, b)));
-        
-    public Pipe<IN, OUT, C> SelectMany<B, C>(Func<A, Transducer<Unit, Sum<Error, B>>> f, Func<A, B, C> project) =>
-        Bind(a => f(a).Select(mb => mb.Map(b => project(a, b))));
-        
-    public Pipe<RT, IN, OUT, C> SelectMany<RT, B, C>(Func<A, Transducer<RT, B>> f, Func<A, B, C> project)
+    public Pipe<IN, OUT, M, C> SelectMany<M, B, C>(Func<A, K<M, B>> f, Func<A, B, C> project) 
         where M : Monad<M> =>
-        Bind(a => f(a).Select(b => project(a, b)));
-        
-    public Pipe<RT, IN, OUT, C> SelectMany<RT, B, C>(Func<A, Transducer<RT, Sum<Error, B>>> f, Func<A, B, C> project)
+        Bind(a => M.Map(b => project(a, b), f(a)));
+
+    public Pipe<IN, OUT, M, C> SelectMany<M, B, C>(Func<A, IO<B>> f, Func<A, B, C> project)
         where M : Monad<M> =>
-        Bind(a => f(a).Select(mb => mb.Map(b => project(a, b))));
+        SelectMany(x => M.LiftIO(f(x)), project);
         
-    public Pipe<RT, IN, OUT, C> SelectMany<RT, B, C>(Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) where M : Monad<M> =>
+    public Pipe<IN, OUT, M, C> SelectMany<M, B, C>(Func<A, Pipe<IN, OUT, M, B>> f, Func<A, B, C> project) where M : Monad<M> =>
         Bind(a => f(a).Select(b => project(a, b)));
         
     public Pipe<IN, OUT, C> SelectMany<B, C>(Func<A, Consumer<IN, B>> f, Func<A, B, C> project) =>
@@ -93,11 +80,11 @@ public abstract class Pipe<IN, OUT, A>
         public override Pipe<IN, OUT, B> Bind<B>(Func<A, Pipe<IN, OUT, B>> f) =>
             f(Value);
 
-        public override Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) =>
+        public override Pipe<IN, OUT, M, B> Bind<M, B>(Func<A, Pipe<IN, OUT, M, B>> f) =>
             f(Value);
 
-        public override Pipe<RT, IN, OUT, A> Interpret<RT>() =>
-            Pipe.Pure<RT, IN, OUT, A>(Value);
+        public override Pipe<IN, OUT, M, A> Interpret<M>() =>
+            Pipe.Pure<IN, OUT, M, A>(Value);
 
         public override Pipe<IN, OUT, B> Bind<B>(Func<A, Consumer<IN, B>> f) =>
             f(Value).ToPipe<OUT>();
@@ -111,14 +98,14 @@ public abstract class Pipe<IN, OUT, A>
         public override Pipe<IN, OUT, B> Select<B>(Func<A, B> _) =>
             new Pipe<IN, OUT, B>.Fail(Error);
 
-        public override Pipe<RT, IN, OUT, A> Interpret<RT>() => 
-            Pipe.lift<RT, IN, OUT, A>(Transducer.constant<RT, Sum<Error, A>>(Sum<Error, A>.Left(Error)));
+        public override Pipe<IN, OUT, M, A> Interpret<M>() => 
+            PureProxy.PipeLift<IN, OUT, A>(Error.Throw<A>);
         
         public override Pipe<IN, OUT, B> Bind<B>(Func<A, Pipe<IN, OUT, B>> f) => 
             new Pipe<IN, OUT, B>.Fail(Error);
 
-        public override Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) => 
-            Pipe.lift<RT, IN, OUT, B>(Transducer.constant<RT, Sum<Error, B>>(Sum<Error, B>.Left(Error)));
+        public override Pipe<IN, OUT, M, B> Bind<M, B>(Func<A, Pipe<IN, OUT, M, B>> f) => 
+            PureProxy.PipeLift<IN, OUT, A>(Error.Throw<A>).Bind(f);
 
         public override Pipe<IN, OUT, B> Bind<B>(Func<A, Consumer<IN, B>> _) =>
             new Pipe<IN, OUT, B>.Fail(Error);
@@ -127,25 +114,25 @@ public abstract class Pipe<IN, OUT, A>
             new Pipe<IN, OUT, B>.Fail(Error);
     }
 
-    public class Lift<X>(Transducer<Unit, Sum<Error, X>> Morphism, Func<X, Pipe<IN, OUT, A>> Next) : Pipe<IN, OUT, A>
+    public class Lift<X>(Func<X> Function, Func<X, Pipe<IN, OUT, A>> Next) : Pipe<IN, OUT, A>
     {
         public override Pipe<IN, OUT, B> Select<B>(Func<A, B> f) => 
-            new Pipe<IN, OUT, B>.Lift<X>(Morphism, x => Next(x).Select(f));
+            new Pipe<IN, OUT, B>.Lift<X>(Function, x => Next(x).Select(f));
 
-        public override Pipe<RT, IN, OUT, A> Interpret<RT>() => 
-            Pipe.lift<RT, IN, OUT, X>(Morphism).Bind(x => Next(x).Interpret<RT>());
+        public override Pipe<IN, OUT, M, A> Interpret<M>() => 
+            Pipe.lift<IN, OUT, M, X>(M.Pure(Function())).Bind(x => Next(x).Interpret<M>());
 
         public override Pipe<IN, OUT, B> Bind<B>(Func<A, Pipe<IN, OUT, B>> f) => 
-            new Pipe<IN, OUT, B>.Lift<X>(Morphism, x => Next(x).Bind(f));
+            new Pipe<IN, OUT, B>.Lift<X>(Function, x => Next(x).Bind(f));
 
-        public override Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) => 
-            Pipe.lift<RT, IN, OUT, X>(Morphism).SelectMany(x => Next(x).Bind(f)).ToPipe();
+        public override Pipe<IN, OUT, M, B> Bind<M, B>(Func<A, Pipe<IN, OUT, M, B>> f) => 
+            Pipe.lift<IN, OUT, M, X>(M.Pure(Function())).SelectMany(x => Next(x).Bind(f)).ToPipe();
 
         public override Pipe<IN, OUT, B> Bind<B>(Func<A, Consumer<IN, B>> f) =>
-            new Pipe<IN, OUT, B>.Lift<X>(Morphism, x => Next(x).Bind(y => f(y).ToPipe<OUT>()));
+            new Pipe<IN, OUT, B>.Lift<X>(Function, x => Next(x).Bind(y => f(y).ToPipe<OUT>()));
 
         public override Pipe<IN, OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) =>
-            new Pipe<IN, OUT, B>.Lift<X>(Morphism, x => Next(x).Bind(y => f(y).ToPipe<IN>()));
+            new Pipe<IN, OUT, B>.Lift<X>(Function, x => Next(x).Bind(y => f(y).ToPipe<IN>()));
     }
 
     public class Await(Func<IN, Pipe<IN, OUT, A>> Next) : Pipe<IN, OUT, A>
@@ -156,13 +143,13 @@ public abstract class Pipe<IN, OUT, A>
         public override Pipe<IN, OUT, B> Bind<B>(Func<A, Pipe<IN, OUT, B>> f) =>
             new Pipe<IN, OUT, B>.Await(x => Next(x).Bind(f));
 
-        public override Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) =>
-            from x in Interpret<RT>()
+        public override Pipe<IN, OUT, M, B> Bind<M, B>(Func<A, Pipe<IN, OUT, M, B>> f) =>
+            from x in Interpret<M>()
             from r in f(x)
             select r;
 
-        public override Pipe<RT, IN, OUT, A> Interpret<RT>() =>
-            from x in Pipe.awaiting<RT, IN, OUT>()
+        public override Pipe<IN, OUT, M, A> Interpret<M>() =>
+            from x in Pipe.awaiting<M, IN, OUT>()
             from r in Next(x) 
             select r;
 
@@ -181,13 +168,13 @@ public abstract class Pipe<IN, OUT, A>
         public override Pipe<IN, OUT, B> Bind<B>(Func<A, Pipe<IN, OUT, B>> f) =>
             new Pipe<IN, OUT, B>.Yield(Value, x => Next(x).Bind(f));
 
-        public override Pipe<RT, IN, OUT, B> Bind<RT, B>(Func<A, Pipe<RT, IN, OUT, B>> f) =>
-            from x in Interpret<RT>()
+        public override Pipe<IN, OUT, M, B> Bind<M, B>(Func<A, Pipe<IN, OUT, M, B>> f) =>
+            from x in Interpret<M>()
             from r in f(x)
             select r;
 
-        public override Pipe<RT, IN, OUT, A> Interpret<RT>() =>
-            from x in Pipe.yield<RT, IN, OUT>(Value)
+        public override Pipe<IN, OUT, M, A> Interpret<M>() =>
+            from x in Pipe.yield<IN, OUT, M>(Value)
             from r in Next(x) 
             select r;
 

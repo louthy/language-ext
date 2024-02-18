@@ -6,7 +6,6 @@
 //
 
 using System;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Common;
 using LanguageExt.Traits;
 
@@ -17,7 +16,7 @@ public abstract class Consumer<IN, A>
     public abstract Consumer<IN, B> Select<B>(Func<A, B> f);
     
     public abstract Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> f);
-    public abstract Consumer<RT, IN, B> Bind<RT, B>(Func<A, Consumer<RT, IN, B>> f) where M : Monad<M>;
+    public abstract Consumer<IN, M, B> Bind<M, B>(Func<A, Consumer<IN, M, B>> f) where M : Monad<M>;
     public abstract Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f);
     
     public Consumer<IN, B> Bind<B>(Func<A, Pure<B>> f) =>
@@ -26,21 +25,17 @@ public abstract class Consumer<IN, A>
     public Consumer<IN, B> Bind<B>(Func<A, Fail<Error>> f) =>
         Bind(x => new Consumer<IN, B>.Fail(f(x).Value));
  
-    public Consumer<IN, B> Bind<B>(Func<A, Transducer<Unit, B>> f) =>
-        Bind(a => f(a).Map(Sum<Error, B>.Right));
- 
-    public Consumer<IN, B> Bind<B>(Func<A, Transducer<Unit, Sum<Error, B>>> f) =>
-        Bind(a => new Consumer<IN, B>.Lift<B>(f(a), PureProxy.ConsumerPure<IN, B>));
- 
-    public Consumer<RT, IN, B> Bind<RT, B>(Func<A, Transducer<RT, B>> f) 
+    public Consumer<IN, M, B> Bind<M, B>(Func<A, K<M, B>> f) 
         where M : Monad<M> =>
-        Interpret<RT>().Bind(f);
+        Interpret<M>().Bind(f);
 
-    public Consumer<RT, IN, B> Bind<RT, B>(Func<A, Transducer<RT, Sum<Error, B>>> f) 
+    public Consumer<IN, M, B> Bind<M, B>(Func<A, IO<B>> f)
         where M : Monad<M> =>
-        Interpret<RT>().Bind(f);
+        Bind(x => M.LiftIO(f(x)));
  
-    public abstract Consumer<IN, M, A> Interpret<M>() where M : Monad<M>;
+    public abstract Consumer<IN, M, A> Interpret<M>() 
+        where M : Monad<M>;
+    
     public abstract Pipe<IN, OUT, A> ToPipe<OUT>();
         
     public Consumer<IN, B> Map<B>(Func<A, B> f) => Select(f);
@@ -50,25 +45,20 @@ public abstract class Consumer<IN, A>
  
     public Consumer<IN, C> SelectMany<B, C>(Func<A, Fail<Error>> f, Func<A, B, C> project) =>
         Bind<C>(f);
-    
-    public Consumer<IN, C> SelectMany<B, C>(Func<A, Transducer<Unit, B>> f, Func<A, B, C> project) =>
-        Bind(a => f(a).Map(b => project(a, b)));
- 
-    public Consumer<IN, C> SelectMany<B, C>(Func<A, Transducer<Unit, Sum<Error, B>>> f, Func<A, B, C> project) =>
-        Bind(a => f(a).Map(mb => mb.Map(b => project(a, b))));
- 
-    public Consumer<RT, IN, C> SelectMany<RT, B, C>(Func<A, Transducer<RT, B>> f, Func<A, B, C> project)
+
+    public Consumer<IN, M, C> SelectMany<M, B, C>(Func<A, IO<B>> f, Func<A, B, C> project) 
         where M : Monad<M> =>
-        Bind(a => f(a).Map(b => project(a, b)));
+        SelectMany(x => M.LiftIO(f(x)), project);
  
-    public Consumer<RT, IN, C> SelectMany<RT, B, C>(Func<A, Transducer<RT, Sum<Error, B>>> f, Func<A, B, C> project)
+    public Consumer<IN, M, C> SelectMany<M, B, C>(Func<A, K<M, B>> f, Func<A, B, C> project)
         where M : Monad<M> =>
-        Bind(a => f(a).Map(mb => mb.Map(b => project(a, b))));
+        Bind(a => M.Map(b => project(a, b), f(a)));
  
     public Consumer<IN, C> SelectMany<B, C>(Func<A, Consumer<IN, B>> f, Func<A, B, C> project) =>
         Bind(a => f(a).Select(b => project(a, b)));
         
-    public Consumer<RT, IN, C> SelectMany<RT, B, C>(Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) where M : Monad<M> =>
+    public Consumer<IN, M, C> SelectMany<M, B, C>(Func<A, Consumer<IN, M, B>> f, Func<A, B, C> project) 
+        where M : Monad<M> =>
         Bind(a => f(a).Select(b => project(a, b)));
         
     public Pipe<IN, OUT, C> SelectMany<OUT, B, C>(Func<A, Producer<OUT, B>> f, Func<A, B, C> project) =>
@@ -77,12 +67,6 @@ public abstract class Consumer<IN, A>
     public static implicit operator Consumer<IN, A>(Pure<A> ma) =>
         new Pure(ma.Value);
        
-    public static implicit operator Consumer<IN, A>(Transducer<Unit, A> ma) =>
-        new Lift<A>(ma.Map(Sum<Error, A>.Right), PureProxy.ConsumerPure<IN, A>);
-       
-    public static implicit operator Consumer<IN, A>(Transducer<Unit, Sum<Error, A>> ma) =>
-        new Lift<A>(ma, PureProxy.ConsumerPure<IN, A>);
-        
     public static Consumer<IN, A> operator &(
         Consumer<IN, A> lhs,
         Consumer<IN, A> rhs) =>
@@ -96,14 +80,14 @@ public abstract class Consumer<IN, A>
         public override Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> f) =>
             f(Value);
 
-        public override Consumer<RT, IN, B> Bind<RT, B>(Func<A, Consumer<RT, IN, B>> f) =>
+        public override Consumer<IN, M, B> Bind<M, B>(Func<A, Consumer<IN, M, B>> f) =>
             f(Value);
 
         public override Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f) =>
             f(Value).ToPipe<IN>();
 
-        public override Consumer<RT, IN, A> Interpret<RT>() =>
-            Consumer.Pure<RT, IN, A>(Value);
+        public override Consumer<IN, M, A> Interpret<M>() =>
+            Consumer.Pure<IN, M, A>(Value);
 
         public override Pipe<IN, OUT, A> ToPipe<OUT>() =>
             new Pipe<IN, OUT, A>.Pure(Value);
@@ -117,38 +101,38 @@ public abstract class Consumer<IN, A>
         public override Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> _) =>
             new Consumer<IN, B>.Fail(Error);
 
-        public override Consumer<RT, IN, B> Bind<RT, B>(Func<A, Consumer<RT, IN, B>> _) =>
-            Consumer.lift<RT, IN, B>(Transducer.constant<RT, Sum<Error, B>>(Sum<Error, B>.Left(Error)));
-
+        public override Consumer<IN, M, B> Bind<M, B>(Func<A, Consumer<IN, M, B>> f) =>
+            PureProxy.ConsumerLift<IN, A>(Error.Throw<A>).Bind(f);
+            
         public override Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> _) =>
             new Pipe<IN, OUT, B>.Fail(Error);
 
-        public override Consumer<RT, IN, A> Interpret<RT>() =>
-            Consumer.lift<RT, IN, A>(Transducer.constant<RT, Sum<Error, A>>(Sum<Error, A>.Left(Error)));
+        public override Consumer<IN, M, A> Interpret<M>() =>
+            PureProxy.ConsumerLift<IN, A>(Error.Throw<A>);
 
         public override Pipe<IN, OUT, A> ToPipe<OUT>() =>
             new Pipe<IN, OUT, A>.Fail(Error);
     }
 
-    public class Lift<X>(Transducer<Unit, Sum<Error, X>> Morphism, Func<X, Consumer<IN, A>> Next) : Consumer<IN, A>
+    public class Lift<X>(Func<X> Function, Func<X, Consumer<IN, A>> Next) : Consumer<IN, A>
     {
         public override Consumer<IN, B> Select<B>(Func<A, B> f) => 
-            new Consumer<IN, B>.Lift<X>(Morphism, x => Next(x).Select(f));
+            new Consumer<IN, B>.Lift<X>(Function, x => Next(x).Select(f));
 
         public override Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> f) => 
-            new Consumer<IN, B>.Lift<X>(Morphism, x => Next(x).Bind(f));
+            new Consumer<IN, B>.Lift<X>(Function, x => Next(x).Bind(f));
 
-        public override Consumer<RT, IN, B> Bind<RT, B>(Func<A, Consumer<RT, IN, B>> f) =>
-            Consumer.lift<RT, IN, X>(Morphism).SelectMany(x => Next(x).Bind(f)).ToConsumer();
+        public override Consumer<IN, M, B> Bind<M, B>(Func<A, Consumer<IN, M, B>> f) =>
+            Consumer.lift<IN, M, X>(M.Pure(Function())).Bind(x => Next(x).Bind(f)).ToConsumer();
 
         public override Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f) => 
-            new Pipe<IN, OUT, B>.Lift<X>(Morphism, x => Next(x).Bind(f));
+            new Pipe<IN, OUT, B>.Lift<X>(Function, x => Next(x).Bind(f));
 
-        public override Consumer<RT, IN, A> Interpret<RT>() =>
-            Consumer.lift<RT, IN, X>(Morphism).Bind(x => Next(x).Interpret<RT>());
+        public override Consumer<IN, M, A> Interpret<M>() =>
+            Consumer.lift<IN, M, X>(M.Pure(Function())).Bind(x => Next(x).Interpret<M>());
 
         public override Pipe<IN, OUT, A> ToPipe<OUT>() => 
-            new Pipe<IN, OUT, A>.Lift<X>(Morphism, x => Next(x).ToPipe<OUT>());
+            new Pipe<IN, OUT, A>.Lift<X>(Function, x => Next(x).ToPipe<OUT>());
     }
 
     public class Await : Consumer<IN, A>
@@ -163,14 +147,14 @@ public abstract class Consumer<IN, A>
         public override Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> f) =>
             new Consumer<IN, B>.Await(x => Next(x).Bind(f));
 
-        public override Consumer<RT, IN, B> Bind<RT, B>(Func<A, Consumer<RT, IN, B>> f) =>
-            Interpret<RT>().Bind(f).ToConsumer();
+        public override Consumer<IN, M, B> Bind<M, B>(Func<A, Consumer<IN, M, B>> f) =>
+            Interpret<M>().Bind(f).ToConsumer();
 
         public override Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f) =>
             new Pipe<IN, OUT, B>.Await(x => Next(x).Bind(f));
 
-        public override Consumer<RT, IN, A> Interpret<RT>() =>
-            Consumer.awaiting<RT, IN>().Bind(x => Next(x).Interpret<RT>()).ToConsumer();
+        public override Consumer<IN, M, A> Interpret<M>() =>
+            Consumer.awaiting<M, IN>().Bind(x => Next(x).Interpret<M>()).ToConsumer();
 
         public override Pipe<IN, OUT, A> ToPipe<OUT>() =>
             new Pipe<IN, OUT, A>.Await(x => Next(x).ToPipe<OUT>());
