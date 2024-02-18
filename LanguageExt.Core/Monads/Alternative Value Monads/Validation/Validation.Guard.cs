@@ -1,3 +1,4 @@
+/*
 using System;
 using LanguageExt.Common;
 using LanguageExt.TypeClasses;
@@ -21,3 +22,4 @@ namespace LanguageExt
                 ma.Bind(a => bind(a).ToValidation<MonoidFail>().Map(_ => project(a, default)));
     }
 }
+*/

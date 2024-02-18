@@ -1,4 +1,5 @@
-﻿using LanguageExt.TypeClasses;
+﻿/*
+using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Trait;
 
@@ -18,3 +19,4 @@ public struct Addition<NUM, A> : Monoid<A> where NUM : Num<A>
     public static A Empty =>
         fromInteger<NUM, A>(0);
 }
+*/

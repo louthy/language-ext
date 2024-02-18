@@ -1,6 +1,4 @@
 ﻿using System;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
@@ -74,23 +72,6 @@ public readonly struct Guard<E, A>
             ? Success<MonoidE, E, Unit>(unit)
             : Fail<MonoidE, E, Unit>(OnFalse());
         
-    /// <summary>
-    /// Natural transformation to `IO`
-    /// </summary>
-    public IO<RT, E, Unit> ToIO<RT>() 
-        where RT : HasIO<RT, E> =>
-        Flag
-            ? Pure(unit)
-            : Fail(OnFalse());
-        
-    /// <summary>
-    /// Natural transformation to `IO`
-    /// </summary>
-    public IO<E, Unit> ToIO() =>
-        Flag
-            ? Pure(unit)
-            : Fail(OnFalse());
-        
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Bind implementations for the types supporting guards
@@ -122,17 +103,6 @@ public readonly struct Guard<E, A>
             ? f(default)
             : Fail<MonoidE, E, B>(OnFalse());
 
-    /// <summary>
-    /// Monadic binding support for `IO`
-    /// </summary>
-    public IO<RT, E, B> Bind<RT, B>(
-        Func<Unit, IO<RT, E, B>> bind,
-        Func<Unit, B, B> project)
-        where RT : HasIO<RT, E> =>
-        Flag
-            ? bind(default).Map(b => project(default, b))
-            : Fail(OnFalse());
-        
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  SelectMany implementations for the types supporting guards
@@ -165,32 +135,4 @@ public readonly struct Guard<E, A>
         Flag
             ? bind(default).Map(b => project(default, b))
             : Fail<MonoidE, E, C>(OnFalse());
-        
-        
-    /// <summary>
-    /// Monadic binding `SelectMany` extension for `IO`
-    /// </summary>
-    public IO<RT, E, C> SelectMany<RT, B, C>(
-        Func<Unit, IO<RT, E, B>> bind,
-        Func<Unit, B, C> project)
-        where RT : HasIO<RT, E> =>
-        Flag
-            ? bind(default).Map(b => project(default, b))
-            : Fail(OnFalse());
 }
-    
-/*
-static class Test
-{
-    public static IO<RT, Error, Unit> Testing<RT>(bool f1, bool f2, bool f3)
-        where RT : HasIO<RT, Error> =>
-        from _1 in guard(f1, Error.New("failed on 1"))
-        from _2 in guard(f2, Error.New("failed on 2"))
-        from _3 in guard(f3, Error.New("failed on 2"))
-        from _4 in guard(f1, Error.New("failed on 1"))
-        from _5 in guard(f2, Error.New("failed on 2"))
-        from _6 in guard(f3, Error.New("failed on 2"))
-        from tx in lift(() => Console.ReadLine())
-        select unit;
-}
-*/

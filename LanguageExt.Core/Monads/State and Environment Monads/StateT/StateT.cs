@@ -23,6 +23,12 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
         Lift(M.Pure(value));
 
     /// <summary>
+    /// Alternative empty
+    /// </summary>
+    public static StateT<S, M, A> Empty =>
+        Lift(M.Empty<A>());
+
+    /// <summary>
     /// Extracts the state value, maps it, and then puts it back into
     /// the monadic state.
     /// </summary>
@@ -30,6 +36,15 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     /// <returns>`StateT`</returns>
     public static StateT<S, M, Unit> Modify(Func<S, S> f) =>
         new(state => M.Pure((unit, f(state))));
+
+    /// <summary>
+    /// Extracts the state value, maps it, and then puts it back into
+    /// the monadic state.
+    /// </summary>
+    /// <param name="f">State mapping function</param>
+    /// <returns>`StateT`</returns>
+    public static StateT<S, M, Unit> ModifyM(Func<S, K<M, S>> f) =>
+        new(state => f(state).Map(s => (unit, s)));
 
     /// <summary>
     /// Writes the value into the monadic state
@@ -274,6 +289,18 @@ public record StateT<S, M, A>(Func<S, K<M, (A Value, S State)>> runState) : K<St
     
     public static implicit operator StateT<S, M, A>(IO<A> ma) =>
         LiftIO(ma);
+    
+    public static StateT<S, M, A> operator |(StateT<S, M, A> ma, StateT<S, M, A> mb) =>
+        new (state => M.Or(ma.runState(state), mb.runState(state)));
+    
+    public static StateT<S, M, A> operator |(StateT<S, M, A> ma, Pure<A> mb) =>
+        new (state => M.Or(ma.runState(state), Pure(mb.Value).runState(state)));
+    
+    public static StateT<S, M, A> operator |(Pure<A> ma,  StateT<S, M, A>mb) =>
+        new (state => M.Or(Pure(ma.Value).runState(state), mb.runState(state)));
+    
+    public static StateT<S, M, A> operator |(IO<A> ma, StateT<S, M, A> mb) =>
+        new (state => M.Or(LiftIO(ma).runState(state), mb.runState(state)));
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

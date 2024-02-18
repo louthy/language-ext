@@ -56,7 +56,7 @@ public partial class StateT
 
     public static StateT<S, M, B> apply<S, M, A, B>(StateT<S, M, Func<A, B>> mf, StateT<S, M, A> ma)  
         where M : Monad<M>, Alternative<M> => 
-        mf.As().Bind(ma.As().Map);
+        mf.As().Bind(x =>ma.As().Map(x));
 
     public static StateT<S, M, B> action<S, M, A, B>(StateT<S, M, A> ma, StateT<S, M, B> mb) 
         where M : Monad<M>, Alternative<M> => 
@@ -90,4 +90,8 @@ public partial class StateT
     public static StateT<S, M, Unit> modify<S, M>(Func<S, S> f)  
         where M : Monad<M>, Alternative<M> => 
         StateT<S, M, Unit>.Modify(f);
+
+    public static StateT<S, M, Unit> modifyM<S, M>(Func<S, K<M, S>> f)  
+        where M : Monad<M>, Alternative<M> => 
+        StateT<S, M, Unit>.ModifyM(f);
 }

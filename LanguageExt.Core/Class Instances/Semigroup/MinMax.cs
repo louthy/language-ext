@@ -1,4 +1,5 @@
-﻿using LanguageExt.TypeClasses;
+﻿/*
+using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Trait;
 
@@ -25,3 +26,4 @@ public struct Max<ORD, A> : Semigroup<A> where ORD : Ord<A>
     public static  A Append(A x, A y) =>
         lessOrEq<ORD, A>(x, y) ? y : x;
 }
+*/

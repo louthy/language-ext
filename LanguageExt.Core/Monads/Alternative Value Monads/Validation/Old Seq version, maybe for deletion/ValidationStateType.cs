@@ -1,4 +1,5 @@
-﻿namespace LanguageExt
+﻿/*
+namespace LanguageExt
 {
     public static class Validation
     {
@@ -9,3 +10,4 @@
         }
     }
 }
+*/

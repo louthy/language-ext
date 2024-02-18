@@ -1,4 +1,5 @@
-﻿using LanguageExt.TypeClasses;
+﻿/*
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.ClassInstances;
@@ -11,3 +12,4 @@ public struct MUnit : Monoid<Unit>
     public static Unit Empty =>
         unit;
 }
+*/

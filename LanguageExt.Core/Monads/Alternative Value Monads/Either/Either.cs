@@ -973,7 +973,7 @@ public readonly struct Either<L, R> :
             (EitherStatus.IsRight, EitherStatus.IsRight)   => OrdR.Compare(right!, other.RightValue),
             (EitherStatus.IsLeft, EitherStatus.IsLeft)     => OrdL.Compare(left!, other.LeftValue),
             (EitherStatus.IsBottom, EitherStatus.IsBottom) => 0,
-            _                                              => throw new NotSupportedException()
+            _                                              => State.CompareTo(other.State) 
         };
 
     /// <summary>
@@ -1052,7 +1052,7 @@ public readonly struct Either<L, R> :
             (EitherStatus.IsRight, EitherStatus.IsRight)   => EqR.Equals(right!, other.RightValue),
             (EitherStatus.IsLeft, EitherStatus.IsLeft)     => EqL.Equals(left!, other.LeftValue),
             (EitherStatus.IsBottom, EitherStatus.IsBottom) => true,
-            _                                              => throw new NotSupportedException()
+            _                                              => false
         };
 
     /// <summary>

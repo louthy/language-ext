@@ -1,4 +1,5 @@
-﻿using LanguageExt.TypeClasses;
+﻿/*
+using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Trait;
 
@@ -10,7 +11,7 @@ namespace LanguageExt.ClassInstances;
 /// <typeparam name="A">The type of the number being added.</typeparam>
 public struct Product<NUM, A> : Monoid<A> where NUM : Num<A>
 {
-    public static readonly Product<NUM, A> Inst = default(Product<NUM, A>);
+    public static readonly Product<NUM, A> Inst = default;
 
     [Pure]
     public static A Append(A x, A y) =>
@@ -20,3 +21,4 @@ public struct Product<NUM, A> : Monoid<A> where NUM : Num<A>
     public static A Empty =>
         fromInteger<NUM, A>(1);
 }
+*/

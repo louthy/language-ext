@@ -1,4 +1,5 @@
-﻿using LanguageExt.TypeClasses;
+﻿/*
+using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances;
@@ -45,3 +46,4 @@ public struct All : Monoid<bool>, Bool<bool>
     public static bool XOr(bool a, bool b) =>
         TBool.XOr(a, b);
 }
+*/

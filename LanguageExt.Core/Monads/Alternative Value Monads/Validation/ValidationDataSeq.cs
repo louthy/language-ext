@@ -1,4 +1,5 @@
-﻿using LanguageExt.ClassInstances;
+﻿/*
+using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using System.Runtime.Serialization;
 using System;
@@ -20,3 +21,4 @@ namespace LanguageExt.DataTypes.Serialisation
         }
     }
 }
+*/

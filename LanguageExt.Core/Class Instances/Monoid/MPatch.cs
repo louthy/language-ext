@@ -1,4 +1,5 @@
-﻿using LanguageExt.TypeClasses;
+﻿/*
+using LanguageExt.TypeClasses;
 using System;
 
 namespace LanguageExt.ClassInstances;
@@ -105,3 +106,4 @@ public struct MPatch<EqA, A> : Monoid<Patch<EqA, A>>, Eq<Patch<EqA, A>> where Eq
     public static int GetHashCode(Patch<EqA, A> x) =>
         EqPatch<EqA, A>.GetHashCode(x);
 }
+*/

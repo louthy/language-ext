@@ -13,8 +13,8 @@ public static partial class Trait
     /// <param name="y">The right hand side of the operation</param>
     /// <returns>The result of the operation</returns>
     [Pure]
-    public static A append<SEMI, A>(A x, A y) where SEMI : Semigroup<A> =>
-        SEMI.Append(x, y);
+    public static A append<A>(A x, A y) where A : Semigroup<A> =>
+        x.Append(y);
 
     /// <summary>
     /// An associative binary operation

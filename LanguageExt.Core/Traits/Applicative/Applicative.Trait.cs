@@ -1,4 +1,5 @@
 ﻿using System;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Traits;
 
@@ -19,7 +20,8 @@ public interface Applicative<F> : Functor<F>
 
     public static abstract K<F, B> Apply<A, B>(K<F, Func<A, B>> mf, K<F, A> ma);
     
-    public static abstract K<F, B> Action<A, B>(K<F, A> ma, K<F, B> mb);
+    public static virtual K<F, B> Action<A, B>(K<F, A> ma, K<F, B> mb) =>
+        fun((A _, B b) => b).Map(ma).Apply(mb);
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -27,10 +29,10 @@ public interface Applicative<F> : Functor<F>
     //
 
     public static virtual K<F, C> Apply<A, B, C>(K<F, Func<A, B, C>> mf, K<F, A> ma, K<F, B> mb) =>
-        F.Apply(F.Apply(F.Map(Prelude.curry, mf), ma), mb);
+        F.Apply(F.Apply(F.Map(curry, mf), ma), mb);
 
     public static virtual K<F, Func<B, C>> Apply<A, B, C>(K<F, Func<A, B, C>> mf, K<F, A> ma) =>
-        F.Apply(F.Map(Prelude.curry, mf), ma);
+         F.Apply(F.Map(curry, mf), ma);
 
     public static virtual K<F, C> Apply<A, B, C>(K<F, Func<A, Func<B, C>>> mf, K<F, A> ma, K<F, B> mb) =>
         F.Apply(F.Apply(mf, ma), mb);
