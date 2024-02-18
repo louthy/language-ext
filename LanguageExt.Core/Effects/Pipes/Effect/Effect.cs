@@ -40,7 +40,7 @@ public static class Effect
                 Respond<Void, Unit, Unit, Void, M, R> (var v, _)  => closed<K<M, R>>(v),
                 _                                                 => throw new NotSupportedException()
             };
-    }        
+    }
         
     [Pure, MethodImpl(mops)]
     public static Effect<M, R> lift<M, R>(K<M, R> ma) 

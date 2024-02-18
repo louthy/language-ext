@@ -1,9 +1,8 @@
 using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Pipes;
+using LanguageExt.Traits;
 using Void = LanguageExt.Pipes.Void;
 
 namespace LanguageExt;
@@ -14,40 +13,50 @@ public static class ProxyExtensions
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Producer<RT, OUT, B> Bind<RT, OUT, A, B>(this Proxy<RT, Void, Unit, Unit, OUT, A> ma, Func<A, Producer<RT, OUT, B>> f) 
-        where RT : HasIO<RT, Error> =>
+    public static Producer<OUT, M, B> Bind<OUT, A, M, B>(
+        this Proxy<Void, Unit, Unit, OUT, M, A> ma, 
+        Func<A, Producer<OUT, M, B>> f) 
+        where M : Monad<M> =>
         ma.Bind(f).ToProducer();
         
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Consumer<RT, IN, B> Bind<RT, IN, A, B>(this Proxy<RT, Unit, IN, Unit, Void, A> ma, Func<A, Consumer<RT, IN, B>> f) 
-        where RT : HasIO<RT, Error> =>
+    public static Consumer<IN, M, B> Bind<IN, A, M, B>(
+        this Proxy<Unit, IN, Unit, Void, M, A> ma, 
+        Func<A, Consumer<IN, M, B>> f) 
+        where M : Monad<M> =>
         ma.Bind(f).ToConsumer();
         
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Pipe<RT, IN, OUT, B> Bind<RT, IN, OUT, A, B>(this Proxy<RT, Unit, IN, Unit, OUT, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f) 
-        where RT : HasIO<RT, Error> =>
+    public static Pipe<IN, OUT, M, B> Bind<IN, OUT, A, M, B>(
+        this Proxy<Unit, IN, Unit, OUT, M, A> ma, 
+        Func<A, Pipe<IN, OUT, M, B>> f) 
+        where M : Monad<M> =>
         ma.Bind(f).ToPipe();
         
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Client<RT, REQ, RES, B> Bind<RT, REQ, RES, A, B>(this Proxy<RT, REQ, RES, Unit, Void, A> ma, Func<A, Client<RT, REQ, RES, B>> f) 
-        where RT : HasIO<RT, Error> =>
+    public static Client<REQ, RES, M, B> Bind<REQ, RES, A, M, B>(
+        this Proxy<REQ, RES, Unit, Void, M, A> ma, 
+        Func<A, Client<REQ, RES, M, B>> f) 
+        where M : Monad<M> =>
         ma.Bind(f).ToClient();
         
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Server<RT, REQ, RES, B> Bind<RT, REQ, RES, A, B>(this Proxy<RT, Void, Unit, REQ, RES, A> ma, Func<A, Server<RT, REQ, RES, B>> f) 
-        where RT : HasIO<RT, Error> =>
+    public static Server<REQ, RES, M, B> Bind<REQ, RES, A, M, B>(
+        this Proxy<Void, Unit, REQ, RES, M, A> ma, 
+        Func<A, Server<REQ, RES, M, B>> f) 
+        where M : Monad<M> =>
         ma.Bind(f).ToServer();
 
         
@@ -55,40 +64,49 @@ public static class ProxyExtensions
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Producer<RT, OUT, B> SelectMany<RT, OUT, A, B>(this Proxy<RT, Void, Unit, Unit, OUT, A> ma, Func<A, Producer<RT, OUT, B>> f) 
-        where RT : HasIO<RT, Error> =>
+    public static Producer<OUT, M, B> SelectMany<OUT, A, M, B>(
+        this Proxy<Void, Unit, Unit, OUT, M, A> ma, 
+        Func<A, Producer<OUT, M, B>> f) 
+        where M : Monad<M> =>
         ma.Bind(f).ToProducer();
         
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Consumer<RT, IN, B> SelectMany<RT, IN, A, B>(this Proxy<RT, Unit, IN, Unit, Void, A> ma, Func<A, Consumer<RT, IN, B>> f) 
-        where RT : HasIO<RT, Error> =>
+    public static Consumer<IN, M, B> SelectMany<IN, A, M, B>(
+        this Proxy<Unit, IN, Unit, Void, M, A> ma, 
+        Func<A, Consumer<IN, M, B>> f) 
+        where M : Monad<M> =>
         ma.Bind(f).ToConsumer();
         
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Pipe<RT, IN, OUT, B> SelectMany<RT, IN, OUT, A, B>(this Proxy<RT, Unit, IN, Unit, OUT, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f) 
-        where RT : HasIO<RT, Error> =>
+    public static Pipe<IN, OUT, M, B> SelectMany<IN, OUT, A, M, B>(
+        this Proxy<Unit, IN, Unit, OUT, M, A> ma, 
+        Func<A, Pipe<IN, OUT, M, B>> f) 
+        where M : Monad<M> =>
         ma.Bind(f).ToPipe();
         
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Client<RT, REQ, RES, B> SelectMany<RT, REQ, RES, A, B>(this Proxy<RT, REQ, RES, Unit, Void, A> ma, Func<A, Client<RT, REQ, RES, B>> f) 
-        where RT : HasIO<RT, Error> =>
+    public static Client<REQ, RES, M, B> SelectMany<REQ, RES, A, M, B>(
+        this Proxy<REQ, RES, Unit, Void, M, A> ma, 
+        Func<A, Client<REQ, RES, M, B>> f) 
+        where M : Monad<M> =>
         ma.Bind(f).ToClient();
         
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Server<RT, REQ, RES, B> SelectMany<RT, REQ, RES, A, B>(this Proxy<RT, Void, Unit, REQ, RES, A> ma, Func<A, Server<RT, REQ, RES, B>> f) 
-        where RT : HasIO<RT, Error> =>
+    public static Server<REQ, RES, M, B> SelectMany<REQ, RES, A, M, B>(
+        this Proxy<Void, Unit, REQ, RES, M, A> ma, Func<A, Server<REQ, RES, M, B>> f) 
+        where M : Monad<M> =>
         ma.Bind(f).ToServer();
 
         
@@ -96,39 +114,51 @@ public static class ProxyExtensions
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Producer<RT, OUT, C> SelectMany<RT, OUT, A, B, C>(this Proxy<RT, Void, Unit, Unit, OUT, A> ma, Func<A, Producer<RT, OUT, B>> f, Func<A, B, C> project) 
-        where RT : HasIO<RT, Error> =>
+    public static Producer<OUT, M, C> SelectMany<OUT, A, B, M, C>(
+        this Proxy<Void, Unit, Unit, OUT, M, A> ma, Func<A, Producer<OUT, M, B>> f, 
+        Func<A, B, C> project) 
+        where M : Monad<M> =>
         ma.Bind(a => f(a).Map(b => project(a, b))).ToProducer();
         
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Consumer<RT, IN, C> SelectMany<RT, IN, A, B, C>(this Proxy<RT, Unit, IN, Unit, Void, A> ma, Func<A, Consumer<RT, IN, B>> f, Func<A, B, C> project) 
-        where RT : HasIO<RT, Error> =>
+    public static Consumer<IN, M, C> SelectMany<IN, A, B, M, C>(
+        this Proxy<Unit, IN, Unit, Void, M, A> ma, 
+        Func<A, Consumer<IN, M, B>> f, Func<A, B, C> project) 
+        where M : Monad<M> =>
         ma.Bind(a => f(a).Map(b => project(a, b))).ToConsumer();
         
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Pipe<RT, IN, OUT, C> SelectMany<RT, IN, OUT, A, B, C>(this Proxy<RT, Unit, IN, Unit, OUT, A> ma, Func<A, Pipe<RT, IN, OUT, B>> f, Func<A, B, C> project) 
-        where RT : HasIO<RT, Error> =>
+    public static Pipe<IN, OUT, M, C> SelectMany<IN, OUT, A, B, M, C>(
+        this Proxy<Unit, IN, Unit, OUT, M, A> ma, 
+        Func<A, Pipe<IN, OUT, M, B>> f, 
+        Func<A, B, C> project) 
+        where M : Monad<M> =>
         ma.Bind(a => f(a).Map(b => project(a, b))).ToPipe();
         
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Client<RT, REQ, RES, C> SelectMany<RT, REQ, RES, A, B, C>(this Proxy<RT, REQ, RES, Unit, Void, A> ma, Func<A, Client<RT, REQ, RES, B>> f, Func<A, B, C> project) 
-        where RT : HasIO<RT, Error> =>
+    public static Client<REQ, RES, M, C> SelectMany<REQ, RES, A, B, M, C>(
+        this Proxy<REQ, RES, Unit, Void, M, A> ma, 
+        Func<A, Client<REQ, RES, M, B>> f, 
+        Func<A, B, C> project) 
+        where M : Monad<M> =>
         ma.Bind(a => f(a).Map(b => project(a, b))).ToClient();
         
     /// <summary>
     /// Monad bind (specialised)
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Server<RT, REQ, RES, C> SelectMany<RT, REQ, RES, A, B, C>(this Proxy<RT, Void, Unit, REQ, RES, A> ma, Func<A, Server<RT, REQ, RES, B>> f, Func<A, B, C> project) 
-        where RT : HasIO<RT, Error> =>
+    public static Server<REQ, RES, M, C> SelectMany<REQ, RES, A, B, M, C>(
+        this Proxy<Void, Unit, REQ, RES, M, A> ma, 
+        Func<A, Server<REQ, RES, M, B>> f, Func<A, B, C> project) 
+        where M : Monad<M> =>
         ma.Bind(a => f(a).Map(b => project(a, b))).ToServer();
 }

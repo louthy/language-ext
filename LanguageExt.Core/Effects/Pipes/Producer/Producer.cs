@@ -1,10 +1,6 @@
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using LanguageExt.Common;
 using LanguageExt.Traits;
 using static LanguageExt.Pipes.Proxy;
 using static LanguageExt.Prelude;
@@ -48,26 +44,27 @@ public static class Producer
         where M : Monad<M> =>
         respond<Void, Unit, Unit, OUT, M>(value).ToProducer();
 
-    [Pure, MethodImpl(mops)]
-    public static Producer<X, Unit> yieldAll<M, X>(IEnumerable<X> xs)
-        where M : Monad<M> =>
-        from x in many(xs)
-        from _ in yield<X, M>(x)
-        select unit;
-        
-    [Pure, MethodImpl(mops)]
-    public static Producer<X, M, Unit> yieldAll<M, X>(IAsyncEnumerable<X> xs)
-        where M : Monad<M> =>
-        from x in many(xs)
-        from _ in yield<X, M>(x)
-        select unit;
-        
-    [Pure, MethodImpl(mops)]
-    public static Producer<X, M, Unit> yieldAll<M, X>(IObservable<X> xs)
-        where M : Monad<M> =>
-        from x in many(xs)
-        from _ in yield<X, M>(x)
-        select unit;
+    // TODO: Decide whether I want to put these back or not
+    // [Pure, MethodImpl(mops)]
+    // public static Producer<X, Unit> yieldAll<M, X>(IEnumerable<X> xs)
+    //     where M : Monad<M> =>
+    //     from x in many(xs)
+    //     from _ in yield<X, M>(x)
+    //     select unit;
+    //     
+    // [Pure, MethodImpl(mops)]
+    // public static Producer<X, M, Unit> yieldAll<M, X>(IAsyncEnumerable<X> xs)
+    //     where M : Monad<M> =>
+    //     from x in many(xs)
+    //     from _ in yield<X, M>(x)
+    //     select unit;
+    //     
+    // [Pure, MethodImpl(mops)]
+    // public static Producer<X, M, Unit> yieldAll<M, X>(IObservable<X> xs)
+    //     where M : Monad<M> =>
+    //     from x in many(xs)
+    //     from _ in yield<X, M>(x)
+    //     select unit;
 
     /// <summary>
     /// Repeat a monadic action indefinitely, yielding each result
@@ -219,68 +216,24 @@ public static class Producer
                 }
             });
     }
-        
-        
+
     /// <summary>
     /// Merge a sequence of producers into a single producer
     /// </summary>
     /// <remarks>The merged producer completes when all component producers have completed</remarks>
     /// <param name="ms">Sequence of producers to merge</param>
     /// <returns>Merged producers</returns>
-    public static Producer<OUT, M, Unit> merge<OUT, M>(Seq<Producer<OUT, M, Unit>> ms) 
-        where M : Monad<M>
-    {
-        var prod = yieldAll<M, OUT>(go());
-            
-        var pipe = from fo in Pipe.awaiting<M, OUT, OUT>()
-                   from nx in Pipe.yield<OUT, OUT, M>(fo) 
-                   select nx;
-
-        return prod | pipe;
-            
-        IEnumerable<OUT> go()
+    public static Producer<OUT, M, Unit> merge<OUT, M>(Seq<Producer<OUT, M, Unit>> ms)
+        where M : Monad<M> =>
+        ms switch
         {
-            var       queue   = new ConcurrentQueue<OUT>();
-            using var wait    = new AutoResetEvent(true);
-            var       running = true;
-            Error?    failed  = null;
-                
-            // Posts a value to the queue and triggers the merged producer's yield
-            Unit post(OUT x)
-            {
-                queue.Enqueue(x);
-                wait.Set();
-                return default;
-            }
-
-            // Consumer that drains any Producer
-            Consumer<OUT, M, Unit> enqueue() =>
-                from _ in Consumer.awaiting<M, OUT>().Select(post)
-                from r in enqueue()
-                select default(Unit);
-                
-            // Compose the enqueue Consumer with the Producer to create an Effect that can be run 
-            var mmt = ms.Map(m => m | enqueue()).Map(e => e.RunEffect()).ToArray();
-
-            // TODO: DECIDE WHAT TO DO ABOUT THE FACT WE NOW KNOW NOTHING ABOUT THE INNER MONAD
-            
-            do
-            {
-                await wait.WaitOneAsync(lenv.CancellationToken).ConfigureAwait(false);
-                while (queue.TryDequeue(out var item))
-                {
-                    yield return item;
-                }
-            }
-            // Keep processing until we're cancelled or all of the Producers have stopped producing
-            while (running && !lenv.CancellationToken.IsCancellationRequested);
-
-            if (failed != null)
-            {
-                yield return failed;
-            }
-        }
-    }
+            { IsEmpty     : true }               => lift<OUT, M, Unit>(M.Pure(unit)),
+            { Tail.IsEmpty: true }               => ms.Head,
+            { Head        : var h, Tail: var t } => 
+                from x in h
+                from xs in merge<OUT, M>(t)
+                select x
+        };
         
     /// <summary>
     /// Merge an array of queues into a single producer

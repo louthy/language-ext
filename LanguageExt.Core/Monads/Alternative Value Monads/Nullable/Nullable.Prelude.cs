@@ -103,11 +103,11 @@ public static partial class Prelude
 
     [Pure]
     public static T ifNone<T>(T? self, Func<T> None) where T : struct =>
-        self.Match(identity, None);
+        self ?? None();
 
     [Pure]
     public static T ifNone<T>(T? self, T noneValue) where T : struct =>
-        self.Match(identity, () => noneValue);
+        self ?? noneValue;
 
     [Pure]
     public static Either<L, T> toEither<L, T>(T? self, L defaultLeftValue) where T : struct =>
@@ -249,8 +249,12 @@ public static partial class Prelude
     /// it's in a None state or not.
     /// </summary>
     /// <param name="action">Action to invoke with the value if not in None state</param>
-    public static Unit iter<T>(T? self, Action<T> action) where T : struct =>
-        self.IfSome(action);
+    public static Unit iter<T>(T? self, Action<T> action) where T : struct
+    {
+        if (self.HasValue) action(self.Value);
+        return default;
+    }
+        
 
     /// <summary>
     /// Returns 1 if there is a value, 0 otherwise

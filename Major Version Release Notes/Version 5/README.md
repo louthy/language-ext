@@ -240,6 +240,9 @@ There were lots of methods like `BiMap`, `BiBind`, `BiFold` etc. where `Left` an
 * Impact: Low
 * Mitigation: change the argument order of any usages
 
+## Nullable extensions removed
+
+These just keep causing problems with resolution of common functions like `Map`, `Bind`, etc.
 
 ## Types removed outright
 
@@ -288,3 +291,5 @@ This is my '.NET Framework to .NET Core' moment.  I realise that.  And I an trul
 * Test that resources are freed correctly in ResourceT when the result of Run is lazy
 	* `bracket`
 * `EitherT`, `TryT` (derives `EitherT<M, Error, A>)`, `Try` (derives `TryT<Identity, A>`)
+* `yieldAll`, `many`, and `repeat` for Pipes needs tail recursion support
+	* `yieldAll`, `many` have been temporarily removed

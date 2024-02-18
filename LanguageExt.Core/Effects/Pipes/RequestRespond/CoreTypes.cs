@@ -1,7 +1,5 @@
 using System;
 using System.Diagnostics.Contracts;
-using LanguageExt.Common;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
@@ -18,24 +16,26 @@ namespace LanguageExt.Pipes;
 /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
 ///
 /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-public class Request<UOut, UIn, DIn, DOut, M, A>(UOut Value, Func<UIn, Proxy<UOut, UIn, DIn, DOut, M, A>> Next)
+public record Request<UOut, UIn, DIn, DOut, M, A>(UOut Value, Func<UIn, Proxy<UOut, UIn, DIn, DOut, M, A>> Next)
     : Proxy<UOut, UIn, DIn, DOut, M, A>
     where M : Monad<M> 
 {
     [Pure]
-    public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
+    public override Proxy<UOut, UIn, DIn, DOut, M, A> ToProxy() => this;
 
     [Pure]
-    public void Deconstruct(out UOut value, out Func<UIn, Proxy<RT, UOut, UIn, DIn, DOut, A>> fun) =>
+    public void Deconstruct(out UOut value, out Func<UIn, Proxy<UOut, UIn, DIn, DOut, M, A>> fun) =>
         (value, fun) = (Value, Next);
 
     [Pure]
-    public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body) =>
+    public override Proxy<UOut, UIn, C1, C, M, A> For<C1, C>(
+        Func<DOut, Proxy<UOut, UIn, C1, C, M, DIn>> body) =>
         ReplaceRespond(body);
 
     [Pure]
-    public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
-        new Request<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Action(r));
+    public override Proxy<UOut, UIn, DIn, DOut, M, S> Action<S>(
+        Proxy<UOut, UIn, DIn, DOut, M, S> r) =>
+        new Request<UOut, UIn, DIn, DOut, M, S>(Value, a => Next(a).Action(r));
         
     /*
         (f >\\ p) replaces each 'request' in `this` with `lhs`.
@@ -43,8 +43,8 @@ public class Request<UOut, UIn, DIn, DOut, M, A>(UOut Value, Func<UIn, Proxy<UOu
         Point-ful version of (\>\)
     */
     [Pure]
-    public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(
-        Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
+    public override Proxy<UOutA, AUInA, DIn, DOut, M, A> ReplaceRequest<UOutA, AUInA>(
+        Func<UOut, Proxy<UOutA, AUInA, DIn, DOut, M, UIn>> lhs) =>
         lhs(Value).Bind(b => Next(b).ReplaceRequest(lhs));
 
     /*
@@ -53,16 +53,16 @@ public class Request<UOut, UIn, DIn, DOut, M, A>(UOut Value, Func<UIn, Proxy<UOu
         Point-ful version of />/
     */
     [Pure]
-    public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(
-        Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
-        new Request<RT, UOut, UIn, DInC, DOutC, A>(Value, x => Next(x).ReplaceRespond(rhs));
+    public override Proxy<UOut, UIn, DInC, DOutC, M, A> ReplaceRespond<DInC, DOutC>(
+        Func<DOut, Proxy<UOut, UIn, DInC, DOutC, M, DIn>> rhs) =>
+        new Request<UOut, UIn, DInC, DOutC, M, A>(Value, x => Next(x).ReplaceRespond(rhs));
 
     /// <remarks>
     /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
     /// </remarks>
     [Pure]
-    public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(
-        Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> lhs) =>
+    public override Proxy<UOutA, AUInA, DIn, DOut, M, A> PairEachRequestWithRespond<UOutA, AUInA>(
+        Func<UOut, Proxy<UOutA, AUInA, UOut, UIn, M, A>> lhs) =>
         lhs(Value).PairEachRespondWithRequest(Next);
 
     /*
@@ -71,29 +71,28 @@ public class Request<UOut, UIn, DIn, DOut, M, A>(UOut Value, Func<UIn, Proxy<UOu
         Point-ful version of ('>~>')
     */
     [Pure]
-    public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(
-        Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
-        new Request<RT, UOut, UIn, DInC, DOutC, A>(Value, a => Next(a).PairEachRespondWithRequest(rhs));
+    public override Proxy<UOut, UIn, DInC, DOutC, M, A> PairEachRespondWithRequest<DInC, DOutC>(
+        Func<DOut, Proxy<DIn, DOut, DInC, DOutC, M, A>> rhs) =>
+        new Request<UOut, UIn, DInC, DOutC, M, A>(Value, a => Next(a).PairEachRespondWithRequest(rhs));
 
     [Pure]
-    public override Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect() =>
-        new Respond<RT, DOut, DIn, UIn, UOut, A>(Value, x => Next(x).Reflect());
+    public override Proxy<DOut, DIn, UIn, UOut, M, A> Reflect() =>
+        new Respond<DOut, DIn, UIn, UOut, M, A>(Value, x => Next(x).Reflect());
 
     [Pure]
-    public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
-        new ProxyM<RT, UOut, UIn, DIn, DOut, A>(
-            Transducer.constant<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>>(
-                new Request<RT, UOut, UIn, DIn, DOut, A>(
-                    Value,
-                    x => Next(x).Observe())));
+    public override Proxy<UOut, UIn, DIn, DOut, M, A> Observe() =>
+        new ProxyM<UOut, UIn, DIn, DOut, M, A>(
+            M.Pure(new Request<UOut, UIn, DIn, DOut, M, A>(
+                       Value,
+                       x => Next(x).Observe())));
  
     [Pure]
-    public override Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
-        new Request<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Bind(f));
+    public override Proxy<UOut, UIn, DIn, DOut, M, S> Bind<S>(Func<A, Proxy<UOut, UIn, DIn, DOut, M, S>> f) =>
+        new Request<UOut, UIn, DIn, DOut, M, S>(Value, a => Next(a).Bind(f));
 
     [Pure]
-    public override Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<A, S> f) =>
-        new Request<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Map(f));
+    public override Proxy<UOut, UIn, DIn, DOut, M, S> Map<S>(Func<A, S> f) =>
+        new Request<UOut, UIn, DIn, DOut, M, S>(Value, a => Next(a).Map(f));
 }
 
 /// <summary>
@@ -108,28 +107,28 @@ public class Request<UOut, UIn, DIn, DOut, M, A>(UOut Value, Func<UIn, Proxy<UOu
 /// monadic variable.  If the effect represented by the `Proxy` ends, then this will be the result value.
 ///
 /// When composing `Proxy` sub-types (like `Producer`, `Pipe`, `Consumer`, etc.)  </typeparam>
-public class Respond<UOut, UIn, DIn, DOut, M, A>(DOut Value, Func<DIn, Proxy<UOut, UIn, DIn, DOut, M, A>> Next)
+public record Respond<UOut, UIn, DIn, DOut, M, A>(DOut Value, Func<DIn, Proxy<UOut, UIn, DIn, DOut, M, A>> Next)
     : Proxy<UOut, UIn, DIn, DOut, M, A>
     where M : Monad<M> 
 {
     [Pure]
-    public override Proxy<RT, UOut, UIn, DIn, DOut, A> ToProxy() => this;
+    public override Proxy<UOut, UIn, DIn, DOut, M, A> ToProxy() => this;
 
     [Pure]
-    public override Proxy<RT, UOut, UIn, DIn, DOut, S> Bind<S>(Func<A, Proxy<RT, UOut, UIn, DIn, DOut, S>> f) =>
-        new Respond<RT, UOut, UIn, DIn, DOut, S>(Value, b1 => Next(b1).Bind(f));
+    public override Proxy<UOut, UIn, DIn, DOut, M, S> Bind<S>(Func<A, Proxy<UOut, UIn, DIn, DOut, M, S>> f) =>
+        new Respond<UOut, UIn, DIn, DOut, M, S>(Value, b1 => Next(b1).Bind(f));
 
     [Pure]
-    public override Proxy<RT, UOut, UIn, DIn, DOut, S> Map<S>(Func<A, S> f) =>
-        new Respond<RT, UOut, UIn, DIn, DOut, S>(Value, a => Next(a).Map(f));
+    public override Proxy<UOut, UIn, DIn, DOut, M, S> Map<S>(Func<A, S> f) =>
+        new Respond<UOut, UIn, DIn, DOut, M, S>(Value, a => Next(a).Map(f));
 
     [Pure]
-    public override Proxy<RT, UOut, UIn, C1, C, A> For<C1, C>(Func<DOut, Proxy<RT, UOut, UIn, C1, C, DIn>> body) =>
+    public override Proxy<UOut, UIn, C1, C, M, A> For<C1, C>(Func<DOut, Proxy<UOut, UIn, C1, C, M, DIn>> body) =>
         ReplaceRespond(body);
             
     [Pure]
-    public override Proxy<RT, UOut, UIn, DIn, DOut, S> Action<S>(Proxy<RT, UOut, UIn, DIn, DOut, S> r) =>
-        new Respond<RT, UOut, UIn, DIn, DOut, S>(Value, b1 => Next(b1).Action(r));
+    public override Proxy<UOut, UIn, DIn, DOut, M, S> Action<S>(Proxy<UOut, UIn, DIn, DOut, M, S> r) =>
+        new Respond<UOut, UIn, DIn, DOut, M, S>(Value, b1 => Next(b1).Action(r));
 
     /*
         (f >\\ p) replaces each 'request' in `this` with `lhs`.
@@ -137,8 +136,8 @@ public class Respond<UOut, UIn, DIn, DOut, M, A>(DOut Value, Func<DIn, Proxy<UOu
         Point-ful version of (\>\)
     */
     [Pure]
-    public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> ReplaceRequest<UOutA, AUInA>(Func<UOut, Proxy<RT, UOutA, AUInA, DIn, DOut, UIn>> lhs) =>
-        new Respond<RT, UOutA, AUInA, DIn, DOut, A>(Value, x1 => Next(x1).ReplaceRequest(lhs));
+    public override Proxy<UOutA, AUInA, DIn, DOut, M, A> ReplaceRequest<UOutA, AUInA>(Func<UOut, Proxy<UOutA, AUInA, DIn, DOut, M, UIn>> lhs) =>
+        new Respond<UOutA, AUInA, DIn, DOut, M, A>(Value, x1 => Next(x1).ReplaceRequest(lhs));
 
     /*
         (p //> f) replaces each 'respond' in `this` with `rhs`
@@ -146,8 +145,8 @@ public class Respond<UOut, UIn, DIn, DOut, M, A>(DOut Value, Func<DIn, Proxy<UOu
         Point-ful version of />/
     */
     [Pure]
-    public override Proxy<RT, UOut, UIn, DInC, DOutC, A> ReplaceRespond<DInC, DOutC>(
-        Func<DOut, Proxy<RT, UOut, UIn, DInC, DOutC, DIn>> rhs) =>
+    public override Proxy<UOut, UIn, DInC, DOutC, M, A> ReplaceRespond<DInC, DOutC>(
+        Func<DOut, Proxy<UOut, UIn, DInC, DOutC, M, DIn>> rhs) =>
         rhs(Value).Bind(b1 => Next(b1).ReplaceRespond(rhs));
 
     /*
@@ -159,9 +158,9 @@ public class Respond<UOut, UIn, DIn, DOut, M, A>(DOut Value, Func<DIn, Proxy<UOu
     /// (f +>> p) pairs each 'request' in `this` with a 'respond' in `lhs`.
     /// </remarks>
     [Pure]
-    public override Proxy<RT, UOutA, AUInA, DIn, DOut, A> PairEachRequestWithRespond<UOutA, AUInA>(
-        Func<UOut, Proxy<RT, UOutA, AUInA, UOut, UIn, A>> fb1) =>
-        new Respond<RT, UOutA, AUInA, DIn, DOut, A>(Value, c1 => Next(c1).PairEachRequestWithRespond(fb1));
+    public override Proxy<UOutA, AUInA, DIn, DOut, M, A> PairEachRequestWithRespond<UOutA, AUInA>(
+        Func<UOut, Proxy<UOutA, AUInA, UOut, UIn, M, A>> fb1) =>
+        new Respond<UOutA, AUInA, DIn, DOut, M, A>(Value, c1 => Next(c1).PairEachRequestWithRespond(fb1));
 
     /*
         (p >>~ f) pairs each 'respond' in `this` with a 'request' in `rhs`.
@@ -169,23 +168,22 @@ public class Respond<UOut, UIn, DIn, DOut, M, A>(DOut Value, Func<DIn, Proxy<UOu
         Point-ful version of ('>~>')
     */
     [Pure]
-    public override Proxy<RT, UOut, UIn, DInC, DOutC, A> PairEachRespondWithRequest<DInC, DOutC>(
-        Func<DOut, Proxy<RT, DIn, DOut, DInC, DOutC, A>> rhs) =>
+    public override Proxy<UOut, UIn, DInC, DOutC, M, A> PairEachRespondWithRequest<DInC, DOutC>(
+        Func<DOut, Proxy<DIn, DOut, DInC, DOutC, M, A>> rhs) =>
         rhs(Value).PairEachRequestWithRespond(Next);
 
     [Pure]
-    public override Proxy<RT, DOut, DIn, UIn, UOut, A> Reflect() =>
-        new Request<RT, DOut, DIn, UIn, UOut, A>(Value, x => Next(x).Reflect());
+    public override Proxy<DOut, DIn, UIn, UOut, M, A> Reflect() =>
+        new Request<DOut, DIn, UIn, UOut, M, A>(Value, x => Next(x).Reflect());
 
     [Pure]
-    public override Proxy<RT, UOut, UIn, DIn, DOut, A> Observe() =>
-        new ProxyM<RT, UOut, UIn, DIn, DOut, A>(
-            Transducer.constant<RT, Proxy<RT, UOut, UIn, DIn, DOut, A>>(
-                new Respond<RT, UOut, UIn, DIn, DOut, A>(
-                    Value,
-                    x => Next(x).Observe())));
+    public override Proxy<UOut, UIn, DIn, DOut, M, A> Observe() =>
+        new ProxyM<UOut, UIn, DIn, DOut, M, A>(
+            M.Pure(new Respond<UOut, UIn, DIn, DOut, M, A>(
+                       Value,
+                       x => Next(x).Observe())));
 
     [Pure]
-    public void Deconstruct(out DOut value, out Func<DIn, Proxy<RT, UOut, UIn, DIn, DOut, A>> fun) =>
+    public void Deconstruct(out DOut value, out Func<DIn, Proxy<UOut, UIn, DIn, DOut, M, A>> fun) =>
         (value, fun) = (Value, Next);
 }

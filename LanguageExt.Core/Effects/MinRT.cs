@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt.Effects;
 
@@ -24,9 +23,9 @@ public readonly struct MinRT :
     /// <summary>
     /// Get the transducer that converts from a `HasIO` supporting runtime to a `MinRT`
     /// </summary>
-    public static Transducer<RT, MinRT> convert<RT>() 
-        where RT : HasIO<RT, Error> =>
-        lift<RT, MinRT>(rt => rt.ToMin());
+    // public static Transducer<RT, MinRT> convert<RT>() 
+    //     where RT : HasIO<RT, Error> =>
+    //     lift<RT, MinRT>(rt => rt.ToMin());
     
     public MinRT(
         SynchronizationContext? syncContext,
@@ -78,9 +77,9 @@ public readonly struct MinRT<E> :
     /// <summary>
     /// Get the transducer that converts from a `HasIO` supporting runtime to a `MinRT`
     /// </summary>
-    public static Transducer<RT, MinRT<E>> convert<RT>() 
-        where RT : HasIO<RT, E> =>
-        lift<RT, MinRT<E>>(rt => rt.ToMin<RT, E>());
+    //public static Transducer<RT, MinRT<E>> convert<RT>() 
+    //    where RT : HasIO<RT, E> =>
+    //    lift<RT, MinRT<E>>(rt => rt.ToMin<RT, E>());
     
     public MinRT(
         SynchronizationContext? syncContext,

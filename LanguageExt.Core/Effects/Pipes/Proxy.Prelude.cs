@@ -1,9 +1,6 @@
 using System;
-using LanguageExt.Common;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using LanguageExt.Effects.Traits;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
@@ -30,19 +27,21 @@ public static class Proxy
     public static Producer<A, Unit> yield<A>(A value) =>
         PureProxy.ProducerYield(value);
 
+    // TODO: Decide whether I want to put these back or not
     /// <summary>
     /// Create a queue
     /// </summary>
     /// <remarks>A `Queue` is a `Producer` with an `Enqueue`, and a `Done` to cancel the operation</remarks>
-    [Pure, MethodImpl(mops)]
-    public static Queue<A, M, Unit> Queue<M, A>() 
-        where M : Monad<M>
-    {
-        var c = new Channel<A>();
-        var p = Producer.yieldAll<M, A>(c);
-        return new Queue<A, M, Unit>(p, c);
-    }
+    // [Pure, MethodImpl(mops)]
+    // public static Queue<A, M, Unit> Queue<M, A>() 
+    //     where M : Monad<M>
+    // {
+    //     var c = new Channel<A>();
+    //     var p = Producer.yieldAll<M, A>(c);
+    //     return new Queue<A, M, Unit>(p, c);
+    // }
 
+    // TODO: Decide whether I want to put these back or not
     /// <summary>
     /// Create a `Producer` from an `IEnumerable`.  This will automatically `yield` each value of the
     /// `IEnumerable` down stream
@@ -50,38 +49,55 @@ public static class Proxy
     /// <param name="xs">Items to `yield`</param>
     /// <typeparam name="X">Type of the value to `yield`</typeparam>
     /// <returns>`Producer`</returns>
-    [Pure, MethodImpl(mops)]
-    public static Producer<X, Unit> yieldAll<X>(IEnumerable<X> xs) =>
-        from x in many(xs)
-        from _ in PureProxy.ProducerYield<X>(x)
-        select unit;
+    // [Pure, MethodImpl(mops)]
+    // public static Producer<X, Unit> yieldAll<X>(IEnumerable<X> xs) =>
+    //     from x in many(xs)
+    //     from _ in PureProxy.ProducerYield<X>(x)
+    //     select unit;
+    //
+    // /// <summary>
+    // /// Create a `Producer` from an `IAsyncEnumerable`.  This will automatically `yield` each value of the
+    // /// `IEnumerable` down stream
+    // /// </summary>
+    // /// <param name="xs">Items to `yield`</param>
+    // /// <typeparam name="X">Type of the value to `yield`</typeparam>
+    // /// <returns>`Producer`</returns>
+    // [Pure, MethodImpl(mops)]
+    // public static Producer<X, Unit> yieldAll<X>(IAsyncEnumerable<X> xs) =>
+    //     from x in many(xs)
+    //     from _ in PureProxy.ProducerYield<X>(x)
+    //     select unit;
+    //
+    // /// <summary>
+    // /// Create a `Producer` from an `IObservable`.  This will automatically `yield` each value of the
+    // /// `IObservable` down stream
+    // /// </summary>
+    // /// <param name="xs">Items to `yield`</param>
+    // /// <typeparam name="X">Type of the value to `yield`</typeparam>
+    // /// <returns>`Producer`</returns>
+    // [Pure, MethodImpl(mops)]
+    // public static Producer<X, Unit> yieldAll<X>(IObservable<X> xs) =>
+    //     from x in many(xs)
+    //     from _ in PureProxy.ProducerYield<X>(x)
+    //  select unit;
 
-    /// <summary>
-    /// Create a `Producer` from an `IAsyncEnumerable`.  This will automatically `yield` each value of the
-    /// `IEnumerable` down stream
-    /// </summary>
-    /// <param name="xs">Items to `yield`</param>
-    /// <typeparam name="X">Type of the value to `yield`</typeparam>
-    /// <returns>`Producer`</returns>
+    // TODO: IMPLEMENT TAIL CALLS
     [Pure, MethodImpl(mops)]
-    public static Producer<X, Unit> yieldAll<X>(IAsyncEnumerable<X> xs) =>
-        from x in many(xs)
-        from _ in PureProxy.ProducerYield<X>(x)
-        select unit;
+    public static Producer<OUT, M, R> tail<OUT, M, R>(Producer<OUT, M, R> ma) 
+        where M : Monad<M> =>
+        ma;
 
-    /// <summary>
-    /// Create a `Producer` from an `IObservable`.  This will automatically `yield` each value of the
-    /// `IObservable` down stream
-    /// </summary>
-    /// <param name="xs">Items to `yield`</param>
-    /// <typeparam name="X">Type of the value to `yield`</typeparam>
-    /// <returns>`Producer`</returns>
+    // TODO: IMPLEMENT TAIL CALLS
     [Pure, MethodImpl(mops)]
-    public static Producer<X, Unit> yieldAll<X>(IObservable<X> xs) =>
-        from x in many(xs)
-        from _ in PureProxy.ProducerYield<X>(x)
-        select unit;
+    public static Consumer<IN, M, R> tail<IN, M, R>(Consumer<IN, M, R> ma) 
+        where M : Monad<M> =>
+        ma;
 
+    // TODO: IMPLEMENT TAIL CALLS
+    [Pure, MethodImpl(mops)]
+    public static Pipe<IN, OUT, M, R> tail<IN, OUT, M, R>(Pipe<IN, OUT, M, R> ma) 
+        where M : Monad<M> =>
+        ma;
 
     /// <summary>
     /// Repeat the `Producer` indefinitely
@@ -89,8 +105,8 @@ public static class Proxy
     [Pure, MethodImpl(mops)]
     public static Producer<OUT, M, Unit> repeat<OUT, M, R>(Producer<OUT, M, R> ma) 
         where M : Monad<M> =>
-        from _ in many(units)
-        from x in ma
+        from r in ma
+        from _ in tail(repeat<OUT, M, R>(ma))
         select unit;
 
     /// <summary>
@@ -99,8 +115,8 @@ public static class Proxy
     [Pure, MethodImpl(mops)]
     public static Consumer<IN, M, Unit> repeat<IN, M, R>(Consumer<IN, M, R> ma) 
         where M : Monad<M> =>
-        from _ in many(units)
-        from x in ma
+        from r in ma
+        from _ in tail(repeat<IN, M, R>(ma))
         select unit;
 
     /// <summary>
@@ -109,20 +125,9 @@ public static class Proxy
     [Pure, MethodImpl(mops)]
     public static Pipe<IN, OUT, M, Unit> repeat<IN, OUT, M, R>(Pipe<IN, OUT, M, R> ma) 
         where M : Monad<M> =>
-        from _ in many(units)
-        from x in ma
+        from r in ma
+        from _ in tail(repeat<IN, OUT,M, R>(ma))
         select unit;
-
-    static IEnumerable<Unit> units
-    {
-        get
-        {
-            while (true)
-            {
-                yield return default;
-            }
-        }
-    }
 
     /// <summary>
     /// Lift a monad into the `Proxy` monad transformer
@@ -588,17 +593,17 @@ public static class Proxy
     /// Creates a non-yielding producer that returns the result of the effects
     /// </summary>
     [Pure, MethodImpl(mops)]
-    public static K<M, (A, B)> collect<M, A, B>(Effect<M, A> ma, Effect<M, B> mb) 
+    public static K<M, (A, B)> collect<M, A, B>(Effect<M, A> ma, Effect<M, B> mb)
         where M : Monad<M> =>
-        ma.RunEffect().Zip(mb.RunEffect());
-
+        fun((A x, B y) => (x, y)).Map(ma.RunEffect()).Apply(mb.RunEffect());
+        
     /// <summary>
     /// Creates a non-yielding producer that returns the result of the effects
     /// </summary>
     [Pure, MethodImpl(mops)]
     public static K<M, (A, B, C)> collect<M, A, B, C>(Effect<M, A> ma, Effect<M, B> mb, Effect<M, C> mc) 
         where M : Monad<M> =>
-        ma.RunEffect().Zip(mb.RunEffect(), mc.RunEffect());
+        fun((A x, B y, C z) => (x, y, z)).Map(ma.RunEffect()).Apply(mb.RunEffect()).Apply(mc.RunEffect());
 
     /// <summary>
     /// Creates a non-yielding producer that returns the result of the effects

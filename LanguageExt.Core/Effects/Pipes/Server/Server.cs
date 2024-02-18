@@ -1,8 +1,7 @@
-using System;
-using LanguageExt.Effects.Traits;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.Common;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Pipes;
 
@@ -29,9 +28,9 @@ public class Server
     /// Monad return / pure
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Server<RT, REQ, RES, R> Pure<RT, REQ, RES, R>(R value) 
-        where RT : HasIO<RT, Error> =>
-        new Pure<RT, Void, Unit, REQ, RES, R>(value).ToServer();
+    public static Server<REQ, RES, M, R> Pure<REQ, RES, M, R>(R value) 
+        where M : Monad<M> =>
+        new Pure<Void, Unit, REQ, RES, M, R>(value).ToServer();
  
     /// <summary>
     /// Send a value of type `RES` downstream and block waiting for a reply of type `REQ`
@@ -40,55 +39,23 @@ public class Server
     /// `respond` is the identity of the respond category.
     /// </remarks>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Server<RT, REQ, RES, REQ> respond<RT, REQ, RES>(RES value) 
-        where RT : HasIO<RT, Error> =>
-        new Respond<RT, Void, Unit, REQ, RES, REQ>(value, r => new Pure<RT, Void, Unit, REQ, RES, REQ>(r)).ToServer();
+    public static Server<REQ, RES, M, REQ> respond<REQ, RES, M>(RES value) 
+        where M : Monad<M> =>
+        new Respond<Void, Unit, REQ, RES, M, REQ>(value, r => new Pure<Void, Unit, REQ, RES, M, REQ>(r)).ToServer();
 
     /// <summary>
     /// Lift am IO monad into the `Proxy` monad transformer
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Eff<R> ma) 
-        where RT : HasIO<RT, Error> =>
-        new ProxyM<RT, Void, Unit, REQ, RES, R>(ma.WithRuntime<RT>().Morphism.MapRight(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
+    public static Server<REQ, RES, M, R> lift<REQ, RES, M, R>(K<M, R> ma) 
+        where M : Monad<M> =>
+        new ProxyM<Void, Unit, REQ, RES, M, R>(M.Map(Proxy.Pure<Void, Unit, REQ, RES, M, R>, ma)).ToServer();
 
     /// <summary>
     /// Lift am IO monad into the `Proxy` monad transformer
     /// </summary>
     [Pure, MethodImpl(Proxy.mops)]
-    public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Eff<RT, R> ma) 
-        where RT : HasIO<RT, Error> =>
-        new ProxyM<RT, Void, Unit, REQ, RES, R>(ma.Map(Proxy.Pure<RT, Void, Unit, REQ, RES, R>).Morphism).ToServer();
-
-    /// <summary>
-    /// Lift am IO monad into the `Proxy` monad transformer
-    /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
-    public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Transducer<RT, R> ma) 
-        where RT : HasIO<RT, Error> =>
-        new ProxyM<RT, Void, Unit, REQ, RES, R>(ma.Map(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
-
-    /// <summary>
-    /// Lift am IO monad into the `Proxy` monad transformer
-    /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
-    public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Transducer<Unit, R> ma) 
-        where RT : HasIO<RT, Error> =>
-        new ProxyM<RT, Void, Unit, REQ, RES, R>(ma.Map(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
-
-    /// <summary>
-    /// Lift am IO monad into the `Proxy` monad transformer
-    /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
-    public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Transducer<RT, Sum<Error, R>> ma) 
-        where RT : HasIO<RT, Error> =>
-        new ProxyM<RT, Void, Unit, REQ, RES, R>(ma.MapRight(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
-
-    /// <summary>
-    /// Lift am IO monad into the `Proxy` monad transformer
-    /// </summary>
-    [Pure, MethodImpl(Proxy.mops)]
-    public static Server<RT, REQ, RES, R> lift<RT, REQ, RES, R>(Transducer<Unit, Sum<Error, R>> ma) 
-        where RT : HasIO<RT, Error> =>
-        new ProxyM<RT, Void, Unit, REQ, RES, R>(ma.MapRight(Proxy.Pure<RT, Void, Unit, REQ, RES, R>)).ToServer();
+    public static Server<REQ, RES, M, R> liftIO<REQ, RES, M, R>(IO<R> ma) 
+        where M : Monad<M> =>
+        lift<REQ, RES, M, R>(M.LiftIO(ma));
 }
