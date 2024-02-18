@@ -95,7 +95,7 @@ public static class ValidationTExt
                                                       M.Pure(Either<L, B>.Left(ef.LeftValue))
 
                                               }),
-                             _ => M.Pure(Either<L, B>.Bottom)
+                             _ => M.Pure(L.Empty)
                          }));
 
     /// <summary>

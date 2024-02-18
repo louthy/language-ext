@@ -143,6 +143,57 @@ public static partial class Prelude
     public static Func<T1, T2, T3, T4, T5, T6, T7, R> fun<T1, T2, T3, T4, T5, T6, T7, R>(Func<T1, T2, T3, T4, T5, T6, T7, R> f) => f;
 
     /// <summary>
+    /// Func type inference helper
+    /// 
+    /// Try it with lambdas, instead of doing:
+    /// 
+    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    /// 
+    /// You can use this function and do:
+    /// 
+    ///     var add = fun((int x, int y) => x + y);
+    /// 
+    /// </summary>
+    /// <param name="f">Function to infer</param>
+    /// <returns>The same func you gave it, but allows the type system to work out what f is</returns>
+    [Pure]
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, R> fun<T1, T2, T3, T4, T5, T6, T7, T8, R>(Func<T1, T2, T3, T4, T5, T6, T7, T8, R> f) => f;
+
+    /// <summary>
+    /// Func type inference helper
+    /// 
+    /// Try it with lambdas, instead of doing:
+    /// 
+    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    /// 
+    /// You can use this function and do:
+    /// 
+    ///     var add = fun((int x, int y) => x + y);
+    /// 
+    /// </summary>
+    /// <param name="f">Function to infer</param>
+    /// <returns>The same func you gave it, but allows the type system to work out what f is</returns>
+    [Pure]
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, R> fun<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, R> f) => f;
+
+    /// <summary>
+    /// Func type inference helper
+    /// 
+    /// Try it with lambdas, instead of doing:
+    /// 
+    ///     Func&lt;int,int,int&gt; add = (int x, int y) => x + y;
+    /// 
+    /// You can use this function and do:
+    /// 
+    ///     var add = fun((int x, int y) => x + y);
+    /// 
+    /// </summary>
+    /// <param name="f">Function to infer</param>
+    /// <returns>The same func you gave it, but allows the type system to work out what f is</returns>
+    [Pure]
+    public static Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> fun<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R>(Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R> f) => f;
+
+    /// <summary>
     /// Action type inference helper and converts it to a Func that returns a Unit instead of void
     /// 
     /// Try it with lambdas, instead of doing:

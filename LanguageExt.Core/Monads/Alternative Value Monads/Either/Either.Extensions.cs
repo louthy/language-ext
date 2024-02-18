@@ -323,6 +323,16 @@ public static class EitherExtensions
         return unit;
     }
 
+    [Pure]
+    public static Validation<L, R> ToValidation<L, R>(this Either<L, R> ma)
+        where L : Monoid<L> =>
+        ma.State switch
+        {
+            EitherStatus.IsRight => Pure(ma.RightValue),
+            EitherStatus.IsLeft  => Fail(ma.LeftValue),
+            _                    => throw new BottomException()
+        };
+    
     /// <summary>
     /// Convert to an Eff
     /// </summary>

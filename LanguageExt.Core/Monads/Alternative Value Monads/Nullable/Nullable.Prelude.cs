@@ -135,13 +135,12 @@ public static partial class Prelude
     /// <returns>lhs + rhs</returns>
     [Pure]
     public static T? append<SEMI, T>(T? lhs, T? rhs)
-        where SEMI : Semigroup<T>
-        where T : struct
+        where T : struct, Semigroup<T>
     {
         if (!lhs.HasValue && !rhs.HasValue) return lhs; // None  + None  = None
         if (!rhs.HasValue) return lhs;                  // Value + None  = Value
         if (!lhs.HasValue) return rhs;                  // None  + Value = Value
-        return SEMI.Append(lhs.Value, rhs.Value);
+        return lhs.Value.Append(rhs.Value);
     }
 
     /// <summary>

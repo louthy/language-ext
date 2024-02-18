@@ -13,511 +13,348 @@ public static class ValidationExtensions
         where F : Monoid<F> =>
         (Validation<F, A>)ma;
     
-    // /// <summary>
-    // /// Applicative apply
-    // /// </summary>
-    // /// <param name="mf">Lifted function</param>
-    // /// <param name="ma">Value to apply</param>
-    // /// <returns>Result of function applied to the value or Fail</returns>
-    // [Pure]
-    // public static Validation<MonoidFail, FAIL, B> Apply<MonoidFail, FAIL, A, B>(
-    //     this Validation<MonoidFail, FAIL, Func<A, B>> mf, 
-    //     Validation<MonoidFail, FAIL, A> ma) 
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     mf.Disjunction(ma).Map(_ => mf.SuccessValue(ma.SuccessValue));
-    //
-    // /// <summary>
-    // /// Applicative apply
-    // /// </summary>
-    // /// <param name="mf">Lifted function</param>
-    // /// <param name="ma">Value to apply</param>
-    // /// <param name="mb">Value to apply</param>
-    // /// <returns>Result of function applied to the values or Fail</returns>
-    // [Pure]
-    // public static Validation<MonoidFail, FAIL, C> Apply<MonoidFail, FAIL, A, B, C>(
-    //     this Validation<MonoidFail, FAIL, Func<A, B, C>> mf, 
-    //     Validation<MonoidFail, FAIL, A> ma, 
-    //     Validation<MonoidFail, FAIL, B> mb)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     mf.Disjunction(ma)
-    //       .Disjunction(mb)
-    //       .Map(_ => mf.SuccessValue(ma.SuccessValue, mb.SuccessValue));
-    //
-    // /// <summary>
-    // /// Applicative apply
-    // /// </summary>
-    // /// <param name="mf">Lifted function</param>
-    // /// <param name="ma">Value to apply</param>
-    // /// <param name="mb">Value to apply</param>
-    // /// <returns>Result of function applied to the values or Fail</returns>
-    // [Pure]
-    // public static Validation<MonoidFail, FAIL, Func<B, C>> Apply<MonoidFail, FAIL, A, B, C>(
-    //     this Validation<MonoidFail, FAIL, Func<A, B, C>> mf, 
-    //     Validation<MonoidFail, FAIL, A> ma) 
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     mf.Disjunction(ma)
-    //       .Map(_ => curry(mf.SuccessValue)(ma.SuccessValue));
-    //
-    // /// <summary>
-    // /// Applicative apply
-    // /// </summary>
-    // /// <param name="mf">Lifted function</param>
-    // /// <param name="ma">Value to apply</param>
-    // /// <returns>Result of function applied to the value or Fail</returns>
-    // [Pure]
-    // public static Validation<MonoidFail, FAIL, B> Apply<MonoidFail, FAIL, A, B>(
-    //     this Func<A, B> mf, 
-    //     Validation<MonoidFail, FAIL, A> ma) 
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     ma.Map(mf);
-    //
-    // /// <summary>
-    // /// Applicative apply
-    // /// </summary>
-    // /// <param name="mf">Lifted function</param>
-    // /// <param name="ma">Value to apply</param>
-    // /// <param name="mb">Value to apply</param>
-    // /// <returns>Result of function applied to the values or Fail</returns>
-    // [Pure]
-    // public static Validation<MonoidFail, FAIL, C> Apply<MonoidFail, FAIL, A, B, C>(
-    //     this  Func<A, B, C> mf, 
-    //     Validation<MonoidFail, FAIL, A> ma, 
-    //     Validation<MonoidFail, FAIL, B> mb)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     ma.Disjunction(mb)
-    //       .Map(_ => mf(ma.SuccessValue, mb.SuccessValue));
-    //
-    // /// <summary>
-    // /// Applicative apply
-    // /// </summary>
-    // /// <param name="mf">Lifted function</param>
-    // /// <param name="ma">Value to apply</param>
-    // /// <param name="mb">Value to apply</param>
-    // /// <returns>Result of function applied to the values or Fail</returns>
-    // [Pure]
-    // public static Validation<MonoidFail, FAIL, Func<B, C>> Apply<MonoidFail, FAIL, A, B, C>(
-    //     this Func<A, B, C> mf, 
-    //     Validation<MonoidFail, FAIL, A> ma) 
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     ma.Map(a => curry(mf)(a));
-    //
-    //
-    // /// <summary>
-    // /// Applicative apply
-    // /// </summary>
-    // /// <param name="mf">Lifted function</param>
-    // /// <param name="ma">Value to apply</param>
-    // /// <returns>Result of function applied to the value or Fail</returns>
-    // [Pure]
-    // public static Validation<MonoidFail, FAIL, B> ApplyM<MonoidFail, FAIL, A, B>(
-    //     this Validation<MonoidFail, FAIL, Func<A, Validation<MonoidFail, FAIL, B>>> mf, 
-    //     Validation<MonoidFail, FAIL, A> ma) 
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     mf.Disjunction(ma).Bind(_ => mf.SuccessValue(ma.SuccessValue));
-    //
-    // /// <summary>
-    // /// Applicative apply
-    // /// </summary>
-    // /// <param name="mf">Lifted function</param>
-    // /// <param name="ma">Value to apply</param>
-    // /// <param name="mb">Value to apply</param>
-    // /// <returns>Result of function applied to the values or Fail</returns>
-    // [Pure]
-    // public static Validation<MonoidFail, FAIL, C> ApplyM<MonoidFail, FAIL, A, B, C>(
-    //     this Validation<MonoidFail, FAIL, Func<A, B, Validation<MonoidFail, FAIL, C>>> mf, 
-    //     Validation<MonoidFail, FAIL, A> ma, 
-    //     Validation<MonoidFail, FAIL, B> mb)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     mf.Disjunction(ma)
-    //       .Disjunction(mb)
-    //       .Bind(_ => mf.SuccessValue(ma.SuccessValue, mb.SuccessValue));
-    //
-    // /// <summary>
-    // /// Applicative apply
-    // /// </summary>
-    // /// <param name="mf">Lifted function</param>
-    // /// <param name="ma">Value to apply</param>
-    // /// <param name="mb">Value to apply</param>
-    // /// <returns>Result of function applied to the values or Fail</returns>
-    // [Pure]
-    // public static Validation<MonoidFail, FAIL, Func<B, Validation<MonoidFail, FAIL, C>>> ApplyM<MonoidFail, FAIL, A, B, C>(
-    //     this Validation<MonoidFail, FAIL, Func<A, B, Validation<MonoidFail, FAIL, C>>> mf, 
-    //     Validation<MonoidFail, FAIL, A> ma) 
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     mf.Disjunction(ma)
-    //       .Map(_ => curry(mf.SuccessValue)(ma.SuccessValue));
-    //
-    // /// <summary>
-    // /// Applicative apply
-    // /// </summary>
-    // /// <param name="mf">Lifted function</param>
-    // /// <param name="ma">Value to apply</param>
-    // /// <returns>Result of function applied to the value or Fail</returns>
-    // [Pure]
-    // public static Validation<MonoidFail, FAIL, B> ApplyM<MonoidFail, FAIL, A, B>(
-    //     this Func<A, Validation<MonoidFail, FAIL, B>> mf, 
-    //     Validation<MonoidFail, FAIL, A> ma) 
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     ma.Bind(mf);
-    //
-    // /// <summary>
-    // /// Applicative apply
-    // /// </summary>
-    // /// <param name="mf">Lifted function</param>
-    // /// <param name="ma">Value to apply</param>
-    // /// <param name="mb">Value to apply</param>
-    // /// <returns>Result of function applied to the values or Fail</returns>
-    // [Pure]
-    // public static Validation<MonoidFail, FAIL, C> ApplyM<MonoidFail, FAIL, A, B, C>(
-    //     this  Func<A, B, Validation<MonoidFail, FAIL, C>> mf, 
-    //     Validation<MonoidFail, FAIL, A> ma, 
-    //     Validation<MonoidFail, FAIL, B> mb)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     ma.Disjunction(mb)
-    //       .Bind(_ => mf(ma.SuccessValue, mb.SuccessValue));
-    //
-    // /// <summary>
-    // /// Applicative apply
-    // /// </summary>
-    // /// <param name="mf">Lifted function</param>
-    // /// <param name="ma">Value to apply</param>
-    // /// <param name="mb">Value to apply</param>
-    // /// <returns>Result of function applied to the values or Fail</returns>
-    // [Pure]
-    // public static Validation<MonoidFail, FAIL, Func<B, Validation<MonoidFail, FAIL,C>>> ApplyM<MonoidFail, FAIL, A, B, C>(
-    //     this Func<A, B, Validation<MonoidFail, FAIL, C>> mf, 
-    //     Validation<MonoidFail, FAIL, A> ma) 
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     ma.Map(a => curry(mf)(a));
-    //
-    // /// <summary>
-    // /// Flatten the nested Validation type
-    // /// </summary>
-    // [Pure]
-    // public static Validation<MonoidFail, FAIL, SUCCESS> Flatten<MonoidFail, FAIL, SUCCESS>(
-    //     this Validation<MonoidFail, FAIL, Validation<MonoidFail, FAIL, SUCCESS>> self)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     self.Bind(identity);
-    //
-    // /// <summary>
-    // /// Extract only the successes 
-    // /// </summary>
-    // /// <param name="vs">Enumerable of validations</param>
-    // /// <typeparam name="F">Fail type</typeparam>
-    // /// <typeparam name="S">Success type</typeparam>
-    // /// <returns>Enumerable of successes</returns>
-    // [Pure]
-    // public static IEnumerable<S> Successes<MonoidF, F, S>(this IEnumerable<Validation<MonoidF, F, S>> vs)
-    //     where MonoidF : Monoid<F>, Eq<F> 
-    // {
-    //     foreach(var v in vs)
-    //     {
-    //         if(v.IsSuccess) yield return (S)v;
-    //     }
-    // }
-    //
-    // /// <summary>
-    // /// Extract only the failures 
-    // /// </summary>
-    // /// <param name="vs">Enumerable of validations</param>
-    // /// <typeparam name="F">Fail type</typeparam>
-    // /// <typeparam name="S">Success type</typeparam>
-    // /// <returns>Enumerable of failures</returns>
-    // [Pure]
-    // public static IEnumerable<F> Fails<MonoidF, F, S>(this IEnumerable<Validation<MonoidF, F, S>> vs)
-    //     where MonoidF : Monoid<F>, Eq<F> 
-    // {
-    //     foreach(var v in vs)
-    //     {
-    //         if (v.IsFail) yield return (F)v;
-    //     }
-    // }
-    //
-    // /// <summary>
-    // /// Extract only the successes 
-    // /// </summary>
-    // /// <param name="vs">Seq of validations</param>
-    // /// <typeparam name="F">Fail type</typeparam>
-    // /// <typeparam name="S">Success type</typeparam>
-    // /// <returns>Enumerable of successes</returns>
-    // [Pure]
-    // public static Seq<S> Successes<MonoidF, F, S>(this Seq<Validation<MonoidF, F, S>> vs)
-    //     where MonoidF : Monoid<F>, Eq<F> =>
-    //     toSeq(Successes(vs.AsEnumerable()));
-    //
-    // /// <summary>
-    // /// Extract only the failures 
-    // /// </summary>
-    // /// <param name="vs">Seq of validations</param>
-    // /// <typeparam name="F">Fail type</typeparam>
-    // /// <typeparam name="S">Success type</typeparam>
-    // /// <returns>Enumerable of failures</returns>
-    // [Pure]
-    // public static Seq<F> Fails<MonoidF, F, S>(this Seq<Validation<MonoidF, F, S>> vs)
-    //     where MonoidF : Monoid<F>, Eq<F> => 
-    //     toSeq(Fails(vs.AsEnumerable()));
-    //
-    //
-    // public static Validation<MonoidFail, FAIL, R> Apply<MonoidFail, FAIL, A, R>(this ValueTuple<Validation<MonoidFail, FAIL, A>> items, Func<A, R> f)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     items.Item1.Match(
-    //         Succ: s => f(s),
-    //         Fail: e => Validation<MonoidFail, FAIL, R>.Fail(e));
-    //
-    // public static Validation<MonoidFail, FAIL, R> Apply<MonoidFail, FAIL, A, B, R>(
-    //     this ValueTuple<
-    //         Validation<MonoidFail, FAIL, A>,
-    //         Validation<MonoidFail, FAIL, B>> items,
-    //     Func<A, B, R> f)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     items.Item1
-    //          .Disjunction(items.Item2)
-    //          .Map(_ => f(items.Item1.SuccessValue, items.Item2.SuccessValue));
-    //
-    // public static Validation<MonoidFail, FAIL, R> Apply<MonoidFail, FAIL, A, B, C, R>(
-    //     this ValueTuple<
-    //         Validation<MonoidFail, FAIL, A>,
-    //         Validation<MonoidFail, FAIL, B>,
-    //         Validation<MonoidFail, FAIL, C>
-    //         > items,
-    //     Func<A, B, C, R> f)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     items.Item1
-    //          .Disjunction(items.Item2)
-    //          .Disjunction(items.Item3)
-    //          .Map(_ => f(
-    //              items.Item1.SuccessValue,
-    //              items.Item2.SuccessValue,
-    //              items.Item3.SuccessValue
-    //              ));
-    //
-    // public static Validation<MonoidFail, FAIL, R> Apply<MonoidFail, FAIL, A, B, C, D, R>(
-    //     this ValueTuple<
-    //         Validation<MonoidFail, FAIL, A>,
-    //         Validation<MonoidFail, FAIL, B>,
-    //         Validation<MonoidFail, FAIL, C>,
-    //         Validation<MonoidFail, FAIL, D>
-    //         > items,
-    //     Func<A, B, C, D, R> f)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     items.Item1
-    //          .Disjunction(items.Item2)
-    //          .Disjunction(items.Item3)
-    //          .Disjunction(items.Item4)
-    //          .Map(_ => f(
-    //              items.Item1.SuccessValue,
-    //              items.Item2.SuccessValue,
-    //              items.Item3.SuccessValue,
-    //              items.Item4.SuccessValue
-    //              ));
-    //
-    // public static Validation<MonoidFail, FAIL, R> Apply<MonoidFail, FAIL, A, B, C, D, E, R>(
-    //     this ValueTuple<
-    //         Validation<MonoidFail, FAIL, A>,
-    //         Validation<MonoidFail, FAIL, B>,
-    //         Validation<MonoidFail, FAIL, C>,
-    //         Validation<MonoidFail, FAIL, D>,
-    //         Validation<MonoidFail, FAIL, E>
-    //         > items,
-    //     Func<A, B, C, D, E, R> f)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     items.Item1
-    //          .Disjunction(items.Item2)
-    //          .Disjunction(items.Item3)
-    //          .Disjunction(items.Item4)
-    //          .Disjunction(items.Item5)
-    //          .Map(_ => f(
-    //              items.Item1.SuccessValue,
-    //              items.Item2.SuccessValue,
-    //              items.Item3.SuccessValue,
-    //              items.Item4.SuccessValue,
-    //              items.Item5.SuccessValue
-    //              ));
-    //
-    // public static Validation<MonoidFail, FAIL, R> Apply<MonoidFail, FAIL, A, B, C, D, E, F, R>(
-    //     this ValueTuple<
-    //         Validation<MonoidFail, FAIL, A>,
-    //         Validation<MonoidFail, FAIL, B>,
-    //         Validation<MonoidFail, FAIL, C>,
-    //         Validation<MonoidFail, FAIL, D>,
-    //         Validation<MonoidFail, FAIL, E>,
-    //         Validation<MonoidFail, FAIL, F>
-    //         > items,
-    //     Func<A, B, C, D, E, F, R> f)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     items.Item1
-    //          .Disjunction(items.Item2)
-    //          .Disjunction(items.Item3)
-    //          .Disjunction(items.Item4)
-    //          .Disjunction(items.Item5)
-    //          .Disjunction(items.Item6)
-    //          .Map(_ => f(
-    //              items.Item1.SuccessValue,
-    //              items.Item2.SuccessValue,
-    //              items.Item3.SuccessValue,
-    //              items.Item4.SuccessValue,
-    //              items.Item5.SuccessValue,
-    //              items.Item6.SuccessValue
-    //              ));
-    //
-    // public static Validation<MonoidFail, FAIL, R> Apply<MonoidFail, FAIL, A, B, C, D, E, F, G, R>(
-    //     this ValueTuple<
-    //         Validation<MonoidFail, FAIL, A>,
-    //         Validation<MonoidFail, FAIL, B>,
-    //         Validation<MonoidFail, FAIL, C>,
-    //         Validation<MonoidFail, FAIL, D>,
-    //         Validation<MonoidFail, FAIL, E>,
-    //         Validation<MonoidFail, FAIL, F>,
-    //         Validation<MonoidFail, FAIL, G>
-    //         > items,
-    //     Func<A, B, C, D, E, F, G, R> f)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     items.Item1
-    //          .Disjunction(items.Item2)
-    //          .Disjunction(items.Item3)
-    //          .Disjunction(items.Item4)
-    //          .Disjunction(items.Item5)
-    //          .Disjunction(items.Item6)
-    //          .Disjunction(items.Item7)
-    //          .Map(_ => f(
-    //              items.Item1.SuccessValue,
-    //              items.Item2.SuccessValue,
-    //              items.Item3.SuccessValue,
-    //              items.Item4.SuccessValue,
-    //              items.Item5.SuccessValue,
-    //              items.Item6.SuccessValue,
-    //              items.Item7.SuccessValue
-    //              ));
-    //
-    //
-    // public static Validation<MonoidFail, FAIL, R> ApplyM<MonoidFail, FAIL, A, R>(this ValueTuple<Validation<MonoidFail, FAIL, A>> items, Func<A, Validation<MonoidFail, FAIL, R>> f)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     items.Item1.Match(
-    //         Succ: s => f(s),
-    //         Fail: e => Validation<MonoidFail, FAIL, R>.Fail(e));
-    //
-    // public static Validation<MonoidFail, FAIL, R> ApplyM<MonoidFail, FAIL, A, B, R>(
-    //     this ValueTuple<
-    //         Validation<MonoidFail, FAIL, A>,
-    //         Validation<MonoidFail, FAIL, B>> items,
-    //     Func<A, B, Validation<MonoidFail, FAIL, R>> f)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     items.Item1
-    //          .Disjunction(items.Item2)
-    //          .Bind(_ => f(items.Item1.SuccessValue, items.Item2.SuccessValue));
-    //
-    // public static Validation<MonoidFail, FAIL, R> ApplyM<MonoidFail, FAIL, A, B, C, R>(
-    //     this ValueTuple<
-    //         Validation<MonoidFail, FAIL, A>,
-    //         Validation<MonoidFail, FAIL, B>,
-    //         Validation<MonoidFail, FAIL, C>
-    //         > items,
-    //     Func<A, B, C, Validation<MonoidFail, FAIL, R>> f)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     items.Item1
-    //          .Disjunction(items.Item2)
-    //          .Disjunction(items.Item3)
-    //          .Bind(_ => f(
-    //              items.Item1.SuccessValue,
-    //              items.Item2.SuccessValue,
-    //              items.Item3.SuccessValue
-    //              ));
-    //
-    // public static Validation<MonoidFail, FAIL, R> ApplyM<MonoidFail, FAIL, A, B, C, D, R>(
-    //     this ValueTuple<
-    //         Validation<MonoidFail, FAIL, A>,
-    //         Validation<MonoidFail, FAIL, B>,
-    //         Validation<MonoidFail, FAIL, C>,
-    //         Validation<MonoidFail, FAIL, D>
-    //         > items,
-    //     Func<A, B, C, D, Validation<MonoidFail, FAIL, R>> f)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     items.Item1
-    //          .Disjunction(items.Item2)
-    //          .Disjunction(items.Item3)
-    //          .Disjunction(items.Item4)
-    //          .Bind(_ => f(
-    //              items.Item1.SuccessValue,
-    //              items.Item2.SuccessValue,
-    //              items.Item3.SuccessValue,
-    //              items.Item4.SuccessValue
-    //              ));
-    //
-    // public static Validation<MonoidFail, FAIL, R> ApplyM<MonoidFail, FAIL, A, B, C, D, E, R>(
-    //     this ValueTuple<
-    //         Validation<MonoidFail, FAIL, A>,
-    //         Validation<MonoidFail, FAIL, B>,
-    //         Validation<MonoidFail, FAIL, C>,
-    //         Validation<MonoidFail, FAIL, D>,
-    //         Validation<MonoidFail, FAIL, E>
-    //         > items,
-    //     Func<A, B, C, D, E, Validation<MonoidFail, FAIL, R>> f)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     items.Item1
-    //          .Disjunction(items.Item2)
-    //          .Disjunction(items.Item3)
-    //          .Disjunction(items.Item4)
-    //          .Disjunction(items.Item5)
-    //          .Bind(_ => f(
-    //              items.Item1.SuccessValue,
-    //              items.Item2.SuccessValue,
-    //              items.Item3.SuccessValue,
-    //              items.Item4.SuccessValue,
-    //              items.Item5.SuccessValue
-    //              ));
-    //
-    // public static Validation<MonoidFail, FAIL, R> ApplyM<MonoidFail, FAIL, A, B, C, D, E, F, R>(
-    //     this ValueTuple<
-    //         Validation<MonoidFail, FAIL, A>,
-    //         Validation<MonoidFail, FAIL, B>,
-    //         Validation<MonoidFail, FAIL, C>,
-    //         Validation<MonoidFail, FAIL, D>,
-    //         Validation<MonoidFail, FAIL, E>,
-    //         Validation<MonoidFail, FAIL, F>
-    //         > items,
-    //     Func<A, B, C, D, E, F, Validation<MonoidFail, FAIL, R>> f)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     items.Item1
-    //          .Disjunction(items.Item2)
-    //          .Disjunction(items.Item3)
-    //          .Disjunction(items.Item4)
-    //          .Disjunction(items.Item5)
-    //          .Disjunction(items.Item6)
-    //          .Bind(_ => f(
-    //              items.Item1.SuccessValue,
-    //              items.Item2.SuccessValue,
-    //              items.Item3.SuccessValue,
-    //              items.Item4.SuccessValue,
-    //              items.Item5.SuccessValue,
-    //              items.Item6.SuccessValue
-    //              ));
-    //
-    // public static Validation<MonoidFail, FAIL, R> ApplyM<MonoidFail, FAIL, A, B, C, D, E, F, G, R>(
-    //     this ValueTuple<
-    //         Validation<MonoidFail, FAIL, A>,
-    //         Validation<MonoidFail, FAIL, B>,
-    //         Validation<MonoidFail, FAIL, C>,
-    //         Validation<MonoidFail, FAIL, D>,
-    //         Validation<MonoidFail, FAIL, E>,
-    //         Validation<MonoidFail, FAIL, F>,
-    //         Validation<MonoidFail, FAIL, G>
-    //         > items,
-    //     Func<A, B, C, D, E, F, G, Validation<MonoidFail, FAIL, R>> f)
-    //     where MonoidFail : Monoid<FAIL>, Eq<FAIL> =>
-    //     items.Item1
-    //          .Disjunction(items.Item2)
-    //          .Disjunction(items.Item3)
-    //          .Disjunction(items.Item4)
-    //          .Disjunction(items.Item5)
-    //          .Disjunction(items.Item6)
-    //          .Disjunction(items.Item7)
-    //          .Bind(_ => f(
-    //              items.Item1.SuccessValue,
-    //              items.Item2.SuccessValue,
-    //              items.Item3.SuccessValue,
-    //              items.Item4.SuccessValue,
-    //              items.Item5.SuccessValue,
-    //              items.Item6.SuccessValue,
-    //              items.Item7.SuccessValue
-    //              ));
+    /// <summary>
+    /// Monadic join
+    /// </summary>
+    [Pure]
+    public static Validation<L, A> Flatten<L, A>(this Validation<L, Validation<L, A>> mma)
+        where L : Monoid<L> =>
+        mma.Bind(x => x);
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    [Pure]
+    public static Validation<L, B> Apply<L, A, B>(this Validation<L, Func<A, B>> mf, Validation<L, A> ma)
+        where L : Monoid<L> =>
+        new(mf.either.State switch
+            {
+                EitherStatus.IsRight =>
+                    ma.either.State switch
+                    {
+                        EitherStatus.IsRight =>
+                            Either<L, B>.Right(mf.either.RightValue(ma.either.RightValue)),
+
+                        EitherStatus.IsLeft =>
+                            Either<L, B>.Left(mf.either.LeftValue.Append(ma.either.LeftValue)),
+
+                        _ =>
+                            Either<L, B>.Left(mf.either.LeftValue)
+
+                    },
+
+                EitherStatus.IsLeft =>
+                    ma.either.State switch
+                    {
+                        EitherStatus.IsLeft =>
+                            Either<L, B>.Left(mf.either.LeftValue.Append(ma.either.LeftValue)),
+
+                        _ =>
+                            Either<L, B>.Left(mf.either.LeftValue)
+
+                    },
+                _ => Either<L, B>.Left(L.Empty)
+            });
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    [Pure]
+    public static Validation<L, C> Apply<L, A, B, C>(
+        this Validation<L, Func<A, B, C>> mf, 
+        Validation<L, A> ma,
+        Validation<L, B> mb)
+        where L : Monoid<L> =>
+        mf.Map(curry).Apply(ma).Apply(mb);
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    [Pure]
+    public static Validation<L, Func<B, C>> Apply<L, A, B, C>(
+        this Validation<L, Func<A, B, C>> mf, 
+        Validation<L, A> ma)
+        where L : Monoid<L> =>
+        mf.Map(curry).Apply(ma);
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    [Pure]
+    public static Validation<L, B> ApplyM<L, A, B>(
+        this Validation<L, Func<A, Validation<L, B>>> mf,
+        Validation<L, A> ma)
+        where L : Monoid<L> =>
+        mf.Apply(ma).Flatten();
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    [Pure]
+    public static Validation<L, C> ApplyM<L, A, B, C>(
+        this Validation<L, Func<A, B, Validation<L, C>>> mf, 
+        Validation<L, A> ma,
+        Validation<L, B> mb)
+        where L : Monoid<L> =>
+        mf.Map(curry).Apply(ma).Apply(mb).Flatten();
+
+    /// <summary>
+    /// Applicative apply
+    /// </summary>
+    [Pure]
+    public static Validation<L, Func<B, Validation<L, C>>> ApplyM<L, A, B, C>(
+        this Validation<L, Func<A, B, Validation<L, C>>> mf, 
+        Validation<L, A> ma)
+        where L : Monoid<L> =>
+        mf.Map(curry).Apply(ma);
+    
+    /// <summary>
+    /// Applicative action
+    /// </summary>
+    [Pure]
+    public static Validation<L, B> Action<L, A, B>(this Validation<L, A> ma, Validation<L, B> mb)
+        where L : Monoid<L> =>
+        fun((A _, B b) => b).Map(ma).Apply(mb).As();
+
+    /// <summary>
+    /// Extract only the successes 
+    /// </summary>
+    /// <param name="vs">Enumerable of validations</param>
+    /// <typeparam name="F">Fail type</typeparam>
+    /// <typeparam name="S">Success type</typeparam>
+    /// <returns>Enumerable of successes</returns>
+    [Pure]
+    public static IEnumerable<S> Successes<F, S>(this IEnumerable<Validation<F, S>> vs)
+        where F : Monoid<F>, Eq<F>
+    {
+        foreach (var v in vs)
+        {
+            if (v.IsSuccess) yield return (S)v;
+        }
+    }
+
+    /// <summary>
+    /// Extract only the failures 
+    /// </summary>
+    /// <param name="vs">Enumerable of validations</param>
+    /// <typeparam name="F">Fail type</typeparam>
+    /// <typeparam name="S">Success type</typeparam>
+    /// <returns>Enumerable of failures</returns>
+    [Pure]
+    public static IEnumerable<F> Fails<F, S>(this IEnumerable<Validation<F, S>> vs)
+        where F : Monoid<F>, Eq<F>
+    {
+        foreach (var v in vs)
+        {
+            if (v.IsFail) yield return (F)v;
+        }
+    }
+    
+    /// <summary>
+    /// Extract only the successes 
+    /// </summary>
+    /// <param name="vs">Seq of validations</param>
+    /// <typeparam name="F">Fail type</typeparam>
+    /// <typeparam name="S">Success type</typeparam>
+    /// <returns>Enumerable of successes</returns>
+    [Pure]
+    public static Seq<S> Successes<F, S>(this Seq<Validation<F, S>> vs)
+        where F : Monoid<F>, Eq<F> =>
+        toSeq(Successes(vs.AsEnumerable()));
+    
+    /// <summary>
+    /// Extract only the failures 
+    /// </summary>
+    /// <param name="vs">Seq of validations</param>
+    /// <typeparam name="F">Fail type</typeparam>
+    /// <typeparam name="S">Success type</typeparam>
+    /// <returns>Enumerable of failures</returns>
+    [Pure]
+    public static Seq<F> Fails<F, S>(this Seq<Validation<F, S>> vs)
+        where F : Monoid<F>, Eq<F> => 
+        toSeq(Fails(vs.AsEnumerable()));
+    
+    [Pure]
+    public static Validation<F, R> Apply<F, A, R>(
+        this ValueTuple<Validation<F, A>> items, Func<A, R> f)
+        where F : Monoid<F>, Eq<F> =>
+        items.Item1.Match(Succ: s => f(s), Fail: Validation<F, R>.Fail);
+
+    [Pure]
+    public static Validation<F, R> Apply<F, A, B, R>(
+        this ValueTuple<
+            Validation<F, A>,
+            Validation<F, B>> items,
+        Func<A, B, R> f)
+        where F : Monoid<F>, Eq<F> =>
+        fun(f).Map(items.Item1).Apply(items.Item2).As();
+
+    [Pure]
+    public static Validation<F, R> Apply<F, A, B, C, R>(
+        this ValueTuple<
+            Validation<F, A>,
+            Validation<F, B>,
+            Validation<F, C>
+        > items,
+        Func<A, B, C, R> f)
+        where F : Monoid<F>, Eq<F> =>
+        fun(f).Map(items.Item1)
+              .Apply(items.Item2)
+              .Apply(items.Item3)
+              .As();
+
+    [Pure]
+    public static Validation<F, R> Apply<F, A, B, C, D, R>(
+        this ValueTuple<
+            Validation<F, A>,
+            Validation<F, B>,
+            Validation<F, C>,
+            Validation<F, D>
+            > items,
+        Func<A, B, C, D, R> f)
+        where F : Monoid<F>, Eq<F> =>
+        fun(f).Map(items.Item1)
+              .Apply(items.Item2)
+              .Apply(items.Item3)
+              .Apply(items.Item4)
+              .As();
+    
+    [Pure]
+    public static Validation<F, R> Apply<F, A, B, C, D, E, R>(
+        this ValueTuple<
+            Validation<F, A>,
+            Validation<F, B>,
+            Validation<F, C>,
+            Validation<F, D>,
+            Validation<F, E>
+            > items,
+        Func<A, B, C, D, E, R> f)
+        where F : Monoid<F>, Eq<F> =>
+        fun(f).Map(items.Item1)
+              .Apply(items.Item2)
+              .Apply(items.Item3)
+              .Apply(items.Item4)
+              .Apply(items.Item5)
+              .As();
+    
+    [Pure]
+    public static Validation<FAIL, R> Apply<FAIL, A, B, C, D, E, F, R>(
+        this ValueTuple<
+            Validation<FAIL, A>,
+            Validation<FAIL, B>,
+            Validation<FAIL, C>,
+            Validation<FAIL, D>,
+            Validation<FAIL, E>,
+            Validation<FAIL, F>
+            > items,
+        Func<A, B, C, D, E, F, R> f)
+        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        fun(f).Map(items.Item1)
+              .Apply(items.Item2)
+              .Apply(items.Item3)
+              .Apply(items.Item4)
+              .Apply(items.Item5)
+              .Apply(items.Item6)
+              .As();
+    
+    [Pure]
+    public static Validation<FAIL, R> Apply<FAIL, A, B, C, D, E, F, G, R>(
+        this ValueTuple<
+            Validation<FAIL, A>,
+            Validation<FAIL, B>,
+            Validation<FAIL, C>,
+            Validation<FAIL, D>,
+            Validation<FAIL, E>,
+            Validation<FAIL, F>,
+            Validation<FAIL, G>
+            > items,
+        Func<A, B, C, D, E, F, G, R> f)
+        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        fun(f).Map(items.Item1)
+              .Apply(items.Item2)
+              .Apply(items.Item3)
+              .Apply(items.Item4)
+              .Apply(items.Item5)
+              .Apply(items.Item6)
+              .Apply(items.Item7)
+              .As();
+
+    [Pure]
+    public static Validation<FAIL, R> ApplyM<FAIL, A, R>(this ValueTuple<Validation<FAIL, A>> items, Func<A, Validation<FAIL, R>> f)
+        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        items.Apply(f).Flatten();
+    
+    [Pure]
+    public static Validation<FAIL, R> ApplyM<FAIL, A, B, R>(
+        this ValueTuple<
+            Validation<FAIL, A>,
+            Validation<FAIL, B>> items,
+        Func<A, B, Validation<FAIL, R>> f)
+        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        items.Apply(f).Flatten();
+    
+    [Pure]
+    public static Validation<FAIL, R> ApplyM<FAIL, A, B, C, R>(
+        this ValueTuple<
+            Validation<FAIL, A>,
+            Validation<FAIL, B>,
+            Validation<FAIL, C>
+            > items,
+        Func<A, B, C, Validation<FAIL, R>> f)
+        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        items.Apply(f).Flatten();
+    
+    [Pure]
+    public static Validation<FAIL, R> ApplyM<FAIL, A, B, C, D, R>(
+        this ValueTuple<
+            Validation<FAIL, A>,
+            Validation<FAIL, B>,
+            Validation<FAIL, C>,
+            Validation<FAIL, D>
+            > items,
+        Func<A, B, C, D, Validation<FAIL, R>> f)
+        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        items.Apply(f).Flatten();
+    
+    [Pure]
+    public static Validation<FAIL, R> ApplyM<FAIL, A, B, C, D, E, R>(
+        this ValueTuple<
+            Validation<FAIL, A>,
+            Validation<FAIL, B>,
+            Validation<FAIL, C>,
+            Validation<FAIL, D>,
+            Validation<FAIL, E>
+            > items,
+        Func<A, B, C, D, E, Validation<FAIL, R>> f)
+        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        items.Apply(f).Flatten();
+    
+    [Pure]
+    public static Validation<FAIL, R> ApplyM<FAIL, A, B, C, D, E, F, R>(
+        this ValueTuple<
+            Validation<FAIL, A>,
+            Validation<FAIL, B>,
+            Validation<FAIL, C>,
+            Validation<FAIL, D>,
+            Validation<FAIL, E>,
+            Validation<FAIL, F>
+            > items,
+        Func<A, B, C, D, E, F, Validation<FAIL, R>> f)
+        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        items.Apply(f).Flatten();
+    
+    [Pure]
+    public static Validation<FAIL, R> ApplyM<FAIL, A, B, C, D, E, F, G, R>(
+        this ValueTuple<
+            Validation<FAIL, A>,
+            Validation<FAIL, B>,
+            Validation<FAIL, C>,
+            Validation<FAIL, D>,
+            Validation<FAIL, E>,
+            Validation<FAIL, F>,
+            Validation<FAIL, G>
+            > items,
+        Func<A, B, C, D, E, F, G, Validation<FAIL, R>> f)
+        where FAIL : Monoid<FAIL>, Eq<FAIL> =>
+        items.Apply(f).Flatten();
 }

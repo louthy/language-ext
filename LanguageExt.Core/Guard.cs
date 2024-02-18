@@ -55,23 +55,6 @@ public readonly struct Guard<E, A>
             ? Right(unit)
             : Left(OnFalse());
         
-    /// <summary>
-    /// Natural transformation to `Validation`
-    /// </summary>
-    public Validation<E, Unit> ToValidation() =>
-        Flag
-            ? Success<E, Unit>(unit)
-            : Fail<E, Unit>(OnFalse());
-        
-    /// <summary>
-    /// Natural transformation to `Validation`
-    /// </summary>
-    public Validation<MonoidE, E, Unit> ToValidation<MonoidE>() 
-        where MonoidE : Monoid<E>, Eq<E> =>
-        Flag
-            ? Success<MonoidE, E, Unit>(unit)
-            : Fail<MonoidE, E, Unit>(OnFalse());
-        
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //  Bind implementations for the types supporting guards
@@ -84,24 +67,6 @@ public readonly struct Guard<E, A>
         Flag
             ? f(default)
             : Left(OnFalse());
-
-    /// <summary>
-    /// Monadic binding support for `Validation`
-    /// </summary>
-    public Validation<E, B> Bind<B>(
-        Func<Unit, Validation<E, B>> f) =>
-        Flag
-            ? f(default)
-            : Fail<E, B>(OnFalse());
-        
-    /// <summary>
-    /// Monadic binding support for `Validation`
-    /// </summary>
-    public Validation<MonoidE, E, B> Bind<MonoidE, B>(Func<Unit, Validation<MonoidE, E, B>> f)
-        where MonoidE : Monoid<E>, Eq<E> =>
-        Flag
-            ? f(default)
-            : Fail<MonoidE, E, B>(OnFalse());
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -116,23 +81,40 @@ public readonly struct Guard<E, A>
         Flag
             ? bind(default).Map(b => project(default, b))
             : Left(OnFalse());
-        
+}
+
+public static class GuardExtensions
+{
+    /// <summary>
+    /// Natural transformation to `Validation`
+    /// </summary>
+    public static Validation<F, Unit> ToValidation<F>(this Guard<F, Unit> guard) 
+        where F : Monoid<F> =>
+        guard.Flag
+            ? Validation<F, Unit>.Success(default)
+            : Validation<F, Unit>.Fail(guard.OnFalse());
+ 
     /// <summary>
     /// Monadic binding support for `Validation`
     /// </summary>
-    public Validation<E, C> SelectMany<B, C>(Func<Unit, Validation<E, B>> bind, Func<Unit, B, C> project) =>
-        Flag
-            ? bind(default).Map(b => project(default, b))
-            : Fail<E, C>(OnFalse());
-        
+    public static Validation<F, B> Bind<F, B>(
+        this Guard<F, Unit> guard,
+        Func<Unit, Validation<F, B>> f) 
+        where F : Monoid<F> =>
+        guard.Flag
+            ? f(default)
+            : Validation<F, B>.Fail(guard.OnFalse());
+       
     /// <summary>
     /// Monadic binding support for `Validation`
     /// </summary>
-    public Validation<MonoidE, E, C> SelectMany<MonoidE, B, C>(
-        Func<Unit, Validation<MonoidE, E, B>> bind, 
-        Func<Unit, B, C> project)
-        where MonoidE : Monoid<E>, Eq<E> =>
-        Flag
+    public static Validation<F, C> SelectMany<F, B, C>(
+        this Guard<F, Unit> guard,
+        Func<Unit, Validation<F, B>> bind, 
+        Func<Unit, B, C> project) 
+        where F : Monoid<F> =>
+        guard.Flag
             ? bind(default).Map(b => project(default, b))
-            : Fail<MonoidE, E, C>(OnFalse());
+            : Validation<F, C>.Fail(guard.OnFalse());
+
 }

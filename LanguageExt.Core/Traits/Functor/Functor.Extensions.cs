@@ -28,5 +28,28 @@ public static class FunctorExtensions
         where F : Functor<F> =>
         F.Map(x => curry(f)(x), ma);
     
+    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, F>>>>> Map<Fnctr, A, B, C, D, E, F>(
+        this Func<A, B, C, D, E, F> f, K<Fnctr, A> ma) 
+        where Fnctr : Functor<Fnctr> =>
+        Fnctr.Map(x => curry(f)(x), ma);
     
+    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, G>>>>>> Map<Fnctr, A, B, C, D, E, F, G>(
+        this Func<A, B, C, D, E, F, G> f, K<Fnctr, A> ma) 
+        where Fnctr : Functor<Fnctr> =>
+        Fnctr.Map(x => curry(f)(x), ma);
+    
+    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, H>>>>>>> Map<Fnctr, A, B, C, D, E, F, G, H>(
+        this Func<A, B, C, D, E, F, G, H> f, K<Fnctr, A> ma) 
+        where Fnctr : Functor<Fnctr> =>
+        Fnctr.Map(x => curry(f)(x), ma);
+    
+    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, I>>>>>>>> Map<Fnctr, A, B, C, D, E, F, G, H, I>(
+        this Func<A, B, C, D, E, F, G, H, I> f, K<Fnctr, A> ma) 
+        where Fnctr : Functor<Fnctr> =>
+        Fnctr.Map(x => curry(f)(x), ma);
+    
+    public static K<Fnctr, Func<B, Func<C, Func<D, Func<E, Func<F, Func<G, Func<H, Func<I, J>>>>>>>>> Map<Fnctr, A, B, C, D, E, F, G, H, I, J>(
+        this Func<A, B, C, D, E, F, G, H, I, J> f, K<Fnctr, A> ma) 
+        where Fnctr : Functor<Fnctr> =>
+        Fnctr.Map(x => curry(f)(x), ma);
 }

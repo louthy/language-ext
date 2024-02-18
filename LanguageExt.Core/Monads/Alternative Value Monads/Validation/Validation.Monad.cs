@@ -24,7 +24,7 @@ public partial class Validation<L> :
         ma.As().Map(f);
 
     static K<Validation<L>, A> Applicative<Validation<L>>.Pure<A>(A value) => 
-        ValidationT<L, M, A>.Success(value);
+        Validation<L, A>.Success(value);
 
     static K<Validation<L>, B> Applicative<Validation<L>>.Apply<A, B>(
         K<Validation<L>, Func<A, B>> mf,
@@ -36,14 +36,8 @@ public partial class Validation<L> :
         K<Validation<L>, B> mb) =>
         Prelude.fun((A _, B b) => b).Map(ma).Apply(mb).As();
 
-    static K<Validation<L>, A> MonadT<Validation<L>, M>.Lift<A>(K<M, A> ma) => 
-        ValidationT<L, M, A>.Lift(ma);
-    
-    static K<Validation<L>, A> Monad<Validation<L>>.LiftIO<A>(IO<A> ma) => 
-        ValidationT<L, M, A>.Lift(M.LiftIO(ma));
-
     static K<Validation<L>, A> Alternative<Validation<L>>.Empty<A>() =>
-        ValidationT<L, M, A>.Fail(L.Empty);
+        Validation<L, A>.Fail(L.Empty);
 
     static K<Validation<L>, A> Alternative<Validation<L>>.Or<A>(
         K<Validation<L>, A> ma,

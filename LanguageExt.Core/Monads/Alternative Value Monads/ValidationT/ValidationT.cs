@@ -11,7 +11,7 @@ namespace LanguageExt;
 /// <typeparam name="M">Given monad trait</typeparam>
 /// <typeparam name="L">Left value type</typeparam>
 /// <typeparam name="A">Bound value type</typeparam>
-public record ValidationT<L, M, A>(K<M, Either<L, A>> runValidation) : K<ValidationT<L, M>, A>
+public record ValidationT<L, M, A>(K<M, Validation<L, A>> runValidation) : K<ValidationT<L, M>, A>
     where M : Monad<M>
     where L : Monoid<L>
 {
@@ -29,7 +29,7 @@ public record ValidationT<L, M, A>(K<M, Either<L, A>> runValidation) : K<Validat
     /// <param name="value">Value to lift</param>
     /// <returns>`ValidationT`</returns>
     public static ValidationT<L, M, A> Fail(L value) =>
-        Lift(Either<L, A>.Left(value));
+        Lift(Validation<L, A>.Fail(value));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -44,7 +44,7 @@ public record ValidationT<L, M, A>(K<M, Either<L, A>> runValidation) : K<Validat
     /// </summary>
     /// <param name="Validation">Monad to lift</param>
     /// <returns>`ValidationT`</returns>
-    public static ValidationT<L, M, A> Lift(Either<L, A> Validation) =>
+    public static ValidationT<L, M, A> Lift(Validation<L, A> Validation) =>
         new(M.Pure(Validation));
 
     /// <summary>
@@ -53,7 +53,7 @@ public record ValidationT<L, M, A>(K<M, Either<L, A>> runValidation) : K<Validat
     /// <param name="fail">Monad to lift</param>
     /// <returns>`ValidationT`</returns>
     public static ValidationT<L, M, A> Lift(Fail<L> fail) =>
-        Lift(Either<L, A>.Left(fail.Value));
+        Lift(Validation<L, A>.Fail(fail.Value));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -61,7 +61,7 @@ public record ValidationT<L, M, A>(K<M, Either<L, A>> runValidation) : K<Validat
     /// <param name="monad">Monad to lift</param>
     /// <returns>`ValidationT`</returns>
     public static ValidationT<L, M, A> Lift(K<M, A> monad) =>
-        new(M.Map(Either<L, A>.Right, monad));
+        new(M.Map(Validation<L, A>.Success, monad));
 
     /// <summary>
     /// Lifts a given monad into the transformer
@@ -76,10 +76,10 @@ public record ValidationT<L, M, A>(K<M, Either<L, A>> runValidation) : K<Validat
     //  Match
     //
 
-    public K<M, B> Match<B>(Func<L, B> Left, Func<A, B> Right) =>
-        M.Map(mx => mx.Match(Left: Left, Right: Right), runValidation);
+    public K<M, B> Match<B>(Func<A, B> Succ, Func<L, B> Fail) =>
+        M.Map(mx => mx.Match(Succ, Fail), runValidation);
  
-    public K<M, Either<L, A>> Run() =>
+    public K<M, Validation<L, A>> Run() =>
         runValidation;
  
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ public record ValidationT<L, M, A>(K<M, Either<L, A>> runValidation) : K<Validat
     /// <typeparam name="M1">Target monad type</typeparam>
     /// <typeparam name="B">Target bound value type</typeparam>
     /// <returns>Mapped monad</returns>
-    public ValidationT<L, M1, B> MapT<M1, B>(Func<K<M, Either<L, A>>, K<M1, Either<L, B>>> f)
+    public ValidationT<L, M1, B> MapT<M1, B>(Func<K<M, Validation<L, A>>, K<M1, Validation<L, B>>> f)
         where M1 : Monad<M1> =>
         new (f(runValidation));
     
@@ -138,15 +138,10 @@ public record ValidationT<L, M, A>(K<M, Either<L, A>> runValidation) : K<Validat
     /// <returns>`ValidationT`</returns>
     public ValidationT<L, M, B> Bind<B>(Func<A, ValidationT<L, M, B>> f) =>
         new(M.Bind(runValidation,
-                   ea => ea.State switch
+                   ea => ea.IsSuccess switch
                          {
-                             EitherStatus.IsRight =>
-                                 f(ea.RightValue).runValidation,
-
-                             EitherStatus.IsLeft =>
-                                 M.Pure(Either<L, B>.Left(ea.LeftValue)),
-
-                             _ => M.Pure(default(Either<L, B>))
+                             true  => f(ea.SuccessValue).runValidation,
+                             false => M.Pure(Validation<L, B>.Fail(ea.FailValue))
                          }));        
 
     /// <summary>
@@ -213,7 +208,7 @@ public record ValidationT<L, M, A>(K<M, Either<L, A>> runValidation) : K<Validat
     /// <typeparam name="B">Intermediate bound value type</typeparam>
     /// <typeparam name="C">Target bound value type</typeparam>
     /// <returns>`ValidationT`</returns>
-    public ValidationT<L, M, C> SelectMany<B, C>(Func<A, Either<L, B>> bind, Func<A, B, C> project) =>
+    public ValidationT<L, M, C> SelectMany<B, C>(Func<A, Validation<L, B>> bind, Func<A, B, C> project) =>
         SelectMany(x => ValidationT<L, M, B>.Lift(bind(x)), project);
 
     /// <summary>
@@ -253,19 +248,9 @@ public record ValidationT<L, M, A>(K<M, Either<L, A>> runValidation) : K<Validat
         LiftIO(ma);
 
     public static ValidationT<L, M, A> operator |(ValidationT<L, M, A> ma, ValidationT<L, M, A> mb) =>
-        new(M.Bind(ma.runValidation,
-                   ea => ea.State switch
-                         {
-                             EitherStatus.IsRight => M.Pure(ea),
-                             EitherStatus.IsLeft =>
-                                 M.Bind(mb.runValidation,
-                                        eb => eb.State switch
-                                              {
-                                                  EitherStatus.IsRight => M.Pure(eb),
-                                                  EitherStatus.IsLeft => M.Pure(
-                                                      Either<L, A>.Left(ea.LeftValue.Append(eb.LeftValue))),
-                                                  _ => M.Pure(ea)
-                                              }),
-                             _ => M.Pure(ea)
-                         }));
+        new(M.Bind(ma.runValidation, ea => M.Map(eb => ea | eb, mb.runValidation)));
+
+    public static ValidationT<L, M, Seq<A>> operator &(ValidationT<L, M, A> ma, ValidationT<L, M, A> mb) =>
+        new(M.Bind(ma.runValidation, ea => M.Map(eb => ea & eb, mb.runValidation)));
+    
 }

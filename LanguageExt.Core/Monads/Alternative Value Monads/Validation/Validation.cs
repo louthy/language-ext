@@ -579,6 +579,27 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     
     /// <summary>
     /// If any items are Fail then the errors are collected and returned.  If they
+    /// all pass then the first successful item is returned.
+    /// </summary>
+    [Pure]
+    public static Validation<F, A> operator |(Validation<F, A> lhs, Validation<F, A> rhs) =>
+        (lhs, rhs) switch
+        {
+            ({ IsSuccess: true } , { IsSuccess: true }) => 
+                lhs,
+            
+            ({ IsFail: true } , {IsFail: true}) => 
+                lhs.FailValue.Append(rhs.FailValue),
+            
+            ({ IsFail: true } , _) => 
+                lhs,
+            
+            _ => 
+                rhs
+        };
+    
+    /// <summary>
+    /// If any items are Fail then the errors are collected and returned.  If they
     /// all pass then the Success values are collected into a `Seq`.  
     /// </summary>
     [Pure]
@@ -651,8 +672,22 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// Override of the Or operator to be a Left coalescing operator
     /// </summary>
     [Pure]
+    public static Validation<F, A> operator |(Validation<F, A> lhs, Pure<A> rhs) =>
+        lhs | (Validation<F, A>)rhs;
+
+    /// <summary>
+    /// Override of the Or operator to be a Left coalescing operator
+    /// </summary>
+    [Pure]
     public static Validation<F, Seq<A>> operator &(Validation<F, A> lhs, Fail<F> rhs) =>
         lhs & (Validation<F, A>)rhs;
+
+    /// <summary>
+    /// Override of the Or operator to be a Left coalescing operator
+    /// </summary>
+    [Pure]
+    public static Validation<F, A> operator |(Validation<F, A> lhs, Fail<F> rhs) =>
+        lhs | (Validation<F, A>)rhs;
 
     /// <summary>
     /// Override of the True operator to return True if the Either is Right
@@ -1009,6 +1044,14 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
         Bind(x => (Validation<F, A>)f(x));
 
     /// <summary>
+    /// Monadic bind
+    /// </summary>
+    /// <param name="f">Bind function</param>
+    [Pure]
+    public Validation<F, Unit> Bind(Func<A, Guard<F, Unit>> f)=>
+        Bind(a => f(a).ToValidation());
+
+    /// <summary>
     /// Monadic bind and project
     /// </summary>
     /// <param name="bind">Bind function</param>
@@ -1016,7 +1059,7 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     [Pure]
     public Validation<F, C> SelectMany<B, C>(Func<A, Pure<B>> bind, Func<A, B, C> project) =>
         Bind(x => bind(x).Map(y => project(x, y)));
-
+    
     /// <summary>
     /// Monadic bind and project
     /// </summary>
@@ -1025,7 +1068,18 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     [Pure]
     public Validation<F, C> SelectMany<B, C>(Func<A, Fail<F>> bind, Func<A, B, C> _) =>
         Bind(x => Validation<F, C>.Fail(bind(x).Value));
-
+    
+    /// <summary>
+    /// Monadic bind and project
+    /// </summary>
+    /// <param name="bind">Bind function</param>
+    /// <param name="project">Project function</param>
+    [Pure]
+    public Validation<F, C> SelectMany<C>(
+        Func<A, Guard<F, Unit>> f,
+        Func<A, Unit, C> project) =>
+        SelectMany(a => f(a).ToValidation(), project);
+    
     [Pure]
     public static implicit operator Validation<F, A>(Pure<A> mr) =>
         Success(mr.Value);

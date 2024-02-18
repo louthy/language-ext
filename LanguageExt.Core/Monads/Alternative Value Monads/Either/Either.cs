@@ -572,15 +572,6 @@ public readonly struct Either<L, R> :
             _                    => []
         };
 
-    [Pure]
-    public Validation<L, R> ToValidation() =>
-        State switch
-        {
-            EitherStatus.IsRight => Pure(right!),
-            EitherStatus.IsLeft  => Fail(left!),
-            _                    => throw new BottomException()
-        };
-
     /// <summary>
     /// Convert the Either to an Option
     /// </summary>
