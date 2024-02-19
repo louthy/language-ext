@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using LanguageExt.Traits;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
@@ -166,7 +167,7 @@ public readonly struct HashSet<EqA, A> :
     [Pure]
     public HashSet<EqA, A> Map(Func<A, A> mapper) =>
         Map<EqA, A>(mapper);
-
+    
     /// <summary>
     /// Filters items from the set using the predicate.  If the predicate
     /// returns True for any item then it remains in the set, otherwise

@@ -90,6 +90,20 @@ public readonly struct Identity<A> :
             _            => OrdDefault<A>.Compare(value, other.value)
         };
 
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these actions from
+    /// left to right, and collect the results.
+    /// </summary>
+    /// </remarks>
+    /// <param name="f"></param>
+    /// <param name="ta">Traversable structure</param>
+    /// <typeparam name="F">Applicative functor trait</typeparam>
+    /// <typeparam name="B">Bound value (output)</typeparam>
+    [Pure]
+    public K<F, Identity<B>> Traverse<F, B>(Func<A, K<F, B>> f) 
+        where F : Applicative<F> =>
+        F.Map(x => x.As(), Traversable.traverse(f, this));
+    
     [Pure]
     public Identity<B> Map<B>(Func<A, B> f) =>
         value is null

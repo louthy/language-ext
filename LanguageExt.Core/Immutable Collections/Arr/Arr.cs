@@ -7,6 +7,7 @@ using static LanguageExt.Prelude;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using System.Runtime.CompilerServices;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
@@ -24,7 +25,8 @@ public struct Arr<A> :
     IEquatable<Arr<A>>,
     IComparable<Arr<A>>,
     Monoid<Arr<A>>,
-    IComparable
+    IComparable,
+    K<Arr, A>
 {
     /// <summary>
     /// Empty array
@@ -623,6 +625,20 @@ public struct Arr<A> :
         }
         return new Arr<B>(newArray);
     }
+    
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these actions from
+    /// left to right, and collect the results.
+    /// </summary>
+    /// </remarks>
+    /// <param name="f"></param>
+    /// <param name="ta">Traversable structure</param>
+    /// <typeparam name="F">Applicative functor trait</typeparam>
+    /// <typeparam name="B">Bound value (output)</typeparam>
+    [Pure]
+    public K<F, Arr<B>> Traverse<F, B>(Func<A, K<F, B>> f) 
+        where F : Applicative<F> =>
+        F.Map(x => x.As(), Traversable.traverse(f, this));
 
     /// <summary>
     /// Filter

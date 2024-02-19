@@ -1108,7 +1108,7 @@ public readonly struct HashMap<K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HashMap<K, U> Select<U>(Func<K, V, U> mapper) =>
         Map(mapper);
-
+    
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
     /// </summary>

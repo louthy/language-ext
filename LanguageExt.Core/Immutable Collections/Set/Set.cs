@@ -5,6 +5,7 @@ using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
+using LanguageExt.Traits;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt;
@@ -401,7 +402,22 @@ public readonly struct Set<A> :
     [Pure]
     public Set<B> Map<B>(Func<A, B> map) =>
         Wrap(Value.Map<OrdDefault<B>, B>(map));
-
+    
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these actions from
+    /// left to right, and collect the results.
+    /// </summary>
+    /// </remarks>
+    /// <param name="f"></param>
+    /// <param name="ta">Traversable structure</param>
+    /// <typeparam name="F">Applicative functor trait</typeparam>
+    /// <typeparam name="B">Bound value (output)</typeparam>
+    [Pure]
+    public K<F, Set<B>> Traverse<F, B>(Func<A, K<F, B>> f) 
+        where F : Applicative<F> =>
+        F.Map(x => x.As(), Traversable.traverse(f, this));
+    
+    
     /// <summary>
     /// Filters items from the set using the predicate.  If the predicate
     /// returns True for any item then it remains in the set, otherwise

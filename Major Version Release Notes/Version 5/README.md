@@ -92,20 +92,6 @@ Low
 
 Use `[x]` or `Seq.singleton(x)`
 
-### `Apply` extensions that use raw `Func` removed
-
-**Motivation**
-
-The applicative-functor `Apply` function is supposed to work on lifted functions (i.e. `M<Func<A, B>>` not the raw `Func<A, B>`).  I orignally provided variants that work with the raw `Func` for convenience, but really they're just `Map` by another name.
-
-**Impact**
-
-Medium
-
-**Mitigation** 
-
-Use `Map` instead.  For the `Apply` variants that take additional arguments, you can use `curry` to turn your `Func<A, B, ...>` into `Func<A, Func<B, ...>` - and that allows the `Func` to be used in `Map`.
-
 ### 'Trait' types now use static interface methods
 
 Before static interface methods existed, the technique was to rely on the non-nullable nature of structs to get access to 'static' methods (via interface based constraints), by calling `default(TRAIT_TYPE).StaticMethod()`.
@@ -161,7 +147,6 @@ The functions in the `TypeClass` static class have been moved to: `Monoid` and `
 
 Semigroup also defines `operator+` now.
 
-
 **Motivation**
 
 Monoids, like the other trait types, were set up work ad-hoc polymorphically.  That is, we could build a `Monoid` instance for a type that we don't own.  And, although we have now lost that capability, we have gained a much easier experience for working with monoidal types.
@@ -192,7 +177,6 @@ Medium - I'm not expecting mass adoption of the previous traits system, so it pr
 
 Any implementations of `Monoid<YOUR_TYPE>` that you have, take the implementation and move the members into `YOUR_TYPE` and `Append` into a non-static method that takes a single argument rather than two (`this` is your first argument now).
 
-
 ### The static `TypeClass` class has been renamed `Trait`
 
 `LanguageExt.TypeClass` is effectively a Prelude for the trait functions, this has been renamed to `LanguageExt.Trait`.
@@ -209,6 +193,159 @@ Low
 **Mitigation** 
 
 Search and replace `TypeClass` for `Trait`.
+
+### `Apply` extensions that use raw `Func` removed
+
+**Motivation**
+
+The applicative-functor `Apply` function is supposed to work on lifted functions (i.e. `M<Func<A, B>>` not the raw `Func<A, B>`).  I orignally provided variants that work with the raw `Func` for convenience, but really they're just `Map` by another name.
+
+**Impact**
+
+Medium
+
+**Mitigation** 
+
+The new `Functor` trait gives all functor types a new variant of `Map` which takes the `Func` as the first argument and the functor value as the second (this differs from the existing handwritten `Map` methods which take `this` as the first argument and a `Func` as the second argument).  That, along with new extension methods for `Func<A, ..., J>` have been added that curry the `Func` and then applies the map function.
+
+So, instead of:
+
+```c#
+Func<string, string, string> surround = 
+	(str, before, after) => $"{before} {str} {after}";
+
+var mx = Some("Paul");
+var my = Some("Mr.");
+var mz = Some("Louth");
+
+surround.Apply(mx).Apply(my).Apply(mz);
+```
+
+Change the first `Apply` to `Map`:
+
+```c#
+surround.Map(mx).Apply(my).Apply(mz);
+```
+
+Those of you that have used Haskell will recognise that pattern, as it's commonly used:
+
+```haskell
+surround <$> mx <*> my <*> mz
+```
+
+### Manually written `Sequence` extension methods have been removed (#1)
+
+The `Sequence` methods that follow this pattern have been removed:
+
+```c#
+public static Fin<Lst<B>> Sequence<A, B>(this Lst<A> ta, Func<A, Fin<B>> f) => ...
+```
+
+**Motivation**
+
+Before being able to formulate the higher-kinds I had to manually write six `Sequence` methods and `Traverse` for every pair of monadic types.  There are 450 of them in total.  As you can imagine that's a real pain to develop and maintain.  
+
+The other issue is that `Sequence` and `Traverse` don't work for monadic types that you build.  You have to write those extension methods yourself for every pair.  This is hardly approachable.
+
+There is a new trait type called `Traversable` that generalises traversals. The completely generic functions are available via:
+
+```c#
+    Traversable.traverse(...)
+    Traversable.sequence(...)
+    Traversable.sequenceA(...)
+    Traversable.mapM(...)
+```
+They will work with *any* pair of traversble and applicatives.
+
+I have also added a `Traverse` method to every traversable type (`Seq`, `Option`, etc.) and those will work with *any* applicative.  Which means if you build your own monads/applicative-functors that have implementations that derive from `Monad<M>` and/or `Applicative<F>` then they will automatically work with the language-ext traversable types.
+
+I have named the new version `Traverse` because that's really what it should have been called in the first place.  So, as this is a big breaking changes release, I decided to bite the bullet and rename it.
+
+**Impact**
+
+High: `Sequence` is likely to be used a lot because it's so useful.  Renaming it to `Traverse` will instantly cause your build to fail.  The new version also returns a lifted value that you may need to convert.
+
+**Mitigation**
+
+Where your build fails due to `Sequence` you should change `Sequence` to `Traverse` and follow the call with `.As()` to lower the generic type:
+
+Before:
+```c#
+	var results = Seq(1,2,3).Sequence(x => x % 2 == 0 : Some(x) : None);
+```
+
+After:
+```c#
+	var results = Seq(1,2,3).Traverse(x => x % 2 == 0 : Some(x) : None).As();
+```
+
+### Manually written `Sequence` extension methods have been removed (#2)
+
+The `Sequence` methods that follow this pattern have been removed:
+
+```c#
+public static Option<Seq<A>> Sequence<A>(this Seq<Option<A>> ta) => ...
+```
+
+**Motivation**
+
+The motivations are the same as for the other removal of `Sequence`.  By removing it we get to use the generalised version which allows others to build monadic types that be composed with the language-ext types and be traversed.
+
+The difference with this removal and the last one is that there is no equivalent `Sequence` method added to the monadic types (like `Option`, `Seq`, etc.);  The reason for this is that it's not possible for C# to pick up the nested generics correctly, so it's a waste of time writing them.  
+
+You can still call `Traversable.sequence` and `Traversable.sequenceA` to do this manually, however it's much easier to call `ma.Traverse(identity)` which is isomorphic.
+
+**Mitigation**
+
+Before:
+```c#
+var results = Seq(Some(1), Some(2), None).Sequence();
+```
+
+After:
+```c#
+var results = Seq(Some(1), Some(2), None).Traverse(identity).As();
+```
+It's not quite as concise obviously, but it is completely generic and extensible which the previous one wasn't.  You can also build your own extension methods for commonly used pairs of monads:
+
+```c#
+public static Option<Seq<A>> Sequence<A>(this Seq<Option<A>> mx) =>
+    mx.Traverse(identity).As();
+```
+That will restore the previous functionality.
+
+### Manually written `Traverse` extension methods have been removed (#3)
+
+The `Traverse` methods that follow this pattern have been removed:
+
+```c#
+public static Seq<Fin<B>> Traverse<A, B>(this Fin<Seq<A>> ma, Func<A, B> f) => ...
+```
+
+**Motivation**
+
+The motivations are the same as for the other removals of `Sequence`.  By removing it we get to use the generalised version which allows others to build monadic types that be composed with the language-ext types and be traversed.
+
+Again, there will be no replacement for this as you can just use a combination of `Sequence` and `Map` to achieve the same goals.
+
+**Mitigation**
+
+Before:
+```c#
+var results = Seq(Some(1), Some(2), None).Traverse(x => x * 2);
+```
+
+After:
+```c#
+var results = Seq(Some(1), Some(2), None).Sequence().Map(x => x * 2).As();
+```
+Again, it's not quite as concise, but it is completely generic and extensible which the previous one wasn't.  You can also build your own extension methods for commonly used pairs of monads:
+
+```c#
+public static Option<Seq<B>> Traverse<A, B>(this Seq<Option<A>> mx, Func<A, B> f) =>
+    mx.Sequence().Map(f).As();
+```
+That will restore the previous functionality.
 
 
 ### `ToComparer` doesn't exist on the `Ord<A>` trait any more
@@ -240,7 +377,7 @@ Low
 
 **Mitigation** 
 
-Mitigation: Rename uses of `Sum<NUM, A>` to `Addition<NUM, A>`
+Rename uses of `Sum<NUM, A>` to `Addition<NUM, A>`
 
 
 ###  `Guard<E>` has become `Guard<E, A>`

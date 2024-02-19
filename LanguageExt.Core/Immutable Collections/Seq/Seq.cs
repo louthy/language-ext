@@ -646,7 +646,21 @@ public readonly struct Seq<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Unit Iter(Action<A> f) =>
         Value.Iter(f);
-
+    
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these actions from
+    /// left to right, and collect the results.
+    /// </summary>
+    /// </remarks>
+    /// <param name="f"></param>
+    /// <param name="ta">Traversable structure</param>
+    /// <typeparam name="F">Applicative functor trait</typeparam>
+    /// <typeparam name="B">Bound value (output)</typeparam>
+    [Pure]
+    public K<F, Seq<B>> Traverse<F, B>(Func<A, K<F, B>> f) 
+        where F : Applicative<F> =>
+        F.Map(x => x.As(), Traversable.traverse(f, this));
+    
     /// <summary>
     /// Map the sequence using the function provided
     /// </summary>

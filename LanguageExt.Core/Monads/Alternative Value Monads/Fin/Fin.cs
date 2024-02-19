@@ -442,7 +442,21 @@ public readonly struct Fin<A> :
     [Pure, MethodImpl(Opt.Default)]
     public bool ForAll(Func<A, bool> f) =>
         either.ForAll(f);
-
+    
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these actions from
+    /// left to right, and collect the results.
+    /// </summary>
+    /// </remarks>
+    /// <param name="f"></param>
+    /// <param name="ta">Traversable structure</param>
+    /// <typeparam name="F">Applicative functor trait</typeparam>
+    /// <typeparam name="B">Bound value (output)</typeparam>
+    [Pure]
+    public K<F, Fin<B>> Traverse<F, B>(Func<A, K<F, B>> f) 
+        where F : Applicative<F> =>
+        F.Map(x => x.As(), Traversable.traverse(f, this));
+    
     [Pure, MethodImpl(Opt.Default)]
     public Fin<B> Map<B>(Func<A, B> f) =>
         either.Map(f);

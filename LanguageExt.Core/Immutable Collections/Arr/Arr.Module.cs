@@ -6,7 +6,7 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt;
 
-public static class Arr
+public partial class Arr
 {
     /// <summary>
     /// Create an empty array

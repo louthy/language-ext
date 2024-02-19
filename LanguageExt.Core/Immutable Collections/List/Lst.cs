@@ -481,7 +481,21 @@ public readonly struct Lst<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<U> Map<U>(Func<A, U> map) =>
         Wrap(Value.Map<True<U>, U>(map));
-
+    
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these actions from
+    /// left to right, and collect the results.
+    /// </summary>
+    /// </remarks>
+    /// <param name="f"></param>
+    /// <param name="ta">Traversable structure</param>
+    /// <typeparam name="F">Applicative functor trait</typeparam>
+    /// <typeparam name="B">Bound value (output)</typeparam>
+    [Pure]
+    public K<F, Lst<B>> Traverse<F, B>(Func<A, K<F, B>> f) 
+        where F : Applicative<F> =>
+        F.Map(x => x.As(), Traversable.traverse(f, this));
+    
     /// <summary>
     /// Filter
     /// </summary>

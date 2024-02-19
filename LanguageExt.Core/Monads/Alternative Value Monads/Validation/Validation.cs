@@ -912,7 +912,21 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     /// </returns>
     public Validation<F, A> Do(Action<A> f) =>
         Map(r => { f(r); return r; });
-
+    
+    /// <summary>
+    /// Map each element of a structure to an action, evaluate these actions from
+    /// left to right, and collect the results.
+    /// </summary>
+    /// </remarks>
+    /// <param name="f"></param>
+    /// <param name="ta">Traversable structure</param>
+    /// <typeparam name="F">Applicative functor trait</typeparam>
+    /// <typeparam name="B">Bound value (output)</typeparam>
+    [Pure]
+    public K<AF, Validation<F, B>> Traverse<AF, B>(Func<A, K<AF, B>> f) 
+        where AF : Applicative<AF> =>
+        AF.Map(x => x.As(), Traversable.traverse(f, this));
+    
     /// <summary>
     /// Maps the value if it's in a Success state
     /// </summary>

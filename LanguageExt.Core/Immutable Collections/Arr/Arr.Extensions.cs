@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using LanguageExt.ClassInstances;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
 
 public static class ArrExtensions
 {
+    public static Arr<A> As<A>(this K<Arr, A> xs) =>
+        (Arr<A>)xs;
+    
     /// <summary>
     /// Monadic join
     /// </summary>
@@ -1202,4 +1206,69 @@ public static class ArrExtensions
         }
         return new Arr<C>(mc.ToArray());
     }
+    
+    /// <summary>
+    /// Apply a sequence of values to a sequence of functions
+    /// </summary>
+    /// <param name="fabc">sequence of functions</param>
+    /// <param name="fa">sequence of argument values</param>
+    /// <returns>Returns the result of applying the sequence argument values to the sequence functions</returns>
+    [Pure]
+    public static Arr<B> Apply<A, B>(this Arr<Func<A, B>> fabc, Arr<A> fa) =>
+        fabc.Bind(fa.Map);
+
+    /// <summary>
+    /// Apply a sequence of values to a sequence of functions of arity 2
+    /// </summary>
+    /// <param name="fabc">sequence of functions</param>
+    /// <param name="fa">sequence argument values</param>
+    /// <returns>Returns the result of applying the sequence of argument values to the 
+    /// IEnumerable of functions: a sequence of functions of arity 1</returns>
+    [Pure]
+    public static Arr<Func<B, C>> Apply<A, B, C>(this Arr<Func<A, B, C>> fabc, Arr<A> fa) =>
+        fabc.Bind(f => fa.Map(curry(f)));
+
+    /// <summary>
+    /// Apply sequence of values to a sequence of functions of arity 2
+    /// </summary>
+    /// <param name="fabc">sequence of functions</param>
+    /// <param name="fa">sequence argument values</param>
+    /// <param name="fb">sequence argument values</param>
+    /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
+    [Pure]
+    public static Arr<C> Apply<A, B, C>(this Arr<Func<A, B, C>> fabc, Arr<A> fa, Arr<B> fb) =>
+        fabc.Bind(f => fa.Bind(a => fb.Map(b => f(a, b))));
+
+    /// <summary>
+    /// Apply a sequence of values to a sequence of functions of arity 2
+    /// </summary>
+    /// <param name="fabc">sequence of functions</param>
+    /// <param name="fa">sequence argument values</param>
+    /// <returns>Returns the result of applying the sequence of argument values to the 
+    /// sequence of functions: a sequence of functions of arity 1</returns>
+    [Pure]
+    public static Arr<Func<B, C>> Apply<A, B, C>(this Arr<Func<A, Func<B, C>>> fabc, Arr<A> fa) =>
+        fabc.Bind(fa.Map);
+
+    /// <summary>
+    /// Apply sequence of values to an sequence of functions of arity 2
+    /// </summary>
+    /// <param name="fabc">sequence of functions</param>
+    /// <param name="fa">sequence argument values</param>
+    /// <param name="fb">sequence argument values</param>
+    /// <returns>Returns the result of applying the sequence of arguments to the sequence of functions</returns>
+    [Pure]
+    public static Arr<C> Apply<A, B, C>(this Arr<Func<A, Func<B, C>>> fabc, Arr<A> fa, Arr<B> fb) =>
+        fabc.Bind(f => fa.Bind(a => fb.Map(f(a))));
+
+    /// <summary>
+    /// Evaluate fa, then fb, ignoring the result of fa
+    /// </summary>
+    /// <param name="fa">Applicative to evaluate first</param>
+    /// <param name="fb">Applicative to evaluate second and then return</param>
+    /// <returns>Applicative of type FB derived from Applicative of B</returns>
+    [Pure]
+    public static Arr<B> Action<A, B>(this Arr<A> fa, Arr<B> fb) =>
+        fa.Bind(_ => fb);
+
 }
