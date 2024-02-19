@@ -180,18 +180,8 @@ public static class List
     /// <param name="list">List</param>
     /// <returns>Either head item or fail</returns>
     [Pure]
-    public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail) =>
-        list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail([fail]))
-            .FirstOrDefault();
-
-    /// <summary>
-    /// Get the item at the head (first) of the list or fail if the list is empty
-    /// </summary>
-    /// <param name="list">List</param>
-    /// <returns>Either head item or fail</returns>
-    [Pure]
-    public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IEnumerable<Success> list, Seq<Fail> fail) =>
+    public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail) 
+        where Fail : Monoid<Fail> =>
         list.Select(Validation<Fail, Success>.Success)
             .DefaultIfEmpty(Validation<Fail, Success>.Fail(fail))
             .FirstOrDefault();
@@ -202,10 +192,10 @@ public static class List
     /// <param name="list">List</param>
     /// <returns>Either head item or fail</returns>
     [Pure]
-    public static Validation<MonoidFail, Fail, Success> headOrInvalid<MonoidFail, Fail, Success>(IEnumerable<Success> list, Fail fail)
-        where MonoidFail : Monoid<Fail>, Eq<Fail> =>
-        list.Select(Validation<MonoidFail, Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<MonoidFail, Fail, Success>.Fail(fail))
+    public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IEnumerable<Success> list)
+        where Fail : Monoid<Fail> =>
+        list.Select(Validation<Fail, Success>.Success)
+            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Fail.Empty))
             .FirstOrDefault();
 
     /// <summary>
@@ -245,18 +235,8 @@ public static class List
     /// <param name="list">List</param>
     /// <returns>Last item</returns>
     [Pure]
-    public static Validation<Fail, Success> lastOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail) =>
-        list.Select(Validation<Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<Fail, Success>.Fail([fail]))
-            .LastOrDefault();
-
-    /// <summary>
-    /// Get the last item of the list
-    /// </summary>
-    /// <param name="list">List</param>
-    /// <returns>Last item</returns>
-    [Pure]
-    public static Validation<Fail, Success> lastOrInvalid<Fail, Success>(IEnumerable<Success> list, Seq<Fail> fail) =>
+    public static Validation<Fail, Success> lastOrInvalid<Fail, Success>(IEnumerable<Success> list, Fail fail)
+        where Fail : Monoid<Fail> =>
         list.Select(Validation<Fail, Success>.Success)
             .DefaultIfEmpty(Validation<Fail, Success>.Fail(fail))
             .LastOrDefault();
@@ -267,10 +247,10 @@ public static class List
     /// <param name="list">List</param>
     /// <returns>Last item</returns>
     [Pure]
-    public static Validation<MonoidFail, Fail, Success> lastOrInvalid<MonoidFail, Fail, Success>(IEnumerable<Success> list, Fail fail)
-        where MonoidFail : Monoid<Fail>, Eq<Fail> =>
-        list.Select(Validation<MonoidFail, Fail, Success>.Success)
-            .DefaultIfEmpty(Validation<MonoidFail, Fail, Success>.Fail(fail))
+    public static Validation<Fail, Success> lastOrInvalid<Fail, Success>(IEnumerable<Success> list)
+        where Fail : Monoid<Fail> =>
+        list.Select(Validation<Fail, Success>.Success)
+            .DefaultIfEmpty(Validation<Fail, Success>.Fail(Fail.Empty))
             .LastOrDefault();
 
     /// <summary>
@@ -443,29 +423,6 @@ public static class List
     /// <returns>Reversed list</returns>
     [Pure]
     public static Lst<T> rev<T>(Lst<T> list) =>
-        list.Reverse();
-
-    /// <summary>
-    /// Reverses the list (Reverse in LINQ)
-    /// </summary>
-    /// <typeparam name="T">List item type</typeparam>
-    /// <param name="list">List to reverse</param>
-    /// <returns>Reversed list</returns>
-    [Pure]
-    public static Lst<PredList, T> rev<PredList, T>(Lst<PredList, T> list) 
-        where PredList : Pred<ListInfo> =>
-        list.Reverse();
-
-    /// <summary>
-    /// Reverses the list (Reverse in LINQ)
-    /// </summary>
-    /// <typeparam name="T">List item type</typeparam>
-    /// <param name="list">List to reverse</param>
-    /// <returns>Reversed list</returns>
-    [Pure]
-    public static Lst<PredList, PredItem, T> rev<PredList, PredItem, T>(Lst<PredList, PredItem, T> list) 
-        where PredList : Pred<ListInfo>
-        where PredItem : Pred<T> =>
         list.Reverse();
 
     /// <summary>
@@ -894,28 +851,6 @@ public static class List
     [Pure]
     public static Lst<T> freeze<T>(IEnumerable<T> list) =>
         toList(list);
-
-    /// <summary>
-    /// Convert any enumerable into an immutable Lst T
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to convert</param>
-    /// <returns>Lst of T</returns>
-    [Pure]
-    public static Lst<PredList, T> freeze<PredList, T>(IEnumerable<T> list) where PredList : Pred<ListInfo> =>
-        toList<PredList, T>(list);
-
-    /// <summary>
-    /// Convert any enumerable into an immutable Lst T
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="list">Enumerable to convert</param>
-    /// <returns>Lst of T</returns>
-    [Pure]
-    public static Lst<PredList, PredItem, T> freeze<PredList, PredItem, T>(IEnumerable<T> list)
-        where PredItem : Pred<T>
-        where PredList : Pred<ListInfo> =>
-        toList<PredList, PredItem, T>(list);
 
     /// <summary>
     /// Joins two enumerables together either into a single enumerable

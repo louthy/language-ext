@@ -37,10 +37,11 @@ namespace LanguageExt;
 [CollectionBuilder(typeof(TrackingHashMap), nameof(TrackingHashMap.createRange))]
 public readonly struct TrackingHashMap<EqK, K, V> :
     IEnumerable<(K Key, V Value)>,
-    IEquatable<TrackingHashMap<EqK, K, V>>
+    IEquatable<TrackingHashMap<EqK, K, V>>,
+    Monoid<TrackingHashMap<EqK, K, V>>
     where EqK : Eq<K>
 {
-    public static readonly TrackingHashMap<EqK, K, V> Empty = new (TrieMap<EqK, K, V>.Empty);
+    public static TrackingHashMap<EqK, K, V> Empty { get; } = new(TrieMap<EqK, K, V>.Empty);
 
     readonly TrieMap<EqK, K, V> value;
     readonly TrieMap<EqK, K, Change<V>> changes;
@@ -111,10 +112,10 @@ public readonly struct TrackingHashMap<EqK, K, V> :
     );
 
     TrackingHashMap<EqK, K, V> Wrap((TrieMap<EqK, K, V> Map, TrieMap<EqK, K, Change<V>> Changes) pair) =>
-        new (pair.Map, ChangesInternal.Merge<MChange<V>>(pair.Changes));
+        new (pair.Map, ChangesInternal.Merge(pair.Changes));
 
     TrackingHashMap<EqK, K, V> Wrap(K key, (TrieMap<EqK, K, V> Map, Change<V> Change) pair) =>
-        new (pair.Map, ChangesInternal.AddOrUpdate(key, Some: ex => MChange<V>.Append(ex, pair.Change), pair.Change));
+        new(pair.Map, ChangesInternal.AddOrUpdate(key, Some: ex => ex.Append(pair.Change), pair.Change));
 
     /// <summary>
     /// 'this' accessor

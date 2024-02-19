@@ -23,14 +23,15 @@ public readonly struct Lst<A> :
     IComparable,
     IReadOnlyList<A>,
     IEquatable<Lst<A>>,
+    Monoid<Lst<A>>,
     K<Lst, A>
 {
     /// <summary>
     /// Empty list
     /// </summary>
-    public static readonly Lst<A> Empty = new (System.Array.Empty<A>().AsSpan());
+    public static Lst<A> Empty { get; } = new (System.Array.Empty<A>().AsSpan());
+    
     readonly LstInternal<True<A>, A>? value;
-
     internal LstInternal<True<A>, A> Value
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -508,7 +509,7 @@ public readonly struct Lst<A> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lst<A> Append(Lst<A> rhs) =>
         new (Value.Append(rhs));
-
+    
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Lst<A> operator -(Lst<A> lhs, Lst<A> rhs) =>

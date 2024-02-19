@@ -141,6 +141,10 @@ The new static interfaces have opened up a more effective approach to higher-kin
 
 For example, `Option<A>` inherits `K<Option, A>`, `Seq<A>` inehrits `K<Seq, A>`, `Either<L, R>` inherits `K<Either<L>, R>`.  The `M` in `K<M, A>` is the trait implementation.  So, `Option` (no generic argument) would inherit `Monad<Option>`, `Traversable<Option>`, etc.  
 
+Thise truly opens up higher-order generic programming in C#.  
+
+*** TODO: Insert a link here to a tutorial on higher-kinds in C# ***
+
 **Impact**
 
 High, if you have built your own `Monad`, `Functor`, `Applicative` implementations; or you have been writing code that leverages the generic nature of the traits.  However, I doubt this impact will be large because the previous approach was cumbersome - hence the refactor.
@@ -148,6 +152,40 @@ High, if you have built your own `Monad`, `Functor`, `Applicative` implementatio
 **Mitigation** 
 
 This is rewrite territory.  I would encourage you to look at the new traits and monad transformers - as they're much more effective.
+
+### The `Semigroup<A>` and `Monoid<A>` types has been refactored
+
+The `Append` in `Semigroup<A>` (which `Monoid<A>` inherits) is now an instance method.  Meaning you must derive your semigroup and monoidal types from `Monoid<YOUR_TYPE>` to leverage its capabilities.
+
+**Motivation**
+
+Monoids, like the other trait types, were set up work ad-hoc polymorphically.  That is, we could build a `Monoid` instance for a type that we don't own.  And, although we have now lost that capability, we have gained a much easier experience for working with monoidal types.
+
+For example, `Validation<MonoidFail, Fail, Success>` is now just `Validation<Fail, Success>`.  Previously, you'd have to specify the `MonoidFail` trait all the time because there was no way for C# to infer it.  I suspect most people use the `Validation<Fail, Success>` variant with its built-in `Seq` of `Fail` results.  Now it's just as easy to use any monoid.
+
+This obviously means that, with types that you don't own, they can't be monoidal directly.  
+
+However, you can always wrap existing types with monoidal container:
+```c#
+public readonly record struct MEnumerable<A>(IEnumerable<A> Items) : 
+    Monoid<MEnumerable<A>>
+{
+    public MEnumerable<A> Append(MEnumerable<A> rhs) =>
+        new(Items.Concat(rhs.Items));
+
+    public static MEnumerable<A> Empty =>
+        new(Enumerable.Empty<A>());
+}
+```
+This lifts an existing type into a monoid that you can then use with generic functions that expect a monoid.  I think that although this is a little bit awkward, it's the scenario that happens then least; most of the time we have control over the type we want to be monoidal and so we can just inherit `Monoid<YOUR_TYPE>`.
+
+**Impact**
+
+Medium - I'm not expecting mass adoption of the previous traits system, so it probably will have a low impact for most.  However, monoids were probably one of the easier traits to use.
+
+**Mitigation**
+
+Any implementations of `Monoid<YOUR_TYPE>` that you have, take the implementation and move the members into `YOUR_TYPE` and `Append` into a non-static method that takes a single argument rather than two (`this` is your first argument now).
 
 
 ### The static `TypeClass` class has been renamed `Trait`

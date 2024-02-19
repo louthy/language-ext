@@ -1,4 +1,5 @@
 ﻿using System;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -8,7 +9,8 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="A">Value type</typeparam>
 public abstract class Change<A> :
-    IEquatable<Change<A>>
+    IEquatable<Change<A>>,
+    Monoid<Change<A>>
 {
     /// <summary>
     /// Returns true if nothing has changed
@@ -87,4 +89,19 @@ public abstract class Change<A> :
     /// Hash code
     /// </summary>
     public override int GetHashCode() => FNV32.OffsetBasis;
+
+    public Change<A> Append(Change<A> y) =>
+        (this, y) switch
+        {
+            (NoChange<A>, _)                                       => y,
+            (_, NoChange<A>)                                       => this,
+            (_, EntryRemoved<A>)                                   => y,
+            (EntryRemoved<A> (var vx), EntryAdded<A> (var vy))     => Mapped(vx, vy),
+            (EntryAdded<A>, EntryMappedTo<A>(var vz))              => Added(vz),
+            (EntryMappedFrom<A>(var vx), EntryMappedTo<A>(var vz)) => Mapped(vx, vz),
+            _                                                      => y
+        };
+
+    static Change<A> Monoid<Change<A>>.Empty =>
+        None;
 }

@@ -22,9 +22,10 @@ public readonly struct Set<A> :
     IEquatable<Set<A>>,
     IComparable<Set<A>>,
     IComparable,
-    IReadOnlyCollection<A>
+    IReadOnlyCollection<A>,
+    Monoid<Set<A>>
 {
-    public static readonly Set<A> Empty = new (SetInternal<OrdDefault<A>, A>.Empty);
+    public static Set<A> Empty { get; } = new(SetInternal<OrdDefault<A>, A>.Empty);
 
     readonly SetInternal<OrdDefault<A>, A> value;
 
@@ -91,7 +92,7 @@ public readonly struct Set<A> :
     /// Lens map
     /// </summary>
     [Pure]
-    public static Lens<Set<A>, Set<A>> map<B>(Lens<A, A> lens) => Lens<Set<A>, Set<A>>.New(
+    public static Lens<Set<A>, Set<A>> map(Lens<A, A> lens) => Lens<Set<A>, Set<A>>.New(
         Get: la => la.Map(lens.Get),
         Set: lb => la =>
                    {

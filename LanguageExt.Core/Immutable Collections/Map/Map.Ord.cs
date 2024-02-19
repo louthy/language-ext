@@ -24,9 +24,13 @@ public readonly struct Map<OrdK, K, V> :
     IEnumerable<(K Key, V Value)>,
     IEquatable<Map<OrdK, K, V>>,
     IComparable<Map<OrdK, K, V>>,
+    Monoid<Map<OrdK, K, V>>,
     IComparable
     where OrdK : Ord<K>
 {
+    public static Map<OrdK, K, V> Empty { get; } =
+        new(MapInternal<OrdDefault<K>, K, V>.Empty);
+
     readonly MapInternal<OrdK, K, V> value;
 
     internal static Map<OrdK, K, V> Wrap(MapInternal<OrdK, K, V> map) =>
@@ -698,9 +702,6 @@ public readonly struct Map<OrdK, K, V> :
     internal Map<OrdK, K, V> SetRoot(MapItem<K, V> root) => 
         new(new MapInternal<OrdK, K, V>(root, Value.Rev));
 
-    public static Map<OrdK, K, V> Empty = 
-        new(MapInternal<OrdK, K, V>.Empty);
-
     [Pure]
     public static bool operator ==(Map<OrdK, K, V> lhs, Map<OrdK, K, V> rhs) =>
         lhs.Value == rhs.Value;
@@ -724,6 +725,10 @@ public readonly struct Map<OrdK, K, V> :
     [Pure]
     public static bool operator >=(Map<OrdK, K, V> lhs, Map<OrdK, K, V> rhs) =>
         lhs.CompareTo(rhs) >= 0;
+
+    [Pure]
+    public Map<OrdK, K, V> Append(Map<OrdK, K, V> y) => 
+        this + y;
 
     [Pure]
     public static Map<OrdK, K, V> operator +(Map<OrdK, K, V> lhs, Map<OrdK, K, V> rhs) =>

@@ -25,20 +25,6 @@ namespace LanguageExt
                 ? System.Linq.Enumerable.Empty<B>()
                 : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
 
-        internal static IEnumerable<B> BindFast<PredList, A, B>(this IEnumerable<A> ma, Func<A, Lst<PredList, B>> f)
-            where PredList : Pred<ListInfo> =>
-            ma == null
-                ? System.Linq.Enumerable.Empty<B>()
-                : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
-
-        internal static IEnumerable<B> BindFast<PredList, PredItemA, PredItemB, A, B>(this IEnumerable<A> ma, Func<A, Lst<PredList, PredItemB, B>> f)
-            where PredList : Pred<ListInfo>
-            where PredItemA : Pred<A>
-            where PredItemB : Pred<B> =>
-            ma == null
-                ? System.Linq.Enumerable.Empty<B>()
-                : new BindEnum<A, B>(ma, a => f(a).AsEnumerable());
-
         internal static IEnumerable<B> BindFast<A, B>(this IEnumerable<A> ma, Func<A, Seq<B>> f) =>
             ma == null
                 ? System.Linq.Enumerable.Empty<B>()

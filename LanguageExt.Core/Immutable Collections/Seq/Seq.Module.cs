@@ -131,7 +131,8 @@ public partial class Seq
     /// <returns>Validated head item</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Validation<Fail, A> headOrInvalid<Fail, A>(Seq<A> list, Fail fail) =>
+    public static Validation<Fail, A> headOrInvalid<Fail, A>(Seq<A> list, Fail fail) 
+        where Fail : Monoid<Fail> =>
         list.HeadOrInvalid(fail);
 
     /// <summary>
@@ -142,8 +143,21 @@ public partial class Seq
     /// <returns>Validated head item</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Validation<MonoidFail, Fail, A> headOrInvalid<MonoidFail, Fail, A>(Seq<A> list, Fail fail) where MonoidFail : Monoid<Fail>, Eq<Fail> =>
-        list.HeadOrInvalid<MonoidFail, Fail, A>(fail);
+    public static Validation<Fail, A> headOrInvalid<Fail, A>(Seq<A> list, Func<Fail> fail) 
+        where Fail : Monoid<Fail> =>
+        list.HeadOrInvalid(fail);
+
+    /// <summary>
+    /// Get the item at the head (first) of the sequence or Fail if the sequence is empty
+    /// </summary>
+    /// <param name="list">sequence</param>
+    /// <param name="fail">Fail case</param>
+    /// <returns>Validated head item</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<Fail, A> headOrInvalid<Fail, A>(Seq<A> list) 
+        where Fail : Monoid<Fail> =>
+        list.HeadOrInvalid(Fail.Empty);
 
     /// <summary>
     /// Get the item at the head (first) of the sequence or Left if the sequence is empty
@@ -255,16 +269,6 @@ public partial class Seq
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Seq<B> choose<A, B>(Seq<A> list, Func<int, A, Option<B>> selector) =>
         map(filter(map(list, selector), t => t.IsSome), t => t.Value!);
-
-    /// <summary>
-    /// Returns the sum total of all the items in the list (Sum in LINQ)
-    /// </summary>
-    /// <param name="list">List to sum</param>
-    /// <returns>Sum total</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static A sum<MonoidA, A>(Seq<A> list) where MonoidA : Monoid<A> =>
-        mconcat<MonoidA, A>(list);
 
     /// <summary>
     /// Returns the sum total of all the items in the list (Sum in LINQ)

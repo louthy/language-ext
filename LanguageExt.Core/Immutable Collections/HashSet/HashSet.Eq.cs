@@ -15,10 +15,11 @@ namespace LanguageExt;
 [CollectionBuilder(typeof(HashSet), nameof(HashSet.createRange))]
 public readonly struct HashSet<EqA, A> :
     IEnumerable<A>,
-    IEquatable<HashSet<EqA, A>>
+    IEquatable<HashSet<EqA, A>>,
+    Monoid<HashSet<EqA, A>>
     where EqA : Eq<A>
 {
-    public static readonly HashSet<EqA, A> Empty = new (TrieSet<EqA, A>.Empty);
+    public static HashSet<EqA, A> Empty { get; } = new (TrieSet<EqA, A>.Empty);
 
     readonly TrieSet<EqA, A> value;
     TrieSet<EqA, A> Value => value ?? TrieSet<EqA, A>.Empty;

@@ -1,6 +1,19 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt.Traits;
+
+public readonly record struct MEnumerable<A>(IEnumerable<A> Items) : 
+    Monoid<MEnumerable<A>>
+{
+    public MEnumerable<A> Append(MEnumerable<A> rhs) =>
+        new(Items.Concat(rhs.Items));
+
+    public static MEnumerable<A> Empty =>
+        new(Enumerable.Empty<A>());
+}
 
 public static class Traversable 
 {

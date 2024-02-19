@@ -26,8 +26,12 @@ public readonly struct Map<K, V> :
     IEnumerable<(K Key, V Value)>,
     IComparable<Map<K, V>>,
     IComparable,
-    IEquatable<Map<K, V>>
+    IEquatable<Map<K, V>>,
+    Monoid<Map<K, V>>
 {
+    public static Map<K, V> Empty { get; } =
+        new(MapInternal<OrdDefault<K>, K, V>.Empty);
+
     readonly MapInternal<OrdDefault<K>, K, V> value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -836,9 +840,6 @@ public readonly struct Map<K, V> :
     internal Map<K, V> SetRoot(MapItem<K, V> root) =>
         new (new MapInternal<OrdDefault<K>, K, V>(root, Value.Rev));
 
-    public static Map<K, V> Empty = 
-        new (MapInternal<OrdDefault<K>, K, V>.Empty);
-
     [Pure]
     [Obsolete(Change.UseCollectionIntialiser)]
     public static implicit operator Map<K, V>(ValueTuple<(K, V)> items) =>
@@ -948,6 +949,11 @@ public readonly struct Map<K, V> :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >=(Map<K, V> lhs, Map<K, V> rhs) =>
         lhs.CompareTo(rhs) >= 0;
+
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Map<K, V> Append(Map<K, V> y) =>
+        this + y;
 
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

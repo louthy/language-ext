@@ -18,16 +18,6 @@ public static class Query
     public static Either<L, R> headOrLeft<L, R>(IQueryable<R> list, L left) =>
         list.Take(1).AsEnumerable().HeadOrLeft(left);
 
-    public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IQueryable<Success> list, Fail fail) =>
-        list.Take(1).AsEnumerable().HeadOrInvalid(fail);
-
-    public static Validation<Fail, Success> headOrInvalid<Fail, Success>(IQueryable<Success> list, Seq<Fail> fail) =>
-        list.Take(1).AsEnumerable().HeadOrInvalid(fail);
-
-    public static Validation<MonoidFail, Fail, Success> headOrInvalid<MonoidFail, Fail, Success>(IQueryable<Success> list, Fail fail)
-        where MonoidFail : Monoid<Fail>, Eq<Fail> =>
-            list.Take(1).AsEnumerable().HeadOrInvalid<MonoidFail, Fail, Success>(fail);
-
     public static IQueryable<T> tail<T>(IQueryable<T> list) =>
         list.Skip(1);
 
@@ -138,9 +128,6 @@ public static class QueryExtensions
 
     public static Option<T> HeadOrNone<T>(this IQueryable<T> list) =>
         Query.headOrNone(list);
-
-    public static Validation<S, T> HeadOrInvalid<S, T>(this IQueryable<T> list, S fail) =>
-        Query.headOrInvalid(list, fail);
 
     public static Either<S, T> HeadOrLeft<S, T>(this IQueryable<T> list, S left) =>
         Query.headOrLeft(list, left);

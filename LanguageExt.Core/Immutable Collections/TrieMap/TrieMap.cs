@@ -1906,24 +1906,6 @@ internal class TrieMap<EqK, K, V> :
         return (self, changes);
     }
 
-    public TrieMap<EqK, K, V> Merge<SemigroupV>(TrieMap<EqK, K, V> rhs) where SemigroupV : Semigroup<V>
-    {
-        var self = this;
-        foreach (var iy in rhs)
-        {
-            var ix = self.Find(iy.Key);
-            if (ix.IsSome)
-            {
-                self = self.SetItem(iy.Key, SemigroupV.Append(ix.Value!, iy.Value));
-            }
-            else
-            {
-                self = self.Add(iy.Key, iy.Value);
-            }
-        }
-        return self;
-    }
-
     /// <summary>
     /// Finds the union of two sets and produces a new set with 
     /// the results
@@ -2837,5 +2819,28 @@ internal static class Bit
         value <<= section.Offset;
         var offsetMask = (0xFFFF & Sec.Mask) << section.Offset;
         return (data & ~(uint)offsetMask) | ((uint)value & (uint)offsetMask);
+    }
+}
+
+internal static class TrieMapExtentsions
+{
+    public static TrieMap<EqK, K, V> Merge<EqK, K, V>(this TrieMap<EqK, K, V> lhs, TrieMap<EqK, K, V> rhs)
+        where EqK : Eq<K>
+        where V : Semigroup<V>
+    {
+        var self = lhs;
+        foreach (var iy in rhs)
+        {
+            var ix = self.Find(iy.Key);
+            if (ix.IsSome)
+            {
+                self = self.SetItem(iy.Key, ix.Value!.Append(iy.Value));
+            }
+            else
+            {
+                self = self.Add(iy.Key, iy.Value);
+            }
+        }
+        return self;
     }
 }

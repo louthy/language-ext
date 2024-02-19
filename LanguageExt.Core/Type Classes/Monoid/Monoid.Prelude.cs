@@ -10,20 +10,20 @@ public static partial class Trait
     /// The identity of append
     /// </summary>
     [Pure]
-    public static A mempty<MONOID, A>() where MONOID : Monoid<A> =>
-        MONOID.Empty;
+    public static A mempty<A>() where A : Monoid<A> =>
+        A.Empty;
 
     /// <summary>
     /// Fold a list using the monoid.
     /// </summary>
     [Pure]
-    public static A mconcat<MONOID, A>(IEnumerable<A> xs) where MONOID : Monoid<A> =>
-        xs.Fold(MONOID.Empty, MONOID.Append);
+    public static A mconcat<A>(IEnumerable<A> xs) where A : Monoid<A> =>
+        xs.Fold(A.Empty, (x, y) => x.Append(y));
 
     /// <summary>
     /// Fold a list using the monoid.
     /// </summary>
     [Pure]
-    public static A mconcat<MONOID, A>(params A[] xs) where MONOID : Monoid<A> =>
-        xs.Fold(MONOID.Empty, MONOID.Append);
+    public static A mconcat<A>(params A[] xs) where A : Monoid<A> =>
+        xs.Fold(A.Empty, (x, y) => x.Append(y));
 }

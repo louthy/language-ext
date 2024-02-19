@@ -21,9 +21,13 @@ namespace LanguageExt;
 /// The append operation `append(a, b)` performs `O(a log (a + b))` element compositions, so you want
 /// the left-hand list `a` to be as small as possible.
 /// </summary>
-public struct Compositions<A> : IEquatable<Compositions<A>>, IEnumerable<A>
+public struct Compositions<A> : 
+    IEquatable<Compositions<A>>, 
+    IEnumerable<A>, 
+    Monoid<Compositions<A>> 
+    where A : Monoid<A>
 {
-    public static readonly Compositions<A> Empty = new (Seq<Node>());
+    public static Compositions<A> Empty { get; } = new(Seq<Node>());
 
     public readonly Seq<Node> Tree;
     int? hashCode;
@@ -34,11 +38,15 @@ public struct Compositions<A> : IEquatable<Compositions<A>>, IEnumerable<A>
         Tree = tree;
     }
 
+    public Compositions<A> Append(Compositions<A> y) => 
+        new (Tree + y.Tree);
+
     /// <summary>
     /// Returns true if the given tree is appropriately right-biased.
     /// </summary>
-    public bool WellFormed<MonoidEqA>() where MonoidEqA : Monoid<A>, Eq<A> =>
-        Compositions.wellFormed<MonoidEqA, A>(this);
+    public bool WellFormed<EqA>() 
+        where EqA : Eq<A> =>
+        Compositions.wellFormed<EqA, A>(this);
 
     /// <summary>
     /// Return the compositions list with the first `k` elements removed, in `O(log k)` time.
@@ -52,8 +60,8 @@ public struct Compositions<A> : IEquatable<Compositions<A>>, IEnumerable<A>
     /// in order to maintain the right-associative bias.  If you wish to run `composed`
     /// on the result of `take`, use `takeComposed` for better performance.
     /// </summary>
-    public Compositions<A> Take<MonoidA>(int amount) where MonoidA : Monoid<A> =>
-        Compositions.take<MonoidA, A>(amount, this);
+    public Compositions<A> Take(int amount) =>
+        Compositions.take(amount, this);
 
     /// <summary>
     /// Returns the composition of the first `k` elements of the compositions list, doing only `O(log k)` compositions.
@@ -72,9 +80,8 @@ public struct Compositions<A> : IEquatable<Compositions<A>>, IEnumerable<A>
     /// <summary>
     /// Compose every element in the compositions list. Performs only `O(log n)` compositions.
     /// </summary>
-    public A Composed<MonoidA>()
-        where MonoidA : Monoid<A> =>
-        Compositions.composed<MonoidA, A>(this);
+    public A Composed() =>
+        Compositions.composed(this);
 
     /// <summary>
     /// Construct a compositions list containing just one element.

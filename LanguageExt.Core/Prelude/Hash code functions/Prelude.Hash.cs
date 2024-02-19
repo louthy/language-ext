@@ -83,24 +83,6 @@ public static partial class Prelude
     /// </summary>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int hash<PRED, A>(Lst<PRED, A> xs) where PRED : Pred<ListInfo> =>
-        xs.GetHashCode();
-
-    /// <summary>
-    /// Calculate a hash-code for the collection provided
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int hash<PredList, PredItem, A>(Lst<PredList, PredItem, A> xs) 
-        where PredList : Pred<ListInfo>
-        where PredItem : Pred<A> =>
-        xs.GetHashCode();
-
-    /// <summary>
-    /// Calculate a hash-code for the collection provided
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int hash<K, V>(Map<K, V> xs) =>
         xs.GetHashCode();
 

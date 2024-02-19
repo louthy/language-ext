@@ -12,6 +12,7 @@ namespace LanguageExt.TypeClasses;
 /// <typeparam name="A">The type being described as a monoid</typeparam>
 [Trait("M*")]
 public interface Monoid<A> : Semigroup<A>
+    where A : Monoid<A>
 {
     /// <summary>
     /// Identity

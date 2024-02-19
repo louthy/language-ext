@@ -1,14 +1,15 @@
-﻿/*
-using LanguageExt;
-using static LanguageExt.Prelude;
+﻿using static LanguageExt.Prelude;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt.ClassInstances;
 
-public struct MCompositions<MonoidA, A> : Monoid<Compositions<A>> where MonoidA : Monoid<A>
+public struct MCompositions<A> : 
+    Monoid<Compositions<A>> 
+    where A : Monoid<A>
 {
-    public static Compositions<A> Append(Compositions<A> compx, Compositions<A> compy)
+    public Compositions<A> Append(Compositions<A> compy)
     {
+        var compx = this;
         Seq<Compositions<A>.Node> go(Seq<Compositions<A>.Node> mx, Seq<Compositions<A>.Node> my)
         {
             if (mx.IsEmpty) return my;
@@ -34,7 +35,7 @@ public struct MCompositions<MonoidA, A> : Monoid<Compositions<A>> where MonoidA 
             }
             else
             {
-                return go(new Compositions<A>.Node(sx + sy, Some((x, y)), MonoidA.Append(vx, vy)).Cons(xs), ys);
+                return go(new Compositions<A>.Node(sx + sy, Some((x, y)), vx.Append(vy)).Cons(xs), ys);
             }
         }
         return new Compositions<A>(go(compx.Tree, compy.Tree));
@@ -42,4 +43,3 @@ public struct MCompositions<MonoidA, A> : Monoid<Compositions<A>> where MonoidA 
 
     public static Compositions<A> Empty => Compositions<A>.Empty;
 }
-*/

@@ -10,7 +10,9 @@ public static class Compositions
     /// <summary>
     /// Returns true if the given tree is appropriately right-biased.
     /// </summary>
-    public static bool wellFormed<MonoidEqA, A>(Compositions<A> ca) where MonoidEqA : Monoid<A>, Eq<A>
+    public static bool wellFormed<EqA, A>(Compositions<A> ca) 
+        where EqA : Eq<A>
+        where A : Monoid<A> 
     {
         bool wellFormedNode(int n, Compositions<A>.Node node)
         {
@@ -20,8 +22,8 @@ public static class Compositions
             {
                 var v = node.Value;
                 var (l, r) = ((Compositions<A>.Node, Compositions<A>.Node))node.Children;
-                return wellFormedNode(n / 2, l)                                &&
-                       MonoidEqA.Equals(v, MonoidEqA.Append(l.Value, r.Value)) &&
+                return wellFormedNode(n / 2, l)                          &&
+                       EqA.Equals(v, l.Value.Append(r.Value)) &&
                        wellFormedNode(n / 2, r);
             }
             else
@@ -45,6 +47,7 @@ public static class Compositions
     /// Return the compositions list with the first `k` elements removed, in `O(log k)` time.
     /// </summary>
     public static Compositions<A> skip<A>(int amount, Compositions<A> compositions)
+        where A : Monoid<A>
     {
         Seq<Compositions<A>.Node> go(int n, Seq<Compositions<A>.Node> nodes)
         {
@@ -73,7 +76,7 @@ public static class Compositions
     /// in order to maintain the right-associative bias.  If you wish to run `composed`
     /// on the result of `take`, use `takeComposed` for better performance.
     /// </summary>
-    public static Compositions<A> take<MonoidA, A>(int amount, Compositions<A> compositions) where MonoidA : Monoid<A>
+    public static Compositions<A> take<A>(int amount, Compositions<A> compositions) where A : Monoid<A>
     {
         Seq<Compositions<A>.Node> go(int n, Seq<Compositions<A>.Node> nodes)
         {
@@ -91,9 +94,9 @@ public static class Compositions
             }
             else
             {
-                return MCompositions<MonoidA, A>
-                      .Append(new Compositions<A>([x]), new Compositions<A>(go(n - s, ri)))
-                      .Tree;
+                return new Compositions<A>([x])
+                        .Append(new Compositions<A>(go(n - s, ri)))
+                        .Tree;
             }
         }
         return new Compositions<A>(go(amount, compositions.Tree));
@@ -103,12 +106,12 @@ public static class Compositions
     /// Returns the composition of the first `k` elements of the compositions list, doing only `O(log k)` compositions.
     /// Faster than simply using `take` and then `composed` separately.
     /// </summary>
-    public static A takeComposed<MonoidA, A>(int amount, Compositions<A> compositions) where MonoidA : Monoid<A>
+    public static A takeComposed<A>(int amount, Compositions<A> compositions) where A : Monoid<A>
     {
         A go(int n, Seq<Compositions<A>.Node> nodes)
         {
-            if (nodes.IsEmpty) return MonoidA.Empty;
-            if (n <= 0) return MonoidA.Empty;
+            if (nodes.IsEmpty) return A.Empty;
+            if (n <= 0) return A.Empty;
             var x   = nodes.Head;
             var s   = x.Size;
             var c   = x.Children;
@@ -122,7 +125,7 @@ public static class Compositions
             }
             else
             {
-                return MonoidA.Append(v, go(n - s, ri));
+                return v.Append(go(n - s, ri));
             }
         }
         return go(amount, compositions.Tree);
@@ -131,41 +134,43 @@ public static class Compositions
     /// <summary>
     /// A convenience alias for 'take' and 'drop'
     /// </summary>
-    public static (Compositions<A> taken, Compositions<A> skipped) splitAt<MonoidA, A>(int i, Compositions<A> c)
-        where MonoidA : Monoid<A> =>
-        (take<MonoidA, A>(i, c), skip(i, c));
+    public static (Compositions<A> taken, Compositions<A> skipped) splitAt<A>(int i, Compositions<A> c)
+        where A : Monoid<A> =>
+        (take(i, c), skip(i, c));
 
     /// <summary>
     /// Compose every element in the compositions list. Performs only `O(log n)` compositions.
     /// </summary>
-    public static A composed<MonoidA, A>(Compositions<A> compositions)
-        where MonoidA : Monoid<A> =>
-        FoldCompositions<A>.Fold(compositions, MonoidA.Empty, MonoidA.Append)(unit);
+    public static A composed<A>(Compositions<A> compositions)
+        where A : Monoid<A> =>
+        FoldCompositions<A>.Fold(compositions, A.Empty, (x, y) => x.Append(y))(unit);
 
     /// <summary>
     /// Construct a compositions list containing just one element.
     /// </summary>
-    public static Compositions<A> singleton<A>(A value) =>
+    public static Compositions<A> singleton<A>(A value) 
+        where A : Monoid<A> =>
         new ([new Compositions<A>.Node(1, None, value)]);
 
     /// <summary>
     /// Get the number of elements in the compositions list, in `O(log n)` time.
     /// </summary>
-    public static int count<A>(Compositions<A> compositions) =>
+    public static int count<A>(Compositions<A> compositions)
+        where A : Monoid<A> =>
         compositions.Tree.Map(n => n.Size).Sum();
 
     /// <summary>
     /// Add a new element to the front of a compositions list. Performs `O(log n)` element compositions.
     /// </summary>
-    public static Compositions<A> cons<MonoidA, A>(A x, Compositions<A> xs)
-        where MonoidA : Monoid<A> =>
-        MCompositions<MonoidA, A>.Append(singleton(x), xs);
+    public static Compositions<A> cons<A>(A x, Compositions<A> xs)
+        where A : Monoid<A> =>
+        singleton(x).Append(xs);
 
     /// <summary>
     /// Convert a compositions list into a list of elements. The other direction
     /// is provided in the 'Data.Foldable.Foldable' instance.This will perform O(n log n) element compositions.
     /// </summary>
     public static Compositions<A> fromList<MonoidA, A>(IEnumerable<A> ma)
-        where MonoidA : Monoid<A> =>
-        ma.Fold(MCompositions<MonoidA, A>.Empty, (s, x) => MCompositions<MonoidA, A>.Append(s, singleton(x)));
+        where A : Monoid<A> =>
+        ma.Fold(MCompositions<A>.Empty, (s, x) => s.Append(singleton(x)));
 }

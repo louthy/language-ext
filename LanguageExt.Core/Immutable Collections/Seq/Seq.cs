@@ -25,12 +25,13 @@ public readonly struct Seq<A> :
     IComparable<Seq<A>>, 
     IEquatable<Seq<A>>, 
     IComparable,
+    Monoid<Seq<A>>,
     K<Seq, A>
 {
     /// <summary>
     /// Empty sequence
     /// </summary>
-    public static readonly Seq<A> Empty = new (SeqEmptyInternal<A>.Default);
+    public static Seq<A> Empty { get; } = new(SeqEmptyInternal<A>.Default);
 
     /// <summary>
     /// Internal representation of the sequence (SeqStrict|SeqLazy|SeqEmptyInternal)
@@ -471,69 +472,6 @@ public readonly struct Seq<A> :
             : Either<L, A>.Right(Last);
 
     /// <summary>
-    /// Last item in sequence.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Validation<F, A> LastOrInvalid<F>(F Fail) =>
-        IsEmpty
-            ? Validation<F, A>.Fail(Seq1(Fail))
-            : Validation<F, A>.Success(Last);
-
-    /// <summary>
-    /// Last item in sequence.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Validation<F, A> LastOrInvalid<F>(Func<F> Fail) =>
-        IsEmpty
-            ? Validation<F, A>.Fail(Seq1(Fail()))
-            : Validation<F, A>.Success(Last);
-
-    /// <summary>
-    /// Last item in sequence.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(F Fail) where MonoidFail : Monoid<F>, Eq<F> =>
-        IsEmpty
-            ? Validation<MonoidFail, F, A>.Fail(Fail)
-            : Validation<MonoidFail, F, A>.Success(Last);
-
-    /// <summary>
-    /// Last item in sequence.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(Func<F> Fail) where MonoidFail : Monoid<F>, Eq<F> =>
-        IsEmpty
-            ? Validation<MonoidFail, F, A>.Fail(Fail())
-            : Validation<MonoidFail, F, A>.Success(Last);
-
-    /// <summary>
-    /// Head of the sequence if this node isn't the empty node or fail
-    /// </summary>
-    /// <typeparam name="Fail"></typeparam>
-    /// <param name="fail">Fail case</param>
-    /// <returns>Head of the sequence or fail</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Validation<Fail, A> HeadOrInvalid<Fail>(Fail fail) =>
-        IsEmpty
-            ? Fail<Fail, A>(fail)
-            : Success<Fail, A>(Head);
-
-    /// <summary>
-    /// Head of the sequence
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Validation<MonoidFail, Fail, A> HeadOrInvalid<MonoidFail, Fail>(Fail fail) where MonoidFail : Monoid<Fail>, Eq<Fail> =>
-        IsEmpty
-            ? Fail<MonoidFail, Fail, A>(fail)
-            : Success<MonoidFail, Fail, A>(Head);
-
-    /// <summary>
     /// Head of the sequence if this node isn't the empty node or left
     /// </summary>
     /// <typeparam name="L"></typeparam>
@@ -935,6 +873,10 @@ public readonly struct Seq<A> :
     public string ToFullArrayString(string separator = ", ") =>
         CollectionFormat.ToFullArrayString(this, separator);
 
+    [Pure]
+    public Seq<A> Append(Seq<A> y) =>
+        this + y;
+
     /// <summary>
     /// Append operator
     /// </summary>
@@ -1112,7 +1054,7 @@ public readonly struct Seq<A> :
     /// </example>
     /// <returns>Initial segments of the sequence</returns>
     public Seq<Seq<A>> Inits =>
-        Seq1(Seq<A>()) + NonEmptyInits;
+        [Seq<A>()] + NonEmptyInits;
 
     /// <summary>
     /// Returns all initial segments of the sequence, shortest first.

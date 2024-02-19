@@ -19,10 +19,12 @@ namespace LanguageExt;
 [CollectionBuilder(typeof(HashMap), nameof(HashMap.createRange))]
 public readonly struct HashMap<EqK, K, V> :
     IEnumerable<(K Key, V Value)>,
-    IEquatable<HashMap<EqK, K, V>>
+    IEquatable<HashMap<EqK, K, V>>,
+    Monoid<HashMap<EqK, K, V>>
     where EqK : Eq<K>
 {
-    public static readonly HashMap<EqK, K, V> Empty = new (TrieMap<EqK, K, V>.Empty);
+    [Pure]
+    public static HashMap<EqK, K, V> Empty { get; } = new(TrieMap<EqK, K, V>.Empty);
 
     readonly TrieMap<EqK, K, V> value;
 

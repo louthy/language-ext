@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using LanguageExt.ClassInstances;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -15,9 +16,10 @@ namespace LanguageExt;
 [CollectionBuilder(typeof(HashSet), nameof(HashSet.createRange))]
 public readonly struct HashSet<A> :
     IEnumerable<A>,
-    IEquatable<HashSet<A>>
+    IEquatable<HashSet<A>>,
+    Monoid<HashSet<A>>
 {
-    public static readonly HashSet<A> Empty = new (TrieSet<EqDefault<A>, A>.Empty);
+    public static HashSet<A> Empty { get; } = new (TrieSet<EqDefault<A>, A>.Empty);
 
     readonly TrieSet<EqDefault<A>, A> value;
     internal TrieSet<EqDefault<A>, A> Value => value ?? TrieSet<EqDefault<A>, A>.Empty;

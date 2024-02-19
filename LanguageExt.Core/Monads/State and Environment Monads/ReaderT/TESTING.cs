@@ -212,6 +212,14 @@ public static class Testing
                       .Run(); 
     }
 
+    static void TravTest1()
+    {
+        var xs = Seq(1, 2, 3, 4, 5);
+        var r1 = Traversable.traverse(x => Some(x), xs);
+        
+        var ys = Seq(Some(1).Kind(), Some(2).Kind(), Option<int>.None.Kind(), Some(4).Kind(), Option<int>.None.Kind());
+        var r2 = Traversable.sequence(ys);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

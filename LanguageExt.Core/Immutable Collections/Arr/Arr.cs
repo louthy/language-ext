@@ -23,12 +23,13 @@ public struct Arr<A> :
     IReadOnlyList<A>,
     IEquatable<Arr<A>>,
     IComparable<Arr<A>>,
+    Monoid<Arr<A>>,
     IComparable
 {
     /// <summary>
     /// Empty array
     /// </summary>
-    public static readonly Arr<A> Empty = new (System.Array.Empty<A>());
+    public static Arr<A> Empty { get; } = new (System.Array.Empty<A>());
     readonly A[] value;
     int hashCode;
 

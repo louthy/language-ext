@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 using static LanguageExt.Trait;
@@ -78,8 +79,8 @@ public static class SeqExtensions
     /// <param name="list">List to sum</param>
     /// <returns>Sum total</returns>
     [Pure]
-    public static A Sum<MonoidA, A>(this Seq<A> list) where MonoidA : Monoid<A> =>
-        mconcat<MonoidA, A>(list.AsEnumerable());
+    public static A Sum<A>(this Seq<A> list) where A : Monoid<A> =>
+        mconcat<A>(list.AsEnumerable());
 
     /// <summary>
     /// Returns the sum total of all the items in the list (Sum in LINQ)
@@ -539,20 +540,78 @@ public static class SeqExtensions
         Seq.tails(self);
 
     /// <summary>
-    /// The tailsr function returns all final segments of the argument, longest first. For example:
-    /// 
-    ///     tails(['a','b','c']) == [['a','b','c'], ['b','c'], ['c'],[]]
+    /// Last item in sequence.
     /// </summary>
-    /// <remarks>Differs from `tails` in implementation only.  The `tailsr` uses recursive processing
-    /// whereas `tails` uses a while loop aggregation followed by a reverse.  For small sequences 
-    /// `tailsr` is probably more efficient.
-    /// of the `Se` </remarks>
-    /// <typeparam name="A">Seq item type</typeparam>
-    /// <param name="self">Seq</param>
-    /// <returns>Seq of Seq of A</returns>
     [Pure]
-    public static Seq<Seq<A>> Tailsr<A>(this Seq<A> self) =>
-        Seq.tailsr(self);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<F, A> LastOrInvalid<F, A>(this Seq<A> ma, F Fail) 
+        where F : Monoid<F> =>
+        ma.IsEmpty
+            ? Validation<F, A>.Fail(Fail)
+            : Validation<F, A>.Success(ma.Last);
+
+    /// <summary>
+    /// Last item in sequence.
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<F, A> LastOrInvalid<F, A>(this Seq<A> ma, Func<F> Fail) 
+        where F : Monoid<F> =>
+        ma.IsEmpty
+            ? Validation<F, A>.Fail(Fail())
+            : Validation<F, A>.Success(ma.Last);
+
+    /// <summary>
+    /// Last item in sequence.
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<F, A> LastOrInvalid<F, A>(this Seq<A> ma) 
+        where F : Monoid<F> =>
+        ma.IsEmpty
+            ? Validation<F, A>.Fail(F.Empty)
+            : Validation<F, A>.Success(ma.Last);
+
+    /// <summary>
+    /// Head of the sequence if this node isn't the empty node or fail
+    /// </summary>
+    /// <typeparam name="Fail"></typeparam>
+    /// <param name="fail">Fail case</param>
+    /// <returns>Head of the sequence or fail</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<F, A> HeadOrInvalid<F, A>(this Seq<A> ma, F fail) 
+        where F : Monoid<F> =>
+        ma.IsEmpty
+            ? Validation<F, A>.Fail(fail)
+            : Validation<F, A>.Success(ma.Head);
+
+    /// <summary>
+    /// Head of the sequence if this node isn't the empty node or fail
+    /// </summary>
+    /// <typeparam name="Fail"></typeparam>
+    /// <param name="fail">Fail case</param>
+    /// <returns>Head of the sequence or fail</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<F, A> HeadOrInvalid<F, A>(this Seq<A> ma, Func<F> fail) 
+        where F : Monoid<F> =>
+        ma.IsEmpty
+            ? Validation<F, A>.Fail(fail())
+            : Validation<F, A>.Success(ma.Head);
+
+    /// <summary>
+    /// Head of the sequence if this node isn't the empty node or fail
+    /// </summary>
+    /// <typeparam name="Fail"></typeparam>
+    /// <returns>Head of the sequence or fail</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<F, A> HeadOrInvalid<F, A>(this Seq<A> ma) 
+        where F : Monoid<F> =>
+        ma.IsEmpty
+            ? Validation<F, A>.Fail(F.Empty)
+            : Validation<F, A>.Success(ma.Head);
 
     /// <summary>
     /// Span, applied to a predicate 'pred' and a list, returns a tuple where first element is 
