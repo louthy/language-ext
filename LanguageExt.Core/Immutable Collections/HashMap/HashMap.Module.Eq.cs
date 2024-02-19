@@ -550,27 +550,7 @@ public static partial class HashMap
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool forall<EqK, K, V>(HashMap<EqK, K, V> map, Func<Tuple<K, V>, bool> pred) where EqK : Eq<K> =>
-        map.ForAll(pred);
-
-    /// <summary>
-    /// Return true if all items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool forall<EqK, K, V>(HashMap<EqK, K, V> map, Func<(K Key, V Value), bool> pred) where EqK : Eq<K> =>
-        map.ForAll(pred);
-
-    /// <summary>
-    /// Return true if all items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool forall<EqK, K, V>(HashMap<EqK, K, V> map, Func<KeyValuePair<K, V>, bool> pred) where EqK : Eq<K> =>
         map.ForAll(pred);
 
     /// <summary>
@@ -660,27 +640,7 @@ public static partial class HashMap
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool exists<EqK, K, V>(HashMap<EqK, K, V> map, Func<Tuple<K, V>, bool> pred) where EqK : Eq<K> =>
-        map.Exists(pred);
-
-    /// <summary>
-    /// Return true if *any* items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool exists<EqK, K, V>(HashMap<EqK, K, V> map, Func<(K Key, V Value), bool> pred) where EqK : Eq<K> =>
-        map.Exists(pred);
-
-    /// <summary>
-    /// Return true if *any* items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool exists<EqK, K, V>(HashMap<EqK, K, V> map, Func<KeyValuePair<K, V>, bool> pred) where EqK : Eq<K> =>
         map.Exists(pred);
 
     /// <summary>

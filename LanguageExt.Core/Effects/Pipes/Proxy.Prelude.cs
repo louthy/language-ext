@@ -596,7 +596,7 @@ public static class Proxy
     public static K<M, (A, B)> collect<M, A, B>(Effect<M, A> ma, Effect<M, B> mb)
         where M : Monad<M> =>
         fun((A x, B y) => (x, y)).Map(ma.RunEffect()).Apply(mb.RunEffect());
-        
+ 
     /// <summary>
     /// Creates a non-yielding producer that returns the result of the effects
     /// </summary>

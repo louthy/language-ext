@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Numerics;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt;
@@ -8,7 +9,11 @@ namespace LanguageExt;
 /// <summary>
 /// BigInteger convenience wrapper
 /// </summary>
-public readonly struct bigint : IComparable, IComparable<bigint>, IEquatable<bigint>
+public readonly struct bigint : 
+    IComparable, 
+    IComparable<bigint>, 
+    IEquatable<bigint>, 
+    Monoid<bigint>
 {
     public readonly BigInteger Value;
 
@@ -2114,5 +2119,16 @@ public readonly struct bigint : IComparable, IComparable<bigint>, IEquatable<big
     /// </returns>
     public static explicit operator float(bigint value) =>
         (float)value.Value;
+    
+    /// <summary>
+    /// Semigroup append
+    /// </summary>
+    bigint Semigroup<bigint>.Append(bigint y) => 
+        Value + y.Value;
 
+    /// <summary>
+    /// Monoid Empty
+    /// </summary>
+    static bigint Monoid<bigint>.Empty =>
+        BigInteger.Zero;
 }

@@ -190,13 +190,32 @@ public readonly struct Seq<A> :
     /// </remarks>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<A> Concat(Lst<A> items)
+    public Seq<A> Concat(in Lst<A> items)
     {
         if (items.Count == 0)
         {
             return this;
         }
         var arr = items.Value.ToArray();
+        return Concat(Seq.FromArray(arr));
+    }
+                           
+    /// <summary>
+    /// Add a range of items to the end of the sequence
+    /// </summary>
+    /// <remarks>
+    /// Forces evaluation of the entire lazy sequence so the items
+    /// can be appended.  
+    /// </remarks>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Seq<A> Concat(in ReadOnlySpan<A> items)
+    {
+        if (items.Length == 0)
+        {
+            return this;
+        }
+        var arr = items.ToArray();
         return Concat(Seq.FromArray(arr));
     }
         
@@ -209,7 +228,7 @@ public readonly struct Seq<A> :
     /// </remarks>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<A> Concat(Set<A> items)
+    public Seq<A> Concat(in Set<A> items)
     {
         if (items.Count == 0)
         {
@@ -228,7 +247,7 @@ public readonly struct Seq<A> :
     /// </remarks>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<A> Concat(HashSet<A> items)
+    public Seq<A> Concat(in HashSet<A> items)
     {
         if (items.Count == 0)
         {
@@ -246,7 +265,7 @@ public readonly struct Seq<A> :
     /// can be appended.  
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<A> Concat(Arr<A> items)
+    public Seq<A> Concat(in Arr<A> items)
     {
         if (items.Count == 0)
         {
@@ -263,7 +282,7 @@ public readonly struct Seq<A> :
     /// can be appended.  
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<A> Concat(Stck<A> items)
+    public Seq<A> Concat(in Stck<A> items)
     {
         if (items.Count == 0)
         {
@@ -301,7 +320,7 @@ public readonly struct Seq<A> :
     /// </remarks>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Seq<A> Concat(Seq<A> rhs)
+    public Seq<A> Concat(in Seq<A> rhs)
     {
         switch(Value.Type)
         {

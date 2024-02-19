@@ -1,6 +1,5 @@
 ﻿using System;
 using LanguageExt;
-using static LanguageExt.Trait;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
 
@@ -12,46 +11,6 @@ public static class ValueTuple3Extensions
     [Pure]
     public static ValueTuple<T1, T2, T3, T4> Add<T1, T2, T3, T4>(this ValueTuple<T1, T2, T3> self, T4 fourth) =>
         (self.Item1, self.Item2, self.Item3, fourth);
-
-    /// <summary>
-    /// Semigroup append
-    /// </summary>
-    [Pure]
-    public static ValueTuple<A, B, C> Append<SemiA, SemiB, SemiC, A, B, C>(this ValueTuple<A, B, C> a, ValueTuple<A, B, C> b)
-        where SemiA : Semigroup<A>
-        where SemiB : Semigroup<B>
-        where SemiC : Semigroup<C> =>
-        (SemiA.Append(a.Item1, b.Item1),
-         SemiB.Append(a.Item2, b.Item2),
-         SemiC.Append(a.Item3, b.Item3));
-
-    /// <summary>
-    /// Semigroup append
-    /// </summary>
-    [Pure]
-    public static A Append<SemiA, A>(this ValueTuple<A, A, A> a)
-        where SemiA : Semigroup<A> =>
-        SemiA.Append(a.Item1, SemiA.Append(a.Item2, a.Item3));
-
-    /// <summary>
-    /// Monoid concat
-    /// </summary>
-    [Pure]
-    public static ValueTuple<A, B, C> Concat<MonoidA, MonoidB, MonoidC, A, B, C>(this ValueTuple<A, B, C> a, ValueTuple<A, B, C> b)
-        where MonoidA : Monoid<A>
-        where MonoidB : Monoid<B>
-        where MonoidC : Monoid<C> =>
-        (mconcat<MonoidA, A>(a.Item1, b.Item1),
-         mconcat<MonoidB, B>(a.Item2, b.Item2),
-         mconcat<MonoidC, C>(a.Item3, b.Item3));
-
-    /// <summary>
-    /// Monoid concat
-    /// </summary>
-    [Pure]
-    public static A Concat<MonoidA, A>(this ValueTuple<A, A, A> a)
-        where MonoidA : Monoid<A> =>
-        mconcat<MonoidA, A>(a.Item1, a.Item2, a.Item3);
 
     /// <summary>
     /// Take the first item

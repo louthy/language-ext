@@ -4,7 +4,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Traits;
 
-public interface Foldable<T> where T : Foldable<T>
+public interface Foldable<out T> where T : Foldable<T>
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -144,7 +144,7 @@ public interface Foldable<T> where T : Foldable<T>
     /// Computes the sum of the numbers of a structure.
     /// </summary>
     public static virtual A Sum<NumA, A>(K<T, A> ta) where NumA : Num<A> =>
-        T.Fold(NumA.Plus, NumA.Empty, ta);
+        T.Fold(NumA.Plus, NumA.FromInteger(0), ta);
 
     /// <summary>
     /// Computes the sum of the numbers of a structure.

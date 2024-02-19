@@ -536,87 +536,6 @@ public class AtomSeq<A> :
     }
 
     /// <summary>
-    /// Last item in sequence.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Validation<F, A> LastOrInvalid<F>(F Fail)
-    {
-        var xs = items;
-        return xs.IsEmpty
-                   ? Validation<F, A>.Fail(Seq1(Fail))
-                   : Validation<F, A>.Success(xs.Last);
-    }
-
-    /// <summary>
-    /// Last item in sequence.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Validation<F, A> LastOrInvalid<F>(Func<F> Fail)
-    {
-        var xs = items;
-        return xs.IsEmpty
-                   ? Validation<F, A>.Fail(Seq1(Fail()))
-                   : Validation<F, A>.Success(xs.Last);
-    }
-
-    /// <summary>
-    /// Last item in sequence.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(F Fail) where MonoidFail : Monoid<F>, Eq<F>
-    {
-        var xs = items;
-        return xs.IsEmpty
-                   ? Validation<MonoidFail, F, A>.Fail(Fail)
-                   : Validation<MonoidFail, F, A>.Success(xs.Last);
-    }
-
-    /// <summary>
-    /// Last item in sequence.
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Validation<MonoidFail, F, A> LastOrInvalid<MonoidFail, F>(Func<F> Fail) where MonoidFail : Monoid<F>, Eq<F>
-    {
-        var xs = items;
-        return xs.IsEmpty
-                   ? Validation<MonoidFail, F, A>.Fail(Fail())
-                   : Validation<MonoidFail, F, A>.Success(xs.Last);
-    }
-
-    /// <summary>
-    /// Head of the sequence if this node isn't the empty node or fail
-    /// </summary>
-    /// <typeparam name="Fail"></typeparam>
-    /// <param name="fail">Fail case</param>
-    /// <returns>Head of the sequence or fail</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Validation<Fail, A> HeadOrInvalid<Fail>(Fail fail)
-    {
-        var xs = items;
-        return xs.IsEmpty
-                   ? Fail<Fail, A>(fail)
-                   : Success<Fail, A>(xs.Head);
-    }
-
-    /// <summary>
-    /// Head of the sequence
-    /// </summary>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Validation<MonoidFail, Fail, A> HeadOrInvalid<MonoidFail, Fail>(Fail fail) where MonoidFail : Monoid<Fail>, Eq<Fail>
-    {
-        var xs = items;
-        return xs.IsEmpty
-                   ? Fail<MonoidFail, Fail, A>(fail)
-                   : Success<MonoidFail, Fail, A>(xs.Head);
-    }
-
-    /// <summary>
     /// Head of the sequence if this node isn't the empty node or left
     /// </summary>
     /// <typeparam name="L"></typeparam>
@@ -1372,7 +1291,7 @@ public class AtomSeq<A> :
     /// </example>
     /// <returns>Initial segments of the sequence</returns>
     public Seq<Seq<A>> Inits =>
-        Seq1(Seq<A>()) + NonEmptyInits;
+        [Seq<A>()] + NonEmptyInits;
 
     /// <summary>
     /// Returns all initial segments of the sequence, shortest first.
@@ -1510,4 +1429,94 @@ public class AtomSeq<A> :
     [Pure]
     public Seq<B> Cast<B>() =>
         ToSeq().Cast<B>();
+}
+
+public static class AtomSeqExtensions
+{
+    /// <summary>
+    /// Last item in sequence.
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<F, A> LastOrInvalid<F, A>(this AtomSeq<A> ma, F Fail)
+        where F : Monoid<F>
+    {
+        var xs = ma.ToSeq();
+        return xs.IsEmpty
+                   ? Validation<F, A>.Fail(Fail)
+                   : Validation<F, A>.Success(xs.Last);
+    }
+
+    /// <summary>
+    /// Head of the sequence if this node isn't the empty node or fail
+    /// </summary>
+    /// <returns>Head of the sequence or fail</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<F, A> HeadOrInvalid<F, A>(this AtomSeq<A> ma, F Fail)
+        where F : Monoid<F>
+    {
+        var xs = ma.ToSeq();
+        return xs.IsEmpty
+                   ? Validation<F, A>.Fail(Fail)
+                   : Pure(xs.Head);
+    }
+    
+    /// <summary>
+    /// Last item in sequence.
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<F, A> LastOrInvalid<F, A>(this AtomSeq<A> ma, Func<F> Fail)
+        where F : Monoid<F>
+    {
+        var xs = ma.ToSeq();
+        return xs.IsEmpty
+                   ? Validation<F, A>.Fail(Fail())
+                   : Pure(xs.Last);
+    }
+
+    /// <summary>
+    /// Head of the sequence if this node isn't the empty node or fail
+    /// </summary>
+    /// <returns>Head of the sequence or fail</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<F, A> HeadOrInvalid<F, A>(this AtomSeq<A> ma, Func<F> Fail)
+        where F : Monoid<F>
+    {
+        var xs = ma.ToSeq();
+        return xs.IsEmpty
+                   ? Validation<F, A>.Fail(Fail())
+                   : Pure(xs.Head);
+    }
+    
+    /// <summary>
+    /// Last item in sequence.
+    /// </summary>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<F, A> LastOrInvalid<F, A>(this AtomSeq<A> ma)
+        where F : Monoid<F>
+    {
+        var xs = ma.ToSeq();
+        return xs.IsEmpty
+                   ? Fail(F.Empty)
+                   : Pure(xs.Last);
+    }
+
+    /// <summary>
+    /// Head of the sequence if this node isn't the empty node or fail
+    /// </summary>
+    /// <returns>Head of the sequence or fail</returns>
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Validation<F, A> HeadOrInvalid<F, A>(this AtomSeq<A> ma)
+        where F : Monoid<F>
+    {
+        var xs = ma.ToSeq();
+        return xs.IsEmpty
+                   ? Fail(F.Empty)
+                   : Pure(xs.Head);
+    }
 }

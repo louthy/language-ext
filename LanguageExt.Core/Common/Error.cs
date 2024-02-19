@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Runtime.Serialization;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Common;
@@ -11,7 +12,7 @@ namespace LanguageExt.Common;
 /// <summary>
 /// Abstract error value
 /// </summary>
-public abstract record Error
+public abstract record Error : Monoid<Error>
 {
     /// <summary>
     /// Error code
@@ -134,6 +135,10 @@ public abstract record Error
             (var e1,        ManyErrors e2) => new ManyErrors(e1.Cons(e2.Errors)), 
             (var e1,        var e2)        => new ManyErrors(Seq(e1, e2)) 
         };
+
+    [Pure]
+    public static Error Empty =>
+        ManyErrors.Empty;
     
     /// <summary>
     /// Append an error to this error
@@ -553,6 +558,9 @@ public sealed record BottomError() : Exceptional(BottomException.Default)
 [DataContract]
 public sealed record ManyErrors([property: DataMember] Seq<Error> Errors) : Error
 {
+    public new static Error Empty { get; } =
+        new ManyErrors([]); 
+
     public override int Code => 
         Common.Errors.ManyErrorsCode;
 

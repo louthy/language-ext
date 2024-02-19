@@ -749,21 +749,10 @@ public readonly struct Map<K, V> :
     /// </summary>
     /// <returns>Tuples</returns>
     [Pure]
-    public IEnumerable<Tuple<K, V>> Tuples
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value.Tuples;
-    }
-
-    /// <summary>
-    /// Enumerable of in-order tuples that make up the map
-    /// </summary>
-    /// <returns>Tuples</returns>
-    [Pure]
     public IEnumerable<(K Key, V Value)> Pairs
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => Value.ValueTuples;
+        get => Value.Pairs;
     }
 
     /// <summary>
@@ -773,7 +762,7 @@ public readonly struct Map<K, V> :
     [Pure]
     [Obsolete("Use Pairs instead")]
     public IEnumerable<(K Key, V Value)> ValueTuples =>
-        Value.ValueTuples;
+        Value.Pairs;
 
     /// <summary>
     /// GetEnumerator - IEnumerable interface

@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.Contracts;
-using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses;
 
@@ -10,7 +9,6 @@ namespace LanguageExt.TypeClasses;
 /// </para>
 /// </summary>
 /// <typeparam name="A">The type being described as a monoid</typeparam>
-[Trait("M*")]
 public interface Monoid<A> : Semigroup<A>
     where A : Monoid<A>
 {

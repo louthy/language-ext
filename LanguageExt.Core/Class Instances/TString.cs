@@ -3,23 +3,8 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances;
 
-public struct TString : Ord<string>, Monoid<string>
+public struct TString : Ord<string>
 {
-    /// <summary>
-    /// Append
-    /// </summary>
-    [Pure]
-    public static string Append(string x, string y) =>
-        x + y;
-
-    /// <summary>
-    /// Empty
-    /// </summary>
-    /// <returns></returns>
-    [Pure]
-    public static string Empty => 
-        "";
-
     /// <summary>
     /// Equality test
     /// </summary>
@@ -55,23 +40,8 @@ public struct TString : Ord<string>, Monoid<string>
         OrdString.GetHashCode(x);
 }
 
-public struct TStringOrdinalIgnoreCase : Ord<string>, Monoid<string>
+public struct TStringOrdinalIgnoreCase : Ord<string>
 {
-    /// <summary>
-    /// Append
-    /// </summary>
-    [Pure]
-    public static string Append(string x, string y) =>
-        x + y;
-
-    /// <summary>
-    /// Empty
-    /// </summary>
-    /// <returns></returns>
-    [Pure]
-    public static string Empty =>
-        "";
-
     /// <summary>
     /// Equality test
     /// </summary>
@@ -107,23 +77,8 @@ public struct TStringOrdinalIgnoreCase : Ord<string>, Monoid<string>
         x.IsNull() ? 0 : x.GetHashCode();
 }
 
-public struct TStringOrdinal : Ord<string>, Monoid<string>
+public struct TStringOrdinal : Ord<string>
 {
-    /// <summary>
-    /// Append
-    /// </summary>
-    [Pure]
-    public static string Append(string x, string y) =>
-        x + y;
-
-    /// <summary>
-    /// Empty
-    /// </summary>
-    /// <returns></returns>
-    [Pure]
-    public static string Empty =>
-        "";
-
     /// <summary>
     /// Equality test
     /// </summary>
@@ -159,23 +114,8 @@ public struct TStringOrdinal : Ord<string>, Monoid<string>
         x.GetHashCode();
 }
 
-public struct TStringCurrentCultureIgnoreCase : Ord<string>, Monoid<string>
+public struct TStringCurrentCultureIgnoreCase : Ord<string>
 {
-    /// <summary>
-    /// Append
-    /// </summary>
-    [Pure]
-    public static string Append(string x, string y) =>
-        x + y;
-
-    /// <summary>
-    /// Empty
-    /// </summary>
-    /// <returns></returns>
-    [Pure]
-    public static string Empty =>
-        "";
-
     /// <summary>
     /// Equality test
     /// </summary>
@@ -211,23 +151,8 @@ public struct TStringCurrentCultureIgnoreCase : Ord<string>, Monoid<string>
         x.IsNull() ? 0 : x.GetHashCode();
 }
 
-public struct TStringCurrentCulture : Ord<string>, Monoid<string>
+public struct TStringCurrentCulture : Ord<string>
 {
-    /// <summary>
-    /// Append
-    /// </summary>
-    [Pure]
-    public static string Append(string x, string y) =>
-        x + y;
-
-    /// <summary>
-    /// Empty
-    /// </summary>
-    /// <returns></returns>
-    [Pure]
-    public static string Empty =>
-        "";
-
     /// <summary>
     /// Equality test
     /// </summary>

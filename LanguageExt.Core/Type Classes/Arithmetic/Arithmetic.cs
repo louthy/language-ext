@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Diagnostics.Contracts;
+﻿using System.Diagnostics.Contracts;
 using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses;
@@ -15,7 +14,7 @@ public interface Arithmetic<A> : Trait
     /// <returns>The sum of x and y</returns>
     [Pure]
     public static abstract A Plus(A x, A y);
-
+    
     /// <summary>
     /// Find the difference between two values
     /// </summary>

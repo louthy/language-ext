@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Common;
@@ -22,7 +23,7 @@ namespace LanguageExt.Common;
 /// i.e. it is either created from an exception or it isn't.  This allows for expected errors to be represented
 /// without throwing exceptions.  
 /// </remarks>
-public abstract class ErrorException : Exception, IEnumerable<ErrorException>
+public abstract class ErrorException : Exception, IEnumerable<ErrorException>, Monoid<ErrorException>
 {
     protected ErrorException(int code) =>
         HResult = code;
@@ -71,6 +72,10 @@ public abstract class ErrorException : Exception, IEnumerable<ErrorException>
     /// <remarks>Single errors will be converted to `ManyErrors`;  `ManyErrors` will have their collection updated</remarks>
     [Pure]
     public abstract ErrorException Append(ErrorException error);
+
+    [Pure]
+    public static ErrorException Empty => 
+        ManyExceptions.Empty;
     
     /// <summary>
     /// Append an error to this error
@@ -307,6 +312,8 @@ public class ExceptionalException : ErrorException
 /// <param name="Errors">Errors</param>
 public sealed class ManyExceptions : ErrorException
 {
+    public new static ErrorException Empty { get; } = new ManyExceptions([]);
+
     public ManyExceptions(Seq<ErrorException> errors) : base(0) =>
         Errors = errors;
 

@@ -130,29 +130,12 @@ public struct TInt : Num<int>, Bool<int>
         (int)x;
 
     /// <summary>
-    /// Monoid empty value (0)
-    /// </summary>
-    /// <returns>0</returns>
-    [Pure]
-    public static int Empty => 0;
-
-    /// <summary>
     /// Negate the value
     /// </summary>
     /// <param name="x">Value to negate</param>
     /// <returns>The negated source value</returns>
     [Pure]
     public static int Negate(int x) => -x;
-
-    /// <summary>
-    /// Semigroup append (sum)
-    /// </summary>
-    /// <param name="x">left hand side of the append operation</param>
-    /// <param name="y">right hand side of the append operation</param>
-    /// <returns>x + y</returns>
-    [Pure]
-    public static int Append(int x, int y) => 
-        x + y;
 
     /// <summary>
     /// Get the hash-code of the provided value

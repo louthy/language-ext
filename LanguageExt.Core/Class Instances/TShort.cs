@@ -138,22 +138,6 @@ public struct TShort : Num<short>, Bool<short>
     public static short Negate(short x) => (short)-x;
 
     /// <summary>
-    /// Semigroup append (sum)
-    /// </summary>
-    /// <param name="x">left hand side of the append operation</param>
-    /// <param name="y">right hand side of the append operation</param>
-    /// <returns>x + y</returns>
-    [Pure]
-    public static short Append(short x, short y) =>
-        (short)(x + y);
-
-    /// <summary>
-    /// Zero
-    /// </summary>
-    [Pure]
-    public static short Empty => 0;
-
-    /// <summary>
     /// Get the hash-code of the provided value
     /// </summary>
     /// <returns>Hash code of x</returns>

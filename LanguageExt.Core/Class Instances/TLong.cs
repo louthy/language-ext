@@ -1,8 +1,6 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace LanguageExt.ClassInstances;
 
@@ -132,28 +130,12 @@ public struct TLong : Num<long>, Bool<long>
         (long)x;
 
     /// <summary>
-    /// Semigroup append (sum)
-    /// </summary>
-    /// <param name="x">left hand side of the append operation</param>
-    /// <param name="y">right hand side of the append operation</param>
-    /// <returns>x + y</returns>
-    [Pure]
-    public static long Append(long x, long y) => 
-        x + y;
-
-    /// <summary>
     /// Negate the value
     /// </summary>
     /// <param name="x">Value to negate</param>
     /// <returns>The negated source value</returns>
     [Pure]
     public static long Negate(long x) => -x;
-
-    /// <summary>
-    /// Zero
-    /// </summary>
-    [Pure]
-    public static long Empty => 0;
 
     /// <summary>
     /// Get the hash-code of the provided value

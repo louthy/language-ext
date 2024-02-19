@@ -138,7 +138,7 @@ public static class MapExtensions
         self.AddOrUpdate(
             outerKey,
             b => b.AddOrUpdate(innerKey, Some, None),
-            () => Prelude.Map(Tuple(innerKey, None()))
+            () => Prelude.Map((innerKey, None()))
         );
 
     [Pure]
@@ -146,7 +146,7 @@ public static class MapExtensions
         self.AddOrUpdate(
             outerKey,
             b => b.AddOrUpdate(innerKey, _ => value, value),
-            () => Prelude.Map(Tuple(innerKey, value))
+            () => Prelude.Map((innerKey, value))
         );
 
     [Pure]
@@ -155,7 +155,7 @@ public static class MapExtensions
             aKey,
             bKey,
             c => c.AddOrUpdate(cKey, _ => value, value),
-            () => Prelude.Map(Tuple(cKey, value))
+            () => Prelude.Map((cKey, value))
         );
 
     [Pure]
@@ -164,7 +164,7 @@ public static class MapExtensions
             aKey,
             bKey,
             c => c.AddOrUpdate(cKey, Some, None),
-            () => Prelude.Map(Tuple(cKey, None()))
+            () => Prelude.Map((cKey, None()))
         );
 
     [Pure]
@@ -174,7 +174,7 @@ public static class MapExtensions
             bKey,
             cKey,
             d => d.AddOrUpdate(dKey, _ => value, value),
-            () => Prelude.Map(Tuple(dKey, value))
+            () => Prelude.Map((dKey, value))
         );
 
     [Pure]
@@ -184,7 +184,7 @@ public static class MapExtensions
             bKey,
             cKey,
             d => d.AddOrUpdate(dKey, Some, None),
-            () => Prelude.Map(Tuple(dKey, None()))
+            () => Prelude.Map((dKey, None()))
         );
 
     [Pure]

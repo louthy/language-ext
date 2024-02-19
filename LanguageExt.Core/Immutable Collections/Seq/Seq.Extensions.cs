@@ -9,7 +9,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using LanguageExt.Traits;
 using static LanguageExt.Prelude;
-using static LanguageExt.Trait;
 
 namespace LanguageExt;
 
@@ -80,7 +79,7 @@ public static class SeqExtensions
     /// <returns>Sum total</returns>
     [Pure]
     public static A Sum<A>(this Seq<A> list) where A : Monoid<A> =>
-        mconcat<A>(list.AsEnumerable());
+        Monoid.concat(list.AsEnumerable());
 
     /// <summary>
     /// Returns the sum total of all the items in the list (Sum in LINQ)

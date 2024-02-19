@@ -1,10 +1,7 @@
 ﻿using System;
 using LanguageExt;
-using static LanguageExt.Prelude;
-using static LanguageExt.Trait;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
-using LanguageExt.ClassInstances;
 
 public static class ValueTuple7Extensions
 {
@@ -14,68 +11,6 @@ public static class ValueTuple7Extensions
     [Pure]
     public static (A, B, C, D, E, F, G, H) Add<A, B, C, D, E, F, G, H>(this (A, B, C, D, E, F, G) self, H eighth) =>
         (self.Item1, self.Item2, self.Item3, self.Item4, self.Item5, self.Item6, self.Item7, eighth);
-
-    /// <summary>
-    /// Semigroup append
-    /// </summary>
-    [Pure]
-    public static (A, B, C, D, E, F, G) Append<SemiA, SemiB, SemiC, SemiD, SemiE, SemiF, SemiG, A, B, C, D, E, F, G>(this (A, B, C, D, E, F, G) a, (A, B, C, D, E, F, G) b)
-        where SemiA : Semigroup<A>
-        where SemiB : Semigroup<B>
-        where SemiC : Semigroup<C>
-        where SemiD : Semigroup<D> 
-        where SemiE : Semigroup<E>
-        where SemiF : Semigroup<F> 
-        where SemiG : Semigroup<G>
-        =>
-        (SemiA.Append(a.Item1, b.Item1),
-         SemiB.Append(a.Item2, b.Item2),
-         SemiC.Append(a.Item3, b.Item3),
-         SemiD.Append(a.Item4, b.Item4),
-         SemiE.Append(a.Item5, b.Item5),
-         SemiF.Append(a.Item6, b.Item6),
-         SemiG.Append(a.Item7, b.Item7));
-
-    /// <summary>
-    /// Semigroup append
-    /// </summary>
-    [Pure]
-    public static A Append<SemiA, A>(this ValueTuple<A, A, A, A, A, A, A> a)
-        where SemiA : Semigroup<A> =>
-        SemiA.Append(a.Item1, 
-            SemiA.Append(a.Item2, 
-                SemiA.Append(a.Item3, 
-                    SemiA.Append(a.Item4, 
-                        SemiA.Append(a.Item5, 
-                            SemiA.Append(a.Item6, a.Item7))))));
-
-    /// <summary>
-    /// Monoid concat
-    /// </summary>
-    [Pure]
-    public static (A, B, C, D, E, F, G) Concat<MonoidA, MonoidB, MonoidC, MonoidD, MonoidE, MonoidF, MonoidG, A, B, C, D, E, F, G>(this (A, B, C, D, E, F, G) a, (A, B, C, D, E, F, G) b)
-        where MonoidA : Monoid<A>
-        where MonoidB : Monoid<B>
-        where MonoidC : Monoid<C>
-        where MonoidD : Monoid<D>
-        where MonoidE : Monoid<E>
-        where MonoidF : Monoid<F>
-        where MonoidG : Monoid<G> =>
-        (mconcat<MonoidA, A>(a.Item1, b.Item1),
-         mconcat<MonoidB, B>(a.Item2, b.Item2),
-         mconcat<MonoidC, C>(a.Item3, b.Item3),
-         mconcat<MonoidD, D>(a.Item4, b.Item4),
-         mconcat<MonoidE, E>(a.Item5, b.Item5),
-         mconcat<MonoidF, F>(a.Item6, b.Item6),
-         mconcat<MonoidG, G>(a.Item7, b.Item7));
-
-    /// <summary>
-    /// Monoid concat
-    /// </summary>
-    [Pure]
-    public static A Concat<MonoidA, A>(this ValueTuple<A, A, A, A, A, A, A> a)
-        where MonoidA : Monoid<A> =>
-        mconcat<MonoidA, A>(a.Item1, a.Item2, a.Item3, a.Item4, a.Item5, a.Item6, a.Item7);
 
     /// <summary>
     /// Take the first item

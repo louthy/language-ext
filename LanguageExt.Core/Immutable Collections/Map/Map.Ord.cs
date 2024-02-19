@@ -641,16 +641,17 @@ public readonly struct Map<OrdK, K, V> :
     /// </summary>
     /// <returns>Tuples</returns>
     [Pure]
-    public IEnumerable<Tuple<K, V>> Tuples => 
-        Value.Tuples;
+    public IEnumerable<(K Key, V Value)> Pairs =>
+        Value.Pairs;
 
     /// <summary>
     /// Enumerable of in-order tuples that make up the map
     /// </summary>
     /// <returns>Tuples</returns>
     [Pure]
+    [Obsolete("Use `Pairs` instead")]
     public IEnumerable<(K Key, V Value)> ValueTuples =>
-        Value.ValueTuples;
+        Value.Pairs;
 
     /// <summary>
     /// GetEnumerator - IEnumerable interface
@@ -678,21 +679,21 @@ public readonly struct Map<OrdK, K, V> :
     /// </summary>
     [Pure]
     public override string ToString() =>
-        CollectionFormat.ToShortArrayString(ValueTuples.Map(kv => $"({kv.Key}: {kv.Value})"), Count);
+        CollectionFormat.ToShortArrayString(Pairs.Map(kv => $"({kv.Key}: {kv.Value})"), Count);
 
     /// <summary>
     /// Format the collection as `(key: value), (key: value), (key: value), ...`
     /// </summary>
     [Pure]
     public string ToFullString(string separator = ", ") =>
-        CollectionFormat.ToFullString(ValueTuples.Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+        CollectionFormat.ToFullString(Pairs.Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
     /// <summary>
     /// Format the collection as `[(key: value), (key: value), (key: value), ...]`
     /// </summary>
     [Pure]
     public string ToFullArrayString(string separator = ", ") =>
-        CollectionFormat.ToFullArrayString(ValueTuples.Map(kv => $"({kv.Key}: {kv.Value})"), separator);
+        CollectionFormat.ToFullArrayString(Pairs.Map(kv => $"({kv.Key}: {kv.Value})"), separator);
 
 
     [Pure]

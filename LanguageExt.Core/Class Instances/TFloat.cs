@@ -13,7 +13,8 @@ public struct TFloat : Floating<float>
     /// <param name="y">Right hand side of the equality operation</param>
     /// <returns>True if parameters are equal</returns>
     [Pure]
-    public static bool Equals(float x, float y) => x.Equals(y);
+    public static bool Equals(float x, float y) => 
+        x.Equals(y);
 
     /// <summary>
     /// Compare two values
@@ -281,21 +282,6 @@ public struct TFloat : Floating<float>
     /// <returns>The negated source value</returns>
     [Pure]
     public static float Negate(float x) => -x;
-
-    /// <summary>
-    /// Semigroup append (sum)
-    /// </summary>
-    /// <param name="x">left hand side of the append operation</param>
-    /// <param name="y">right hand side of the append operation</param>
-    /// <returns>x + y</returns>
-    [Pure]
-    public static float Append(float x, float y) => x + y;
-
-    /// <summary>
-    /// Zero
-    /// </summary>
-    [Pure]
-    public static float Empty => 0.0f;
 
     /// <summary>
     /// Get the hash-code of the provided value

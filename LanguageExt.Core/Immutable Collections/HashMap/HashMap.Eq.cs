@@ -1108,28 +1108,8 @@ public readonly struct HashMap<EqK, K, V> :
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ForAll(Func<Tuple<K, V>, bool> pred) =>
-        AsEnumerable().Map(kv => Tuple(kv.Key, kv.Value)).ForAll(pred);
-
-    /// <summary>
-    /// Return true if all items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ForAll(Func<(K Key, V Value), bool> pred) =>
         AsEnumerable().Map(kv => (kv.Key, kv.Value)).ForAll(pred);
-
-    /// <summary>
-    /// Return true if *all* items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool ForAll(Func<KeyValuePair<K, V>, bool> pred) =>
-        AsEnumerable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).ForAll(pred);
 
     /// <summary>
     /// Return true if all items in the map return true when the predicate is applied
@@ -1163,28 +1143,8 @@ public readonly struct HashMap<EqK, K, V> :
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Exists(Func<Tuple<K, V>, bool> pred) =>
-        AsEnumerable().Map(kv => Tuple(kv.Key, kv.Value)).Exists(pred);
-
-    /// <summary>
-    /// Return true if *any* items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Exists(Func<(K Key, V Value), bool> pred) =>
         AsEnumerable().Map(kv => (kv.Key, kv.Value)).Exists(pred);
-
-    /// <summary>
-    /// Return true if *any* items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    [Pure]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Exists(Func<KeyValuePair<K, V>, bool> pred) =>
-        AsEnumerable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).Exists(pred);
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied

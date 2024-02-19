@@ -1,9 +1,7 @@
 ﻿using System.Diagnostics.Contracts;
-using LanguageExt.Attributes;
 
 namespace LanguageExt.TypeClasses;
 
-[Trait("Semi*")]
 public interface Semigroup<A> : Trait
     where A : Semigroup<A>
 {

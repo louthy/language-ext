@@ -82,7 +82,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">The value to find the sign of</param>
     /// <returns>-1, 0, or +1</returns>
     [Pure]
-    public static decimal Signum(decimal x) => Math.Sign(x);
+    public static decimal Signum(decimal x) => 
+        Math.Sign(x);
 
     /// <summary>
     /// Generate a numeric value from an integer
@@ -90,7 +91,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">The integer to use</param>
     /// <returns>The equivalent of x in the Num<A></returns>
     [Pure]
-    public static decimal FromInteger(int x) => (decimal)x;
+    public static decimal FromInteger(int x) => 
+        x;
 
     /// <summary>
     /// Generate a numeric value from a decimal
@@ -98,7 +100,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">The decimal to use</param>
     /// <returns>The equivalent of x in the Num<A></returns>
     [Pure]
-    public static decimal FromDecimal(decimal x) => (decimal)x;
+    public static decimal FromDecimal(decimal x) => 
+        x;
 
     /// <summary>
     /// Generate a numeric value from a float
@@ -106,7 +109,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">The float to use</param>
     /// <returns>The equivalent of x in the Num<A></returns>
     [Pure]
-    public static decimal FromFloat(float x) => (decimal)x;
+    public static decimal FromFloat(float x) => 
+        (decimal)x;
 
     /// <summary>
     /// Generate a numeric value from a double
@@ -122,14 +126,16 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">The ratio to convert</param>
     /// <returns>The equivalent of x in the implementing type.</returns>
     [Pure]
-    public static decimal FromRational(Ratio<int> x) => x.Numerator / x.Denominator;
+    public static decimal FromRational(Ratio<int> x) => 
+        (decimal)x.Numerator / x.Denominator;
 
     /// <summary>
     /// Returns an approximation of pi.
     /// </summary>
     /// <returns>A reasonable approximation of pi in this type</returns>
     [Pure]
-    public static decimal Pi() => (decimal)Math.PI;
+    public static decimal Pi() => 
+        (decimal)Math.PI;
 
     /// <summary>
     /// The exponential function.
@@ -137,7 +143,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">The value for which we are calculating the exponential</param>
     /// <returns>The value of <c>e^x</c></returns>
     [Pure]
-    public static decimal Exp(decimal x) => (decimal)Math.Exp((double)x);
+    public static decimal Exp(decimal x) => 
+        (decimal)Math.Exp((double)x);
 
     /// <summary>
     /// Calculates the square root of a value.
@@ -145,7 +152,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">The value for which we are calculating the square root.</param>
     /// <returns>The value of <c>sqrt(x)</c>.</returns>
     [Pure]
-    public static decimal Sqrt(decimal x) => (decimal)Math.Sqrt((double)x);
+    public static decimal Sqrt(decimal x) => 
+        (decimal)Math.Sqrt((double)x);
 
     /// <summary>
     /// Calculates the natural logarithm of a value.
@@ -155,7 +163,8 @@ public struct TDecimal : Floating<decimal>
     /// </param>
     /// <returns>The value of <c>ln(x)</c>.</returns>
     [Pure]
-    public static decimal Log(decimal x) => (decimal)Math.Log((double)x);
+    public static decimal Log(decimal x) => 
+        (decimal)Math.Log((double)x);
 
     /// <summary>Raises x to the power y
     /// </summary>
@@ -163,7 +172,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="y">The exponent to which we are raising x</param>
     /// <returns>The value of <c>x^y</c>.</returns>
     [Pure]
-    public static decimal Pow(decimal x, decimal y) => (decimal)Math.Pow((double)x, (double)y);
+    public static decimal Pow(decimal x, decimal y) => 
+        (decimal)Math.Pow((double)x, (double)y);
 
     /// <summary>
     /// Calculates the logarithm of a value with respect to an arbitrary base.
@@ -172,7 +182,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="y">The value for which we are calculating the logarithm.</param>
     /// <returns>The value of <c>log x (y)</c>.</returns>
     [Pure]
-    public static decimal LogBase(decimal b, decimal x) => (decimal)Math.Log((double)x, (double)b);
+    public static decimal LogBase(decimal b, decimal x) => 
+        (decimal)Math.Log((double)x, (double)b);
 
     /// <summary>
     /// Calculates the sine of an angle.
@@ -180,7 +191,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">An angle, in radians</param>
     /// <returns>The value of <c>sin(x)</c></returns>
     [Pure]
-    public static decimal Sin(decimal x) => (decimal)Math.Sin((double)x);
+    public static decimal Sin(decimal x) => 
+        (decimal)Math.Sin((double)x);
 
     /// <summary>
     /// Calculates the cosine of an angle.
@@ -188,7 +200,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">An angle, in radians</param>
     /// <returns>The value of <c>cos(x)</c></returns>
     [Pure]
-    public static decimal Cos(decimal x) => (decimal)Math.Cos((double)x);
+    public static decimal Cos(decimal x) => 
+        (decimal)Math.Cos((double)x);
 
     /// <summary>
     ///     Calculates the tangent of an angle.
@@ -196,7 +209,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">An angle, in radians</param>
     /// <returns>The value of <c>tan(x)</c></returns>
     [Pure]
-    public static decimal Tan(decimal x) => (decimal)Math.Tan((double)x);
+    public static decimal Tan(decimal x) => 
+        (decimal)Math.Tan((double)x);
 
     /// <summary>
     /// Calculates an arcsine.
@@ -204,7 +218,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">The value for which an arcsine is to be calculated.</param>
     /// <returns>The value of <c>asin(x)</c>, in radians.</returns>
     [Pure]
-    public static decimal Asin(decimal x) => (decimal)Math.Asin((double)x);
+    public static decimal Asin(decimal x) => 
+        (decimal)Math.Asin((double)x);
 
     /// <summary>
     /// Calculates an arc-cosine.
@@ -212,7 +227,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">The value for which an arc-cosine is to be calculated</param>
     /// <returns>The value of <c>acos(x)</c>, in radians</returns>
     [Pure]
-    public static decimal Acos(decimal x) => (decimal)Math.Acos((double)x);
+    public static decimal Acos(decimal x) => 
+        (decimal)Math.Acos((double)x);
 
     /// <summary>
     /// Calculates an arc-tangent.
@@ -220,7 +236,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">The value for which an arc-tangent is to be calculated</param>
     /// <returns>The value of <c>atan(x)</c>, in radians</returns>
     [Pure]
-    public static decimal Atan(decimal x) => (decimal)Math.Atan((double)x);
+    public static decimal Atan(decimal x) => 
+        (decimal)Math.Atan((double)x);
 
     /// <summary>
     /// Calculates a hyperbolic sine.
@@ -228,7 +245,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">The value for which a hyperbolic sine is to be calculated</param>
     /// <returns>The value of <c>sinh(x)</c></returns>
     [Pure]
-    public static decimal Sinh(decimal x) => (decimal)Math.Sinh((double)x);
+    public static decimal Sinh(decimal x) => 
+        (decimal)Math.Sinh((double)x);
 
     /// <summary>
     /// Calculates a hyperbolic cosine.
@@ -236,7 +254,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">The value for which a hyperbolic cosine is to be calculated</param>
     /// <returns>The value of <c>cosh(x)</c></returns>
     [Pure]
-    public static decimal Cosh(decimal x) => (decimal)Math.Cosh((double)x);
+    public static decimal Cosh(decimal x) => 
+        (decimal)Math.Cosh((double)x);
 
     /// <summary>
     /// Calculates a hyperbolic tangent.
@@ -246,14 +265,16 @@ public struct TDecimal : Floating<decimal>
     /// </param>
     /// <returns>The value of <c>tanh(x)</c></returns>
     [Pure]
-    public static decimal Tanh(decimal x) => (decimal)Math.Tanh((double)x);
+    public static decimal Tanh(decimal x) => 
+        (decimal)Math.Tanh((double)x);
 
     /// <summary>Calculates an area hyperbolic sine</summary>
     /// <param name="x">The value for which an area hyperbolic sine is to be calculated.
     /// </param>
     /// <returns>The value of <c>asinh(x)</c>.</returns>
     [Pure]
-    public static decimal Asinh(decimal x) => Log(x + Sqrt((x * x) + 1m));
+    public static decimal Asinh(decimal x) => 
+        Log(x + Sqrt((x * x) + 1m));
 
     /// <summary>
     /// Calculates an area hyperbolic cosine.
@@ -262,7 +283,8 @@ public struct TDecimal : Floating<decimal>
     /// </param>
     /// <returns>The value of <c>acosh(x)</c>.</returns>
     [Pure]
-    public static decimal Acosh(decimal x) => Log(x + Sqrt((x * x) - 1m));
+    public static decimal Acosh(decimal x) => 
+        Log(x + Sqrt((x * x) - 1m));
 
     /// <summary>
     /// Calculates an area hyperbolic tangent.
@@ -271,7 +293,8 @@ public struct TDecimal : Floating<decimal>
     /// </param>
     /// <returns>The value of <c>atanh(x)</c></returns>
     [Pure]
-    public static decimal Atanh(decimal x) => 0.5m * Log((1m + x) / (1m - x));
+    public static decimal Atanh(decimal x) => 
+        0.5m * Log((1m + x) / (1m - x));
 
     /// <summary>
     /// Negate the value
@@ -279,22 +302,8 @@ public struct TDecimal : Floating<decimal>
     /// <param name="x">Value to negate</param>
     /// <returns>The negated source value</returns>
     [Pure]
-    public static decimal Negate(decimal x) => -x;
-
-    /// <summary>
-    /// Semigroup append (sum)
-    /// </summary>
-    /// <param name="x">left hand side of the append operation</param>
-    /// <param name="y">right hand side of the append operation</param>
-    /// <returns>x + y</returns>
-    [Pure]
-    public static decimal Append(decimal x, decimal y) => x + y;
-
-    /// <summary>
-    /// Zero
-    /// </summary>
-    [Pure]
-    public static decimal Empty => 0;
+    public static decimal Negate(decimal x) => 
+        -x;
 
     /// <summary>
     /// Get the hash-code of the provided value

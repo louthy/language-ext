@@ -54,6 +54,6 @@ public abstract class NumType<SELF, NUM, A> : NumType<SELF, NUM, A, True<A>>
     [Pure]
     public static explicit operator A(NumType<SELF, NUM, A> type) =>
         ReferenceEquals(type,null)
-            ? NUM.Empty
+            ? NUM.FromInteger(0)
             : type.Value;
 }

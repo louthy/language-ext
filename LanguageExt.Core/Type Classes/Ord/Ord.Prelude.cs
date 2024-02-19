@@ -110,9 +110,9 @@ public static partial class Trait
     /// </returns>
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int compare<MonoidA, ORDA, ORDB, A, B>(Validation<MonoidA, A, B> x, Validation<MonoidA, A, B> y)
-        where MonoidA : Monoid<A>, Eq<A>
-        where ORDA : Ord<A>
+    public static int compare<ORDA, ORDB, A, B>(Validation<A, B> x, Validation<A, B> y)
+        where A : Monoid<A>
+        where ORDA : Ord<A>, Eq<A>
         where ORDB : Ord<B> =>
         x.CompareTo<ORDA, ORDB>(y);
 

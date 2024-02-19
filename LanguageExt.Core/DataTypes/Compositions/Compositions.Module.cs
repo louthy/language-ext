@@ -172,5 +172,5 @@ public static class Compositions
     /// </summary>
     public static Compositions<A> fromList<A>(IEnumerable<A> ma)
         where A : Monoid<A> =>
-        ma.Fold(MCompositions<A>.Empty, (s, x) => s.Append(singleton(x)));
+        ma.Fold(Compositions<A>.Empty, (s, x) => s.Append(singleton(x)));
 }

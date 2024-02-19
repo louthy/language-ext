@@ -9,7 +9,7 @@ namespace LanguageExt.TypeClasses;
 /// <typeparam name="A">The type for which the number operations are
 /// defined.</typeparam>
 [Trait("Num*")]
-public interface Num<A> : Ord<A>, Monoid<A>, Arithmetic<A>
+public interface Num<A> : Ord<A>, Arithmetic<A>
 {
     /// <summary>
     /// Find the absolute value of a number

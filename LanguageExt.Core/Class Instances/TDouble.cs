@@ -13,7 +13,8 @@ public struct TDouble : Floating<double>
     /// <param name="y">Right hand side of the equality operation</param>
     /// <returns>True if parameters are equal</returns>
     [Pure]
-    public static bool Equals(double x, double y) => x.Equals(y);
+    public static bool Equals(double x, double y) => 
+        x.Equals(y);
 
     /// <summary>
     /// Compare two values
@@ -77,7 +78,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">The value to find the absolute value of</param>
     /// <returns>The non-negative absolute value of x</returns>
     [Pure]
-    public static double Abs(double x) => Math.Abs(x);
+    public static double Abs(double x) => 
+        Math.Abs(x);
 
     /// <summary>
     /// Find the sign of x
@@ -85,7 +87,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">The value to find the sign of</param>
     /// <returns>-1, 0, or +1</returns>
     [Pure]
-    public static double Signum(double x) => Math.Sign(x);
+    public static double Signum(double x) => 
+        Math.Sign(x);
 
     /// <summary>
     /// Generate a numeric value from an integer
@@ -93,7 +96,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">The integer to use</param>
     /// <returns>The equivalent of x in the Num<A></returns>
     [Pure]
-    public static double FromInteger(int x) => (double)x;
+    public static double FromInteger(int x) => 
+        x;
 
     /// <summary>
     /// Generate a numeric value from a decimal
@@ -101,7 +105,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">The decimal to use</param>
     /// <returns>The equivalent of x in the Num<A></returns>
     [Pure]
-    public static double FromDecimal(decimal x) => (double)x;
+    public static double FromDecimal(decimal x) => 
+        (double)x;
 
     /// <summary>
     /// Generate a numeric value from a float
@@ -109,7 +114,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">The float to use</param>
     /// <returns>The equivalent of x in the Num<A></returns>
     [Pure]
-    public static double FromFloat(float x) => (double)x;
+    public static double FromFloat(float x) => 
+        x;
 
     /// <summary>
     /// Generate a numeric value from a double
@@ -117,7 +123,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">The double to use</param>
     /// <returns>The equivalent of x in the Num<A></returns>
     [Pure]
-    public static double FromDouble(double x) => (double)x;
+    public static double FromDouble(double x) => 
+        x;
 
     /// <summary>
     /// Generates a fractional value from an integer ratio.
@@ -125,14 +132,16 @@ public struct TDouble : Floating<double>
     /// <param name="x">The ratio to convert</param>
     /// <returns>The equivalent of x in the implementing type.</returns>
     [Pure]
-    public static double FromRational(Ratio<int> x) => x.Numerator / x.Denominator;
+    public static double FromRational(Ratio<int> x) => 
+        (double)x.Numerator / x.Denominator;
 
     /// <summary>
     /// Returns an approximation of pi.
     /// </summary>
     /// <returns>A reasonable approximation of pi in this type</returns>
     [Pure]
-    public static double Pi() => Math.PI;
+    public static double Pi() => 
+        Math.PI;
 
     /// <summary>
     /// The exponential function.
@@ -140,7 +149,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">The value for which we are calculating the exponential</param>
     /// <returns>The value of <c>e^x</c></returns>
     [Pure]
-    public static double Exp(double x) => Math.Exp(x);
+    public static double Exp(double x) => 
+        Math.Exp(x);
 
     /// <summary>
     /// Calculates the square root of a value.
@@ -148,7 +158,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">The value for which we are calculating the square root.</param>
     /// <returns>The value of <c>sqrt(x)</c>.</returns>
     [Pure]
-    public static double Sqrt(double x) => Math.Sqrt(x);
+    public static double Sqrt(double x) => 
+        Math.Sqrt(x);
 
     /// <summary>
     /// Calculates the natural logarithm of a value.
@@ -158,7 +169,8 @@ public struct TDouble : Floating<double>
     /// </param>
     /// <returns>The value of <c>ln(x)</c>.</returns>
     [Pure]
-    public static double Log(double x) => Math.Log(x);
+    public static double Log(double x) => 
+        Math.Log(x);
 
     /// <summary>Raises x to the power y
     /// </summary>
@@ -166,7 +178,8 @@ public struct TDouble : Floating<double>
     /// <param name="y">The exponent to which we are raising x</param>
     /// <returns>The value of <c>x^y</c>.</returns>
     [Pure]
-    public static double Pow(double x, double y) => Math.Pow(x, y);
+    public static double Pow(double x, double y) => 
+        Math.Pow(x, y);
 
     /// <summary>
     /// Calculates the logarithm of a value with respect to an arbitrary base.
@@ -175,7 +188,8 @@ public struct TDouble : Floating<double>
     /// <param name="y">The value for which we are calculating the logarithm.</param>
     /// <returns>The value of <c>log x (y)</c>.</returns>
     [Pure]
-    public static double LogBase(double b, double x) => Math.Log(x, b);
+    public static double LogBase(double b, double x) => 
+        Math.Log(x, b);
 
     /// <summary>
     /// Calculates the sine of an angle.
@@ -183,7 +197,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">An angle, in radians</param>
     /// <returns>The value of <c>sin(x)</c></returns>
     [Pure]
-    public static double Sin(double x) => Math.Sin(x);
+    public static double Sin(double x) => 
+        Math.Sin(x);
 
     /// <summary>
     /// Calculates the cosine of an angle.
@@ -191,7 +206,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">An angle, in radians</param>
     /// <returns>The value of <c>cos(x)</c></returns>
     [Pure]
-    public static double Cos(double x) => Math.Cos(x);
+    public static double Cos(double x) => 
+        Math.Cos(x);
 
     /// <summary>
     ///     Calculates the tangent of an angle.
@@ -199,7 +215,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">An angle, in radians</param>
     /// <returns>The value of <c>tan(x)</c></returns>
     [Pure]
-    public static double Tan(double x) => Math.Tan(x);
+    public static double Tan(double x) => 
+        Math.Tan(x);
 
     /// <summary>
     /// Calculates an arcsine.
@@ -207,7 +224,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">The value for which an arcsine is to be calculated.</param>
     /// <returns>The value of <c>asin(x)</c>, in radians.</returns>
     [Pure]
-    public static double Asin(double x) => Math.Asin(x);
+    public static double Asin(double x) => 
+        Math.Asin(x);
 
     /// <summary>
     /// Calculates an arc-cosine.
@@ -215,7 +233,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">The value for which an arc-cosine is to be calculated</param>
     /// <returns>The value of <c>acos(x)</c>, in radians</returns>
     [Pure]
-    public static double Acos(double x) => Math.Acos(x);
+    public static double Acos(double x) => 
+        Math.Acos(x);
 
     /// <summary>
     /// Calculates an arc-tangent.
@@ -223,7 +242,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">The value for which an arc-tangent is to be calculated</param>
     /// <returns>The value of <c>atan(x)</c>, in radians</returns>
     [Pure]
-    public static double Atan(double x) => Math.Atan(x);
+    public static double Atan(double x) => 
+        Math.Atan(x);
 
     /// <summary>
     /// Calculates a hyperbolic sine.
@@ -231,7 +251,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">The value for which a hyperbolic sine is to be calculated</param>
     /// <returns>The value of <c>sinh(x)</c></returns>
     [Pure]
-    public static double Sinh(double x) => Math.Sinh(x);
+    public static double Sinh(double x) => 
+        Math.Sinh(x);
 
     /// <summary>
     /// Calculates a hyperbolic cosine.
@@ -239,7 +260,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">The value for which a hyperbolic cosine is to be calculated</param>
     /// <returns>The value of <c>cosh(x)</c></returns>
     [Pure]
-    public static double Cosh(double x) => Math.Cosh(x);
+    public static double Cosh(double x) => 
+        Math.Cosh(x);
 
     /// <summary>
     /// Calculates a hyperbolic tangent.
@@ -249,14 +271,16 @@ public struct TDouble : Floating<double>
     /// </param>
     /// <returns>The value of <c>tanh(x)</c></returns>
     [Pure]
-    public static double Tanh(double x) => Math.Tanh(x);
+    public static double Tanh(double x) => 
+        Math.Tanh(x);
 
     /// <summary>Calculates an area hyperbolic sine</summary>
     /// <param name="x">The value for which an area hyperbolic sine is to be calculated.
     /// </param>
     /// <returns>The value of <c>asinh(x)</c>.</returns>
     [Pure]
-    public static double Asinh(double x) => Math.Log(x + Math.Sqrt((x * x) + 1.0));
+    public static double Asinh(double x) => 
+        Math.Log(x + Math.Sqrt(x * x + 1.0));
 
     /// <summary>
     /// Calculates an area hyperbolic cosine.
@@ -265,7 +289,8 @@ public struct TDouble : Floating<double>
     /// </param>
     /// <returns>The value of <c>acosh(x)</c>.</returns>
     [Pure]
-    public static double Acosh(double x) => Math.Log(x + Math.Sqrt((x * x) - 1.0));
+    public static double Acosh(double x) => 
+        Math.Log(x + Math.Sqrt(x * x - 1.0));
 
     /// <summary>
     /// Calculates an area hyperbolic tangent.
@@ -274,7 +299,8 @@ public struct TDouble : Floating<double>
     /// </param>
     /// <returns>The value of <c>atanh(x)</c></returns>
     [Pure]
-    public static double Atanh(double x) => 0.5 * Math.Log((1.0 + x) / (1.0 - x));
+    public static double Atanh(double x) => 
+        0.5 * Math.Log((1.0 + x) / (1.0 - x));
 
     /// <summary>
     /// Negate the value
@@ -282,22 +308,8 @@ public struct TDouble : Floating<double>
     /// <param name="x">Value to negate</param>
     /// <returns>The negated source value</returns>
     [Pure]
-    public static double Negate(double x) => -x;
-
-    /// <summary>
-    /// Semigroup append (sum)
-    /// </summary>
-    /// <param name="x">left hand side of the append operation</param>
-    /// <param name="y">right hand side of the append operation</param>
-    /// <returns>x + y</returns>
-    [Pure]
-    public static double Append(double x, double y) => x + y;
-
-    /// <summary>
-    /// Zero
-    /// </summary>
-    [Pure]
-    public static double Empty => 0.0;
+    public static double Negate(double x) => 
+        -x;
 
     /// <summary>
     /// Get the hash-code of the provided value

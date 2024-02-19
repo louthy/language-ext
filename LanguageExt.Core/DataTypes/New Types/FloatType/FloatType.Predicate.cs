@@ -103,7 +103,7 @@ public abstract class FloatType<SELF, FLOATING, A, PRED> :
     [Pure]
     static A ValueOrDefault(FloatType<SELF, FLOATING, A, PRED> floatType) =>
         ReferenceEquals(floatType, null)
-            ? FLOATING.Empty
+            ? FLOATING.FromFloat(0)
             : floatType.Value;
 
     /// <summary>

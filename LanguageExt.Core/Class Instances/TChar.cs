@@ -6,7 +6,7 @@ namespace LanguageExt.ClassInstances;
 /// <summary>
 /// Integer number 
 /// </summary>
-public struct TChar : Ord<char>, Monoid<char>, Arithmetic<char>
+public struct TChar : Ord<char>, Arithmetic<char>
 {
     /// <summary>
     /// Equality test
@@ -33,23 +33,6 @@ public struct TChar : Ord<char>, Monoid<char>, Arithmetic<char>
     [Pure]
     public static int Compare(char x, char y) =>
         x.CompareTo(y);
-
-    /// <summary>
-    /// Monoid empty value (0)
-    /// </summary>
-    /// <returns>0</returns>
-    [Pure]
-    public static char Empty => (char)0;
-
-    /// <summary>
-    /// Semigroup append (sum)
-    /// </summary>
-    /// <param name="x">left hand side of the append operation</param>
-    /// <param name="y">right hand side of the append operation</param>
-    /// <returns>x + y</returns>
-    [Pure]
-    public static char Append(char x, char y) => 
-        (char)(x + y);
 
     /// <summary>
     /// Get the hash-code of the provided value

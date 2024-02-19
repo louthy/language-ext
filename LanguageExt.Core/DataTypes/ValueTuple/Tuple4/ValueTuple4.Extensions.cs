@@ -1,10 +1,7 @@
 ﻿using System;
 using LanguageExt;
-using static LanguageExt.Prelude;
-using static LanguageExt.Trait;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
-using LanguageExt.ClassInstances;
 
 public static class ValueTuple4Extensions
 {
@@ -14,53 +11,6 @@ public static class ValueTuple4Extensions
     [Pure]
     public static (A, B, C, D, E) Add<A, B, C, D, E>(this (A, B, C, D) self, E fifth) =>
         (self.Item1, self.Item2, self.Item3, self.Item4, fifth);
-
-    /// <summary>
-    /// Semigroup append
-    /// </summary>
-    [Pure]
-    public static (A, B, C, D) Append<SemiA, SemiB, SemiC, SemiD, A, B, C, D>(this (A, B, C, D) a, (A, B, C, D) b)
-        where SemiA : Semigroup<A>
-        where SemiB : Semigroup<B>
-        where SemiC : Semigroup<C>
-        where SemiD : Semigroup<D> 
-        =>
-        (SemiA.Append(a.Item1, b.Item1),
-         SemiB.Append(a.Item2, b.Item2),
-         SemiC.Append(a.Item3, b.Item3),
-         SemiD.Append(a.Item4, b.Item4));
-
-    /// <summary>
-    /// Semigroup append
-    /// </summary>
-    [Pure]
-    public static A Append<SemiA, A>(this ValueTuple<A, A, A, A> a)
-        where SemiA : Semigroup<A> =>
-        SemiA.Append(a.Item1,
-            SemiA.Append(a.Item2,
-                SemiA.Append(a.Item3, a.Item4)));
-
-    /// <summary>
-    /// Monoid concat
-    /// </summary>
-    [Pure]
-    public static (A, B, C, D) Concat<MonoidA, MonoidB, MonoidC, MonoidD, A, B, C, D>(this (A, B, C, D) a, (A, B, C, D) b)
-        where MonoidA : Monoid<A>
-        where MonoidB : Monoid<B>
-        where MonoidC : Monoid<C>
-        where MonoidD : Monoid<D> =>
-        (mconcat<MonoidA, A>(a.Item1, b.Item1),
-         mconcat<MonoidB, B>(a.Item2, b.Item2),
-         mconcat<MonoidC, C>(a.Item3, b.Item3),
-         mconcat<MonoidD, D>(a.Item4, b.Item4));
-
-    /// <summary>
-    /// Monoid concat
-    /// </summary>
-    [Pure]
-    public static A Concat<MonoidA, A>(this ValueTuple<A, A, A, A> a)
-        where MonoidA : Monoid<A> =>
-        mconcat<MonoidA, A>(a.Item1, a.Item2, a.Item3, a.Item4);
 
     /// <summary>
     /// Take the first item

@@ -38,9 +38,40 @@ public struct Compositions<A> :
         Tree = tree;
     }
 
-    public Compositions<A> Append(Compositions<A> y) => 
-        new (Tree + y.Tree);
+    public Compositions<A> Append(Compositions<A> compy)
+    {
+        var compx = this;
+        Seq<Node> go(Seq<Node> mx, Seq<Node> my)
+        {
+            if (mx.IsEmpty) return my;
+            if (my.IsEmpty) return go(mx.Tail, [mx.Head]);
 
+            var x  = mx.Head;
+            var sx = mx.Head.Size;
+            var cx = mx.Head.Children;
+            var vx = mx.Head.Value;
+            var xs = mx.Tail;
+
+            var y  = my.Head;
+            var sy = my.Head.Size;
+            var vy = my.Head.Value;
+            var ys = my.Tail;
+
+            var ord = sx.CompareTo(sy);
+            if (ord      < 0) return go(xs, x.Cons(my));
+            else if (ord > 0)
+            {
+                var (l, r) = ((Node, Node))cx;
+                return go(r.Cons(l.Cons(xs)), my);
+            }
+            else
+            {
+                return go(new Node(sx + sy, Some((x, y)), vx.Append(vy)).Cons(xs), ys);
+            }
+        }
+        return new Compositions<A>(go(compx.Tree, compy.Tree));
+    }
+    
     /// <summary>
     /// Returns true if the given tree is appropriately right-biased.
     /// </summary>

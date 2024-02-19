@@ -157,6 +157,11 @@ This is rewrite territory.  I would encourage you to look at the new traits and 
 
 The `Append` in `Semigroup<A>` (which `Monoid<A>` inherits) is now an instance method.  Meaning you must derive your semigroup and monoidal types from `Monoid<YOUR_TYPE>` to leverage its capabilities.
 
+The functions in the `TypeClass` static class have been moved to: `Monoid` and `Semigroup` static _module_ classes.  `TypeClass.mappend` is now `Semigroup.append`, `TypeClass.mconcat` is now `Monoid.concat`, etc.
+
+Semigroup also defines `operator+` now.
+
+
 **Motivation**
 
 Monoids, like the other trait types, were set up work ad-hoc polymorphically.  That is, we could build a `Monoid` instance for a type that we don't own.  And, although we have now lost that capability, we have gained a much easier experience for working with monoidal types.
@@ -278,9 +283,16 @@ There were lots of methods like `BiMap`, `BiBind`, `BiFold` etc. where `Left` an
 * Impact: Low
 * Mitigation: change the argument order of any usages
 
-## Nullable extensions removed
+## Nullable (struct) extensions removed
 
 These just keep causing problems with resolution of common functions like `Map`, `Bind`, etc.
+
+The nullable Prelude remains.
+
+## Support for `Tuple` and `KeyValuePair` removed
+
+ValueTuple support only from now on.
+
 
 ## Types removed outright
 

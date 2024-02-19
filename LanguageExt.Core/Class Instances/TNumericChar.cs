@@ -6,7 +6,7 @@ namespace LanguageExt.ClassInstances;
 /// <summary>
 /// Integer number 
 /// </summary>
-public struct TNumericChar : Ord<char>, Monoid<char>, Arithmetic<char>
+public struct TNumericChar : Num<char>
 {
     /// <summary>
     /// Equality test
@@ -33,23 +33,6 @@ public struct TNumericChar : Ord<char>, Monoid<char>, Arithmetic<char>
     [Pure]
     public static int Compare(char x, char y) =>
         CharToInt(x).CompareTo(CharToInt(y));
-
-    /// <summary>
-    /// Monoid empty value (0)
-    /// </summary>
-    /// <returns>0</returns>
-    [Pure]
-    public static char Empty => (char)0;
-
-    /// <summary>
-    /// Semigroup append (sum)
-    /// </summary>
-    /// <param name="x">left hand side of the append operation</param>
-    /// <param name="y">right hand side of the append operation</param>
-    /// <returns>x + y</returns>
-    [Pure]
-    public static char Append(char x, char y) => 
-        (char)(CharToInt(x) + CharToInt(y));
 
     /// <summary>
     /// Get the hash-code of the provided value
@@ -79,4 +62,25 @@ public struct TNumericChar : Ord<char>, Monoid<char>, Arithmetic<char>
         x > 32768
             ? -(65536 - x)
             : x;
+
+    public static char Abs(char x) => 
+        x;
+
+    public static char Signum(char x) => 
+        (char)1;
+
+    public static char FromInteger(int x) =>
+        (char)x;
+
+    public static char FromDecimal(decimal x) => 
+        (char)x;
+
+    public static char FromFloat(float x) => 
+        (char)x;
+
+    public static char FromDouble(double x) => 
+        (char)x;
+
+    public static char Divide(char x, char y) =>
+        (char)(CharToInt(x) / CharToInt(y));
 }

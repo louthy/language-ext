@@ -1,10 +1,7 @@
 ﻿using System;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using static LanguageExt.Trait;
 using System.Diagnostics.Contracts;
-using LanguageExt.ClassInstances;
-using LanguageExt.TypeClasses;
 using System.Threading.Tasks;
 
 public static class ValueTuple2Extensions
@@ -15,42 +12,6 @@ public static class ValueTuple2Extensions
     [Pure]
     public static (A, B, C) Add<A, B, C>(this (A, B) self, C third) =>
         (self.Item1, self.Item2, third);
-
-    /// <summary>
-    /// Semigroup append
-    /// </summary>
-    [Pure]
-    public static (A, B) Append<SemiA, SemiB, A, B>(this(A, B) a, (A, B) b)
-        where SemiA : Semigroup<A>
-        where SemiB : Semigroup<B> =>
-        (SemiA.Append(a.Item1, b.Item1),
-         SemiB.Append(a.Item2, b.Item2));
-
-    /// <summary>
-    /// Semigroup append
-    /// </summary>
-    [Pure]
-    public static A Append<SemiA, A>(this ValueTuple<A, A> a)
-        where SemiA : Semigroup<A> =>
-        SemiA.Append(a.Item1, a.Item2);
-
-    /// <summary>
-    /// Monoid concat
-    /// </summary>
-    [Pure]
-    public static (A, B) Concat<MonoidA, MonoidB, A, B>(this (A, B) a, (A, B) b)
-        where MonoidA : Monoid<A>
-        where MonoidB : Monoid<B> =>
-        (mconcat<MonoidA, A>(a.Item1, b.Item1),
-         mconcat<MonoidB, B>(a.Item2, b.Item2));
-
-    /// <summary>
-    /// Monoid concat
-    /// </summary>
-    [Pure]
-    public static A Concat<MonoidA, A>(this ValueTuple<A, A> a)
-        where MonoidA : Monoid<A> =>
-        mconcat<MonoidA, A>(a.Item1, a.Item2);
 
     /// <summary>
     /// Take the first item
@@ -71,7 +32,7 @@ public static class ValueTuple2Extensions
     /// </summary>
     [Pure]
     public static ValueTuple<T2> Tail<T1, T2>(this ValueTuple<T1, T2> self) =>
-        VTuple(self.Item2);
+        new (self.Item2);
 
     /// <summary>
     /// Map
@@ -378,49 +339,4 @@ public static class ValueTuple2Extensions
     [Pure]
     public static Task<(A, B)> Sequence<A, B>(this (Task<A> ma, Task<B> mb) tuple) =>
         apply((a, b) => (a, b), tuple.ma, tuple.mb);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static Validation<MonoidFail, L, (C, D)> Traverse<MonoidFail, L, A, B, C, D>(this (Validation<MonoidFail, L, A> ma, Validation<MonoidFail, L, B> mb) tuple, Func<(A a, B b), (C c, D d)> f)
-        where MonoidFail : Monoid<L>, Eq<L> =>
-        tuple.Apply<MonoidFail, L, A, B, (C, D)>((a, b) => f((a, b)));
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static Validation<MonoidFail, L, (C, D)> Traverse<MonoidFail, L, A, B, C, D>(this (Validation<MonoidFail, L, A> ma, Validation<MonoidFail, L, B> mb) tuple, Func<A, B, (C c, D d)> f)
-        where MonoidFail : Monoid<L>, Eq<L> =>
-        tuple.Apply<MonoidFail, L, A, B, (C, D)>(f);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static Validation<MonoidFail, L, (A, B)> Sequence<MonoidFail, L, A, B>(this (Validation<MonoidFail, L, A> ma, Validation<MonoidFail, L, B> mb) tuple)
-        where MonoidFail : Monoid<L>, Eq<L> =>
-        tuple.Apply<MonoidFail, L, A, B, (A, B)>((a, b) => (a, b));
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static Validation<L, (C, D)> Traverse<L, A, B, C, D>(this (Validation<L, A> ma, Validation<L, B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
-        tuple.Apply<L, A, B, (C, D)>((a, b) => f((a, b)));
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static Validation<L, (C, D)> Traverse<L, A, B, C, D>(this (Validation<L, A> ma, Validation<L, B> mb) tuple, Func<A, B, (C c, D d)> f) =>
-        tuple.Apply<L, A, B, (C, D)>(f);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static Validation<L, (A, B)> Sequence<L, A, B>(this (Validation<L, A> ma, Validation<L, B> mb) tuple) =>
-        tuple.Apply<L, A, B, (A, B)>((a, b) => (a, b));
 }

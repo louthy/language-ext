@@ -117,7 +117,7 @@ public static partial class TrackingHashMapExtensions
         self.AddOrUpdate(
             outerKey,
             b => b.AddOrUpdate(innerKey, Some, None),
-            () => Prelude.TrackingHashMap(Tuple(innerKey, None()))
+            () => TrackingHashMap((innerKey, None()))
         );
 
     [Pure]
@@ -125,7 +125,7 @@ public static partial class TrackingHashMapExtensions
         self.AddOrUpdate(
             outerKey,
             b => b.AddOrUpdate(innerKey, _ => value, value),
-            () => Prelude.TrackingHashMap(Tuple(innerKey, value))
+            () => TrackingHashMap((innerKey, value))
         );
 
     [Pure]
@@ -134,7 +134,7 @@ public static partial class TrackingHashMapExtensions
             aKey,
             bKey,
             c => c.AddOrUpdate(cKey, _ => value, value),
-            () => Prelude.TrackingHashMap(Tuple(cKey, value))
+            () => TrackingHashMap((cKey, value))
         );
 
     [Pure]
@@ -143,7 +143,7 @@ public static partial class TrackingHashMapExtensions
             aKey,
             bKey,
             c => c.AddOrUpdate(cKey, Some, None),
-            () => Prelude.TrackingHashMap(Tuple(cKey, None()))
+            () => TrackingHashMap((cKey, None()))
         );
 
     [Pure]
@@ -153,7 +153,7 @@ public static partial class TrackingHashMapExtensions
             bKey,
             cKey,
             d => d.AddOrUpdate(dKey, _ => value, value),
-            () => Prelude.TrackingHashMap(Tuple(dKey, value))
+            () => TrackingHashMap((dKey, value))
         );
 
     [Pure]
@@ -163,7 +163,7 @@ public static partial class TrackingHashMapExtensions
             bKey,
             cKey,
             d => d.AddOrUpdate(dKey, Some, None),
-            () => Prelude.TrackingHashMap(Tuple(dKey, None()))
+            () => TrackingHashMap((dKey, None()))
         );
 
     [Pure]

@@ -1113,15 +1113,7 @@ internal class MapInternal<OrdK, K, V> :
     /// </summary>
     /// <returns>Tuples</returns>
     [Pure]
-    public IEnumerable<Tuple<K, V>> Tuples =>
-        AsEnumerable().Map(kv => Tuple(kv.Key, kv.Value));
-
-    /// <summary>
-    /// Enumerable of in-order tuples that make up the map
-    /// </summary>
-    /// <returns>Tuples</returns>
-    [Pure]
-    public IEnumerable<(K Key, V Value)> ValueTuples
+    public IEnumerable<(K Key, V Value)> Pairs
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => AsEnumerable().Map(kv => (kv.Key, kv.Value));

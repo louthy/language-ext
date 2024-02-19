@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.FSharp.Core;
+﻿using Microsoft.FSharp.Core;
 using Microsoft.FSharp.Collections;
 using static LanguageExt.Prelude;
 
@@ -20,13 +18,6 @@ namespace LanguageExt
         /// Convert a LanguageExt Option into an F# Option 
         /// </summary>
         public static FSharpOption<T> fs<T>(Option<T> option) =>
-            option.Map(FSharpOption<T>.Some)
-                  .IfNoneUnsafe(FSharpOption<T>.None);
-
-        /// <summary>
-        /// Convert a LanguageExt OptionUnsafe into an F# Option 
-        /// </summary>
-        public static FSharpOption<T> fs<T>(OptionUnsafe<T> option) =>
             option.Map(FSharpOption<T>.Some)
                   .IfNoneUnsafe(FSharpOption<T>.None);
 
@@ -79,15 +70,6 @@ namespace LanguageExt
                 l => FSharpResult<R, L>.NewError(l));
 
         /// <summary>
-        /// Convert a LanguageExt EitherUnsafe into an F# Result
-        /// </summary>
-        public static FSharpResult<R, L> fs<L, R>(EitherUnsafe<L, R> either) =>
-            matchUnsafe(either,
-                r => FSharpResult<R, L>.NewOk(r),
-                l => FSharpResult<R, L>.NewError(l));
-
-
-        /// <summary>
         /// Convert a LanguageExt Option into an F# Option 
         /// </summary>
         public static FSharpOption<T> ToFSharp<T>(this Option<T> option) =>
@@ -96,14 +78,6 @@ namespace LanguageExt
                 : match(option,
                      Some: v => FSharpOption<T>.Some(v),
                      None: () => failwith<FSharpOption<T>>("returns null, so can't use the None branch"));
-
-        /// <summary>
-        /// Convert a LanguageExt OptionUnsafe into an F# Option 
-        /// </summary>
-        public static FSharpOption<T> ToFSharp<T>(this OptionUnsafe<T> option) =>
-            matchUnsafe(option,
-                Some: v => FSharpOption<T>.Some(v),
-                None: () => FSharpOption<T>.None);
 
         /// <summary>
         /// Convert a LanguageExt Map (Map K V) into an F# Map
@@ -124,14 +98,5 @@ namespace LanguageExt
             match(either,
                 r => FSharpResult<R, L>.NewOk(r),
                 l => FSharpResult<R, L>.NewError(l));
-
-        /// <summary>
-        /// Convert a LanguageExt EitherUnsafe into an F# Result
-        /// </summary>
-        public static FSharpResult<R, L> ToFSharp<L, R>(this EitherUnsafe<L, R> either) =>
-            matchUnsafe(either,
-                r => FSharpResult<R, L>.NewOk(r),
-                l => FSharpResult<R, L>.NewError(l));
-
     }
 }

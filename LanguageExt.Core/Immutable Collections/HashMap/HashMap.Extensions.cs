@@ -135,7 +135,7 @@ public static class HashMapExtensions
         self.AddOrUpdate(
             outerKey,
             b => b.AddOrUpdate(innerKey, Some, None),
-            () => HashMap(Tuple(innerKey, None()))
+            () => HashMap((innerKey, None()))
         );
 
     [Pure]
@@ -144,7 +144,7 @@ public static class HashMapExtensions
         self.AddOrUpdate(
             outerKey,
             b => b.AddOrUpdate(innerKey, _ => value, value),
-            () => HashMap(Tuple(innerKey, value))
+            () => HashMap((innerKey, value))
         );
 
     [Pure]
@@ -154,7 +154,7 @@ public static class HashMapExtensions
             aKey,
             bKey,
             c => c.AddOrUpdate(cKey, _ => value, value),
-            () => HashMap(Tuple(cKey, value))
+            () => HashMap((cKey, value))
         );
 
     [Pure]
@@ -164,7 +164,7 @@ public static class HashMapExtensions
             aKey,
             bKey,
             c => c.AddOrUpdate(cKey, Some, None),
-            () => HashMap(Tuple(cKey, None()))
+            () => HashMap((cKey, None()))
         );
 
     [Pure]
@@ -175,7 +175,7 @@ public static class HashMapExtensions
             bKey,
             cKey,
             d => d.AddOrUpdate(dKey, _ => value, value),
-            () => HashMap(Tuple(dKey, value))
+            () => HashMap((dKey, value))
         );
 
     [Pure]
@@ -186,7 +186,7 @@ public static class HashMapExtensions
             bKey,
             cKey,
             d => d.AddOrUpdate(dKey, Some, None),
-            () => HashMap(Tuple(dKey, None()))
+            () => HashMap((dKey, None()))
         );
 
     [Pure]

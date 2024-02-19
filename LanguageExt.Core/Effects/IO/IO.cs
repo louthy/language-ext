@@ -480,8 +480,8 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     //  Trait implementation
     //
     
-    static IO<A> Semigroup<IO<A>>.Append(IO<A> x, IO<A> y) => 
-        x | y;
+    IO<A> Semigroup<IO<A>>.Append(IO<A> y) => 
+        this | y;
 
     static IO<A> Monoid<IO<A>>.Empty =>
         Empty;

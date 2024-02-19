@@ -10,19 +10,20 @@ namespace LanguageExt;
 /// Represents a range of values
 /// </summary>
 /// <typeparam name="SELF">The type that is deriving from this type</typeparam>
-/// <typeparam name="MonoidOrdA">Monoid of A class instance</typeparam>
+/// <typeparam name="NumOrdA">Monoid of A class instance</typeparam>
 /// <typeparam name="A">Bound values type</typeparam>
 [Serializable]
-public class Range<SELF, MonoidOrdA, A> : IEnumerable<A>
-    where SELF : Range<SELF, MonoidOrdA, A>
-    where MonoidOrdA : Monoid<A>, Ord<A>, Arithmetic<A>
+public class Range<SELF, NumOrdA, A> : IEnumerable<A>
+    where SELF : Range<SELF, NumOrdA, A>
+    where NumOrdA : Ord<A>, Num<A>
 {
     static Func<A, A, A, SELF> Ctor = IL.Ctor<A, A, A, SELF>();
 
     /// <summary>
-    /// Zero range using MonoidOrdA.Empty()
+    /// Zero range using MonoidOrdA.Empty() 
     /// </summary>
-    public static readonly SELF Zero = FromMinMax(MonoidOrdA.Empty, MonoidOrdA.Empty, MonoidOrdA.Empty);
+    public static readonly SELF Zero = 
+        FromMinMax(NumOrdA.FromInteger(0), NumOrdA.FromInteger(0), NumOrdA.FromInteger(0));
 
     /// <summary>
     /// First value in the range
@@ -48,8 +49,8 @@ public class Range<SELF, MonoidOrdA, A> : IEnumerable<A>
     /// Reference version for use in pattern-matching
     /// </summary>
     [Pure]
-    public object Case =>
-        Prelude.Seq1(this).Case;
+    public object? Case =>
+        Prelude.Seq(this).Case;
 
     /// <summary>
     /// Construct a new range
@@ -69,7 +70,7 @@ public class Range<SELF, MonoidOrdA, A> : IEnumerable<A>
     /// <param name="step">The size of each step in the range</param>
     [Pure]
     public static SELF FromCount(A min, A count, A step) =>
-        Ctor(min, MonoidOrdA.Plus(min, MonoidOrdA.Subtract(MonoidOrdA.Product(count, step), step)), step);
+        Ctor(min, NumOrdA.Plus(min, NumOrdA.Subtract(NumOrdA.Product(count, step), step)), step);
 
     /// <summary>
     /// Construct a range
@@ -82,8 +83,12 @@ public class Range<SELF, MonoidOrdA, A> : IEnumerable<A>
         From = from;
         To = to;
         Step = step;
-        StepIsAscending = MonoidOrdA.Compare(step, MonoidOrdA.Empty) >= 0;
+
+        StepIsAscending = NumOrdA.Compare(step, NumOrdA.FromInteger(0)) >= 0;
     }
+    
+    // 2 * 2 >= 2  --- True
+    // -2 * -2 >= 2  --- True
 
     /// <summary>
     /// Returns true if the value provided is in range
@@ -93,11 +98,11 @@ public class Range<SELF, MonoidOrdA, A> : IEnumerable<A>
     [Pure]
     public bool InRange(A value)
     {
-        var from = MonoidOrdA.Compare(From, To) > 0 ? To : From;
-        var to   = MonoidOrdA.Compare(From, To)          > 0 ? From : To;
+        var from = NumOrdA.Compare(From, To) > 0 ? To : From;
+        var to   = NumOrdA.Compare(From, To)          > 0 ? From : To;
 
-        return MonoidOrdA.Compare(value, from) >= 0 &&
-               MonoidOrdA.Compare(value, to)   <= 0;
+        return NumOrdA.Compare(value, from) >= 0 &&
+               NumOrdA.Compare(value, to)   <= 0;
     }
 
     /// <summary>
@@ -108,13 +113,13 @@ public class Range<SELF, MonoidOrdA, A> : IEnumerable<A>
     [Pure]
     public bool Overlaps(SELF other)
     {
-        var xfrom = MonoidOrdA.Compare(From, To)             > 0 ? To : From;
-        var xto   = MonoidOrdA.Compare(From, To)             > 0 ? From : To;
-        var yfrom = MonoidOrdA.Compare(other.From, other.To) > 0 ? other.To : other.From;
-        var yto   = MonoidOrdA.Compare(other.From, other.To) > 0 ? other.From : other.To;
+        var xfrom = NumOrdA.Compare(From, To)             > 0 ? To : From;
+        var xto   = NumOrdA.Compare(From, To)             > 0 ? From : To;
+        var yfrom = NumOrdA.Compare(other.From, other.To) > 0 ? other.To : other.From;
+        var yto   = NumOrdA.Compare(other.From, other.To) > 0 ? other.From : other.To;
 
-        return MonoidOrdA.Compare(xfrom, yto) < 0 &&
-               MonoidOrdA.Compare(yfrom, xto) < 0;
+        return NumOrdA.Compare(xfrom, yto) < 0 &&
+               NumOrdA.Compare(yfrom, xto) < 0;
     }
 
     [Pure]
@@ -126,14 +131,14 @@ public class Range<SELF, MonoidOrdA, A> : IEnumerable<A>
     {
         if (StepIsAscending)
         {
-            for (A x = From; MonoidOrdA.Compare(x, To) <= 0; x = MonoidOrdA.Plus(x, Step))
+            for (A x = From; NumOrdA.Compare(x, To) <= 0; x = NumOrdA.Plus(x, Step))
             {
                 yield return x;
             }
         }
         else
         {
-            for (A x = From; MonoidOrdA.Compare(x, To) >= 0; x = MonoidOrdA.Plus(x, Step))
+            for (A x = From; NumOrdA.Compare(x, To) >= 0; x = NumOrdA.Plus(x, Step))
             {
                 yield return x;
             }
