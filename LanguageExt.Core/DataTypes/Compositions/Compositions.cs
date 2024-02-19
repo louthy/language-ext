@@ -67,15 +67,14 @@ public struct Compositions<A> :
     /// Returns the composition of the first `k` elements of the compositions list, doing only `O(log k)` compositions.
     /// Faster than simply using `take` and then `composed` separately.
     /// </summary>
-    public A TakeComposed<MonoidA>(int amount) where MonoidA : Monoid<A> =>
-        Compositions.takeComposed<MonoidA, A>(amount, this);
+    public A TakeComposed(int amount) =>
+        Compositions.takeComposed(amount, this);
 
     /// <summary>
     /// A convenience alias for 'take' and 'skip'
     /// </summary>
-    public (Compositions<A> taken, Compositions<A> skipped) SplitAt<MonoidA>(int i)
-        where MonoidA : Monoid<A> =>
-        Compositions.splitAt<MonoidA, A>(i, this);
+    public (Compositions<A> taken, Compositions<A> skipped) SplitAt(int i) =>
+        Compositions.splitAt(i, this);
 
     /// <summary>
     /// Compose every element in the compositions list. Performs only `O(log n)` compositions.
@@ -99,9 +98,8 @@ public struct Compositions<A> :
     /// Convert a compositions list into a list of elements. The other direction
     /// is provided in the 'Data.Foldable.Foldable' instance.This will perform O(n log n) element compositions.
     /// </summary>
-    public static Compositions<A> FromList<MonoidA>(IEnumerable<A> ma)
-        where MonoidA : Monoid<A> =>
-        Compositions.fromList<MonoidA, A>(ma);
+    public static Compositions<A> FromList(IEnumerable<A> ma) =>
+        Compositions.fromList(ma);
 
     /// <summary>
     /// Equality operator

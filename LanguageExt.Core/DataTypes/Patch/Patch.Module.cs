@@ -1,5 +1,4 @@
 ﻿using static LanguageExt.Prelude;
-using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using System;
 using System.Linq;
@@ -79,7 +78,7 @@ public static class Patch
         {
             if (!inserts.IsEmpty && !deletes.IsEmpty) return normalise1(inserts.Tail, deletes.Tail, Edit<EqA, A>.Replace.New(deletes.Head.Position, deletes.Head.Element, inserts.Head.Element).Cons(replaces));
             if (deletes.IsEmpty) return toSeq(inserts.Map(i => i as Edit<EqA, A>).ConcatFast(replaces.Take(1)).ToArray());
-            if (inserts.IsEmpty) return Seq1(deletes.Head as Edit<EqA, A>);
+            if (inserts.IsEmpty) return [deletes.Head];
             throw new InvalidOperationException();
         }
     }
@@ -88,8 +87,9 @@ public static class Patch
     /// Monoid append: produces a patch is a merged version of both provided
     /// patches.  
     /// </summary>
-    public static Patch<EqA, A> append<EqA, A>(Patch<EqA, A> px, Patch<EqA, A> py) where EqA : Eq<A> =>
-        MPatch<EqA, A>.Append(px, py);
+    public static Patch<EqA, A> append<EqA, A>(Patch<EqA, A> px, Patch<EqA, A> py) 
+        where EqA : Eq<A> =>
+        px.Append(py);
 
     /// <summary>
     /// Compute the inverse of a patch
@@ -201,12 +201,12 @@ public static class Patch
     /// <summary>
     /// Build the default parameters for building a patch
     /// </summary>
-    static PatchParams<A, Edit<EqA, A>, int> parms<EqA, A>() where EqA : Eq<A> =>
+    static PatchParams<A, Edit<EqA, A>, MInt32> parms<EqA, A>() where EqA : Eq<A> =>
         new (EqA.Equals,
              Edit<EqA, A>.Delete.New,
              Edit<EqA, A>.Insert.New,
              Edit<EqA, A>.Replace.New,
-             static _ => 1,
+             static _ => MInt32.One,
              static x => x is Edit<EqA, A>.Delete ? 0 : 1);
 
     /// <summary>
@@ -355,9 +355,10 @@ public static class Patch
     /// <summary>
     /// A convenience version of `transformWith` which resolves conflicts using `append`.
     /// </summary>
-    public static (Patch<MonoidEqA, A> a, Patch<MonoidEqA, A> b) transform<MonoidEqA, A>(Patch<MonoidEqA, A> p, Patch<MonoidEqA, A> q)
-        where MonoidEqA : Monoid<A>, Eq<A> =>
-        transformWith(MonoidEqA.Append, p, q);
+    public static (Patch<EqA, A> a, Patch<EqA, A> b) transform<EqA, A>(Patch<EqA, A> p, Patch<EqA, A> q)
+        where EqA : Eq<A>
+        where A : Monoid<A> =>
+        transformWith((x, y) => x.Append(y), p, q);
 
     /// <summary>
     /// Given two diverging patches `p` and `q`, `transform(m, p, q)` returns
@@ -484,7 +485,11 @@ public static class Patch
     /// </summary>
     public static Patch<EqA, A> diff<EqA, A>(IEnumerable<A> va, IEnumerable<A> vb) where EqA : Eq<A>
     {
-        var (_, s) = PatchInternal.leastChanges<TInt, A, Edit<EqA, A>, int>(parms<EqA, A>(), SpanArray<A>.New(va), SpanArray<A>.New(vb));
+        var (_, s) = PatchInternal.leastChanges<MInt32, A, Edit<EqA, A>, MInt32>(
+            parms<EqA, A>(), 
+            SpanArray<A>.New(va), 
+            SpanArray<A>.New(vb));
+        
         return new Patch<EqA, A>(adjust(0, s));
 
         static Seq<Edit<EqA, A>> adjust(int o, Seq<Edit<EqA, A>> list) =>
@@ -494,5 +499,30 @@ public static class Patch
                     : list.Head is Edit<EqA, A>.Delete da ? Edit<EqA, A>.Delete.New(da.Position + o, da.Element).Cons(adjust(o + 1, list.Tail))
                         : list.Head is Edit<EqA, A>.Replace ra ? Edit<EqA, A>.Replace.New(ra.Position + o, ra.Element, ra.ReplaceElement).Cons(adjust(o, list.Tail))
                             : throw new NotSupportedException();
+    }
+
+    // TODO: Consider building a monoid wrappers for all numeric values (and strings)
+    internal readonly record struct MInt32(int Value) : Monoid<MInt32>, Ord<MInt32>
+    {
+        public MInt32 Append(MInt32 y) => 
+            new (Value + y.Value);
+
+        public static MInt32 Empty { get; } = 
+            new (0);
+
+        public static readonly MInt32 Zero = 
+            new(0);
+
+        public static readonly MInt32 One = 
+            new(1);
+
+        public static int GetHashCode(MInt32 x) => 
+            x.Value.GetHashCode();
+
+        public static bool Equals(MInt32 x, MInt32 y) =>
+            x.Value == y.Value;
+
+        public static int Compare(MInt32 x, MInt32 y) =>
+            x.Value.CompareTo(y.Value);
     }
 }

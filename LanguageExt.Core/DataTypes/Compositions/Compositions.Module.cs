@@ -170,7 +170,7 @@ public static class Compositions
     /// Convert a compositions list into a list of elements. The other direction
     /// is provided in the 'Data.Foldable.Foldable' instance.This will perform O(n log n) element compositions.
     /// </summary>
-    public static Compositions<A> fromList<MonoidA, A>(IEnumerable<A> ma)
+    public static Compositions<A> fromList<A>(IEnumerable<A> ma)
         where A : Monoid<A> =>
         ma.Fold(MCompositions<A>.Empty, (s, x) => s.Append(singleton(x)));
 }

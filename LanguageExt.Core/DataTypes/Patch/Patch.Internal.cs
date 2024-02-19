@@ -23,10 +23,11 @@ internal static class PatchInternal
         return (a1, c.Cons(c1));
     }
 
-    public static (C, Seq<O>) leastChanges<MonoidC, V, O, C>(PatchParams<V, O, C> p, SpanArray<V> ss, SpanArray<V> tt)
-        where MonoidC : Monoid<C>, Ord<C>
+    public static (C, Seq<O>) leastChanges<OrdC, V, O, C>(PatchParams<V, O, C> p, SpanArray<V> ss, SpanArray<V> tt)
+        where OrdC : Ord<C>
+        where C : Monoid<C>
     {
-        var rawChanges = rawChanges<MonoidC, V, O, C>(p, ss, tt);
+        var rawChanges = rawChanges<OrdC, V, O, C>(p, ss, tt);
         var changes    = rawChanges.Last;
         var newlst     = changes.Map(pair => toSeq(pair.Item2.Somes().Reverse()));
         return (changes.Item1, newlst);
@@ -52,14 +53,15 @@ internal static class PatchInternal
         return vector;
     }
 
-    public static SpanArray<(C, Seq<Option<O>>)> rawChanges<MonoidC, V, O, C>(PatchParams<V, O, C> p, SpanArray<V> src, SpanArray<V> dst)
-        where MonoidC : Monoid<C>, Ord<C>
+    public static SpanArray<(C, Seq<Option<O>>)> rawChanges<OrdC, V, O, C>(PatchParams<V, O, C> p, SpanArray<V> src, SpanArray<V> dst)
+        where OrdC : Ord<C>
+        where C : Monoid<C>
     {
         var lenX = 1 + dst.Count;
         var lenY = 1 + src.Count;
         var lenN = lenX * lenY;
 
-        int ix(int x, int y) => (x * lenY) + y;
+        int ix(int x, int y) => x * lenY + y;
 
         (C, Seq<Option<O>>) get(SpanArray<(C, Seq<Option<O>>)> m, int x, int y)
         {
@@ -78,21 +80,21 @@ internal static class PatchInternal
 
             if (quot == 0 && rem == 0)
             {
-                return (MonoidC.Empty, Seq<Option<O>>());
+                return (C.Empty, Seq<Option<O>>());
             }
             else if (quot == 0)
             {
                 var y = rem - 1;
                 var o = p.delete(0, src[y]);
                 var (pc, po) = get(v, 0, y);
-                return (MonoidC.Append(p.cost(o), pc), Some(o).Cons(po));
+                return (p.cost(o).Append(pc), Some(o).Cons(po));
             }
             else if (rem == 0)
             {
                 var x = quot - 1;
                 var o = p.insert(x, dst[x]);
                 var (pc, po) = get(v, x, 0);
-                return (MonoidC.Append(p.cost(o), pc), Some(o).Cons(po));
+                return (p.cost(o).Append(pc), Some(o).Cons(po));
             }
             else
             {
@@ -110,15 +112,15 @@ internal static class PatchInternal
                 else
                 {
                     var c1    = p.delete(position(top.Item2), s);
-                    var item1 = (MonoidC.Append(p.cost(c1), top.Item1), Some(c1).Cons(top.Item2));
+                    var item1 = (p.cost(c1).Append(top.Item1), Some(c1).Cons(top.Item2));
 
                     var c2    = p.insert(position(left.Item2), d);
-                    var item2 = (MonoidC.Append(p.cost(c2), left.Item1), Some(c2).Cons(left.Item2));
+                    var item2 = (p.cost(c2).Append(left.Item1), Some(c2).Cons(left.Item2));
 
                     var c3    = p.substitute(position(tl.Item2), s, d);
-                    var item3 = (MonoidC.Append(p.cost(c3), tl.Item1), Some(c3).Cons(tl.Item2));
+                    var item3 = (p.cost(c3).Append(tl.Item1), Some(c3).Cons(tl.Item2));
 
-                    var compare = OrdTupleFirst<MonoidC, C, Seq<Option<O>>>.Compare;
+                    var compare = OrdTupleFirst<OrdC, C, Seq<Option<O>>>.Compare;
 
                     return minimumBy(compare, List(item1, item2, item3));
                 }
