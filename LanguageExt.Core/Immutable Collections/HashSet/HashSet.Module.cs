@@ -8,7 +8,7 @@ namespace LanguageExt;
 /// <summary>
 /// Immutable hash-set module
 /// </summary>
-public static partial class HashSet
+public partial class HashSet
 {
     /// <summary>
     /// True if the set has no elements

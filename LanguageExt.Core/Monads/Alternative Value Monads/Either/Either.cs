@@ -1420,7 +1420,7 @@ public readonly struct Either<L, R> :
     /// </summary>
     [Pure]
     public Either<B, R> BindLeft<B>(Func<L, Either<B, R>> f) =>
-        BiBind(f, identity);
+        BiBind(f, x => x);
 
     /// <summary>
     /// Filter the Either

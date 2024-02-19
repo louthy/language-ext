@@ -19,12 +19,13 @@ namespace LanguageExt;
 /// <typeparam name="A">Set item type</typeparam>
 [Serializable]
 [CollectionBuilder(typeof(Set), nameof(Set.createRange))]
-public readonly struct Set<A> :
+public readonly struct Set<A> : 
     IEquatable<Set<A>>,
     IComparable<Set<A>>,
     IComparable,
     IReadOnlyCollection<A>,
-    Monoid<Set<A>>
+    Monoid<Set<A>>,
+    K<Set, A>
 {
     public static Set<A> Empty { get; } = new(SetInternal<OrdDefault<A>, A>.Empty);
 

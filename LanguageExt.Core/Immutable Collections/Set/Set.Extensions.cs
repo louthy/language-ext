@@ -5,11 +5,21 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.ClassInstances;
+using LanguageExt.Traits;
 
 namespace LanguageExt;
 
 public static class SetExtensions
 {
+    public static Set<A> As<A>(this K<Set, A> ma) =>
+        (Set<A>)ma;
+
+    public static Set<B> Apply<A, B>(this Set<Func<A, B>> mf, Set<A> ma) =>
+        mf.Bind(ma.Map);
+
+    public static Set<B> Action<A, B>(this Set<A> ma, Set<B> mb) =>
+        mb;
+    
     /// <summary>
     /// Applies an accumulator function over a sequence. The specified seed value is used as the initial accumulator value.
     /// </summary>

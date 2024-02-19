@@ -50,7 +50,7 @@ public readonly struct EffCatch<A>
         new (e => 
                  ma.Run(e)
                    .Match<Eff<A>>(
-                        Succ: Pure,
+                        Succ: x => Pure(x),
                         Fail: e1 => mb.Match(e1) 
                                         ? Pure(mb.Value(e1)) 
                                         : Fail(e1)).Flatten());
@@ -60,7 +60,7 @@ public readonly struct EffCatch<A>
         new (e => 
                  ma.Run(e)
                    .Match<Eff<A>>(
-                        Succ: Pure,
+                        Succ: x => Pure(x),
                         Fail: e1 => mb.Match(e1) 
                                         ? Fail(mb.Value(e1)) 
                                         : Fail(e1)).Flatten());

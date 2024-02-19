@@ -31,19 +31,18 @@ public readonly struct EffCatch<RT, A>(Func<Error, Eff<RT, A>> fail)
         new (e => 
                  ma.Run(e)
                    .Match<Eff<RT, A>>(
-                        Succ: Pure,
+                        Succ: x => Pure(x),
                         Fail: e1 => mb.Match(e1) 
                                         ? Pure(mb.Value(e1)) 
                                         : Fail(e1)).Flatten());
 
     [Pure, MethodImpl(Opt.Default)]
     public static EffCatch<RT, A> operator |(EffCatch<RT, A> ma, CatchError<Error> mb) =>
-        new (e => 
-                 ma.Run(e)
+        new(e => ma.Run(e)
                    .Match<Eff<RT, A>>(
-                        Succ: Pure,
-                        Fail: e1 => mb.Match(e1) 
-                                        ? Fail(mb.Value(e1)) 
+                        Succ: x => Pure(x),
+                        Fail: e1 => mb.Match(e1)
+                                        ? Fail(mb.Value(e1))
                                         : Fail(e1)).Flatten());
 
     [Pure, MethodImpl(Opt.Default)]

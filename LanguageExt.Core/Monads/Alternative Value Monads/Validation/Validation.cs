@@ -997,7 +997,7 @@ public readonly record struct Validation<F, A>(Either<F, A> either) :
     [Pure]
     public Either<F1, A> BindLeft<F1>(Func<F, Either<F1, A>> f) 
         where F1 : Monoid<F1> =>
-        either.BiBind(f, identity);
+        either.BiBind(f, x => x);
 
     /// <summary>
     /// Filter the Validation

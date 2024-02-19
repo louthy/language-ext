@@ -514,9 +514,9 @@ public record IO<A>(Func<EnvIO, A> runIO) : K<IO, A>, Monoid<IO<A>>
     /// <param name="timeout">Timeout</param>
     /// <returns>Result of the operation or throws if the time limit exceeded.</returns>
     public IO<A> Timeout(TimeSpan timeout) =>
-        from f in Fork(timeout)
-        from r in f.Await
-        select r;
+        (from f in Fork(timeout)
+         from r in f.Await
+         select r).As();
     
     /// <summary>
     /// Queues the specified work to run on the thread pool  

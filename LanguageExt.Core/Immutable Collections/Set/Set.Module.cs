@@ -10,7 +10,7 @@ namespace LanguageExt;
 /// AVL tree is a self-balancing binary search tree. 
 /// http://en.wikipedia.org/wiki/AVL_tree
 /// </summary>
-public static partial class Set
+public partial class Set
 {
     /// <summary>
     /// True if the set has no elements
@@ -20,6 +20,13 @@ public static partial class Set
     [Pure]
     public static bool isEmpty<T>(Set<T> set) =>
         set.IsEmpty;
+
+    /// <summary>
+    /// Singleton set
+    /// </summary>
+    [Pure]
+    public static Set<A> singleton<A>(A value) =>
+        [value];
 
     /// <summary>
     /// Create a new empty set

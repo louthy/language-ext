@@ -18,7 +18,8 @@ namespace LanguageExt;
 public readonly struct HashSet<A> :
     IEnumerable<A>,
     IEquatable<HashSet<A>>,
-    Monoid<HashSet<A>>
+    Monoid<HashSet<A>>,
+    K<HashSet, A>
 {
     public static HashSet<A> Empty { get; } = new (TrieSet<EqDefault<A>, A>.Empty);
 
