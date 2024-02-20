@@ -8,7 +8,6 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="M">Given monad trait</typeparam>
 public partial class ResourceT<M>
-    where M : Monad<M>, Alternative<M>
 {
     public static ResourceT<M, A> Pure<A>(A value) => 
         ResourceT<M, A>.Pure(value);

@@ -106,5 +106,5 @@ public interface HasFile<RT> : HasIO<RT>, HasEncoding<RT>
     /// Access the file synchronous effect environment
     /// </summary>
     /// <returns>File synchronous effect environment</returns>
-    Eff<RT, FileIO> FileEff { get; }
+    IO<FileIO> FileIO { get; }
 }

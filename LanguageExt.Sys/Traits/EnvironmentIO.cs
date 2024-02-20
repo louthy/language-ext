@@ -1,6 +1,5 @@
 using System;
 using LanguageExt.Attributes;
-using LanguageExt.Common;
 using LanguageExt.Effects.Traits;
 
 namespace LanguageExt.Sys.Traits;
@@ -55,5 +54,5 @@ public interface HasEnvironment<RT> : HasIO<RT>
     /// Access the environment synchronous effect environment
     /// </summary>
     /// <returns>Environment synchronous effect environment</returns>
-    Eff<RT, EnvironmentIO> EnvironmentEff { get; }
+    IO<EnvironmentIO> EnvironmentIO { get; }
 }

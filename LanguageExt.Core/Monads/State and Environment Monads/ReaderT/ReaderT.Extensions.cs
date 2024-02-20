@@ -10,8 +10,8 @@ namespace LanguageExt;
 /// </summary>
 public static partial class ReaderExt
 {
-     public static Reader<Env, A> As<Env, A>(this K<ReaderT<Env, Identity>, A> ma) =>
-        (Reader<Env, A>)ma;
+     // public static Reader<Env, A> As<Env, A>(this K<ReaderT<Env, Identity>, A> ma) =>
+     //    (Reader<Env, A>)ma;
     
     public static ReaderT<Env, M, A> As<Env, M, A>(this K<ReaderT<Env, M>, A> ma)
         where M : Monad<M>, Alternative<M> =>

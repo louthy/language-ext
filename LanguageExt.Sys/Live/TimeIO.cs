@@ -1,6 +1,6 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Sys.Live;
 
@@ -8,38 +8,38 @@ public readonly struct TimeIO : Sys.Traits.TimeIO
 {
     public static readonly Sys.Traits.TimeIO Default =
         new TimeIO();
- 
+
     /// <summary>
     /// Current date time
     /// </summary>
-    public DateTime Now => DateTime.Now;
+    public IO<DateTime> Now =>
+        lift(() => DateTime.Now);
         
     /// <summary>
     /// Current date time
     /// </summary>
-    public DateTime UtcNow => DateTime.UtcNow;
+    public IO<DateTime> UtcNow => 
+        lift(() => DateTime.UtcNow);
 
     /// <summary>
     /// Today's date 
     /// </summary>
-    public DateTime Today => DateTime.Today;
+    public IO<DateTime> Today => 
+        lift(() => DateTime.Today);
 
     /// <summary>
     /// Pause a task until a specified time
     /// </summary>
-    public async ValueTask<Unit> SleepUntil(DateTime dt, CancellationToken token)
-    {
-        if (dt <= Now) return default; 
-        await Task.Delay(dt - Now, token).ConfigureAwait(false);
-        return default;
-    }
+    public IO<Unit> SleepUntil(DateTime dt) =>
+        from now in Now
+        from res in dt <= now
+                        ? LanguageExt.IO.unitIO
+                        : liftIO(async env => await Task.Delay(dt - now, env.Token).ConfigureAwait(false))
+        select res;
 
     /// <summary>
     /// Pause a task until for a specified length of time
     /// </summary>
-    public async ValueTask<Unit> SleepFor(TimeSpan ts, CancellationToken token)        
-    {
-        await Task.Delay(ts).ConfigureAwait(false);
-        return default;
-    }
+    public IO<Unit> SleepFor(TimeSpan ts) =>
+        liftIO(async env => await Task.Delay(ts, env.Token).ConfigureAwait(false));
 }

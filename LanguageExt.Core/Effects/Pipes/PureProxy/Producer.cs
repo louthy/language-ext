@@ -31,6 +31,9 @@ public abstract class Producer<OUT, A>
         where M : Monad<M> =>
         Interpret<M>().Bind(f);
 
+    public Producer<OUT, B> Bind<B>(Func<A, IO<B>> f) =>
+        Bind(x => PureProxy.ProducerLiftIO<OUT, B>(f(x)));
+    
     public Producer<OUT, B> Map<B>(Func<A, B> f) => 
         Select(f);
     
@@ -45,6 +48,9 @@ public abstract class Producer<OUT, A>
         
     public Producer<OUT, C> SelectMany<B, C>(Func<A, Fail<Error>> f, Func<A, B, C> project) =>
         Bind<C>(f);
+    
+    public Producer<OUT, C> SelectMany<B, C>(Func<A, IO<B>> f, Func<A, B, C> project) =>
+        Bind(x => f(x).Map(y => project(x, y)));
         
     public Producer<OUT, M, C> SelectMany<B, M, C>(Func<A, K<M, B>> f, Func<A, B, C> project)
         where M : Monad<M> =>
@@ -110,6 +116,24 @@ public abstract class Producer<OUT, A>
 
         public override Pipe<IN, OUT, A> ToPipe<IN>() =>
             new Pipe<IN, OUT, A>.Lift<X>(Function, x => Next(x).ToPipe<IN>());
+    }
+
+    public class LiftIO<X>(IO<X> Effect, Func<X, Producer<OUT, A>> Next) : Producer<OUT, A>
+    {
+        public override Producer<OUT, B> Select<B>(Func<A, B> f) => 
+            new Producer<OUT, B>.LiftIO<X>(Effect, x => Next(x).Select(f));
+
+        public override Producer<OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) => 
+            new Producer<OUT, B>.LiftIO<X>(Effect, x => Next(x).Bind(f));
+
+        public override Producer<OUT, M, B> Bind<M, B>(Func<A, Producer<OUT, M, B>> f) => 
+            Producer.lift<OUT, M, X>(M.LiftIO(Effect)).SelectMany(x => Next(x).Bind(f)).ToProducer();
+
+        public override Producer<OUT, M, A> Interpret<M>() => 
+            Producer.lift<OUT, M, X>(M.LiftIO(Effect)).Bind(x => Next(x).Interpret<M>());
+
+        public override Pipe<IN, OUT, A> ToPipe<IN>() =>
+            new Pipe<IN, OUT, A>.LiftIO<X>(Effect, x => Next(x).ToPipe<IN>());
     }
 
     public class Yield(OUT Value, Func<Unit, Producer<OUT, A>> Next) : Producer<OUT, A>

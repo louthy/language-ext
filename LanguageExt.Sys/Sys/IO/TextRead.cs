@@ -7,18 +7,23 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.UnsafeValueAccess;
 using System.Runtime.CompilerServices;
+using LanguageExt.Traits;
 using static LanguageExt.Pipes.Proxy;
 
 namespace LanguageExt.Sys.IO;
 
-public static class TextRead<RT>
+public static class TextRead<M, RT>
     where RT : HasTextRead<RT>
+    where M : Reader<M, RT>, Monad<M>
 {
+    static readonly K<M, TextReadIO> trait = 
+        Reader.asks<M, RT, IO<TextReadIO>>(e => e.TextReadIO).Bind(M.LiftIO); 
+    
     /// <summary>
     /// Open a text file and streams the lines through the pipe
     /// </summary>
     [Pure]
-    public static Pipe<RT, TextReader, string, Unit> readLine
+    public static Pipe<TextReader, string, M, Unit> readLine
     {
         get
         {
@@ -42,7 +47,7 @@ public static class TextRead<RT>
     /// Open a text file and streams the chars through the pipe
     /// </summary>
     [Pure]
-    public static Pipe<RT, TextReader, char, Unit> readChar
+    public static Pipe<TextReader, char, M, Unit> readChar
     {
         get
         {
@@ -67,7 +72,7 @@ public static class TextRead<RT>
     /// Read the rest of the text in the stream
     /// </summary>
     [Pure]
-    public static Pipe<RT, TextReader, string, Unit> readToEnd =>
+    public static Pipe<TextReader, string, M, Unit> readToEnd =>
         from tr in awaiting<TextReader>()
         from tx in IO<string>.LiftAsync(async e => await tr.ReadToEndAsync(e.Token))
         from __ in yield(tx)
@@ -77,7 +82,7 @@ public static class TextRead<RT>
     /// Repeatedly read a number of chars from the stream
     /// </summary>
     [Pure]
-    public static Pipe<RT, TextReader, SeqLoan<char>, Unit> readChars(int charCount)
+    public static Pipe<TextReader, SeqLoan<char>, M, Unit> readChars(int charCount)
     {
         return from tr in awaiting<TextReader>()
                from _  in yieldAll(go(tr, charCount))
@@ -100,7 +105,7 @@ public static class TextRead<RT>
     /// Read a number of chars from the stream
     /// </summary>
     [Pure]
-    public static Pipe<RT, TextReader, string, Unit> read(int charCount)
+    public static Pipe<TextReader, string, M, Unit> read(int charCount)
     {
         return from tr in awaiting<TextReader>()
                from _  in yieldAll(go(tr, charCount))
@@ -129,7 +134,7 @@ public static class TextRead<RT>
     /// <summary>
     /// Close the reader
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Eff<RT, Unit> close(TextReader reader) =>
-        default(RT).TextReadEff.Map(e => e.Close(reader));
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, Unit> close(TextReader reader) =>
+        trait.Bind(e => e.Close(reader));
 }

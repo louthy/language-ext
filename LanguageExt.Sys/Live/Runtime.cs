@@ -35,8 +35,8 @@ public record Runtime(RuntimeEnv Env) :
     /// Access the console environment
     /// </summary>
     /// <returns>Console environment</returns>
-    public Eff<Runtime, Traits.ConsoleIO> ConsoleEff =>
-        Pure(ConsoleIO.Default);
+    public Eff<Runtime, Traits.ConsoleIO> ConsoleIO =>
+        Pure(Live.ConsoleIO.Default);
 
     /// <summary>
     /// Access the file environment
@@ -49,8 +49,8 @@ public record Runtime(RuntimeEnv Env) :
     /// Access the directory environment
     /// </summary>
     /// <returns>Directory environment</returns>
-    public Eff<Runtime, Traits.DirectoryIO> DirectoryEff =>
-        Pure(DirectoryIO.Default);
+    public Eff<Runtime, Traits.DirectoryIO> DirectoryIO =>
+        Pure(Live.DirectoryIO.Default);
 
     /// <summary>
     /// Access the TextReader environment
@@ -63,15 +63,15 @@ public record Runtime(RuntimeEnv Env) :
     /// Access the time environment
     /// </summary>
     /// <returns>Time environment</returns>
-    public Eff<Runtime, Traits.TimeIO> TimeEff  =>
-        Pure(TimeIO.Default);
+    public Eff<Runtime, Traits.TimeIO> TimeIO  =>
+        Pure(Live.TimeIO.Default);
 
     /// <summary>
     /// Access the operating-system environment
     /// </summary>
     /// <returns>Operating-system environment environment</returns>
-    public Eff<Runtime, Traits.EnvironmentIO> EnvironmentEff =>
-        Pure(EnvironmentIO.Default);
+    public Eff<Runtime, Traits.EnvironmentIO> EnvironmentIO =>
+        Pure(Live.EnvironmentIO.Default);
 
     public Eff<Runtime, Traits.ActivitySourceIO> ActivitySourceEff =>
         lift<Runtime, Traits.ActivitySourceIO>(rt => new ActivitySourceIO(rt.Env.Activity.ActivitySource));

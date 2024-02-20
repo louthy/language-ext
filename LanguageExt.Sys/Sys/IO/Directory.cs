@@ -1,194 +1,195 @@
 using System;
 using System.IO;
 using LanguageExt.Sys.Traits;
-using static LanguageExt.Prelude;
+using LanguageExt.Traits;
 
 namespace LanguageExt.Sys.IO;
 
-public static class Directory<RT>
+public static class Directory<M, RT>
     where RT : HasDirectory<RT>
+    where M : Reader<M, RT>, Monad<M>
 {
-    static readonly Eff<RT, DirectoryIO> self =
-        runtime<RT>().Bind(rt => rt.DirectoryEff);
+    static readonly K<M, DirectoryIO> trait = 
+        Reader.asks<M, RT, IO<DirectoryIO>>(e => e.DirectoryIO).Bind(M.LiftIO); 
     
     /// <summary>
     /// Create a directory
     /// </summary>
-    public static Eff<RT, DirectoryInfo> create(string path) =>
-        self.Bind(rt => rt.Create(path));
+    public static K<M, DirectoryInfo> create(string path) =>
+        trait.Bind(rt => rt.Create(path));
 
     /// <summary>
     /// Delete a directory
     /// </summary>
-    public static Eff<RT, Unit> delete(string path, bool recursive = true) =>
-        self.Bind(rt => rt.Delete(path, recursive));
+    public static K<M, Unit> delete(string path, bool recursive = true) =>
+        trait.Bind(rt => rt.Delete(path, recursive));
         
     /// <summary>
     /// Get parent directory
     /// </summary>
-    public static Eff<RT, Option<DirectoryInfo>> getParent(string path) =>
-        self.Bind(rt => rt.GetParent(path));
+    public static K<M, Option<DirectoryInfo>> getParent(string path) =>
+        trait.Bind(rt => rt.GetParent(path));
 
     /// <summary>
     /// Check if directory exists
     /// </summary>
-    public static Eff<RT, bool> exists(string path) =>
-        self.Bind(rt => rt.Exists(path));
+    public static K<M, bool> exists(string path) =>
+        trait.Bind(rt => rt.Exists(path));
      
     /// <summary>
     /// Set the directory creation time
     /// </summary>
-    public static Eff<RT, Unit> setCreationTime(string path, DateTime creationTime) =>
-        self.Bind(rt => rt.SetCreationTime(path, creationTime));
+    public static K<M, Unit> setCreationTime(string path, DateTime creationTime) =>
+        trait.Bind(rt => rt.SetCreationTime(path, creationTime));
 
     /// <summary>
     /// Set the directory creation time
     /// </summary>
-    public static Eff<RT, Unit> setCreationTimeUtc(string path, DateTime creationTimeUtc) =>
-        self.Bind(rt => rt.SetCreationTimeUtc(path, creationTimeUtc));
+    public static K<M, Unit> setCreationTimeUtc(string path, DateTime creationTimeUtc) =>
+        trait.Bind(rt => rt.SetCreationTimeUtc(path, creationTimeUtc));
 
     /// <summary>
     /// Get the directory creation time
     /// </summary>
-    public static Eff<RT, DateTime> getCreationTime(string path) =>
-        self.Bind(rt => rt.GetCreationTime(path));
+    public static K<M, DateTime> getCreationTime(string path) =>
+        trait.Bind(rt => rt.GetCreationTime(path));
 
     /// <summary>
     /// Get the directory creation time
     /// </summary>
-    public static Eff<RT, DateTime> getCreationTimeUtc(string path) =>
-        self.Bind(rt => rt.GetCreationTimeUtc(path));
+    public static K<M, DateTime> getCreationTimeUtc(string path) =>
+        trait.Bind(rt => rt.GetCreationTimeUtc(path));
 
     /// <summary>
     /// Set the directory last write time
     /// </summary>
-    public static Eff<RT, Unit> setLastWriteTime(string path, DateTime lastWriteTime) =>
-        self.Bind(rt => rt.SetLastWriteTime(path, lastWriteTime));
+    public static K<M, Unit> setLastWriteTime(string path, DateTime lastWriteTime) =>
+        trait.Bind(rt => rt.SetLastWriteTime(path, lastWriteTime));
 
     /// <summary>
     /// Set the directory last write time
     /// </summary>
-    public static Eff<RT, Unit> setLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc) =>
-        self.Bind(rt => rt.SetLastWriteTimeUtc(path, lastWriteTimeUtc));
+    public static K<M, Unit> setLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc) =>
+        trait.Bind(rt => rt.SetLastWriteTimeUtc(path, lastWriteTimeUtc));
 
     /// <summary>
     /// Get the directory last write time
     /// </summary>
-    public static Eff<RT, DateTime> getLastWriteTime(string path) =>
-        self.Bind(rt => rt.GetLastWriteTime(path));
+    public static K<M, DateTime> getLastWriteTime(string path) =>
+        trait.Bind(rt => rt.GetLastWriteTime(path));
 
     /// <summary>
     /// Get the directory last write time
     /// </summary>
-    public static Eff<RT, DateTime> getLastWriteTimeUtc(string path) =>
-        self.Bind(rt => rt.GetLastWriteTimeUtc(path));
+    public static K<M, DateTime> getLastWriteTimeUtc(string path) =>
+        trait.Bind(rt => rt.GetLastWriteTimeUtc(path));
 
     /// <summary>
     /// Set the directory last access time
     /// </summary>
-    public static Eff<RT, Unit> setLastAccessTime(string path, DateTime lastAccessTime) =>
-        self.Bind(rt => rt.SetLastAccessTime(path, lastAccessTime));
+    public static K<M, Unit> setLastAccessTime(string path, DateTime lastAccessTime) =>
+        trait.Bind(rt => rt.SetLastAccessTime(path, lastAccessTime));
 
     /// <summary>
     /// Set the directory last access time
     /// </summary>
-    public static Eff<RT, Unit> setLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc) =>
-        self.Bind(rt => rt.SetLastAccessTimeUtc(path, lastAccessTimeUtc));
+    public static K<M, Unit> setLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc) =>
+        trait.Bind(rt => rt.SetLastAccessTimeUtc(path, lastAccessTimeUtc));
         
     /// <summary>
     /// Get the directory last access time
     /// </summary>
-    public static Eff<RT, DateTime> getLastAccessTime(string path) =>
-        self.Bind(rt => rt.GetLastAccessTime(path));
+    public static K<M, DateTime> getLastAccessTime(string path) =>
+        trait.Bind(rt => rt.GetLastAccessTime(path));
         
     /// <summary>
     /// Get the directory last access time
     /// </summary>
-    public static Eff<RT, DateTime> getLastAccessTimeUtc(string path) =>
-        self.Bind(rt => rt.GetLastAccessTimeUtc(path));
+    public static K<M, DateTime> getLastAccessTimeUtc(string path) =>
+        trait.Bind(rt => rt.GetLastAccessTimeUtc(path));
 
     /// <summary>
     /// Enumerate directories
     /// </summary>
-    public static Eff<RT, Seq<string>> enumerateDirectories(string path) =>
-        self.Bind(rt => rt.EnumerateDirectories(path));
+    public static K<M, Seq<string>> enumerateDirectories(string path) =>
+        trait.Bind(rt => rt.EnumerateDirectories(path));
         
     /// <summary>
     /// Enumerate directories
     /// </summary>
-    public static Eff<RT, Seq<string>> enumerateDirectories(string path, string searchPattern) =>
-        self.Bind(rt => rt.EnumerateDirectories(path, searchPattern));
+    public static K<M, Seq<string>> enumerateDirectories(string path, string searchPattern) =>
+        trait.Bind(rt => rt.EnumerateDirectories(path, searchPattern));
         
     /// <summary>
     /// Enumerate directories
     /// </summary>
-    public static Eff<RT, Seq<string>> enumerateDirectories(string path, string searchPattern, SearchOption searchOption) =>
-        self.Bind(rt => rt.EnumerateDirectories(path, searchPattern, searchOption));
+    public static K<M, Seq<string>> enumerateDirectories(string path, string searchPattern, SearchOption searchOption) =>
+        trait.Bind(rt => rt.EnumerateDirectories(path, searchPattern, searchOption));
         
     /// <summary>
     /// Enumerate files
     /// </summary>
-    public static Eff<RT, Seq<string>> enumerateFiles(string path) =>
-        self.Bind(rt => rt.EnumerateFiles(path));
+    public static K<M, Seq<string>> enumerateFiles(string path) =>
+        trait.Bind(rt => rt.EnumerateFiles(path));
         
     /// <summary>
     /// Enumerate files
     /// </summary>
-    public static Eff<RT, Seq<string>> enumerateFiles(string path, string searchPattern) =>
-        self.Bind(rt => rt.EnumerateFiles(path, searchPattern));
+    public static K<M, Seq<string>> enumerateFiles(string path, string searchPattern) =>
+        trait.Bind(rt => rt.EnumerateFiles(path, searchPattern));
         
     /// <summary>
     /// Enumerate files
     /// </summary>
-    public static Eff<RT, Seq<string>> enumerateFiles(string path, string searchPattern, SearchOption searchOption) =>
-        self.Bind(rt => rt.EnumerateFiles(path, searchPattern, searchOption));
+    public static K<M, Seq<string>> enumerateFiles(string path, string searchPattern, SearchOption searchOption) =>
+        trait.Bind(rt => rt.EnumerateFiles(path, searchPattern, searchOption));
         
     /// <summary>
     /// Enumerate file system entries
     /// </summary>
-    public static Eff<RT, Seq<string>> enumerateFileSystemEntries(string path) =>
-        self.Bind(rt => rt.EnumerateFileSystemEntries(path));
+    public static K<M, Seq<string>> enumerateFileSystemEntries(string path) =>
+        trait.Bind(rt => rt.EnumerateFileSystemEntries(path));
 
     /// <summary>
     /// Enumerate file system entries
     /// </summary>
-    public static Eff<RT, Seq<string>> enumerateFileSystemEntries(string path, string searchPattern) =>
-        self.Bind(rt => rt.EnumerateFileSystemEntries(path, searchPattern));
+    public static K<M, Seq<string>> enumerateFileSystemEntries(string path, string searchPattern) =>
+        trait.Bind(rt => rt.EnumerateFileSystemEntries(path, searchPattern));
 
     /// <summary>
     /// Enumerate file system entries
     /// </summary>
-    public static Eff<RT, Seq<string>> enumerateFileSystemEntries(string path, string searchPattern, SearchOption searchOption) =>
-        self.Bind(rt => rt.EnumerateFileSystemEntries(path, searchPattern, searchOption));
+    public static K<M, Seq<string>> enumerateFileSystemEntries(string path, string searchPattern, SearchOption searchOption) =>
+        trait.Bind(rt => rt.EnumerateFileSystemEntries(path, searchPattern, searchOption));
 
     /// <summary>
     /// Get the root of the path provided
     /// </summary>
-    public static Eff<RT, string> getRoot(string path) =>
-        self.Bind(rt => rt.GetDirectoryRoot(path));
+    public static K<M, string> getRoot(string path) =>
+        trait.Bind(rt => rt.GetDirectoryRoot(path));
 
     /// <summary>
     /// Get the current directory
     /// </summary>
-    public static Eff<RT, string> current =>
-        self.Bind(rt => rt.GetCurrentDirectory());
+    public static K<M, string> current =>
+        trait.Bind(rt => rt.GetCurrentDirectory());
 
     /// <summary>
     /// Set the current directory
     /// </summary>
     /// <param name="path"></param>
-    public static Eff<RT, Unit> setCurrent(string path) =>
-        self.Bind(rt => rt.SetCurrentDirectory(path));
+    public static K<M, Unit> setCurrent(string path) =>
+        trait.Bind(rt => rt.SetCurrentDirectory(path));
 
     /// <summary>
     /// Move a directory
     /// </summary>
-    public static Eff<RT, Unit> move(string sourceDirName, string destDirName) =>
-        self.Bind(rt => rt.Move(sourceDirName, destDirName));
+    public static K<M, Unit> move(string sourceDirName, string destDirName) =>
+        trait.Bind(rt => rt.Move(sourceDirName, destDirName));
 
     /// <summary>
     /// Get the logical drives
     /// </summary>
-    public static Eff<RT, Seq<string>> logicalDrives =>
-        self.Bind(rt => rt.GetLogicalDrives());
+    public static K<M, Seq<string>> logicalDrives =>
+        trait.Bind(rt => rt.GetLogicalDrives());
 }

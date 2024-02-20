@@ -31,17 +31,17 @@ public static class Testing
                  from e in ask<string>()
                  select $"{e}: {w + x + y + z}";
 
-        var r1 = m3.Run("Hello");
+        var r1 = m3.As().Run("Hello");
         
         var m4 = from x in m1
                  from y in m2
                  from e in ask<string>()
                  select $"{e}: {x + y}";
 
-        var r2 = m4.Run("Hello").As();
+        var r2 = m4.As().Run("Hello").As();
     }
     
-    public static void Test2()
+    /*public static void Test2()
     {
         var m1 = Reader<string, int>.Pure(123);
         var m2 = Reader<string, int>.Pure(123);
@@ -56,7 +56,7 @@ public static class Testing
                  from e in ask<string>()
                  from z in Pure(234)
                  select $"{e}: {x + y}";
-    }
+    }*/
     
     public static void Test3()
     {

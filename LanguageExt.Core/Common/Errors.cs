@@ -133,4 +133,20 @@ public static class Errors
     /// Transformer stack has no unliftIO support error
     /// </summary>
     public static readonly Error UnliftIONotSupported = (UnliftIONotSupportedCode, UnliftIONotSupportedText);
+
+    /// <summary>
+    /// End-of-stream text
+    /// </summary>
+    public const string EndOfStreamText = 
+        "end of stream";
+
+    /// <summary>
+    /// End-of-stream code
+    /// </summary>
+    public const int EndOfStreamCode = -2000000009;
+
+    /// <summary>
+    /// End-of-stream error
+    /// </summary>
+    public static readonly Error EndOfStream = (EndOfStreamCode, EndOfStreamText);
 }

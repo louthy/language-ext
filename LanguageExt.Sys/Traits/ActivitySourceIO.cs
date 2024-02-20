@@ -68,7 +68,7 @@ public interface HasActivitySource<RT>
     /// Access the activity-source synchronous effect environment
     /// </summary>
     /// <returns>Activity-source synchronous effect environment</returns>
-    Eff<RT, ActivitySourceIO> ActivitySourceEff { get; }
+    IO<ActivitySourceIO> ActivitySourceEff { get; }
         
     /// <summary>
     /// Set the current activity and update the ParentId automatically

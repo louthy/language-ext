@@ -179,7 +179,7 @@ namespace LanguageExt.Sys.Test
         /// Access the console environment
         /// </summary>
         /// <returns>Console environment</returns>
-        public Eff<Runtime, Traits.ConsoleIO> ConsoleEff =>
+        public Eff<Runtime, Traits.ConsoleIO> ConsoleIO =>
             lift<Runtime, Traits.ConsoleIO>(rt => new ConsoleIO(rt.Env.Console));
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace LanguageExt.Sys.Test
         /// Access the directory environment
         /// </summary>
         /// <returns>Directory environment</returns>
-        public Eff<Runtime, Traits.DirectoryIO> DirectoryEff =>
+        public Eff<Runtime, Traits.DirectoryIO> DirectoryIO =>
             from n in Time<Runtime>.now
             from r in lift<Runtime, Traits.DirectoryIO>(rt => new DirectoryIO(rt.Env.FileSystem, n))
             select r;
@@ -211,14 +211,14 @@ namespace LanguageExt.Sys.Test
         /// Access the time environment
         /// </summary>
         /// <returns>Time environment</returns>
-        public Eff<Runtime, Traits.TimeIO> TimeEff  =>
+        public Eff<Runtime, Traits.TimeIO> TimeIO  =>
             Eff<Runtime, Traits.TimeIO>(rt => new TimeIO(rt.Env.TimeSpec));
 
         /// <summary>
         /// Access the operating-system environment
         /// </summary>
         /// <returns>Operating-system environment environment</returns>
-        public Eff<Runtime, Traits.EnvironmentIO> EnvironmentEff =>
+        public Eff<Runtime, Traits.EnvironmentIO> EnvironmentIO =>
             Eff<Runtime, Traits.EnvironmentIO>(rt => new EnvironmentIO(rt.Env.SysEnv));
 
         public Runtime WithSyncContext(SynchronizationContext syncContext) =>

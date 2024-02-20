@@ -26,3 +26,5 @@ select r;
 5. Changed `Eff<RT, ...>(rt => ...` to `lift((RT rt) => ...`
 
 6. Changed `cancelToken<RT>()` to `cancelToken` 
+
+7. Changed `Producer<RT, OUT, A>` to `Producer<OUT, Eff.R<RT>, A>`

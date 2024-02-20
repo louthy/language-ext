@@ -3,18 +3,20 @@ using System.Buffers;
 using LanguageExt.Pipes;
 using System.Collections.Generic;
 using LanguageExt.Effects.Traits;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 using LanguageExt.UnsafeValueAccess;
 
 namespace LanguageExt.Sys.IO;
 
-public static class Stream<RT> 
+public static class Stream<M, RT> 
     where RT : HasIO<RT>
+    where M : Reader<M, RT>, Monad<M>
 {
     /// <summary>
     /// Get a pipe of chunks from a Stream
     /// </summary>
-    public static Pipe<Stream, SeqLoan<byte>, Eff.R<RT>, Unit> read(int chunkSize)
+    public static Pipe<Stream, SeqLoan<byte>, M, Unit> read(int chunkSize)
     {
         return from fs in Proxy.awaiting<Stream>()
                from _  in Proxy.yieldAll(chunks(fs, chunkSize))

@@ -12,11 +12,12 @@ namespace LanguageExt.Sys.IO;
 /// <summary>
 /// File IO 
 /// </summary>
-public static class File<RT>
+public static class File<M, RT>
+    where M : Reader<M, RT>, Resource<M>, Monad<M>
     where RT : HasFile<RT>
 {
-    static readonly Eff<RT, FileIO> self =
-        runtime<RT>().Bind(rt => rt.FileEff);
+    static readonly K<M, FileIO> trait = 
+        Reader.asks<M, RT, IO<FileIO>>(e => e.FileIO).Bind(M.LiftIO); 
     
     /// <summary>
     /// Copy file 
@@ -26,88 +27,88 @@ public static class File<RT>
     /// <param name="overwrite">Overwrite if the file already exists at the destination</param>
     /// <typeparam name="RT">Runtime</typeparam>
     /// <returns>Unit</returns>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Eff<RT, Unit> copy(string fromPath, string toPath, bool overwrite = false) =>
-        self.Bind(e => e.Copy(fromPath, toPath, overwrite));
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, Unit> copy(string fromPath, string toPath, bool overwrite = false) =>
+        trait.Bind(e => e.Copy(fromPath, toPath, overwrite));
 
     /// <summary>
     /// Append lines to the end of the file provided
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Eff<RT, Unit> appendAllLines(string path, IEnumerable<string> contents) =>
-        from en in Enc<RT>.encoding
-        from rs in self.Bind(e => e.AppendAllLines(path, contents, en))
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, Unit> appendAllLines(string path, IEnumerable<string> contents) =>
+        from en in Enc<RT, M>.encoding
+        from rs in trait.Bind(e => e.AppendAllLines(path, contents, en))
         select rs;
 
     /// <summary>
     /// Read all of the lines from the path provided
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Eff<RT, Seq<string>> readAllLines(string path) =>
-        from en in Enc<RT>.encoding
-        from rs in self.Bind(e => e.ReadAllLines(path, en))
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, Seq<string>> readAllLines(string path) =>
+        from en in Enc<RT, M>.encoding
+        from rs in trait.Bind(e => e.ReadAllLines(path, en))
         select rs;
 
     /// <summary>
     /// Write all of the lines to the path provided
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Eff<RT, Unit> writeAllLines(string path, Seq<string> lines) =>
-        from en in Enc<RT>.encoding
-        from rs in self.Bind(e => e.WriteAllLines(path, lines, en))
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, Unit> writeAllLines(string path, Seq<string> lines) =>
+        from en in Enc<RT, M>.encoding
+        from rs in trait.Bind(e => e.WriteAllLines(path, lines, en))
         select rs;
 
     /// <summary>
     /// Read all of the text from the path provided
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Eff<RT, string> readAllText(string path) =>
-        from en in Enc<RT>.encoding
-        from rs in self.Bind(e => e.ReadAllText(path, en))
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, string> readAllText(string path) =>
+        from en in Enc<RT, M>.encoding
+        from rs in trait.Bind(e => e.ReadAllText(path, en))
         select rs;
 
     /// <summary>
     /// Read all of the data from the path provided
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Eff<RT, byte[]> readAllBytes(string path) =>
-        self.Bind(e => e.ReadAllBytes(path));
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, byte[]> readAllBytes(string path) =>
+        trait.Bind(e => e.ReadAllBytes(path));
 
     /// <summary>
     /// Write all of the text to the path provided
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Eff<RT, Unit> writeAllText(string path, string text) =>
-        from en in Enc<RT>.encoding
-        from rs in self.Bind(e => e.WriteAllText(path, text, en))
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, Unit> writeAllText(string path, string text) =>
+        from en in Enc<RT, M>.encoding
+        from rs in trait.Bind(e => e.WriteAllText(path, text, en))
         select rs;
 
     /// <summary>
     /// Write all of the data to the path provided
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Eff<RT, Unit> writeAllBytes(string path, byte[] data) =>
-        self.Bind(e => e.WriteAllBytes(path, data));
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, Unit> writeAllBytes(string path, byte[] data) =>
+        trait.Bind(e => e.WriteAllBytes(path, data));
 
     /// <summary>
     /// Delete the file provided
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Eff<RT, Unit> delete(string path) =>
-        self.Bind(e => e.Delete(path));
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, Unit> delete(string path) =>
+        trait.Bind(e => e.Delete(path));
 
     /// <summary>
     /// True if a file exists at the path
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Eff<RT, bool> exists(string path) =>
-        self.Bind(e => e.Exists(path));
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, bool> exists(string path) =>
+        trait.Bind(e => e.Exists(path));
 
     /// <summary>
     /// Open a text file
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Producer<TextReader, Eff.R<RT>, Unit> openText(string path) => 
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static Producer<TextReader, M, Unit> openText(string path) => 
         from t in openTextInternal(path)
         from _ in Proxy.yield(t)
         select unit;
@@ -115,21 +116,21 @@ public static class File<RT>
     /// <summary>
     /// Create a new text file to stream to
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Eff<RT, TextWriter> createText(string path) =>
-        self.Bind(e => e.CreateText(path));
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, TextWriter> createText(string path) =>
+        trait.Bind(e => e.CreateText(path));
 
     /// <summary>
     /// Return a stream to append text to
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Eff<RT, TextWriter> appendText(string path) =>
-        self.Bind(e => e.AppendText(path));
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static K<M, TextWriter> appendText(string path) =>
+        trait.Bind(e => e.AppendText(path));
 
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    public static Producer<Stream, Eff.R<RT>, Unit> openRead(string path) =>
+    public static Producer<Stream, M, Unit> openRead(string path) =>
         from s in openReadInternal(path)
         from _ in Proxy.yield(s)
         select unit;
@@ -137,8 +138,8 @@ public static class File<RT>
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Producer<Stream, Eff.R<RT>, Unit> open(string path, FileMode mode) =>
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static Producer<Stream, M, Unit> open(string path, FileMode mode) =>
         from s in openInternal(path, mode)
         from _ in Proxy.yield(s)
         select unit;
@@ -146,8 +147,8 @@ public static class File<RT>
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Producer<Stream, Eff.R<RT>, Unit> open(string path, FileMode mode, FileAccess access) =>
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static Producer<Stream, M, Unit> open(string path, FileMode mode, FileAccess access) =>
         from s in openInternal(path, mode, access)
         from _ in Proxy.yield(s)
         select unit;
@@ -155,8 +156,8 @@ public static class File<RT>
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    public static Producer<Stream, Eff.R<RT>, Unit> openWrite(string path) =>
+    [Pure, MethodImpl(EffOpt.mops)]
+    public static Producer<Stream, M, Unit> openWrite(string path) =>
         from s in openWriteInternal(path)
         from _ in Proxy.yield(s)
         select unit;
@@ -166,34 +167,44 @@ public static class File<RT>
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    static Eff<RT, Stream> openReadInternal(string path) =>
-        self.Bind(e => Eff.use(e.OpenRead(path)));
+    static K<M, Stream> openReadInternal(string path) =>
+        from io in trait.Map(e => e.OpenRead(path))
+        from rs in Resource.use<M, Stream>(io)
+        select rs;
 
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    static Eff<RT, Stream> openInternal(string path, FileMode mode) =>
-        self.Bind(e => Eff.use(e.Open(path, mode)));
+    [Pure, MethodImpl(EffOpt.mops)]
+    static K<M, Stream> openInternal(string path, FileMode mode) =>
+        from io in trait.Map(e => e.Open(path, mode))
+        from rs in Resource.use<M, Stream>(io)
+        select rs;
         
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    static Eff<RT, Stream> openInternal(string path, FileMode mode, FileAccess access) =>
-        self.Bind(e => Eff.use(e.Open(path, mode, access)));
+    [Pure, MethodImpl(EffOpt.mops)]
+    static K<M, Stream> openInternal(string path, FileMode mode, FileAccess access) =>
+        from io in trait.Map(e => e.Open(path, mode, access))
+        from rs in Resource.use<M, Stream>(io)
+        select rs;
         
     /// <summary>
     /// Open a file-stream
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    static Eff<RT, Stream> openWriteInternal(string path) =>
-        self.Bind(e => Eff.use(e.OpenWrite(path)));    
+    [Pure, MethodImpl(EffOpt.mops)]
+    static K<M, Stream> openWriteInternal(string path) =>
+        from io in trait.Map(e => e.OpenWrite(path))
+        from rs in Resource.use<M, Stream>(io)
+        select rs;
 
     /// <summary>
     /// Open a text file
     /// </summary>
-    [Pure, MethodImpl(AffOpt.mops)]
-    static Eff<RT, TextReader> openTextInternal(string path) =>
-        self.Bind(e => Eff.use(e.OpenText(path)));
+    [Pure, MethodImpl(EffOpt.mops)]
+    static K<M, TextReader> openTextInternal(string path) =>
+        from io in trait.Map(e => e.OpenText(path))
+        from rs in Resource.use<M, TextReader>(io)
+        select rs;
 }

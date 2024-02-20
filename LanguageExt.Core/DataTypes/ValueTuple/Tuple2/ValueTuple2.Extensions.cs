@@ -265,35 +265,6 @@ public static class ValueTuple2Extensions
     /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
     /// </summary>
     [Pure]
-    public static Reader<Env, (C, D)> Traverse<Env, A, B, C, D>(this (Reader<Env, A> ma, Reader<Env, B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        let r = f((a, b))
-        select (r.Item1, r.Item2);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static Reader<Env, (C, D)> Traverse<Env, A, B, C, D>(this (Reader<Env, A> ma, Reader<Env, B> mb) tuple, Func<A, B, (C c, D d)> f) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        let r = f(a, b)
-        select (r.Item1, r.Item2);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
-    public static Reader<Env, (A, B)> Sequence<Env, A, B>(this (Reader<Env, A> ma, Reader<Env, B> mb) tuple) =>
-        from a in tuple.ma
-        from b in tuple.mb
-        select (a, b);
-
-    /// <summary>
-    /// Flip the tuple monads from inside the tuple to outside and apply a transformation function
-    /// </summary>
-    [Pure]
     public static Set<(C, D)> Traverse<A, B, C, D>(this (Set<A> ma, Set<B> mb) tuple, Func<(A a, B b), (C c, D d)> f) =>
         from a in tuple.ma
         from b in tuple.mb

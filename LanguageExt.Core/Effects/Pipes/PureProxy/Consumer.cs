@@ -29,9 +29,8 @@ public abstract class Consumer<IN, A>
         where M : Monad<M> =>
         Interpret<M>().Bind(f);
 
-    public Consumer<IN, M, B> Bind<M, B>(Func<A, IO<B>> f)
-        where M : Monad<M> =>
-        Bind(x => M.LiftIO(f(x)));
+    public Consumer<IN, B> Bind<B>(Func<A, IO<B>> f) =>
+        Bind(x => PureProxy.ConsumerLiftIO<IN, B>(f(x)));
  
     public abstract Consumer<IN, M, A> Interpret<M>() 
         where M : Monad<M>;
@@ -46,13 +45,12 @@ public abstract class Consumer<IN, A>
     public Consumer<IN, C> SelectMany<B, C>(Func<A, Fail<Error>> f, Func<A, B, C> project) =>
         Bind<C>(f);
 
-    public Consumer<IN, M, C> SelectMany<M, B, C>(Func<A, IO<B>> f, Func<A, B, C> project) 
-        where M : Monad<M> =>
-        SelectMany(x => M.LiftIO(f(x)), project);
+    public Consumer<IN, C> SelectMany<B, C>(Func<A, IO<B>> f, Func<A, B, C> project) =>
+        Bind(x => f(x).Map(y => project(x, y)));
  
     public Consumer<IN, M, C> SelectMany<M, B, C>(Func<A, K<M, B>> f, Func<A, B, C> project)
         where M : Monad<M> =>
-        Bind(a => M.Map(b => project(a, b), f(a)));
+        Bind(a =>  M.Map(b => project(a, b), f(a)));
  
     public Consumer<IN, C> SelectMany<B, C>(Func<A, Consumer<IN, B>> f, Func<A, B, C> project) =>
         Bind(a => f(a).Select(b => project(a, b)));
@@ -133,6 +131,27 @@ public abstract class Consumer<IN, A>
 
         public override Pipe<IN, OUT, A> ToPipe<OUT>() => 
             new Pipe<IN, OUT, A>.Lift<X>(Function, x => Next(x).ToPipe<OUT>());
+    }
+
+    public class LiftIO<X>(IO<X> Effect, Func<X, Consumer<IN, A>> Next) : Consumer<IN, A>
+    {
+        public override Consumer<IN, B> Select<B>(Func<A, B> f) => 
+            new Consumer<IN, B>.LiftIO<X>(Effect, x => Next(x).Select(f));
+
+        public override Consumer<IN, B> Bind<B>(Func<A, Consumer<IN, B>> f) => 
+            new Consumer<IN, B>.LiftIO<X>(Effect, x => Next(x).Bind(f));
+
+        public override Consumer<IN, M, B> Bind<M, B>(Func<A, Consumer<IN, M, B>> f) =>
+            Consumer.lift<IN, M, X>(M.LiftIO(Effect)).Bind(x => Next(x).Bind(f)).ToConsumer();
+
+        public override Pipe<IN, OUT, B> Bind<OUT, B>(Func<A, Producer<OUT, B>> f) => 
+            new Pipe<IN, OUT, B>.LiftIO<X>(Effect, x => Next(x).Bind(f));
+
+        public override Consumer<IN, M, A> Interpret<M>() =>
+            Consumer.lift<IN, M, X>(M.LiftIO(Effect)).Bind(x => Next(x).Interpret<M>());
+
+        public override Pipe<IN, OUT, A> ToPipe<OUT>() => 
+            new Pipe<IN, OUT, A>.LiftIO<X>(Effect, x => Next(x).ToPipe<OUT>());
     }
 
     public class Await : Consumer<IN, A>

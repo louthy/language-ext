@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using LanguageExt.Effects.Traits;
 using LanguageExt.Sys.Traits;
+using LanguageExt.Traits;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Sys.Diag;
@@ -13,20 +14,22 @@ namespace LanguageExt.Sys.Diag;
 /// takes an `Eff` or `Aff` operation to run (which is the activity).  The runtime system will maintain the parent-
 /// child relationships for the activities, and maintains the 'current' activity.
 /// </summary>
-/// <typeparam name="RT">runtime</typeparam>
-public static class Activity<RT>
+/// <typeparam name="M">Reader, Resource, and monad trait</typeparam>
+/// <typeparam name="RT">Runtime</typeparam>
+public static class Activity<M, RT>
+    where M : Reader<M, RT>, Resource<M>, Monad<M>
     where RT : HasActivitySource<RT>, HasIO<RT>
 {
-    static Eff<RT, Activity> startActivity(
+    static K<M, Activity> startActivity(
         string name,
         ActivityKind activityKind,
         HashMap<string, object> activityTags,
         Seq<ActivityLink> activityLinks,
         DateTimeOffset startTime,
         ActivityContext? parentContext = default) =>
-        from rt in runtime<RT>()
+        from rt in Reader.ask<M, RT>()
         from src in rt.ActivitySourceEff
-        from act in Eff.use(
+        from act in Resource.use<M, Activity>(
             src.StartActivity(
                 name,
                 activityKind,
@@ -45,7 +48,7 @@ public static class Activity<RT>
     /// <param name="name">The operation name of the activity.</param>
     /// <param name="operation">The operation to whose activity will be traced</param>
     /// <returns>The result of the `operation`</returns>
-    public static Eff<RT, A> span<A>(string name, Eff<RT, A> operation) =>
+    public static K<M, A> span<A>(string name, K<M, A> operation) =>
         span(name, ActivityKind.Internal, default, default, DateTimeOffset.Now, operation);
 
     /// <summary>
@@ -56,10 +59,10 @@ public static class Activity<RT>
     /// <param name="activityKind">The activity kind.</param>
     /// <param name="operation">The operation to whose activity will be traced</param>
     /// <returns>The result of the `operation`</returns>
-    public static Eff<RT, A> span<A>(
+    public static K<M, A> span<A>(
         string name,
         ActivityKind activityKind,
-        Eff<RT, A> operation) => 
+        K<M, A> operation) => 
         span(name, activityKind, default, default, DateTimeOffset.Now, operation);
 
     /// <summary>
@@ -71,11 +74,11 @@ public static class Activity<RT>
     /// <param name="activityTags">The optional tags list to initialise the created activity object with.</param>
     /// <param name="operation">The operation to whose activity will be traced</param>
     /// <returns>The result of the `operation`</returns>
-    public static Eff<RT, A> span<A>(
+    public static K<M, A> span<A>(
         string name,
         ActivityKind activityKind,
         HashMap<string, object> activityTags,
-        Eff<RT, A> operation) => 
+        K<M, A> operation) => 
         span(name, activityKind, activityTags, default, DateTimeOffset.Now, operation);
 
     /// <summary>
@@ -89,15 +92,15 @@ public static class Activity<RT>
     /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
     /// <param name="operation">The operation to whose activity will be traced</param>
     /// <returns>The result of the `operation`</returns>
-    public static Eff<RT, TA> span<TA>(
+    public static K<M, TA> span<TA>(
         string name,
         ActivityKind activityKind,
         HashMap<string, object> activityTags,
         Seq<ActivityLink> activityLinks,
         DateTimeOffset startTime,
-        Eff<RT, TA> operation) =>
+        K<M, TA> operation) =>
         from a in startActivity(name, activityKind, activityTags, activityLinks, startTime)
-        from r in localEff<RT, RT, TA>(rt => rt.WithActivity(a), operation)
+        from r in Reader.local<M, RT, TA>(rt => rt.WithActivity(a), operation)
         select r;
 
     /// <summary>
@@ -113,14 +116,14 @@ public static class Activity<RT>
     /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
     /// <param name="operation">The operation to whose activity will be traced</param>
     /// <returns>The result of the `operation`</returns>
-    public static Eff<RT, A> span<A>(
+    public static K<M, A> span<A>(
         string name,
         ActivityKind activityKind,
         ActivityContext parentContext,
         HashMap<string, object> activityTags,
         Seq<ActivityLink> activityLinks,
         DateTimeOffset startTime,
-        Eff<RT, A> operation) =>
+        K<M, A> operation) =>
         from a in startActivity(
             name,
             activityKind,
@@ -128,7 +131,7 @@ public static class Activity<RT>
             activityLinks,
             startTime,
             parentContext)
-        from r in localEff<RT, RT, A>(rt => rt.WithActivity(a), operation)
+        from r in Reader.local<M, RT, A>(rt => rt.WithActivity(a), operation)
         select r;
 
     /// <summary>
@@ -136,27 +139,30 @@ public static class Activity<RT>
     /// </summary>
     /// <param name="traceStateString">Trace state string</param>
     /// <returns>Unit effect</returns>
-    public static Eff<RT, Unit> setTraceState(string traceStateString) =>
-        lift((RT rt) =>
-             {
-                 if (rt.CurrentActivity is not null)
-                 {
-                     rt.CurrentActivity.TraceStateString = traceStateString;
-                 }
-                 return unit;
-             });
+    public static K<M, Unit> setTraceState(string traceStateString) =>
+        Reader.asks<M, RT, Unit>(
+            rt =>
+            {
+                if (rt.CurrentActivity is not null)
+                {
+                    rt.CurrentActivity.TraceStateString = traceStateString;
+                }
+                return unit;
+            });
 
     /// <summary>
     /// Read the trace-state string of the current activity
     /// </summary>
-    public static Eff<RT, Option<string>> traceState =>
-        lift((RT rt) => Optional(rt.CurrentActivity?.TraceStateString));
+    public static K<M, Option<string>> traceState =>
+        Reader.asks<M, RT, Option<string>>(
+            rt => Optional(rt.CurrentActivity?.TraceStateString));
 
     /// <summary>
     /// Read the trace ID of the current activity
     /// </summary>
-    public static Eff<RT, Option<ActivityTraceId>> traceId =>
-        lift((RT rt) => Optional(rt.CurrentActivity?.TraceId));
+    public static K<M, Option<ActivityTraceId>> traceId =>
+        Reader.asks<M, RT, Option<ActivityTraceId>>(
+            rt => Optional(rt.CurrentActivity?.TraceId));
 
     /// <summary>
     /// Add baggage to the current activity
@@ -164,21 +170,22 @@ public static class Activity<RT>
     /// <param name="key">Baggage key</param>
     /// <param name="value">Baggage value</param>
     /// <returns>Unit effect</returns>
-    public static Eff<RT, Unit> addBaggage(string key, string? value) =>
-        lift((RT rt) =>
-             {
-                 rt.CurrentActivity?.AddBaggage(key, value);
-                 return unit;
-             });
+    public static K<M, Unit> addBaggage(string key, string? value) =>
+        Reader.asks<M, RT, Unit>(
+            rt =>
+            {
+                rt.CurrentActivity?.AddBaggage(key, value);
+                return unit;
+            });
 
     /// <summary>
     /// Read the baggage of the current activity
     /// </summary>
-    public static Eff<RT, HashMap<string, string?>> baggage =>
-        lift((RT rt) =>
-                 rt.CurrentActivity is not null
-                     ? rt.CurrentActivity.Baggage.ToHashMap()
-                     : HashMap<string, string?>());
+    public static K<M, HashMap<string, string?>> baggage =>
+        Reader.asks<M, RT, HashMap<string, string?>>(
+            rt => rt.CurrentActivity is not null
+                      ? rt.CurrentActivity.Baggage.ToHashMap()
+                      : HashMap<string, string?>());
 
     /// <summary>
     /// Add tag to the current activity
@@ -186,160 +193,176 @@ public static class Activity<RT>
     /// <param name="name">Tag name</param>
     /// <param name="value">Tag value</param>
     /// <returns>Unit effect</returns>
-    public static Eff<RT, Unit> addTag(string name, string? value) =>
-        lift((RT rt) =>
-             {
-                 rt.CurrentActivity?.AddTag(name, value);
-                 return unit;
-             });
+    public static K<M, Unit> addTag(string name, string? value) =>
+        Reader.asks<M, RT, Unit>(
+            rt =>
+            {
+                rt.CurrentActivity?.AddTag(name, value);
+                return unit;
+            });
 
     /// <summary>
     /// Add tag to the current activity
     /// </summary>
     /// <param name="name">Tag name</param>
     /// <param name="value">Tag value</param>
-    public static Eff<RT, Unit> addTag(string name, object? value) =>
-        lift((RT rt) =>
-             {
-                 rt.CurrentActivity?.AddTag(name, value);
-                 return unit;
-             });
+    public static K<M, Unit> addTag(string name, object? value) =>
+        Reader.asks<M, RT, Unit>(
+            rt =>
+            {
+                rt.CurrentActivity?.AddTag(name, value);
+                return unit;
+            });
 
     /// <summary>
     /// Read the tags of the current activity
     /// </summary>
-    public static Eff<RT, HashMap<string, string?>> tags =>
-        lift((RT rt) =>
-                 rt.CurrentActivity is not null
-                     ? rt.CurrentActivity.Tags.ToHashMap()
-                     : HashMap<string, string?>());
+    public static K<M, HashMap<string, string?>> tags =>
+        Reader.asks<M, RT, HashMap<string, string?>>(
+            rt => rt.CurrentActivity is not null
+                ? rt.CurrentActivity.Tags.ToHashMap()
+                : HashMap<string, string?>());
 
     /// <summary>
     /// Read the tags of the current activity
     /// </summary>
-    public static Eff<RT, HashMap<string, object?>> tagObjects =>
-        lift((RT rt) =>
-                 rt.CurrentActivity is not null
-                     ? rt.CurrentActivity.TagObjects.ToHashMap()
-                     : HashMap<string, object?>());
+    public static K<M, HashMap<string, object?>> tagObjects =>
+        Reader.asks<M, RT, HashMap<string, object?>>(
+            rt => rt.CurrentActivity is not null
+                      ? rt.CurrentActivity.TagObjects.ToHashMap()
+                      : HashMap<string, object?>());
 
     /// <summary>
     /// Read the context of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static Eff<RT, Option<ActivityContext>> context =>
-        lift((RT rt) => Optional(rt.CurrentActivity?.Context));
+    public static K<M, Option<ActivityContext>> context =>
+        Reader.asks<M, RT, Option<ActivityContext>>(
+            rt => Optional(rt.CurrentActivity?.Context));
 
     /// <summary>
     /// Read the duration of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static Eff<RT, Option<TimeSpan>> duration =>
-        lift((RT rt) => Optional(rt.CurrentActivity?.Duration));
+    public static K<M, Option<TimeSpan>> duration =>
+        Reader.asks<M, RT, Option<TimeSpan>>(
+            rt => Optional(rt.CurrentActivity?.Duration));
 
     /// <summary>
     /// Add an event to the current activity
     /// </summary>
     /// <param name="event">Event</param>
-    public static Eff<RT, Unit> addEvent(ActivityEvent @event) =>
-        lift((RT rt) =>
-             {
-                 rt.CurrentActivity?.AddEvent(@event);
-                 return unit;
-             });
+    public static K<M, Unit> addEvent(ActivityEvent @event) =>
+        Reader.asks<M, RT, Unit>(
+            rt =>
+            {
+                rt.CurrentActivity?.AddEvent(@event);
+                return unit;
+            });
 
     /// <summary>
     /// Read the events of the current activity
     /// </summary>
-    public static Eff<RT, Seq<ActivityEvent>> events =>
-        lift((RT rt) =>
-                rt.CurrentActivity is not null
-                     ? rt.CurrentActivity.Events.ToSeq()
-                     : Seq<ActivityEvent>());
+    public static K<M, Seq<ActivityEvent>> events =>
+        Reader.asks<M, RT, Seq<ActivityEvent>>(
+            rt => rt.CurrentActivity is not null
+                      ? rt.CurrentActivity.Events.ToSeq()
+                      : Seq<ActivityEvent>());
 
     /// <summary>
     /// Read the ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static Eff<RT, Option<string>> id =>
-        lift((RT rt) => Optional(rt.CurrentActivity?.Id));
+    public static K<M, Option<string>> id =>
+        Reader.asks<M, RT, Option<string>>(
+            rt => Optional(rt.CurrentActivity?.Id));
 
     /// <summary>
     /// Read the kind of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static Eff<RT, Option<ActivityKind>> kind =>
-        lift((RT rt) => Optional(rt.CurrentActivity?.Kind));
+    public static K<M, Option<ActivityKind>> kind =>
+        Reader.asks<M, RT, Option<ActivityKind>>(
+            rt => Optional(rt.CurrentActivity?.Kind));
 
     /// <summary>
     /// Read the links of the current activity
     /// </summary>
-    public static Eff<RT, Seq<ActivityLink>> links =>
-        lift((RT rt) =>
-                rt.CurrentActivity is not null
-                     ? rt.CurrentActivity.Links.ToSeq()
-                     : Seq<ActivityLink>());
+    public static K<M, Seq<ActivityLink>> links =>
+        Reader.asks<M, RT, Seq<ActivityLink>>(
+            rt => rt.CurrentActivity is not null
+                      ? rt.CurrentActivity.Links.ToSeq()
+                      : Seq<ActivityLink>());
 
     /// <summary>
     /// Read the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static Eff<RT, Option<Activity>> current =>
-        lift((RT rt) => Optional(rt.CurrentActivity));
+    public static K<M, Option<Activity>> current =>
+        Reader.asks<M, RT, Option<Activity>>(
+            rt => Optional(rt.CurrentActivity));
 
     /// <summary>
     /// Read the parent ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static Eff<RT, Option<string>> parentId =>
-        lift((RT rt) => Optional(rt.CurrentActivity?.ParentId));
+    public static K<M, Option<string>> parentId =>
+        Reader.asks<M, RT, Option<string>>(
+            rt => Optional(rt.CurrentActivity?.ParentId));
 
     /// <summary>
     /// Read the parent span ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static Eff<RT, Option<ActivitySpanId>> parentSpanId =>
-        lift((RT rt) => Optional(rt.CurrentActivity?.ParentSpanId));
+    public static K<M, Option<ActivitySpanId>> parentSpanId =>
+        Reader.asks<M, RT, Option<ActivitySpanId>>(
+            rt => Optional(rt.CurrentActivity?.ParentSpanId));
 
     /// <summary>
     /// Read the recorded flag of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static Eff<RT, Option<bool>> recorded =>
-        lift((RT rt) => Optional(rt.CurrentActivity?.Recorded));
+    public static K<M, Option<bool>> recorded =>
+        Reader.asks<M, RT, Option<bool>>(
+            rt => Optional(rt.CurrentActivity?.Recorded));
 
     /// <summary>
     /// Read the display-name of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static Eff<RT, Option<string>> displayName =>
-        lift((RT rt) => Optional(rt.CurrentActivity?.DisplayName));
+    public static K<M, Option<string>> displayName =>
+        Reader.asks<M, RT, Option<string>>(
+            rt => Optional(rt.CurrentActivity?.DisplayName));
 
     /// <summary>
     /// Read the operation-name of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static Eff<RT, Option<string>> operationName =>
-        lift((RT rt) => Optional(rt.CurrentActivity?.OperationName));
+    public static K<M, Option<string>> operationName =>
+        Reader.asks<M, RT, Option<string>>(
+            rt => Optional(rt.CurrentActivity?.OperationName));
 
     /// <summary>
     /// Read the root ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static Eff<RT, Option<string>> rootId =>
-        lift((RT rt) => Optional(rt.CurrentActivity?.RootId));
+    public static K<M, Option<string>> rootId =>
+        Reader.asks<M, RT, Option<string>>(
+            rt => Optional(rt.CurrentActivity?.RootId));
 
     /// <summary>
     /// Read the span ID of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static Eff<RT, Option<ActivitySpanId>> spanId =>
-        lift((RT rt) => Optional(rt.CurrentActivity?.SpanId));
+    public static K<M, Option<ActivitySpanId>> spanId =>
+        Reader.asks<M, RT, Option<ActivitySpanId>>(
+            rt => Optional(rt.CurrentActivity?.SpanId));
 
     /// <summary>
     /// Read the start-time of the current activity
     /// </summary>
     /// <remarks>None if there is no current activity</remarks>
-    public static Eff<RT, Option<DateTime>> startTimeUTC =>
-        lift((RT rt) => Optional(rt.CurrentActivity?.StartTimeUtc));
+    public static K<M, Option<DateTime>> startTimeUTC =>
+        Reader.asks<M, RT, Option<DateTime>>(
+            rt => Optional(rt.CurrentActivity?.StartTimeUtc));
 }

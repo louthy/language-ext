@@ -43,6 +43,16 @@ public static class PureProxy
     public static Consumer<IN, A> ConsumerLift<IN, A>(Func<A> t) =>
         new Consumer<IN, A>.Lift<A>(t, ConsumerPure<IN, A>);
 
+
+    public static Pipe<IN, OUT, A> PipeLiftIO<IN, OUT, A>(IO<A> ma) =>
+        new Pipe<IN, OUT, A>.LiftIO<A>(ma, PipePure<IN, OUT, A>);
+
+    public static Producer<OUT, A> ProducerLiftIO<OUT, A>(IO<A> ma) =>
+        new Producer<OUT, A>.LiftIO<A>(ma, ProducerPure<OUT, A>);
+
+    public static Consumer<IN, A> ConsumerLiftIO<IN, A>(IO<A> ma) =>
+        new Consumer<IN, A>.LiftIO<A>(ma, ConsumerPure<IN, A>);
+
     
     public static Consumer<IN, IN> ConsumerAwait<IN>() =>
         new Consumer<IN, IN>.Await(ConsumerPure<IN, IN>);

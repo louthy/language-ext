@@ -30,12 +30,12 @@ public interface ConsoleIO
 /// </summary>
 /// <typeparam name="RT">Runtime</typeparam>
 [Trait("*")]
-public interface HasConsole<RT> : HasIO<RT>
+public interface HasConsole<out RT> : HasIO<RT>
     where RT : HasConsole<RT>
 {
     /// <summary>
     /// Access the console synchronous effect environment
     /// </summary>
     /// <returns>Console synchronous effect environment</returns>
-    Eff<RT, ConsoleIO> ConsoleEff { get; }
+    IO<ConsoleIO> ConsoleIO { get; }
 }

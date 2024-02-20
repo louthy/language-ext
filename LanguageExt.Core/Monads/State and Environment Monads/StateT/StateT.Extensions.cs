@@ -9,9 +9,6 @@ namespace LanguageExt;
 /// </summary>
 public static class StateExt
 {
-     public static State<Env, A> As<Env, A>(this K<StateT<Env, Identity>, A> ma) =>
-        (State<Env, A>)ma;
-    
     public static StateT<Env, M, A> As<Env, M, A>(this K<StateT<Env, M>, A> ma)
         where M : Monad<M>, Alternative<M> =>
         (StateT<Env, M, A>)ma;

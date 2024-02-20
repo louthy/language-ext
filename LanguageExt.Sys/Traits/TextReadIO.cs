@@ -41,5 +41,5 @@ public interface HasTextRead<RT> : HasIO<RT>
     /// Access the TextReader synchronous effect environment
     /// </summary>
     /// <returns>TextReader synchronous effect environment</returns>
-    Eff<RT, TextReadIO> TextReadEff { get; }
+    IO<TextReadIO> TextReadIO { get; }
 }

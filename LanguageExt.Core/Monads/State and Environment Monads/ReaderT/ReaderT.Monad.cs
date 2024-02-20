@@ -8,7 +8,10 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="Env">Reader environment type</typeparam>
 /// <typeparam name="M">Given monad trait</typeparam>
-public partial class ReaderT<Env, M> : MonadReaderT<ReaderT<Env, M>, Env, M>, Alternative<ReaderT<Env, M>>
+public partial class ReaderT<Env, M> :
+    MonadT<ReaderT<Env, M>, M>,
+    Reader<ReaderT<Env, M>, Env>, 
+    Alternative<ReaderT<Env, M>>
     where M : Monad<M>, Alternative<M>
 {
     static K<ReaderT<Env, M>, B> Monad<ReaderT<Env, M>>.Bind<A, B>(K<ReaderT<Env, M>, A> ma, Func<A, K<ReaderT<Env, M>, B>> f) => 
@@ -29,13 +32,13 @@ public partial class ReaderT<Env, M> : MonadReaderT<ReaderT<Env, M>, Env, M>, Al
     static K<ReaderT<Env, M>, A> MonadT<ReaderT<Env, M>, M>.Lift<A>(K<M, A> ma) => 
         ReaderT<Env, M, A>.Lift(ma);
 
-    static K<ReaderT<Env, M>, Env> MonadReaderT<ReaderT<Env, M>, Env, M>.Ask =>
+    static K<ReaderT<Env, M>, Env> Reader<ReaderT<Env, M>, Env>.Ask =>
         ReaderT<Env, M, Env>.Asks(Prelude.identity);
 
-    static K<ReaderT<Env, M>, A> MonadReaderT<ReaderT<Env, M>, Env, M>.Asks<A>(Func<Env, A> f) => 
+    static K<ReaderT<Env, M>, A> Reader<ReaderT<Env, M>, Env>.Asks<A>(Func<Env, A> f) => 
         ReaderT<Env, M, A>.Asks(f);
 
-    static K<ReaderT<Env, M>, A> MonadReaderT<ReaderT<Env, M>, Env, M>.Local<A>(Func<Env, Env> f, K<ReaderT<Env, M>, A> ma) =>
+    static K<ReaderT<Env, M>, A> Reader<ReaderT<Env, M>, Env>.Local<A>(Func<Env, Env> f, K<ReaderT<Env, M>, A> ma) =>
         ma.As().Local(f);
 
     static K<ReaderT<Env, M>, A> Monad<ReaderT<Env, M>>.LiftIO<A>(IO<A> ma) =>

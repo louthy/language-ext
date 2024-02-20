@@ -6,37 +6,12 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public class Eff : Monad<Eff>, Alternative<Eff> 
+public class Eff : 
+    Monad<Eff>,
+    Reader<Eff, MinRT>,
+    Resource<Eff>,
+    Alternative<Eff>
 {
-    /// <summary>
-    /// Resource acquisition
-    /// </summary>
-    /// <param name="acquire">Resource to acquire</param>
-    /// <param name="release">Function to release the resource</param>
-    /// <typeparam name="X"></typeparam>
-    /// <returns>Effect with the resource tracked.  Call `release(a)` to free the resource manually</returns>
-    public static Eff<A> use<A>(IO<A> acquire, Func<A, IO<Unit>> release) =>
-        new(new Eff<MinRT, A>(ReaderT<MinRT>.lift(ResourceT<IO>.use(acquire, release))));
-
-    /// <summary>
-    /// Resource acquisition
-    /// </summary>
-    /// <param name="acquire">Resource to acquire</param>
-    /// <typeparam name="X"></typeparam>
-    /// <returns>Effect with the resource tracked.  Call `release(a)` to free the resource manually</returns>
-    public static Eff<A> use<A>(IO<A> acquire) where A : IDisposable =>
-        use(acquire, dispose);
-
-    static IO<Unit> dispose<A>(A value) where A : IDisposable =>
-        IO.lift(() => value.Dispose());
-    
-    /// <summary>
-    /// Resource release
-    /// </summary>
-    /// <param name="resource">Resource to release</param>
-    public static Eff<Unit> release<A>(A resource) =>
-        new(new Eff<MinRT, Unit>(ReaderT<MinRT>.lift(ResourceT<IO>.release(resource))));
-
     static K<Eff, B> Monad<Eff>.Bind<A, B>(K<Eff, A> ma, Func<A, K<Eff, B>> f) => 
         ma.As().Bind(f);
 
@@ -57,8 +32,24 @@ public class Eff : Monad<Eff>, Alternative<Eff>
 
     static K<Eff, A> Alternative<Eff>.Or<A>(K<Eff, A> ma, K<Eff, A> mb) => 
         ma.As() | mb.As();
+
+    static K<Eff, A> Reader<Eff, MinRT>.Asks<A>(Func<MinRT, A> f) =>
+        Eff<A>.Lift(f);
+
+    static K<Eff, A> Reader<Eff, MinRT>.Local<A>(Func<MinRT, MinRT> f, K<Eff, A> ma) =>
+        new Eff<A>(ma.As().effect.With(f));
+
+    static K<Eff, A> Resource<Eff>.Use<A>(IO<A> ma, Func<A, IO<Unit>> release) => 
+        new Eff<A>(new Eff<MinRT, A>(ReaderT<MinRT>.lift(ResourceT<IO>.use(ma, release))));
+
+    static K<Eff, Unit> Resource<Eff>.Release<A>(A value) =>
+        new Eff<Unit>(new Eff<MinRT, Unit>(ReaderT<MinRT>.lift(ResourceT<IO>.release(value))));
     
-    public class R<RT> : Monad<R<RT>>, Alternative<R<RT>> 
+    public class R<RT> : 
+        Reader<R<RT>, RT>, 
+        Resource<R<RT>>,
+        Alternative<R<RT>>, 
+        Monad<R<RT>>
         where RT : HasIO<RT>
     {
         static K<R<RT>, B> Monad<R<RT>>.Bind<A, B>(K<R<RT>, A> ma, Func<A, K<R<RT>, B>> f) => 
@@ -81,5 +72,17 @@ public class Eff : Monad<Eff>, Alternative<Eff>
 
         static K<R<RT>, A> Alternative<R<RT>>.Or<A>(K<R<RT>, A> ma, K<R<RT>, A> mb) => 
             ma.As() | mb.As();
+
+        static K<R<RT>, A> Reader<R<RT>, RT>.Asks<A>(Func<RT, A> f) => 
+            Eff<RT, A>.Lift(f);
+
+        static K<R<RT>, A> Reader<R<RT>, RT>.Local<A>(Func<RT, RT> f, K<R<RT>, A> ma) => 
+            ma.As().With(f);
+
+        static K<R<RT>, A> Resource<R<RT>>.Use<A>(IO<A> ma, Func<A, IO<Unit>> release) =>
+            new Eff<RT, A>(ReaderT<RT>.lift(ResourceT<IO>.use(ma, release)));
+
+        static K<R<RT>, Unit> Resource<R<RT>>.Release<A>(A value) => 
+            new Eff<RT, Unit>(ReaderT<RT>.lift(ResourceT<IO>.release(value)));
     }
 }

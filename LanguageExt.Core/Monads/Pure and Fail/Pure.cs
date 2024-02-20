@@ -147,9 +147,6 @@ public readonly record struct Pure<A>(A Value)
         where M : Monad<M>, Alternative<M> =>
         bind(Value);
     
-    public Reader<Env, B> Bind<Env, B>(Func<A, Reader<Env, B>> bind) =>
-        bind(Value);
-    
     public StateT<S, M, B> Bind<S, M, B>(Func<A, StateT<S, M, B>> bind)
         where M : Monad<M>, Alternative<M> =>
         bind(Value);
@@ -190,9 +187,6 @@ public readonly record struct Pure<A>(A Value)
     public ReaderT<Env, M, C> SelectMany<Env, M, B, C>(Func<A, ReaderT<Env, M, B>> bind, Func<A, B, C> project)
         where M : Monad<M>, Alternative<M> =>
         Bind(x => bind(x).Map(y => project(x, y)));
-    
-    public Reader<Env, C> SelectMany<Env, B, C>(Func<A, Reader<Env, B>> bind, Func<A, B, C> project) =>
-        Bind(x => bind(x).Map(y => project(x, y))).As();
     
     public StateT<S, M, C> SelectMany<S, M, B, C>(Func<A, StateT<S, M, B>> bind, Func<A, B, C> project)
         where M : Monad<M>, Alternative<M> =>

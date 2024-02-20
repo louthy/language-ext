@@ -31,9 +31,8 @@ public abstract class Pipe<IN, OUT, A>
         where M : Monad<M> =>
         Interpret<M>().Bind(f);
 
-    public Pipe<IN, OUT, M, B> Bind<M, B>(Func<A, IO<B>> f) 
-        where M : Monad<M> =>
-        Interpret<M>().Bind(f);
+    public Pipe<IN, OUT, B> Bind<B>(Func<A, IO<B>> f) =>
+        Bind(x => PureProxy.PipeLiftIO<IN, OUT, B>(f(x)));
     
     public Pipe<IN, OUT, B> Map<B>(Func<A, B> f) => 
         Select(f);
@@ -51,9 +50,8 @@ public abstract class Pipe<IN, OUT, A>
         where M : Monad<M> =>
         Bind(a => M.Map(b => project(a, b), f(a)));
 
-    public Pipe<IN, OUT, M, C> SelectMany<M, B, C>(Func<A, IO<B>> f, Func<A, B, C> project)
-        where M : Monad<M> =>
-        SelectMany(x => M.LiftIO(f(x)), project);
+    public Pipe<IN, OUT, C> SelectMany<B, C>(Func<A, IO<B>> f, Func<A, B, C> project) =>
+        Bind(x => f(x).Map(y => project(x, y)));
         
     public Pipe<IN, OUT, M, C> SelectMany<M, B, C>(Func<A, Pipe<IN, OUT, M, B>> f, Func<A, B, C> project) where M : Monad<M> =>
         Bind(a => f(a).Select(b => project(a, b)));
@@ -133,6 +131,27 @@ public abstract class Pipe<IN, OUT, A>
 
         public override Pipe<IN, OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) =>
             new Pipe<IN, OUT, B>.Lift<X>(Function, x => Next(x).Bind(y => f(y).ToPipe<IN>()));
+    }
+
+    public class LiftIO<X>(IO<X> Effect, Func<X, Pipe<IN, OUT, A>> Next) : Pipe<IN, OUT, A>
+    {
+        public override Pipe<IN, OUT, B> Select<B>(Func<A, B> f) => 
+            new Pipe<IN, OUT, B>.LiftIO<X>(Effect, x => Next(x).Select(f));
+
+        public override Pipe<IN, OUT, M, A> Interpret<M>() => 
+            Pipe.lift<IN, OUT, M, X>(M.LiftIO(Effect)).Bind(x => Next(x).Interpret<M>());
+
+        public override Pipe<IN, OUT, B> Bind<B>(Func<A, Pipe<IN, OUT, B>> f) => 
+            new Pipe<IN, OUT, B>.LiftIO<X>(Effect, x => Next(x).Bind(f));
+
+        public override Pipe<IN, OUT, M, B> Bind<M, B>(Func<A, Pipe<IN, OUT, M, B>> f) => 
+            Pipe.lift<IN, OUT, M, X>(M.LiftIO(Effect)).SelectMany(x => Next(x).Bind(f)).ToPipe();
+
+        public override Pipe<IN, OUT, B> Bind<B>(Func<A, Consumer<IN, B>> f) =>
+            new Pipe<IN, OUT, B>.LiftIO<X>(Effect, x => Next(x).Bind(y => f(y).ToPipe<OUT>()));
+
+        public override Pipe<IN, OUT, B> Bind<B>(Func<A, Producer<OUT, B>> f) =>
+            new Pipe<IN, OUT, B>.LiftIO<X>(Effect, x => Next(x).Bind(y => f(y).ToPipe<IN>()));
     }
 
     public class Await(Func<IN, Pipe<IN, OUT, A>> Next) : Pipe<IN, OUT, A>

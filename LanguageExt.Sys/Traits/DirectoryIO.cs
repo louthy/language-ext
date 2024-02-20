@@ -171,5 +171,5 @@ public interface HasDirectory<RT> : HasIO<RT>
     /// Access the directory synchronous effect environment
     /// </summary>
     /// <returns>Directory synchronous effect environment</returns>
-    Eff<RT, DirectoryIO> DirectoryEff { get; }
+    IO<DirectoryIO> DirectoryIO { get; }
 }

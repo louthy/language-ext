@@ -3,7 +3,10 @@ using LanguageExt.Traits;
 
 namespace LanguageExt;
 
-public partial class ResourceT<M> : MonadT<ResourceT<M>, M>, Alternative<ResourceT<M>>
+public partial class ResourceT<M> : 
+    MonadT<ResourceT<M>, M>, 
+    Alternative<ResourceT<M>>,
+    Resource<ResourceT<M>>
     where M : Monad<M>, Alternative<M>
 {
     static K<ResourceT<M>, B> Monad<ResourceT<M>>.Bind<A, B>(K<ResourceT<M>, A> ma, Func<A, K<ResourceT<M>, B>> f) => 
@@ -42,5 +45,11 @@ public partial class ResourceT<M> : MonadT<ResourceT<M>, M>, Alternative<Resourc
         new ResourceT<M, A>(
             res =>
                 M.Or(ma.As().runResource(res), mb.As().runResource(res)));
+
+    static K<ResourceT<M>, A> Resource<ResourceT<M>>.Use<A>(IO<A> ma, Func<A, IO<Unit>> release) =>
+        use(ma, release);
+
+    static K<ResourceT<M>, Unit> Resource<ResourceT<M>>.Release<A>(A value) => 
+        release(value);
 }
     

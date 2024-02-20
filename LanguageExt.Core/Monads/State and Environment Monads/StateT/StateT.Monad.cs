@@ -8,7 +8,10 @@ namespace LanguageExt;
 /// </summary>
 /// <typeparam name="S">State environment type</typeparam>
 /// <typeparam name="M">Given monad trait</typeparam>
-public partial class StateT<S, M> : MonadStateT<StateT<S, M>, S, M>, Alternative<StateT<S, M>>
+public partial class StateT<S, M> : 
+    MonadT<StateT<S, M>, M>, 
+    Alternative<StateT<S, M>>,
+    State<StateT<S, M>, S>
     where M : Monad<M>, Alternative<M>
 {
     static K<StateT<S, M>, B> Monad<StateT<S, M>>.Bind<A, B>(K<StateT<S, M>, A> ma, Func<A, K<StateT<S, M>, B>> f) => 
@@ -28,15 +31,15 @@ public partial class StateT<S, M> : MonadStateT<StateT<S, M>, S, M>, Alternative
 
     static K<StateT<S, M>, A> MonadT<StateT<S, M>, M>.Lift<A>(K<M, A> ma) => 
         StateT<S, M, A>.Lift(ma);
-
-    static K<StateT<S, M>, Unit> MonadStateT<StateT<S, M>, S, M>.Put(S value) => 
-        StateT<S, M, S>.Put(value);
-
-    static K<StateT<S, M>, Unit> MonadStateT<StateT<S, M>, S, M>.Modify(Func<S, S> modify) => 
+    
+    static K<StateT<S, M>, Unit> State<StateT<S, M>, S>.Modify(Func<S, S> modify) => 
         StateT<S, M, S>.Modify(modify);
 
-    static K<StateT<S, M>, A> MonadStateT<StateT<S, M>, S, M>.Gets<A>(Func<S, A> f) =>
+    static K<StateT<S, M>, A> State<StateT<S, M>, S>.Gets<A>(Func<S, A> f) => 
         StateT<S, M, A>.Gets(f);
+
+    static K<StateT<S, M>, Unit> State<StateT<S, M>, S>.Put(S value) => 
+        StateT<S, M, S>.Put(value);
 
     static K<StateT<S, M>, A> Monad<StateT<S, M>>.LiftIO<A>(IO<A> ma) =>
         StateT<S, M, A>.Lift(M.LiftIO(ma));
